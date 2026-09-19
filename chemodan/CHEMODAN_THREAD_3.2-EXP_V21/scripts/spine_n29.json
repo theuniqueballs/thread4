@@ -1,0 +1,2053 @@
+{
+ "target": "N29",
+ "window": {
+  "N26": "BATCH_N26_SILENCE_IS_THE_SLOWEST_UNDRESSING.md",
+  "N27": "BATCH_N27_SOMEWHERE_BETWEEN_HERE_AND_MAGIC.md",
+  "N28": "BATCH_N28_NOBODY_KNOWS.md"
+ },
+ "blocked": {
+  "K": [
+   "K101",
+   "K104",
+   "K115",
+   "K116",
+   "K117",
+   "K118",
+   "K119",
+   "K120",
+   "K121",
+   "K122",
+   "K128",
+   "K129",
+   "K130",
+   "K131",
+   "K132",
+   "K133",
+   "K134",
+   "K135",
+   "K139",
+   "K140",
+   "K141",
+   "K142",
+   "K143",
+   "K144",
+   "K145",
+   "K146",
+   "K147",
+   "K148",
+   "K150",
+   "K152",
+   "K153",
+   "K154",
+   "K158",
+   "K159",
+   "K160",
+   "K161",
+   "K163",
+   "K165",
+   "K167",
+   "K168",
+   "K169",
+   "K170",
+   "K171",
+   "K185",
+   "K186",
+   "K187",
+   "K188",
+   "K192",
+   "K193",
+   "K194",
+   "K195",
+   "K196",
+   "K199",
+   "K202",
+   "K203",
+   "K204",
+   "K205",
+   "K206",
+   "K81",
+   "K84",
+   "K86",
+   "K88",
+   "K90",
+   "K91",
+   "K93",
+   "K99"
+  ],
+  "FET": [
+   "FET01",
+   "FET05",
+   "FET11",
+   "FET12",
+   "FET13",
+   "FET16",
+   "FET17",
+   "FET21",
+   "FET22",
+   "FET23",
+   "FET25",
+   "FET48",
+   "FET54"
+  ],
+  "BRE": [
+   "BRE23",
+   "BRE24",
+   "BRE25",
+   "BRE26",
+   "BRE27",
+   "BRE28",
+   "BRE29",
+   "BRE30",
+   "BRE33",
+   "BRE34",
+   "BRE35",
+   "BRE36",
+   "BRE37"
+  ],
+  "BK": [
+   "BK13",
+   "BK14",
+   "BK15",
+   "BK16",
+   "BK17",
+   "BK18",
+   "BK19",
+   "BK20",
+   "BK7"
+  ],
+  "B": [
+   "B25",
+   "B26",
+   "B27",
+   "B28",
+   "B29",
+   "B30",
+   "B31"
+  ],
+  "H": [
+   "H01",
+   "H02",
+   "H03",
+   "H05",
+   "H06",
+   "H07",
+   "H08",
+   "H10",
+   "H12",
+   "H14",
+   "H15",
+   "H16",
+   "H19",
+   "H20",
+   "H22",
+   "H23",
+   "H24",
+   "H25"
+  ],
+  "GAR": [
+   "GAR41",
+   "GAR43",
+   "GAR44",
+   "GAR45",
+   "GAR46",
+   "GAR47",
+   "GAR48",
+   "GAR52",
+   "GAR54",
+   "GAR55"
+  ],
+  "CAM": [],
+  "PL": [
+   "PL02",
+   "PL05",
+   "PL07",
+   "PL11",
+   "PL111",
+   "PL118",
+   "PL124",
+   "PL126",
+   "PL129",
+   "PL131",
+   "PL133",
+   "PL134",
+   "PL14",
+   "PL142",
+   "PL148",
+   "PL16",
+   "PL168",
+   "PL17",
+   "PL173",
+   "PL18",
+   "PL184",
+   "PL185",
+   "PL186",
+   "PL187",
+   "PL19",
+   "PL190",
+   "PL192",
+   "PL197",
+   "PL200",
+   "PL23",
+   "PL236",
+   "PL238",
+   "PL240",
+   "PL26",
+   "PL27",
+   "PL28",
+   "PL29",
+   "PL32",
+   "PL36",
+   "PL37",
+   "PL41",
+   "PL43",
+   "PL44",
+   "PL47",
+   "PL62",
+   "PL63",
+   "PL65",
+   "PL70",
+   "PL77",
+   "PL80",
+   "PL81",
+   "PL83",
+   "PL84",
+   "PL85",
+   "PL96"
+  ],
+  "PAL": [
+   "P100_POCKETED_NOON",
+   "P102_CONFIDANT_BRASS",
+   "P103_TELLTALE_ROSE",
+   "P104_HUSH_GREEN",
+   "P105_MIDNIGHT_POCKET",
+   "P21_VOID_BLACK",
+   "P22_VOID_INDIGO",
+   "P25_VOID_ABYSS",
+   "P28_VOID_BONE",
+   "P29_VOID_FOG",
+   "P33_VOID_PRISM",
+   "P39_VOID_INFRARED",
+   "P41_SUNSET_DRIFT",
+   "P43_OCEAN_DEEP_PRISM",
+   "P45_FOREST_MIST_DAWN",
+   "P47_PORCELAIN_LACQUER",
+   "P48_AURORA_SILK",
+   "P49_CINNABAR_DREAM",
+   "P51_RAIN_STAINED_GLASS",
+   "P52_MEIJI_DUSK",
+   "P53_OPULENT_DECADENCE",
+   "P54_ART_DECO_PLATINUM",
+   "P55_SYMBIOTE_BIOLUMINESCENT",
+   "P56_AURORA_BOREALIS_NIGHT",
+   "P57_SUNSET_ON_WATER",
+   "P58_INDUSTRIAL_DUST",
+   "P59_RAINY_WINDOW",
+   "P60_FIRE_ASH",
+   "P61_MONOCHROME_VIOLET",
+   "P62_PLATINUM_VOID",
+   "P63_GLACIER_BREACH",
+   "P64_SUNRISE_INDIGO",
+   "P67_PEARL_VOID",
+   "P68_INK_AND_GOLD",
+   "P70_VOID_FINAL",
+   "P71_HABIT_UMBER",
+   "P72_OPIUM_PLUM",
+   "P74_HONEY_STATIC",
+   "P75_VELVET_GRAVITY",
+   "P76_IRON_TIDE",
+   "P77_LATE_MILK",
+   "P78_RUST_LULL",
+   "P79_WAX_NOON",
+   "P80_SALT_APPETITE",
+   "P81_FAWN_FOLD",
+   "P82_INK_SUNDOWN",
+   "P83_MIDNIGHT_LAGOON",
+   "P84_CERULEAN_STILL",
+   "P85_ULTRAMARINE_HOUR",
+   "P86_PRUSSIAN_BOTTLE",
+   "P87_ICE_SHEET_FIRSTLIGHT",
+   "P89_THRESHOLD_GOLD",
+   "P90_FAIRY_LAUNDRY",
+   "P92_WITCHING_HOUR_KITCHEN",
+   "P93_GLASS_BELL_JAR",
+   "P94_TROLLBRIDGE_DUSK",
+   "P95_SPELLBOUND_LINEN",
+   "P96_GRIMOIRE_AND_JAM",
+   "P97_SELKIE_COMMUTE",
+   "P98_PIXIE_SUMMER_SHIFT",
+   "P99_MOONLIT_TOOLSHED"
+  ]
+ },
+ "window_anchors": [
+  "the-sash-learns-the-lyrics",
+  "the-body-holds-the-rest",
+  "the-descant-climbs-her-surplice",
+  "her-dress-was-sewn-not-sung",
+  "the-long-note-pays-the-scarf",
+  "the-radio-hems-the-apron",
+  "her-tail-takes-the-tempo",
+  "one-scale-one-button",
+  "the-echo-tailors-her",
+  "the-yodel-breaks-both-ways",
+  "the-howl-spends-the-flannel",
+  "the-lullaby-spends-it-slowly",
+  "the-worksong-opens-the-overalls",
+  "the-key-change-rethreads-her",
+  "the-orchard-replays-her",
+  "insomnia-pays-in-silk",
+  "the-aria-outlives-the-gown",
+  "the-harmony-owes-half-her-hem",
+  "the-tiles-return-her-reverb",
+  "the-role-unravels-first",
+  "she-banks-the-unsung",
+  "the-doormat-signs-for-the-fairy-post",
+  "the-last-stop-takes-frost-flowers",
+  "one-sleeve-faithful-to-both-worlds",
+  "the-stairwell-outnumbers-the-building",
+  "the-top-shelf-runs-on-fairy-time",
+  "the-reflection-dresses-faster",
+  "the-sea-stays-in-her-hair",
+  "two-currencies-one-scarf",
+  "the-far-tap-pours-moon",
+  "the-wardrobe-runs-two-seasons",
+  "the-hearth-charges-buttons",
+  "she-lets-the-fairy-train-go",
+  "two-weathers-share-one-railing",
+  "the-foam-signs-in-pearl",
+  "under-the-bed-somebody-noon",
+  "the-antenna-herds-auroras",
+  "the-glass-leans-her-way",
+  "the-hoard-counts-itself-twice",
+  "the-streetlight-routes-the-rain",
+  "the-table-keeps-both-hours",
+  "the-pantry-shelf-goes-further",
+  "the-ghostlight-keeps-her-secret",
+  "the-boot-folds-her-mail",
+  "the-second-keyhole-answers",
+  "the-lining-perjures-itself",
+  "the-love-scene-is-technical",
+  "the-glove-retires-at-six",
+  "the-quick-change-has-witnesses",
+  "the-suit-lies-brilliantly",
+  "the-second-zipper-opens",
+  "the-straps-tan-testament",
+  "the-collar-cross-examines",
+  "the-beanie-files-a-false-report",
+  "the-stairwell-keeps-her-leotard",
+  "the-drawers-bottom-floor",
+  "the-puddle-files-her-true-id",
+  "the-wind-tells-on-her",
+  "the-dog-keeps-the-address",
+  "the-doors-remember-her-horns",
+  "the-third-mirror-disagrees",
+  "the-phone-glow-knows-her",
+  "the-tape-never-signs-out"
+ ],
+ "window_race_positions": {
+  "NN26": {
+   "P01": "human",
+   "P02": "human",
+   "P03": "R02-elf",
+   "P04": "R15-porcelain-doll",
+   "P05": "human",
+   "P06": "human",
+   "P07": "R08-serpent-kin",
+   "P08": "human",
+   "P09": "R11-bat-kin",
+   "P10": "R09-goat-kin",
+   "P11": "R05-wolf-kin",
+   "P12": "human",
+   "P13": "R03-kitsune-kin",
+   "P14": "human",
+   "P15": "R14-dryad",
+   "P16": "human",
+   "P17": "human",
+   "P18": "human",
+   "P19": "R13-merfolk",
+   "P20": "human",
+   "P21": "R07-dragon-kin"
+  },
+  "NN27": {
+   "P01": "human",
+   "P02": "R02-elf",
+   "P03": "human",
+   "P04": "human",
+   "P05": "R16-moth-kin",
+   "P06": "human",
+   "P07": "human",
+   "P08": "R17-jellyfish-kin",
+   "P09": "human",
+   "P10": "R18-gargoyle-kin",
+   "P11": "human",
+   "P12": "R05-wolf-kin",
+   "P13": "human",
+   "P14": "R19-cecaelia",
+   "P15": "human",
+   "P16": "R20-harpy-kin",
+   "P17": "R21-mushroom-kin",
+   "P18": "R07-dragon-kin",
+   "P19": "R03-kitsune-kin",
+   "P20": "human",
+   "P21": "human"
+  },
+  "NN28": {
+   "P01": "human",
+   "P02": "R12-bunny-kin",
+   "P03": "human",
+   "P04": "R17-jellyfish-kin",
+   "P05": "R11-bat-kin",
+   "P06": "human",
+   "P07": "human",
+   "P08": "R22-flame-salamander",
+   "P09": "human",
+   "P10": "R14-dryad",
+   "P11": "human",
+   "P12": "R09-goat-kin",
+   "P13": "R04-cat-kin",
+   "P14": "human",
+   "P15": "R02-elf",
+   "P16": "human",
+   "P17": "human",
+   "P18": "R06-ram-demon",
+   "P19": "human",
+   "P20": "human",
+   "P21": "R08-serpent-kin"
+  }
+ },
+ "free": {
+  "palettes": [
+   "P23_VOID_VIOLET",
+   "P24_VOID_MIDNIGHT",
+   "P26_VOID_ECLIPSE",
+   "P27_VOID_STARLIGHT",
+   "P30_VOID_SMOKE",
+   "P31_VOID_ASH",
+   "P32_VOID_ICE",
+   "P34_VOID_AURORA",
+   "P35_VOID_EMBER",
+   "P36_VOID_RUST",
+   "P37_BLOOD_MOON",
+   "P38_VOID_BLOOD_ACCENT",
+   "P40_VOID_MONOCHROME_RED",
+   "P42_PRE_DAWN_STILL",
+   "P44_DESERT_NIGHT",
+   "P46_INK_WASH",
+   "P50_GLASS_AURORA",
+   "P65_OBSIDIAN_TEAL",
+   "P66_DUSK_VERMILION",
+   "P69_EMBER_FROST",
+   "P73_VERMEIL_SMOKE",
+   "P88_COBALT_ROAD",
+   "P91_MIDNIGHT_BODEGA",
+   "P101_ALIBI_LINEN"
+  ],
+  "K": [
+   "K01",
+   "K02",
+   "K03",
+   "K04",
+   "K05",
+   "K06",
+   "K07",
+   "K08",
+   "K61",
+   "K62",
+   "K63",
+   "K64",
+   "K65",
+   "K66",
+   "K67",
+   "K68",
+   "K69",
+   "K70",
+   "K71",
+   "K72",
+   "K73",
+   "K74",
+   "K75",
+   "K76",
+   "K77",
+   "K78",
+   "K79",
+   "K80",
+   "K81",
+   "K82",
+   "K83",
+   "K84",
+   "K85",
+   "K86",
+   "K87",
+   "K88",
+   "K89",
+   "K90",
+   "K91",
+   "K92",
+   "K93",
+   "K94",
+   "K95",
+   "K96",
+   "K97",
+   "K98",
+   "K99",
+   "K100",
+   "K101",
+   "K103",
+   "K104",
+   "K106",
+   "K107",
+   "K108",
+   "K109",
+   "K110",
+   "K111",
+   "K112",
+   "K113",
+   "K114",
+   "K115",
+   "K116",
+   "K117",
+   "K118",
+   "K119",
+   "K120",
+   "K121",
+   "K122",
+   "K123",
+   "K124",
+   "K125",
+   "K126",
+   "K127",
+   "K128",
+   "K129",
+   "K130",
+   "K131",
+   "K132",
+   "K133",
+   "K134",
+   "K135",
+   "K136",
+   "K137",
+   "K138",
+   "K139",
+   "K140",
+   "K141",
+   "K142",
+   "K143",
+   "K144",
+   "K145",
+   "K146",
+   "K147",
+   "K148",
+   "K149",
+   "K150",
+   "K151",
+   "K152",
+   "K153",
+   "K154",
+   "K155",
+   "K156",
+   "K157",
+   "K158",
+   "K159",
+   "K160",
+   "K161",
+   "K162",
+   "K163",
+   "K164",
+   "K165",
+   "K166",
+   "K167",
+   "K168",
+   "K169",
+   "K170",
+   "K171",
+   "K172",
+   "K173",
+   "K174",
+   "K175",
+   "K176",
+   "K177",
+   "K178",
+   "K179",
+   "K180",
+   "K181",
+   "K182",
+   "K183",
+   "K184",
+   "K189",
+   "K190",
+   "K191",
+   "K197",
+   "K198",
+   "K200",
+   "K201",
+   "K207",
+   "K208"
+  ],
+  "FET": [
+   "FET02",
+   "FET03",
+   "FET04",
+   "FET06",
+   "FET07",
+   "FET08",
+   "FET09",
+   "FET10",
+   "FET14",
+   "FET15",
+   "FET18",
+   "FET19",
+   "FET20",
+   "FET24",
+   "FET46",
+   "FET47",
+   "FET49",
+   "FET50",
+   "FET51",
+   "FET52",
+   "FET53",
+   "FET55",
+   "FET56",
+   "FET57",
+   "FET58",
+   "FET59",
+   "FET60",
+   "FET61",
+   "FET62",
+   "FET63",
+   "FET64",
+   "FET65",
+   "FET66",
+   "FET67",
+   "FET68",
+   "FET69",
+   "FET70"
+  ],
+  "PL": [
+   "PL01",
+   "PL03",
+   "PL04",
+   "PL06",
+   "PL08",
+   "PL09",
+   "PL10",
+   "PL12",
+   "PL13",
+   "PL15",
+   "PL20",
+   "PL21",
+   "PL22",
+   "PL24",
+   "PL25",
+   "PL30",
+   "PL31",
+   "PL33",
+   "PL34",
+   "PL35",
+   "PL38",
+   "PL39",
+   "PL40",
+   "PL42",
+   "PL45",
+   "PL46",
+   "PL48",
+   "PL49",
+   "PL50",
+   "PL51",
+   "PL52",
+   "PL53",
+   "PL54",
+   "PL55",
+   "PL56",
+   "PL57",
+   "PL58",
+   "PL59",
+   "PL60",
+   "PL61",
+   "PL64",
+   "PL66",
+   "PL67",
+   "PL68",
+   "PL69",
+   "PL71",
+   "PL72",
+   "PL73",
+   "PL74",
+   "PL75",
+   "PL76",
+   "PL78",
+   "PL79",
+   "PL82",
+   "PL86",
+   "PL87",
+   "PL88",
+   "PL89",
+   "PL90",
+   "PL91",
+   "PL92",
+   "PL93",
+   "PL94",
+   "PL95",
+   "PL97",
+   "PL98",
+   "PL99",
+   "PL100",
+   "PL101",
+   "PL102",
+   "PL103",
+   "PL104",
+   "PL105",
+   "PL106",
+   "PL107",
+   "PL108",
+   "PL109",
+   "PL110",
+   "PL112",
+   "PL113",
+   "PL114",
+   "PL115",
+   "PL116",
+   "PL117",
+   "PL119",
+   "PL120",
+   "PL121",
+   "PL122",
+   "PL123",
+   "PL125",
+   "PL127",
+   "PL128",
+   "PL130",
+   "PL132",
+   "PL135",
+   "PL136",
+   "PL137",
+   "PL138",
+   "PL139",
+   "PL140",
+   "PL141",
+   "PL143",
+   "PL144",
+   "PL145",
+   "PL146",
+   "PL147",
+   "PL149",
+   "PL150",
+   "PL151",
+   "PL152",
+   "PL153",
+   "PL154",
+   "PL155",
+   "PL156",
+   "PL157",
+   "PL158",
+   "PL159",
+   "PL160",
+   "PL161",
+   "PL162",
+   "PL163",
+   "PL164",
+   "PL165",
+   "PL166",
+   "PL167",
+   "PL169",
+   "PL170",
+   "PL171",
+   "PL172",
+   "PL174",
+   "PL175",
+   "PL176",
+   "PL177",
+   "PL178",
+   "PL179",
+   "PL180",
+   "PL181",
+   "PL182",
+   "PL183",
+   "PL188",
+   "PL189",
+   "PL191",
+   "PL193",
+   "PL194",
+   "PL195",
+   "PL196",
+   "PL198",
+   "PL199",
+   "PL201",
+   "PL202",
+   "PL203",
+   "PL204",
+   "PL205",
+   "PL206",
+   "PL207",
+   "PL208",
+   "PL209",
+   "PL210",
+   "PL211",
+   "PL212",
+   "PL213",
+   "PL214",
+   "PL215",
+   "PL216",
+   "PL217",
+   "PL218",
+   "PL219",
+   "PL220",
+   "PL221",
+   "PL222",
+   "PL223",
+   "PL224",
+   "PL225",
+   "PL226",
+   "PL227",
+   "PL228",
+   "PL229",
+   "PL230",
+   "PL231",
+   "PL232",
+   "PL233",
+   "PL234",
+   "PL235",
+   "PL237",
+   "PL239"
+  ],
+  "H": [
+   "H04",
+   "H09",
+   "H11",
+   "H13",
+   "H17",
+   "H18",
+   "H21",
+   "H26"
+  ],
+  "GAR": [
+   "GAR21",
+   "GAR22",
+   "GAR23",
+   "GAR24",
+   "GAR25",
+   "GAR26",
+   "GAR27",
+   "GAR28",
+   "GAR29",
+   "GAR30",
+   "GAR31",
+   "GAR32",
+   "GAR33",
+   "GAR34",
+   "GAR35",
+   "GAR36",
+   "GAR37",
+   "GAR38",
+   "GAR39",
+   "GAR40",
+   "GAR42",
+   "GAR49",
+   "GAR50",
+   "GAR51",
+   "GAR53",
+   "GAR56",
+   "GAR57",
+   "GAR58",
+   "GAR59",
+   "GAR60",
+   "GAR61",
+   "GAR62",
+   "GAR63",
+   "GAR64"
+  ],
+  "CAM": [
+   "CAM13",
+   "CAM14",
+   "CAM15",
+   "CAM16",
+   "CAM17",
+   "CAM18"
+  ]
+ },
+ "mint_head": 209,
+ "x_history": {
+  "N12": [
+   "P11",
+   "P14"
+  ],
+  "N13": [
+   "P10",
+   "P18"
+  ],
+  "N14": [
+   "P05",
+   "P13"
+  ],
+  "N15": [
+   "P14",
+   "P17"
+  ],
+  "N16": [
+   "P09",
+   "P16"
+  ],
+  "N17": [
+   "P12",
+   "P20"
+  ],
+  "N18": [
+   "P06",
+   "P15"
+  ],
+  "N19": [
+   "P08",
+   "P19"
+  ],
+  "N20": [
+   "P04",
+   "P07"
+  ],
+  "N21": [
+   "P02",
+   "P03"
+  ],
+  "N22": [
+   "P09",
+   "P14"
+  ],
+  "N23": [
+   "P08",
+   "P19"
+  ],
+  "N24": [
+   "P12",
+   "P20"
+  ],
+  "N25": [
+   "P05",
+   "P13"
+  ],
+  "N26": [
+   "P02",
+   "P17"
+  ],
+  "N27": [
+   "P06",
+   "P14"
+  ],
+  "N28": [
+   "P07",
+   "P14"
+  ],
+  "N29": [
+   "P11",
+   "P21"
+  ]
+ },
+ "x_never_used": [
+  "P01"
+ ],
+ "engines": {
+  "bespoke": "proven",
+  "tint": "proven",
+  "counterfall": "proven",
+  "cantus": "experimental",
+  "limen": "experimental",
+  "arcana": "render-graded",
+  "apocrypha": "experimental"
+ },
+ "motif_watch": "- Window N29 = N26+N27+N28 until delivery; after: N27+N28+N29. The\n  N25 expiry returns next cycle; N28's 17 returns + 4 mints (K202-205)\n  stay blocked until N31.\n- K-head chain: N29 minted K209-211 (OC: Rue stitch / Rin den-temp /\n  Nix watch-audit) + K212-214 (mains: convex orbit / scan blink / rim\n  haul) — NEXT MINTING HEAD: K215.\n- OC rotation after N29: RUE/RIN (x3->served), NIX (x1->served).\n  Longest-rested heads: SOL/DOE (x2), NOA (x1), MIYU/VAE/ZIA (x0\n  again), then the SET2-era spenders (LYN/MAB/ASH) come back in range.\n- The §61 receipts to read at the render verdict: core-4 held? (12/12\n  claimed; retro N28 was 7 fails), the sheer cap's effect on the milf\n  register (FAM-A 6/21 vs N28's stamp), the layer-stack exits rendered\n  (named routes vs the N28 strap lottery), W-share under 45%.\n- Exploratory STILL owes its first run (zero VIOLATION prompts ever —\n  the audit's ROI #2; the author has not called for it); Retirement\n  Council scheduled N30; W2 word-budget part-spec drafting at N30;\n  anti-funnel gate (W6) lands only after §61's first clean cycle.\n- First-lint-run receipt (W1): N29 house_lint first pass — target\n  <=5 errors (carriers written INTO the first draft per the core-4\n  ritual; the graft-pass obsolete by design).\n- POSE v3.0 third draw at N29: 21 fresh codes again; the untouched\n  shelf stays deep (partner_implied and performance_mirror families\n  barely opened).\n- The see-saw lesson (V18.1): the §60 length cap calibrated FAIL>400 —\n  cutting wor",
+ "crosschecks": {
+  "tracker_window_blocks_present": true
+ },
+ "palette_names": {
+  "P23_VOID_VIOLET": "Void Violet",
+  "P24_VOID_MIDNIGHT": "Void Midnight",
+  "P26_VOID_ECLIPSE": "Void Eclipse",
+  "P27_VOID_STARLIGHT": "Void Starlight",
+  "P30_VOID_SMOKE": "Void Smoke",
+  "P31_VOID_ASH": "Void Ash",
+  "P32_VOID_ICE": "Void Ice",
+  "P34_VOID_AURORA": "Void Aurora",
+  "P35_VOID_EMBER": "Void Ember",
+  "P36_VOID_RUST": "Void Rust",
+  "P37_BLOOD_MOON": "Blood Moon",
+  "P38_VOID_BLOOD_ACCENT": "Void Blood Accent",
+  "P40_VOID_MONOCHROME_RED": "Void Monochrome Red",
+  "P42_PRE_DAWN_STILL": "Pre-Dawn Still",
+  "P44_DESERT_NIGHT": "Desert Night",
+  "P46_INK_WASH": "Ink Wash",
+  "P50_GLASS_AURORA": "Glass Aurora",
+  "P65_OBSIDIAN_TEAL": "Obsidian Teal",
+  "P66_DUSK_VERMILION": "Dusk Vermilion",
+  "P69_EMBER_FROST": "Ember Frost",
+  "P73_VERMEIL_SMOKE": "Vermeil Smoke",
+  "P88_COBALT_ROAD": "Cobalt Road",
+  "P91_MIDNIGHT_BODEGA": "Midnight Bodega",
+  "P101_ALIBI_LINEN": "Alibi Linen"
+ },
+ "pl_camera_pairs": {
+  "PL01": [
+   "CAM01",
+   "CAM02",
+   "CAM04"
+  ],
+  "PL03": [
+   "CAM02",
+   "CAM12",
+   "CAM01"
+  ],
+  "PL04": [
+   "CAM12",
+   "CAM02",
+   "CAM05"
+  ],
+  "PL06": [
+   "CAM01",
+   "CAM02",
+   "CAM06"
+  ],
+  "PL08": [
+   "CAM02",
+   "CAM01",
+   "CAM06"
+  ],
+  "PL09": [
+   "CAM01",
+   "CAM02",
+   "CAM12"
+  ],
+  "PL10": [
+   "CAM01",
+   "CAM02",
+   "CAM12"
+  ],
+  "PL12": [
+   "CAM12",
+   "CAM02",
+   "CAM01"
+  ],
+  "PL13": [
+   "CAM02",
+   "CAM01",
+   "CAM06"
+  ],
+  "PL15": [
+   "CAM05",
+   "CAM02",
+   "CAM03"
+  ],
+  "PL20": [
+   "CAM08",
+   "CAM05",
+   "CAM02"
+  ],
+  "PL21": [
+   "CAM02",
+   "CAM01",
+   "CAM07"
+  ],
+  "PL22": [
+   "CAM12",
+   "CAM02",
+   "CAM06"
+  ],
+  "PL24": [
+   "CAM12",
+   "CAM02",
+   "CAM01"
+  ],
+  "PL25": [
+   "CAM06",
+   "CAM03",
+   "CAM02"
+  ],
+  "PL30": [
+   "CAM02",
+   "CAM06",
+   "CAM05"
+  ],
+  "PL31": [
+   "CAM03",
+   "CAM02",
+   "CAM06"
+  ],
+  "PL33": [
+   "CAM12",
+   "CAM06",
+   "CAM05"
+  ],
+  "PL34": [
+   "CAM08",
+   "CAM06",
+   "CAM03"
+  ],
+  "PL35": [
+   "CAM05",
+   "CAM02",
+   "CAM06"
+  ],
+  "PL38": [
+   "CAM01",
+   "CAM02",
+   "CAM05"
+  ],
+  "PL39": [
+   "CAM02",
+   "CAM01",
+   "CAM05"
+  ],
+  "PL40": [
+   "CAM03",
+   "CAM02",
+   "CAM12"
+  ],
+  "PL42": [
+   "CAM06",
+   "CAM02",
+   "CAM12"
+  ],
+  "PL45": [
+   "CAM02",
+   "CAM01",
+   "CAM12"
+  ],
+  "PL46": [
+   "CAM02",
+   "CAM06",
+   "CAM01"
+  ],
+  "PL48": [
+   "CAM01",
+   "CAM02",
+   "CAM06"
+  ],
+  "PL49": [
+   "CAM08",
+   "CAM16",
+   "CAM02"
+  ],
+  "PL50": [
+   "CAM14",
+   "CAM02",
+   "CAM01"
+  ],
+  "PL51": [
+   "CAM08",
+   "CAM06",
+   "CAM05"
+  ],
+  "PL52": [
+   "CAM01",
+   "CAM03",
+   "CAM02"
+  ],
+  "PL53": [
+   "CAM17",
+   "CAM02",
+   "CAM01"
+  ],
+  "PL54": [
+   "CAM08",
+   "CAM05",
+   "CAM18"
+  ],
+  "PL55": [
+   "CAM03",
+   "CAM06",
+   "CAM02"
+  ],
+  "PL56": [
+   "CAM02",
+   "CAM01",
+   "CAM17"
+  ],
+  "PL57": [
+   "CAM08",
+   "CAM05",
+   "CAM13"
+  ],
+  "PL58": [
+   "CAM13",
+   "CAM02",
+   "CAM03"
+  ],
+  "PL59": [
+   "CAM16",
+   "CAM06",
+   "CAM02"
+  ],
+  "PL60": [
+   "CAM14",
+   "CAM02",
+   "CAM01"
+  ],
+  "PL61": [
+   "CAM02",
+   "CAM08",
+   "CAM05"
+  ],
+  "PL64": [
+   "CAM02",
+   "CAM01",
+   "CAM07"
+  ],
+  "PL66": [
+   "CAM12",
+   "CAM02",
+   "CAM06"
+  ],
+  "PL67": [
+   "CAM02",
+   "CAM05",
+   "CAM01"
+  ],
+  "PL68": [
+   "CAM02",
+   "CAM06",
+   "CAM07"
+  ],
+  "PL69": [
+   "CAM08",
+   "CAM06",
+   "CAM03"
+  ],
+  "PL71": [
+   "CAM01",
+   "CAM02",
+   "CAM03"
+  ],
+  "PL72": [
+   "CAM02",
+   "CAM06",
+   "CAM01"
+  ],
+  "PL73": [
+   "CAM08",
+   "CAM05",
+   "CAM02"
+  ],
+  "PL74": [
+   "CAM02",
+   "CAM01",
+   "CAM03"
+  ],
+  "PL75": [
+   "CAM01",
+   "CAM05",
+   "CAM02"
+  ],
+  "PL76": [
+   "CAM02",
+   "CAM01",
+   "CAM04"
+  ],
+  "PL78": [
+   "CAM02",
+   "CAM01",
+   "CAM06"
+  ],
+  "PL79": [
+   "CAM02",
+   "CAM12",
+   "CAM01"
+  ],
+  "PL82": [
+   "CAM01",
+   "CAM02",
+   "CAM06"
+  ],
+  "PL86": [
+   "CAM06",
+   "CAM02",
+   "CAM01"
+  ],
+  "PL87": [
+   "CAM06",
+   "CAM02",
+   "CAM03"
+  ],
+  "PL88": [
+   "CAM02",
+   "CAM01",
+   "CAM05"
+  ],
+  "PL89": [
+   "CAM02",
+   "CAM01",
+   "CAM09"
+  ],
+  "PL90": [
+   "CAM06",
+   "CAM02",
+   "CAM01"
+  ],
+  "PL91": [
+   "CAM02",
+   "CAM12",
+   "CAM06"
+  ],
+  "PL92": [
+   "CAM06",
+   "CAM01",
+   "CAM02"
+  ],
+  "PL93": [
+   "CAM06",
+   "CAM02",
+   "CAM03"
+  ],
+  "PL94": [
+   "CAM01",
+   "CAM03",
+   "CAM02"
+  ],
+  "PL95": [
+   "CAM06",
+   "CAM02",
+   "CAM07"
+  ],
+  "PL97": [
+   "CAM02",
+   "CAM05",
+   "CAM01"
+  ],
+  "PL98": [
+   "CAM06",
+   "CAM02",
+   "CAM07"
+  ],
+  "PL99": [
+   "CAM02",
+   "CAM06",
+   "CAM01"
+  ],
+  "PL100": [
+   "CAM01",
+   "CAM02",
+   "CAM12"
+  ],
+  "PL101": [
+   "CAM02",
+   "CAM01",
+   "CAM06"
+  ],
+  "PL102": [
+   "CAM02",
+   "CAM01",
+   "CAM09"
+  ],
+  "PL103": [
+   "CAM06",
+   "CAM02",
+   "CAM01"
+  ],
+  "PL104": [
+   "CAM01",
+   "CAM02",
+   "CAM06"
+  ],
+  "PL105": [
+   "CAM06",
+   "CAM02",
+   "CAM01"
+  ],
+  "PL106": [
+   "CAM02",
+   "CAM01",
+   "CAM06"
+  ],
+  "PL107": [
+   "CAM06",
+   "CAM02",
+   "CAM03"
+  ],
+  "PL108": [
+   "CAM02",
+   "CAM06",
+   "CAM03"
+  ],
+  "PL109": [
+   "CAM02",
+   "CAM06",
+   "CAM01"
+  ],
+  "PL110": [
+   "CAM01",
+   "CAM02",
+   "CAM03"
+  ],
+  "PL112": [
+   "CAM06",
+   "CAM02",
+   "CAM03"
+  ],
+  "PL113": [
+   "CAM02",
+   "CAM01",
+   "CAM06"
+  ],
+  "PL114": [
+   "CAM01",
+   "CAM02",
+   "CAM05"
+  ],
+  "PL115": [
+   "CAM02",
+   "CAM06",
+   "CAM07"
+  ],
+  "PL116": [
+   "CAM06",
+   "CAM02",
+   "CAM12"
+  ],
+  "PL117": [
+   "CAM12",
+   "CAM02",
+   "CAM01"
+  ],
+  "PL119": [
+   "CAM02",
+   "CAM01",
+   "CAM06"
+  ],
+  "PL120": [
+   "CAM02",
+   "CAM01",
+   "CAM05"
+  ],
+  "PL121": [
+   "CAM02",
+   "CAM06",
+   "CAM01"
+  ],
+  "PL122": [
+   "CAM06",
+   "CAM02",
+   "CAM03"
+  ],
+  "PL123": [
+   "CAM02",
+   "CAM01",
+   "CAM07"
+  ],
+  "PL125": [
+   "CAM01",
+   "CAM06",
+   "CAM02"
+  ],
+  "PL127": [
+   "CAM06",
+   "CAM02",
+   "CAM01"
+  ],
+  "PL128": [
+   "CAM02",
+   "CAM06",
+   "CAM01"
+  ],
+  "PL130": [
+   "CAM02",
+   "CAM06",
+   "CAM01"
+  ],
+  "PL132": [
+   "CAM01",
+   "CAM02",
+   "CAM06"
+  ],
+  "PL135": [
+   "CAM06",
+   "CAM11",
+   "CAM02"
+  ],
+  "PL136": [
+   "CAM01",
+   "CAM02",
+   "CAM06"
+  ],
+  "PL137": [
+   "CAM02",
+   "CAM06",
+   "CAM01"
+  ],
+  "PL138": [
+   "CAM01",
+   "CAM02",
+   "CAM05"
+  ],
+  "PL139": [
+   "CAM06",
+   "CAM01",
+   "CAM02"
+  ],
+  "PL140": [
+   "CAM06",
+   "CAM02",
+   "CAM03"
+  ],
+  "PL141": [
+   "CAM01",
+   "CAM02",
+   "CAM06"
+  ],
+  "PL143": [
+   "CAM02",
+   "CAM01",
+   "CAM05"
+  ],
+  "PL144": [
+   "CAM05",
+   "CAM02",
+   "CAM01"
+  ],
+  "PL145": [
+   "CAM02",
+   "CAM06",
+   "CAM07"
+  ],
+  "PL146": [
+   "CAM02",
+   "CAM06",
+   "CAM01"
+  ],
+  "PL147": [
+   "CAM11",
+   "CAM01",
+   "CAM05"
+  ],
+  "PL149": [
+   "CAM02",
+   "CAM07",
+   "CAM01"
+  ],
+  "PL150": [
+   "CAM06",
+   "CAM02",
+   "CAM01"
+  ],
+  "PL151": [
+   "CAM06",
+   "CAM02",
+   "CAM01"
+  ],
+  "PL152": [
+   "CAM02",
+   "CAM01",
+   "CAM06"
+  ],
+  "PL153": [
+   "CAM06",
+   "CAM02",
+   "CAM01"
+  ],
+  "PL154": [
+   "CAM12",
+   "CAM02",
+   "CAM06"
+  ],
+  "PL155": [
+   "CAM02",
+   "CAM01",
+   "CAM06"
+  ],
+  "PL156": [
+   "CAM02",
+   "CAM06",
+   "CAM01"
+  ],
+  "PL157": [
+   "CAM02",
+   "CAM06",
+   "CAM01"
+  ],
+  "PL158": [
+   "CAM06",
+   "CAM02",
+   "CAM01"
+  ],
+  "PL159": [
+   "CAM02",
+   "CAM06",
+   "CAM01"
+  ],
+  "PL160": [
+   "CAM02",
+   "CAM01",
+   "CAM06"
+  ],
+  "PL161": [
+   "CAM01",
+   "CAM02",
+   "CAM06"
+  ],
+  "PL162": [
+   "CAM06",
+   "CAM02",
+   "CAM03"
+  ],
+  "PL163": [
+   "CAM02",
+   "CAM01",
+   "CAM06"
+  ],
+  "PL164": [
+   "CAM06",
+   "CAM02",
+   "CAM01"
+  ],
+  "PL165": [
+   "CAM02",
+   "CAM06",
+   "CAM01"
+  ],
+  "PL166": [
+   "CAM02",
+   "CAM06",
+   "CAM01"
+  ],
+  "PL167": [
+   "CAM02",
+   "CAM06",
+   "CAM01"
+  ],
+  "PL169": [
+   "CAM02",
+   "CAM01",
+   "CAM06"
+  ],
+  "PL170": [
+   "CAM06",
+   "CAM02",
+   "CAM07"
+  ],
+  "PL171": [
+   "CAM02",
+   "CAM01",
+   "CAM06"
+  ],
+  "PL172": [
+   "CAM02",
+   "CAM05",
+   "CAM06"
+  ],
+  "PL174": [
+   "CAM06",
+   "CAM02",
+   "CAM01"
+  ],
+  "PL175": [
+   "CAM02",
+   "CAM06",
+   "CAM01"
+  ],
+  "PL176": [
+   "CAM02",
+   "CAM03",
+   "CAM01"
+  ],
+  "PL177": [
+   "CAM06",
+   "CAM02",
+   "CAM01"
+  ],
+  "PL178": [
+   "CAM02",
+   "CAM06",
+   "CAM01"
+  ],
+  "PL179": [
+   "CAM02",
+   "CAM03",
+   "CAM06"
+  ],
+  "PL180": [
+   "CAM06",
+   "CAM02",
+   "CAM01"
+  ],
+  "PL181": [
+   "CAM01",
+   "CAM03",
+   "CAM02"
+  ],
+  "PL182": [
+   "CAM06",
+   "CAM02",
+   "CAM12"
+  ],
+  "PL183": [
+   "CAM06",
+   "CAM02",
+   "CAM05"
+  ],
+  "PL188": [
+   "CAM06",
+   "CAM02",
+   "CAM01"
+  ],
+  "PL189": [
+   "CAM01",
+   "CAM03",
+   "CAM02"
+  ],
+  "PL191": [
+   "CAM03",
+   "CAM16",
+   "CAM02"
+  ],
+  "PL193": [
+   "CAM02",
+   "CAM05",
+   "CAM03"
+  ],
+  "PL194": [
+   "CAM11",
+   "CAM01",
+   "CAM05"
+  ],
+  "PL195": [
+   "CAM04",
+   "CAM02",
+   "CAM01"
+  ],
+  "PL196": [
+   "CAM02",
+   "CAM06",
+   "CAM01"
+  ],
+  "PL198": [
+   "CAM02",
+   "CAM01",
+   "CAM05"
+  ],
+  "PL199": [
+   "CAM01",
+   "CAM02",
+   "CAM06"
+  ],
+  "PL201": [
+   "CAM06",
+   "CAM02",
+   "CAM12"
+  ],
+  "PL202": [
+   "CAM02",
+   "CAM06",
+   "CAM03"
+  ],
+  "PL203": [
+   "CAM01",
+   "CAM02",
+   "CAM12"
+  ],
+  "PL204": [
+   "CAM03",
+   "CAM02",
+   "CAM05"
+  ],
+  "PL205": [
+   "CAM05",
+   "CAM01",
+   "CAM11"
+  ],
+  "PL206": [
+   "CAM04",
+   "CAM05",
+   "CAM02"
+  ],
+  "PL207": [
+   "CAM06",
+   "CAM05",
+   "CAM01"
+  ],
+  "PL208": [
+   "CAM01",
+   "CAM05",
+   "CAM02"
+  ],
+  "PL209": [
+   "CAM05",
+   "CAM01",
+   "CAM06"
+  ],
+  "PL210": [
+   "CAM05",
+   "CAM02",
+   "CAM01"
+  ],
+  "PL211": [
+   "CAM01",
+   "CAM05",
+   "CAM06"
+  ],
+  "PL212": [
+   "CAM03",
+   "CAM05",
+   "CAM06"
+  ],
+  "PL213": [
+   "CAM05",
+   "CAM02",
+   "CAM06"
+  ],
+  "PL214": [
+   "CAM11",
+   "CAM05",
+   "CAM01"
+  ],
+  "PL215": [
+   "CAM02",
+   "CAM05",
+   "CAM01"
+  ],
+  "PL216": [
+   "CAM05",
+   "CAM01",
+   "CAM02"
+  ],
+  "PL217": [
+   "CAM01",
+   "CAM05",
+   "CAM06"
+  ],
+  "PL218": [
+   "CAM05",
+   "CAM06",
+   "CAM01"
+  ],
+  "PL219": [
+   "CAM05",
+   "CAM02",
+   "CAM01"
+  ],
+  "PL220": [
+   "CAM02",
+   "CAM05",
+   "CAM01"
+  ],
+  "PL221": [
+   "CAM05",
+   "CAM06",
+   "CAM01"
+  ],
+  "PL222": [
+   "CAM05",
+   "CAM01",
+   "CAM02"
+  ],
+  "PL223": [
+   "CAM06",
+   "CAM05",
+   "CAM01"
+  ],
+  "PL224": [
+   "CAM01",
+   "CAM05",
+   "CAM02"
+  ],
+  "PL225": [
+   "CAM05",
+   "CAM02",
+   "CAM01"
+  ],
+  "PL226": [
+   "CAM05",
+   "CAM06",
+   "CAM01"
+  ],
+  "PL227": [
+   "CAM02",
+   "CAM05",
+   "CAM06"
+  ],
+  "PL228": [
+   "CAM01",
+   "CAM05",
+   "CAM02"
+  ],
+  "PL229": [
+   "CAM06",
+   "CAM16",
+   "CAM02"
+  ],
+  "PL230": [
+   "CAM06",
+   "CAM02",
+   "CAM01"
+  ],
+  "PL231": [
+   "CAM02",
+   "CAM05",
+   "CAM06"
+  ],
+  "PL232": [
+   "CAM11",
+   "CAM02",
+   "CAM06"
+  ],
+  "PL233": [
+   "CAM07",
+   "CAM06",
+   "CAM02"
+  ],
+  "PL234": [
+   "CAM06",
+   "CAM02",
+   "CAM01"
+  ],
+  "PL235": [
+   "CAM06",
+   "CAM02",
+   "CAM07"
+  ],
+  "PL237": [
+   "CAM05",
+   "CAM02",
+   "CAM01"
+  ],
+  "PL239": [
+   "CAM03",
+   "CAM02",
+   "CAM06"
+  ]
+ },
+ "writer_contract": {
+  "law": "§62 FIRST-PASS: пиши против контракта — первый прогон линта и есть целевое состояние (0 ошибок); фикспасс = дефект с оплатой (root-cause + пункт контракта в worklog)",
+  "structure": {
+   "blocks": "P01-P21, ровно 21 (контракт N29: P01-P03 = OC-заказа, та же логика сборки и те же гейты)",
+   "spine_fields": [
+    "Verb:",
+    "CLO:",
+    "OPN:",
+    "LEAD:",
+    "THESIS:",
+    "SIG:",
+    "Interaction type:",
+    "GEAR:"
+   ],
+   "spine_fields_note": "имена полей ДОСЛОВНО — не 'GEAR (LABEL):' (T1)",
+   "pos_neg_format": "POS:\n\n…\n\nNEG:\n\n — блоки разделены пустой строкой (T13)",
+   "genre_line": "Genre: G · NCS: X · LLS: LN · Yodayo: T — в каждом блоке; BPT: ретиред",
+   "sig": "SIG несёт -PLnnn- и -PALzzz_ENV- (позы/палитры считаются по кодам в SIG)"
+  },
+  "quotas": {
+   "rating_spread": {
+    "R": 7,
+    "R+": 12,
+    "X": 2
+   },
+   "fam": "FAM-A ≤35% · FAM-C ≥15% · ни один регистр >50% R+-подмножества (§4C-2)",
+   "niche": "§59 не проверяется этим конфигом",
+   "racial_band": [
+    9,
+    11
+   ],
+   "hair_eyes": "hair ≥15 distinct · eyes ≥10 · повторы ≤3",
+   "palettes": "≥19 distinct · ≤2 на палитру · вне префиксов окна",
+   "lead": "≥8 зон · ≤4 на зону · мандаты: —",
+   "poses": "21-distinct · erotic ≥4 · ecchi ≥3 · static ≤2 · X не статичен",
+   "codes": "K: минты ≤8 (голова конфига; из спайна — см. mint_head), возвраты ≥10 · distinct ≥5 · повторы ≤3 · FET hooks ≥2 · BRE ≥3 · BK ≥2 · B ≥2 · H ≥2 · GAR-F ≥2 (семейство [41, 48])",
+   "mint_head_from_spine": 209
+  },
+  "window": {
+   "blocked": "ВСЕ коды K/FET/BRE/BK/B/H/GAR/CAM/PL/палитры окна (3 последних сданных) заблокированы",
+   "tuple": "тупл той же позиции: 4/4 совпадений с окном = фейл; hair/race той же позиции = фейл",
+   "kebab": "word-overlap ≤34% с каждым якорем окна (T10)"
+  },
+  "per_prompt": {
+   "pos_len": "≤400 слов (WARN >320) — режь ДО сдачи (T5)",
+   "state_floor": {
+    "X": 4,
+    "R+": 3
+   },
+   "state_note": "state-ноуны буквально в POS, tag-run не в счёте; эвфемизмы не считаются (T3)",
+   "sat": "SAT ≥3 · DESAT/SAT ≤1.2 · closer 'Richly pigmented … saturated film color' (T4)",
+   "neg": "38-52 терма · базовые ['child', 'chibi', 'washed-out', 'male', 'exposed genitals'] + экстра [] · анти-лоли ≥3 · без 'no X' · паритеты R+/X (T6)",
+   "tag_floor": {
+    "R": 1,
+    "R+": 3,
+    "X": 2
+   },
+   "maturity": "якорь банка в tag-run + формула 'grown woman's face' в POS",
+   "hedges": "хеджи = 0 в R+ POS (банк в ядре)",
+   "race_feat": "≥3 признаков в POS для не-human (T12)",
+   "does_not": "'does not' ≤1 на батч (T14)",
+   "caps": "тики caps: задаются в конфиге (T11)",
+   "k_line": "коды техник живут в K:/SIG строках — гейт считает КОДЫ, проза не в счёт (T2)",
+   "require_in_pos": "—",
+   "x_recipe": "—"
+  },
+  "rating_layer": {
+   "mech_groups": {
+    "FABRIC": "W",
+    "BODY": "ABCS",
+    "POSITION": "ELUF",
+    "PHYSICS": "DMI"
+   },
+   "core4": "≥4 класса × ВСЕ 4 группы механизмов (FABRIC/BODY/POSITION/PHYSICS); G/H — усилители 0.5, не считаются",
+   "anti_monopoly": "sheer ≤2/промпт · ≤40% R+ кадров · W ≤45% инстансов батча (§4G)",
+   "layer_stack": "внутренняя лямка покидает тело только через именованный выход: off-shoulder/boat neck/scoop/strapless/halter/armhole/… (§4F)",
+   "payload": "≥30% предложений POS несут носитель",
+   "noun_form": "носители в POS причастиями/пассивами (printing/riding/tracking/pressed) — стек-строки НЕ считаются (T7/T8)"
+  },
+  "ph_sim": {
+   "keep_min": 2,
+   "rules": "tag-run растворяется · каждое предложение без ≥2 KEEP-ноунов умирает (T9) · SOFTEN ест verb-led гарниш (≤3 по конфигу) · face formula + closer выживают"
+  },
+  "traps": [
+   {
+    "id": "T1",
+    "law": "имена спайн-полей дословны: 'GEAR:' — не 'GEAR (LABEL):' (§16-парсер)"
+   },
+   {
+    "id": "T2",
+    "law": "код техники, названный в прозе, обязан стоять в K:/SIG строке — гейт считает КОДЫ, не прозу"
+   },
+   {
+    "id": "T3",
+    "law": "state-ноуны в POS буквально словами банка (nipples/glistening/clinging/taut…); эвфемизм ('the small points') не считается"
+   },
+   {
+    "id": "T4",
+    "law": "SAT ≥3 считай ДО сдачи, без учёта регистра — каптал ловится тем же re.I"
+   },
+   {
+    "id": "T5",
+    "law": "POS ≤400 слов — черновик режется до первого прогона, не после"
+   },
+   {
+    "id": "T6",
+    "law": "NEG 38-52 терма + 5 базовых + анти-лоли ≥3 — термы считаются до сдачи"
+   },
+   {
+    "id": "T7",
+    "law": "носители в POS причастиями/пассивами (printing/riding/tracking/pressed); голый глагол (print/rides/track) не матчится паттернами гейта"
+   },
+   {
+    "id": "T8",
+    "law": "стек-строки гейтом не читаются: носитель обязан жить в POS прозе (ловушка первого вхождения — гейт берёт POS)"
+   },
+   {
+    "id": "T9",
+    "law": "предложение без ≥2 KEEP-ноунов умирает в PH-симуляции — тело/ткань/механизм в каждом предложении"
+   },
+   {
+    "id": "T10",
+    "law": "кебаб-якорь ≤34% word-overlap с каждым якорем окна — проверяется до сдачи"
+   },
+   {
+    "id": "T11",
+    "law": "тики caps: конфига — тема-существительные считаются до сдачи"
+   },
+   {
+    "id": "T12",
+    "law": "расовых признаков ≥3 в POS (не-human слоты)"
+   },
+   {
+    "id": "T13",
+    "law": "POS:/NEG: блоки разделены пустой строкой — склейка ломает парсер"
+   },
+   {
+    "id": "T14",
+    "law": "'does not' ≤1 на батч — активная альтернатива"
+   }
+  ],
+  "first_run": "первый прогон = первый рецепт слага после сборки (system/LINT_RECEIPTS.tsv); цель — 0 ошибок (§62)"
+ }
+}

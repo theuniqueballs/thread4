@@ -1,0 +1,273 @@
+SUCCESS_LOG.yaml — THREAD 3.2-EXP-V16 (Path B, MVP-1)
+================================================================
+The WHITE list — the system's memory of what was actually strong.
+Born 2026-09-14 from the author's architecture review («система блестяще
+помнит, чего нельзя. Она почти не помнит, что было по-настоящему сильно»).
+
+WHAT FEEDS IT (three sources, in order of authority):
+  1. CANONIZATION — the author promoting a frame into OC_CANON. The
+     strongest success signal the project has: he liked it enough to
+     make it permanent. All six canon births are seeded below.
+  2. REPEAT BUSINESS — the author re-ordering a mode he already saw
+     rendered (the Vae ELDRITCH-CONTACT precedent).
+  3. RENDER VERDICTS — structured post-render feedback (§56C format):
+     5 axes x 0-2 + tags, appended per frame. COLD START: the schema is
+     live, the data begins with the next render session.
+
+WHAT IT FEEDS (and what it must NEVER feed):
+  - §56D CONTROLLED RETURNS (early returns of high-success combos
+    before window expiry) draw ONLY on render-verified entries —
+    `verification: render` — never on text-level praise.
+  - ENGINES.yaml strong-pairs tables (what combinations keep working).
+  - The §56E retirement audit (a law that only ever blocks strong
+    frames is a suspect law).
+  - NEVER: a license to repeat. A strong combo returning early must
+    still mutate >= 1 structural axis (camera / LEAD / K) per §56D.
+
+VERDICT AXES (render feedback, 0-2 each — §56C):
+  silhouette      0 = muddled mass · 1 = readable · 2 = iconic shape
+  lead_read       0 = LEAD zone lost · 1 = present · 2 = first read
+  witness         0 = absent/muddy · 1 = present · 2 = dominates frame
+  physics_read    0 = reads as filter · 1 = reads as claim · 2 = reads as law
+  scroll_stop     0 = scroll past · 1 = pause · 2 = stop + revisit
+
+TAG VOCAB (open set, seed): strong-silhouette · witness-weak ·
+  physics-muddy · too-similar-to-<id> · wet-sheer-verified ·
+  concept-on-girl-verified · register-survived · palette-punch ·
+  quiet-strong · author-reordered
+
+═══════════════════════════════════════════════════════════════════════
+entries:
+- id: S001
+  source: {batch: N12, position: P12, anchor: x-of-tape-her-only-broach}
+  event: canonized  # author review 2026-09-03 -> OC "Lyn"
+  verification: render
+  axis_tuple: {engine: ATELIER, LEAD: hands, K: tape-presentation,
+    palette: violet-family, LQ: rim, NCS: shape-level}
+  why_strong: "costume failure AS character ornament — the tape re-purposed
+    into a brooch; one bright accent on a dark lazy-elegance register"
+  tags: [concept-on-girl-verified, strong-silhouette]
+- id: S002
+  source: {batch: N12, position: P16, anchor: one-white-thread-in-violet}
+  event: canonized  # -> OC "Rue"
+  verification: render
+  axis_tuple: {engine: ATELIER, LEAD: hands, K: thread-held,
+    palette: violet-monochrome + one-white, NCS: shape-level}
+  why_strong: "restraint as emotion — a single white filament carrying the
+    whole frame's grief; color-economy doing the sentiment's work"
+  tags: [quiet-strong, palette-punch]
+- id: S003
+  source: {batch: N12, position: P21, anchor: dress-forms-inherit-her-shape}
+  event: canonized  # -> OC "Mab"
+  verification: render
+  axis_tuple: {engine: ATELIER, LEAD: back-spine, K: seam-display,
+    palette: bisque-neutral, race: porcelain-doll}
+  why_strong: "the body as craft object — doll/dress-form liminality sold
+    without kitsch; the seams doing the eroticism, not the pose"
+  tags: [strong-silhouette, concept-on-girl-verified]
+- id: S004
+  source: {batch: N13, position: P15, anchor: sea-wall-wind-waltz}
+  event: canonized  # -> OC "Zia"; hybrid image author-liked -> canon rebuilt
+    from it (v1.3.0 preservation path) — the rare double confirmation
+  verification: render
+  axis_tuple: {engine: GALE, LEAD: hair, K: gust-write, palette: teal-accent}
+  why_strong: "wind as dance partner — the gust writing its signature on the
+    ponytail; motion carried by hair, not by pose"
+  tags: [concept-on-girl-verified, author-reordered]
+- id: S005
+  source: {batch: N13, position: P18, anchor: ember-light-study}
+  event: canonized  # -> OC "Rin"
+  verification: render
+  axis_tuple: {engine: HEARTH, LEAD: collarbone, K: heat-lean,
+    palette: ember-warm}
+  why_strong: "fire as domestic presence — warmth with a schedule; the
+    half-closed jade and the bell-charms doing the mood's whole labor"
+  tags: [quiet-strong]
+- id: S006
+  source: {batch: N15, position: "No.11 (file P10)", anchor: she-tips-the-scale-herself}
+  event: canonized  # -> OC "Una"; author quoted his own PH-rewrite as the
+    canon reference — the PH-rewrite lock precedent
+  verification: render
+  axis_tuple: {engine: SCALE, LEAD: hands, K: instrument-tip,
+    palette: platinum-pale, GEAR: two-box balance}
+  why_strong: "verdict as posture — the instrument as GEAR doing the
+    character's entire argument; geometry carrying dignity without stiffness"
+  tags: [strong-silhouette, concept-on-girl-verified]
+- id: S007
+  source: {batch: OC SET6, position: OC2, anchor: the-tar-learns-what-it-holds}
+  event: repeat-business  # author re-ordered ELDRITCH-CONTACT himself at
+    higher intensity (2026-09-10) after seeing SET6 rendered
+  verification: render
+  axis_tuple: {engine: EMBER/ELDRITCH, LEAD: thighs, K: tar-grip,
+    palette: obsidian-red}
+  why_strong: "staging that reads as architecture, not tentacle-cliché —
+    the tar as throne-arms; repeat business is the receipt"
+  tags: [author-reordered]
+- id: S008
+  source: {batch: N18, position: whole-batch, anchor: too-much-feeling-not-enough-time}
+  event: verdict  # 2026-09-07: 9.2/10 «в целом — в пределах прикольного,
+    даже отличного»
+  verification: render
+  axis_tuple: {engine: TIME-SCARCITY, note: whole-batch datum}
+  why_strong: "the time-pressure register held across 21 — and the same
+    verdict named the growth direction («жадной эротики в вольт») — strong
+    AND calibrated"
+  tags: [batch-strong]
+- id: S009
+  source: {batch: N19, position: "P01/P06/P08/P09/P19/P21 (author-named)", anchor: the-abyss-has-a-memory}
+  event: verdict  # «крутецки, как обычно»; favorites named; «мокрое-сквозное
+    в копилку» — wet-sheer confirmed as a working family
+  verification: render
+  axis_tuple: {engine: CUSTODY, palette: black+one-warm-anomaly}
+  why_strong: "the abyss-as-agentive-memory register; the wet-sheer family
+    earning a named place in the author's taste (the first explicit
+    render-level taste datum on record)"
+  tags: [wet-sheer-verified, batch-strong]
+- id: S010
+  source: {batch: N23, position: whole-batch, anchor: sin-looks-good-on-you}
+  event: verdict  # 2026-09-13: «хороший батч, в меру эротический, идея была»
+  verification: render
+  axis_tuple: {engine: BESPOKE, note: engine-level validation}
+  why_strong: "BESPOKE validated at render: sin-as-garment landed ON the
+    girls, in-measure erotic, concept legible — the N22 lesson closed"
+  tags: [concept-on-girl-verified, batch-strong]
+- id: S011
+  source: {batch: N25, position: "P01/P02/P04/P05/P17/P20/P21 (text-level)", anchor: the-rain-fell-upward}
+  event: text-strong-pending  # the 2026-09-14 architecture review's
+    pre-render reads: P01 the falling bead witness; P02 the two-finger
+    border; P04 the wolf on the fire-escape; P05 the best X (hands say
+    down, world says up); P17 the scarf given freely; P20 the chained
+    dragoness; P21 the calm clerk closer
+  verification: text  # DOES NOT qualify for §56D — render pending
+  axis_tuple: {engine: COUNTERFALL, witness: downward-witness-family}
+  why_strong: "the review's own reads — witness + LEAD + register all
+    distinct per frame; awaiting render confirmation before promotion"
+  tags: [pending-render]
+
+render_feedback:
+- id: RF-001  # THE FIRST REAL RENDER SESSION (2026-09-14, the N26 audit)
+  source: {batch: N26, position: whole-batch, anchor: silence-is-the-slowest-undressing}
+  event: verdict  # author audit, verbatim-preserved where quoted
+  verification: render
+  strong_frames: "13 of 21 named good (author's count, the list not itemized)."
+    # §56C order: STRONG FIRST —
+  named_strong:
+  - {pos: P07, why: "круто сделано окружение и очень детализировано", tags: [environment-strong, detail-strong]}
+  - {pos: P09, why: "просто хорошая картинка с крутой передачей", tags: [render-quality-strong]}
+  - {pos: P10, why: "просто хорошая картинка с крутой передачей", tags: [render-quality-strong]}
+  - {pos: P15, why: "очень красивая девушка", tags: [beauty-strong, face-strong]}
+  key_datum: "«Охуенная поза решила всё» — ONE striking erotic pose is worth a
+    hundred standing girls. The single strongest lever the render data has
+    ever named. Structural consequence: the POSE axis becomes the primary
+    craft axis from N27 on (POSE_LIBRARY ×4 expansion ordered + the
+    standing-default retired)."
+  violations_talk: "theme legibility FAILED — «ничё толком не понял, потому что
+    набор полуголых девчонок»: CANTUS read as an undifferentiated set of
+    half-naked girls, the engine invisible in the frames. NICHE degraded:
+    «Ниша - не ниша» (the §24/§38 failure mode caught live — 'VOLT with
+    less exposure'). Genre slid: «Скатились в волт» — the frames read as
+    one genre. Pose monotony: «набор девочек, стоящих влево, вправо и в
+    профиль» (author-flagged hyperbole — the standing lineup)."
+  tags: [batch-mixed, pose-decisive-confirmed, theme-opacity-fail, niche-erosion-fail, standing-lineup-fail]
+  axis_scores: null  # the author gave frame-level words, not per-axis numbers —
+    # honest null beats invented 0-2s; the named reads above are the data
+
+- id: RF-002  # THE FULL PH-REWRITE DATASET (2026-09-15): N27 + EXQ + OC SET2
+  source: {batch: "N27 + EXQUISITE_01 + OC_SET2", position: "27 frames (21 mains + 3 EXQ + 3 OC)", anchor: nobody-knew-the-rating}
+  event: verdict  # the author shipped the PH-REWRITTEN prompts back with per-frame
+    # actual ratings — the first full pre/post corpus the project has
+  verification: render
+  strong_frames: "the author's named loves: N27-P15 «Охуенная ниша. Отличная
+    идея и реализация, просто имба» (the underbed city — the batch's best
+    frame); N27-P07 «очень красивая девушка»; N27-P08 «очень крутая идея с
+    медузьей шапочкой»; N27-P16 «очень прикольно получилось»; OC2-Lyn
+    «клёво получилось по цветам и персонаж получился замечательно»;
+    EX-03 «красиво, хорошая идея, даже не совсем базово»."
+  named_strong:
+  - {pos: N27-P15, why: "«Охуенная ниша... просто имба» — the dollhouse city under the bed", tags: [niche-gold, device-strong]}
+  - {pos: N27-P07, why: "very beautiful girl", tags: [beauty-strong]}
+  - {pos: N27-P16, why: "harpy on the antenna, «очень прикольно»", tags: [niche-strong]}
+  - {pos: OC2-Lyn, why: "colors + character landed", tags: [character-strong, palette-strong]}
+  key_datum: "THE PH COLLAPSE — text-gate grades do not survive the PH
+    rewrite. Claimed R7/R+12/X2 + OC R+×3 + EXQ R+×3; RENDERED ≈ PG×13 /
+    PG-13×3 / R×5 / weak-R+×2 / R+×1 / X×1. Only P09 held R+ («лёгкий R+,
+    девушка соответствует») and P14 held X («Всё сошлось»). The §52 tag-run
+    — the supposed 'PH-resistant channel of record' — is DISSOLVED by PH
+    into prose. The v5/v6 VERB-LED carriers are eaten wholesale (PH keeps
+    nouns, cuts process-verbs). A-class (cleft/mound) carriers died in
+    100% of rewrites. Structural consequence: V18 §60 PH-PROOF DELIVERY
+    (noun-led register, prose tag-mirror, ≤300 words) + ph_sim_gate.py
+    (simulate the rewrite, re-grade the simulation — the claim now must
+    survive its own compression)."
+  violations_talk: "per-frame claimed->rendered: P01 R->PG-13 (niche,
+    forgiven) · P02 R+->PG · P03 R+->weak R+ · P04 R->PG (niche,
+    forgiven) · P05 R+->R · P06 X->weak R+ (topless rendered, heat did
+    not — mundane mirror framing cannot carry X) · P07 R->PG · P08
+    R+->PG (jellyfish beloved, rating dead) · P09 R+->R+ HELD (the only
+    main) · P10 R+->R · P11 R+->PG · P12 R->PG (niche, forgiven) · P13
+    R+->PG · P14 X->X HELD (bare state + fantasy amplification + open
+    mouth = the recipe) · P15 R->PG (niche GOLD) · P16 R+->PG (niche
+    strong) · P17 R->PG (niche ok) · P18 R+->R-R+ · P19 R+->PG · P20
+    R->PG (niche) · P21 R+->R · EX-01 R+->below («базовый волт») · EX-02
+    R+->R · EX-03 R+->PG · OC1 R+->R/weak-R+ · OC2 R+->PG-13 · OC3
+    R+->PG («ноль намёка»). PH LEAKS: artist tokens self-inserted ×3
+    (stuart_pot on P01/P17/EX-03), character token ×2 (grey_wolf_
+    (kemono_friends) on P12). DATA GAPS: P08/P13 rewrites not delivered
+    (duplicate pastes of P07/P12 in their slots) — comments logged, text
+    absent. EXQUISITE tier verdict: «должна быть или ультра-волт или
+    ультра-ниша» — §57 amended to the extremity doctrine."
+  tags: [ph-collapse-confirmed, tag-run-not-ph-proof, verb-carriers-fragile, a-class-dead, x-recipe-confirmed, exquisite-extremity-order, ph-leak-artist, ph-leak-character]
+  axis_scores: null  # frame-level verdicts; the PH_DOSSIER.md holds the corpus analysis
+
+- id: RF-003  # THE N28 RENDER VERDICT (2026-09-16): the prediction's result sheet
+  source: {batch: "N28 + OC_SET3", position: "the PH-proof doctrine's first run", anchor: the-prediction-cashed}
+  event: verdict  # the author's render verdict on the V18 experimental batch
+  verification: render
+  strong_frames: "none named at frame level — the author's praise went to
+    the MECHANISM, not the frames («Мокрая или прозрачная одежда плюс
+    нижнее бельё — это, конечно, оригинальное и простое решение
+    проблемы»); the verdict is structural. Honest null on named_strong."
+  named_strong: []
+  key_datum: "THE PREDICTION CASHED — rating-wise: «проблему с рейтингом
+    ты решил. Формально, задачу ты выполнил, это правда» — the PH-proof
+    doctrine (§60 + noun-led §4D-3 + prose state floors + ph_sim pre-check)
+    HELD the tiers through PH, the project's first batch to do so. THE
+    COST — the DEGREE axis collapsed into one carrier: «ты превратил волт
+    в сборище милфух-мамочек в одежде, через которую просвечивается
+    нижнее бельё». The gate v5 retro-run quantifies it exactly: 15/15 R+
+    frames carried transparency-family carriers (§4G cap 40% blown to
+    100%); 7 R+ claims miss core-4; FAM-B 10/15 of the R+ subset. The
+    author's root diagnosis, verbatim: «ты выбрал самый простой способ
+    решения задачи, вместо того, чтобы как следует подумать и
+    поэкспериментировать» — the §4D-3 noun bank was sheer-heavy, so
+    every prompt solved PH-survival with the same stamp, and the
+    platform answered with the same woman 21 times. Structural response
+    = V19 THE DIVERSITY TURN: CARRIER_LIBRARY.yaml v1.0.0 (280 × 14
+    classes × 4 mechanism groups — the author's «смачный ресёрч» order
+    executed: Theiss/Gainax/zettai-ryouiki/danbooru/MPAA research base),
+    §61 CARRIER DIVERSITY LAW (core-4 = W/B/E/D mechanisms, the
+    author's own spec), §4F layer stack, §4G anti-monopoly, §4C-2
+    maturity quota, gate v5."
+  violations_talk: "LAYER LOTTERY confirmed as a distinct bug class:
+    «иногда упавшие лямки выходят за одежду, под которой они должны
+    быть. лифчик под одеждой, лямки - снаружи (falling)» — under-strap
+    escaping through a closed outer garment; §4F exit-route law is the
+    fix, gate v5 catches the geometry. MATURITY through the carrier
+    door: the sheer-blouse register's platform-default face is mature —
+    N22's «собрание дойных мамочек» reborn, one bug through two doors
+    (N22: tag door; N28: carrier door) — §4C-2 quota closes both. The
+    R-exempt NICHE doctrine untested this batch (no NICHE rating
+    complaints) — holds. Zero PH leaks reported — the anti-leak NEG
+    guard's first clean cycle."
+  tags: [rating-held-confirmed, ph-proof-doctrine-works, mono-carrier-collapse, sheer-monopoly-15-of-15, core4-missing-7-claims, layer-lottery-bug, maturity-through-carrier-door, diversity-turn-ordered]
+  axis_scores: null  # structural verdict, no per-axis numbers given; the
+    # gate v5 retro-run IS the quantified axis data (mech spread, share,
+    # class counts per frame)
+
+violations_ledger: []  # §56A: VIOLATION | JUSTIFICATION | RISK + outcome
+  # (V17 audit note, 2026-09-16: EXPLORATORY MODE has still never run —
+  # zero VIOLATION prompts in N27/N28. The audit's ROI list names it:
+  # min 3-4 explicit-VIOLATION prompts at N29, or the mode stays
+  # decorative. This is a PRACTICE debt, not a law debt.)
+
+controlled_returns: []  # §56D log: combo | batch returned | axis mutated | outcome

@@ -1,0 +1,563 @@
+CARRIER_LIBRARY.yaml — THREAD 3.2-EXP V19
+version: "1.0.0"
+# BORN (2026-09-16) from the author's N28 render verdict, verbatim:
+# «ты превратил волт в сборище милфух-мамочек в одежде, через которую
+# просвечивает нижнее бельё... ты выбрал самый простой способ решения
+# задачи, вместо того, чтобы как следует подумать и поэкспериментировать.
+# DEGREE-ось схлопнута в один carrier.»
+# The fix is not a ban on sheer — it is a POOL of alternative delivery
+# mechanisms wide enough that no single stamp can carry a whole batch.
+#
+# RESEARCH BASE (the «смачный ресёрч» order, 2026-09-16):
+#   - Theiss Titillation Theory: «the degree to which a costume is
+#     considered sexy is directly dependent upon how accident-prone it
+#     appears to be» — the E-class legal basis (imminence of revelation
+#     beats revelation).
+#   - Gainax bounce — the D-class physics canon.
+#   - Zettai ryouiki (絶対領域, «absolute territory») — the S-class skin-
+#     framing canon; platform-native tag.
+#   - Danbooru attire dialect — the platform's own state vocabulary:
+#     taut shirt, torn clothes, open clothes, shirt lift, half-undressed,
+#     tanlines, zettai ryouiki. The pool speaks the parser's language.
+#   - MPAA ladder — R = «sexually-oriented nudity» without explicitness;
+#     the project's R+ = the erotic ceiling before X. Working range, not
+#     the edge of the allowed (author directive 2026-09-09).
+#
+# THE TAXONOMY — 14 classes × 4 mechanism groups × 280 positions.
+# A carrier CLASS is a delivery MECHANISM: a distinct way erotic
+# information reaches the viewer. Four mechanisms must co-exist per
+# R+ frame (CORE-4, RULES §61 / RATING_MAP §4E): the fabric reports,
+# the body reports, the position reports, the physics reports.
+#
+#   MECH: FABRIC   W  — fabric state (30)        the cloth tells
+#   MECH: BODY     A  — cleft & mound (14)       the deep geography
+#                   B  — shape telegraph (30)    the form reports
+#                   C  — seat & cheek (16)       the seat's claims
+#                   S  — skin framing (20)       bare-skin bands/frames
+#   MECH: POSITION E  — displacement (32)        the garment loses
+#                   L  — layer interplay (18)    layers negotiate
+#                   U  — situational undress (20) context undresses
+#                   F  — presenting & spread (14) the pose offers
+#   MECH: PHYSICS  D  — kinetic weight (28)      weight in motion
+#                   M  — compression & press (16) external forces
+#                   I  — imprint & aftermath (18) physics receipts
+#   AMPLIFIER      G  — aggressive framing (12)  camera serves the zone
+#                   H  — reaction physiology (12) her body answers
+#   (G/H never count toward CORE-4 — they amplify, they don't deliver.)
+#
+# THE THREE LADDERS (the DEGREE axis rebuilt):
+#   1. INTER-CLASS diversity — CORE-4: ≥4 classes × all 4 mechanisms.
+#   2. INTRA-CLASS degree — every entry carries deg L/M/H:
+#      L = suggest (the state reads at second glance)
+#      M = state (the state reads immediately)
+#      H = claim (the state is the frame's subject)
+#      An R+ stack of four M-carriers beats one H-carrier + filler.
+#   3. INTER-BATCH rotation — §17B counts any one noun-phrase >2/batch;
+#      the pool feeds variety, quotes are forbidden (draw PATTERNS).
+#
+# PH DOCTRINE: every entry is noun-led by construction (§4D-3): the
+# NOUN carries the claim, the verb is allowed to be boring. These
+# carriers survive PromptHero's rewrite because their payload is in
+# the nouns, not the process-verbs.
+#
+# MATURITY AFFINITY: entries may carry mat: A/B/C (the §53A registers —
+# mature female / adult woman / young woman; ALL adult, 18+, the enemy
+# is the chibi, never the range). Affinity is aesthetic direction
+# (confidence vs mishap), never a restriction. No affinity = *.
+# Batch quota (RULES §61(4)): FAM-A ≤35%, FAM-C ≥15%, R+-subset ≤50%
+# any one register.
+
+carrier_library:
+
+═══ CLASS W — FABRIC STATE · 30 · MECH: FABRIC REPORTS ═══
+# Definition: what the CLOTH itself is doing — tension, stretch, cling,
+# damp, sag, wear, crease, mold, drape, damage, rumple. Transparency is
+# ONE sub-family of twelve (quarantined by the §4G anti-monopoly cap).
+# Canonical nouns: weave, ribbing, seam, hem, waistband, nap, pleat,
+# drape, fiber, thread, print.
+# Platform tags: taut shirt · torn clothes · shiny clothes ·
+#   wet clothes [capped] · see-through [capped].
+# Degree anchors: rumple/crease (L) → cling/taut/worn-thin (M) →
+#   sheer/plastered/rain-sag (H, capped).
+# Failure mode: wet+sheer monopoly — the N28 bug; if the batch's W
+# carriers are >45% transparency-shaped, the gate fails the batch.
+{id: CR-W01, name: "Taut Weave", carrier: "the taut weave of her shirt across the chest", deg: M, note: "danbooru-native «taut shirt»; tension without transparency — the anti-sheer workhorse"}
+{id: CR-W02, name: "Stretched Buttonholes", carrier: "the buttonholes stretched into ovals over the fullest line", deg: M, note: "pairs E13 placket gape; mat: B"}
+{id: CR-W03, name: "Side-Seam Strain", carrier: "the side seams straining at the hips with every pocketed hand", deg: M}
+{id: CR-W04, name: "Ribbing Stress-Bands", carrier: "the knit's ribbing stretched into pale bands across the bust", deg: M, note: "sweater-register shape read, no wet needed; mat: C"}
+{id: CR-W05, name: "Static Cling", carrier: "the slip dress clinging static to her hips from the dryer's charge", deg: L}
+{id: CR-W06, name: "Sweat-Damp Spine", carrier: "sweat darkening the blouse in one long line down her spine", deg: M, note: "damp ≠ soaked — the conservative wet"}
+{id: CR-W07, name: "Plastered Wet Shirt", carrier: "the soaked shirt plastered to her, printing its whole account", deg: H, note: "the legacy carrier; §4G-capped"}
+{id: CR-W08, name: "Wet Hemline", carrier: "the wet hemline gone heavy, sticking to the thighs at every step", deg: M}
+{id: CR-W09, name: "Rain-Sag Sweater", carrier: "the sweater sagging with its own rain-weight, neckline gone wide", deg: H, note: "pairs E27; mat: A"}
+{id: CR-W10, name: "Sheer Panel", carrier: "the sheer panel at the waist between the bodice and the skirt", deg: H, note: "transparency quarantined to a cut panel — structural, not garment-wide"}
+{id: CR-W11, name: "Worn-Thin At The Strap", carrier: "the cotton worn thin where the strap bites through it", deg: M}
+{id: CR-W12, name: "Threadbare Tee", carrier: "the old tee washed to gauze-thin softness across the whole front", deg: M, note: "the WEAR state, not wet; mat: C"}
+{id: CR-W13, name: "Sitting-Crease", carrier: "the skirt's front creased deep by the hours at the desk", deg: L, note: "witness: the desk"}
+{id: CR-W14, name: "Velvet Press-Mark", carrier: "the velvet holding the press-mark of the chairback across her behind", deg: L, note: "bridges I-class"}
+{id: CR-W15, name: "Leather Mold", carrier: "the leather bodice molded to her exact shape by years of wear", deg: M, note: "mat: A"}
+{id: CR-W16, name: "Silk Drape", carrier: "the silk's drape following the undercurve of the bust at each step", deg: L}
+{id: CR-W17, name: "Open-Weave Light", carrier: "the open-weave knit letting light in between its rows at the chest", deg: M, note: "peek-light; never call it sheer"}
+{id: CR-W18, name: "Towel Nap", carrier: "the towel's nap flattened where it held her, damp at the fold", deg: M}
+{id: CR-W19, name: "Jersey Rumple", carrier: "the jersey rumpled and twisted at the waist after the nap", deg: L, note: "pairs U-class; mat: C"}
+{id: CR-W20, name: "Chairback Print", carrier: "the blouse's back printed with the chair's lattice from the long lunch", deg: L}
+{id: CR-W21, name: "Lycra Shine", carrier: "the leotard's lycra gone shiny-stretched at the seat and bust", deg: M}
+{id: CR-W22, name: "Denim Stress-White", carrier: "the denim worn white at the stress points of thigh and seat", deg: M}
+{id: CR-W23, name: "Elastic Bite", carrier: "the thigh-high's lace band biting its soft line into the top of the leg", deg: M, note: "pairs S15"}
+{id: CR-W24, name: "Suit-Seat Taut", carrier: "the suit's seat gone taut and shiny with the season's wear", deg: M, note: "mat: A"}
+{id: CR-W25, name: "Apron Bib Swell", carrier: "the apron's bib pushed out by the full chest beneath it", deg: M, note: "domestic witness"}
+{id: CR-W26, name: "Wind-Press", carrier: "the wind pressing the whole dress against her front, one gust's honesty", deg: H, note: "weather as agent; bridges M-class"}
+{id: CR-W27, name: "Steam-Damp", carrier: "the spa's steam darkening the blouse at the collar and underarms only", deg: L, note: "localized damp"}
+{id: CR-W28, name: "Splash-Side", carrier: "one splash darkening the tee's left side from the pool's edge", deg: L}
+{id: CR-W29, name: "Pleat-Set", carrier: "the pleats set by the morning's iron already losing their fold at the hip", deg: L, note: "mat: B"}
+{id: CR-W30, name: "Cold-Stiff Drape", carrier: "the cold making the silk stand off her shape in a bell, not a cling", deg: L, note: "ANTI-cling: cold fabric refuses — negative-space carrier"}
+
+═══ CLASS B — SHAPE TELEGRAPH / BODY TOPOGRAPHY · 30 · MECH: BODY REPORTS ═══
+# Definition: what the BODY's form reports through/around fabric by pure
+# SHAPE — points, contours, convexities, shadow-lines. Through DRY fabric
+# as often as through damp. The class the author named «форма/выпуклости».
+# Canonical nouns: apex, contour, curve, profile, silhouette, crescent,
+# shadow, line, points, peaks, dome, shelf, dip, valley, swell.
+# Platform tags: pokies [prose stays C072-safe determiner] · breast
+#   focus · large breasts · sideboob · underboob · cleavage.
+# Degree anchors: profile/side-light (L) → contour-through-knit (M) →
+#   points-printed/padding-defeated (H).
+# Failure mode: every shape read routed through WET cloth (the N28
+# render verdict). B03 exists to kill that default.
+{id: CR-B01, name: "Points Against Weave", carrier: "two dark points pressed against the weave of her top", deg: H, note: "the house determiner form, C072-safe"}
+{id: CR-B02, name: "Shape Through Cold Cloth", carrier: "the full shape of her breasts against the cold cloth", deg: H}
+{id: CR-B03, name: "Peaks Through Dry Knit", carrier: "the peaks standing through the dry knit, unmistakable without any wet", deg: H, note: "THE anti-sheer point carrier"}
+{id: CR-B04, name: "Apex Contour", carrier: "the contour of her apex readable through the thick sweater", deg: M}
+{id: CR-B05, name: "Underboob Crescent Shadow", carrier: "the underboob's crescent of shadow under the crop top's hem", deg: M, note: "shadow-line, not exposure"}
+{id: CR-B06, name: "Sideboob Curve", carrier: "the sideboob's curve past the armhole's edge", deg: M}
+{id: CR-B07, name: "Cleavage End-Shadow", carrier: "the cleavage's line ending in shadow where the neckline stops", deg: M}
+{id: CR-B08, name: "Weight-Line", carrier: "the line where the bust's weight meets the ribcage, read through the bodice", deg: M, note: "the inframammary read"}
+{id: CR-B09, name: "Backlit Silhouette", carrier: "her silhouette in the window light, the bust's whole profile honest in outline", deg: M, note: "the silhouette register — light does the undressing"}
+{id: CR-B10, name: "Profile Curve", carrier: "the profile's exact curve taken in side light", deg: M}
+{id: CR-B11, name: "Navel Dip", carrier: "the navel's dip visible through the thin jersey at the waist", deg: L}
+{id: CR-B12, name: "Waist Carve", carrier: "the waist's inward curve carved sharper by the belt's line", deg: L}
+{id: CR-B13, name: "Hip Flare", carrier: "the hip's flare past the waistband's cut", deg: L}
+{id: CR-B14, name: "Cheek Shelf Under Drape", carrier: "the cheek's round shelf under the skirt's fall", deg: M}
+{id: CR-B15, name: "Calf In Boot", carrier: "the calf's curve inside the tall boot's line", deg: L}
+{id: CR-B16, name: "Shoulder-Ball", carrier: "the shoulder's ball and the collarbone's shelf in the off-shoulder knit", deg: L}
+{id: CR-B17, name: "Spine Valley", carrier: "the spine's smooth valley as she bends, a single soft line", deg: L, note: "§43-safe: no vertebra-by-vertebra"}
+{id: CR-B18, name: "Small-Of-Back Scoop", carrier: "the small of her back's inward scoop above the waistband", deg: L}
+{id: CR-B19, name: "Dome At Quarter-Turn", carrier: "the dome of her chest leading the profile at the quarter-turn", deg: M}
+{id: CR-B20, name: "Vinyl Print", carrier: "the shape of her behind printing flat against the vinyl stool", deg: M, note: "hard-surface contact read"}
+{id: CR-B21, name: "Mound In Seam Shadow", carrier: "the mound's gentle swell in the seam's shadow at the front", deg: M, note: "A-border, mild register"}
+{id: CR-B22, name: "Cup-Edge Ridge", carrier: "the bra's cup-edge ridge reading through the blouse", deg: M, note: "L-pair"}
+{id: CR-B23, name: "Strap Line Through Bodice", carrier: "the strap's line across her back readable through the tight bodice", deg: L}
+{id: CR-B24, name: "Unhidden Shadows", carrier: "the two soft shadows the sports bra can't hide under the tee", deg: M}
+{id: CR-B25, name: "Apex Leading The Lean", carrier: "the apex leading the whole lean into the turn", deg: M, note: "D-pair"}
+{id: CR-B26, name: "Side-Lie Contact Read", carrier: "the chest's full profile against the sheets when she lies on her side", deg: M}
+{id: CR-B27, name: "Apex Darkness Under Pale Suit", carrier: "the darkness of the apex under the pale one-piece, dry and defiant", deg: H}
+{id: CR-B28, name: "Padding Defeated", carrier: "the swimsuit's thin padding defeated by the cold water's verdict", deg: H}
+{id: CR-B29, name: "Window Reflection", carrier: "the bust's shape doubled in the shop window's glass as she passes", deg: M, note: "reflection-witness, house style"}
+{id: CR-B30, name: "Shoji Silhouette", carrier: "her silhouette through the paper screen, the chest's profile in lamp light", deg: M, note: "japanese register"}
+
+═══ CLASS E — GARMENT DISPLACEMENT · 32 · MECH: POSITION REPORTS ═══
+# Definition: the garment LOSING its intended position — the Theiss
+# Titillation engine («how accident-prone it appears to be» is the
+# class's own physics). Straps, hems, waistbands, openings, migration,
+# the partial states. Every entry NAMES ITS GEOMETRY (LAYER STACK LAW,
+# RULES §61(3)): an under-layer strap exits only through a named route.
+# Canonical nouns: strap, hem, collar, lapel, zipper, button, knot,
+# sash, waistband, bib, cuff, edge, seam, pin, clasp, fold.
+# Platform tags: off shoulder · open clothes · shirt lift · skirt lift ·
+#   clothes lift · torn clothes.
+# Degree anchors: sleeve/cuff states (L) → strap/hem displacement (M) →
+#   towel/wrap/seam mid-losing (H).
+# Failure mode: the N28 render bug — «лифчик под одеждой, лямки —
+# снаружи». Geometrically impossible layering renders as nonsense.
+{id: CR-E01, name: "Tank Strap Fallen", carrier: "the tank's strap fallen off her shoulder, the armhole wide by design", deg: M, note: "the classic — now 1 of 32, exit route self-named"}
+{id: CR-E02, name: "Bra Strap Escaped Boat Neck", carrier: "the bra strap escaped past the boat neckline onto her collarbone", deg: M, note: "LAYER-STACK exemplar: exit named (boat neck)"}
+{id: CR-E03, name: "Off-Shoulder Ride", carrier: "the off-shoulder sweater's collar riding down her arm with the reach", deg: M}
+{id: CR-E04, name: "Back Zipper", carrier: "the gown's zipper open to the small of her back, its own decision", deg: H, note: "mat: A"}
+{id: CR-E05, name: "Wrap Gap", carrier: "the wrap dress's front gap widening at each stride, the pin long lost", deg: H}
+{id: CR-E06, name: "Towel Fold", carrier: "the towel's fold held by one hand, opening by degrees", deg: H}
+{id: CR-E07, name: "Robe Drift", carrier: "the robe's belt gone, the lapels drifting apart at the steam's push", deg: H}
+{id: CR-E08, name: "One-Side Untuck", carrier: "the shirt untucked on one side only, the hem's asymmetric confession", deg: L}
+{id: CR-E09, name: "Vent Gust Flip", carrier: "the skirt's hem flipped by the vent's gust, one second's flash of thigh", deg: M}
+{id: CR-E10, name: "Barstool Ride", carrier: "the pleated skirt riding up on the barstool's round, the counter's own view", deg: M}
+{id: CR-E11, name: "Waistband Roll", carrier: "the waistband rolled double under the curve of her hips", deg: L}
+{id: CR-E12, name: "Last Button", carrier: "the blouse's last button doing all the work of the whole argument", deg: H}
+{id: CR-E13, name: "Placket Gape", carrier: "the placket's gap between the buttons over the fullest line", deg: M, note: "pairs W02"}
+{id: CR-E14, name: "Collar Askew", carrier: "the collar slipped askew, baring one shoulder blade to the hall's draft", deg: M}
+{id: CR-E15, name: "Kimono Summer", carrier: "the kimono's collar opened wide against the summer heat, the nape doing the talking", deg: M, note: "japanese register"}
+{id: CR-E16, name: "Gi Lapel Crossed Wrong", carrier: "the gi's left lapel crossed wrong after the throw, the belt still holding", deg: M}
+{id: CR-E17, name: "Qipao Side-Slit", carrier: "the qipao's side-slit past the stocking top at the step", deg: H, note: "mat: A"}
+{id: CR-E18, name: "Apron Strings", carrier: "the apron's strings untied, the bib hanging from the neck loop alone", deg: M}
+{id: CR-E19, name: "Overall Unbuckled", carrier: "the overalls' one strap unbuckled, the bib sagging sideways", deg: M, note: "mat: C — collegiate mishap register"}
+{id: CR-E20, name: "Leotard Leg-Line", carrier: "the leotard's leg-line riding at the hip's crease after the floor routine", deg: M}
+{id: CR-E21, name: "Swimsuit Edge Migration", carrier: "the swimsuit bottom's edge migrated up the cheek after the dive", deg: H}
+{id: CR-E22, name: "Thigh-High Roll", carrier: "the thigh-high rolled down to the ankle bone by the day's end", deg: L, note: "mat: C"}
+{id: CR-E23, name: "Sock Slouch", carrier: "the sock's cuff slouched into the boot's mouth", deg: L, note: "mat: C"}
+{id: CR-E24, name: "Glove Peel", carrier: "the glove peeled halfway off the wrist, held between two fingers", deg: L}
+{id: CR-E25, name: "Cuff Lost Button", carrier: "one sleeve pushed up, the cuff's button gone, the forearm's claim", deg: L}
+{id: CR-E26, name: "Camisole Peek", carrier: "the camisole's lace trim peeking below the blouse's hem at the waist", deg: L}
+{id: CR-E27, name: "Stretched Neckhole", carrier: "the nightshirt's collar gone wide from years of washing, one shoulder always bare", deg: M, note: "the accidental off-shoulder"}
+{id: CR-E28, name: "Hoodie Zipper", carrier: "the hoodie's zipper down to the sternum, the tee inside twisted with sleep", deg: L, note: "mat: C"}
+{id: CR-E29, name: "Sarong Knot", carrier: "the sarong's knot loosening at the hip with the ferry's rock", deg: M}
+{id: CR-E30, name: "Shoulder-Snap Popped", carrier: "the bodysuit's shoulder-snap popped at the stretch's top, the neckline's sudden freedom", deg: H}
+{id: CR-E31, name: "Seam Giving", carrier: "the dress's shoulder seam giving at the stitch, one thread from the whole story", deg: H, note: "torn-clothes danbooru family"}
+{id: CR-E32, name: "Petticoat Drop", carrier: "the petticoat's waistband surrendered to the dance's last spin, the skirt's whole line an inch lower", deg: H}
+
+═══ CLASS D — KINETIC WEIGHT · 28 · MECH: PHYSICS REPORTS ═══
+# Definition: weight in MOTION — the Gainax bounce canon, widened past
+# the jog: transit, sport, dance, vehicles, weather, laughter, sneezes.
+# Every context is a different kinetic signature; that spread IS the
+# degree axis. The class the author named «вес/движение».
+# Canonical nouns: drop, bounce, sway, lift, lag, rhythm, beat, arch,
+# press, rock, thrum, amplitude, aftershock, gathering.
+# Platform tags: arched back · arms up · motion lines.
+# Degree anchors: walk-sway/tram (L) → stair-bounce/reach-lift (M) →
+#   jog/trampoline/spike (H).
+# Failure mode: settling/clinging/pressed-against as the ONLY kinetic
+# verbs (the §4D funnel); the event nouns here break the funnel.
+{id: CR-D01, name: "Full Drop Mid-Sway", carrier: "the full drop of her breasts mid-sway at the turn", deg: H}
+{id: CR-D02, name: "Stair Bounce", carrier: "the bounce at each heel-strike on the stairs, two at a time", deg: M}
+{id: CR-D03, name: "Quarter-Turn Lead", carrier: "the chest taking the lead into the quarter-turn", deg: M}
+{id: CR-D04, name: "Overhead Reach Lift", carrier: "the lift of her breasts at the overhead reach for the top shelf", deg: M}
+{id: CR-D05, name: "Forward-Lean Deepening", carrier: "the cleavage deepening at the forward lean over the pool table", deg: M}
+{id: CR-D06, name: "Table Flattening", carrier: "her chest flattening against the table's edge as she signs the form", deg: M, note: "M-pair"}
+{id: CR-D07, name: "Pendulum Lag", carrier: "the sway's far side lagging a half-beat behind the turn", deg: M, note: "physics-honest"}
+{id: CR-D08, name: "Aftershock", carrier: "the last aftershock of the bounce as she stops at the door", deg: M}
+{id: CR-D09, name: "Jog Rhythm", carrier: "the jog's rhythm writing itself down the whole front of her", deg: H}
+{id: CR-D10, name: "Jump-Rope Double Beat", carrier: "the jump-rope's double beat, the sports bra's losing arithmetic", deg: H, note: "mat: C"}
+{id: CR-D11, name: "Volleyball Spike", carrier: "the spike's full lift-and-drop in the frame's own freeze", deg: H, note: "mat: C"}
+{id: CR-D12, name: "Breaststroke Push", carrier: "the breaststroke's pull pushing the suit's front flat, then releasing", deg: M}
+{id: CR-D13, name: "Dive Streamline", carrier: "the dive's streamline pressing everything flat for one held breath", deg: M}
+{id: CR-D14, name: "Equestrian Canter", carrier: "the canter rocking her through the whole torso, every third beat", deg: M}
+{id: CR-D15, name: "Motorcycle Thrum", carrier: "the motorcycle's thrum arriving through the pillion seat in one long note", deg: M}
+{id: CR-D16, name: "Tram Brake", carrier: "the tram's brake gathering her weight forward into the strap's hold", deg: L, note: "mat: B"}
+{id: CR-D17, name: "Dance Dip", carrier: "the dance's dip spilling her toward the floor, the dress doing nothing", deg: H}
+{id: CR-D18, name: "Spin Flare", carrier: "the spin's flare lifting the skirt's whole bell at the apex", deg: M, note: "E-pair"}
+{id: CR-D19, name: "Curtsey Press", carrier: "the curtsey's press of thigh against thigh, the skirt's one deep fold", deg: L}
+{id: CR-D20, name: "Waking Stretch", carrier: "the waking stretch's slow arch through the whole back, the tee at its mercy", deg: M}
+{id: CR-D21, name: "Sneeze Event", carrier: "the sneeze's whole event through her chest, both arms crossed too late", deg: L, note: "humor register, house-carried"}
+{id: CR-D22, name: "Laugh Bounce", carrier: "the laugh riding down her chest in bounces she doesn't notice", deg: L}
+{id: CR-D23, name: "Shiver Ripple", carrier: "the shiver's ripple arriving across the chest's skin", deg: L}
+{id: CR-D24, name: "Stairs Run-Down", carrier: "the run down the stairs, the whole front arriving one step ahead of her", deg: H}
+{id: CR-D25, name: "Trampoline Amplitude", carrier: "the trampoline's full amplitude claiming the crop top's whole argument", deg: H, note: "mat: C"}
+{id: CR-D26, name: "Swing Apex", carrier: "the swing's apex and drop at the chain's turn, the skirt's physics honest", deg: M}
+{id: CR-D27, name: "Cheer Herkie", carrier: "the herkie's jump, the top's claim and the skirt's flare one event", deg: H, note: "mat: C"}
+{id: CR-D28, name: "Arms-Crossed Gathering", carrier: "the arms crossed on the cold walk, the gathering she can't quite hold", deg: L}
+
+═══ CLASS A — CLEFT & MOUND · 14 · MECH: BODY REPORTS (deepest) ═══
+# Definition: the ladder's own R+ floor-content — the seam/cleft/mound
+# geography. Kept lean: this is the deepest family and the A-class
+# 0/27 PH-survival record says it must be written LITERAL (§4D-3) or
+# not at all. Dry-cotton variants added — the family no longer needs
+# wet lycra to speak.
+# Canonical nouns: seam, cleft, mound, panel, line, fly, cut, seat.
+# Platform tags: cameltoe.
+# Degree anchors: cross-legged wrap (L) → high-cut edge/breeches (M) →
+#   seam-pressed-flat/lunge-geometry (H).
+{id: CR-A01, name: "Seam Pressed Flat", carrier: "the seam pressed flat into the cleft by the pose's own weight", deg: H}
+{id: CR-A02, name: "Center-Seam Whole Line", carrier: "the leotard's center seam riding the cleft's whole line in the stretch", deg: H}
+{id: CR-A03, name: "High-Cut Edge", carrier: "the high-cut suit's edge framing the mound's swell at the front", deg: M}
+{id: CR-A04, name: "Straddle Taut", carrier: "the shorts' line drawn taut over the mound by the straddle's spread", deg: H}
+{id: CR-A05, name: "Dry Cotton Print", carrier: "the thin cotton's honest print of the mound, dry and undeniable", deg: H, note: "the anti-wet A"}
+{id: CR-A06, name: "Yoga Deep Lunge", carrier: "the yoga pants' front seam in the deep lunge's full geometry", deg: H, note: "mat: C"}
+{id: CR-A07, name: "Grande Plié", carrier: "the ballet leotard's cut at the bottom of the grande plié", deg: M}
+{id: CR-A08, name: "Post-Dive Panel", carrier: "the swimsuit's panel riding narrow at the cleft after the dive's entry", deg: H}
+{id: CR-A09, name: "Jeans Fly Line", carrier: "the tight fly's pressure line reading down the front", deg: M}
+{id: CR-A10, name: "Riding Breeches", carrier: "the riding breeches' full seat and seam at the saddle's trot", deg: M, note: "mat: A"}
+{id: CR-A11, name: "Cycling Saddle", carrier: "the cycling kit's line in the saddle's full contact", deg: M}
+{id: CR-A12, name: "Cross-Legged Wrap", carrier: "the wrap's cloth between the thighs in the cross-legged sit", deg: L}
+{id: CR-A13, name: "Pencil-Skirt Stride", carrier: "the pencil skirt's taut front over the thighs' press at each short stride", deg: L, note: "mat: B"}
+{id: CR-A14, name: "Towel Hip Line", carrier: "the towel's fold riding the hips' widest line, one tuck from honesty", deg: H}
+
+═══ CLASS C — SEAT & CHEEK · 16 · MECH: BODY REPORTS ═══
+# Definition: the seat's claims — consumption, overflow, hard-surface
+# contact prints, witness-object reads. The vinyl/brass/stool family is
+# the house aesthetic: objects testify, the girl just sits.
+# Canonical nouns: cheeks, seat, undercurve, overflow, print, shelf,
+# pocket, edge, squeak, wobble.
+# Platform tags: wedgie · ass · ass focus · ass grab.
+# Degree anchors: sound/witness reads (L) → stool print/pocket frame (M)
+#   → wedgie/undercurve-bare (H).
+{id: CR-C01, name: "Denim Claim", carrier: "the cheeks claiming the denim's whole back, pocket to pocket", deg: H}
+{id: CR-C02, name: "Vinyl Print", carrier: "the seat's full print through the thin hem on the vinyl stool", deg: M}
+{id: CR-C03, name: "Undercurve Bare", carrier: "the undercurve bare below the suit's eaten edge", deg: H}
+{id: CR-C04, name: "Wedgie Line", carrier: "the wedgie's taut line, front and back equally honest", deg: H}
+{id: CR-C05, name: "Sit-Trap Hem", carrier: "the skirt's hem caught under the cheek as she sits, the fold's hostage", deg: M}
+{id: CR-C06, name: "Staircase Arithmetic", carrier: "the miniskirt's coverage arithmetic lost to the staircase behind her", deg: H, note: "G-pair"}
+{id: CR-C07, name: "Saddle Overflow", carrier: "the cheeks' overflow past the bike saddle's nose at the stand", deg: M}
+{id: CR-C08, name: "Office Tilt", carrier: "the office chair's tilt presenting the seat to the window's whole view", deg: M, note: "mat: B"}
+{id: CR-C09, name: "Pocket Frame", carrier: "the jeans' back pockets framing the full round, stitch by stitch", deg: M}
+{id: CR-C10, name: "Boyshort Bisection", carrier: "the boyshorts' edge bisecting the cheek's lower half", deg: M}
+{id: CR-C11, name: "Whale Tail", carrier: "the thong's waistband riding above the low-rise jeans' back line", deg: H}
+{id: CR-C12, name: "Leather Squeak", carrier: "the leather skirt's squeak of the cheeks at the shift in the seat", deg: L, note: "sound-witness"}
+{id: CR-C13, name: "Rail's Cold Kiss", carrier: "the stool's brass rail's cold kiss through the skirt at the heel-hook", deg: L, note: "witness-object"}
+{id: CR-C14, name: "Paddleboard Wobble", carrier: "the paddleboard's wobble read through the whole seat's negotiation", deg: M}
+{id: CR-C15, name: "Recliner Slouch", carrier: "the recliner's slouch, the seat's shelf and the shorts' retreat", deg: M}
+{id: CR-C16, name: "Tights Seat Wear", carrier: "the tights' seat gone taut-shiny with the day's wear", deg: M, note: "W-pair"}
+
+═══ CLASS F — PRESENTING & SPREAD · 14 · MECH: POSITION REPORTS ═══
+# Definition: the pose's own offer — aggressive posing that organizes
+# the body's exposure. Counts toward CORE-4 (it IS a position report),
+# but never more than 2 F-carriers per prompt: presenting is a spice,
+# not a meal.
+# Canonical nouns: sprawl, straddle, squat, arch, spread, offer, crawl.
+# Platform tags: presenting · spread legs · squatting · straddling ·
+#   all fours · arched back.
+{id: CR-F01, name: "Wrestler Sprawl", carrier: "the knees apart in the wrestler's sprawl, the singlet at its limit", deg: H}
+{id: CR-F02, name: "M-Sit", carrier: "the M-sit, soles together, knees wide, the skirt's decision point", deg: H}
+{id: CR-F03, name: "Backbend Offer", carrier: "the backbend displaying the underboob's crescent to the ceiling", deg: H}
+{id: CR-F04, name: "Under-Branch Crawl", carrier: "the all-fours crawl under the low branch, the chest's lead", deg: M}
+{id: CR-F05, name: "Chair Straddle", carrier: "the straddle of the chair, back to the room, chin over the shoulder", deg: H}
+{id: CR-F06, name: "Tide-Pool Squat", carrier: "the squat over the tide pool, the shorts' whole claim", deg: H}
+{id: CR-F07, name: "Mirror Arch", carrier: "the arch into the mirror's full length, the nightgown's fall arrested", deg: M}
+{id: CR-F08, name: "Jukebox Hip-Shot", carrier: "the hip-shot lean against the jukebox, one knee locked", deg: L}
+{id: CR-F09, name: "Legs-Up-Wall", carrier: "the legs-up-the-wall rest, the shorts' legs riding with gravity's help", deg: M}
+{id: CR-F10, name: "Pigeon Pose", carrier: "the pigeon pose's deep hip opening, the leggings' full map", deg: M, note: "mat: C"}
+{id: CR-F11, name: "Side-Lie Drift", carrier: "the side-lie propped on one elbow, knees drifting apart in half-sleep", deg: M}
+{id: CR-F12, name: "Pool-Table Reach", carrier: "the lean across the pool table's reach, the chest's long flat", deg: M, note: "M-pair"}
+{id: CR-F13, name: "Dash Slouch", carrier: "the passenger slouch, knees on the dash, the skirt's last argument", deg: M}
+{id: CR-F14, name: "Stage Crawl", carrier: "the stage crawl toward the footlights, the costume's every promise", deg: H}
+
+═══ CLASS G — AGGRESSIVE FRAMING · 12 · MECH: AMPLIFIER (camera) ═══
+# Definition: the camera serving the zone. AMPLIFIER — never counts
+# toward CORE-4, weight 0.5 at the gate. The camera spec's §33 pair
+# stays sovereign; these are heat-zone framings only.
+# Platform tags: from below · from behind · hip focus · breast focus ·
+#   ass focus · from above.
+{id: CR-G01, name: "Low Third", carrier: "the low angle filling the lower third with the seat's claim", deg: M}
+{id: CR-G02, name: "Top-Down Shaft", carrier: "the top-down counting the cleavage's shaft", deg: M}
+{id: CR-G03, name: "Between-Knees Sightline", carrier: "the between-the-knees sightline down the hall's length", deg: H}
+{id: CR-G04, name: "Macro Escape", carrier: "the macro on the strap's escape at the collarbone's hollow", deg: M, note: "E-pair; layer-stack compliant"}
+{id: CR-G05, name: "Water-Level Lens", carrier: "the water-level lens at the pool's edge, the suit's outline first", deg: M}
+{id: CR-G06, name: "Staircase Under-Hem", carrier: "the shot up the staircase under the hem's shadow", deg: H}
+{id: CR-G07, name: "Hip-Height Doorframe", carrier: "the hip-height frame through the door's gap, everything else cropped out of the argument", deg: M}
+{id: CR-G08, name: "Fisheye Curve", carrier: "the fisheye's curve giving the seat the frame's whole election", deg: M}
+{id: CR-G09, name: "Elevator Brass", carrier: "the reflection's double in the elevator's brass, front and back one claim", deg: M}
+{id: CR-G10, name: "Strap Bow Bokeh", carrier: "the strap's bow in the foreground bokeh, the party out of focus behind", deg: L}
+{id: CR-G11, name: "Over-Shoulder Mirror", carrier: "the over-shoulder mirror shot: her eyes on the lens, the reflection's neckline lower", deg: M}
+{id: CR-G12, name: "Measuring Wall", carrier: "the full-length against the atelier's measuring wall, the tape's verdict pending", deg: L, note: "M16-pair"}
+
+═══ CLASS H — REACTION & PHYSIOLOGY · 12 · MECH: AMPLIFIER ═══
+# Definition: her body answering the state — amplifiers, 0.5 weight,
+# never CORE-4. The blush family and its kin; at least one H-carrier
+# rides every R+ frame as the human receipt (§53A registers differ —
+# the YOUNG register blushes harder, the MATURE register flushes lower).
+{id: CR-H01, name: "Blush Flood", carrier: "the blush flooding down past the collarbones' line", deg: M}
+{id: CR-H02, name: "Lip Bite At The Finding-Out", carrier: "the lip bitten around the finding-out, the mirror's own news", deg: M}
+{id: CR-H03, name: "Thighs Losing", carrier: "the thighs pressing together against the feeling — and losing", deg: H}
+{id: CR-H04, name: "Goosebumps On Spill", carrier: "the goosebumps riding the bare spill of the cup's edge", deg: M}
+{id: CR-H05, name: "Upper-Chest Flush", carrier: "the flush mottling the upper chest in the sauna's first minute", deg: M}
+{id: CR-H06, name: "Ear-Tips Burning", carrier: "the ears' tips burning their verdict at the compliment's landing", deg: L, note: "mat: C"}
+{id: CR-H07, name: "Held Breath At Zipper", carrier: "the held breath at the zipper's catch halfway down her back", deg: M, note: "E-pair"}
+{id: CR-H08, name: "Denied Arch", carrier: "the small involuntary arch, caught and denied mid-curtsey", deg: M}
+{id: CR-H09, name: "Heat-Slick Sheen", carrier: "the heat-slick sheen on the offered curve of the shoulder", deg: M}
+{id: CR-H10, name: "Pupil Widen", carrier: "the pupils' widen at her own reflection's argument", deg: L}
+{id: CR-H11, name: "Collar-Edge Swallow", carrier: "the swallow at the collar's edge before the mirror, one hand at the clasp", deg: L}
+{id: CR-H12, name: "Shiver At Strap Slide", carrier: "the shiver's honest ripple at the strap's slow slide", deg: L, note: "E-pair"}
+
+═══ CLASS I — IMPRINT & AFTERMATH · 18 · MECH: PHYSICS REPORTS (receipts) ═══
+# Definition: the PHYSICS RECEIPTS — evidence of what already happened.
+# The house aesthetic's native class: witness objects (pillow, sand,
+# grass, seatbelt, towel) testify about the recent past. The girl
+# doesn't display; the evidence does. Renders read honest because the
+# noun bank is mundane.
+# Canonical nouns: lines, dents, rings, crease, print, tracks, marks,
+# borders, transfer, smear, footprint.
+# Platform tags: tanlines.
+# Degree anchors: sock-rings/creases (L) → strap-lines/bra-lines (M) →
+#   love-bite/wet-footprints (H).
+{id: CR-I01, name: "Bra Release Lines", carrier: "the bra's release lines pressed red across the swell, minutes old", deg: M}
+{id: CR-I02, name: "Pillow Crease", carrier: "the pillow's crease across one cheek and the chest's upper slope", deg: L}
+{id: CR-I03, name: "Sheet's Hip Line", carrier: "the sheet's drape from the nap still holding the hip's line", deg: L}
+{id: CR-I04, name: "Sock Rings", carrier: "the sock's elastic rings around the calves, the day's receipt", deg: L}
+{id: CR-I05, name: "Belt Line", carrier: "the belt's pink line across the belly's low curve at the waistband's fold", deg: L}
+{id: CR-I06, name: "Bikini Pale Borders", carrier: "the bikini's pale borders against the sunned skin, the summer's ledger", deg: M, note: "mat: C"}
+{id: CR-I07, name: "Sung Strap Track", carrier: "the strap's pale track across the shoulder where the sun never reached", deg: M}
+{id: CR-I08, name: "Love Bite Under Scarf", carrier: "the love bite under the scarf's careful knot, the scarf's whole employment", deg: H, note: "mat: A"}
+{id: CR-I09, name: "Collar Transfer", carrier: "the lipstick's transfer on the shirt collar, third-party evidence", deg: M, note: "mat: A"}
+{id: CR-I10, name: "Mascara Smear", carrier: "the mascara's smear of the long night, the pillow's testimony", deg: L}
+{id: CR-I11, name: "Buttons One-Off", carrier: "the buttons realigned one hole off in the dark of the quick change", deg: L, note: "U-pair; mat: C"}
+{id: CR-I12, name: "Inside-Out Shirt", carrier: "the shirt inside-out after the quick change, seams claiming the outside", deg: L, note: "mat: C"}
+{id: CR-I13, name: "Grass Print", carrier: "the grass's print across the bare shoulder blades and the skirt's back", deg: L, note: "mat: C"}
+{id: CR-I14, name: "Sand Cling", carrier: "the sand still clinging to the damp calves at the towel's edge", deg: L}
+{id: CR-I15, name: "Seatbelt Sleep-Crease", carrier: "the seatbelt's sleep-crease across the chest's slope after the long haul", deg: M, note: "M-pair; mat: B"}
+{id: CR-I16, name: "Garter Dents", carrier: "the garter's soft dents above and below the band, an hour's evidence", deg: M}
+{id: CR-I17, name: "Wet Footprints", carrier: "the wet footprints leading away from the towel's damp rectangle", deg: H, note: "implied state — the witness does the work"}
+{id: CR-I18, name: "Towel's Damp Rectangle", carrier: "the towel's damp rectangle on the chair and her walking past it in his shirt", deg: H, note: "U-pair"}
+
+═══ CLASS L — LAYER INTERPLAY · 18 · MECH: POSITION REPORTS ═══
+# Definition: MULTI-GARMENT physics — under-layers telegraphing,
+# straps crossing, hem-lengths negotiating, engineered reveals. The
+# LAYER STACK LAW's home class: every layer carrier names its stack
+# (what is over what, which opening permits the read).
+# Canonical nouns: band, ridge, edge, hem, lining, busk, scallop,
+# armhole, neckline, layer, frame.
+{id: CR-L01, name: "Band Through White Tee", carrier: "the bra's band reading through the tight white tee at the spine", deg: M}
+{id: CR-L02, name: "Lace Under Blazer", carrier: "the camisole's lace edge under the open blazer's frame at the sternum", deg: M, note: "mat: B"}
+{id: CR-L03, name: "Double-Strap Cross", carrier: "the swimsuit's strap crossed with the sundress's own at the shoulder, an X of two loyalties", deg: M}
+{id: CR-L04, name: "Corset Busk Ridge", carrier: "the corset's busk-ridge printing its line under the wrapping sweater", deg: M, note: "mat: A"}
+{id: CR-L05, name: "Petticoat's Half", carrier: "the petticoat's white hem doing its half of the skirt's lifted reveal", deg: M}
+{id: CR-L06, name: "Strapless Vigilance", carrier: "the strapless dress demanding her arms' vigilance at every dance's dip", deg: M, note: "Theiss exemplar"}
+{id: CR-L07, name: "Strapless War", carrier: "the strapless bra's quiet war with gravity, the evening's whole subplot", deg: M, note: "mat: A"}
+{id: CR-L08, name: "Boyshorts Waistband", carrier: "the boyshorts' waistband above the jeans' low cut at the spine's bend", deg: M}
+{id: CR-L09, name: "Bandeau Migration", carrier: "the bandeau migrating under the loose tank's wide armholes with the run's every beat", deg: H, note: "exit route named (wide armholes)"}
+{id: CR-L10, name: "Collars Overlapping Wrong", carrier: "the two shirts' collars overlapping wrong after the morning's rush", deg: L, note: "mat: C"}
+{id: CR-L11, name: "Borrowed Jacket Strain", carrier: "the borrowed jacket one size small across the back seam, the shoulders' argument", deg: L, note: "mat: C"}
+{id: CR-L12, name: "Shirt Over Suit", carrier: "the shirt open over the swimsuit, the suit's own claim beneath it", deg: M}
+{id: CR-L13, name: "Hem-Length Game", carrier: "the negligee's hem two inches below the robe's own, the gap's slow reveal at the step", deg: M, note: "mat: A"}
+{id: CR-L14, name: "Thigh-High Negotiation", carrier: "the thigh-high's lace top and the skirt's hem in negotiation at mid-thigh", deg: M, note: "zettai ryouiki adjacent"}
+{id: CR-L15, name: "Pinafore Crossing", carrier: "the pinafore's straps crossing the blouse's own at the back, two geometries one back", deg: L, note: "mat: C"}
+{id: CR-L16, name: "Hanfu Layers", carrier: "the hanfu's layered collar-lines sliding apart at the shoulder's turn", deg: L}
+{id: CR-L17, name: "Three-Layer Confession", carrier: "the three layers' confession at the skirt's slit: slip, petticoat, velvet, in order", deg: M}
+{id: CR-L18, name: "Cutout's Whole Point", carrier: "the cutout tank and the sports bra beneath, the cutout's whole engineered point", deg: H, note: "mat: C"}
+
+═══ CLASS M — COMPRESSION & PRESS · 16 · MECH: PHYSICS REPORTS ═══
+# Definition: EXTERNAL FORCES — objects and instruments pressing fabric
+# into body. The seatbelt/crossbody/atelier family. Every object is a
+# witness; every witness has a shape. The measuring tape is the house's
+# own atelier sacrament.
+# Canonical nouns: strap, diagonal, edge, lip, press, crush, tape,
+# lurch, thrum, clunk.
+{id: CR-M01, name: "Seatbelt Diagonal", carrier: "the seatbelt's diagonal bisecting the chest's full line at the clunk", deg: M, note: "mat: B"}
+{id: CR-M02, name: "Crossbody Ride", carrier: "the crossbody bag's strap riding the apex at every step's bounce", deg: M}
+{id: CR-M03, name: "Table Edge", carrier: "the table's edge flattening her as she leans across for the far cup", deg: M}
+{id: CR-M04, name: "Window Glass", carrier: "her whole front against the window glass at the lookout, the cold's print", deg: H}
+{id: CR-M05, name: "Counter Reach", carrier: "the counter's lip pressed into the underboob's line at the top-shelf reach", deg: M}
+{id: CR-M06, name: "Guitar Body", carrier: "the guitar's waist against hers, the strap's diagonal claim", deg: L}
+{id: CR-M07, name: "Cello Embrace", carrier: "the cello's embrace between her knees, the instrument's own posture", deg: M, note: "partner-implied"}
+{id: CR-M08, name: "Doorframe Squeeze", carrier: "the turn through the too-narrow gap taken shoulders-first, both claims at once", deg: L}
+{id: CR-M09, name: "Crowd Press", carrier: "the crowd's press at the festival's front row, the mosh's honesty", deg: M, note: "mat: C"}
+{id: CR-M10, name: "Hug Crush", carrier: "the hug's full crush against his jacket, the chin's landing", deg: M, note: "partner-implied"}
+{id: CR-M11, name: "Dog's Paws", carrier: "the big dog's paws landing at her chest's full claim, her laugh one octave up", deg: L, note: "witness-creature, humor register"}
+{id: CR-M12, name: "Backpack Chest Strap", carrier: "the backpack's chest strap's double claim at the trail's steepest pitch", deg: M, note: "mat: C"}
+{id: CR-M13, name: "Life Jacket", carrier: "the life jacket's crush at the boat's lurch, everything the vest argues", deg: M}
+{id: CR-M14, name: "Shawl's Crossed Arms", carrier: "the shawl held by her own crossed arms, the self-compression of the cold ferry", deg: L}
+{id: CR-M15, name: "Corset Exhale", carrier: "the ribbon corset's exhale required to close the last two inches", deg: H, note: "mat: A"}
+{id: CR-M16, name: "Measuring Tape", carrier: "the measuring tape's overlap at the bust line, the atelier's own arithmetic", deg: M, note: "mat: A — the atelier sacrament"}
+
+═══ CLASS S — SKIN FRAMING · 20 · MECH: BODY REPORTS ═══
+# Definition: BARE-SKIN BANDS AND FRAMES — the zettai ryouiki canon:
+# skin revealed as a framed band between two garments, or a body part
+# whose bareness IS the composition. The skin is framed, never merely
+# exposed: two edges make a frame, one edge makes a mistake.
+# Canonical nouns: band, hollow, shelf, slope, line, dip, dimples,
+# track, beads, field, frame, border.
+# Platform tags: zettai ryouiki · bare shoulders · collarbone · navel ·
+#   bare back · garter straps.
+{id: CR-S01, name: "Zettai Ryouiki", carrier: "the zettai ryouiki's band of bare thigh between sock-top and skirt's hem", deg: M, note: "platform-native tag; mat: C"}
+{id: CR-S02, name: "Bare Shoulder Slope", carrier: "the bare shoulder's slope under the slipped collar's line", deg: M}
+{id: CR-S03, name: "Collarbone Hollow Pendant", carrier: "the collarbone's shelf and the pendant at rest in its hollow", deg: L}
+{id: CR-S04, name: "First Inch Of Cleavage", carrier: "the first inch of the cleavage's fall catching the window's light", deg: M}
+{id: CR-S05, name: "Underboob Shadow-Line", carrier: "the underboob's line of shadow under the crop's hem at the raise", deg: M}
+{id: CR-S06, name: "Sideboob Skin", carrier: "the sideboob's skin past the armhole's edge at the reach", deg: M}
+{id: CR-S07, name: "Low Waistband Curve", carrier: "the lower belly's curve and the navel's dip above the low waistband", deg: M}
+{id: CR-S08, name: "Back Dimples", carrier: "the back dimples' pair above the dropped waist at the mirror's turn", deg: L}
+{id: CR-S09, name: "Inner Thigh Band", carrier: "the soft inner band of the thigh visible at the stride's widest step", deg: M}
+{id: CR-S10, name: "Tan-Line Framing", carrier: "the tan lines' pale geometry framing what the bikini covered", deg: H, note: "mat: C"}
+{id: CR-S11, name: "Sweat Track", carrier: "the sweat's track from the throat's hollow down the sternum's line", deg: M}
+{id: CR-S12, name: "Water Beads", carrier: "the water's beads on the upper chest at the pool's ladder exit", deg: L}
+{id: CR-S13, name: "Goosebumps Field", carrier: "the goosebumps' field across the bare arms and chest at the locker room's cold", deg: L}
+{id: CR-S14, name: "Sunburn Straps", carrier: "the sunburn across the shoulders where the straps' coverage failed", deg: M, note: "mat: C"}
+{id: CR-S15, name: "Garter Frame", carrier: "the garter's clasps and the thigh's soft frame between them", deg: H}
+{id: CR-S16, name: "Exposed Nape", carrier: "the nape's bare line under the pinned-up hair, the collar's last fold", deg: L}
+{id: CR-S17, name: "Anklet Chain", carrier: "the anklet's chain across the ankle bone's small frame", deg: L}
+{id: CR-S18, name: "Choker Line", carrier: "the choker's line dividing the throat's length from the jaw's turn", deg: L}
+{id: CR-S19, name: "Open-Back Field", carrier: "the bare back's whole field to the waist's start, the pendant hanging down it", deg: M}
+{id: CR-S20, name: "Slip's Strap-Beds", carrier: "the slip's thin strap-beds on the shoulders, the skin's own memory", deg: L, note: "I-pair"}
+
+═══ CLASS U — SITUATIONAL UNDRESS · 20 · MECH: POSITION REPORTS ═══
+# Definition: CONTEXT UNDRESSES — the situation does the revealing:
+# mid-change, post-shower, fittings, borrowed garments, laundry day,
+# the walk home. The narrative states that license the rest of the
+# stack. The collegiate mishap register (mat: C) lives here.
+# Canonical nouns: rush, change, fitting, fitting-room, turban, knot,
+# obi, belt, screen, curtain, knock, dawn, morning.
+# Platform tags: half-undressed · open clothes · towel · yukata ·
+#   apron · hospital gown · kimono.
+# Degree anchors: exam-dawn/sock states (L) → fitting/borrowed (M) →
+#   towel/laundry-day/walk-home (H).
+{id: CR-U01, name: "Mid-Change", carrier: "one arm in the sleeve, the other out, the shirt's argument with the clock", deg: H}
+{id: CR-U02, name: "Half-Buttoned Morning", carrier: "the shirt half-buttoned in the morning's rush, the buttons losing their order", deg: M}
+{id: CR-U03, name: "Post-Shower Tee", carrier: "the towel's turban and the oversized tee's wide neck, the wet hair's drip", deg: M}
+{id: CR-U04, name: "Borrowed Too-Small", carrier: "the borrowed shirt one size too small — every button's own opinion", deg: M, note: "mat: C"}
+{id: CR-U05, name: "Laundry Day", carrier: "the laundry day's solution: his dress shirt and one sock, the basket's witness", deg: H, note: "mat: C"}
+{id: CR-U06, name: "Car Door Catch", carrier: "the dress caught in the car door's shut, the fabric's pull taut across the seat", deg: M}
+{id: CR-U07, name: "Seamstress Fitting", carrier: "the seamstress mid-fitting: pins in the hem, the dress unfinished at the side seam, the tape around the bust", deg: M, note: "mat: A — atelier register"}
+{id: CR-U08, name: "Quick-Change Screen", carrier: "the quick-change behind the screen's shadow, the silhouette doing the changing", deg: H}
+{id: CR-U09, name: "Fitting Room Curtain", carrier: "the fitting room's curtain half-drawn, the mirror's full view of the trial", deg: M}
+{id: CR-U10, name: "Walk Home", carrier: "last night's dress on this morning's street, the smudge and the heels in hand", deg: M, note: "mat: B"}
+{id: CR-U11, name: "Exam Dawn", carrier: "the hoodie over pajama shorts at the exam's dawn, the thermos the only adult thing", deg: L, note: "mat: C — collegiate register"}
+{id: CR-U12, name: "Between-Dips", carrier: "the wet suit under the dry wrap at the pool's edge, both losing their arguments", deg: M}
+{id: CR-U13, name: "Hotel Robe", carrier: "the hotel robe at the breakfast bar's edge, the belt's loose arithmetic", deg: M}
+{id: CR-U14, name: "Hospital Gown", carrier: "the hospital gown's back tie and the hallway's draft doing the exposing", deg: M}
+{id: CR-U15, name: "Door-Knock Gown", carrier: "the dressing gown held shut by one hand at the door's knock", deg: H}
+{id: CR-U16, name: "Boyfriend Tee", carrier: "the boyfriend tee's hemline at mid-thigh, nothing beneath but the morning", deg: H, note: "mat: C"}
+{id: CR-U17, name: "Shared Kitchen", carrier: "the sleepwear set in the shared kitchen at 3 a.m., the roommate's timing", deg: M, note: "mat: C"}
+{id: CR-U18, name: "Apron Over Nightgown", carrier: "the apron over the nightgown at the stove, breakfast's own costume", deg: M}
+{id: CR-U19, name: "Yukata Morning", carrier: "the yukata's morning looseness at the ryokan's veranda, the obi a rumor", deg: M}
+{id: CR-U20, name: "Post-Comp Jacket", carrier: "the post-competition jacket over the leotard, the zipper's slow ride at the bus stop", deg: M, note: "mat: C"}
+
+═══ APPENDIX A — STATE NOUN BANK v2 (PH-safe, diversity-first) ═══
+# The §4D-3 bank reordered by the §4G anti-monopoly law. PRIMARY nouns
+# are unlimited; SECONDARY (transparency family) capped: ≤2 carriers
+# per prompt, ≤40% of a batch's R+ frames may use them at all.
+#
+# PRIMARY (write as prose words AND tags — §60 tag-mirror):
+#   taut · worn · stretched · creased · rumpled · clinging · riding ·
+#   slipped · fallen · open · unzipped · untied · half-off ·
+#   half-undressed · mid-change · imprinted · pressed · flattened ·
+#   bare shoulder · bare back · sideboob · underboob · cleavage ·
+#   zettai ryouiki · tanlines · garter · strapless · sleeveless ·
+#   off-shoulder · spread · squatting · straddling · presenting ·
+#   large breasts · glistening · open clothes · arms up · arched back
+#
+# SECONDARY (the capped family — see-through / sheer / transparent /
+#   wet / soaked / translucent): legal, loved, but never the axis.
+
+═══ APPENDIX B — CORE-4 COMBO RECIPES (assembly examples) ═══
+# Seven example spreads, one carrier per mechanism. None uses the
+# transparency family. Recipes are PATTERNS — re-coin, never quote.
+#
+# 1. DOMESTIC MORNING (FAM-B): W04 ribbing bands + B04 apex contour +
+#    E27 stretched neckhole + D20 waking stretch + I02 pillow crease
+# 2. OFFICE NOON (FAM-B): W13 sitting-crease + B08 weight-line +
+#    E13 placket gape + M03 table edge + H05 upper-chest flush
+# 3. DRY BEACH (any): B03 peaks through dry knit + E21 swimsuit
+#    migration + D12 breaststroke push + I06 tan borders — no wet
+#    carrier anywhere, R+ carried by four mechanisms
+# 4. THEATRE EVENING (FAM-A): W16 silk drape + B10 profile curve +
+#    E04 back zipper + D07 pendulum lag + L06 strapless vigilance
+# 5. COLLEGIATE MISHAP (FAM-C): W02 stretched buttonholes + B22
+#    cup-edge ridge + E19 overall unbuckled + U05 laundry day + I11
+#    buttons one-off
+# 6. ATELIER (FAM-A): W15 leather mold + B29 window reflection + U07
+#    seamstress fitting + M16 measuring tape + L04 corset busk ridge
+# 7. LAST TRAIN (FAM-B): W06 sweat-damp spine + B09 backlit silhouette
+#    + E11 waistband roll + D16 tram brake + M02 crossbody ride
+
+═══ APPENDIX C — USAGE DOCTRINE ═══
+# 1. DRAW PATTERNS, NOT QUOTES. §17B counts any one noun-phrase >2 per
+#    batch; 280 positions exist so that never has to happen. The entry
+#    is a MECHANIC (nouns + relation), the prose re-coins it.
+# 2. THE NOUN CARRIES THE CLAIM (§4D-3). The verb may be boring; at
+#    PH's ~40% survival these entries still read because the payload
+#    sits in the nouns and prepositions.
+# 3. ASSEMBLY ORDER (the core-4 ritual): first pick the MECHANISM
+#    SPREAD (one from each group: fabric / body / position / physics),
+#    then degree-tune along the L→H ladder, then maturity-match the
+#    register (§53A affinity notes), THEN write prose around the stack.
+# 4. EVERY LAYER CARRIER NAMES ITS STACK (§61(3)): what is over what,
+#    which opening permits the read. An under-strap exits only through
+#    a named route — «лифчик под одеждой, лямки снаружи» is the bug
+#    this library exists to make impossible.
+# 5. TAG-MIRROR (§60): strong carriers pair with their platform tags
+#    (taut shirt, zettai ryouiki, off shoulder, tanlines, open clothes)
+#    — the tag-run carries the payload through PH, the prose carries
+#    the beauty past it.
+# 6. THE WITNESS PRINCIPLE: C/I/M classes are the house register —
+#    objects and aftermath testify, the girl doesn't have to display.
+#    A strong R+ frame can be carried by evidence alone.
+# 7. NICHE FRAMES may run core-3 (three mechanisms) when the theme
+#    demands atmosphere over heat — but the gate must be told
+#    (NICHE-flag in the pre-header), and the batch's R+ set still
+#    averages core-4. The R-exempt doctrine (§4D-3's NICHE note)
+#    applies to NICHE-claimed frames, never to R+ claims.

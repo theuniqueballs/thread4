@@ -1,0 +1,405 @@
+TRACKER.yaml — ULTIMATE DICE rolling storage (v3.2-EXP-V6)
+This file tracks EVERYTHING that ULTIMATE DICE needs to check across batches.
+Rollback window: 3 batches. After 3 batches, items "expire" and return to the pool.
+What's tracked (everything except quality tags and lighting):
+- concept_anchors (kebab phrases)
+- hair_colors (per position)
+- eye_colors (per position)
+- VIS codes (signature features, per prompt)
+- BPT templates
+- D19 body-emphasis zones
+- K codes (kinetic)
+- FET codes (fetish)
+- BRE/BK/B technique codes
+- closure patterns (F1-F5)
+- opening strategies
+- palettes used
+- interaction types
+- act-position structural tuples
+How it works:
+Before writing batch N: read this file, check last 3 batches (N-1, N-2, N-3).
+Everything in those 3 batches is BLACKLISTED. After 3 batches, it EXPIRES.
+After delivering batch N: append its data to this file.
+The 4th batch back (N-4) automatically expires — its data stays for reference
+but is no longer blocking.
+Exception: OC canon-locked features are NEVER blacklisted (per §11).
+n24_blue_is_the_loneliest_color:
+spec_version: "v3.2-EXP-V14 + OC_CANON v1.7.1 + RATING_MAP v2.2 + POOLS v9.3 + §53A/§54"
+
+author_directive: "2026-09-13: вердикт N23 («хороший батч, в меру эротический, идея была») + заказ: тема «Blue Is the Loneliest Color» (батч 21) + OC SET9 каст ассистента по трём авторским промптам: (R+) Sexy Swimsuit · Stolen Bra from the Swimsuit (R+, hands covering breasts, red from embarrassment) · Drunk on the Beach (R+)"
+
+scope: "21 mains (download/BATCH_N24_BLUE_IS_THE_LONELIEST_COLOR.md) + 3 OC prompts (download/OC_ORDERS_N24.md — SET9: Sol the-sun-keeps-blue-hours R+ / Doe the-gull-files-its-lien R+ / Lua the-grief-keeps-day-hours R+); no SP order this cycle; no windows consumed by OC"
+
+rating_shift: "claimed = earned (R7/R+12/X2; gate v4 PASS; два X на истёкших фоссил-слотах P12/P20 — пара N17, окно-чистые; сильнейшие носители: P03 11.5 / P05 11.5 / Sol-OC1 11.5 / P10 9.5)"
+
+concept_anchors:
+- blue-hour-visiting-hours
+- one-sock-quorum
+- shallows-enrollment
+- first-day-blue
+- zipper-coastline
+- nightshift-tank-glass
+- blue-ink-unsent
+- denim-wear-map
+- saltwater-taffy-close
+- lane-ropes-down
+- her-green-sends-one-blue
+- bottle-glass-census
+- blueprint-tenancy
+- last-set-blue
+- cold-blood-heat-loan
+- moon-signed-rounds
+- one-stone-hoard
+- the-four-am-refill
+- beam-census-twelve-seconds
+- bequest-at-first-light
+- bulb-outlasting-last-call
+
+oc_orders_set9_anchors: [the-sun-keeps-blue-hours, the-gull-files-its-lien, the-grief-keeps-day-hours] # SET9: SOL / DOE / LUA — три разных уровня отдыха (3/5/2 цикла), каст по фиту: огонь в синем / фарфор под румянцем / скорбь после смены; K172/K173/K174 OC-exempt (K123+ era)
+
+hair_colors_per_position:
+P01: silver-ash · P02: blue-black · P03: seafoam-teal · P04: butter-blonde · P05: glacier-white · P06: dusty-lavender · P07: russet-red · P08: black-cherry · P09: ice-mist-blonde · P10: steel-blue-black · P11: wheat-blonde · P12: pearl-white · P13: denim-blue · P14: chestnut-rose · P15: deep-umber · P16: cornsilk-white · P17: rain-blonde · P18: mist-silver · P19: dark-maple · P20: blue-ash-brunette · P21: dove-grey
+
+eye_colors_per_position:
+P01: slate-grey · P02: garnet · P03: aquamarine · P04: sky-blue · P05: cornflower · P06: violet · P07: sea-grey · P08: dark-teal · P09: sapphire · P10: moon-grey · P11: moss-green · P12: storm-grey · P13: amethyst · P14: whiskey-gold · P15: honey-amber · P16: wolf-amber · P17: jade · P18: copper · P19: pale-gold · P20: dawn-rose · P21: barlight-amber
+
+race_per_position:
+P02: R11-bat-kin · P03: R13-merfolk · P06: R15-porcelain-doll · P09: R03-kitsune-kin · P11: R14-dryad · P13: R02-elf · P15: R08-serpent-kin · P16: R05-wolf-kin · P17: R07-dragon-kin · P19: R10-deer-folk
+
+race_delivery_note: "§54 оба канала на всех 10: тег в тег-ране (bat ears / scales / ball joints / fox ears / vines / elf ears / tail + slit pupils / wolf ears / horns / antlers) + проза с ACTIVE-использованием (уши-семaфоры волка, рога держат луч дольше, хвост-дневник Луа в OC)"
+
+maturity_bank: "mature ×7 (P02/P08/P10/P12/P17/P18/P20 + OC1-Sol) / adult ×8 (P03/P05/P06/P13/P15/P16/P19 + OC2-Doe, OC3-Lua) / young ×6 (P01/P04/P07/P11/P14/P21)"
+
+bpt_usage: {BPT-1: 3, BPT-2: 3, BPT-3: 3, BPT-4: 1, BPT-5: 3, BPT-6: 3, BPT-7: 3, BPT-8: 2}
+
+d19_usage: {collarbone: 1, hands: 3, thighs: 3, hips: 1, back_spine: 3, buttocks: 3, breasts: 4, lips: 2, navel: 1}
+
+k_codes: [K158, K159, K160, K161, K162, K163, K164, K165, K166, K167, K168, K169, K170, K171, K84, K86, K88, K90, K91, K92, K93] # 16 минтов (POOLS v9.3 §19) + 6 возвратов, 21 distinct ×1; OC-exempt: K172 (Sol), K173 (Doe), K174 (Lua)
+
+fet_codes: [FET24, FET11] # 2 сценарных хука window-free (swimwear_malfunction P10 + mirror_voyeur P06) + фокусные FET02/04/09/47/57/63/68/69/70 (window-clean)
+
+techniques: {BRE: [BRE17, BRE20], BK: [BK7, BK9, BK12], B: [B19, B21]} # возвраты истёкших баз — все window-free
+
+closure: {F1: 3, F2: 5, F3: 3, F4: 4, F5: 6}
+
+opening: {setting_led: 4, list_led: 2, sensory_led: 3, dialogue_led: 3, action_led: 2, thought_led: 2, definition_led: 3, material_led: 2}
+
+palettes: [P87, P22, P63, P84, P85, P86, P51, P88, P83, P45, P70, P61, P59, P56, P57, P29, P64] # 17 distinct (11 window-free возвратов + 6 минтов TINT-семьи P83-P88), max ×2
+
+oc_palettes: "none consumed in-batch — SET9 rides OC-exempt (Sol P63_GLACIER_BREACH — огонь в цвете льда; Doe P87_ICE_SHEET_FIRSTLIGHT — dawn-rose слот ЕСТЬ румянец; Lua P22_VOID_INDIGO — синий подтон траура в синий час)"
+
+interaction_types: [hour-answering, load-auditing, shore-enrolling, stiffness-riding, suit-peeling, glass-keeping, ink-sending, denim-settling, taffy-pulling, water-wringing, bloom-tending, glass-collecting, map-inking, set-holding, steam-lending, dune-rounding, hoard-keeping, pot-refilling, beam-counting, water-drifting, last-call-closing]
+
+lls_distribution: {L0: 0, L1: 7, L2: 12, L3: 2} # L3 = P12 X + P20 X
+
+x_prompts: [P12, P20] # истёкшие фоссил-слоты N17-пары, окно-чистые
+
+color_gate: "§51 PASS (lint) + BLUE CLAUSE: каждый синий сатурирован в глубину; в каждой композиции ровно ОДИН тёплый свидетель (amber pane / dawn-rose / blush / pie-amber / red shard / filament / ember) — тепло всегда в меньшинстве, всегда есть"
+
+usage_policy_note: "mains registry-clean; card-armor в каждом NEG; §49 25-46 термов; §52/§53/§53A/§54 все зелёные (batch_n24_lint PASS, oc_orders_set9_lint PASS, gate v4 PASS claimed=earned, simcheck §17A 0 пар > 0.28 vs N21+N22+N23); render protocol: PH ON (V14)"
+
+ACTIVE BLACKLIST UPDATE — after batch N23 "SIN LOOKS GOOD ON YOU" + OC
+ORDERS SET 8 (Lyn / Rue / Rin, separate file). МАРАФЕТ-ЦИКЛ V14: §53A
+MATURITY RANGE + §54 RACE DELIVERY + PH MODE ON (все три — по прямым
+директивам автора на фидбеке N22). Window now: N23 + N22 (A WORLD
+SLIGHTLY OUT OF PLACE) + N21 (PERHAPS WE WERE THE DREAM). N20 has
+expired — its block moves to TRACKER_ARCHIVE.yaml at the next archive
+pass.
+════════════════════════════════════════════════════════════════════════
+
+n23_sin_looks_good_on_you:
+spec_version: "v3.2-EXP-V14 + OC_CANON v1.7.1 + RATING_MAP v2.2 + POOLS v9.2 + §53A/§54"
+
+author_directive: "2026-09-12: марафет (1. милфы остаются — только лоли враг; 2. найти причину «весь батч — волт»; 3. найти ошибку расовых фишечек; 4. эротика ок — генерим на PH дальше; 5. большой комплексный анализ) + тема Sin Looks Good on You (батч 21) + OC SET8: самых скучающих троих, кто давно не показывался"
+
+scope: "21 mains (download/BATCH_N23_SIN_LOOKS_GOOD_ON_YOU.md) + 3 OC prompts (download/OC_ORDERS_N23.md — SET8: Lyn R+ / Rue R+ / Rin R+, три дебюта); no SP order this cycle; no windows consumed by OC"
+
+rating_shift: "claimed = earned (R7/R+12/X2; gate v4 PASS; два X на истёкших фоссил-слотах P08/P19 — пара N19, окно-чистые; сильнейшие носители: P09 18.0 / Rue-OC2 17.0 / P05 15.0)"
+
+concept_anchors:
+- asleep-before-the-second-fitting
+- glass-approves-her-first
+- every-coin-stays-warm
+- slowest-silk-in-the-building
+- bought-legs-bitter-hem
+- banquet-sized-gluttony
+- her-anger-has-a-silhouette
+- worn-in-like-a-vow
+- porcelain-never-apologizes
+- gravity-was-hired-for-this
+- envy-is-a-size-off
+- honey-jar-alibi
+- creases-fear-her
+- coin-closure-ledger
+- powdered-sugar-landlord
+- waist-cut-signature
+- borrowed-amber-necklace
+- photosynthesis-as-laziness
+- the-ash-knows-her-measure
+- gold-arithmetics-her-hips
+- fed-past-wanting
+
+oc_orders_set8_anchors: [one-flick-per-day, the-color-she-cannot-mix, the-fire-has-been-dressing-her] # SET8: LYN / RUE / RIN — три NEVER-ordered OC (бесконечный отдых = буквальное «давно не показывался»), три дебюта, три самых скучающих регистра канона; грехи по канону: Sloth-на-кошке / Envy-утраченного-тепла (Hanged Man: «suspended between what was and what is») / Lust-как-костёр (канонная рубаха «held only by the fire's own draft» — грех носит её годами); K155-K157 OC-exempt (K123+ era)
+
+hair_colors_per_position:
+P01: ash-blonde · P02: silver-grey · P03: dark-brown · P04: auburn · P05: ink-blue-black · P06: honey-blonde · P07: copper-red · P08: burgundy · P09: platinum-blonde · P10: sandy-blonde · P11: wine-red · P12: chestnut · P13: ginger-red · P14: raven-black · P15: strawberry-blonde · P16: jet-black · P17: dust-blonde · P18: sage-green · P19: mahogany · P20: champagne-blonde · P21: smoke-grey
+
+eye_colors_per_position:
+P01: moss-green · P02: amber · P03: gold · P04: ruby · P05: sea-green · P06: topaz · P07: garnet · P08: ice-blue · P09: teal · P10: sapphire · P11: emerald · P12: butterscotch · P13: copper · P14: jade · P15: violet · P16: hazel · P17: amethyst · P18: honey · P19: amber · P20: emerald · P21: cornflower
+
+race_per_position:
+P02: R02-elf · P03: R09-goat · P05: R13-merfolk · P07: R10-deer · P08: R11-bat · P09: R15-doll · P11: R08-serpent · P13: R07-dragon · P14: R03-kitsune · P18: R14-dryad
+
+race_delivery_note: "§54 сработал: все 10 расовых несут тег в тег-ране (elf ears / horns / scales / bat ears / ball joints / tail / fox ears / vines) + проза ×2 с активным взаимодействием + переговоры гардероба — N22-провал «9 в бухгалтерии, 0 в рендере» закрыт обоими каналами"
+
+maturity_bank: "mature ×7 (P03/P06/P12/P14/P15/P18/P20 + OC3-Rin) / adult ×8 (P01/P02/P07/P08/P09/P16/P19/P21 + OC1-Lyn, OC2-Rue) / young ×6 (P04/P05/P10/P11/P13/P17 — college-age ×2: P04, P10)"
+
+bpt_usage: {BPT-1: 3, BPT-2: 3, BPT-3: 3, BPT-4: 2, BPT-5: 2, BPT-6: 2, BPT-7: 3, BPT-8: 3}
+
+d19_usage: {hands: 3, breasts: 4, hips: 1, thighs: 3, navel: 1, back_spine: 3, throat: 1, waist: 1, buttocks: 3, collarbone: 1}
+
+k_codes: [K139, K140, K141, K142, K143, K144, K145, K146, K147, K148, K149, K150, K151, K152, K153, K154] # 16 minted (K139-154, POOLS v9.2 §18), max 2x; OC-exempt: K155 (Lyn), K156 (Rue), K157 (Rin)
+
+fet_codes: [FET16, FET23] # 2 сценарных хука window-free (robe_fall_mid_bow P02 + dancer_veil_fall P15); базовые коди окна заблокированы — кинетики несут сами
+
+techniques: {BRE: [BRE25, BRE26, BRE28], BK: [BK14, BK15], B: [B35, B36, B37]} # mechanics_first_v3 minted; все window-free
+
+closure: {F1: 3, F2: 5, F3: 3, F4: 4, F5: 6}
+
+opening: {definition_led: 3, thought_led: 3, sensory_led: 3, list_led: 3, setting_led: 3, dialogue_led: 2, action_led: 2, material_led: 2}
+
+palettes: [P47, P54, P68, P49, P53, P60, P43, P25, P67, P52] # 10 distinct (11-слотовая свободная полка окна; вота N23 ошиблась в арифметике — считала N22-двадцатку обратно в пул), sub A18/B2/C1
+
+oc_palettes: "none consumed in-batch — SET8 rides OC-exempt (Lyn P66_DUSK_VERMILION, Rue P23_VOID_VIOLET, Rin P35_VOID_EMBER — каждая в своей канонной цветовой семье)"
+
+interaction_types: [fitting-sleeping, mirror-approving, coin-pinning, sash-feeding, leg-buying, feast-fitting, scorch-draping, vow-wearing, glaze-holding, obi-surrendering, skin-borrowing, midnight-keeping, crease-ironing, vault-closing, sugar-spending, posture-signing, light-borrowing, chair-rooting, word-burning, till-counting, hour-keeping]
+
+lls_distribution: {L0: 0, L1: 6, L2: 12, L3: 3} # L3 = P08 X + P18 TB R+ + P19 X
+
+x_prompts: [P08, P19] # истёкшие фоссил-слоты N19-пары
+
+color_gate: "§51 PASS (lint): все 21 клозера deep-anchored; sat-anchor ×21 (vermilion pin-line, garnet button, gold-leaf ledger, ember edge, coin-string, honey-gold, kept daylight, ribbon red); anti-wash NEG ×21 (расширенные на P09/P21 pale-доминантах)"
+
+usage_policy_note: "мains registry-clean; card-armor в каждом NEG; §49 40-46 термов; §52/§53/§53A/§54 все зелёные (batch_n23_lint PASS, oc_orders_set8_lint PASS, gate v4 PASS claimed=earned, simcheck §17A 0 пар > 0.28 vs N20+N21+N22); render protocol: PH ON (V14)"
+
+n25_the_rain_fell_upward:
+spec_version: "v3.2-EXP-V15 + OC_CANON v1.7.1 + RATING_MAP v2.2 + POOLS v9.4 + LEAD axis + §17B/§55/K-RETURN"
+
+author_directive: "2026-09-13 (post-N24 review): ЭКСП-батч с дословным просмотром процесса — тема «The Rain Fell Upward» (мир с неправильной физикой) + один OC-промпт с инверсией цветов (Nix)"
+
+scope: "21 mains (download/BATCH_N25_THE_RAIN_FELL_UPWARD.md) + 3 OC prompts (download/OC_ORDERS_N25.md — the 2026-09-14 extension «ещё двоих по той-же теме»: Nix the-key-outweighs-the-sky R+ / Yui one-ocean-for-one-aurora R+ / Noa the-spikes-decline-the-invitation R+, all COLOR-INVERSION orders per author ТЗ); no SP order this cycle; no windows consumed by OC"
+
+rating_shift: "claimed = earned (R7/R+12/X2 batch + OC1 R+; gate v3 PASS; X на истёкших фоссил-слотах P05/P13 — пара N14, десять батчей назад; сильнейшие носители: P18 11.5 / P15 10.0 / P14 10.5)"
+
+concept_anchors:
+- first-rain-finds-her-dry
+- two-fingers-hold-the-border
+- every-book-checks-out
+- the-climb-introduces-itself
+- falling-toward-the-streetlight
+- customs-desk-of-leaves
+- one-dry-lungful
+- the-tide-remembers-her
+- one-drop-sommelier
+- she-hangs-her-own-direction
+- silk-under-interrogation
+- locked-seams-stay-down
+- empty-tub-full-farewell
+- antlers-catch-what-leaves
+- the-unfrozen-drop
+- a-bowl-for-upward-weather
+- she-signs-the-skys-papers
+- one-horse-still-bolted
+- drinking-the-recantation
+- bolted-verdict
+- one-clerk-left-on-shift
+
+oc_orders_n25_anchors: [the-key-outweighs-the-sky, one-ocean-for-one-aurora, the-spikes-decline-the-invitation] # NIX (SET5/N20, four cycles rest; card-fit) + YUI/NOA (SET4/N19, five cycles — the ledger leaders; the 2026-09-14 extension order); MIYU passed over documented (platinum handoff + heterochromia dilution); COLOR-INVERSION exception blocks in-file; K182/K183/K184 OC-exempt; OC1 NEG trimmed 58→51 (the live lint's first catch)
+
+hair_colors_per_position:
+P01: ink-black · P02: chestnut · P03: ash-blonde · P04: wet-copper · P05: moonless-black · P06: leaf-green · P07: wheat-blonde · P08: seafoam-teal · P09: silver-white · P10: violet-black · P11: garnet-red · P12: butter-blonde · P13: storm-grey · P14: fawn-brown · P15: rose-blonde · P16: deep-plum · P17: smoke-grey · P18: ash-brown · P19: ember-copper · P20: jet-black · P21: night-blue
+
+eye_colors_per_position:
+P01: glacier-green · P02: hazel · P03: amber · P04: sea-grey · P05: void-violet · P06: bark-gold · P07: dawn-blue · P08: abyssal-blue · P09: frost-grey · P10: dusk-red · P11: ruby · P12: glass-blue · P13: aurora-grey · P14: doe-brown · P15: wine-red · P16: serpentine-gold · P17: rain-grey · P18: amber-green · P19: ember-orange · P20: molten-gold · P21: watchlight-yellow
+
+race_per_position:
+P01: R02-elf · P04: R05-wolf-kin · P06: R14-dryad · P08: R13-merfolk · P10: R11-bat-kin · P12: R15-porcelain-doll · P14: R10-deer-folk · P16: R08-serpent-kin · P18: R09-goat-kin · P20: R07-dragon-kin
+
+race_delivery_note: "§54 оба канала на всех 10: тег в тег-ране (elf ears / wolf ears + tail / vines / scales / bat ears + wings / ball joints / antlers / tail + slit pupils / horns / horns + tail) + проза с ACTIVE-использованием (ухо-аудит, хвост-якорь, рога-бюро находок, швы под чтением дождя, крылья-мембраны, лозы-сигналы, чешуя-показания, хвост-аренда)"
+
+maturity_bank: "mature ×7 (P02/P08/P10/P13/P16/P18/P20) / adult ×8 (P01/P03/P05/P06/P11/P15/P19/P21) / young ×6 (P04/P07/P09/P12/P14/P17)"
+
+lead_usage: {collarbone: 2, buttocks: 3, breasts: 3, back_spine: 3, hands: 3, navel: 2, thighs: 3, lips: 1, eyes: 1} # V15 LEAD axis debut — BPT retired file-wide; mandates green
+
+k_codes: [K61, K63, K64, K65, K68, K69, K71, K72, K73, K74, K77, K82, K83, K85, K175, K176, K177, K178, K179, K180, K181] # K-RETURN LAW's first run: 14 returns (led by K82 the N15-era wrong-gravity fossil coming home) + 7 mints (budget 8 honored) = 21 distinct ×1; OC-exempt: K182 (Nix)
+
+fet_codes: [FET19, FET15, FET18] # §55 floor exceeded: library_ladder (P03) + time_stop (P15) + collar_chain (P20) — all window-free; focus codes FET52/53/56 + FET46/48 riding free
+
+techniques: {BRE: [BRE19, BRE21, BRE22], BK: [BK8, BK10], B: []} # window-clean returns; the carrier-class letters (A/B/W/G) in stacks are §4 classes, not B-codes
+
+gar_f: [GAR57, GAR58, GAR59, GAR61, GAR64] # v3 antigrav family mints (POOLS v9.4 §23) + GAR34 vinyl raincoat from base
+
+h_codes: [H04, H11, H17, H21, H26] # free returns + v2 extension mints (window had 17/20 blocked)
+
+palettes: [P24, P27, P46, P35, P26, P73, P42, P65, P32, P50, P40, P31, P34, P66, P23, P37, P30, P36, P69, P44, P38] # 21 distinct ×1 — the free shelf ridden one-to-one, zero mints (the MOTIF vote honored; the restraint is the point)
+
+x_positions: [P05, P13] # expired fossil slots — N14's pair, window-clean
+
+engine: "COUNTERFALL (the BESPOKE/TINT lineage's third generation — the reversal MEASURED ON her; wet law: DRY FALLS / WET RISES; undressing by claim-by-water, the wind retired)"
+
+rain_clause: "§51 corollary — light from below (LQ04 the native instrument); ONE DOWNWARD WITNESS per composition (the bead, the chain, the key, the bolted horse, the tail — the direction that stays)"
+
+lint_status: "batch_n25_lint PASS 0 errors (V15: LEAD axis, §17B caps, §55 FET floor, K mint budget) · gate v3 GATE_SET=n25 claimed=earned · simcheck §17A 0 pairs >0.28 vs N22+N23+N24 · freq_lint §17B live: N24 tics at ZERO (camel-honest/shape-honest/owns-the-frame/printed), caps held (line 9/12, seam 3/8, keeps 4, standing 4); residual watch: clinging/gone/last/weight (lexicon-induced register — the §4A verb sets funnel prose; next lexicon v5 should broaden W-verbs). EXTENSION (2026-09-14, ×3 OC): oc_orders_n25_lint PASS 0 errors (caught the OC1 NEG economy 58>52 live — fixed); gate v3 all three EARN R+ (4/3/38 · 5/4/35 · 4/3/34); oc_n25_simcheck 0 pairs >0.28 vs 95 refs; freq §17B — tics zero, cross-prompt divergences fixed (riding ×6→1, standing/already/weave/bright/whole de-duped), substrate documented (theme/canon-lexicon/inversion-language — the points/second-skin funnel is RATING_MAP v5's concrete brief)"
+
+render_protocol: "PH ON (V14)"
+
+n26_silence_is_the_slowest_undressing:
+spec_version: "v3.2-EXP-V16 + OC_CANON v1.7.1 + RATING_MAP v2.3(§4D v5) + POOLS v9.4 + ENGINES(CANTUS debut) + SUCCESS_LOG/§56 organs live"
+
+author_directive: "2026-09-14: N26 (батч из 21), тему придумаешь сам + OC 3 промпта, темы и каст свои + SP: 2000 подписчиков EcchiPalette — челлендж + поздравительный текст + Sue (море/глубины/нежно/загадочно)"
+
+scope: "21 mains (download/BATCH_N26_SILENCE_IS_THE_SLOWEST_UNDRESSING.md) + 3 OC prompts (download/OC_ORDERS_N26.md — Miyu two-voices-one-hemline R+ / Vae the-tape-never-heard-the-song R+ / Zia the-encore-pays-in-laughter R+) + SP-07 (the EcchiPalette 2,000-subscriber kit: the congratulatory post + the 2000 Meters Down challenge + Sue the-deep-does-not-stare R+ flagship); SP-05/06 NEG economy repaired (50/66 -> 40 terms — sp_lint had drifted out of the pipeline, now added as step 5a); sp_lint added to the pipeline"
+
+rating_shift: "claimed = earned ALL CLEAN: mains R7/R+12/X2 (zero borderline — the NICHE R slots at core>=2 + share>=20%), OC R+ x3 (32/35/31%), SP-07 R+ (31%); X pair P02+P17 (P02 re-expired from N21, P17 re-expired from N15); strongest carriers: P05 11.5 / P13 9.5 / OC2 9.0 / P14 8.5 / SP-07 8.5"
+
+concept_anchors: [the-sash-learns-the-lyrics, the-body-holds-the-rest, the-descant-climbs-her-surplice, her-dress-was-sewn-not-sung, the-long-note-pays-the-scarf, the-radio-hems-the-apron, her-tail-takes-the-tempo, one-scale-one-button, the-echo-tailors-her, the-yodel-breaks-both-ways, the-howl-spends-the-flannel, the-lullaby-spends-it-slowly, the-worksong-opens-the-overalls, the-key-change-rethreads-her, the-orchard-replays-her, insomnia-pays-in-silk, the-aria-outlives-the-gown, the-harmony-owes-half-her-hem, the-tiles-return-her-reverb, the-role-unravels-first, she-banks-the-unsung]
+
+oc_orders_n26_anchors: [two-voices-one-hemline, the-tape-never-heard-the-song, the-encore-pays-in-laughter] # MIYU (x6 rest, SET4/N19 — the ledger's longest-served; card-fit: the Magician's speech) + VAE/ZIA (x4, SET6/N21 — the named tier; the Devil's torch song / the Lovers' duet-card with her own canon gust); MAB passed over DOCUMENTED with her banked prompt (the music-box doll — drafted and held for a stillness-engine cycle); K189/K190/K191 OC-exempt
+
+sp_orders: "SP-07 the-deep-does-not-stare — the 2000-subscriber milestone kit: post text (EN, the author's voice) + the 2000 METERS DOWN challenge (the milestone IS the mechanic; depth sets the light; 1girl solo) + Sue's flagship prompt at the full 2,000m (all canon locks; the Hermit's brass light; the blind tender attendants; R+ earned 31%)"
+
+hair_colors_per_position:
+P01: honey-brown · P02: maple-brown · P03: ash-grey · P04: ivory-blonde · P05: mahogany-red · P06: caramel-blonde · P07: henna-auburn · P08: graphite-brown · P09: plum-black · P10: flax-blonde · P11: iron-grey · P12: milk-brown · P13: fox-red · P14: wine-plum · P15: clover-brown · P16: blue-raven · P17: champagne-blonde · P18: umber-brown · P19: seagrass-blonde · P20: auburn-ash · P21: oxblood-red
+
+eye_colors_per_position:
+P01: steam-grey · P02: morning-amber · P03: stained-glass blue · P04: bisque-grey · P05: coin-brass · P06: kitchen-amber · P07: bazaar-gold · P08: hourglass-amber · P09: cave-violet · P10: edelweiss-blue · P11: moonlit-amber · P12: oat-brown · P13: furnace-gold · P14: cherry-wine · P15: orchard-green · P16: neon-teal · P17: stage-amber · P18: sepia-gold · P19: tilework-green · P20: house-light amber · P21: ingot-gold
+
+race_per_position:
+P03: R02-elf · P04: R15-porcelain-doll · P07: R08-serpent-kin · P09: R11-bat-kin · P10: R09-goat-kin · P11: R05-wolf-kin · P13: R03-kitsune-kin · P15: R14-dryad · P19: R13-merfolk · P21: R07-dragon-kin
+
+race_delivery_note: "§54 оба канала на всех 10: тег в тег-ране + проза с ACTIVE-использованием (уши читают потолок гимна, хвост-метроном и хвост-бухгалтер, эхо-портной мембраны, лай-прижатые уши, виноградные кольца, лисий хвост-метроном под фартуком, чешуя-реферат)"
+
+maturity_bank: "mature ×7 (P05/P08/P10/P14/P17/P18/P19) / adult ×8 (P02/P03/P07/P11/P12/P13/P16/P21) / young ×6 (P01/P04/P06/P09/P15/P20)"
+
+lead_usage: {lips: 3, hands: 3, throat: 3, back-spine: 3, buttocks: 3, thighs: 3, breasts: 2, hips: 1, waist: 1} # the singer's own axis (throat) got its first mandate run; 9 zones; max 3
+
+k_codes: [K119, K118, K120, K135, K104, K101, K115, K99, K129, K81, K128, K133, K130, K131, K132, K122, K134, K185, K186, K187, K188] # 17 returns (led by K118 mid_breath_catch — the N21-era breath code coming home, the engine's own fossil) + 4 mints (the breath-ledger family: inhale_suspend/note_release/unravel_pinch/fermata_hold; budget 8, half spent); OC-exempt: K189/K190/K191
+
+fet_codes: [FET21, FET13, FET22] # §55 floor exceeded: idol_worship_reveal (P03 evensong) + collar_and_tail (P07 charmer) + kimono_slip_ceremony (P19 sento); focus codes FET05/54 riding free
+
+techniques: {BRE: [BRE23, BRE29, BRE30], BK: [BK13, BK17, BK18], B: [B25, B26]} # window-clean returns
+
+gar_f: [GAR52, GAR54] # v2 family returns (tan_line_frontier P10 + suit_shifted P19); v3 blocked by N25's debut
+
+h_codes: [H12, H15, H19, H22, H23, H24, H25] # free returns; H24 dry_girls_pride at P21 — the refusal to be claimed
+
+palettes: [P77, P33, P71, P28, P58, P79, P41, P82, P21, P78, P62, P74, P39, P72, P81, P76, P75, P48, P55, P80] # 20 free-shelf returns x1 + P75_VELVET_GRAVITY x2 (§2A sub-recipes A/B: the opera curtain P17 + the parlor armchair P18); zero mints; oc-exempt re-rides: Miyu P62 / Vae P72 / Zia P48
+
+x_positions: [P02, P17] # P02 re-expired from N21 (4 batches rest) + P17 re-expired from N15 (10 batches); the X mid-decision at P02 (V16 directive: the body still conducting, the weave already resigned)
+
+engine: "CANTUS (ENGINES.yaml's 4th generation debut — BESPOKE/TINT/COUNTERFALL lineage): the garment is a sustained note; the wind RETIRED into its second batch; threads stream toward the source"
+
+cantus_clause: "§51 corollary — the light follows the voice (LQ07 beam / LQ05 spot / LQ06 bounced); ONE UNSUNG WITNESS per frame: the drain's ring, the steel hairpin, the hymnal's clasp, her own ball joints, the hat's coins, the kettle, the flute's ferrules, the metronome, the mute bell, the cowbell, the dog-tag, the collar-bell, the stinger's tip, the garter's clasp, the press's screw, the window latch, the corset busks, the radio's dials, the faucet, the wig's pins, the deposit-key ring — the things she didn't sing to, stay on"
+
+lint_status: "batch_n26_lint PASS 0 errors (V16: tics-zero caps, K-RETURN, LEAD, word-level kebab check) · simcheck §17A 0 pairs >0.28 vs N23+N24+N25 · oc_orders_n26_lint PASS · oc_n26_simcheck 0 pairs vs 95+ refs · sp_lint PASS (SP-05/06 economy repaired 50/66->40; sp_lint added to pipeline step 5a) · gate R7/R+16/X2 ALL CLEAN zero borderline · freq --fail-on-new-only: 3 NEW tics caught live (dark points 11/21, re-arriving 9/21, tones 21/21 — the v5 exemplars photocopying themselves; rotated at the source: peaks printing / points straining / nipples dark beneath / shape of her nipples pressed against + lands/pours/tips/leads/votes + depth-tones restored; re-run PASS 0 new) + OC trio's venue register (stage/paid 3/3 -> hall/boards/rig + bankrolled/solvent) · rhythm: triplet 100% -> 43% batch (mixed 57%), OC 3 classes 33/33/33 — NO FORMULA FLAG either file · POS mean ~415 vs N25's 560 (12/21 over the 400 soft cap by <=76 — WARN receipt, trend delivered)"
+
+render_protocol: "PH ON (V14)"
+
+ACTIVE BLACKLIST UPDATE — after batch N28 (+ OC SET3). Window now:
+N26 + N27 + N28. N25 has expired — its block moves to TRACKER_ARCHIVE
+at the next archive pass. The window blocks: N26's K185-188+returns,
+N27's K192-195+17 returns + K196-198 OC + K199-201 EXQ, N28's
+K202-205+17 returns + K206-208 OC; palettes N26/N27/N28 sets (N25's
+set returns at N29; the N24 expiry set was consumed by N28); FET/H/
+GAR/BRE/BK/B per the files.
+
+n28_nobody_knows:
+spec_version: "v3.2-EXP-V18 + OC_CANON v1.7.1 + RATING_MAP v2.5(§4D-3 PH-safe) + POOLS v10 + POSE v3.0 + ENGINES(ARCANA debut) + §60 PH-PROOF + ph_sim_gate"
+
+author_directive: "2026-09-15: the RF-002 PH-rewrite corpus (27 frames) + «решить проблему в корне, кардинально» + N28 theme «Nobody Knows» + OC SET3 (I Don't Need Anyone / I Don't Care / I Want You to Notice)"
+
+scope: "21 mains (download/BATCH_N28_NOBODY_KNOWS.md — ARCANA, PH-proof delivery) + 3 OC (download/OC_ORDERS_N28_SET3.md — Lua the-second-cup-pours-anyway / Una the-gown-never-heard-the-verdict / Yui the-sun-cannot-play-it-cool, the three author themes, R+ earned)"
+
+rating_shift: "claimed = earned ALL CLEAN: mains R7/R+12/X2 + OC R+×3 — AND the PH-SIM GATE PASS on first full run (every R+/X claim survives its simulated rewrite; the N27 retro on the same gate FAILS 11 R+ claims — the instrument separates the batches exactly as the render verdict did)"
+
+k_codes: [K168, K90, K86, K165, K84, K202, K160, K159, K203, K163, K169, K170, K167, K88, K204, K158, K91, K93, K171, K161, K205] # 17 N24-expiry returns + 4 ARCANA mints K202-205; OC-exempt: K206-208
+
+oc_orders_n28_set3_anchors: [the-second-cup-pours-anyway, the-gown-never-heard-the-verdict, the-sun-cannot-play-it-cool] # LUA ×2 spent / UNA ×4 (the tier's top unserved head) / YUI ×1 — the fit named all three
+
+lead_usage: {hands: 4, breasts: 3, hips: 3, thighs: 2, back_spine: 2, throat: 2, eyes: 2, seat: 1, wrists: 1, collarbone: 1} # ARCANA's own axis: HANDS ×4 (the secret-carrying zone)
+
+pose_ledger: "§58 second run from the 240 shelf: 21 distinct; erotic 4 (PL190/PL187/PL192/PL200); ecchi 6; statics 0; §33 pairs held"
+
+race_delivery_note: "§54 ten racial both channels: bunny P02 / jellyfish P04 / bat P05 / FLAME-SALAMANDER R22 DEBUT P08 / dryad P10 / goat P12 / cat P13 / elf P15 / ram P18 / serpent P21 — one new family debuting, nine window-clean"
+
+palettes: [P104, P103, P102, P100, P86, P59, P61, P105, P22, P49, P83, P57, P29, P51, P63, P85, P56, P45, P87, P84, P64, P70] # 6 ARCANA mints P100-105 debut + 16 N24-expiry returns, 21 distinct, zero window overlap
+
+lint_status: "batch_n28_lint PASS 0 errors (V18.1: §60 checks — prose state floors R+≥3/X≥4, anti-leak guard ×21, length FAIL>400/WARN>320) · batch_n28_simcheck 0 pairs > 0.28 vs N25+N26+N27 · oc_orders_n28_set3_lint PASS · oc_n28set3_simcheck 0 pairs · gate GATE_SET=n28: mains R7/R+12/X2 + OC R+×3 ALL CLEAN · ph_sim_gate PASS (the first full run — the claim survives its own compression) · freq: mid-flight tic «two dark points pressed» caught at 13/21 and rotated to mixed determiners · rhythm: FLAG diagnostic (the closer cadence — see WARN receipt)"
+
+render_protocol: "PH ON (V14) — and written FOR it (§60)
+
+n27_somewhere_between_here_and_magic:
+spec_version: "v3.2-EXP-V17 + OC_CANON v1.7.1 + RATING_MAP v2.4(§4D-2 v6) + POOLS v10 + POSE_LIBRARY v3.0 + ENGINES(LIMEN debut) + §57 EXQUISITE + §58/§59"
+
+author_directive: "2026-09-14 (the pose-decisive audit): N27 batch of 21, theme «Somewhere Between Here and Magic» + OC_Orders N26 SET2 with three author themes (One More Transformation / Borrowed Wings / The Castle Is Flirting, R+) + the EXQUISITE tier order («Помимо Niche нужен ещё наборчик хотя бы пару невероятных охуительных промптов Exquisite») + pools ×4 order + full re-audit"
+
+scope: "21 mains (download/BATCH_N27_SOMEWHERE_BETWEEN_HERE_AND_MAGIC.md — LIMEN) + 3 OC (download/OC_ORDERS_N26_SET2.md — Mab the-last-fitting-is-never-the-last / Lyn the-sky-returns-her-deposit / Ash the-reliquary-proposes, all R+, all author-given themes) + 3 EXQ (download/EXQUISITE_ORDERS_01.md — one-candle-short-of-a-waltz / the-reflection-wears-it-better / exact-change-for-the-tide, the tier's first mint, §57's five locks held)"
+
+rating_shift: "claimed = earned ALL CLEAN: mains R7/R+12/X2 zero borderline (the carrier-render passes' final receipt), OC SET2 R+×3, EXQ R+×3; strongest carriers: P10 10.5 / P13 11.0 / P16 11.0 / P02 12.5 / P06 X 9.0"
+
+k_codes: [K147, K140, K194, K153, K139, K142, K150, K141, K144, K143, K121, K117, K153, K192, K193, K195, K116, K146, K145, K152, K154, K148, K192mints] # 17 returns + 4 seam mints K192-195; OC-exempt K196-198; EXQ-exempt K199-201
+
+concept_anchors: [the-doormat-signs-for-the-fairy-post, the-last-stop-takes-frost-flowers, one-sleeve-faithful-to-both-worlds, the-stairwell-outnumbers-the-building, the-top-shelf-runs-on-fairy-time, the-reflection-dresses-faster, the-sea-stays-in-her-hair, two-currencies-one-scarf, the-far-tap-pours-moon, the-wardrobe-runs-two-seasons, the-hearth-charges-buttons, she-lets-the-fairy-train-go, two-weathers-share-one-railing, the-foam-signs-in-pearl, under-the-bed-somebody-noon, the-antenna-herds-auroras, the-glass-leans-her-way, the-hoard-counts-itself-twice, the-streetlight-routes-the-rain, the-table-keeps-both-hours, the-pantry-shelf-goes-further]
+
+oc_orders_n26_set2_anchors: [the-last-fitting-is-never-the-last, the-sky-returns-her-deposit, the-reliquary-proposes] # MAB (×6 rest spent on the growth-order, the banked music-box NOT spent — held for a stillness cycle) / LYN ×3 / ASH ×4 (Sue rode SP-07's special scope); rotation documented in-file
+
+exquisite_anchors: [one-candle-short-of-a-waltz, the-reflection-wears-it-better, exact-change-for-the-tide] # EXQUISITE-exempt K199-201; §57's scarcity doctrine (1-3 per special order)
+
+lead_usage: {hands: 3, lips: 3, breasts: 3, collarbone: 2, back_spine: 2, buttocks: 2, throat: 2, thighs: 1, hips: 1, navel: 1, eyes: 1} # eleven zones, max 3
+
+pose_ledger: "§58 first run: 21 distinct PL codes, zero repeats; erotic-presentation 4 (PL186/PL185/PL184/PL197); ecchi grammar 5 (PL77/PL70/PL62/PL65/PL129); statics 1 (PL02 at P12 — the retired default's one lawful appearance, letting a fairy train go); §33 pairs held"
+
+race_delivery_note: "§54 ten racial both channels: SIX v10-pool debuts (moth P05 / jellyfish P08 / gargoyle P10 / cecaelia P14 / harpy P16 / mushroom P17) + elf / wolf (P12) / kitsune (P19) / dragon (P18, swapped off N26's P21)"
+
+palettes: [P90, P89, P95, P67, P92, P54, P97, P49, P68, P93, P98, P52, P94, P43, P47, P25, P99, P89, P60, P96, P53] # 10 free returns + 10 seam mints P89-99 (P89 ×2 sub-A/B — the §2A pair), zero window overlap
+
+lint_status: "batch_n27_lint PASS 0 errors (V17: §58/§59 checks, N27 watchlist caps, K-RETURN) · batch_n27_simcheck 0 pairs > 0.28 vs N24+N25+N26 · oc_orders_n26_set2_lint PASS · oc_n26set2_simcheck 0 pairs vs full reference set · gate GATE_SET=n27: mains R7/R+12/X2 + OC R+×3 + EXQ R+×3 ALL CLEAN zero borderline · freq: the new tic «every contour readable» caught mid-flight (15/21) and rotated to 10/21 — the §17B loop closing on the batch's own output; house substrate (dark/pressed/whole/holds) reports, does not gate · rhythm: closer formula broken 20/21 -> 9/21 (3 dialogue / 4 long-fused / 2 fragment-pair); POS mean ~470 — the carrier-render's honest cost, WARN list the receipt, N28's condensation target"
+
+render_protocol: "PH ON (V14)
+
+════════════════════════════════════════════════════════════════════════
+
+n29_no_one_wrote_this_scene:
+spec_version: "v3.2-EXP-V19 + OC_CANON v1.7.1 + RATING_MAP v3.0 (§4E/§4F/§4G/§4C-2) + CARRIER_LIBRARY v1.0.0 + ENGINES(APOCRYPHA debut) + §61"
+
+author_directive: "2026-09-16: N29 через новые органы (P2 spine + P3 house_lint, built Task 37) + тема «No One Wrote This Scene, 21» + THE OC-MERGE ORDER: OC Orders входят в батч из 21 одним файлом, OC первыми, та же логика сборки; три OC-заказа «самые скучающие в каноне»: The Hungry Mimic (мимик принимает привлекательную форму, постепенно выдаёт истинную природу) / The Tentacle Nest (попадает в гнездо существ, пытается прорваться) / The Slime Pit (проваливается в вязкую живую субстанцию, барахтается)"
+
+scope: "ONE file of 21 (download/BATCH_N29_NO_ONE_WROTE_THIS_SCENE.md): P01-P03 OC ORDERS (Rue mimic / Rin nest / Nix slime, all R+, merged per the author's order) + 18 mains (7 NICHE R / 9 VOLT R+ / 2 X P11+P21); APOCRYPHA engine debut (7th generation: THE SCENE UNWRITTEN); first §61 run — core-4 from first draft"
+
+rating_shift: "claimed = earned ALL CLEAN: R7/R+12/X2, 12/12 R+ with core-4 EARNED (N28 retro: 7 fails); PH-SIM PASS — every claim survives its own compression; mean R+ share 37.6%; strongest carriers: P19 11.0 / P01 8.5 / P11 X 8.0 / P21 X 8.0 / P02 8.0"
+
+diversity_receipt: "the §61 receipts: sheer-family R+ frames 1 of 12 (N28 retro: 15 of 15); W-class 22% of carriers (cap 45%); class spread E20/D19/B17/S16/I10/U8 vs W29 at 0.5 weight — the found-frame runs on POSITION/PHYSICS/BODY, fabric is a guest; FAM 6/11/4 with OC counted in; zero layer-stack violations (Rin's canon off-shoulder, Nix's off-shoulder shrug, P19's collar quitting its post — named exits throughout)"
+
+concept_anchors: [the-counterfeit-holds-its-fitting, the-nest-was-already-warm, the-gel-registers-her-mass, the-last-spin-of-the-night, the-night-bus-holds-its-route, three-mirrors-one-curtain-gap, the-vent-stacks-own-the-dawn, the-floor-gets-the-tip, the-sharks-take-the-night-shift, the-stage-door-left-ajar, the-original-and-the-second, the-first-batch-rises-anyway, the-monitor-tapes-the-lap, the-iron-remembers-her, the-greenhouse-breathes-its-round, the-convex-dawn-catches-her, the-phone-was-never-told, the-dock-sleeps-in-monochrome, the-morning-walks-her-home, the-copier-develops-her, the-water-was-already-there]
+
+oc_orders_merged_anchors: "P01 Rue / P02 Rin / P03 Nix — the bored canon («level, haunted patience» / «serene, half-present» / «cold discipline»), rotation-clean (RUE/RIN ×3, NIX ×1); the OC prompts obey §61 core-4 like every R+ frame — the diversity law has no exemptions; K209-211 OC-exempt"
+
+k_codes: [K61, K72, K64, K74, K80, K62, K66, K89, K85, K92, K69, K67, K75, K70, K73, K212, K213, K214, K209, K210, K211] # 15 returns + 6 mints (3 OC-exempt + 3 APOCRYPHA: convex orbit / scan blink / rim haul); NEXT MINTING HEAD: K215
+
+fet_codes: [FET15, FET19, FET02] # 3 window-free (time_stop monitor / library_ladder study / hip_emphasis walk)
+
+techniques: {BRE: [BRE19, BRE39, BRE18, BRE22, BRE21], BK: [BK12, BK9, BK21], B: [B21, B22, B24], H: [H04, H13, H18], GAR: [GAR57, GAR58, GAR59]} # GAR-F v3 physics-undresses family — thematically native to APOCRYPHA
+
+lead_usage: {hands: 3, thighs: 3, collarbone: 2, hips: 2, seat: 2, waist: 2, breasts: 2, cheeks: 1, nape: 1, hamstrings: 1, shoulders: 1, throat: 1} # twelve zones, max 3; the candid-axis bias (zones she cannot self-monitor)
+
+pose_ledger: "§58 third draw: 21 distinct PL codes; erotic-presentation 7 (PL198/PL191/PL53/PL188/PL194/PL52/PL202); ecchi 5 (PL71/PL74/PL67/PL68/PL66); statics 0; CAM pairs per spine pl_camera_pairs"
+
+race_delivery_note: "§54 ten racial both channels: moth P04 / bunny P05 / goat P07 / jellyfish P09 / kitsune P10 / elf P11 / serpent P13 / wolf P14 / flame-salamander P15 / bat P19 — OC orders human×3"
+
+palettes: [P26, P35, P88, P91, P42, P23, P31, P66, P50, P69, P24, P73, P46, P37, P34, P36, P32, P40, P101, P27, P30] # 21 distinct from the 24-shelf free set, zero window overlap, no mints needed
+
+lint_status: "FIRST RUN THROUGH THE NEW ORGANS (P2/P3, Task 37): house_lint n29 PASS 0 errors (первый прогон дал 60 полевых ошибок → 4 fix-пасса → 0 — W1-рецепт: graft-pass устарел по построению); batch_n29_simcheck 0 pairs > 0.28 vs N26+N27+N28; oc_orders_n29_lint PASS (canon locks held ×3); rating gate v5 GATE_SET=n29 PASS 12/12 core-4; ph_sim GATE_SET=n29 PASS; pipeline 6/6 hard gates; freq: 0 NEW tics (8 substrate, not gated); rhythm diagnostic FLAG (closer-triplets — N25-precedent, не гейт)"
+
+render_protocol: "PH ON (V14) — and §60 two-layer held by construction: survival mean 80%, the noun-led carriers (E/D/I/S) ride through the rewrite, the verb-led garnish ≤3/prompt expected to die"
+
+oc_merge_note: "the N29 contract change: OC ORDERS ride the 21-batch as P01-P03 (one file, same assembly logic, same gates) — oc_orders_n29_lint.py checks canon locks INSIDE the batch file; the separate OC file era ends here"

@@ -1,0 +1,857 @@
+ONTOLOGY.yaml — THREAD 3.0
+Reused from THREAD 2.0 as-is: palettes, light, camera, wardrobe, BDM,
+skin, eye_color, hair_type, emotion, fetish, engagement, kinetic, material.
+pose axis content now lives separately in POSE_LIBRARY.yaml (was missing).
+version: "2.0.0"
+
+═══════════════════════════════════════════════════════════════════
+AXES
+═══════════════════════════════════════════════════════════════════
+axes:
+
+── PALETTE ──────────────────────────────────────────────────────
+palette:
+description: "Batch-level color direction. 1 batch = 1 palette."
+values:
+- id: P01_NOIR_VELVET
+name: "Noir Velvet"
+dominant: [deep-indigo, black]
+secondary: [ivory, alabaster]
+accent: [crimson-red]
+shadow: warm-brown
+light_type: hard_directional
+forbidden_colors: [neon, pure-white, saturated-green]
+mood: mysterious_dramatic_sensual
+sd_fragment: "high contrast, dramatic shadows, film noir lighting, chiaroscuro"
+- id: P02_DAWN_AMBER
+name: "Dawn Amber"
+dominant: [honey, warm-amber]
+secondary: [dusty-rose, peach]
+accent: [cool-blue]
+shadow: cool-blue
+light_type: low_angle_warm
+forbidden_colors: [neon, LED, fluorescent, blue-screen-glow]
+mood: romantic_nostalgic_erotic_warm
+sd_fragment: "golden hour lighting, warm tones, long shadows, sunset glow"
+- id: P03_CYBER_ASH
+name: "Cyber Ash"
+dominant: [steel-grey, dark-teal]
+secondary: [pale-cyan, soft-violet]
+accent: [warm-amber]
+shadow: near-black-cyan-tint
+light_type: neon_glow_offframe_rim
+forbidden_colors: [candlelight, fire, warm-sunlight, golden-tones]
+mood: futuristic_sensual_controlled
+sd_fragment: "cyberpunk lighting, rim light, teal and orange, subtle neon"
+- id: P04_BLOOD_IVORY
+name: "Blood Ivory"
+dominant: [deep-crimson, oxblood]
+secondary: [black, charcoal]
+accent: [ivory, pale-gold]
+shadow: pure-black
+light_type: candle_red_tinted_lowkey
+forbidden_colors: [neon, fluorescent, daylight, bright-blue]
+mood: ritual_passionate_dangerous
+sd_fragment: "red and black palette, candlelit, low key lighting, dramatic"
+- id: P05_FOREST_MIST
+name: "Forest Mist"
+dominant: [moss-green, jade]
+secondary: [fog-white, pale-silver]
+accent: [gold-leaf]
+shadow: deep-emerald
+light_type: daylight_through_foliage
+forbidden_colors: [neon, pure-red, fluorescent, concrete-grey]
+mood: serene_elegant_ethereal
+sd_fragment: "green and white palette, dappled light, jade tones"
+- id: P06_OBSIDIAN_GOLD
+name: "Obsidian Gold"
+dominant: [obsidian-black, gold-leaf]
+secondary: [deep-brown, amber]
+accent: [ivory]
+shadow: pure-black
+light_type: multiple_candle_points
+forbidden_colors: [neon, fluorescent, daylight, pastel]
+mood: ceremonial_heavy_sacred
+sd_fragment: "black and gold palette, candlelit, ceremonial lighting"
+- id: P07_FROST_LAVENDER
+name: "Frost Lavender"
+dominant: [ice-blue, frost-white]
+secondary: [lavender, soft-violet]
+accent: [pale-rose]
+shadow: deep-violet
+light_type: moonlight_soft_diffuse
+forbidden_colors: [warm-candlelight, orange-fire, golden-hour, bright-red]
+mood: dreamy_melancholic_intimate
+sd_fragment: "silver and lavender, moonlit, soft cool tones, ethereal"
+- id: P08_MIDNIGHT_BLUE
+name: "Midnight Blue"
+dominant: [midnight-blue, indigo]
+secondary: [silver, starlight-white]
+accent: [warm-amber]
+shadow: near-black-indigo
+light_type: starlight_moon_reflection_soft_bioluminescent
+forbidden_colors: [neon, fluorescent, warm-candlelight, bright-red]
+mood: vast_contemplative_deep
+sd_fragment: "midnight blue palette, starlight, deep blue tones, cool atmosphere"
+- id: P09_CANDLE_AMBER
+name: "Candle Amber"
+dominant: [warm-amber, candle-gold]
+secondary: [deep-brown, mahogany]
+accent: [ivory-skin]
+shadow: deep-brown-near-black-warm
+light_type: multiple_candle_flickering_chiaroscuro
+forbidden_colors: [neon, fluorescent, daylight, blue-light]
+mood: intimate_sacramental_sensual
+sd_fragment: "candlelit, warm amber lighting, chiaroscuro, intimate atmosphere"
+- id: P10_ARCTIC_WHITE
+name: "Arctic White"
+dominant: [white, frost-pale, ice-blue]
+secondary: [pale-silver, frost-grey]
+accent: [amber, rose]
+shadow: blue-violet
+light_type: flat_overcast_diffuse_snow_reflection
+forbidden_colors: [neon, warm-candlelight, saturated-warm, bright-red]
+mood: pure_fragile_cold_beauty
+sd_fragment: "arctic palette, white and blue, frost, cold beauty, diffused light"
+- id: P11_OCEAN_DEEP
+name: "Ocean Deep"
+dominant: [deep-teal, ocean-blue]
+secondary: [coral-pink, seafoam]
+accent: [gold-sand]
+shadow: abyssal-black-blue
+light_type: underwater_caustics_dappled_refracted
+forbidden_colors: [neon, firelight, warm-candlelight, concrete-grey]
+mood: submerged_otherworldly_fluid
+sd_fragment: "ocean palette, underwater lighting, teal and coral, caustics"
+- id: P12_AUTUMN_RUST
+name: "Autumn Rust"
+dominant: [rust, burnt-orange, copper]
+secondary: [dark-green, olive]
+accent: [pale-gold, ivory]
+shadow: deep-brown-dark-green
+light_type: warm_afternoon_golden_leaves_filter
+forbidden_colors: [neon, fluorescent, ice-blue, cool-grey]
+mood: nostalgic_rich_decay_beauty
+sd_fragment: "autumn palette, rust and copper, warm afternoon light"
+- id: P13_ASH_VIOLET
+name: "Ash Violet"
+dominant: [ash-grey, charcoal-violet]
+secondary: [deep-purple, plum]
+accent: [pale-silver, white]
+shadow: near-black-violet
+light_type: overcast_muted_soft_diffuse
+forbidden_colors: [neon, bright-warm, golden-hour, saturated-red]
+mood: melancholic_introspective_haunting
+sd_fragment: "ash violet palette, muted tones, overcast lighting, melancholic"
+- id: P14_ROSE_GOLD
+name: "Rose Gold"
+dominant: [rose-pink, soft-gold]
+secondary: [cream, blush]
+accent: [deep-burgundy]
+shadow: warm-burgundy
+light_type: warm_soft_boudoir_rose_tinted
+forbidden_colors: [neon, fluorescent, cold-blue, harsh-white]
+mood: romantic_luxurious_feminine
+sd_fragment: "rose gold palette, soft warm lighting, boudoir, romantic"
+- id: P15_INDUSTRIAL_STEEL
+name: "Industrial Steel"
+dominant: [steel-grey, gunmetal]
+secondary: [rust-orange, copper]
+accent: [electric-blue]
+shadow: black_cold
+light_type: harsh_industrial_single_overhead_metal_reflection
+forbidden_colors: [pastel, warm-candlelight, rose, soft-pink]
+mood: raw_mechanical_contrast
+sd_fragment: "industrial palette, steel grey, harsh lighting, metal surfaces"
+- id: P16_ORCHID_SHADOW
+name: "Orchid Shadow"
+dominant: [deep-orchid, dark-magenta]
+secondary: [black, deep-violet]
+accent: [pale-lavender, white]
+shadow: pure-black
+light_type: low_key_selective_orchid_tinted
+forbidden_colors: [neon, daylight, warm-amber, bright-yellow]
+mood: opulent_mysterious_sensual_dark
+sd_fragment: "orchid palette, dark magenta, low key lighting, sensual"
+- id: P17_DESERT_BLEACH
+name: "Desert Bleach"
+dominant: [bleached-white, sand-pale]
+secondary: [terracotta, burnt-sienna]
+accent: [blue-sky]
+shadow: warm-shadow-short-hard
+light_type: harsh_sun_bleached_overexposed_warm_heat_haze
+forbidden_colors: [neon, cool-blue-light, fluorescent, deep-purple]
+mood: stark_beautiful_harsh_mirage
+sd_fragment: "desert palette, bleached white, harsh sunlight, heat haze"
+- id: P18_EARTH_WARM
+name: "Earth Warm"
+dominant: [terracotta, umber, sienna]
+secondary: [olive, warm-brown]
+accent: [ivory, pale-gold]
+shadow: deep-umber
+light_type: warm_daylight_earthy_natural
+forbidden_colors: [neon, cool-blue, fluorescent, ice-white]
+mood: grounded_primal_tactile
+sd_fragment: "earth tones, warm palette, terracotta, natural lighting"
+- id: P19_CINDER_SKY
+name: "Cinder Sky"
+dominant: [smoke-grey, charcoal]
+secondary: [ash-pale, ember-orange]
+accent: [dawn-pink]
+shadow: deep-charcoal
+light_type: overcast_breaking_dawn_light
+forbidden_colors: [neon, pure-white, saturated-green, fluorescent]
+mood: after_storm_recovery_hope
+sd_fragment: "cinder sky palette, smoke and dawn pink, breaking overcast light"
+- id: P20_VOID_PRISM
+name: "Void Prism"
+dominant: [absolute-black]
+secondary: [prism-spectrum-edge]
+accent: [single-rainbow-edge]
+shadow: absolute-black
+light_type: single_prism_source_spectrum_split
+forbidden_colors: [neon-flat, warm-candlelight, earth-tones, pastel]
+mood: cosmic_minimal_abstract
+sd_fragment: "void prism palette, absolute black, single rainbow edge, minimal"
+
+── LIGHT QUALITY ────────────────────────────────────────────────
+light_quality:
+description: "How light physically behaves. 15 qualities."
+values:
+- {id: LQ01, name: "Hard Key", sd: "single hard light source, sharp shadow cutting across body, high contrast between lit and unlit skin", pairs_with: [P01, P06, P16]}
+- {id: LQ02, name: "Soft Diffused", sd: "large soft diffused light source, gradual shadow falloff, no hard edges on skin", pairs_with: [P02, P09, P10]}
+- {id: LQ03, name: "Rim Only", sd: "rim light from behind, body edges glowing, face mostly in shadow, silhouette against light", pairs_with: [P07, P20, P13]}
+- {id: LQ04, name: "Under Light", sd: "light source from below, upward shadows on face, chin and nose lit, eyes in shadow", pairs_with: [P11, P15]}
+- {id: LQ05, name: "Top-Down Spot", sd: "narrow spotlight from directly above, circular pool of light on body, surroundings in darkness", pairs_with: [P01, P09]}
+- {id: LQ06, name: "Bounced Fill", sd: "light bouncing off pale wall onto body, soft even illumination, subtle shadow under chin", pairs_with: [P02, P19]}
+- {id: LQ07, name: "Volumetric Beam", sd: "visible light beam through dust particles, body partially inside the beam, motes of light", pairs_with: [P06, P05]}
+- {id: LQ08, name: "Colored Gel", sd: "colored gelled light casting colored shadow, skin tinted, complementary shadows", pairs_with: [P03, P16]}
+- {id: LQ09, name: "Candle Amber", sd: "flickering warm amber light, unstable shadow movement, warm highlights on closest skin", pairs_with: [P02, P09]}
+- {id: LQ10, name: "Overcast Sky", sd: "overcast diffused daylight, flat soft shadows, cool blue-grey ambient tone", pairs_with: [P13, P10]}
+- {id: LQ11, name: "Prism Split", sd: "prism splitting light into rainbow across body, spectral highlights on curves, iridescent skin", pairs_with: [P20, P11]}
+- {id: LQ12, name: "Blacklight UV", sd: "UV blacklight, white fabric glowing, teeth and eyes fluorescent, dark surroundings", pairs_with: [P03, P15]}
+- {id: LQ13, name: "Firelight", sd: "firelight from below, dancing orange-red shadows, warm flicker on skin, ember glow", pairs_with: [P12, P04]}
+- {id: LQ14, name: "Moonlight Cool", sd: "cool blue-silver moonlight, long soft shadows, pale desaturated skin, starlight fill", pairs_with: [P07, P08]}
+- {id: LQ15, name: "Bioluminescent", sd: "soft bioluminescent glow from within environment, skin tinted by living light, no hard source", pairs_with: [P11, P05]}
+
+── LIGHT DIRECTION ──────────────────────────────────────────────
+light_direction:
+description: "3-axis direction system."
+horizontal: [front, three_quarter, side, back]
+vertical: [high, eye_level, low, under]
+depth: [close, mid, far]
+
+── FILL RATIO ───────────────────────────────────────────────────
+fill_ratio:
+description: "Key-to-fill ratio. Controls contrast."
+values:
+- {id: FR9, ratio: "9:1", effect: "near-black shadow, drama", pairs_with: [LQ01, LQ05]}
+- {id: FR4, ratio: "4:1", effect: "classic portrait", pairs_with: [LQ01, LQ03]}
+- {id: FR2, ratio: "2:1", effect: "soft romantic", pairs_with: [LQ02, LQ06, LQ09]}
+- {id: FR1, ratio: "1:1", effect: "flat high-key", pairs_with: [LQ02, LQ10]}
+
+── COLOR TEMPERATURE ────────────────────────────────────────────
+color_temperature:
+values:
+- {id: CT_WARM, kelvin: "2700K", applies_to: "skin nearest light source"}
+- {id: CT_NEUTRAL, kelvin: "4500K", applies_to: "mid-plane"}
+- {id: CT_COOL, kelvin: "7000K+", applies_to: "shadows, distant parts"}
+
+── GENRE ────────────────────────────────────────────────────────
+genre:
+values:
+- {id: NICHE, description: "atmospheric, non-erotic or barely, mood-piece"}
+- {id: VOLT, description: "sexualised, body-forward, erotic"}
+
+── LLS TIER ─────────────────────────────────────────────────────
+lls_tier:
+description: "STATE axis of the two-axis honesty law (v3.2-EXP-V10, RULES §50): tier = min(state-allowed, degree-earned). The DEGREE axis (carriers x classes x share x framing) lives in RATING_MAP.md + rating_gate_lint.py; this table maps NCS to the state ceiling only."
+values:
+- {id: L0, description: "atmospheric, non-erotic, body not the subject"}
+- {id: L1, description: "suggestive, body is subject but not explicit"}
+- {id: L2, description: "sexualised, partial exposure or through-fabric — the DEGREE axis splits this: plain = R, carriers+share = R+ (see RATING_MAP)"}
+- {id: L3, description: "explicit, nipple visible or implied"}
+
+── CAMERA ───────────────────────────────────────────────────────
+camera:
+description: "Camera = where light sees the body from."
+values:
+- {id: CAM01, name: "Eye-level Front", sd: "frontal eye-level camera", best_lq: [LQ02, LQ06]}
+- {id: CAM02, name: "From Above", sd: "camera from above looking down", best_lq: [LQ05, LQ10]}
+- {id: CAM03, name: "From Below", sd: "camera from below looking up", best_lq: [LQ04, LQ13]}
+- {id: CAM04, name: "Over Shoulder", sd: "over the shoulder camera", best_lq: [LQ01, LQ03]}
+- {id: CAM05, name: "Macro Close", sd: "extreme close-up macro shot", best_lq: [LQ02, LQ11]}
+- {id: CAM06, name: "Wide Env", sd: "wide environmental shot, body small in frame", best_lq: [LQ07, LQ10]}
+- {id: CAM07, name: "Side Profile", sd: "side profile silhouette shot", best_lq: [LQ03, LQ14]}
+- {id: CAM08, name: "Back to Camera", sd: "back to camera shot", best_lq: [LQ03, LQ15]}
+- {id: CAM09, name: "Dutch Tilt", sd: "dutch tilt 30 degrees off-axis", best_lq: [LQ01, LQ08]}
+- {id: CAM10, name: "Through Element", sd: "camera through glass, fabric, or water", best_lq: [LQ07, LQ11]}
+- {id: CAM11, name: "Mirror Reflection", sd: "image composed through mirror reflection", best_lq: [LQ02, LQ06]}
+- {id: CAM12, name: "Aerial Top", sd: "top-down aerial shot, body as map", best_lq: [LQ05, LQ10]}
+
+── FRAMING ──────────────────────────────────────────────────────
+framing:
+values:
+- {id: extreme_close, sd: "extreme close-up, fills 90%+ of frame"}
+- {id: close_up, sd: "close-up shot, head and shoulders"}
+- {id: medium, sd: "medium shot, waist up"}
+- {id: cowboy, sd: "cowboy shot, mid-thigh up", rarity: rare, max_per_batch: 3}
+- {id: full_body, sd: "full body shot, head to toe"}
+- {id: wide_env, sd: "wide environmental, body small in vast space"}
+- {id: panoramic, sd: "ultra-wide panoramic composition"}
+
+── BDM (8 dimensions) ───────────────────────────────────────────
+bdm:
+description: "Body = how it catches light, not anatomy."
+dimensions:
+B: {range: "1-8", meaning: "breast volume → how shadow falls under breast"}
+H: {range: "1-7", meaning: "hip width → shadow between thighs, light on iliac crest"}
+T: {range: "1-7", meaning: "thigh volume → light grazing inner thigh"}
+W: {range: "0-5", meaning: "waist definition → light convergence point"}
+S: {range: "0-3", meaning: "shoulder breadth → light planes for rim"}
+HE: {range: "0-4", meaning: "height → shadow length, monumentality"}
+MU: {range: "0-3", meaning: "muscle definition → shadow contrast on muscles"}
+BD: {range: "0-3", meaning: "body fat → shadow depth in folds"}
+banned_values: [B0, H0, T0]
+extreme_caps: {B7: 1, B8: 1, H6: 1, H7: 1, T6: 1, T7: 1}
+extreme_requires_tier: {B8: L3, H7: L3, T7: L3}
+
+── POSE ─────────────────────────────────────────────────────────
+pose:
+description: "Pose = how body organizes space for light."
+categories:
+VERTICAL: [PL02, PL05, PL06, PL08, PL15, PL19, PL20, PL23, PL29, PL32, PL35, PL38, PL41, PL44, PL48]
+HORIZONTAL: [PL03, PL04, PL09, PL12, PL24, PL31, PL36, PL39, PL42, PL45]
+KNEELING: [PL10, PL14, PL16, PL28, PL33, PL40, PL47]
+SEATED: [PL07, PL17, PL22, PL37, PL43]
+BENT: [PL25, PL34]
+DYNAMIC: [PL11, PL21, PL27, PL46]
+risk_levels:
+LOW: [PL02, PL17, PL25, PL30]
+MID: [PL13, PL33, PL38, PL40]
+HIGH: [PL28, PL43, PL45, PL14]
+max_per_code: 2
+max_per_category: 4
+
+── WARDROBE (GAR) ───────────────────────────────────────────────
+wardrobe:
+description: "Clothing = shadow that can be removed."
+families:
+intimate: [GAR01, GAR03, GAR09, GAR11, GAR10]
+structured: [GAR04, GAR12, GAR16, GAR19, GAR07]
+draped: [GAR06, GAR08, GAR14, GAR17, GAR05]
+concealment: [GAR02, GAR13, GAR20, GAR18, GAR05]
+values:
+- {id: GAR01, name: "Slip Dress Silk", material: silk_thin, light: "reflects, translucent", coverage: "30%"}
+- {id: GAR02, name: "Turtleneck Wool", material: wool_dense, light: "absorbs, matte", coverage: "80%"}
+- {id: GAR03, name: "Lace Bra Delicate", material: lace_nylon, light: "fragments, patterned shadows", coverage: "15%"}
+- {id: GAR04, name: "Leather Corset", material: leather_rigid, light: "specular shine, sharp shadow", coverage: "50%"}
+- {id: GAR05, name: "Linen Shirt Loose", material: linen_creased, light: "diffuses, soft folds", coverage: "60%"}
+- {id: GAR06, name: "Velvet Robe Heavy", material: velvet_dense, light: "deep shadow, directional sheen", coverage: "70%"}
+- {id: GAR07, name: "Mesh Top Fishnet", material: mesh_elastic, light: "grid of shadows on skin", coverage: "25%"}
+- {id: GAR08, name: "Satin Skirt Flowing", material: satin_heavy, light: "waves of light on folds", coverage: "40%"}
+- {id: GAR09, name: "Cotton Panties Simple", material: cotton_thin, light: "matte, invisible", coverage: "10%"}
+- {id: GAR10, name: "Choker Velvet Thin", material: velvet_band, light: "neck accent, collarbone shadow", coverage: "5%"}
+- {id: GAR11, name: "Stockings Sheer", material: nylon_15D, light: "even tone, seam as line", coverage: "20%"}
+- {id: GAR12, name: "Harness Leather", material: leather_straps, light: "geometry of shadows, skin between as negative space", coverage: "35%"}
+- {id: GAR13, name: "Sweater Oversized", material: wool_mohair, light: "volume, face in shadow, arms lost", coverage: "75%"}
+- {id: GAR14, name: "Sarong Wrapped", material: cotton_thin, light: "diagonal folds, accidental geometry", coverage: "45%"}
+- {id: GAR15, name: "Gloves Lace Long", material: lace_elbow, light: "arms as pattern, skin inside as texture", coverage: "25%"}
+- {id: GAR16, name: "Bodysuit Latex", material: latex_shiny, light: "mirror, every fold a highlight", coverage: "85%"}
+- {id: GAR17, name: "Kimono Silk Open", material: silk_heavy, light: "sleeves as wings of light, obi as knot of shadow", coverage: "50%"}
+- {id: GAR18, name: "Jeans Cutoff", material: denim_rigid, light: "matte, frayed edges as light fringe", coverage: "35%"}
+- {id: GAR19, name: "Bandage Wrap", material: fabric_elastic, light: "spiral of shadows, body reads through", coverage: "40%"}
+- {id: GAR20, name: "Cloak Hooded Wool", material: wool_rough, light: "face in shadow, silhouette as mass", coverage: "90%"}
+
+── ENVIRONMENT ──────────────────────────────────────────────────
+environment:
+description: "Background = source of reflected light, not garbage. V15
+(2026-09-13): de-numbered — a plain LIGHT-FUNCTION DONOR DICTIONARY, not a
+menu of codes; batch prompts write ENV_word freeforms and inherit the
+nearest archetype's light_fn (POOLS §15). The numbers are retired."
+values:
+- {name: "Rain-Streaked Glass", light_fn: "refracts light, bokeh, body behind texture"
+- {name: "Dust Mote Beam", light_fn: "volumetric light, requires LQ07"
+- {name: "Wet Cobblestone", light_fn: "reflection from below, LQ04 effective"
+- {name: "Snow Blind", light_fn: "overexposed background, body as dark accent"
+- {name: "Candle Field", light_fn: "multiple warm points, LQ09"
+- {name: "Fog Dense", light_fn: "light scatters, depth lost, LQ02"
+- {name: "Mirror Maze", light_fn: "infinite reflection, light doubles"
+- {name: "Iron Rust Wall", light_fn: "texture absorbs, warm glow on skin"
+- {name: "Water Surface", light_fn: "reflection from below, ripple, LQ04"
+- {name: "Velvet Curtains", light_fn: "absorbs light, dark background, LQ03 on body"
+
+── EMOTION ──────────────────────────────────────────────────────
+emotion:
+description: "Emotion chosen BEFORE character. Drives pose + light."
+values:
+- {id: E01, name: "Contempt", poses: [PL40, PL02], light: [LQ01], fill: [FR4]}
+- {id: E02, name: "Vulnerability", poses: [PL30, PL25], light: [LQ02], fill: [FR2]}
+- {id: E03, name: "Aggression", poses: [PL43, PL33], light: [LQ04, LQ13], fill: [FR9]}
+- {id: E04, name: "Invitation", poses: [PL14, PL38], light: [LQ03, LQ09], fill: [FR4]}
+- {id: E05, name: "Detachment", poses: [PL17], light: [LQ10, LQ14], fill: [FR2]}
+- {id: E06, name: "Ecstasy", poses: [PL28, PL45], light: [LQ11, LQ07], fill: [FR2]}
+- {id: E07, name: "Fear", poses: [PL13], light: [LQ04, LQ12], fill: [FR9]}
+- {id: E08, name: "Melancholy", poses: [PL25], light: [LQ14, LQ15], fill: [FR2]}
+
+── FETISH (light-based) ─────────────────────────────────────────
+fetish:
+description: "Eroticism = light that doesn't reach where you want to look."
+values:
+- {id: FET01, name: "Breast Focus", light_technique: "rim-light on lower curve, shadow under breast as negative space", max_per_batch: 4}
+- {id: FET02, name: "Hip Emphasis", light_technique: "side-light carving hip silhouette, shadow between thigh and torso"}
+- {id: FET03, name: "Thigh Focus", light_technique: "light grazing inner thigh, shadow hiding convergence"}
+- {id: FET04, name: "Back Focus", light_technique: "entire back in shadow except spine-highlight, shoulder-blades as light-pools"}
+- {id: FET05, name: "Neck Collarbone", light_technique: "sharp shadow under jaw, light pooling in suprasternal notch"}
+- {id: FET06, name: "Hand on Body", light_technique: "hand casts shadow on skin, fingers create striped pattern"}
+- {id: FET07, name: "Mouth Closeup", light_technique: "light on lower lip, upper lip in shadow, moisture as specular"}
+- {id: FET08, name: "Foot Ankle", light_technique: "arch in shadow, ankle bone as highlight"}
+- {id: FET09, name: "Underbutt", light_technique: "shadow under buttock as primary shape, light on thigh convergence"}
+- {id: FET10, name: "Sideboob", light_technique: "light from side, breast-edge as thin highlight, nipple in penumbra"}
+
+── ENGAGEMENT ───────────────────────────────────────────────────
+engagement:
+description: "Interaction = where light is interrupted by hand. NOTE (2026-09-10): coded REACTION PHYSIOLOGY now lives in the H-family (POOLS_V8 §12, H01-H20); these ENG codes remain valid as scene-level interaction staging, but batch quotas draw from the H-family (>=2 distinct from N21)."
+values:
+- {id: ENG01, name: "Self-touch Chest", light: "hand catches light, shadow falls on breast"}
+- {id: ENG02, name: "Self-touch Hip", light: "palm as light-spot on hip, fingers as shadow-stripes"}
+- {id: ENG03, name: "Hair Pull", light: "hair catches light, face partially shadowed"}
+- {id: ENG04, name: "Grip Fabric", light: "fabric wrinkles create shadow-folds, tense hand catches light on bones"}
+- {id: ENG05, name: "Hand Between Thighs", light: "hand as object, shadow between thighs + hand shadow, light on shoulder"}
+- {id: ENG06, name: "Back Arch Grab", light: "hands on floor/wall, light on palms, back as river of shadow"}
+- {id: ENG07, name: "Neck Touch", light: "fingers on neck, shadow on carotid, light on face fragments"}
+- {id: ENG08, name: "Ankle Grab", light: "hand on ankle bone, light on bone, leg as diagonal"}
+
+── KINETIC ──────────────────────────────────────────────────────
+kinetic:
+description: "Motion = pose in time. Modifies PL, doesn't replace."
+values:
+- {id: K01, name: "Static", light: "stable shadows, classic"}
+- {id: K02, name: "Slow Drift", light: "shadows blur, LQ02/LQ09"}
+- {id: K03, name: "Hold and Tremble", light: "micro-movement, muscles tense, shadow trembles, LQ01 intensifies"}
+- {id: K04, name: "Arc Recovery", light: "body returning, motion blur as ghost-light"}
+- {id: K05, name: "Weight Shift", light: "shadow shifts, asymmetric light"}
+- {id: K06, name: "Suspended", light: "frozen before motion, light particles stop, LQ07/LQ11"}
+- {id: K07, name: "Collapse", light: "body relaxes, shadows spread, LQ02+FR1"}
+- {id: K08, name: "Tension Peak", light: "max tension, sharp shadow, LQ01+FR9"}
+
+── NCS ──────────────────────────────────────────────────────────
+ncs:
+values: [CONCEALED, COVERED, THROUGH_FABRIC, VISIBLE, NAKED, TAPE, TOPLESS, TOPLESS_BACK]
+
+── SKIN APPEARANCE ───────────────────────────────────────────────
+skin:
+description: "Skin = how it behaves in light. V15 (2026-09-13): de-numbered —
+a plain SKIN-WORD DONOR DICTIONARY (prose donors: lexemes like 'warm ivory',
+'honey amber halo'); never cited in POS as codes (POOLS §15). Numbers
+retired."
+values:
+- {name: "Pale Porcelain", light: "reflects 80%, cold sheen, violet shadows"
+- {name: "Warm Ivory", light: "golden sheen, warm soft shadows"
+- {name: "Golden Tan", light: "absorbs and scatters, deep warm shadows"
+- {name: "Deep Olive", light: "greenish sheen in shadow, yellow on bones"
+- {name: "Rich Ebony", light: "only relief catches light, near-black shadows, rim essential"
+- {name: "Cool Alabaster", light: "pink in light, grey in shadow, marble"
+- {name: "Sun Burned", light: "red undertone, light intensifies, ochre shadows"
+- {name: "Freckled", light: "each freckle catches light, LQ02/LQ06"
+- {name: "Translucent Pale", light: "veins visible, light passes through thin areas"
+- {name: "Ash Grey", light: "metallic sheen, cold clinical shadows"
+- {name: "Rose Flushed", light: "blush catches light, violet under cheekbones"
+- {name: "Honey Amber", light: "light passes through edges, golden halo"
+- {name: "Copper Redhead", light: "skin reacts to hair color, green complementary"
+- {name: "Silver Age", light: "thin skin, texture emphasized, shadow in wrinkles"
+- {name: "Moonlit Blue", light: "cold undertone, silver light, indigo shadows"
+- {name: "Desert Dust", light: "matte, scatters, soft deep shadows"
+- {name: "Porcelain Veined", light: "veins as map, blue lines, fragility"
+- {name: "Warm Cocoa", light: "warm sheen, soft volumetric"
+- {name: "Pale Gold", light: "yellow undertone, gold intensifies"
+- {name: "Ghost White", light: "almost shadowless, even cold light"
+
+── EYE COLOR ────────────────────────────────────────────────────
+eye_color:
+standard: [deep-amber, cool-grey, hazel-green, dark-chocolate, ice-blue, storm-grey, warm-honey, black-obsidian, sea-green, copper-gold, ocean-green, moonstone-pale, electric-violet, ruby, lavender]
+special_features:
+- {id: heterochromia_red_blue, cap_per_batch: 1, note: "Miyu canon only"}
+- {id: heterochromia_gold_silver, cap_per_batch: 1}
+- {id: blind_milky_white, cap_per_batch: 1}
+- {id: slit_pupil_feline, cap_per_batch: 1}
+
+── HAIR TYPE ────────────────────────────────────────────────────
+hair_type:
+description: "Hair = light conductor."
+values:
+- {id: straight, light: "mirror, light slides in bands, sharp specular"}
+- {id: wavy, light: "traps light in bends, shadow between crests"}
+- {id: curly, light: "fragments into thousands of points"}
+- {id: braided, light: "geometry, light on convex, shadow in concave"}
+- {id: loose_long, light: "veil, backlight translucent, strands catch rim"}
+- {id: short_pixie, light: "structure, skull visible, nape shadow accent"}
+- {id: wet, light: "plastic, dense reflection, no scatter"}
+
+── COMPLEXITY ───────────────────────────────────────────────────
+complexity:
+description: "Max active elements per prompt."
+max_active: 3
+active_includes: [character, primary_material_light, setting_object]
+background_unlimited: true
+
+── MATERIAL (themed batches; V15 de-numbered donor dictionary) ───
+Material = how surface interacts with light. Distinct from skin
+(which is the body surface itself). Material applies to foreign
+surfaces: porcelain skin-overlay, brass joints, glass panels.
+material:
+description: "Surface material — how it catches, scatters, or transmits
+light. V15: numbers retired; thematic reactivation by name (N16
+precedent), never by code id."
+values:
+- {name: "bisque-porcelain", light: "matte, diffuse scatter, soft shadow", pairs_with: [LQ02, LQ06, LQ10]
+- {name: "glazed-porcelain", light: "glossy specular, sharp highlight", pairs_with: [LQ01, LQ03, LQ08]
+- {name: "ivory-bone", light: "warm translucence, light bleeds through", pairs_with: [LQ02, LQ04, LQ07]
+- {name: "wax", light: "translucent, melts at edges, skin-glow", pairs_with: [LQ02, LQ06, LQ07]
+- {name: "brass-patinated", light: "dull gold, oxidation shadows", pairs_with: [LQ01, LQ03, LQ14]
+- {name: "brass-polished", light: "mirror gold, hard reflection", pairs_with: [LQ01, LQ05, LQ08]
+- {name: "bronze-aged", light: "green-brown patina, irregular reflection", pairs_with: [LQ03, LQ11, LQ14]
+- {name: "glass-clear", light: "refraction, caustics, full transmission", pairs_with: [LQ07, LQ11, LQ12]
+- {name: "glass-milk", light: "diffuse translucence, no sharp refraction", pairs_with: [LQ02, LQ06, LQ10]
+- {name: "enamel-intact", light: "hard glossy, even reflection", pairs_with: [LQ01, LQ03, LQ08]
+- {name: "enamel-chipped", light: "broken gloss, shadow in cracks", pairs_with: [LQ03, LQ11, LQ14]
+- {name: "tortoiseshell", light: "mottled amber, depth-layered", pairs_with: [LQ02, LQ04, LQ07]
+- {name: "wood-grained", light: "matte, directional grain shadow", pairs_with: [LQ02, LQ06, LQ10]
+- {name: "marble-veined", light: "cold translucence, vein-shadows", pairs_with: [LQ01, LQ03, LQ05]
+- {name: "liquid-latex", light: "wet-gloss, mercury reflection", pairs_with: [LQ01, LQ08, LQ12]
+- {name: "crystal-faceted", light: "prism-split, spectral", pairs_with: [LQ07, LQ11, LQ12]
+- {name: "ceramic-blue-white", light: "delftware, cool gloss", pairs_with: [LQ02, LQ10, LQ14]
+- {name: "leather-worn", light: "matte with subtle sheen on wear", pairs_with: [LQ02, LQ03, LQ06]
+cap_per_batch: 4 # no material more than 4× per batch (variety)
+
+── CONCEPT ANCHOR (uniqueness tracker) ──────────────────────────
+Every prompt in a batch must have a unique concept anchor —
+the central visual idea that distinguishes it from siblings.
+For Nymphéas Noirs: "lily pad", "pond reflection", "submerged body".
+For Poupée Mécanique: "wind-key back", "ball-joint hip", "glass torso".
+Tracked as free-text strings; validator checks all unique.
+concept_anchor:
+description: "Unique central visual concept per prompt. Tracked for uniqueness."
+uniqueness: per_batch # all 21 must be distinct
+format: "kebab-case phrase, 2-4 words"
+examples:
+- "black-water-lily-pad"
+- "submerged-porcelain-body"
+- "wind-key-between-blades"
+- "ball-joint-hip-exposed"
+- "glass-torso-with-gears"
+forbidden: ["unknown", "none", "untitled"]
+
+═══════════════════════════════════════════════════════════════════════
+v3.2-EXP EXTENSIONS — added to ONTOLOGY for the experimental build.
+These axes supplement, never replace, the base 24 axes above.
+═══════════════════════════════════════════════════════════════════════
+exp_extensions:
+
+── D19 BODY-EMPHASIS (12 zones, see RULES §29) ───────────────────
+body_emphasis:
+description: "Which body zone gets 2× prose attention. Pairs with BPT template."
+values:
+- face
+- eyes
+- lips
+- throat
+- collarbone
+- breasts
+- navel
+- hands
+- hips
+- buttocks
+- thighs
+- back_spine
+mandates:
+ass: 3 # ≥3 prompts with buttocks
+back: 3 # ≥3 with back_spine
+legs: 3 # ≥3 with thighs
+hands: 3 # ≥3 with hands
+per_zone_cap: 4 # max 4× per zone per batch → forces ≥8 distinct zones
+
+── BPT (Body-Prose Template, 8 rotation, see RULES §28) ─────────
+bpt:
+description: "8 body-description templates. Lead zone gets 2× prose attention."
+values:
+- {id: BPT-1, lead: bust, shape: "Her breasts, [size] and [adj], [verb] the [fabric/light]"}
+- {id: BPT-2, lead: hips, shape: "Her hips, [shape] and [adj], [verb] the [fabric/pose]"}
+- {id: BPT-3, lead: thighs, shape: "Her thighs, [texture] and [state], [verb] against [surface]"}
+- {id: BPT-4, lead: waist, shape: "Her waist, [shape] and [light], [verb] the [garment]"}
+- {id: BPT-5, lead: back, shape: "Her back, [shape] and [light-state], [verb] against [surface/light]"}
+- {id: BPT-6, lead: hands, shape: "Her hands, [state] and [tension], [verb] the [fabric/skin]"}
+- {id: BPT-7, lead: silhouette, shape: "Her silhouette, [shape] and [contrast], [verb] against [light]"}
+- {id: BPT-8, lead: motion, shape: "Her body, [in-motion-state] and [tension], [verb]s through [space]"}
+cap: 3 # max 3× per BPT per batch
+
+── LIGHT VERB POOL (21 verbs, see RULES §30) ────────────────────
+light_verb_pool:
+description: "21 light-interaction verbs. Max 3× per batch per verb."
+master_pool:
+- cuts
+- catches
+- finds
+- pools
+- threads
+- grazes
+- spills
+- drapes
+- fractures
+- limns
+- stains
+- sinks
+- fans
+- coats
+- refracts
+- splits
+- shatters
+- dissolves
+- crystallizes
+- scatters
+- absorbs
+theme_subsets:
+water: [pools, spills, drapes, sinks, fans, threads, coats, refracts, scatters, dissolves]
+mineral: [cuts, fractures, shatters, refracts, crystallizes, splits]
+organic: [coats, stains, drapes, threads, sinks, absorbs]
+metallic: [catches, cuts, fractures, limns, coats, refracts]
+ritual: [limns, stains, drapes, threads, finds, fans]
+fire: [coats, burns, chars, melts, fractures, refracts]
+
+── CLOSURE PATTERNS (5 styles, see RULES §31) ────────────────────
+closure_patterns:
+description: "5 closure styles. Max 30% per style per batch."
+values:
+- {id: F1, name: stillness, shape: "action frozen, moment held"}
+- {id: F2, name: incomplete_action, shape: "cut mid-beat, implied continuation"}
+- {id: F3, name: object_detail, shape: "camera zooms on object at end"}
+- {id: F4, name: sensory_echo, shape: "opening sense returns at end"}
+- {id: F5, name: body_hold, shape: "one anatomical detail held in final clause"}
+cap: 6 # max 30% of 21 prompts ≈ 6
+
+── OPENING STRATEGY (10 strategies, see RULES §32) ──────────────
+opening_strategy:
+description: "10 opening strategies after 'A 2D hand-drawn anime illustration, [shot].'"
+values:
+- material_led
+- action_led
+- thought_led
+- sensory_led
+- body_led
+- setting_led
+- dialogue_led
+- list_led
+- definition_led
+- weather_led
+cap: 3 # max 3× per strategy per batch
+
+── NICHE ARCHETYPES (7, see RULES §25) ──────────────────────────
+niche_archetypes:
+description: "7 wow-factor archetypes for NICHE prompts. Rotate across 7 NICHE slots."
+values:
+- SURREAL # impossible physics, Escher spaces
+- SCALE_EPIC # tiny figure in vast architecture
+- ABSTRACT_BEAUTY # body as landscape/canvas/weather
+- NARRATIVE_MOMENT # story captured mid-beat
+- UNEXPECTED_ANGLE # worm/bird/keyhole/through-object
+- PALETTE_SHOCK # monochrome+1, complementary-shock
+- STILL_LIFE_WITH_BODY # body as part of composition
+
+── EXPRESSIONS E51-E70 (20 NEW, extends base E01-E08) ───────────
+expression_extension:
+description: "20 new emotions extending the base E01-E08. Now 28 total codes."
+values:
+- {id: E51, name: post_orgasmic_dissolution, face: "body liquid, face slack, totally spent"}
+- {id: E52, name: devotional_worship, face: "looking up at off-frame with reverence"}
+- {id: E53, name: predatory_focus, face: "eyes locked, slight smile, hunting"}
+- {id: E54, name: shameless_display, face: "deliberately exposed, proud, defiant"}
+- {id: E55, name: broken_doll, face: "vacant + slight smile, uncanny"}
+- {id: E56, name: drunken_reckless, face: "loose, grinning, no inhibitions"}
+- {id: E57, name: feverish_desire, face: "flushed, dilated pupils, breath visible"}
+- {id: E58, name: haunted_vacant, face: "looking through everything, ghost-eyes"}
+- {id: E59, name: devilish_playful, face: "sharp grin, narrowed eyes, mischievous"}
+- {id: E60, name: anguished_arousal, face: "crying + flushed + wanting"}
+- {id: E61, name: serene_surrender, face: "calm acceptance, peaceful yielding"}
+- {id: E62, name: manic_excitement, face: "wide eyes, big smile, too-bright"}
+- {id: E63, name: contemptuous_display, face: "looking down on viewer, sneering"}
+- {id: E64, name: confused_aroused, face: "not understanding own reaction, blinking"}
+- {id: E65, name: vengeful_determined, face: "cold eyes, set jaw, focused"}
+- {id: E66, name: dreamy_detached, face: "half-present, soft smile, elsewhere"}
+- {id: E67, name: nervous_anticipation, face: "lip bite, averted eyes, fidgeting"}
+- {id: E68, name: satisfied_possessive, face: "post-claim, smug, owning"}
+- {id: E69, name: shy_defiant, face: "looking away + chin raised, contradictory"}
+- {id: E70, name: ecstatic_transcendent, face: "beyond pleasure, spiritual"}
+quota:
+per_code_cap: 3 # max 3× per emotion per batch
+distinct_min: 10 # ≥10 distinct per batch
+
+── FET EXTENSION FET11-FET70 (60 new, extends base FET01-FET10) ─
+fetish_extension:
+description: "60 fetish codes extending the base FET01-FET10. Mandatory for VOLT."
+codes:
+# BBAN_1B scenario hooks (FET11-FET25) — narrative-driven
+- {id: FET11, name: mirror_voyeur, sd: "subject visible only in mirror, body reflected, no direct view"}
+- {id: FET12, name: tentacle_cradle, sd: "smooth tentacles cradling body, lifting, no penetration"}
+- {id: FET13, name: collar_and_tail, sd: "pet-play aesthetic, cat ears, leather collar, tail"}
+- {id: FET14, name: hypno_spiral_eyes, sd: "spiral pattern in irises, vacant, slight drool"}
+- {id: FET15, name: time_stop_pose, sd: "subject frozen mid-action, off-frame figure moving"}
+- {id: FET16, name: robe_fall_mid_bow, sd: "ceremonial robe slipping during formal bow"}
+- {id: FET17, name: bath_entry_surprise, sd: "entering bath, discovering occupant, surprise"}
+- {id: FET18, name: dungeon_collar_chain, sd: "chain from collar to wall, restraint"}
+- {id: FET19, name: library_ladder_reach, sd: "library ladder, reaching high shelf, skirt riding up"}
+- {id: FET20, name: examination_table, sd: "medical table, paper gown, vulnerable pose"}
+- {id: FET21, name: idol_worship_reveal, sd: "marble idol in background, priestess before it, robe fallen open"}
+- {id: FET22, name: kimono_slip_ceremony, sd: "kimono slipping during tea ceremony"}
+- {id: FET23, name: dancer_veil_fall, sd: "belly dancer mid-spin, veil falling away"}
+- {id: FET24, name: swimwear_malfunction, sd: "swimsuit strap snapped, surprise, mid-pool"}
+- {id: FET25, name: witch_ritual_robe, sd: "witch ritual, robe open at chest, magic circle"}
+# BBAN_v2 anatomical delicacies (FET46-FET70) — Japanese classics
+- {id: FET46, name: collar_bone_focus, sd: "the line of the collarbone as erotic centerpiece"}
+- {id: FET47, name: jaw_line_focus, sd: "the line of the jaw, throat-to-ear"}
+- {id: FET48, name: wrist_bone_focus, sd: "the protruding wrist bone, delicate vulnerable"}
+- {id: FET49, name: ankle_bone_focus, sd: "the protruding ankle bone"}
+- {id: FET50, name: spine_dimple_focus, sd: "the dimples at base of spine (Venus dimples)"}
+- {id: FET51, name: rib_cage_focus, sd: "visible ribs (lean body-type)"}
+- {id: FET52, name: hip_bone_focus, sd: "protruding hip bones (anterior superior iliac spine)"}
+- {id: FET53, name: shoulder_blade_focus, sd: "shoulder blades from back"}
+- {id: FET54, name: nape_of_neck_focus, sd: "back of neck, Japanese erotic classic"}
+- {id: FET55, name: inner_elbow_focus, sd: "the soft inside of the elbow"}
+- {id: FET56, name: back_of_knee_focus, sd: "the soft back of the knee"}
+- {id: FET57, name: underbust_crease, sd: "the fold under the breast"}
+- {id: FET58, name: cleavage_depth, sd: "deep cleavage as primary focus"}
+- {id: FET59, name: sideboob_curve, sd: "breast visible from side, nipple past frame edge"}
+- {id: FET60, name: underboob_curve, sd: "lower curve of breast, nipple concealed above"}
+- {id: FET61, name: tan_line_bikini, sd: "bikini tan lines as framing"}
+- {id: FET62, name: tan_line_sports_bra, sd: "sports-bra tan lines"}
+- {id: FET63, name: tan_line_underwear, sd: "underwear tan lines"}
+- {id: FET64, name: wet_fabric_translucent, sd: "fabric becomes translucent when wet, nipple visible through"}
+- {id: FET65, name: light_as_lingerie, sd: "shadow/light patterns that look like clothing"}
+- {id: FET66, name: fabric_tension_across_bust, sd: "fabric pulled tight across bust line"}
+- {id: FET67, name: fabric_tension_across_hips, sd: "fabric pulled tight across hip bones"}
+- {id: FET68, name: hand_on_own_body, sd: "character's hand on her own body, self-touch"}
+- {id: FET69, name: hand_near_mouth, sd: "fingers near lips, suggestive anticipatory"}
+- {id: FET70, name: tear_on_cheek, sd: "single tear track as erotic element"}
+quota:
+per_code_cap: 3 # max 3× per FET per batch
+distinct_min: 8 # ≥8 distinct per batch
+mandatory_volt: true # every VOLT has ≥1 FET
+
+── BRE / BK / B TECHNIQUE (L2+ mandatory, see RULES §37) ─────────
+breast_technique:
+description: "Technique for depicting breasts when D19=breasts at L2+"
+values:
+- {id: BRE17, name: through_wet_sheer_aroused, sd: "aroused-nipple visible through wet sheer fabric"}
+- {id: BRE18, name: pressed_to_surface, sd: "breast against glass/floor/wall"}
+- {id: BRE19, name: caught_in_fabric_gap, sd: "breast visible through gap in fabric"}
+- {id: BRE20, name: in_profile, sd: "side-view breast, nipple past frame edge"}
+- {id: BRE21, name: under_fabric_tension, sd: "fabric pulled tight across bust"}
+- {id: BRE22, name: as_silhouette, sd: "breast as silhouette only"}
+- {id: BRE23, name: compressed_by_arm, sd: "arm across chest compressing breast"}
+- {id: BRE24, name: lifted_by_own_hand, sd: "character lifting her own breast"}
+back_technique:
+description: "Technique for depicting back when D19=back_spine at L2+"
+values:
+- {id: BK7, name: water_tracing_spine, sd: "water droplet tracing spine"}
+- {id: BK8, name: shadow_contouring, sd: "shadow defining back muscles"}
+- {id: BK9, name: fabric_trailing, sd: "fabric trailing down back"}
+- {id: BK10, name: spine_exposed, sd: "open-back outfit exposing spine"}
+- {id: BK11, name: tattoo_featured, sd: "back tattoo as primary feature"}
+- {id: BK12, name: strap_marks, sd: "tan-lines or strap marks on back"}
+- {id: BK13, name: shoulder_blades, sd: "shoulder blades prominent"}
+butt_technique:
+description: "Technique for depicting buttocks when D19=buttocks at L2+"
+values:
+- {id: B16, name: focus_from_front, sd: "buttocks visible between legs from front"}
+- {id: B17, name: curve_in_profile, sd: "lower curve visible in profile (shelf)"}
+- {id: B18, name: in_motion, sd: "mid-bounce/clench/sway"}
+- {id: B19, name: focus_from_behind, sd: "full buttocks from behind camera"}
+- {id: B20, name: lifted_by_pose, sd: "pose lifts/shapes buttocks"}
+- {id: B21, name: in_fabric_tension, sd: "fabric pulled tight across buttocks"}
+technique_quota:
+bre_min: 3 # ≥3 BRE codes per batch
+bk_min: 2 # ≥2 BK codes per batch
+b_min: 2 # ≥2 B codes per batch
+
+── KINETIC K61-K79 (VOLT mandatory, see RULES §26) ──────────────
+kinetic_extension:
+description: "19 new kinetic codes (K61-K79) extending base K01-K10. VOLT-mandatory."
+values:
+- {id: K61, name: mid_drip, sd: "single drop mid-fall (sweat/water/rain)"}
+- {id: K62, name: mid_peel, sd: "fabric mid-removal"}
+- {id: K63, name: mid_grind, sd: "hips mid-circular-motion"}
+- {id: K64, name: mid_tremble, sd: "body vibrating"}
+- {id: K65, name: mid_squirm, sd: "body wriggling"}
+- {id: K66, name: mid_arch_break, sd: "arch reaching peak"}
+- {id: K67, name: mid_close_eyes, sd: "eyes mid-closing, pleasure arriving"}
+- {id: K68, name: mid_open_mouth, sd: "mouth mid-opening, gasp beginning"}
+- {id: K69, name: mid_grip_tighten, sd: "hand mid-tightening"}
+- {id: K70, name: mid_release, sd: "hand mid-opening"}
+- {id: K71, name: mid_breath_inhale, sd: "chest rising mid-inhale"}
+- {id: K72, name: mid_breath_exhale, sd: "chest falling mid-exhale"}
+- {id: K73, name: mid_head_turn, sd: "head mid-turn toward camera"}
+- {id: K74, name: mid_hair_toss, sd: "hair mid-toss"}
+- {id: K75, name: mid_leg_cross, sd: "legs mid-crossing"}
+- {id: K76, name: mid_stand_up, sd: "body mid-rising from seated"}
+- {id: K77, name: mid_kneel_down, sd: "body mid-descending to kneel"}
+- {id: K78, name: mid_reach_extend, sd: "arm mid-extending toward something"}
+- {id: K79, name: mid_lean_back, sd: "body mid-leaning backward"}
+quota:
+per_code_cap: 3
+distinct_min: 5
+mandatory_volt: true # every VOLT has ≥1 K-code
+
+── WARDROBE STATE AXIS (new, see Thread 2 §3.5) ─────────────────
+wardrobe_state:
+description: "State of the wardrobe, independent of NCS (coverage). FAILURE-STATES (GAR41-GAR48: one_hook, migrating_cup, gravity_vote, last_button, frozen_fastener, seam_split, knot_loosened, strap_migrated) stack ON any garment as E-class carriers — see POOLS_V8 §13."
+values:
+- pristine # clean, intact, fresh
+- disheveled # worn, untidy, slept-in
+- soaking # wet through, clinging
+- torn # ripped, cut, damaged
+- half_removed # partway off, mid-removal
+- borrowed # too big, not hers
+- oversized # deliberate large fit
+- undersized # too small, riding up, cutting in
+cap: 4 # max 4× per state per batch → forces ≥5 distinct states
+
+── GEAR (hand-activity items, see RULES §36) ───────────────────
+gear_pool:
+description: "Hand-occupation items, env-matched. Hands never idle."
+bedroom: [phone, pillow, sheet, cup, book, letter, photograph]
+bathroom: [towel, brush, bottle, mirror, soap, comb, hairpin]
+kitchen: [mug, fruit, glass, spoon, knife, bowl]
+outdoor: [leaf, flower, sunglasses, hat, branch, stone, feather]
+ritual: [vessel, incense_stick, scroll, mask, ribbon, key]
+urban: [phone, cigarette, umbrella, coffee, bag, keys]
+studio: [brush, palette, canvas, pencil, cloth, charcoal]
+
+── EMOTIVE COUNTERPOINT pool (see RULES §35) ───────────────────
+counterpoint_pairs:
+description: "Conflicting face/body signals. ≥3 per batch."
+examples:
+- "confident pose + shy blush"
+- "defiant gaze + vulnerable open mouth"
+- "still body + trembling fingers"
+- "serene expression + weeping eyes"
+- "arched-back offering + averted gaze"
+- "smiling mouth + clenched fist"
+- "commanding eyes + uncertain posture"
+- "relaxed face + tension in shoulders"
+
+── POSE-CAMERA PAIR TABLE (see RULES §33 + POSE_LIBRARY v3.2) ──
+pose_camera_pair:
+description: "Every PL code has 3-5 preferred camera angles. PL+CAM must agree."
+see_file: POSE_LIBRARY.yaml
+rule: outside_preferred_set_allowed_but_flagged
+
+v9 INTEGRATION POINTER (2026-09-10 — what lives where after the audit):
+- KINETIC: K01-K08 + K61-K79 (here) + K80-K93 / K98-K104 (POOLS_V8 §§6/9) + K115-K122 + the K-freeform policy (POOLS_V8 §10)
+- TECHNIQUES: BRE17-31 / BK7-18 / B16-27 (ONTOLOGY + POOLS §§7/8) + mechanics-first v4: BRE32-40 / BK19-22 / B28-31 (POOLS_V8 §11)
+- REACTION PHYSIOLOGY: H01-H20 (POOLS_V8 §12) — ENG codes here are the legacy staging layer
+- WARDROBE FAILURE STATES: GAR41-GAR48 (POOLS_V8 §13)
+- AGGRESSIVE CAMERAS: CAM13-CAM18 (POOLS_V8 §14); CAM01-12 here stay the base axis; §33 pairs for PL49-60 live in POSE_LIBRARY v2.0
+- EROTIC POSES: PL49-PL60 (POSE_LIBRARY v2.0)
+- ENV/OAS: word-formalization law (POOLS_V8 §15) — codes here are the reference dictionary; POS writes words
+- PALETTE SATURATION: the five locks (PALETTE_LIBRARY tail + RULES §51)
+- RATING HONESTY: RATING_MAP.md + rating_gate_lint.py (RULES §50)
+
