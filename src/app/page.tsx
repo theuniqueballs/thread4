@@ -12,6 +12,8 @@ import {
   Archive as ArchiveIcon,
   BookOpen,
   Boxes,
+  Check,
+  Copy,
   FileText,
   FlaskConical,
   Heart,
@@ -258,9 +260,16 @@ function SpecsTab() {
 
 function CompileTab() {
   const [theme, setTheme] = useState('')
+  const [engine, setEngine] = useState('')
+  const [ocRows, setOcRows] = useState([
+    { name: '', theme: '' },
+    { name: '', theme: '' },
+    { name: '', theme: '' },
+  ])
   const [busy, setBusy] = useState(false)
   const [result, setResult] = useState<CompilePayload | null>(null)
   const [err, setErr] = useState<string | null>(null)
+  const [copied, setCopied] = useState<string | null>(null)
   const contracts = useApi<{ items: { slug: string; theme: string; createdAt: string }[] }>('/api/t4/contracts')
   const [viewSlug, setViewSlug] = useState<string | null>(null)
   const detail = useApi<{ markdown: string }>(viewSlug ? `/api/t4/contracts/${viewSlug}` : null)
@@ -271,14 +280,35 @@ function CompileTab() {
     setBusy(true)
     setErr(null)
     setResult(null)
+    const ocOrders = ocRows.map((r) => r.name.trim()).filter(Boolean)
+    const ocThemes: Record<string, string> = {}
+    for (const r of ocRows) {
+      const n = r.name.trim()
+      const th = r.theme.trim()
+      if (n && th) ocThemes[n] = th
+    }
+    const payload: Record<string, unknown> = { theme: t }
+    if (ocOrders.length > 0) payload.ocOrders = ocOrders
+    if (Object.keys(ocThemes).length > 0) payload.ocThemes = ocThemes
+    if (engine.trim()) payload.engine = engine.trim()
     try {
-      const res = await postJson<CompilePayload>('/api/t4/compile', { theme: t })
+      const res = await postJson<CompilePayload>('/api/t4/compile', payload)
       setResult(res)
       contracts.reload()
     } catch (e) {
       setErr(e instanceof ApiError ? `API: ${e.message}` : 'Сеть недоступна')
     } finally {
       setBusy(false)
+    }
+  }
+
+  async function copyOrder(slug: string) {
+    try {
+      await navigator.clipboard.writeText(`Super Z, произведи ${slug}`)
+      setCopied(slug)
+      setTimeout(() => setCopied((c) => (c === slug ? null : c)), 2500)
+    } catch {
+      setCopied(null)
     }
   }
 
@@ -299,6 +329,42 @@ function CompileTab() {
             placeholder="Тема батча — например: «город, где усталость носит как меха»…"
             className="min-h-20 border-zinc-800 bg-zinc-950 text-sm"
           />
+          <div className="grid gap-2 sm:grid-cols-[180px_1fr]">
+            <Input
+              value={engine}
+              onChange={(e) => setEngine(e.target.value)}
+              placeholder="движок (пусто = ротация)"
+              className="h-9 border-zinc-800 bg-zinc-950 text-xs"
+            />
+            <p className="self-center text-[11px] leading-tight text-zinc-600">
+              tint · bespoke · counterfall · … — ключ из спеки движков; пусто = ротация.
+            </p>
+          </div>
+          <div className="space-y-2">
+            <p className="text-[11px] uppercase tracking-wider text-zinc-600">
+              Заказ OC — до трёх · имя из канона (пусто = ротация) · тема по желанию
+            </p>
+            {ocRows.map((row, i) => (
+              <div key={i} className="grid gap-2 sm:grid-cols-[180px_1fr]">
+                <Input
+                  value={row.name}
+                  onChange={(e) =>
+                    setOcRows((rows) => rows.map((r, j) => (j === i ? { ...r, name: e.target.value } : r)))
+                  }
+                  placeholder={i === 0 ? 'например: Lyn' : 'имя OC'}
+                  className="h-9 border-zinc-800 bg-zinc-950 text-xs"
+                />
+                <Input
+                  value={row.theme}
+                  onChange={(e) =>
+                    setOcRows((rows) => rows.map((r, j) => (j === i ? { ...r, theme: e.target.value } : r)))
+                  }
+                  placeholder="тема/сценарий для неё — пусто = писец выведет из темы батча"
+                  className="h-9 border-zinc-800 bg-zinc-950 text-xs"
+                />
+              </div>
+            ))}
+          </div>
           <div className="flex items-center gap-3">
             <Button
               onClick={compile}
@@ -318,6 +384,25 @@ function CompileTab() {
         </Panel>
       ) : null}
 
+      <Panel title="Производство — от сборки к батчу" icon={<Sparkles className="size-4" />}>
+        <ol className="space-y-2 text-xs leading-relaxed text-zinc-400">
+          <li>
+            <span className="text-amber-400">1 ·</span> Собери контракт выше — тема, при желании движок и заказ
+            OC с их темами. Сборка занимает секунды и ни к чему не обязывает: это план, не батч.
+          </li>
+          <li>
+            <span className="text-amber-400">2 ·</span> Нажми «Приказ» у нужного контракта в списке ниже —
+            строка <Mono>{'«Super Z, произведи T4-NN»'}</Mono> скопируется одной кнопкой. Темы ОС, если
+            свои, допиши прямо в приказ.
+          </li>
+          <li>
+            <span className="text-amber-400">3 ·</span> Отправь приказ в чат. Писец пишет 21 промпт + 3 OC
+            против контракта в одном файле, самопроверка по гейтам, официальный прогон, сдача с ворклогом —
+            батч и квитанции гейтов появятся во вкладке «Батчи».
+          </li>
+        </ol>
+      </Panel>
+
       <Panel title="Контракты" icon={<FileText className="size-4" />}>
         {contracts.loading ? (
           <SkeletonBlock lines={3} />
@@ -334,7 +419,17 @@ function CompileTab() {
                   <Mono>{c.slug}</Mono>
                   <span className="truncate text-xs text-zinc-300">{c.theme}</span>
                 </button>
-                <span className="shrink-0 text-[11px] text-zinc-600">{formatDate(c.createdAt)}</span>
+                <div className="flex shrink-0 items-center gap-2">
+                  <button
+                    onClick={() => copyOrder(c.slug)}
+                    title="Скопировать приказ на производство"
+                    className="flex items-center gap-1 rounded-md border border-amber-500/40 bg-amber-500/10 px-2 py-1 text-[11px] text-amber-300 transition-colors hover:bg-amber-500/20"
+                  >
+                    {copied === c.slug ? <Check className="size-3" /> : <Copy className="size-3" />}
+                    {copied === c.slug ? 'Скопировано' : 'Приказ'}
+                  </button>
+                  <span className="text-[11px] text-zinc-600">{formatDate(c.createdAt)}</span>
+                </div>
               </div>
             ))}
             {viewSlug ? (
@@ -380,7 +475,7 @@ function BatchesTab() {
         {list.loading ? (
           <SkeletonBlock lines={3} />
         ) : items.length === 0 ? (
-          <EmptyState title="Батчей пока нет" hint="T4-01 соберётся после заказа темы." />
+          <EmptyState title="Батчей пока нет" hint="Сборка готова? Прикажи производство в чате — сданный батч появится здесь с квитанциями гейтов." />
         ) : (
           <div className="grid gap-1.5">
             {items.map((b) => (

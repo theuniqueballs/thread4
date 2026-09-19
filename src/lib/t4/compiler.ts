@@ -81,6 +81,7 @@ export interface SlotPlan {
   position: number // 1..21
   kind: 'OC' | 'NICHE' | 'VOLT' | 'EXQUISITE'
   oc?: string
+  ocTheme?: string // author's OC theme/angle for this slot (optional)
   rating: 'PG-13' | 'R' | 'R+' | 'X'
   race?: string
   raceFeature?: string
@@ -122,6 +123,7 @@ export interface BatchContract {
 
 export interface CompileOptions {
   ocOrders?: string[] // author-named OCs (up to 3); rest filled by rotation
+  ocThemes?: Record<string, string> // author's per-OC theme/angle, keyed by OC name
   engine?: string // engine key override
   exquisite?: number // 0..4, default 1
   exploratory?: number // 0..2, default 1
@@ -414,6 +416,7 @@ export function compileBatch(theme: string, options: CompileOptions = {}): Batch
         position: pos,
         kind: 'OC',
         oc: ocName,
+        ocTheme: options.ocThemes?.[ocName]?.trim() || undefined,
         rating: 'R+',
         pose: pose.id,
         poseName: pose.name,
@@ -562,6 +565,11 @@ export function contractMarkdown(c: BatchContract): string {
   lines.push('')
   lines.push(`**Ротация OC**: ${c.ocRotation.map((o) => `${o.name} (было ${o.served})`).join(', ')} — по longest-rested.`)
   lines.push('')
+  const themed = c.slots.filter((s) => s.oc && s.ocTheme)
+  if (themed.length > 0) {
+    lines.push(`**Темы OC (заказ автора)**: ${themed.map((s) => `${s.oc} — ${s.ocTheme}`).join(' · ')}`)
+    lines.push('')
+  }
   lines.push(`**Расовый каст**: ${c.racialCount}/18 мейнов — раса делает физическую работу в кадре (механизм, не костюм).`)
   lines.push('')
   lines.push('**Диверсия назначена до письма** (ядро §3): носители, позы, палитры, K, LEAD-зоны, клоузеры, регистры зрелости, свидетели — всё разложено по слотам ниже. Писец пишет ПРОТИВ этого плана; гейты проверяют те же числа, что здесь напечатаны.')
@@ -609,6 +617,14 @@ export function contractMarkdown(c: BatchContract): string {
   lines.push('- **T10**: дубли-close (N25: 18/21 триплетов) — клоузеры назначены, вертеть.')
   lines.push('')
   lines.push('---')
+  lines.push('')
+  lines.push('## Производство — как пустить сборку в дело')
+  lines.push('')
+  lines.push('Контракт готов. Производство батча — приказ писцу, в чате:')
+  lines.push('')
+  lines.push(`> **«Super Z, произведи ${c.slug}»**`)
+  lines.push('')
+  lines.push('Писец читает этот контракт, пишет 21 промпт + 3 OC в одном файле, самопроверка по гейтам (dry-run), официальный прогон, сдача с батч-ворклогом — батч и квитанции гейтов появятся во вкладке «Батчи». Темы ОС, если нужны свои, дописываются в приказ: «произведи ' + c.slug + ', темы ОС: Lyn — …, Sue — …»; пусто = писец выводит темы из темы батча и движка.')
   lines.push('')
   lines.push('*Контракт — единственный документ писца. Право (конституция) и спеки — фон; всё, что нужно для чистого первого прогона, — выше.*')
   return lines.join('\n')

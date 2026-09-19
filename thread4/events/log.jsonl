@@ -7,3 +7,13 @@
 {"id":"72ad1791","at":"2026-09-19T15:41:19.792Z","type":"oc.appeared","summary":"OC Zia назначен в T4-01","data":{"slug":"T4-01","name":"Zia"}}
 {"id":"62910120","at":"2026-09-19T15:41:19.793Z","type":"oc.appeared","summary":"OC Lua назначен в T4-01","data":{"slug":"T4-01","name":"Lua"}}
 {"id":"a6963eca","at":"2026-09-19T15:44:19.569Z","type":"note","summary":"Сборка THREAD 4 завершена: конституция+спеки+компилятор+гейты+дашборд. T4-01 «Город, где усталость носят как меха» — ДЕМО-контракт: автор может благословить тему или назвать свою (сброс одной командой). Гейты прогнаны на синтетике (ловят всё положенное), selftest 18/18.","data":{"build":"v1.0.0"}}
+{"id":"74185dd8","at":"2026-09-19T16:37:27.740Z","type":"batch.compiled","summary":"T4-02 «The Shape of a Moment» — контракт скомпилирован (движок tint, спред R+×12 R×7 X×2)","data":{"slug":"T4-02","theme":"The Shape of a Moment","engine":"tint","seed":3410579027}}
+{"id":"f49a5748","at":"2026-09-19T16:37:27.740Z","type":"oc.appeared","summary":"OC Lyn назначен в T4-02","data":{"slug":"T4-02","name":"Lyn"}}
+{"id":"10b42aae","at":"2026-09-19T16:37:27.740Z","type":"oc.appeared","summary":"OC Sue назначен в T4-02","data":{"slug":"T4-02","name":"Sue"}}
+{"id":"ba36ebe1","at":"2026-09-19T16:37:27.740Z","type":"oc.appeared","summary":"OC Una назначен в T4-02","data":{"slug":"T4-02","name":"Una"}}
+{"id":"3a932b0b","at":"2026-09-19T17:05:05.312Z","type":"gate.run","summary":"T4-02 гейты: прогон #1, hard PASS · FIRST RUN CLEAN (sha 1244c0d2bf)","data":{"slug":"T4-02","run":1,"sha10":"1244c0d2bf","hardPass":true,"firstRunClean":true,"hardFails":[],"warns":0}}
+{"id":"34caa75a","at":"2026-09-19T17:05:05.313Z","type":"batch.delivered","summary":"T4-02 «The Shape of a Moment» сдан: гейты hard PASS · FIRST RUN CLEAN (sha 1244c0d2bf)","data":{"slug":"T4-02","title":"The Shape of a Moment","theme":"The Shape of a Moment","hardPass":true,"firstRunClean":true,"sha10":"1244c0d2bf"}}
+{"id":"b373be15","at":"2026-09-19T21:57:00.286Z","type":"batch.compiled","summary":"T4-03 «Faceless Void» — контракт скомпилирован (движок counterfall, спред R+×12 R×7 X×2)","data":{"slug":"T4-03","theme":"Faceless Void","engine":"counterfall","seed":3711204150}}
+{"id":"049027bd","at":"2026-09-19T21:57:00.287Z","type":"oc.appeared","summary":"OC Sol назначен в T4-03","data":{"slug":"T4-03","name":"Sol"}}
+{"id":"ac34c413","at":"2026-09-19T21:57:00.287Z","type":"oc.appeared","summary":"OC Vae назначен в T4-03","data":{"slug":"T4-03","name":"Vae"}}
+{"id":"305d0080","at":"2026-09-19T21:57:00.287Z","type":"oc.appeared","summary":"OC Mab назначен в T4-03","data":{"slug":"T4-03","name":"Mab"}}

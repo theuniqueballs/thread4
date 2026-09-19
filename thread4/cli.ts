@@ -1,9 +1,11 @@
 /**
- * THREAD 4 CLI — seed / compile / gates / state.
+ * THREAD 4 CLI — seed / compile / check / gates / deliver / state.
  * Usage (bun):
  *   bun thread4/cli.ts seed          # era.born + spec.imported + law.ratified (once)
  *   bun thread4/cli.ts compile "тема" [engine] [oc1,oc2,oc3]
- *   bun thread4/cli.ts gates T4-01
+ *   bun thread4/cli.ts check T4-01   # писец: сухой прогон гейтов (без событий)
+ *   bun thread4/cli.ts gates T4-01   # официальный прогон гейтов (gate.run в лог)
+ *   bun thread4/cli.ts deliver T4-01 # официальный прогон + сдача батча
  *   bun thread4/cli.ts state
  *   bun thread4/cli.ts selftest      # compiler + gates smoke test
  */
@@ -11,10 +13,19 @@ import { compileBatch, contractMarkdown } from '../src/lib/t4/compiler'
 import { runGates, parseBatch } from '../src/lib/t4/gates'
 import { appendEvent, foldState, readEvents } from '../src/lib/t4/events'
 import { specInventory } from '../src/lib/t4/specs'
-import { readText } from '../src/lib/t4/fsutil'
+import { BATCHES_DIR, CONTRACTS_DIR, readJson, readText, writeJson } from '../src/lib/t4/fsutil'
 import path from 'node:path'
 
 const cmd = process.argv[2] ?? ''
+
+function printGates(result: NonNullable<ReturnType<typeof runGates>>) {
+  for (const r of result.receipts) {
+    const mark = r.verdict === 'PASS' ? '✓' : r.verdict === 'FAIL' ? '✗' : r.verdict === 'WARN' ? '⚠' : '·'
+    console.log(`  [${mark}] ${r.gate} (${r.level})`)
+    for (const f of r.findings.slice(0, 5)) console.log(`       ${f}`)
+  }
+  console.log(`\nrun #${result.runIndex} · hard ${result.hardPass ? 'PASS' : 'FAIL'}${result.firstRunClean ? ' · FIRST RUN CLEAN' : ''}`)
+}
 
 async function main() {
   if (cmd === 'seed') {
@@ -64,23 +75,46 @@ async function main() {
     return
   }
 
-  if (cmd === 'gates') {
+  if (cmd === 'check' || cmd === 'gates' || cmd === 'deliver') {
     const slug = process.argv[3]
     if (!slug) {
-      console.error('usage: gates T4-01')
+      console.error(`usage: ${cmd} T4-01`)
       process.exit(1)
     }
-    const result = runGates(slug)
+    const result = runGates(slug, cmd === 'check')
     if (!result) {
-      console.error(`batch ${slug} not found`)
+      console.error(`batch ${slug} not found (нужен thread4/batches/${slug}.md)`)
       process.exit(1)
     }
-    for (const r of result.receipts) {
-      const mark = r.verdict === 'PASS' ? '✓' : r.verdict === 'FAIL' ? '✗' : r.verdict === 'WARN' ? '⚠' : '·'
-      console.log(`  [${mark}] ${r.gate} (${r.level})`)
-      for (const f of r.findings.slice(0, 5)) console.log(`       ${f}`)
+    printGates(result)
+
+    if (cmd === 'deliver') {
+      if (!result.hardPass) {
+        console.error('\nHARD FAIL — батч не сдаётся. Чини против контракта, потом снова deliver.')
+        process.exit(1)
+      }
+      const text = readText(path.join(BATCHES_DIR, `${slug}.md`)) ?? ''
+      const parsed = parseBatch(slug, text)
+      const contract = readJson<{ theme?: string }>(path.join(CONTRACTS_DIR, `${slug}.json`))
+      const title = parsed.title || contract?.theme || slug
+      writeJson(path.join(BATCHES_DIR, `${slug}.json`), {
+        slug,
+        title,
+        date: new Date().toISOString(),
+        theme: contract?.theme ?? '',
+        hardPass: result.hardPass,
+        firstRunClean: result.firstRunClean,
+        sha10: result.sha10,
+        run: result.runIndex,
+        receipts: result.receipts,
+      })
+      appendEvent(
+        'batch.delivered',
+        `${slug} «${title}» сдан: гейты hard PASS${result.firstRunClean ? ' · FIRST RUN CLEAN' : ''} (sha ${result.sha10})`,
+        { slug, title, theme: contract?.theme ?? '', hardPass: true, firstRunClean: result.firstRunClean, sha10: result.sha10 }
+      )
+      console.log(`\ndelivered: ${slug} — батч, мета и событие batch.delivered записаны`)
     }
-    console.log(`\nrun #${result.runIndex} · hard ${result.hardPass ? 'PASS' : 'FAIL'}${result.firstRunClean ? ' · FIRST RUN CLEAN' : ''}`)
     process.exit(result.hardPass ? 0 : 1)
   }
 
@@ -160,7 +194,7 @@ async function main() {
     process.exit(fail === 0 ? 0 : 1)
   }
 
-  console.log('commands: seed | compile "theme" | gates T4-NN | state | selftest')
+  console.log('commands: seed | compile "theme" | check T4-NN | gates T4-NN | deliver T4-NN | state | selftest')
 }
 
 main().catch((e) => {

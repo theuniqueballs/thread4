@@ -358,7 +358,14 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
     }
     const poseIds = batch.slots.map((s) => (/\bPL\d{1,3}\b/.exec(s.header) ?? [])[0]).filter(Boolean)
     if (new Set(poseIds).size !== poseIds.length) f.push('позы не уникальны в батче')
-    const palIds = batch.slots.map((s) => (/\bP\d{1,3}_[A-Z_]+|\bP\d{1,3}\b/.exec(s.header) ?? [])[0]).filter(Boolean)
+    // palette ids are the underscore form (P77_LATE_MILK) — the bare P\d+ form
+    // would catch the slot's own position marker (P01…) and never fail
+    const palIds = batch.slots
+      .map((s) => (/\b(P\d{1,3}_[A-Z_]+)\b/.exec(s.header) ?? [])[0])
+      .filter(Boolean)
+    if (poseIds.length === 21 && palIds.length !== 21) {
+      f.push(`слотов с палитрой в шапке: ${palIds.length}/21`)
+    }
     if (new Set(palIds).size < 21 && palIds.length >= 21) f.push('палитры не уникальны в батче')
     hard('diversity', f)
   }

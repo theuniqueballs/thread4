@@ -1,0 +1,83 @@
+{
+  "slug": "T4-02",
+  "title": "The Shape of a Moment",
+  "date": "2026-09-19T17:05:05.313Z",
+  "theme": "The Shape of a Moment",
+  "hardPass": true,
+  "firstRunClean": true,
+  "sha10": "1244c0d2bf",
+  "run": 1,
+  "receipts": [
+    {
+      "gate": "structure",
+      "level": "hard",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "floors",
+      "level": "hard",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "rating-recipe",
+      "level": "hard",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "canon",
+      "level": "hard",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "diversity",
+      "level": "hard",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "window",
+      "level": "hard",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "budget",
+      "level": "warn",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "cadence",
+      "level": "warn",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "simcheck",
+      "level": "warn",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "freq-report",
+      "level": "advisory",
+      "verdict": "REPORT",
+      "findings": [
+        "кандидаты в тики: anime 21/21 · style 21/21 · ecchi 21/21 · rendered 21/21 · stylized 21/21 · small 21/21 · mouth 21/21 · masterpiece 21/21 · quality 21/21 · artstyle 21/21 · point 16/21 · keeps 15/21"
+      ]
+    },
+    {
+      "gate": "usage",
+      "level": "advisory",
+      "verdict": "REPORT",
+      "findings": [
+        "носителей в стеках: 77; уникальных: 64",
+        "R+ слотов: 12; X: 2"
+      ]
+    }
+  ]
+}
