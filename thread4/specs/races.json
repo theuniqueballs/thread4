@@ -1,0 +1,298 @@
+{
+  "version": "1.0.0",
+  "born": "2026-09-19",
+  "source": "3.2 POOLS_V8 race_pool R01-R15 + race_extension_v2 R16-R22 + Thread-4 author directives (2026-09-19)",
+  "races": [
+    {
+      "id": "R01",
+      "name": "Human",
+      "features": [
+        "none — memorability from NR features"
+      ],
+      "status": "active",
+      "note": "wardrobe: standard"
+    },
+    {
+      "id": "R02",
+      "name": "Elf",
+      "features": [
+        "E1 long-pointed swept-back",
+        "E2 short-pointed",
+        "E3 single-left-asymmetric"
+      ],
+      "status": "active",
+      "note": "skin: ['moonlit-pale', 'pale-gold']; wardrobe: higher armholes; nothing at the ear; light: the ear-tip catches the key first"
+    },
+    {
+      "id": "R03",
+      "name": "Kitsune (fox-kin)",
+      "features": [
+        "ears perked-small",
+        "ears mid-tilt",
+        "ears large-drooping-SOL-LOCKED",
+        "tail single smoke-grey",
+        "tail twin-tips"
+      ],
+      "status": "active",
+      "note": "skin: warm ivory; wardrobe: tail-hem: a hidden slit, or the tail over the cloth; collision: drooping fox ears + golden tail + silver-white hair = SOL (forbidden combo)"
+    },
+    {
+      "id": "R04",
+      "name": "Cat-kin",
+      "features": [
+        "ears small-fluffy",
+        "ears folded",
+        "tail slender-tufted",
+        "tail long-wrap",
+        "pupils vertical-slit"
+      ],
+      "status": "active",
+      "note": "wardrobe: ears above the collar; the tail chooses its own hem; light: the ear's inner fur transmits a pink glow in backlight"
+    },
+    {
+      "id": "R05",
+      "name": "Wolf-kin",
+      "features": [
+        "ears pointed grey-furred",
+        "tail bushy"
+      ],
+      "status": "active",
+      "note": "wardrobe: high collars forfeit — the ears win; light: fur rim before skin rim"
+    },
+    {
+      "id": "R06",
+      "name": "Ram-demon",
+      "features": [
+        "horns half-curl",
+        "horns single-spiral",
+        "horns small-buds",
+        "tail thin-serpentine"
+      ],
+      "status": "active",
+      "note": "collision: full-curl ram horns + serpentine tail = LUA/VAE (pick ONE, never both)"
+    },
+    {
+      "id": "R07",
+      "name": "Dragon-kin",
+      "features": [
+        "horns ridged swept-back",
+        "scales forearm-patches",
+        "wing-fragments at shoulder-blades",
+        "tail thick-scaled"
+      ],
+      "status": "active",
+      "note": "light: the ridge-lines of horns hold shadow like canyon strata; pick: 1-2 codes max per girl (error budget §23)"
+    },
+    {
+      "id": "R08",
+      "name": "Serpent-kin",
+      "features": [
+        "tail thick-coil",
+        "scales hip-patches",
+        "pupils vertical"
+      ],
+      "status": "active",
+      "note": "wardrobe: skirts wrap; the coil reads through knit"
+    },
+    {
+      "id": "R09",
+      "name": "Goat-kin",
+      "features": [
+        "horns small-ribbed-curved",
+        "ears long-drooping"
+      ],
+      "status": "active",
+      "note": "light: the horn's ribbing stripes the light"
+    },
+    {
+      "id": "R10",
+      "name": "Deer-folk",
+      "features": [
+        "horns smooth-unbranched",
+        "tail small"
+      ],
+      "status": "active",
+      "note": "collision: lavender hair + purple cheek-scales = DOE (different colors required)"
+    },
+    {
+      "id": "R11",
+      "name": "Bat-kin",
+      "features": [
+        "ears ribbed-tall",
+        "wing-membranes small-back"
+      ],
+      "status": "active",
+      "note": "light: the membrane translucent-red in backlight"
+    },
+    {
+      "id": "R12",
+      "name": "Bunny-kin",
+      "features": [
+        "ears long-upright",
+        "tail round"
+      ],
+      "status": "active",
+      "note": "motion: the ears telegraph emotion a beat before the face"
+    },
+    {
+      "id": "R13",
+      "name": "Merfolk-adapt",
+      "features": [
+        "scales shin-and-hip",
+        "tide-line-tan"
+      ],
+      "status": "active",
+      "note": "wardrobe: wet-look knits, nothing that minds water"
+    },
+    {
+      "id": "R14",
+      "name": "Dryad",
+      "features": [
+        "vine-strands woven in hair",
+        "seasonal bloom at temple",
+        "bark-patch at collarbone"
+      ],
+      "status": "active",
+      "note": "light: the bloom holds daylight a minute after the room dims"
+    },
+    {
+      "id": "R15",
+      "name": "Porcelain-doll",
+      "features": [
+        "bisque skin with seams at joints",
+        "ball-joint elbows-and-knees",
+        "painted blush fixed"
+      ],
+      "status": "active",
+      "note": "light: matte scatter, no subsurface glow — the uncanny read; collision: doll + ivory-white hair + veil = ASH-adjacent (avoid); mat: bisque-porcelain"
+    },
+    {
+      "id": "R16",
+      "name": "Moth-kin",
+      "features": [
+        "antennae feathered-curved",
+        "dust-scales at the collarbone",
+        "wings small-dusted (cloak-fold)"
+      ],
+      "status": "active",
+      "note": "skin: powder-pale; wardrobe: nothing at the shoulder-blades' folds — capes negotiate; light: the antennae test the dark; the scales hold lamplight a beat late"
+    },
+    {
+      "id": "R17",
+      "name": "Jellyfish-kin",
+      "features": [
+        "bell-hood translucent at the crown",
+        "tendril-strands at the nape"
+      ],
+      "status": "gold",
+      "note": "AUTHOR-CONFIRMED GOLD for Thread 4. skin: glass-clear at the edges, milk at the core; wardrobe: hood-aware necklines; the tendrils choose the collar; light: the hood carries the room's whole palette through itself"
+    },
+    {
+      "id": "R18",
+      "name": "Gargoyle-kin",
+      "features": [
+        "small stone horns rough-textured",
+        "stone patches at the forearm"
+      ],
+      "status": "active",
+      "note": "skin: granite-grey warm-veined; wardrobe: heavy weaves that agree with the stone; light: the patches eat light; the horns' rough holds a dry rim"
+    },
+    {
+      "id": "R19",
+      "name": "Cecaelia (upper)",
+      "features": [
+        "suckered smooth arms from the elbow",
+        "mantle-cape at the back"
+      ],
+      "status": "active",
+      "note": "skin: reef-warm; wardrobe: the mantle replaces all outerwear — jewelry above it; light: the sucker-rings a texture of small shadows"
+    },
+    {
+      "id": "R20",
+      "name": "Harpy-kin (wing-armed)",
+      "features": [
+        "feathered forearms to the wrist",
+        "flight-feathers at the shoulder-blades"
+      ],
+      "status": "gold",
+      "note": "AUTHOR-CONFIRMED GOLD for Thread 4. skin: wind-tan; wardrobe: backless by necessity; sleeves are fingerless vests; light: the barbs split the light into feather-combs"
+    },
+    {
+      "id": "R21",
+      "name": "Mushroom-kin",
+      "features": [
+        "cap-frill at the crown",
+        "spore-freckles glowing faint"
+      ],
+      "status": "active",
+      "note": "skin: damp-pale; wardrobe: moss-agreeing weaves; nothing that minds the damp; light: the spores a private constellation at close range"
+    },
+    {
+      "id": "R22",
+      "name": "Flame-salamander kin",
+      "features": [
+        "crest of low fire along the spine's line",
+        "ember-freckles at the jaw"
+      ],
+      "status": "active",
+      "note": "skin: heat-dark; wardrobe: asbestos-adjacent silks; the crest burns holes in chairbacks (prose-true); light: the crest is never the key light — it's the refusal of it"
+    },
+    {
+      "id": "BAN-01",
+      "name": "Dwarves",
+      "features": [],
+      "status": "banned",
+      "note": "AUTHOR TASTE BAN for Thread 4: 'dwarves' belong to the 'ugly fantasy creature' register the author rejects. Not present in any 3.2 pool — listed here so the Thread 4 compiler can enforce the ban."
+    },
+    {
+      "id": "BAN-02",
+      "name": "Goblins",
+      "features": [],
+      "status": "banned",
+      "note": "AUTHOR TASTE BAN for Thread 4: 'goblins' belong to the 'ugly fantasy creature' register the author rejects. Not present in any 3.2 pool — listed here so the Thread 4 compiler can enforce the ban."
+    },
+    {
+      "id": "BAN-03",
+      "name": "Trolls",
+      "features": [],
+      "status": "banned",
+      "note": "AUTHOR TASTE BAN for Thread 4: 'trolls' belong to the 'ugly fantasy creature' register the author rejects. Not present in any 3.2 pool — listed here so the Thread 4 compiler can enforce the ban."
+    },
+    {
+      "id": "BAN-04",
+      "name": "Orcs",
+      "features": [],
+      "status": "banned",
+      "note": "AUTHOR TASTE BAN for Thread 4: 'orcs' belong to the 'ugly fantasy creature' register the author rejects. Not present in any 3.2 pool — listed here so the Thread 4 compiler can enforce the ban."
+    }
+  ],
+  "directives": {
+    "gold": [
+      "jellyfish-kin (R17) — author-confirmed",
+      "harpy-kin (R20) — author-confirmed"
+    ],
+    "banned": [
+      "dwarves, goblins, trolls, orcs — author taste: 'ugly fantasy creature' register; banned outright"
+    ]
+  },
+  "racial_usage": [
+    "9-10 racial girls per 21 (V7 50/50 split kept: 9 racial + 10 non-racial + 2 exempt)",
+    "1-2 RF codes max per racial girl (§23 error budget)",
+    "racial features count toward the ≥2-VIS stack",
+    "race logged in pre-header: RACE: R07 (horns + wing-fragments)",
+    "wardrobe adaptation is MANDATORY prose for racial girls: the garment must acknowledge the anatomy (slit, hem, armhole, wrap)"
+  ],
+  "collision_table": [
+    "silver-white hair + amber slit eyes + drooping fox ears + golden tail → Sol",
+    "black hair + hime cut + red/blue heterochromia → Miyu",
+    "lavender hair + golden eyes + round glasses + deer horns + purple cheek-scales → Doe",
+    "platinum-white + twin ponytails + purple right eye + square white eyepatch → Sue",
+    "obsidian skin + red eyes + white hair streak → Vae",
+    "ivory-white hair + white eye-veil → Ash",
+    "copper-red side braid + emerald + gold flecks + burn scar → Noa",
+    "platinum french bob + white eyelashes + ice-blue + key pendant + neck scar → Nix",
+    "black + single white streak + red eyes → Vae-alt",
+    "blonde + pink gradient + golden ring-pupils → Yui"
+  ],
+  "collision_table_note": "Hard OC-signature combos (hair/eyes/ears/tail) that random girls may never draw — canon locks in OC_CANON always win over the race pool."
+}

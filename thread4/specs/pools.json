@@ -1,0 +1,4703 @@
+{
+  "version": "1.0.0",
+  "born": "2026-09-19",
+  "source": "3.2 POOLS_V8 v9.4.0/v10.0.0 + ONTOLOGY v2.0.0 (V15 de-numbered ENV/OAS/MAT)",
+  "sections": {
+    "kinetics_k": [
+      {
+        "id": "K01",
+        "name": "Static",
+        "light": "stable shadows, classic",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "K02",
+        "name": "Slow Drift",
+        "light": "shadows blur, LQ02/LQ09",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "K03",
+        "name": "Hold and Tremble",
+        "light": "micro-movement, muscles tense, shadow trembles, LQ01 intensifies",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "K04",
+        "name": "Arc Recovery",
+        "light": "body returning, motion blur as ghost-light",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "K05",
+        "name": "Weight Shift",
+        "light": "shadow shifts, asymmetric light",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "K06",
+        "name": "Suspended",
+        "light": "frozen before motion, light particles stop, LQ07/LQ11",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "K07",
+        "name": "Collapse",
+        "light": "body relaxes, shadows spread, LQ02+FR1",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "K08",
+        "name": "Tension Peak",
+        "light": "max tension, sharp shadow, LQ01+FR9",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "K61",
+        "name": "mid_drip",
+        "sd": "single drop mid-fall (sweat/water/rain)",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "K62",
+        "name": "mid_peel",
+        "sd": "fabric mid-removal",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "K63",
+        "name": "mid_grind",
+        "sd": "hips mid-circular-motion",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "K64",
+        "name": "mid_tremble",
+        "sd": "body vibrating",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "K65",
+        "name": "mid_squirm",
+        "sd": "body wriggling",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "K66",
+        "name": "mid_arch_break",
+        "sd": "arch reaching peak",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "K67",
+        "name": "mid_close_eyes",
+        "sd": "eyes mid-closing, pleasure arriving",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "K68",
+        "name": "mid_open_mouth",
+        "sd": "mouth mid-opening, gasp beginning",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "K69",
+        "name": "mid_grip_tighten",
+        "sd": "hand mid-tightening",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "K70",
+        "name": "mid_release",
+        "sd": "hand mid-opening",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "K71",
+        "name": "mid_breath_inhale",
+        "sd": "chest rising mid-inhale",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "K72",
+        "name": "mid_breath_exhale",
+        "sd": "chest falling mid-exhale",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "K73",
+        "name": "mid_head_turn",
+        "sd": "head mid-turn toward camera",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "K74",
+        "name": "mid_hair_toss",
+        "sd": "hair mid-toss",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "K75",
+        "name": "mid_leg_cross",
+        "sd": "legs mid-crossing",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "K76",
+        "name": "mid_stand_up",
+        "sd": "body mid-rising from seated",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "K77",
+        "name": "mid_kneel_down",
+        "sd": "body mid-descending to kneel",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "K78",
+        "name": "mid_reach_extend",
+        "sd": "arm mid-extending toward something",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "K79",
+        "name": "mid_lean_back",
+        "sd": "body mid-leaning backward",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "K80",
+        "name": "mid_pour",
+        "sd": "liquid mid-transfer between two held vessels",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K81",
+        "name": "mid_leap_land",
+        "sd": "body arriving onto a surface from height, feet-first, impact not yet absorbed",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K82",
+        "name": "mid_invert_suspend",
+        "sd": "body hanging upside-down from one point, slow rotation, hair falling with gravity's reversal",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K83",
+        "name": "mid_free_fall",
+        "sd": "body falling without support, limbs loose, fabric and hair floating upward",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K84",
+        "name": "mid_spin_turn",
+        "sd": "body mid-rotation on its own axis, skirt and hair trailing the arc",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K85",
+        "name": "mid_draw_open",
+        "sd": "hands mid-drawing a garment or drape open at the front",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K86",
+        "name": "mid_blessing_raise",
+        "sd": "one arm mid-rise into a deliberate ritual gesture, elbow above shoulder",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K87",
+        "name": "mid_reins_gather",
+        "sd": "hands mid-gathering contact (reins, lead, fur, rope) with an animal or object",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K88",
+        "name": "mid_scale_tilt",
+        "sd": "a balance mid-tilting between two unequal weights, held level by the body's counter-poise",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K89",
+        "name": "mid_jaw_part",
+        "sd": "hands mid-parting or holding open a great jaw, tension in the forearms",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K90",
+        "name": "mid_step_off",
+        "sd": "one foot mid-leaving a ledge, weight already committed, arms finding balance",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K91",
+        "name": "mid_face_upturn",
+        "sd": "face mid-turning up into falling light, throat lengthening",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K92",
+        "name": "mid_waterline_rise",
+        "sd": "body rising through a water surface, the line climbing the torso",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K93",
+        "name": "mid_glass_press",
+        "sd": "palm mid-pressing against glass, the meeting of two mirrored surfaces",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K98",
+        "name": "mid_clutch",
+        "sd": "both hands mid-drawing something (letter, coat, fabric) suddenly to the chest — the embrace arriving before any decision to",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K99",
+        "name": "mid_gulp",
+        "sd": "the last swallow mid-throat, head tipped, the cold arriving faster than the schedule",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K100",
+        "name": "mid_sprint_lean",
+        "sd": "body mid-burst into a run, torso committed forward, one arm swung back as counterweight",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K101",
+        "name": "mid_spin_whirl",
+        "sd": "full-body turn mid-whirl on one axis, hair and hem orbiting the motion",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K103",
+        "name": "mid_hurry_button",
+        "sd": "hands mid-working buttons or clasps at speed — one fastened, the next mid-travel",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K104",
+        "name": "mid_wave_reach",
+        "sd": "one arm mid-extending after something departing, fingers open, the goodbye outpacing the wave",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K115",
+        "name": "mid_lean_present",
+        "sd": "torso mid-tipping forward into the offer, weight arriving on the balls of the feet, the neckline opening with the lean",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K116",
+        "name": "mid_hands_claim",
+        "sd": "both hands mid-claiming their own body — seat, hip or thigh — fingers spreading wide over the flesh",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K117",
+        "name": "mid_straddle_settle",
+        "sd": "body mid-settling astride a surface, knees finding their width, weight dropping through the thighs",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K118",
+        "name": "mid_breath_catch",
+        "sd": "chest mid-catch — the inhale interrupted, ribs held high, clavicles rising into the light",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K119",
+        "name": "mid_hem_drag",
+        "sd": "fingers mid-dragging a hem up or along the thigh, the fabric gathering in a wave ahead of the hand",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K120",
+        "name": "mid_spine_unfurl",
+        "sd": "spine mid-unfurling from curl to arch, the chest leading the way up, throat arriving last",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K121",
+        "name": "mid_knee_part",
+        "sd": "knees mid-parting from together to wide, the pose's whole decision visible in the thighs",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K122",
+        "name": "mid_lookback_offer",
+        "sd": "head and shoulders mid-turning back over one shoulder to present what the pose offers",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K126",
+        "name": "mid_gravity_lag",
+        "sd": "fabric and cotton obeying a force a half-beat gone — the body settled, the garment still arriving",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K127",
+        "name": "mid_room_slide",
+        "sd": "body braced mid-counterpose against a floor that tilted or a bench that turned overnight — the counterweight of a woman solving what the rotation broke",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K128",
+        "name": "mid_threshold_step",
+        "sd": "one foot mid-crossing a threshold to a room or season that isn't where it was — the border the drift drew, mid-crossing",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K129",
+        "name": "mid_drift_lean",
+        "sd": "body leaning into the world's new plumb, one shoulder conceding space the room or the trees vacated",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K130",
+        "name": "mid_late_catch",
+        "sd": "hands mid-catching up to something that already finished — a reflection, a rain, a hem the lag owns",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K131",
+        "name": "mid_wade_dark",
+        "sd": "calves or thighs mid-wading into standing dark — tide, night-pool, flood — the waterline of it climbing the frame",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K132",
+        "name": "mid_hem_lag",
+        "sd": "hem mid-floating a half-beat behind the turn, not yet committed to the fall",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K133",
+        "name": "mid_balance_hold",
+        "sd": "one hip's counterweight holding new geometry level — the body's answer to furniture, benches, floors that moved",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K134",
+        "name": "mid_reach_across",
+        "sd": "arm mid-reaching across the gap where something moved out of range — drawers, rails, seasons",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K135",
+        "name": "mid_still_refusal",
+        "sd": "the body deliberately still while everything drifts — the fixed-point pose; the refusal itself is the kinetic",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K139",
+        "name": "mid_pin_pull",
+        "sd": "the fitting pin drawn mid-pull through cloth and body-warmth, the garment's next argument one pin from seated",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K140",
+        "name": "mid_button_choose",
+        "sd": "fingers paused between two buttons, the choice itself the act — the mirror already voted",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K141",
+        "name": "mid_sash_feed",
+        "sd": "the ribbon feeding through its own loop, silk traveling silk, the whole evening one slow pull from closed",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K142",
+        "name": "mid_hem_peel",
+        "sd": "the hem mid-peeling from the thigh's swell under the bend's pull, the garter's clip straining its last argument",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K143",
+        "name": "mid_clasp_melt",
+        "sd": "the front clasp mid-yielding — the last hook leaving its eye in the slow surrender of a thing that has given up nothing in ten thousand nights",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K144",
+        "name": "mid_lie_settle",
+        "sd": "the body mid-sinking one degree deeper into its preferred indulgence — the settle itself the scene's only event",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K145",
+        "name": "mid_bite_hold",
+        "sd": "the held bite, savor delayed on purpose — the appetite's own foreplay, the thumb mid-lick",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K146",
+        "name": "mid_mirror_own",
+        "sd": "the turn to claim the mirror's gaze mid-swing — granting one's own reflection the audience first",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K147",
+        "name": "mid_give_weigh",
+        "sd": "the hand weighing what it is about to give back, hovering over the hook — possession's last accounting",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K148",
+        "name": "mid_heat_bank",
+        "sd": "the anger banked like a forge at night — the heat held coiled and deliberate under the stillness",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K149",
+        "name": "mid_glaze_hold",
+        "sd": "the fixed painted stare mid-holding — the doll's glaze taking its own unhurried inventory of the room admiring it",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K150",
+        "name": "mid_fist_unclench",
+        "sd": "the fist mid-opening, wrath's rarest motion — one finger at a time, the letting-go visible in the tendons",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K151",
+        "name": "mid_tail_curl_count",
+        "sd": "the tail mid-curling its loop around the jar's neck, the tip keeping the count the fingers are too busy to hold",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K152",
+        "name": "mid_posture_lock",
+        "sd": "the shoulders mid-squaring into the final straightness — the posture being signed like a document, every joint of the line agreeing in sequence",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K153",
+        "name": "mid_root_settle",
+        "sd": "the body mid-becoming part of the furniture it trusted — the settle's weight claiming the caning's weave as its own grain",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K154",
+        "name": "mid_sweep_count",
+        "sd": "the hand mid-sweeping the counting table's coin-line toward its own stop — the last coin arriving at the hip it was always going to arrive at",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K155",
+        "name": "mid_flick_decision",
+        "oc_exempt": true,
+        "oc": "SET8-Lyn",
+        "sd": "the tail's single flick mid-arriving:",
+        "source": "POOLS_V8 (comment-defined)"
+      },
+      {
+        "id": "K158",
+        "name": "mid_tide_hem_trade",
+        "sd": "the hem traded to the tide's reach and mid-taken back — the water and the girl negotiating one strip of cloth",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K159",
+        "name": "mid_cold_first_step",
+        "sd": "one foot mid-meeting the shallows' verdict, the calf's flinch already losing to the wade",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K160",
+        "name": "mid_towel_last_grip",
+        "sd": "the towel mid-losing its one fold to gravity — the terrycloth surrendering by degrees while the hands are busy elsewhere",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K161",
+        "name": "mid_bottle_last_pour",
+        "sd": "the last pour mid-leaving the bottle — the glass's whole argument tilted past recall, addressed to nobody",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K162",
+        "name": "mid_float_surrender",
+        "sd": "the body going limp into the water's hold — weight handed over, the drift accepted on the water's terms",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K163",
+        "name": "mid_zip_coast",
+        "sd": "the wetsuit's zipper mid-drawn down its own coast line — the peel's edge traveling, the skin arriving behind it",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K164",
+        "name": "mid_sky_reach",
+        "sd": "the arm mid-raised after what the wind already claimed — the farewell outpacing the grab",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K165",
+        "name": "mid_shiver_wrap",
+        "sd": "damp arms mid-drawn around herself — the cold's argument countered one inch at a time",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K166",
+        "name": "mid_horizon_scan",
+        "sd": "the gaze mid-sweeping an empty line — the search that knows the count and counts anyway",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K167",
+        "name": "mid_heel_drag",
+        "sd": "the heels mid-drawing twin furrows toward the water — the body's slow yes to the blue",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K168",
+        "name": "mid_hair_squeeze",
+        "sd": "the salt-heavy hair mid-giving up its water through her fist — the sea's last toll, wrung",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K169",
+        "name": "mid_ink_palm_dry",
+        "sd": "the ink-stained palm mid-pressed to the apron — the mark drying into tenure",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K170",
+        "name": "mid_warmth_clutch",
+        "sd": "the arms mid-folding around the one warm thing — the hold that admits the temperature's rank",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K171",
+        "name": "mid_stool_half_turn",
+        "sd": "the bar stool's half-turn mid-owned by her hip — the rotation settling where her weight says home",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K172",
+        "name": "mid_strap_station_flick",
+        "oc_exempt": true,
+        "oc": "SET9-Sol",
+        "sd": "the swimsuit strap",
+        "source": "POOLS_V8 (comment-defined)"
+      },
+      {
+        "id": "K173",
+        "name": "mid_clamp_arrive",
+        "oc_exempt": true,
+        "oc": "SET9-Doe",
+        "sd": "both hands mid-arriving at",
+        "source": "POOLS_V8 (comment-defined)"
+      },
+      {
+        "id": "K174",
+        "name": "mid_bottle_toast",
+        "oc_exempt": true,
+        "oc": "SET9-Lua",
+        "sd": "the bottle mid-raised to an",
+        "source": "POOLS_V8 (comment-defined)"
+      },
+      {
+        "id": "K175",
+        "name": "mid_hem_uprise",
+        "sd": "the soaked hem mid-turning skyward, the wet fabric pouring itself upward in a slow bell — the new law claiming the garment an inch at a time",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K176",
+        "name": "mid_drop_climb",
+        "sd": "one bead of the reversed rain mid-climbing the body's channel (spine, sternum, calf), vertebra by vertebra — the world's slowest introduction",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K177",
+        "name": "mid_hair_rise",
+        "sd": "the wet ends of the hair mid-floating upward past her own fingers — the new law reading her through her crown",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K178",
+        "name": "mid_puddle_leave",
+        "sd": "the ground's last water mid-leaving around her ankles in slow bright ropes — the floor exhaling its whole sky",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K179",
+        "name": "mid_umbrella_invert",
+        "sd": "the umbrella mid-turning itself right-side-out for the new weather, its cone becoming a bowl — the city's one configurable instrument",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K180",
+        "name": "mid_scarf_release",
+        "sd": "the scarf mid-leaving her opened hand skyward — the deliberate farewell: everything else was taken, this one is given",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "K181",
+        "name": "mid_heel_rise",
+        "sd": "the heels mid-lifting off the ground as the wet takes her weight — the body's slow vote toward the sky, answered by whatever anchors it",
+        "source": "POOLS_V8"
+      },
+      {
+        "oc_exempt": true,
+        "id": "K182",
+        "name": "mid_anchor_hold",
+        "sd": "her hand mid-holding the pendant flat to her sternum — the one weight she has decided the sky may not schedule (N25-OC Nix, the color-inversion order)",
+        "source": "POOLS_V8"
+      }
+    ],
+    "fet": [
+      {
+        "id": "FET01",
+        "name": "Breast Focus",
+        "light_technique": "rim-light on lower curve, shadow under breast as negative space",
+        "max_per_batch": "4",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "FET02",
+        "name": "Hip Emphasis",
+        "light_technique": "side-light carving hip silhouette, shadow between thigh and torso",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "FET03",
+        "name": "Thigh Focus",
+        "light_technique": "light grazing inner thigh, shadow hiding convergence",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "FET04",
+        "name": "Back Focus",
+        "light_technique": "entire back in shadow except spine-highlight, shoulder-blades as light-pools",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "FET05",
+        "name": "Neck Collarbone",
+        "light_technique": "sharp shadow under jaw, light pooling in suprasternal notch",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "FET06",
+        "name": "Hand on Body",
+        "light_technique": "hand casts shadow on skin, fingers create striped pattern",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "FET07",
+        "name": "Mouth Closeup",
+        "light_technique": "light on lower lip, upper lip in shadow, moisture as specular",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "FET08",
+        "name": "Foot Ankle",
+        "light_technique": "arch in shadow, ankle bone as highlight",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "FET09",
+        "name": "Underbutt",
+        "light_technique": "shadow under buttock as primary shape, light on thigh convergence",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "FET10",
+        "name": "Sideboob",
+        "light_technique": "light from side, breast-edge as thin highlight, nipple in penumbra",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "FET11",
+        "name": "mirror_voyeur",
+        "sd": "subject visible only in mirror, body reflected, no direct view",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "FET12",
+        "name": "tentacle_cradle",
+        "sd": "smooth tentacles cradling body, lifting, no penetration",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "FET13",
+        "name": "collar_and_tail",
+        "sd": "pet-play aesthetic, cat ears, leather collar, tail",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "FET14",
+        "name": "hypno_spiral_eyes",
+        "sd": "spiral pattern in irises, vacant, slight drool",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "FET15",
+        "name": "time_stop_pose",
+        "sd": "subject frozen mid-action, off-frame figure moving",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "FET16",
+        "name": "robe_fall_mid_bow",
+        "sd": "ceremonial robe slipping during formal bow",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "FET17",
+        "name": "bath_entry_surprise",
+        "sd": "entering bath, discovering occupant, surprise",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "FET18",
+        "name": "dungeon_collar_chain",
+        "sd": "chain from collar to wall, restraint",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "FET19",
+        "name": "library_ladder_reach",
+        "sd": "library ladder, reaching high shelf, skirt riding up",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "FET20",
+        "name": "examination_table",
+        "sd": "medical table, paper gown, vulnerable pose",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "FET21",
+        "name": "idol_worship_reveal",
+        "sd": "marble idol in background, priestess before it, robe fallen open",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "FET22",
+        "name": "kimono_slip_ceremony",
+        "sd": "kimono slipping during tea ceremony",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "FET23",
+        "name": "dancer_veil_fall",
+        "sd": "belly dancer mid-spin, veil falling away",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "FET24",
+        "name": "swimwear_malfunction",
+        "sd": "swimsuit strap snapped, surprise, mid-pool",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "FET25",
+        "name": "witch_ritual_robe",
+        "sd": "witch ritual, robe open at chest, magic circle",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "FET46",
+        "name": "collar_bone_focus",
+        "sd": "the line of the collarbone as erotic centerpiece",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "FET47",
+        "name": "jaw_line_focus",
+        "sd": "the line of the jaw, throat-to-ear",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "FET48",
+        "name": "wrist_bone_focus",
+        "sd": "the protruding wrist bone, delicate vulnerable",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "FET49",
+        "name": "ankle_bone_focus",
+        "sd": "the protruding ankle bone",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "FET50",
+        "name": "spine_dimple_focus",
+        "sd": "the dimples at base of spine (Venus dimples)",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "FET51",
+        "name": "rib_cage_focus",
+        "sd": "visible ribs (lean body-type)",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "FET52",
+        "name": "hip_bone_focus",
+        "sd": "protruding hip bones (anterior superior iliac spine)",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "FET53",
+        "name": "shoulder_blade_focus",
+        "sd": "shoulder blades from back",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "FET54",
+        "name": "nape_of_neck_focus",
+        "sd": "back of neck, Japanese erotic classic",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "FET55",
+        "name": "inner_elbow_focus",
+        "sd": "the soft inside of the elbow",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "FET56",
+        "name": "back_of_knee_focus",
+        "sd": "the soft back of the knee",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "FET57",
+        "name": "underbust_crease",
+        "sd": "the fold under the breast",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "FET58",
+        "name": "cleavage_depth",
+        "sd": "deep cleavage as primary focus",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "FET59",
+        "name": "sideboob_curve",
+        "sd": "breast visible from side, nipple past frame edge",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "FET60",
+        "name": "underboob_curve",
+        "sd": "lower curve of breast, nipple concealed above",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "FET61",
+        "name": "tan_line_bikini",
+        "sd": "bikini tan lines as framing",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "FET62",
+        "name": "tan_line_sports_bra",
+        "sd": "sports-bra tan lines",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "FET63",
+        "name": "tan_line_underwear",
+        "sd": "underwear tan lines",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "FET64",
+        "name": "wet_fabric_translucent",
+        "sd": "fabric becomes translucent when wet, nipple visible through",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "FET65",
+        "name": "light_as_lingerie",
+        "sd": "shadow/light patterns that look like clothing",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "FET66",
+        "name": "fabric_tension_across_bust",
+        "sd": "fabric pulled tight across bust line",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "FET67",
+        "name": "fabric_tension_across_hips",
+        "sd": "fabric pulled tight across hip bones",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "FET68",
+        "name": "hand_on_own_body",
+        "sd": "character's hand on her own body, self-touch",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "FET69",
+        "name": "hand_near_mouth",
+        "sd": "fingers near lips, suggestive anticipatory",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "FET70",
+        "name": "tear_on_cheek",
+        "sd": "single tear track as erotic element",
+        "source": "ONTOLOGY"
+      }
+    ],
+    "h": [
+      {
+        "id": "H01",
+        "name": "blush_flood",
+        "sd": "the blush flooding down past the collarbones' line into the upper chest's mottle",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "H02",
+        "name": "breath_shiver",
+        "sd": "the breath shivering audibly at the exposed skin, the inhale arriving in two installments",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "H03",
+        "name": "lip_bite_current",
+        "sd": "the lip bitten around the current of it — the white press releasing back to blood-color",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "H04",
+        "name": "thigh_press_loss",
+        "sd": "the thighs pressing together against the feeling — and losing, the knees parting one traitor centimeter",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "H05",
+        "name": "goosebump_ride",
+        "sd": "goosebumps riding the bare spill, the skin's whole geography contracted to the moment",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "H06",
+        "name": "flush_mottle",
+        "sd": "the flush mottling the upper chest in visible islands, heat mapping itself in public",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "H07",
+        "name": "tremble_held",
+        "sd": "the tremble inside the held pose — the stillness above it working harder than the shake beneath",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "H08",
+        "name": "ear_tip_verdict",
+        "sd": "the ears' tips burning their verdict — the body's own semaphore, read from across the room",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "H09",
+        "name": "pupil_dilation",
+        "sd": "the pupils blown wide mid-gasp, the irises surrendering their ring to the black",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "H10",
+        "name": "sweat_sheen",
+        "sd": "heat-slick sheen riding the offered curve, the key light finding each bead's tiny report",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "H11",
+        "name": "involuntary_arch",
+        "sd": "the small involuntary arch, caught and denied — the spine's confession retracted half a beat late",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "H12",
+        "name": "breath_ragged",
+        "sd": "the breath gone ragged at its edges, each exhale longer than the pose can hold",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "H13",
+        "name": "point_verdict_through",
+        "sd": "the points' verdict standing hard through the weave — the cold or the feeling indistinguishable (C072-safe determiner form)",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "H14",
+        "name": "knee_buckle_catch",
+        "sd": "the knee's small buckle caught mid-collapse, the thigh's tremor carrying the weight the leg just resigned",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "H15",
+        "name": "hip_recurrent_push",
+        "sd": "the hips' small recurrent push — the body's metronome, one degree forward each measure, pretending to be stillness",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "H16",
+        "name": "throat_swallow",
+        "sd": "the throat's swallow visible and slow, the neck's line performing the restraint the face denies",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "H17",
+        "name": "hand_becomes_fist",
+        "sd": "the hand becoming a fist in the fabric it meant to release — grip as the body's punctuation",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "H18",
+        "name": "wet_lashes_lower",
+        "sd": "wet lashes lowering halfway and stopping — the blink interrupted by what the look found",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "H19",
+        "name": "arch_into_contact",
+        "sd": "the arch arriving INTO the contact, the back offering its curve to what touched it — invitation outrunning intent",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "H20",
+        "name": "afterglow_liquidity",
+        "sd": "post-shiver liquidity — the body settling one soft millimeter at a time, the muscles' argument finally adjourned",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "H21",
+        "name": "vertigo_delight",
+        "sd": "the stomach-drop joy at the world's reversal — the body's elevator-feeling with no elevator, delighted",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "H22",
+        "name": "grip_down_reflex",
+        "sd": "the hands finding the nearest fixed thing without being asked — the body's vote cast downward mid-panic",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "H23",
+        "name": "rising_laugh",
+        "sd": "the laugh that goes up — breath leaving upward in bright increments, the reversal's own comedy",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "H24",
+        "name": "dry_girls_pride",
+        "sd": "the deliberate dryness — the refusal to be claimed; the collar up, the coat buttoned, the one territory left",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "H25",
+        "name": "falling_calm",
+        "sd": "the stillness of the one obeying the old law — the anchored girl's flat pulse while everything ascends",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "H26",
+        "name": "climbing_shiver",
+        "sd": "the shiver that ascends — wrong-direction piloerection, the skin's own file on the new weather",
+        "source": "POOLS_V8"
+      }
+    ],
+    "gar": [
+      {
+        "id": "GAR01",
+        "name": "Slip Dress Silk",
+        "material": "silk_thin",
+        "light": "reflects, translucent",
+        "coverage": "30%",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "GAR02",
+        "name": "Turtleneck Wool",
+        "material": "wool_dense",
+        "light": "absorbs, matte",
+        "coverage": "80%",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "GAR03",
+        "name": "Lace Bra Delicate",
+        "material": "lace_nylon",
+        "light": "fragments, patterned shadows",
+        "coverage": "15%",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "GAR04",
+        "name": "Leather Corset",
+        "material": "leather_rigid",
+        "light": "specular shine, sharp shadow",
+        "coverage": "50%",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "GAR05",
+        "name": "Linen Shirt Loose",
+        "material": "linen_creased",
+        "light": "diffuses, soft folds",
+        "coverage": "60%",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "GAR06",
+        "name": "Velvet Robe Heavy",
+        "material": "velvet_dense",
+        "light": "deep shadow, directional sheen",
+        "coverage": "70%",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "GAR07",
+        "name": "Mesh Top Fishnet",
+        "material": "mesh_elastic",
+        "light": "grid of shadows on skin",
+        "coverage": "25%",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "GAR08",
+        "name": "Satin Skirt Flowing",
+        "material": "satin_heavy",
+        "light": "waves of light on folds",
+        "coverage": "40%",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "GAR09",
+        "name": "Cotton Panties Simple",
+        "material": "cotton_thin",
+        "light": "matte, invisible",
+        "coverage": "10%",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "GAR10",
+        "name": "Choker Velvet Thin",
+        "material": "velvet_band",
+        "light": "neck accent, collarbone shadow",
+        "coverage": "5%",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "GAR11",
+        "name": "Stockings Sheer",
+        "material": "nylon_15D",
+        "light": "even tone, seam as line",
+        "coverage": "20%",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "GAR12",
+        "name": "Harness Leather",
+        "material": "leather_straps",
+        "light": "geometry of shadows, skin between as negative space",
+        "coverage": "35%",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "GAR13",
+        "name": "Sweater Oversized",
+        "material": "wool_mohair",
+        "light": "volume, face in shadow, arms lost",
+        "coverage": "75%",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "GAR14",
+        "name": "Sarong Wrapped",
+        "material": "cotton_thin",
+        "light": "diagonal folds, accidental geometry",
+        "coverage": "45%",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "GAR15",
+        "name": "Gloves Lace Long",
+        "material": "lace_elbow",
+        "light": "arms as pattern, skin inside as texture",
+        "coverage": "25%",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "GAR16",
+        "name": "Bodysuit Latex",
+        "material": "latex_shiny",
+        "light": "mirror, every fold a highlight",
+        "coverage": "85%",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "GAR17",
+        "name": "Kimono Silk Open",
+        "material": "silk_heavy",
+        "light": "sleeves as wings of light, obi as knot of shadow",
+        "coverage": "50%",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "GAR18",
+        "name": "Jeans Cutoff",
+        "material": "denim_rigid",
+        "light": "matte, frayed edges as light fringe",
+        "coverage": "35%",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "GAR19",
+        "name": "Bandage Wrap",
+        "material": "fabric_elastic",
+        "light": "spiral of shadows, body reads through",
+        "coverage": "40%",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "GAR20",
+        "name": "Cloak Hooded Wool",
+        "material": "wool_rough",
+        "light": "face in shadow, silhouette as mass",
+        "coverage": "90%",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "GAR21",
+        "name": "Pinafore, Linen",
+        "material": "linen_creased",
+        "light": "diffuse folds; the bib a flat plane of shadow",
+        "coverage": "45%",
+        "state_hook": "over-bare or over-blouse — the same garment changes rating",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "GAR22",
+        "name": "Silk Wrap, Back-Laced",
+        "material": "silk_thin",
+        "light": "the lace-line a ladder of shadow up the spine",
+        "coverage": "55%",
+        "race_hook": "laces route AROUND wing-roots / horn-bases",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "GAR23",
+        "name": "Ribbed Knit Turtleneck Dress",
+        "material": "knit_ribbed",
+        "light": "the ribs stripe the body; every curve a waveform",
+        "coverage": "80%",
+        "state_hook": "undersized = the ribs read the body honestly",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "GAR24",
+        "name": "Tulle Petticoat, Sheer Layers",
+        "material": "tulle_stiff",
+        "light": "layers haze the light; each tier a waterfall edge",
+        "coverage": "30%",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "GAR25",
+        "name": "Corset, Brocade Overbust",
+        "material": "brocade_rigid",
+        "light": "the pattern a texture of woven light; busk a vertical highlight",
+        "coverage": "50%",
+        "note": "distinct from GAR04 leather",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "GAR26",
+        "name": "Tie-Collar Blouse",
+        "material": "cotton_poplin",
+        "light": "collar points as small blades of highlight; the tie a dark plait",
+        "coverage": "65%",
+        "state_hook": "collar open = throat-light; collar tied = discipline",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "GAR27",
+        "name": "Tailored Vest + Slacks",
+        "material": "wool_flat",
+        "light": "menswear matte; the waistcoat a V of shirt-bright",
+        "coverage": "85%",
+        "androgynous": "true",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "GAR28",
+        "name": "Off-Shoulder Sweater",
+        "material": "wool_soft",
+        "light": "the neckline a soft horizon at the upper arms; sleeves swallow the hands",
+        "coverage": "70%",
+        "state_hook": "falling sleeves = hand-play",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "GAR29",
+        "name": "Fishnet Bodystocking",
+        "material": "mesh_full",
+        "light": "a grid of shadows over the whole body; skin as negative space",
+        "coverage": "15%",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "GAR30",
+        "name": "Pleated Microskirt + Belt",
+        "material": "cotton+leather",
+        "light": "pleats a fan of hard lines; the belt a matte bar",
+        "coverage": "25%",
+        "state_hook": "undersized = the pleats cannot close",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "GAR31",
+        "name": "Silk Pajama Shorts Set",
+        "material": "silk_thin",
+        "light": "piping lines as light-rails at the seams",
+        "coverage": "40%",
+        "scene": "morning / hotel / after-bath",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "GAR32",
+        "name": "Organza Blouse, Translucent",
+        "material": "organza_crisp",
+        "light": "a film of light over the torso — the body seen through a curtain of shine",
+        "coverage": "35%",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "GAR33",
+        "name": "Apron, Bare-Back Wrap",
+        "material": "cotton_work",
+        "light": "the bib front-lit, the back a bare field of skin-light",
+        "coverage": "30%",
+        "scene": "kitchen / workshop",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "GAR34",
+        "name": "Clear Vinyl Raincoat",
+        "material": "vinyl_clear",
+        "light": "gloss planes; rain beads as white points on a transparent skin",
+        "coverage": "90% (optically ~10%)",
+        "state_hook": "the coverage lie — this is the THROUGH_FABRIC machine",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "GAR35",
+        "name": "Paper Gown, Medical",
+        "material": "paper_crisp",
+        "light": "a loud white that creases into shadow canyons",
+        "coverage": "50%",
+        "scene": "clinical",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "GAR36",
+        "name": "Ceremonial Veil Dress, Sheer Layers",
+        "material": "silk_gauze",
+        "light": "three veils of decreasing opacity — the body deepening with each layer",
+        "coverage": "45%",
+        "race_hook": "horn-aware drape",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "GAR37",
+        "name": "Elbow Gloves, Lace",
+        "material": "lace_long",
+        "light": "arms as pattern; the bare upper arm a sudden interruption",
+        "coverage": "15%",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "GAR38",
+        "name": "Garter Belt + Stockings",
+        "material": "satin+nylon",
+        "light": "the stocking-line a seam of light up the calf; the garter a punctuation",
+        "coverage": "30%",
+        "scene": "retro boudoir / fitting room",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "GAR39",
+        "name": "Hoodie, Oversized",
+        "material": "fleece_matte",
+        "light": "the hood a cave of shadow; the body a rumor inside",
+        "coverage": "75%",
+        "state_hook": "borrowed = sleeves past the fingertips",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "GAR40",
+        "name": "Qipao, Silk, Fitted",
+        "material": "silk_brocade",
+        "light": "the mandarin collar a ring; the side-slit a ladder of skin-light with each step",
+        "coverage": "55%",
+        "race_hook": "tail exits the slit, unhindered",
+        "source": "POOLS_V8"
+      }
+    ],
+    "gar_f": [
+      {
+        "id": "GAR41",
+        "name": "one_hook_state",
+        "sd": "any fastener holding on its last hook or clasp; the rest of the argument already lost",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "GAR42",
+        "name": "migrating_cup",
+        "sd": "a cup riding off its charge, the contained flesh winning territory by the minute",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "GAR43",
+        "name": "gravity_vote",
+        "sd": "the garment surrendering to gravity — sagging, sliding, resigning; the body merely waits",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "GAR44",
+        "name": "last_button",
+        "sd": "one button between the shirt and total testimony",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "GAR45",
+        "name": "frozen_fastener",
+        "sd": "a zipper or clasp frozen at the point of no return — neither opening nor holding",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "GAR46",
+        "name": "seam_split",
+        "sd": "a seam's first failure — one thread's popped verdict, the gap breathing with her",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "GAR47",
+        "name": "knot_loosened",
+        "sd": "a bow or sash that was tied once and is now mostly memory — one pull from gone",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "GAR48",
+        "name": "strap_migrated",
+        "sd": "a strap that has left its station — shoulder, heel, anchor — and now works for the other side",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "GAR49",
+        "name": "knot_slack",
+        "sd": "a swim top's or apron's side knot gone to its last half-hitch — one tug from full testimony",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "GAR50",
+        "name": "strap_tide_loss",
+        "sd": "a strap surrendered to wave or theft, hanging its claim at the elbow crease",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "GAR51",
+        "name": "denim_wear_map",
+        "sd": "faded denim carrying its owner's exact measurements — seat and thighs whitened to her shape, the wear as tenure papers",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "GAR52",
+        "name": "tan_line_frontier",
+        "sd": "the tan-line's edge arriving where the suit used to end — the sun's prior claim surviving the garment",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "GAR53",
+        "name": "coverup_abandoned",
+        "sd": "the cover-up worn off one shoulder and given up entirely — knotted anywhere, defending nothing",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "GAR54",
+        "name": "suit_shifted",
+        "sd": "the swimsuit's whole architecture one re-adjust from honest — the dive or the wave having voted, the re-tension postponed",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "GAR55",
+        "name": "towel_last_grip",
+        "sd": "the towel holding its last fold by friction alone — the grip opening by degrees, gravity holding the pen",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "GAR56",
+        "name": "clasp_swallowed",
+        "sd": "the back clasp lost somewhere behind the wet hair's curtain — the reach for it ending in a shrug",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "GAR57",
+        "name": "hem_uprise",
+        "sd": "the hem soaked and pouring skyward — claim-by-water, the sky's slow confiscation of the garment's lower register",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "GAR58",
+        "name": "water_climb_wet",
+        "sd": "the wet climbing the fabric's face from the hem upward — the weave going tell-all floor by floor as the ascent reads it",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "GAR59",
+        "name": "garment_float",
+        "sd": "a garment soaked, surrendered, and gone skyward off the body — the undressing performed by physics, unhurried, total",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "GAR60",
+        "name": "strap_lift",
+        "sd": "the straps rising off the shoulders' shelf as their fabric drinks — the skeleton of the garment emigrating first",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "GAR61",
+        "name": "inverted_drape",
+        "sd": "the drape reversed by the wearer's own gravity — a skirt obeying the girl, not the world (the hanging girl's native law)",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "GAR62",
+        "name": "anchor_pocket",
+        "sd": "the pockets as ballast — everything else gone upward, the pocket's one kept thing the frame's last fixed point",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "GAR63",
+        "name": "seam_rise",
+        "sd": "the wet seam riding upward with the water it carries — the signature traveling north with the tide",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "GAR64",
+        "name": "last_garment",
+        "sd": "the one item she deliberately weights down or holds to the ground — the kept thing, the direction that stays (the batch's thesis object)",
+        "source": "POOLS_V8"
+      }
+    ],
+    "bre": [
+      {
+        "id": "BRE17",
+        "name": "through_wet_sheer_aroused",
+        "sd": "aroused-nipple visible through wet sheer fabric",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "BRE18",
+        "name": "pressed_to_surface",
+        "sd": "breast against glass/floor/wall",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "BRE19",
+        "name": "caught_in_fabric_gap",
+        "sd": "breast visible through gap in fabric",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "BRE20",
+        "name": "in_profile",
+        "sd": "side-view breast, nipple past frame edge",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "BRE21",
+        "name": "under_fabric_tension",
+        "sd": "fabric pulled tight across bust",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "BRE22",
+        "name": "as_silhouette",
+        "sd": "breast as silhouette only",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "BRE23",
+        "name": "compressed_by_arm",
+        "sd": "arm across chest compressing breast",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "BRE24",
+        "name": "lifted_by_own_hand",
+        "sd": "character lifting her own breast",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "BRE25",
+        "name": "lifted_by_reach",
+        "sd": "arms raised mid-gesture lift the bust line, the garment's gap following the reach",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "BRE26",
+        "name": "chain-draped",
+        "sd": "a loose chain or cord lying in the valley between, its links drinking the key light",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "BRE27",
+        "name": "bare_to_keylight",
+        "sd": "X-tasteful: chest bare, the light narrating curve and composition, never the nipple as focal",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "BRE28",
+        "name": "dancer-lift",
+        "sd": "mid-turn arms overhead lift and set the line against motion",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "BRE29",
+        "name": "uniform_strain",
+        "sd": "the bust read through a mis-sized borrowed garment's strain lines — buttons, seams and zippers arguing with a line the pattern never held",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "BRE30",
+        "name": "cold_breath_rise",
+        "sd": "X-tasteful: the bare chest narrated through the breath's rise and fog against cold air — light on the inhale's lift, never the point itself",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "BRE31",
+        "name": "shawl_slip_gap",
+        "sd": "X-tasteful: a slipped wrap or shawl framing the chest through the gap it leaves — shadow-crescents at the inner arms",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "BRE32",
+        "name": "cup_defeat_mechanics",
+        "sd": "the cup's edge migrated off its charge; the soft weight spilling past it in a slow crescent, the strap's angle confessing the loss",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "BRE33",
+        "name": "seam_valley_navigation",
+        "sd": "the center seam riding the cleavage's line — deep where the fabric cannot lie flat, drinking the key light in one vertical thread",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "BRE34",
+        "name": "wet_weave_geography",
+        "sd": "the soaked weave printing the full geography: points standing hard, contours readable, the fabric a second skin telling the truth",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "BRE35",
+        "name": "arch_lift_offer",
+        "sd": "the spine's arch lifting the chest into the light as an offer; the undercurve's shadow deepening as the line rises",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "BRE36",
+        "name": "side_spill_escape",
+        "sd": "the side-spill past the garment's narrow wall — soft weight escaping in profile, the full line past the frame's edge",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "BRE37",
+        "name": "compression_print",
+        "sd": "the arm's compression printing the mound flat and wide, the inner curve deepening where the flesh yields against the ribcage",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "BRE38",
+        "name": "pendant_swallow",
+        "sd": "the cleavage's line swallowing the pendant whole — chain vanishing into the valley's shadow, the stone riding the sternum's current",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "BRE39",
+        "name": "breath_rise_verdict",
+        "sd": "the chest's rise mid-inhale announcing itself against thin cloth — the points' verdict standing before the exhale can retract it",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "BRE40",
+        "name": "crooked_fasten_argument",
+        "sd": "the clasp fastened crooked, one cup riding higher, the whole architecture of the garment losing its argument with gravity",
+        "source": "POOLS_V8"
+      }
+    ],
+    "bk": [
+      {
+        "id": "BK7",
+        "name": "water_tracing_spine",
+        "sd": "water droplet tracing spine",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "BK8",
+        "name": "shadow_contouring",
+        "sd": "shadow defining back muscles",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "BK9",
+        "name": "fabric_trailing",
+        "sd": "fabric trailing down back",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "BK10",
+        "name": "spine_exposed",
+        "sd": "open-back outfit exposing spine",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "BK11",
+        "name": "tattoo_featured",
+        "sd": "back tattoo as primary feature",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "BK12",
+        "name": "strap_marks",
+        "sd": "tan-lines or strap marks on back",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "BK13",
+        "name": "shoulder_blades",
+        "sd": "shoulder blades prominent",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "BK14",
+        "name": "glow_contour",
+        "sd": "a colored glow (basin, ember, screen) defining the back's shape from behind",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "BK15",
+        "name": "seated_arch",
+        "sd": "an arch held in state — seated or enthroned, mantle parted off the shoulders",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "BK16",
+        "name": "rim_of_cold",
+        "sd": "the back defined by a single cold rim of light riding the spine-line's curve (blood-moon red, midnight blue, frost cyan)",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "BK17",
+        "name": "garment_trace",
+        "sd": "the back read through a garment's back-seam, shed-line or lace ladder printing its trace down the line",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "BK18",
+        "name": "surface_lean",
+        "sd": "the back's contour against a hard surface it has warmed — the kept patch glowing a half-shade warmer than the stone around it",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "BK19",
+        "name": "waistband_claim",
+        "sd": "the waistband's grip claiming the swell above the tailbone, the dimples riding visible either side of the spine's groove",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "BK20",
+        "name": "wet_silk_map",
+        "sd": "wet silk mapping the back's full topography — shoulder blades, the spine's groove, the waist's draw — every contour one honest shadow",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "BK21",
+        "name": "shelf_lean_present",
+        "sd": "the back arched so the seat presents its shelf behind, spine hollowed, the pose's whole grammar reversed",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "BK22",
+        "name": "strap_slide_track",
+        "sd": "the strap's slide-track printed down the shoulder blade — where it lived, where it surrendered, the tan-line's ghost confirming",
+        "source": "POOLS_V8"
+      }
+    ],
+    "b": [
+      {
+        "id": "B16",
+        "name": "focus_from_front",
+        "sd": "buttocks visible between legs from front",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "B17",
+        "name": "curve_in_profile",
+        "sd": "lower curve visible in profile (shelf)",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "B18",
+        "name": "in_motion",
+        "sd": "mid-bounce/clench/sway",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "B19",
+        "name": "focus_from_behind",
+        "sd": "full buttocks from behind camera",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "B20",
+        "name": "lifted_by_pose",
+        "sd": "pose lifts/shapes buttocks",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "B21",
+        "name": "in_fabric_tension",
+        "sd": "fabric pulled tight across buttocks",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "B22",
+        "name": "in_free_fall",
+        "sd": "the behind weightless mid-fall, from below, fabric floating off it",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "B23",
+        "name": "mid_run_sway",
+        "sd": "the sway carrying a run or ride, printed against taut fabric",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "B24",
+        "name": "rising_from_surface",
+        "sd": "the wet behind emerging from water, sheeted light off the curve",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "B25",
+        "name": "hard_surface_settle",
+        "sd": "the weight settling onto a surface too hard and too cold for it — the world's hardness measuring her softness",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "B26",
+        "name": "hem_reach_print",
+        "sd": "the behind printed through a thin hem gathered by a reach or a fall into a catching net",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "B27",
+        "name": "wrong_cut_bend",
+        "sd": "a bend in a garment whose cut belongs to another world — the line breaking where its world ended, hem printing the full curve",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "B28",
+        "name": "two_hand_grip_present",
+        "sd": "both hands claiming the cheeks themselves — the full weight gathered into the grip, fingers dimpling the flesh, presented to the frame without apology",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "B29",
+        "name": "cheek_print_surface",
+        "sd": "the cheeks printed flat against a hard surface by the pose's weight — every curve reading through the thin cloth like typesetting",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "B30",
+        "name": "squat_full_crescents",
+        "sd": "the deep squat's full crescents — cheeks at their widest, fabric at its limit, the undercurve's shadow the frame's anchor",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "B31",
+        "name": "counter_lean_offer",
+        "sd": "the counter-lean's offer — hips stacked on the edge, weight tipped, the seat's silhouette deciding the composition's balance",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "B32",
+        "name": "settle_misalignment",
+        "sd": "the behind settling into geometry that moved under it overnight — migrated sofa, turned bench, rearranged ridge — every curve reading through the thin cloth where the settle loads",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "B33",
+        "name": "drift_gather_print",
+        "sd": "fabric gathered by the world's own slow drag — iced waterline, standing tide — printing the hips' full claim where the weight collected it",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "B34",
+        "name": "counter_plumb_hold",
+        "sd": "the hips' counterweight holding the world's new one-degree plumb — the lean that solves what the tilt broke",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "B35",
+        "name": "root_settle_print",
+        "sd": "the behind's full weight printed through the cutoffs into the rattan's weave — seat and seated one article of furniture now",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "B36",
+        "name": "coin_drift_print",
+        "sd": "the coin-belt's drape printing the shelf through the satin's fall — metal learning the curve and keeping the lesson",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "B37",
+        "name": "squat_borrowed_print",
+        "sd": "the deep squat's full crescents printed through a borrowed cut that belongs to another girl's build — envy's evidence, a size of honesty off",
+        "source": "POOLS_V8"
+      }
+    ],
+    "b_fam": {
+      "families": {
+        "FAM-A": {
+          "label": "LARGE",
+          "b_range": "B5-B7",
+          "adjectives": [
+            "full",
+            "heavy",
+            "generous",
+            "ample",
+            "deep-curved",
+            "opulent",
+            "broad-across"
+          ],
+          "shapes": [
+            "globe-round",
+            "teardrop-heavy",
+            "sloped-full",
+            "high-set-and-broad"
+          ],
+          "light": "shadow pools deep beneath the curve; rim light traces the underside and stops; the cleavage line is a valley the light will not cross",
+          "fabric": "buttons gapped, seams strung tight, an inch of strain between stitches; cloth wraps rather than follows",
+          "motion": "sway with her step a half-beat late; settle when she stops; answer the breath, not the pose",
+          "bpt_hook": "Her breasts, full and [adj], [light-verb] the [fabric/light] — the weight deciding where the cloth goes"
+        },
+        "FAM-B": {
+          "label": "SOFT",
+          "b_range": "B3-B5, BD1-3",
+          "adjectives": [
+            "soft",
+            "plush",
+            "settled",
+            "heavy-for-their-size",
+            "natural-set",
+            "tender",
+            "unfixed"
+          ],
+          "shapes": [
+            "teardrop with a gentle drop",
+            "softly flattened in recline",
+            "widening where they meet the ribcage"
+          ],
+          "light": "light sinks into the curve instead of breaking on it; no hard edge under the breast, only a gradient; the underbust crease reads as a faint shadow, not a line",
+          "fabric": "cloth follows rather than wraps; darts soften; one fold too many gathers at the dart; the garment learns the shape slowly",
+          "motion": "answer the breath a half-beat late; flatten soft against her arms when she leans; independent of her intention",
+          "bpt_hook": "Her breasts, soft and settled, [light-verb] the [fabric/light] — the light sinking where other bodies would break it"
+        },
+        "FAM-C": {
+          "label": "MODEST-NOT-FLAT",
+          "b_range": "B2-B3",
+          "adjectives": [
+            "small-and-softly-mounded",
+            "modest",
+            "neat",
+            "compact",
+            "gently-curved",
+            "present"
+          ],
+          "shapes": [
+            "softly rounded",
+            "shallow teardrop",
+            "a clear break in the line of the cloth"
+          ],
+          "light": "light grazes the upper slope and slides on; a shallow shadow beneath; the fabric lies almost flat, then breaks — softly, once",
+          "fabric": "buttons sit quiet, no strain; a silk shift with one soft interruption; the waistband matters more than the bust",
+          "motion": "stillness — nothing independent; the breath moves them and nothing else does",
+          "bpt_hook": "Her chest, small and softly mounded, [light-verb] the [fabric/light] — one soft break in the line of the cloth"
+        }
+      },
+      "rules": [
+        "anti_board: \"B2-B3 ALWAYS carry 'softly mounded / small but present' phrasing. 'flat chest', 'washboard' are NEG terms for FAM-C girls, never POS.\"",
+        "family logged per prompt: BREAST: A/B/C",
+        "batch spread: all three families every batch; no family > 40% of visible-body prompts",
+        "FAM-A pairs with BRE17/18/21/23; FAM-B with BRE19/22; FAM-C with silhouette-leaning BPT-7",
+        "OC canon body_type overrides the family (e.g. Vae=FAM-A hard-locked, Nix=explicit small per canon)"
+      ],
+      "directive": "big, soft, and not-very-big (but never a board)",
+      "b_value_mapping": "B-values map: A→B5-B7, B→B3-B5(+BD), C→B2-B3. B0-B1 banned outright."
+    },
+    "hs": [
+      {
+        "id": "HS01",
+        "name": "Blunt Chin Bob",
+        "light": "a clean arc — light slides off the curve in one sheet",
+        "motion": "the edge swings at the jawline",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "HS02",
+        "name": "Shoulder Shag + Curtain Bangs",
+        "light": "layers eat the light; texture visible as depth",
+        "motion": "bangs part and re-part with her breath",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "HS03",
+        "name": "Hime Cut",
+        "note": "blunt bangs, long sidelocks — COLLISION: black+hime reads Miyu; require non-black",
+        "light": "the blunt fringe a plane of shadow across the brow",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "HS04",
+        "name": "Wolf Cut, Choppy",
+        "light": "jagged layers scatter light into points",
+        "motion": "the shag-tail flicks on the turn",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "HS05",
+        "name": "Long Classic Layers, Center Part",
+        "light": "two symmetrical curtains; the part a line of scalp-light",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "HS06",
+        "name": "Deep Side Wave, Over One Shoulder",
+        "light": "the wave traps light in each bend",
+        "motion": "spills forward when she leans",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "HS07",
+        "name": "Low Loose Ponytail, Face-Framing Strands",
+        "light": "stray strands catch rim at the cheek",
+        "motion": "the tail sways like a slow pendulum",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "HS08",
+        "name": "High Sleek Ponytail, Nape-Tight",
+        "light": "a drawn line of gloss from crown to nape",
+        "motion": "the toss writes an arc",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "HS09",
+        "name": "Twin Braids",
+        "light": "light on the convex braid, shadow in the plait",
+        "motion": "swing in counter-phase on the walk",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "HS10",
+        "name": "Single Thick Braid, Over Shoulder",
+        "note": "COLLISION: copper side braid + emerald = Noa; require different combo",
+        "light": "the plait a rope of alternating light and shadow",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "HS11",
+        "name": "Crown Braid Halo",
+        "light": "the halo a ring of light above the brow",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "HS12",
+        "name": "Low Braided Chignon",
+        "light": "a knot of shadow at the nape; the neck exposed to the key",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "HS13",
+        "name": "Messy Top-Bun, Strands Escaping",
+        "light": "the bun a soft sphere, strands as filaments of rim",
+        "motion": "one strand falls and is tucked, falls again",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "HS14",
+        "name": "Double Buns (Space Buns)",
+        "light": "two spheres of light at the crown",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "HS15",
+        "name": "Half-Up Pinned, Loose Cascade",
+        "light": "the pinned half reads structure, the loose half reads spill",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "HS16",
+        "name": "Hair-Sticks + Pinned Twist",
+        "gear_hook": "the sticks themselves are GEAR — lacquer, brass, or bone",
+        "light": "the stick a horizontal bar of highlight",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "HS17",
+        "name": "Towel Turban Wrap",
+        "scene": "bath/steam",
+        "light": "terrycloth drinks the light; one damp strand at the neck",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "HS18",
+        "name": "Wet Slicked-Back",
+        "light": "plastic sheen, no scatter — the skull's shape laid bare",
+        "motion": "water beads at the tail's tip",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "HS19",
+        "name": "Victory Rolls / Retro Set",
+        "light": "sculpted waves as fixed highlights, museum light",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "HS20",
+        "name": "Undercut Buzz + Long Top",
+        "light": "the buzzed nape a panel of matte; the top a fall of gloss",
+        "motion": "the top swings across the undercut",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "HS21",
+        "name": "Pixie Crop, Tousled",
+        "note": "COLLISION: platinum + ice-blue = Nix; require different palette",
+        "light": "skull visible, nape shadow accent",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "HS22",
+        "name": "Cloud of Natural Curls",
+        "light": "fragments into a thousand points; each curl a small rim",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "HS23",
+        "name": "Drill Curls, Paired",
+        "light": "the drill a spiral staircase of highlight",
+        "note": "hime-adjacent; pair with restraint",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "HS24",
+        "name": "Hip-Length Straight Sheet",
+        "light": "a mirror — light slides in bands; the hair a second skin",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "HS25",
+        "name": "Choppy Mullet, Shag-Tail",
+        "light": "short layers bright, the tail a dark plume",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "HS26",
+        "name": "Glossy Doll-Curls, Long",
+        "race_hook": "R15 porcelain-doll",
+        "light": "each curl a fixed, perfect highlight ring — uncanny symmetry",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "HS27",
+        "name": "Braided Crown Half-Up",
+        "light": "the braid's coil a rope of shadow above, loose fall below",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "HS28",
+        "name": "Twin Buns Low (Princess) With Ribbon Ties",
+        "light": "two knots of shadow at the nape's line, ribbons as two bright flags",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "HS29",
+        "name": "French Twist, Screwed High",
+        "light": "one polished axis of gloss, the pins' silver catching once",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "HS30",
+        "name": "Curtain Bangs + Collar-Length Blunt",
+        "light": "the two curtains frame the cheekbones' theater",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "HS31",
+        "name": "Box Braids, Long, Beaded Tips",
+        "light": "each braid a thick rope; the beads click their small bright opinions",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "HS32",
+        "name": "Bixie Cut (Pixie-Shag Hybrid)",
+        "light": "the shag's chaos over the pixie's frame — texture doing the volume",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "HS33",
+        "name": "Wet Slick Low Bun, Stray Drip",
+        "scene": "bath/pool/rain",
+        "light": "the skull's plane mirror-bright, one runnel at the temple",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "HS34",
+        "name": "Volume Blowout, 80s Bounce",
+        "light": "the blowout's full halo, each wave a set highlight",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "HS35",
+        "name": "Micro-Fringe (Baby Bangs) + Long Straight",
+        "light": "the fringe a hard shadow-line; the length one mirror below",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "HS36",
+        "name": "Side Shave + Long Sweep-Over",
+        "light": "the shave a matte panel; the sweep a gloss counterweight",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "HS37",
+        "name": "Bubble Ponytail (Sectioned)",
+        "light": "each bubble a lens of shade, the ties' small bright nodes",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "HS38",
+        "name": "Fishtail Braid, Thick, Over Shoulder",
+        "light": "the chevron weave eating light in V's",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "HS39",
+        "name": "Rag-Rolled Vintage Waves, Side Part",
+        "scene": "retro",
+        "light": "the set waves as fixed sculpture, museum-grade gloss",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "HS40",
+        "name": "Choppy Lob + Deep Side Part",
+        "light": "the part a scalp-line of light; the lob's ends doing the talk",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "HS41",
+        "name": "Ghost-Layer Shag (Modern Mullette)",
+        "light": "invisible layers that move as one volume and shatter at the flip",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "HS42",
+        "name": "Two Dutch Braids Pinned Into a Crown",
+        "light": "the raised braids' ridge-lines two small brightness rails",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "HS43",
+        "name": "High Pigtails, Loose, Face-Framing",
+        "light": "the two tails' swing a pendulum pair",
+        "note": "manner-codes apply — pigtails read young; pair with adult anchors only",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "HS44",
+        "name": "Pixie With Long Face-Framer Pieces",
+        "light": "the buzzed temple; the two long strands a silk frame",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "HS45",
+        "name": "Waterfall Braid + Loose Waves",
+        "light": "the braid's dropped strands a cascade of separate filaments",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "HS46",
+        "name": "Top-Knot High Bun, Architectural",
+        "light": "the bun a sphere the key light orbits; the neck bare",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "HS47",
+        "name": "Hat-Flattened Bedhead Waves",
+        "scene": "morning",
+        "light": "the occipital flat panel, the crown's rebellion",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "HS48",
+        "name": "Asymmetric Cut, One Side Jaw / One Side Chin",
+        "light": "the mismatch a hard diagonal of two lengths",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "HS49",
+        "name": "Braid-Corset (Laced Double Dutch)",
+        "light": "the two braids laced across the back's canvas, X's of shadow",
+        "source": "POOLS_V8"
+      },
+      {
+        "id": "HS50",
+        "name": "Glass-Hair Sleek Middle Part, Hip Length",
+        "light": "the part's line and the two glass planes — reflection itself",
+        "source": "POOLS_V8"
+      }
+    ],
+    "hs_meta": {
+      "hair_length_axis": [
+        "pixie",
+        "short",
+        "chin",
+        "shoulder",
+        "mid_back",
+        "waist",
+        "hip",
+        "floor"
+      ],
+      "hair_mechanics_verbs": [
+        "catches",
+        "swings",
+        "fans",
+        "mists",
+        "darkens-with-rain",
+        "covers-as-bra",
+        "curtains",
+        "halos"
+      ],
+      "usage": [
+        "≥12 distinct HS codes per 21-batch; max 2× per code",
+        "HS logged in prompt pre-header",
+        "texture (hair_type) still narrated in prose — style is the CUT, texture is the SURFACE"
+      ]
+    },
+    "cam": {
+      "base_axis_onotology_cam01_12": [
+        {
+          "id": "CAM01",
+          "name": "Eye-level Front",
+          "sd": "frontal eye-level camera",
+          "best_lq": [
+            "LQ02",
+            "LQ06"
+          ],
+          "source": "ONTOLOGY"
+        },
+        {
+          "id": "CAM02",
+          "name": "From Above",
+          "sd": "camera from above looking down",
+          "best_lq": [
+            "LQ05",
+            "LQ10"
+          ],
+          "source": "ONTOLOGY"
+        },
+        {
+          "id": "CAM03",
+          "name": "From Below",
+          "sd": "camera from below looking up",
+          "best_lq": [
+            "LQ04",
+            "LQ13"
+          ],
+          "source": "ONTOLOGY"
+        },
+        {
+          "id": "CAM04",
+          "name": "Over Shoulder",
+          "sd": "over the shoulder camera",
+          "best_lq": [
+            "LQ01",
+            "LQ03"
+          ],
+          "source": "ONTOLOGY"
+        },
+        {
+          "id": "CAM05",
+          "name": "Macro Close",
+          "sd": "extreme close-up macro shot",
+          "best_lq": [
+            "LQ02",
+            "LQ11"
+          ],
+          "source": "ONTOLOGY"
+        },
+        {
+          "id": "CAM06",
+          "name": "Wide Env",
+          "sd": "wide environmental shot, body small in frame",
+          "best_lq": [
+            "LQ07",
+            "LQ10"
+          ],
+          "source": "ONTOLOGY"
+        },
+        {
+          "id": "CAM07",
+          "name": "Side Profile",
+          "sd": "side profile silhouette shot",
+          "best_lq": [
+            "LQ03",
+            "LQ14"
+          ],
+          "source": "ONTOLOGY"
+        },
+        {
+          "id": "CAM08",
+          "name": "Back to Camera",
+          "sd": "back to camera shot",
+          "best_lq": [
+            "LQ03",
+            "LQ15"
+          ],
+          "source": "ONTOLOGY"
+        },
+        {
+          "id": "CAM09",
+          "name": "Dutch Tilt",
+          "sd": "dutch tilt 30 degrees off-axis",
+          "best_lq": [
+            "LQ01",
+            "LQ08"
+          ],
+          "source": "ONTOLOGY"
+        },
+        {
+          "id": "CAM10",
+          "name": "Through Element",
+          "sd": "camera through glass, fabric, or water",
+          "best_lq": [
+            "LQ07",
+            "LQ11"
+          ],
+          "source": "ONTOLOGY"
+        },
+        {
+          "id": "CAM11",
+          "name": "Mirror Reflection",
+          "sd": "image composed through mirror reflection",
+          "best_lq": [
+            "LQ02",
+            "LQ06"
+          ],
+          "source": "ONTOLOGY"
+        },
+        {
+          "id": "CAM12",
+          "name": "Aerial Top",
+          "sd": "top-down aerial shot, body as map",
+          "best_lq": [
+            "LQ05",
+            "LQ10"
+          ],
+          "source": "ONTOLOGY"
+        }
+      ],
+      "aggressive_framing_cam13_18": [
+        {
+          "id": "CAM13",
+          "name": "crotch_lead",
+          "sd": "the composition led from the mound and seam — everything else supporting",
+          "best_lq": [
+            "LQ02",
+            "LQ06"
+          ],
+          "source": "POOLS_V8"
+        },
+        {
+          "id": "CAM14",
+          "name": "top_down_shaft",
+          "sd": "top-down into the cleavage's shaft — the bust's architecture from above",
+          "best_lq": [
+            "LQ05",
+            "LQ02"
+          ],
+          "source": "POOLS_V8"
+        },
+        {
+          "id": "CAM15",
+          "name": "water_level",
+          "sd": "the lens at the waterline — drinking the soaked white, half the frame liquid",
+          "best_lq": [
+            "LQ07",
+            "LQ11"
+          ],
+          "source": "POOLS_V8"
+        },
+        {
+          "id": "CAM16",
+          "name": "hip_height_gate",
+          "sd": "the lens low at hip height through a gap, door or threshold — the doorway composition at seat level",
+          "best_lq": [
+            "LQ01",
+            "LQ03"
+          ],
+          "source": "POOLS_V8"
+        },
+        {
+          "id": "CAM17",
+          "name": "between_legs_sightline",
+          "sd": "the sightline from between the parted knees — clothed and shameless",
+          "best_lq": [
+            "LQ02",
+            "LQ06"
+          ],
+          "source": "POOLS_V8"
+        },
+        {
+          "id": "CAM18",
+          "name": "fisheye_seat",
+          "sd": "the fisheye's curve giving the seat the frame's whole argument",
+          "best_lq": [
+            "LQ08",
+            "LQ12"
+          ],
+          "source": "POOLS_V8"
+        }
+      ],
+      "numbering_conflict": "WARNING: ONTOLOGY's CAM01-CAM12 axis and POSE_LIBRARY's §33 camera table disagree on 5 codes. ONTOLOGY: CAM02=From Above, CAM04=Over Shoulder, CAM05=Macro Close, CAM06=Wide Env, CAM07=Side Profile. POSE_LIBRARY pairs table: CAM02=three_quarter, CAM04=from_above, CAM05=over_shoulder, CAM06=side, CAM07=wide_env. The §33 pairs carry self-describing suffixes and are used consistently with CAM13-CAM18; Thread 4 should renumber to one authoritative axis (suffix-named codes recommended)."
+    },
+    "lq": [
+      {
+        "id": "LQ01",
+        "name": "Hard Key",
+        "sd": "single hard light source, sharp shadow cutting across body, high contrast between lit and unlit skin",
+        "pairs_with": [
+          "P01",
+          "P06",
+          "P16"
+        ],
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "LQ02",
+        "name": "Soft Diffused",
+        "sd": "large soft diffused light source, gradual shadow falloff, no hard edges on skin",
+        "pairs_with": [
+          "P02",
+          "P09",
+          "P10"
+        ],
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "LQ03",
+        "name": "Rim Only",
+        "sd": "rim light from behind, body edges glowing, face mostly in shadow, silhouette against light",
+        "pairs_with": [
+          "P07",
+          "P20",
+          "P13"
+        ],
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "LQ04",
+        "name": "Under Light",
+        "sd": "light source from below, upward shadows on face, chin and nose lit, eyes in shadow",
+        "pairs_with": [
+          "P11",
+          "P15"
+        ],
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "LQ05",
+        "name": "Top-Down Spot",
+        "sd": "narrow spotlight from directly above, circular pool of light on body, surroundings in darkness",
+        "pairs_with": [
+          "P01",
+          "P09"
+        ],
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "LQ06",
+        "name": "Bounced Fill",
+        "sd": "light bouncing off pale wall onto body, soft even illumination, subtle shadow under chin",
+        "pairs_with": [
+          "P02",
+          "P19"
+        ],
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "LQ07",
+        "name": "Volumetric Beam",
+        "sd": "visible light beam through dust particles, body partially inside the beam, motes of light",
+        "pairs_with": [
+          "P06",
+          "P05"
+        ],
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "LQ08",
+        "name": "Colored Gel",
+        "sd": "colored gelled light casting colored shadow, skin tinted, complementary shadows",
+        "pairs_with": [
+          "P03",
+          "P16"
+        ],
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "LQ09",
+        "name": "Candle Amber",
+        "sd": "flickering warm amber light, unstable shadow movement, warm highlights on closest skin",
+        "pairs_with": [
+          "P02",
+          "P09"
+        ],
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "LQ10",
+        "name": "Overcast Sky",
+        "sd": "overcast diffused daylight, flat soft shadows, cool blue-grey ambient tone",
+        "pairs_with": [
+          "P13",
+          "P10"
+        ],
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "LQ11",
+        "name": "Prism Split",
+        "sd": "prism splitting light into rainbow across body, spectral highlights on curves, iridescent skin",
+        "pairs_with": [
+          "P20",
+          "P11"
+        ],
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "LQ12",
+        "name": "Blacklight UV",
+        "sd": "UV blacklight, white fabric glowing, teeth and eyes fluorescent, dark surroundings",
+        "pairs_with": [
+          "P03",
+          "P15"
+        ],
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "LQ13",
+        "name": "Firelight",
+        "sd": "firelight from below, dancing orange-red shadows, warm flicker on skin, ember glow",
+        "pairs_with": [
+          "P12",
+          "P04"
+        ],
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "LQ14",
+        "name": "Moonlight Cool",
+        "sd": "cool blue-silver moonlight, long soft shadows, pale desaturated skin, starlight fill",
+        "pairs_with": [
+          "P07",
+          "P08"
+        ],
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "LQ15",
+        "name": "Bioluminescent",
+        "sd": "soft bioluminescent glow from within environment, skin tinted by living light, no hard source",
+        "pairs_with": [
+          "P11",
+          "P05"
+        ],
+        "source": "ONTOLOGY"
+      }
+    ],
+    "races": {
+      "entries": [
+        {
+          "id": "R01",
+          "name": "Human",
+          "rf": "none — memorability from NR features",
+          "wardrobe": "standard",
+          "source": "POOLS_V8"
+        },
+        {
+          "id": "R02",
+          "name": "Elf",
+          "rf": [
+            "E1 long-pointed swept-back",
+            "E2 short-pointed",
+            "E3 single-left-asymmetric"
+          ],
+          "skin": [
+            "moonlit-pale",
+            "pale-gold"
+          ],
+          "wardrobe": "higher armholes; nothing at the ear",
+          "light": "the ear-tip catches the key first",
+          "source": "POOLS_V8"
+        },
+        {
+          "id": "R03",
+          "name": "Kitsune (fox-kin)",
+          "rf": [
+            "ears perked-small",
+            "ears mid-tilt",
+            "ears large-drooping-SOL-LOCKED",
+            "tail single smoke-grey",
+            "tail twin-tips"
+          ],
+          "skin": "warm ivory",
+          "wardrobe": "tail-hem: a hidden slit, or the tail over the cloth",
+          "collision": "drooping fox ears + golden tail + silver-white hair = SOL (forbidden combo)",
+          "source": "POOLS_V8"
+        },
+        {
+          "id": "R04",
+          "name": "Cat-kin",
+          "rf": [
+            "ears small-fluffy",
+            "ears folded",
+            "tail slender-tufted",
+            "tail long-wrap",
+            "pupils vertical-slit"
+          ],
+          "wardrobe": "ears above the collar; the tail chooses its own hem",
+          "light": "the ear's inner fur transmits a pink glow in backlight",
+          "source": "POOLS_V8"
+        },
+        {
+          "id": "R05",
+          "name": "Wolf-kin",
+          "rf": [
+            "ears pointed grey-furred",
+            "tail bushy"
+          ],
+          "light": "fur rim before skin rim",
+          "wardrobe": "high collars forfeit — the ears win",
+          "source": "POOLS_V8"
+        },
+        {
+          "id": "R06",
+          "name": "Ram-demon",
+          "rf": [
+            "horns half-curl",
+            "horns single-spiral",
+            "horns small-buds",
+            "tail thin-serpentine"
+          ],
+          "collision": "full-curl ram horns + serpentine tail = LUA/VAE (pick ONE, never both)",
+          "source": "POOLS_V8"
+        },
+        {
+          "id": "R07",
+          "name": "Dragon-kin",
+          "rf": [
+            "horns ridged swept-back",
+            "scales forearm-patches",
+            "wing-fragments at shoulder-blades",
+            "tail thick-scaled"
+          ],
+          "pick": "1-2 codes max per girl (error budget §23)",
+          "light": "the ridge-lines of horns hold shadow like canyon strata",
+          "source": "POOLS_V8"
+        },
+        {
+          "id": "R08",
+          "name": "Serpent-kin",
+          "rf": [
+            "tail thick-coil",
+            "scales hip-patches",
+            "pupils vertical"
+          ],
+          "wardrobe": "skirts wrap; the coil reads through knit",
+          "source": "POOLS_V8"
+        },
+        {
+          "id": "R09",
+          "name": "Goat-kin",
+          "rf": [
+            "horns small-ribbed-curved",
+            "ears long-drooping"
+          ],
+          "light": "the horn's ribbing stripes the light",
+          "source": "POOLS_V8"
+        },
+        {
+          "id": "R10",
+          "name": "Deer-folk",
+          "rf": [
+            "horns smooth-unbranched",
+            "tail small"
+          ],
+          "collision": "lavender hair + purple cheek-scales = DOE (different colors required)",
+          "source": "POOLS_V8"
+        },
+        {
+          "id": "R11",
+          "name": "Bat-kin",
+          "rf": [
+            "ears ribbed-tall",
+            "wing-membranes small-back"
+          ],
+          "light": "the membrane translucent-red in backlight",
+          "source": "POOLS_V8"
+        },
+        {
+          "id": "R12",
+          "name": "Bunny-kin",
+          "rf": [
+            "ears long-upright",
+            "tail round"
+          ],
+          "motion": "the ears telegraph emotion a beat before the face",
+          "source": "POOLS_V8"
+        },
+        {
+          "id": "R13",
+          "name": "Merfolk-adapt",
+          "rf": [
+            "scales shin-and-hip",
+            "tide-line-tan"
+          ],
+          "wardrobe": "wet-look knits, nothing that minds water",
+          "source": "POOLS_V8"
+        },
+        {
+          "id": "R14",
+          "name": "Dryad",
+          "rf": [
+            "vine-strands woven in hair",
+            "seasonal bloom at temple",
+            "bark-patch at collarbone"
+          ],
+          "light": "the bloom holds daylight a minute after the room dims",
+          "source": "POOLS_V8"
+        },
+        {
+          "id": "R15",
+          "name": "Porcelain-doll",
+          "rf": [
+            "bisque skin with seams at joints",
+            "ball-joint elbows-and-knees",
+            "painted blush fixed"
+          ],
+          "mat": "bisque-porcelain",
+          "light": "matte scatter, no subsurface glow — the uncanny read",
+          "collision": "doll + ivory-white hair + veil = ASH-adjacent (avoid)",
+          "source": "POOLS_V8"
+        },
+        {
+          "id": "R16",
+          "name": "Moth-kin",
+          "rf": [
+            "antennae feathered-curved",
+            "dust-scales at the collarbone",
+            "wings small-dusted (cloak-fold)"
+          ],
+          "skin": "powder-pale",
+          "light": "the antennae test the dark; the scales hold lamplight a beat late",
+          "wardrobe": "nothing at the shoulder-blades' folds — capes negotiate",
+          "source": "POOLS_V8"
+        },
+        {
+          "id": "R17",
+          "name": "Jellyfish-kin",
+          "rf": [
+            "bell-hood translucent at the crown",
+            "tendril-strands at the nape"
+          ],
+          "skin": "glass-clear at the edges, milk at the core",
+          "light": "the hood carries the room's whole palette through itself",
+          "wardrobe": "hood-aware necklines; the tendrils choose the collar",
+          "source": "POOLS_V8"
+        },
+        {
+          "id": "R18",
+          "name": "Gargoyle-kin",
+          "rf": [
+            "small stone horns rough-textured",
+            "stone patches at the forearm"
+          ],
+          "skin": "granite-grey warm-veined",
+          "light": "the patches eat light; the horns' rough holds a dry rim",
+          "wardrobe": "heavy weaves that agree with the stone",
+          "source": "POOLS_V8"
+        },
+        {
+          "id": "R19",
+          "name": "Cecaelia (upper)",
+          "rf": [
+            "suckered smooth arms from the elbow",
+            "mantle-cape at the back"
+          ],
+          "skin": "reef-warm",
+          "light": "the sucker-rings a texture of small shadows",
+          "wardrobe": "the mantle replaces all outerwear — jewelry above it",
+          "source": "POOLS_V8"
+        },
+        {
+          "id": "R20",
+          "name": "Harpy-kin (wing-armed)",
+          "rf": [
+            "feathered forearms to the wrist",
+            "flight-feathers at the shoulder-blades"
+          ],
+          "skin": "wind-tan",
+          "light": "the barbs split the light into feather-combs",
+          "wardrobe": "backless by necessity; sleeves are fingerless vests",
+          "source": "POOLS_V8"
+        },
+        {
+          "id": "R21",
+          "name": "Mushroom-kin",
+          "rf": [
+            "cap-frill at the crown",
+            "spore-freckles glowing faint"
+          ],
+          "skin": "damp-pale",
+          "light": "the spores a private constellation at close range",
+          "wardrobe": "moss-agreeing weaves; nothing that minds the damp",
+          "source": "POOLS_V8"
+        },
+        {
+          "id": "R22",
+          "name": "Flame-salamander kin",
+          "rf": [
+            "crest of low fire along the spine's line",
+            "ember-freckles at the jaw"
+          ],
+          "skin": "heat-dark",
+          "light": "the crest is never the key light — it's the refusal of it",
+          "wardrobe": "asbestos-adjacent silks; the crest burns holes in chairbacks (prose-true)",
+          "source": "POOLS_V8"
+        }
+      ],
+      "racial_usage": [
+        "9-10 racial girls per 21 (V7 50/50 split kept: 9 racial + 10 non-racial + 2 exempt)",
+        "1-2 RF codes max per racial girl (§23 error budget)",
+        "racial features count toward the ≥2-VIS stack",
+        "race logged in pre-header: RACE: R07 (horns + wing-fragments)",
+        "wardrobe adaptation is MANDATORY prose for racial girls: the garment must acknowledge the anatomy (slit, hem, armhole, wrap)"
+      ],
+      "collision_table": [
+        "silver-white hair + amber slit eyes + drooping fox ears + golden tail → Sol",
+        "black hair + hime cut + red/blue heterochromia → Miyu",
+        "lavender hair + golden eyes + round glasses + deer horns + purple cheek-scales → Doe",
+        "platinum-white + twin ponytails + purple right eye + square white eyepatch → Sue",
+        "obsidian skin + red eyes + white hair streak → Vae",
+        "ivory-white hair + white eye-veil → Ash",
+        "copper-red side braid + emerald + gold flecks + burn scar → Noa",
+        "platinum french bob + white eyelashes + ice-blue + key pendant + neck scar → Nix",
+        "black + single white streak + red eyes → Vae-alt",
+        "blonde + pink gradient + golden ring-pupils → Yui"
+      ]
+    },
+    "nr": {
+      "categories": {
+        "glasses": [
+          {
+            "id": "NRG01",
+            "name": "Round Tortoiseshell",
+            "light": "a bar of window light slides across the lenses",
+            "note": "not Doe's round — different frame material",
+            "source": "POOLS_V8"
+          },
+          {
+            "id": "NRG02",
+            "name": "Rectangular Slim Silver",
+            "light": "two thin rails of highlight",
+            "source": "POOLS_V8"
+          },
+          {
+            "id": "NRG03",
+            "name": "Pince-Nez on Chain",
+            "motion": "perched low; the chain a filament of light at the cheek",
+            "scene": "scholarly/old-world",
+            "source": "POOLS_V8"
+          },
+          {
+            "id": "NRG04",
+            "name": "Cat-Eye, Amber-Tint",
+            "light": "the tint warms her irises one shade",
+            "source": "POOLS_V8"
+          },
+          {
+            "id": "NRG05",
+            "name": "Oval Wire Half-Rim",
+            "light": "the lower rim invisible; the eyes seem to float",
+            "source": "POOLS_V8"
+          },
+          {
+            "id": "NRG06",
+            "name": "Oversized Black Thick-Frame",
+            "light": "the frames a hard shadow-mask; eyes bright inside",
+            "source": "POOLS_V8"
+          },
+          {
+            "id": "NRG07",
+            "name": "Rose Gradient Tint",
+            "light": "the world above her lashes is pink",
+            "source": "POOLS_V8"
+          },
+          {
+            "id": "NRG08",
+            "name": "Reading Glasses Worn Low + Chain",
+            "motion": "she looks OVER them, not through",
+            "note": "gaze-over-the-rim is a tension device (EBT)",
+            "source": "POOLS_V8"
+          }
+        ],
+        "headbands": [
+          {
+            "id": "NRH01",
+            "name": "Silk Ribbon Band",
+            "light": "a stripe of satin gloss across the crown",
+            "source": "POOLS_V8"
+          },
+          {
+            "id": "NRH02",
+            "name": "Cloth Bandana, Pushed Up",
+            "state": "work-mode signifier",
+            "motion": "pushed up with the back of her hand — gesture itself is GEAR",
+            "source": "POOLS_V8"
+          },
+          {
+            "id": "NRH03",
+            "name": "Thin Metal Circlet",
+            "light": "a cold line at the hairline",
+            "source": "POOLS_V8"
+          },
+          {
+            "id": "NRH04",
+            "name": "Ritual Silk Band, Knotted Left",
+            "light": "the knot a small weight of shadow",
+            "source": "POOLS_V8"
+          },
+          {
+            "id": "NRH05",
+            "name": "Athletic Sweatband",
+            "scene": "sport/street",
+            "source": "POOLS_V8"
+          },
+          {
+            "id": "NRH06",
+            "name": "Braided-Leather Band",
+            "texture": "woven ridges stripe the light",
+            "source": "POOLS_V8"
+          },
+          {
+            "id": "NRH07",
+            "name": "Lace Band with Pearl Pins",
+            "light": "three pearls = three points of catchlight",
+            "source": "POOLS_V8"
+          },
+          {
+            "id": "NRH08",
+            "name": "Velvet Band with Small Cameo",
+            "light": "the cameo a pale oval at the temple",
+            "source": "POOLS_V8"
+          }
+        ],
+        "earrings": [
+          {
+            "id": "NRE01",
+            "name": "Large Gold Hoops",
+            "light": "the hoop a ring of catchlight at the jaw",
+            "note": "on human ears — Sol's are on fox ears",
+            "source": "POOLS_V8"
+          },
+          {
+            "id": "NRE02",
+            "name": "Small Pearl Studs",
+            "light": "two quiet points",
+            "source": "POOLS_V8"
+          },
+          {
+            "id": "NRE03",
+            "name": "Drop Pearls",
+            "motion": "the swing catches the key a half-second late",
+            "source": "POOLS_V8"
+          },
+          {
+            "id": "NRE04",
+            "name": "Ear-Cuff Climbing Chain (right)",
+            "light": "a ladder of three bright links up the helix",
+            "source": "POOLS_V8"
+          },
+          {
+            "id": "NRE05",
+            "name": "Single Asymmetric Drop (right)",
+            "note": "not Doe's left-hoop — different ear + type",
+            "source": "POOLS_V8"
+          },
+          {
+            "id": "NRE06",
+            "name": "Thread-Wrapped Hoops",
+            "scene": "atelier — thread as jewelry",
+            "source": "POOLS_V8"
+          },
+          {
+            "id": "NRE07",
+            "name": "Chandelier, Three-Tier",
+            "pos_alias": "three-tier drop earrings — NEVER write the word 'chandelier' in POS (Tsubaki2 spawn risk, C058)",
+            "light": "a chandelier of points; turns her jaw into architecture",
+            "source": "POOLS_V8"
+          },
+          {
+            "id": "NRE08",
+            "name": "Tiny Gold Studs",
+            "light": "barely there; found only at the close-up",
+            "source": "POOLS_V8"
+          },
+          {
+            "id": "NRE09",
+            "name": "Straight Thin Metal Sticks",
+            "note": "Noa canon = thin sticks; random girls require different metal/color",
+            "source": "POOLS_V8"
+          },
+          {
+            "id": "NRE10",
+            "name": "Bell-Charms",
+            "sound": "the only audio in a silent room",
+            "source": "POOLS_V8"
+          }
+        ],
+        "chokers_collars": [
+          {
+            "id": "NRC01",
+            "name": "Velvet Band, Thin",
+            "light": "a stripe of nap-dark at the throat",
+            "source": "POOLS_V8"
+          },
+          {
+            "id": "NRC02",
+            "name": "Leather Band, Simple",
+            "light": "matte; the buckle the only highlight",
+            "source": "POOLS_V8"
+          },
+          {
+            "id": "NRC03",
+            "name": "Ribbon, Bow at the Nape",
+            "motion": "the bow's tails move with her breath",
+            "source": "POOLS_V8"
+          },
+          {
+            "id": "NRC04",
+            "name": "Fine Chain + Pendant",
+            "note": "not Nix's key — different pendant",
+            "source": "POOLS_V8"
+          },
+          {
+            "id": "NRC05",
+            "name": "Single Pearl Strand",
+            "light": "a line of moons at the throat",
+            "source": "POOLS_V8"
+          },
+          {
+            "id": "NRC06",
+            "name": "Lace Choker",
+            "texture": "patterned shadow on the neck skin beneath",
+            "source": "POOLS_V8"
+          },
+          {
+            "id": "NRC07",
+            "name": "Braided Silk Cord",
+            "gift-logic": "the kind someone tied for her",
+            "source": "POOLS_V8"
+          }
+        ],
+        "marks_scars": [
+          {
+            "id": "NRM01",
+            "name": "Freckle Constellation, Nose + Cheeks",
+            "light": "each freckle a point of warm scatter",
+            "source": "POOLS_V8"
+          },
+          {
+            "id": "NRM02",
+            "name": "Freckle Cluster, Collarbones",
+            "light": "visible only in raking light",
+            "source": "POOLS_V8"
+          },
+          {
+            "id": "NRM03",
+            "name": "Crescent-Moon Beauty Mark, Under Left Eye",
+            "source": "POOLS_V8"
+          },
+          {
+            "id": "NRM04",
+            "name": "Thin Pale Scar Through Left Eyebrow",
+            "note": "not Noa's right",
+            "source": "POOLS_V8"
+          },
+          {
+            "id": "NRM05",
+            "name": "Mole at Corner of Mouth",
+            "source": "POOLS_V8"
+          },
+          {
+            "id": "NRM06",
+            "name": "Tiny Scar at Base of Right Ear",
+            "source": "POOLS_V8"
+          },
+          {
+            "id": "NRM07",
+            "name": "Pale Strap-Tan Lines Across Shoulders",
+            "light": "the ghost of last summer's garment",
+            "source": "POOLS_V8"
+          },
+          {
+            "id": "NRM08",
+            "name": "Ink Stain, Pad of Middle Finger",
+            "scene": "scribe/seamstress signature",
+            "source": "POOLS_V8"
+          },
+          {
+            "id": "NRM09",
+            "name": "Iron Burn Like a Fingerprint, Outer Wrist",
+            "scene": "atelier — the press's kiss",
+            "note": "not Noa's burn (hers: right wrist, larger)",
+            "source": "POOLS_V8"
+          },
+          {
+            "id": "NRM10",
+            "name": "Heart-Shaped Mole Above the Lip",
+            "source": "POOLS_V8"
+          }
+        ],
+        "wearables": [
+          {
+            "id": "NRW01",
+            "name": "Garter with Tiny Bow",
+            "light": "a soft punct above the stocking line",
+            "source": "POOLS_V8"
+          },
+          {
+            "id": "NRW02",
+            "name": "Measuring Tape as Necklace",
+            "scene": "atelier signature",
+            "source": "POOLS_V8"
+          },
+          {
+            "id": "NRW03",
+            "name": "Red Ribbon Throat-Tie",
+            "source": "POOLS_V8"
+          },
+          {
+            "id": "NRW04",
+            "name": "Black Thread Wound Around Left Wrist",
+            "note": "different placement from VIS22 (index finger)",
+            "source": "POOLS_V8"
+          },
+          {
+            "id": "NRW05",
+            "name": "Thimble Worn Past the Knuckle",
+            "scene": "working hands",
+            "source": "POOLS_V8"
+          },
+          {
+            "id": "NRW06",
+            "name": "Pin-Cushion Ring, Worn on Thumb",
+            "source": "POOLS_V8"
+          },
+          {
+            "id": "NRW07",
+            "name": "White Arm-Ribbon, Upper Arm",
+            "source": "POOLS_V8"
+          },
+          {
+            "id": "NRW08",
+            "name": "Single Silver Cuff, Left Wrist",
+            "source": "POOLS_V8"
+          },
+          {
+            "id": "NRW09",
+            "name": "Thumb Ring, Silver",
+            "source": "POOLS_V8"
+          },
+          {
+            "id": "NRW10",
+            "name": "Small Key on Leather Cord",
+            "note": "not Nix's key+chain — brass, no chain",
+            "source": "POOLS_V8"
+          },
+          {
+            "id": "NRW11",
+            "name": "Safety Pin as Earring",
+            "scene": "atelier improvisation",
+            "source": "POOLS_V8"
+          },
+          {
+            "id": "NRW12",
+            "name": "Cameo Brooch at Throat",
+            "source": "POOLS_V8"
+          }
+        ]
+      },
+      "extension_v2": [
+        {
+          "name": "Dog-Tag on Ball Chain",
+          "motion": "the tag's flip at the collarbone a metronome",
+          "id": "NRC08",
+          "source": "POOLS_V8 nr_extension_v2 (×4 harvest)"
+        },
+        {
+          "name": "Sport Wrap Shades (Pushed Up)",
+          "light": "the mirrored lens a bar of room",
+          "id": "NRG09",
+          "source": "POOLS_V8 nr_extension_v2 (×4 harvest)"
+        },
+        {
+          "name": "Wide Silk Scarf Headwrap",
+          "light": "the knot's twist a small bright turban",
+          "id": "NRH09",
+          "source": "POOLS_V8 nr_extension_v2 (×4 harvest)"
+        },
+        {
+          "name": "Lace-Up Ribbon Corset Collar",
+          "texture": "the cross-lacing's X's of shadow",
+          "id": "NRC09",
+          "source": "POOLS_V8 nr_extension_v2 (×4 harvest)"
+        },
+        {
+          "name": "Monocle on Ribbon (worn crooked)",
+          "light": "one eye corrected, one eye honest",
+          "id": "NRG10",
+          "source": "POOLS_V8 nr_extension_v2 (×4 harvest)"
+        },
+        {
+          "name": "Baseball Cap Backwards",
+          "state": "off-duty armor",
+          "motion": "the strap's shadow a smile at the nape",
+          "id": "NRH10",
+          "source": "POOLS_V8 nr_extension_v2 (×4 harvest)"
+        },
+        {
+          "name": "Feather Earring, Single Long",
+          "motion": "the barb's slow pendulum",
+          "id": "NRE11",
+          "source": "POOLS_V8 nr_extension_v2 (×4 harvest)"
+        },
+        {
+          "name": "Grass-Stain smear on one shin",
+          "scene": "summer evidence",
+          "id": "NRM11",
+          "source": "POOLS_V8 nr_extension_v2 (×4 harvest)"
+        },
+        {
+          "name": "Earlobe Chain-Link Cuff Pair",
+          "light": "two small ladders of link-glow",
+          "id": "NRE12",
+          "source": "POOLS_V8 nr_extension_v2 (×4 harvest)"
+        },
+        {
+          "name": "Small Bandage on the Knee",
+          "scene": "the tomboy's receipt",
+          "id": "NRM12",
+          "source": "POOLS_V8 nr_extension_v2 (×4 harvest)"
+        },
+        {
+          "name": "Sunburn Line at the Shirt's Edge",
+          "light": "the day's whole ledger at the collar",
+          "id": "NRM13",
+          "source": "POOLS_V8 nr_extension_v2 (×4 harvest)"
+        },
+        {
+          "name": "Pocket Watch on a Chatelaine",
+          "motion": "the chain's swing keeps her private time",
+          "id": "NRW13",
+          "source": "POOLS_V8 nr_extension_v2 (×4 harvest)"
+        },
+        {
+          "name": "Cigarette Behind the Ear (unlit)",
+          "scene": "the mechanic's tiara",
+          "id": "NRW14",
+          "source": "POOLS_V8 nr_extension_v2 (×4 harvest)"
+        },
+        {
+          "name": "Long Matchstick Used as Hairpin",
+          "light": "the burnt head a black bead above the gold",
+          "id": "NRW15",
+          "source": "POOLS_V8 nr_extension_v2 (×4 harvest)"
+        }
+      ],
+      "usage": [
+        "≥15 of 18 random-girls carry ≥2 VIS total (racial RF + NR combined; V6 §46 rule, unchanged)",
+        "each NR variant max 2× per batch; each category max 5× per batch",
+        "glasses are a REFLECTION DEVICE first (mirror-truth), an eye-state second (flip/hidden/gaze-over)",
+        "atelier-coded items (NRW02, NRW05, NRW06, NRW11, NRM09) are V8 additions for the N12 theme — they rotate out for future themes unless re-earned"
+      ]
+    },
+    "wardrobe_usage": [
+      "C009 (≥10 distinct GAR per batch) unchanged — pool is now 40 wide",
+      "V8 target: ≥4 codes from GAR21-GAR40 per batch (new blood ratio)",
+      "race_hook fields are prompts to ADAPT the garment, not ignore the anatomy"
+    ],
+    "emotion": [
+      {
+        "id": "E01",
+        "name": "Contempt",
+        "poses": [
+          "PL40",
+          "PL02"
+        ],
+        "light": [
+          "LQ01"
+        ],
+        "fill": [
+          "FR4"
+        ],
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "E02",
+        "name": "Vulnerability",
+        "poses": [
+          "PL30",
+          "PL25"
+        ],
+        "light": [
+          "LQ02"
+        ],
+        "fill": [
+          "FR2"
+        ],
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "E03",
+        "name": "Aggression",
+        "poses": [
+          "PL43",
+          "PL33"
+        ],
+        "light": [
+          "LQ04",
+          "LQ13"
+        ],
+        "fill": [
+          "FR9"
+        ],
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "E04",
+        "name": "Invitation",
+        "poses": [
+          "PL14",
+          "PL38"
+        ],
+        "light": [
+          "LQ03",
+          "LQ09"
+        ],
+        "fill": [
+          "FR4"
+        ],
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "E05",
+        "name": "Detachment",
+        "poses": [
+          "PL17"
+        ],
+        "light": [
+          "LQ10",
+          "LQ14"
+        ],
+        "fill": [
+          "FR2"
+        ],
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "E06",
+        "name": "Ecstasy",
+        "poses": [
+          "PL28",
+          "PL45"
+        ],
+        "light": [
+          "LQ11",
+          "LQ07"
+        ],
+        "fill": [
+          "FR2"
+        ],
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "E07",
+        "name": "Fear",
+        "poses": [
+          "PL13"
+        ],
+        "light": [
+          "LQ04",
+          "LQ12"
+        ],
+        "fill": [
+          "FR9"
+        ],
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "E08",
+        "name": "Melancholy",
+        "poses": [
+          "PL25"
+        ],
+        "light": [
+          "LQ14",
+          "LQ15"
+        ],
+        "fill": [
+          "FR2"
+        ],
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "E51",
+        "name": "post_orgasmic_dissolution",
+        "face": "body liquid, face slack, totally spent",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "E52",
+        "name": "devotional_worship",
+        "face": "looking up at off-frame with reverence",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "E53",
+        "name": "predatory_focus",
+        "face": "eyes locked, slight smile, hunting",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "E54",
+        "name": "shameless_display",
+        "face": "deliberately exposed, proud, defiant",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "E55",
+        "name": "broken_doll",
+        "face": "vacant + slight smile, uncanny",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "E56",
+        "name": "drunken_reckless",
+        "face": "loose, grinning, no inhibitions",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "E57",
+        "name": "feverish_desire",
+        "face": "flushed, dilated pupils, breath visible",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "E58",
+        "name": "haunted_vacant",
+        "face": "looking through everything, ghost-eyes",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "E59",
+        "name": "devilish_playful",
+        "face": "sharp grin, narrowed eyes, mischievous",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "E60",
+        "name": "anguished_arousal",
+        "face": "crying + flushed + wanting",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "E61",
+        "name": "serene_surrender",
+        "face": "calm acceptance, peaceful yielding",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "E62",
+        "name": "manic_excitement",
+        "face": "wide eyes, big smile, too-bright",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "E63",
+        "name": "contemptuous_display",
+        "face": "looking down on viewer, sneering",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "E64",
+        "name": "confused_aroused",
+        "face": "not understanding own reaction, blinking",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "E65",
+        "name": "vengeful_determined",
+        "face": "cold eyes, set jaw, focused",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "E66",
+        "name": "dreamy_detached",
+        "face": "half-present, soft smile, elsewhere",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "E67",
+        "name": "nervous_anticipation",
+        "face": "lip bite, averted eyes, fidgeting",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "E68",
+        "name": "satisfied_possessive",
+        "face": "post-claim, smug, owning",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "E69",
+        "name": "shy_defiant",
+        "face": "looking away + chin raised, contradictory",
+        "source": "ONTOLOGY"
+      },
+      {
+        "id": "E70",
+        "name": "ecstatic_transcendent",
+        "face": "beyond pleasure, spiritual",
+        "source": "ONTOLOGY"
+      }
+    ],
+    "engagement": {
+      "entries": [
+        {
+          "id": "ENG01",
+          "name": "Self-touch Chest",
+          "light": "hand catches light, shadow falls on breast",
+          "source": "ONTOLOGY"
+        },
+        {
+          "id": "ENG02",
+          "name": "Self-touch Hip",
+          "light": "palm as light-spot on hip, fingers as shadow-stripes",
+          "source": "ONTOLOGY"
+        },
+        {
+          "id": "ENG03",
+          "name": "Hair Pull",
+          "light": "hair catches light, face partially shadowed",
+          "source": "ONTOLOGY"
+        },
+        {
+          "id": "ENG04",
+          "name": "Grip Fabric",
+          "light": "fabric wrinkles create shadow-folds, tense hand catches light on bones",
+          "source": "ONTOLOGY"
+        },
+        {
+          "id": "ENG05",
+          "name": "Hand Between Thighs",
+          "light": "hand as object, shadow between thighs + hand shadow, light on shoulder",
+          "source": "ONTOLOGY"
+        },
+        {
+          "id": "ENG06",
+          "name": "Back Arch Grab",
+          "light": "hands on floor/wall, light on palms, back as river of shadow",
+          "source": "ONTOLOGY"
+        },
+        {
+          "id": "ENG07",
+          "name": "Neck Touch",
+          "light": "fingers on neck, shadow on carotid, light on face fragments",
+          "source": "ONTOLOGY"
+        },
+        {
+          "id": "ENG08",
+          "name": "Ankle Grab",
+          "light": "hand on ankle bone, light on bone, leg as diagonal",
+          "source": "ONTOLOGY"
+        }
+      ],
+      "note": "ENG codes are the legacy staging layer; coded reaction physiology lives in the H-family (POOLS_V8 §12) — ONTOLOGY note 2026-09-10."
+    },
+    "misc_axes": {
+      "env_archetypes": [
+        {
+          "name": "Rain-Streaked Glass",
+          "light_fn": "refracts light, bokeh, body behind texture"
+        },
+        {
+          "name": "Dust Mote Beam",
+          "light_fn": "volumetric light, requires LQ07"
+        },
+        {
+          "name": "Wet Cobblestone",
+          "light_fn": "reflection from below, LQ04 effective"
+        },
+        {
+          "name": "Snow Blind",
+          "light_fn": "overexposed background, body as dark accent"
+        },
+        {
+          "name": "Candle Field",
+          "light_fn": "multiple warm points, LQ09"
+        },
+        {
+          "name": "Fog Dense",
+          "light_fn": "light scatters, depth lost, LQ02"
+        },
+        {
+          "name": "Mirror Maze",
+          "light_fn": "infinite reflection, light doubles"
+        },
+        {
+          "name": "Iron Rust Wall",
+          "light_fn": "texture absorbs, warm glow on skin"
+        },
+        {
+          "name": "Water Surface",
+          "light_fn": "reflection from below, ripple, LQ04"
+        },
+        {
+          "name": "Velvet Curtains",
+          "light_fn": "absorbs light, dark background, LQ03 on body"
+        }
+      ],
+      "skin_words": [
+        {
+          "name": "Pale Porcelain",
+          "light": "reflects 80%, cold sheen, violet shadows"
+        },
+        {
+          "name": "Warm Ivory",
+          "light": "golden sheen, warm soft shadows"
+        },
+        {
+          "name": "Golden Tan",
+          "light": "absorbs and scatters, deep warm shadows"
+        },
+        {
+          "name": "Deep Olive",
+          "light": "greenish sheen in shadow, yellow on bones"
+        },
+        {
+          "name": "Rich Ebony",
+          "light": "only relief catches light, near-black shadows, rim essential"
+        },
+        {
+          "name": "Cool Alabaster",
+          "light": "pink in light, grey in shadow, marble"
+        },
+        {
+          "name": "Sun Burned",
+          "light": "red undertone, light intensifies, ochre shadows"
+        },
+        {
+          "name": "Freckled",
+          "light": "each freckle catches light, LQ02/LQ06"
+        },
+        {
+          "name": "Translucent Pale",
+          "light": "veins visible, light passes through thin areas"
+        },
+        {
+          "name": "Ash Grey",
+          "light": "metallic sheen, cold clinical shadows"
+        },
+        {
+          "name": "Rose Flushed",
+          "light": "blush catches light, violet under cheekbones"
+        },
+        {
+          "name": "Honey Amber",
+          "light": "light passes through edges, golden halo"
+        },
+        {
+          "name": "Copper Redhead",
+          "light": "skin reacts to hair color, green complementary"
+        },
+        {
+          "name": "Silver Age",
+          "light": "thin skin, texture emphasized, shadow in wrinkles"
+        },
+        {
+          "name": "Moonlit Blue",
+          "light": "cold undertone, silver light, indigo shadows"
+        },
+        {
+          "name": "Desert Dust",
+          "light": "matte, scatters, soft deep shadows"
+        },
+        {
+          "name": "Porcelain Veined",
+          "light": "veins as map, blue lines, fragility"
+        },
+        {
+          "name": "Warm Cocoa",
+          "light": "warm sheen, soft volumetric"
+        },
+        {
+          "name": "Pale Gold",
+          "light": "yellow undertone, gold intensifies"
+        },
+        {
+          "name": "Ghost White",
+          "light": "almost shadowless, even cold light"
+        }
+      ],
+      "materials": [
+        {
+          "name": "bisque-porcelain",
+          "light": "matte, diffuse scatter, soft shadow",
+          "pairs_with": [
+            "LQ02",
+            "LQ06",
+            "LQ10"
+          ]
+        },
+        {
+          "name": "glazed-porcelain",
+          "light": "glossy specular, sharp highlight",
+          "pairs_with": [
+            "LQ01",
+            "LQ03",
+            "LQ08"
+          ]
+        },
+        {
+          "name": "ivory-bone",
+          "light": "warm translucence, light bleeds through",
+          "pairs_with": [
+            "LQ02",
+            "LQ04",
+            "LQ07"
+          ]
+        },
+        {
+          "name": "wax",
+          "light": "translucent, melts at edges, skin-glow",
+          "pairs_with": [
+            "LQ02",
+            "LQ06",
+            "LQ07"
+          ]
+        },
+        {
+          "name": "brass-patinated",
+          "light": "dull gold, oxidation shadows",
+          "pairs_with": [
+            "LQ01",
+            "LQ03",
+            "LQ14"
+          ]
+        },
+        {
+          "name": "brass-polished",
+          "light": "mirror gold, hard reflection",
+          "pairs_with": [
+            "LQ01",
+            "LQ05",
+            "LQ08"
+          ]
+        },
+        {
+          "name": "bronze-aged",
+          "light": "green-brown patina, irregular reflection",
+          "pairs_with": [
+            "LQ03",
+            "LQ11",
+            "LQ14"
+          ]
+        },
+        {
+          "name": "glass-clear",
+          "light": "refraction, caustics, full transmission",
+          "pairs_with": [
+            "LQ07",
+            "LQ11",
+            "LQ12"
+          ]
+        },
+        {
+          "name": "glass-milk",
+          "light": "diffuse translucence, no sharp refraction",
+          "pairs_with": [
+            "LQ02",
+            "LQ06",
+            "LQ10"
+          ]
+        },
+        {
+          "name": "enamel-intact",
+          "light": "hard glossy, even reflection",
+          "pairs_with": [
+            "LQ01",
+            "LQ03",
+            "LQ08"
+          ]
+        },
+        {
+          "name": "enamel-chipped",
+          "light": "broken gloss, shadow in cracks",
+          "pairs_with": [
+            "LQ03",
+            "LQ11",
+            "LQ14"
+          ]
+        },
+        {
+          "name": "tortoiseshell",
+          "light": "mottled amber, depth-layered",
+          "pairs_with": [
+            "LQ02",
+            "LQ04",
+            "LQ07"
+          ]
+        },
+        {
+          "name": "wood-grained",
+          "light": "matte, directional grain shadow",
+          "pairs_with": [
+            "LQ02",
+            "LQ06",
+            "LQ10"
+          ]
+        },
+        {
+          "name": "marble-veined",
+          "light": "cold translucence, vein-shadows",
+          "pairs_with": [
+            "LQ01",
+            "LQ03",
+            "LQ05"
+          ]
+        },
+        {
+          "name": "liquid-latex",
+          "light": "wet-gloss, mercury reflection",
+          "pairs_with": [
+            "LQ01",
+            "LQ08",
+            "LQ12"
+          ]
+        },
+        {
+          "name": "crystal-faceted",
+          "light": "prism-split, spectral",
+          "pairs_with": [
+            "LQ07",
+            "LQ11",
+            "LQ12"
+          ]
+        },
+        {
+          "name": "ceramic-blue-white",
+          "light": "delftware, cool gloss",
+          "pairs_with": [
+            "LQ02",
+            "LQ10",
+            "LQ14"
+          ]
+        },
+        {
+          "name": "leather-worn",
+          "light": "matte with subtle sheen on wear",
+          "pairs_with": [
+            "LQ02",
+            "LQ03",
+            "LQ06"
+          ]
+        }
+      ],
+      "hair_types": [
+        {
+          "id": "straight",
+          "light": "mirror, light slides in bands, sharp specular",
+          "source": "ONTOLOGY"
+        },
+        {
+          "id": "wavy",
+          "light": "traps light in bends, shadow between crests",
+          "source": "ONTOLOGY"
+        },
+        {
+          "id": "curly",
+          "light": "fragments into thousands of points",
+          "source": "ONTOLOGY"
+        },
+        {
+          "id": "braided",
+          "light": "geometry, light on convex, shadow in concave",
+          "source": "ONTOLOGY"
+        },
+        {
+          "id": "loose_long",
+          "light": "veil, backlight translucent, strands catch rim",
+          "source": "ONTOLOGY"
+        },
+        {
+          "id": "short_pixie",
+          "light": "structure, skull visible, nape shadow accent",
+          "source": "ONTOLOGY"
+        },
+        {
+          "id": "wet",
+          "light": "plastic, dense reflection, no scatter",
+          "source": "ONTOLOGY"
+        }
+      ],
+      "framing": [
+        {
+          "id": "extreme_close",
+          "sd": "extreme close-up, fills 90%+ of frame",
+          "source": "ONTOLOGY"
+        },
+        {
+          "id": "close_up",
+          "sd": "close-up shot, head and shoulders",
+          "source": "ONTOLOGY"
+        },
+        {
+          "id": "medium",
+          "sd": "medium shot, waist up",
+          "source": "ONTOLOGY"
+        },
+        {
+          "id": "cowboy",
+          "sd": "cowboy shot, mid-thigh up",
+          "rarity": "rare",
+          "max_per_batch": "3",
+          "source": "ONTOLOGY"
+        },
+        {
+          "id": "full_body",
+          "sd": "full body shot, head to toe",
+          "source": "ONTOLOGY"
+        },
+        {
+          "id": "wide_env",
+          "sd": "wide environmental, body small in vast space",
+          "source": "ONTOLOGY"
+        },
+        {
+          "id": "panoramic",
+          "sd": "ultra-wide panoramic composition",
+          "source": "ONTOLOGY"
+        }
+      ],
+      "eye_colors": {
+        "standard": [
+          "deep-amber",
+          "cool-grey",
+          "hazel-green",
+          "dark-chocolate",
+          "ice-blue",
+          "storm-grey",
+          "warm-honey",
+          "black-obsidian",
+          "sea-green",
+          "copper-gold",
+          "ocean-green",
+          "moonstone-pale",
+          "electric-violet",
+          "ruby",
+          "lavender"
+        ],
+        "special": [
+          {
+            "id": "heterochromia_red_blue",
+            "cap_per_batch": "1",
+            "note": "Miyu canon only",
+            "source": "ONTOLOGY"
+          },
+          {
+            "id": "heterochromia_gold_silver",
+            "cap_per_batch": "1",
+            "source": "ONTOLOGY"
+          },
+          {
+            "id": "blind_milky_white",
+            "cap_per_batch": "1",
+            "source": "ONTOLOGY"
+          },
+          {
+            "id": "slit_pupil_feline",
+            "cap_per_batch": "1",
+            "source": "ONTOLOGY"
+          }
+        ]
+      },
+      "ncs_states": [
+        "CONCEALED",
+        "COVERED",
+        "THROUGH_FABRIC",
+        "VISIBLE",
+        "NAKED",
+        "TAPE",
+        "TOPLESS",
+        "TOPLESS_BACK"
+      ],
+      "wardrobe_states": [
+        "pristine",
+        "disheveled",
+        "soaking",
+        "torn",
+        "half_removed",
+        "borrowed",
+        "oversized",
+        "undersized"
+      ],
+      "niche_archetypes": [
+        "SURREAL",
+        "SCALE_EPIC",
+        "ABSTRACT_BEAUTY",
+        "NARRATIVE_MOMENT",
+        "UNEXPECTED_ANGLE",
+        "PALETTE_SHOCK",
+        "STILL_LIFE_WITH_BODY"
+      ],
+      "opening_strategies": [
+        "material_led",
+        "action_led",
+        "thought_led",
+        "sensory_led",
+        "body_led",
+        "setting_led",
+        "dialogue_led",
+        "list_led",
+        "definition_led",
+        "weather_led"
+      ],
+      "light_direction": {
+        "horizontal": [
+          "front",
+          "three_quarter",
+          "side",
+          "back"
+        ],
+        "vertical": [
+          "high",
+          "eye_level",
+          "low",
+          "under"
+        ],
+        "depth": [
+          "close",
+          "mid",
+          "far"
+        ]
+      },
+      "fill_ratios": [
+        {
+          "id": "FR9",
+          "ratio": "9:1",
+          "effect": "near-black shadow, drama",
+          "pairs_with": [
+            "LQ01",
+            "LQ05"
+          ],
+          "source": "ONTOLOGY"
+        },
+        {
+          "id": "FR4",
+          "ratio": "4:1",
+          "effect": "classic portrait",
+          "pairs_with": [
+            "LQ01",
+            "LQ03"
+          ],
+          "source": "ONTOLOGY"
+        },
+        {
+          "id": "FR2",
+          "ratio": "2:1",
+          "effect": "soft romantic",
+          "pairs_with": [
+            "LQ02",
+            "LQ06",
+            "LQ09"
+          ],
+          "source": "ONTOLOGY"
+        },
+        {
+          "id": "FR1",
+          "ratio": "1:1",
+          "effect": "flat high-key",
+          "pairs_with": [
+            "LQ02",
+            "LQ10"
+          ],
+          "source": "ONTOLOGY"
+        }
+      ],
+      "color_temperatures": [
+        {
+          "id": "CT_WARM",
+          "kelvin": "2700K",
+          "applies_to": "skin nearest light source",
+          "source": "ONTOLOGY"
+        },
+        {
+          "id": "CT_NEUTRAL",
+          "kelvin": "4500K",
+          "applies_to": "mid-plane",
+          "source": "ONTOLOGY"
+        },
+        {
+          "id": "CT_COOL",
+          "kelvin": "7000K+",
+          "applies_to": "shadows, distant parts",
+          "source": "ONTOLOGY"
+        }
+      ],
+      "genre": [
+        {
+          "id": "NICHE",
+          "description": "atmospheric, non-erotic or barely, mood-piece",
+          "source": "ONTOLOGY"
+        },
+        {
+          "id": "VOLT",
+          "description": "sexualised, body-forward, erotic",
+          "source": "ONTOLOGY"
+        }
+      ],
+      "lls_tiers": [
+        {
+          "id": "L0",
+          "description": "atmospheric, non-erotic, body not the subject",
+          "source": "ONTOLOGY"
+        },
+        {
+          "id": "L1",
+          "description": "suggestive, body is subject but not explicit",
+          "source": "ONTOLOGY"
+        },
+        {
+          "id": "L2",
+          "description": "sexualised, partial exposure or through-fabric — the DEGREE axis splits this: plain = R, carriers+share = R+ (see RATING_MAP)",
+          "source": "ONTOLOGY"
+        },
+        {
+          "id": "L3",
+          "description": "explicit, nipple visible or implied",
+          "source": "ONTOLOGY"
+        }
+      ],
+      "bpt_templates": [
+        {
+          "id": "BPT-1",
+          "lead": "bust",
+          "shape": "Her breasts, [size] and [adj], [verb] the [fabric/light]",
+          "source": "ONTOLOGY"
+        },
+        {
+          "id": "BPT-2",
+          "lead": "hips",
+          "shape": "Her hips, [shape] and [adj], [verb] the [fabric/pose]",
+          "source": "ONTOLOGY"
+        },
+        {
+          "id": "BPT-3",
+          "lead": "thighs",
+          "shape": "Her thighs, [texture] and [state], [verb] against [surface]",
+          "source": "ONTOLOGY"
+        },
+        {
+          "id": "BPT-4",
+          "lead": "waist",
+          "shape": "Her waist, [shape] and [light], [verb] the [garment]",
+          "source": "ONTOLOGY"
+        },
+        {
+          "id": "BPT-5",
+          "lead": "back",
+          "shape": "Her back, [shape] and [light-state], [verb] against [surface/light]",
+          "source": "ONTOLOGY"
+        },
+        {
+          "id": "BPT-6",
+          "lead": "hands",
+          "shape": "Her hands, [state] and [tension], [verb] the [fabric/skin]",
+          "source": "ONTOLOGY"
+        },
+        {
+          "id": "BPT-7",
+          "lead": "silhouette",
+          "shape": "Her silhouette, [shape] and [contrast], [verb] against [light]",
+          "source": "ONTOLOGY"
+        },
+        {
+          "id": "BPT-8",
+          "lead": "motion",
+          "shape": "Her body, [in-motion-state] and [tension], [verb]s through [space]",
+          "source": "ONTOLOGY"
+        }
+      ],
+      "closure_patterns": [
+        {
+          "id": "F1",
+          "name": "stillness",
+          "shape": "action frozen, moment held",
+          "source": "ONTOLOGY"
+        },
+        {
+          "id": "F2",
+          "name": "incomplete_action",
+          "shape": "cut mid-beat, implied continuation",
+          "source": "ONTOLOGY"
+        },
+        {
+          "id": "F3",
+          "name": "object_detail",
+          "shape": "camera zooms on object at end",
+          "source": "ONTOLOGY"
+        },
+        {
+          "id": "F4",
+          "name": "sensory_echo",
+          "shape": "opening sense returns at end",
+          "source": "ONTOLOGY"
+        },
+        {
+          "id": "F5",
+          "name": "body_hold",
+          "shape": "one anatomical detail held in final clause",
+          "source": "ONTOLOGY"
+        }
+      ],
+      "light_verbs": [
+        "cuts",
+        "catches",
+        "finds",
+        "pools",
+        "threads",
+        "grazes",
+        "spills",
+        "drapes",
+        "fractures",
+        "limns",
+        "stains",
+        "sinks",
+        "fans",
+        "coats",
+        "refracts",
+        "splits",
+        "shatters",
+        "dissolves",
+        "crystallizes",
+        "scatters",
+        "absorbs"
+      ],
+      "light_verb_subsets": {
+        "water": [
+          "pools",
+          "spills",
+          "drapes",
+          "sinks",
+          "fans",
+          "threads",
+          "coats",
+          "refracts",
+          "scatters",
+          "dissolves"
+        ],
+        "mineral": [
+          "cuts",
+          "fractures",
+          "shatters",
+          "refracts",
+          "crystallizes",
+          "splits"
+        ],
+        "organic": [
+          "coats",
+          "stains",
+          "drapes",
+          "threads",
+          "sinks",
+          "absorbs"
+        ],
+        "metallic": [
+          "catches",
+          "cuts",
+          "fractures",
+          "limns",
+          "coats",
+          "refracts"
+        ],
+        "ritual": [
+          "limns",
+          "stains",
+          "drapes",
+          "threads",
+          "finds",
+          "fans"
+        ],
+        "fire": [
+          "coats",
+          "burns",
+          "chars",
+          "melts",
+          "fractures",
+          "refracts"
+        ]
+      },
+      "body_emphasis_zones": [
+        "face",
+        "eyes",
+        "lips",
+        "throat",
+        "collarbone",
+        "breasts",
+        "navel",
+        "hands",
+        "hips",
+        "buttocks",
+        "thighs",
+        "back_spine"
+      ],
+      "gear_pool": {
+        "bedroom": [
+          "phone",
+          "pillow",
+          "sheet",
+          "cup",
+          "book",
+          "letter",
+          "photograph"
+        ],
+        "bathroom": [
+          "towel",
+          "brush",
+          "bottle",
+          "mirror",
+          "soap",
+          "comb",
+          "hairpin"
+        ],
+        "kitchen": [
+          "mug",
+          "fruit",
+          "glass",
+          "spoon",
+          "knife",
+          "bowl"
+        ],
+        "outdoor": [
+          "leaf",
+          "flower",
+          "sunglasses",
+          "hat",
+          "branch",
+          "stone",
+          "feather"
+        ],
+        "ritual": [
+          "vessel",
+          "incense_stick",
+          "scroll",
+          "mask",
+          "ribbon",
+          "key"
+        ],
+        "urban": [
+          "phone",
+          "cigarette",
+          "umbrella",
+          "coffee",
+          "bag",
+          "keys"
+        ],
+        "studio": [
+          "brush",
+          "palette",
+          "canvas",
+          "pencil",
+          "cloth",
+          "charcoal"
+        ]
+      },
+      "counterpoint_pairs": [
+        "confident pose + shy blush",
+        "defiant gaze + vulnerable open mouth",
+        "still body + trembling fingers",
+        "serene expression + weeping eyes",
+        "arched-back offering + averted gaze",
+        "smiling mouth + clenched fist",
+        "commanding eyes + uncertain posture",
+        "relaxed face + tension in shoulders"
+      ],
+      "bdm": {
+        "dimensions": {
+          "B": {
+            "range": "1-8",
+            "meaning": "breast volume → how shadow falls under breast"
+          },
+          "H": {
+            "range": "1-7",
+            "meaning": "hip width → shadow between thighs, light on iliac crest"
+          },
+          "T": {
+            "range": "1-7",
+            "meaning": "thigh volume → light grazing inner thigh"
+          },
+          "W": {
+            "range": "0-5",
+            "meaning": "waist definition → light convergence point"
+          },
+          "S": {
+            "range": "0-3",
+            "meaning": "shoulder breadth → light planes for rim"
+          },
+          "HE": {
+            "range": "0-4",
+            "meaning": "height → shadow length, monumentality"
+          },
+          "MU": {
+            "range": "0-3",
+            "meaning": "muscle definition → shadow contrast on muscles"
+          },
+          "BD": {
+            "range": "0-3",
+            "meaning": "body fat → shadow depth in folds"
+          }
+        },
+        "banned_values": [
+          "B0",
+          "H0",
+          "T0"
+        ],
+        "note": "Body = how it catches light, not anatomy. B0/H0/T0 banned outright."
+      }
+    },
+    "policies": {
+      "k_numbering_ledger": "# NUMBERING LEDGER (verify_system.py, 2026-09-10): определены K01-K08, K61-K122.\n# Никогда не существовали: K09-K60 (историческая база), K94-K97 (N16 freeform\n# OC-exempt эра), K102 (скип v4 — ошибка нумерации, задокументирована),\n# K105-K108 (никогда не издавались). K109-K114 — freeform-designate (см. §10\n# политику: без ретроактивных номеров). Следующий номер — K123.",
+      "k_freeform_policy": "K-FREEFORM POLICY (added 2026-09-10,\npre-flight N21; author order: «почему К выжжена досуха, если ты её каждый\nраз дополняешь — дополняй, либо используй старые по новой» → делаем ОБА)\nReason: N21 window (N18+N19+N20) returns only the N17-set + N16-tails\n(audit E1: pool TIGHT at ~100% + K109-114 freeform lived outside the law).\nThe pool is not dead — it is a TREADMILL: the 3-batch rollback blocks codes,\nthey return, theme-native codes get added when the watch demands. This\nextension widens the belt; the freeform policy legalizes the side door.\n═══════════════════════════════════════════════════════════════════════\nkinetic_extension_v5:\n- {id: K115, name: mid_lean_present, sd: \"torso mid-tipping forward into the offer, weight arriving on the balls of the feet, the neckline opening with the lean\"}\n- {id: K116, name: mid_hands_claim, sd: \"both hands mid-claiming their own body — seat, hip or thigh — fingers spreading wide over the flesh\"}\n- {id: K117, name: mid_straddle_settle, sd: \"body mid-settling astride a surface, knees finding their width, weight dropping through the thighs\"}\n- {id: K118, name: mid_breath_catch, sd: \"chest mid-catch — the inhale interrupted, ribs held high, clavicles rising into the light\"}\n- {id: K119, name: mid_hem_drag, sd: \"fingers mid-dragging a hem up or along the thigh, the fabric gathering in a wave ahead of the hand\"}\n- {id: K120, name: mid_spine_unfurl, sd: \"spine mid-unfurling from curl to arch, the chest leading the way up, throat arriving last\"}\n- {id: K121, name: mid_knee_part, sd: \"knees mid-parting from together to wide, the pose's whole decision visible in the thighs\"}\n- {id: K122, name: mid_lookback_offer, sd: \"head and shoulders mid-turning back over one shoulder to present what the pose offers\"}\nusage: same doctrine — VOLT-mandatory, ≥5 distinct per batch, max 3× each\n\nK-FREEFORM POLICY (lawful from 2026-09-10; closes the K109-114 outlaw era):\n- When the window blocks ≥70% of the K pool, freeform kinetics are LEGAL:\n  kebab-named mid_* verbs (mid_<specific>), logged in the pre-header as\n  \"K-FF: mid_<name>\", counting toward the ≥5-distinct quota.\n- Freeform codes never take a retroactive number (K109-114 stay\n  freeform-designate; the next numbered expansion continues from K123).\n- The ghost-code prohibition stands: no undefined ids referenced as real\n  (the K09/K10 lesson, and the FET26-45 hole closed in §12 below).",
+      "k_return_law": "K-RETURN LAW (V15, 2026-09-13 — the author's \"ribbon\" diagnosis; the\nminting ledger grew 14-16 codes/batch while the return path sat unused):\n- Numbered K-codes return via the standing 3-batch rollback window\n  (TRACKER header law) — IDENTICAL mechanism to palettes/GAR/FET/BRE:\n  used in batch N → free again at N+3. N20 proved it (the N16 return:\n  K08/K65/K78/K79/K81/K85/K86/K88/K89). The window was never the\n  problem; the minting default was.\n- RETURNS BEFORE MINTS: a batch draws its K quota from the free return\n  set FIRST. Theme-native minting (a new register the free set cannot\n  express) is the EXCEPTION, justified in the batch header — not the\n  default.\n- MINT BUDGET: ≤8 new K-codes per batch, hard-capped by the batch lint\n  (the N24 mint was 16; the ribbon grows no faster than the window\n  retires).\n- Ledger note: utilization ~100% means \"occupied by the window\", not\n  \"dead\" — the SYSTEM_AUDIT's \"burned dry\" language is retired with\n  this law (the author's option (a), implemented on the existing\n  mechanism rather than a new one).\n\n════════════════════════════════════════════════════════════════════",
+      "env_oas_formalization": "15. ENV_WORD / OAS_WORD FORMALIZATION (audit §4 REPLACE; 2026-09-10)\n- The ENV dictionary (V15: de-numbered) stays the LIGHT-FUNCTION\n  REFERENCE: each archetype defines\n  which light behavior the environment produces. Batch prompts write\n  ENV_word freeforms (kebab: waterpark_pool_noon, castle_sallyport_dusk)\n  and inherit the nearest archetype's light_fn. Log in the pre-header as\n  ENV: <word> → <archetype>. The numbered ENV codes are a reference, not\n  a menu — the freeform won, and is now lawful.\n- The OAS dictionary (V15: de-numbered) stays the SKIN-WORD DICTIONARY\n  (prose donors): random girls\n  draw word-lexemes (\"warm ivory\", \"honey amber halo\") rather than code\n  numbers; the family rules and drift guards still apply. Skin codes are\n  never cited in POS as codes.\n- MAT stays dormant until a material theme orders it (N16 precedent) —\n  reanimation is thematic, not scheduled.\n\n════════════════════════════════════════════════════════════════════",
+      "pool_v9_summary": "16. POOL V9 SUMMARY — ответы на вопросы автора (2026-09-10)\n- K «выжжена досуха» = не смерть, а ОКНО: 3-батчевый rollback в любой\n  момент блокирует почти все коды; утилизация ~100% значит «занято окном»,\n  не «испорчено». Что сделано: пополнили (K115-122), легализовали freeform\n  (K109-114 больше не вне закона, новые с K123), ротация возвращает старые\n  коды (N20 гонял возврат N16). Оба пути сразу — не «либо-либо».\n- BRE «выжжены» = тот же трэдмил (15/15 в 4-батч ротации на пределе),\n  ПЛЮС регистровая проблема: старые коды — shape-поэзия, карте цензуры\n  нужны mechanics-first носители. BRE32-40 написаны механиками; старые\n  остаются в ротации. Опять оба инструмента.\n- FET26-45 — дыра ЗАКРЫТА: слоты retired, ничего там не нумеруется;\n  физиология реакции живёт отдельным H-семейством (§12), failure-механики\n  — в GAR-F (§13), агрессивные ракурсы — в CAM13-18 (§14).\n- ENV/OAS: проза победила коды — это узаконено (§15). MAT спит до\n  следующей «материальной» темы.\n\n════════════════════════════════════════════════════════════════════",
+      "mint_ledger_n24": "# 21. POOL v9.3.0 — N24 mint ledger: K158-171 (batch) + K172-174 (OC-exempt)\n# + GAR49-56 + PALETTE_EXTENSION_v3 (P83-P88, see PALETTE_LIBRARY.yaml).\n# Palettes free at N24 pre-flight: P22/P23/P29/P36/P45/P51/P56/P57/P59/P61/\n# P63/P64/P70 (12) — a blue-dominant theme needs the blue shelf wider; six\n# new families minted per the 6-slot doctrine and the watch's own forecast\n# (\"If the next theme wants >15 distinct — extension time (P83+)\").",
+      "mint_ledger_n25": "# 25. POOL v9.4.0 — N25 mint ledger: K175-182 (7 batch + 1 OC-exempt) +\n# GAR57-64 + H21-26; palettes NOT minted (the free shelf's 21 returns\n# covered the whole grid one-to-one — the MOTIF vote's arithmetic honored;\n# the restraint is the point).",
+      "x4_harvest_note": "# 26. THE ×4 POOL HARVEST (2026-09-14, the pose-decisive audit order:\n# «Расширь вообще все пулы (по возможности), в четыре раза — на максимально\n# непохожие друг на друга штуки, без повторок»). POSE_LIBRARY went the full\n# ×4 (60->240, its own file). This section quadruples/deepens the CONTENT\n# pools that feed writing diversity: hairstyles, races, NR features.\n# Registry pools (K/GAR/H/FET/P) grow via their lawful mint paths per\n# batch — bulk-minting them would manufacture the fossilization the audit\n# is killing (documented in SYSTEM_AUDIT, the honest reading of «по\n# возможности»).",
+      "n27_preflight_mints": "# 27. N27 PRE-FLIGHT MINTS (2026-09-14): PALETTE_EXTENSION_v4 (P89-P99, see\n# PALETTE_LIBRARY.yaml — the seam families) + KINETIC_EXTENSION_v9 (K192+\n# at the batch's own header). The K/GAR/H/FET draws ride the window law\n# as always — see the N27 batch file's POOLS block for the full ledger.",
+      "usage_lines": [
+        {
+          "section": "§6 KINETIC_EXTENSION — K80-K93 (added 2026-09-04 for batch N15",
+          "usage": "same as K61-K79 — VOLT-mandatory, ≥5 distinct per batch, max 3× each"
+        },
+        {
+          "section": "§7 TECHNIQUE_EXTENSION — BRE25-28 / BK14-15 / B22-24 (added 202",
+          "usage": "same doctrine as base technique codes — L2+ mandatory when D19"
+        },
+        {
+          "section": "§8 TECHNIQUE_EXTENSION_V3 — BRE29-31 / BK16-18 / B25-27 (added ",
+          "usage": "same doctrine as base technique codes — L2+ mandatory when D19"
+        },
+        {
+          "section": "§9 KINETIC_EXTENSION_V4 — K98-K104 (added 2026-09-07 for batch ",
+          "usage": "same doctrine as K61-K93 — VOLT-mandatory, ≥5 distinct per batch,"
+        },
+        {
+          "section": "§10 KINETIC_EXTENSION_V5 — K115-K122 + K-FREEFORM POLICY (added ",
+          "usage": "same doctrine — VOLT-mandatory, ≥5 distinct per batch, max 3× each"
+        },
+        {
+          "section": "§11 TECHNIQUE_EXTENSION_V4 — BRE32-40 / BK19-22 / B28-31 (added ",
+          "usage": "same doctrine — L2+ mandatory when D19 matches; quotas ≥3 BRE / ≥2 BK /"
+        },
+        {
+          "section": "§12 H-FAMILY — REACTION PHYSIOLOGY H01-H20 (added 2026-09-10; au",
+          "usage": "0.5× amplifier weight at the gate (RATING_MAP class H); ≥2 distinct"
+        },
+        {
+          "section": "§13 WARDROBE_FAILURE_STATES — GAR41-GAR48 «GAR-F» (added 2026-09",
+          "usage": "stack ON any GAR code as state tags; log as GAR-F in the pre-header;"
+        },
+        {
+          "section": "§14 AGGRESSIVE FRAMING CAMERAS — CAM13-CAM18 (added 2026-09-10; ",
+          "usage": "G-class carriers; must agree with PL per §33 (pairs for PL49-60 in"
+        },
+        {
+          "section": "§20 WARDROBE_FAILURE_STATES_v2 — GAR49-GAR56 swimwear/coastal fa",
+          "usage": "same doctrine as GAR41-48 — stack ON any GAR code as state tags;"
+        },
+        {
+          "section": "§23 WARDROBE_FAILURE_STATES_v3 — GAR57-GAR64 antigrav family (ad",
+          "usage": "same doctrine — ≥2 distinct GAR-F per batch; the antigrav family"
+        },
+        {
+          "section": "§24 H-EXTENSION_v2 — H21-H26 wrong-physics physiology (added 202",
+          "usage": "same doctrine as H01-H20 — reaction physiology, amplifier class at"
+        }
+      ]
+    }
+  },
+  "inventory": {
+    "kinetics_k": 107,
+    "fet": 50,
+    "h": 26,
+    "gar": 40,
+    "gar_f": 24,
+    "bre": 24,
+    "bk": 16,
+    "b": 22,
+    "hs": 50,
+    "cam_total": 18,
+    "lq": 15,
+    "races": 22,
+    "nr": 69,
+    "emotion": 28,
+    "engagement": 8
+  }
+}

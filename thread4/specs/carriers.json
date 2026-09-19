@@ -1,0 +1,2661 @@
+{
+  "version": "1.0.0",
+  "born": "2026-09-19",
+  "source": "3.2 CARRIER_LIBRARY v1.0.0 (THREAD 3.2-EXP V19, born 2026-09-16)",
+  "mech_groups": {
+    "FABRIC": [
+      "W"
+    ],
+    "BODY": [
+      "A",
+      "B",
+      "C",
+      "S"
+    ],
+    "POSITION": [
+      "E",
+      "L",
+      "U",
+      "F"
+    ],
+    "PHYSICS": [
+      "D",
+      "M",
+      "I"
+    ],
+    "AMPLIFIER": [
+      "G",
+      "H"
+    ]
+  },
+  "class_defs": {
+    "W": {
+      "name": "Fabric State",
+      "mech": "FABRIC",
+      "count": 30
+    },
+    "A": {
+      "name": "Cleft & Mound",
+      "mech": "BODY",
+      "count": 14
+    },
+    "B": {
+      "name": "Shape Telegraph / Body Topography",
+      "mech": "BODY",
+      "count": 30
+    },
+    "C": {
+      "name": "Seat & Cheek",
+      "mech": "BODY",
+      "count": 16
+    },
+    "S": {
+      "name": "Skin Framing",
+      "mech": "BODY",
+      "count": 20
+    },
+    "E": {
+      "name": "Garment Displacement",
+      "mech": "POSITION",
+      "count": 32
+    },
+    "L": {
+      "name": "Layer Interplay",
+      "mech": "POSITION",
+      "count": 18
+    },
+    "U": {
+      "name": "Situational Undress",
+      "mech": "POSITION",
+      "count": 20
+    },
+    "F": {
+      "name": "Presenting & Spread",
+      "mech": "POSITION",
+      "count": 14
+    },
+    "D": {
+      "name": "Kinetic Weight",
+      "mech": "PHYSICS",
+      "count": 28
+    },
+    "M": {
+      "name": "Compression & Press",
+      "mech": "PHYSICS",
+      "count": 16
+    },
+    "I": {
+      "name": "Imprint & Aftermath",
+      "mech": "PHYSICS",
+      "count": 18
+    },
+    "G": {
+      "name": "Aggressive Framing",
+      "mech": "AMPLIFIER",
+      "count": 12
+    },
+    "H": {
+      "name": "Reaction & Physiology",
+      "mech": "AMPLIFIER",
+      "count": 12
+    }
+  },
+  "classes": {
+    "W": [
+      {
+        "id": "CR-W01",
+        "name": "Taut Weave",
+        "carrier": "the taut weave of her shirt across the chest",
+        "deg": "M",
+        "note": "danbooru-native «taut shirt»; tension without transparency — the anti-sheer workhorse",
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-W02",
+        "name": "Stretched Buttonholes",
+        "carrier": "the buttonholes stretched into ovals over the fullest line",
+        "deg": "M",
+        "note": "pairs E13 placket gape; mat: B",
+        "mat": "B",
+        "sheer_family": false
+      },
+      {
+        "id": "CR-W03",
+        "name": "Side-Seam Strain",
+        "carrier": "the side seams straining at the hips with every pocketed hand",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-W04",
+        "name": "Ribbing Stress-Bands",
+        "carrier": "the knit's ribbing stretched into pale bands across the bust",
+        "deg": "M",
+        "note": "sweater-register shape read, no wet needed; mat: C",
+        "mat": "C",
+        "sheer_family": false
+      },
+      {
+        "id": "CR-W05",
+        "name": "Static Cling",
+        "carrier": "the slip dress clinging static to her hips from the dryer's charge",
+        "deg": "L",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-W06",
+        "name": "Sweat-Damp Spine",
+        "carrier": "sweat darkening the blouse in one long line down her spine",
+        "deg": "M",
+        "note": "damp ≠ soaked — the conservative wet",
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-W07",
+        "name": "Plastered Wet Shirt",
+        "carrier": "the soaked shirt plastered to her, printing its whole account",
+        "deg": "H",
+        "note": "the legacy carrier; §4G-capped",
+        "mat": null,
+        "sheer_family": true
+      },
+      {
+        "id": "CR-W08",
+        "name": "Wet Hemline",
+        "carrier": "the wet hemline gone heavy, sticking to the thighs at every step",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": true
+      },
+      {
+        "id": "CR-W09",
+        "name": "Rain-Sag Sweater",
+        "carrier": "the sweater sagging with its own rain-weight, neckline gone wide",
+        "deg": "H",
+        "note": "pairs E27; mat: A",
+        "mat": "A",
+        "sheer_family": true
+      },
+      {
+        "id": "CR-W10",
+        "name": "Sheer Panel",
+        "carrier": "the sheer panel at the waist between the bodice and the skirt",
+        "deg": "H",
+        "note": "transparency quarantined to a cut panel — structural, not garment-wide",
+        "mat": null,
+        "sheer_family": true
+      },
+      {
+        "id": "CR-W11",
+        "name": "Worn-Thin At The Strap",
+        "carrier": "the cotton worn thin where the strap bites through it",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": true
+      },
+      {
+        "id": "CR-W12",
+        "name": "Threadbare Tee",
+        "carrier": "the old tee washed to gauze-thin softness across the whole front",
+        "deg": "M",
+        "note": "the WEAR state, not wet; mat: C",
+        "mat": "C",
+        "sheer_family": true
+      },
+      {
+        "id": "CR-W13",
+        "name": "Sitting-Crease",
+        "carrier": "the skirt's front creased deep by the hours at the desk",
+        "deg": "L",
+        "note": "witness: the desk",
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-W14",
+        "name": "Velvet Press-Mark",
+        "carrier": "the velvet holding the press-mark of the chairback across her behind",
+        "deg": "L",
+        "note": "bridges I-class",
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-W15",
+        "name": "Leather Mold",
+        "carrier": "the leather bodice molded to her exact shape by years of wear",
+        "deg": "M",
+        "note": "mat: A",
+        "mat": "A",
+        "sheer_family": false
+      },
+      {
+        "id": "CR-W16",
+        "name": "Silk Drape",
+        "carrier": "the silk's drape following the undercurve of the bust at each step",
+        "deg": "L",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-W17",
+        "name": "Open-Weave Light",
+        "carrier": "the open-weave knit letting light in between its rows at the chest",
+        "deg": "M",
+        "note": "peek-light; never call it sheer",
+        "mat": null,
+        "sheer_family": true
+      },
+      {
+        "id": "CR-W18",
+        "name": "Towel Nap",
+        "carrier": "the towel's nap flattened where it held her, damp at the fold",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-W19",
+        "name": "Jersey Rumple",
+        "carrier": "the jersey rumpled and twisted at the waist after the nap",
+        "deg": "L",
+        "note": "pairs U-class; mat: C",
+        "mat": "C",
+        "sheer_family": false
+      },
+      {
+        "id": "CR-W20",
+        "name": "Chairback Print",
+        "carrier": "the blouse's back printed with the chair's lattice from the long lunch",
+        "deg": "L",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-W21",
+        "name": "Lycra Shine",
+        "carrier": "the leotard's lycra gone shiny-stretched at the seat and bust",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-W22",
+        "name": "Denim Stress-White",
+        "carrier": "the denim worn white at the stress points of thigh and seat",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-W23",
+        "name": "Elastic Bite",
+        "carrier": "the thigh-high's lace band biting its soft line into the top of the leg",
+        "deg": "M",
+        "note": "pairs S15",
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-W24",
+        "name": "Suit-Seat Taut",
+        "carrier": "the suit's seat gone taut and shiny with the season's wear",
+        "deg": "M",
+        "note": "mat: A",
+        "mat": "A",
+        "sheer_family": false
+      },
+      {
+        "id": "CR-W25",
+        "name": "Apron Bib Swell",
+        "carrier": "the apron's bib pushed out by the full chest beneath it",
+        "deg": "M",
+        "note": "domestic witness",
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-W26",
+        "name": "Wind-Press",
+        "carrier": "the wind pressing the whole dress against her front, one gust's honesty",
+        "deg": "H",
+        "note": "weather as agent; bridges M-class",
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-W27",
+        "name": "Steam-Damp",
+        "carrier": "the spa's steam darkening the blouse at the collar and underarms only",
+        "deg": "L",
+        "note": "localized damp",
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-W28",
+        "name": "Splash-Side",
+        "carrier": "one splash darkening the tee's left side from the pool's edge",
+        "deg": "L",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-W29",
+        "name": "Pleat-Set",
+        "carrier": "the pleats set by the morning's iron already losing their fold at the hip",
+        "deg": "L",
+        "note": "mat: B",
+        "mat": "B",
+        "sheer_family": false
+      },
+      {
+        "id": "CR-W30",
+        "name": "Cold-Stiff Drape",
+        "carrier": "the cold making the silk stand off her shape in a bell, not a cling",
+        "deg": "L",
+        "note": "ANTI-cling: cold fabric refuses — negative-space carrier",
+        "mat": null,
+        "sheer_family": false
+      }
+    ],
+    "A": [
+      {
+        "id": "CR-A01",
+        "name": "Seam Pressed Flat",
+        "carrier": "the seam pressed flat into the cleft by the pose's own weight",
+        "deg": "H",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-A02",
+        "name": "Center-Seam Whole Line",
+        "carrier": "the leotard's center seam riding the cleft's whole line in the stretch",
+        "deg": "H",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-A03",
+        "name": "High-Cut Edge",
+        "carrier": "the high-cut suit's edge framing the mound's swell at the front",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-A04",
+        "name": "Straddle Taut",
+        "carrier": "the shorts' line drawn taut over the mound by the straddle's spread",
+        "deg": "H",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-A05",
+        "name": "Dry Cotton Print",
+        "carrier": "the thin cotton's honest print of the mound, dry and undeniable",
+        "deg": "H",
+        "note": "the anti-wet A",
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-A06",
+        "name": "Yoga Deep Lunge",
+        "carrier": "the yoga pants' front seam in the deep lunge's full geometry",
+        "deg": "H",
+        "note": "mat: C",
+        "mat": "C",
+        "sheer_family": false
+      },
+      {
+        "id": "CR-A07",
+        "name": "Grande Plié",
+        "carrier": "the ballet leotard's cut at the bottom of the grande plié",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-A08",
+        "name": "Post-Dive Panel",
+        "carrier": "the swimsuit's panel riding narrow at the cleft after the dive's entry",
+        "deg": "H",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-A09",
+        "name": "Jeans Fly Line",
+        "carrier": "the tight fly's pressure line reading down the front",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-A10",
+        "name": "Riding Breeches",
+        "carrier": "the riding breeches' full seat and seam at the saddle's trot",
+        "deg": "M",
+        "note": "mat: A",
+        "mat": "A",
+        "sheer_family": false
+      },
+      {
+        "id": "CR-A11",
+        "name": "Cycling Saddle",
+        "carrier": "the cycling kit's line in the saddle's full contact",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-A12",
+        "name": "Cross-Legged Wrap",
+        "carrier": "the wrap's cloth between the thighs in the cross-legged sit",
+        "deg": "L",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-A13",
+        "name": "Pencil-Skirt Stride",
+        "carrier": "the pencil skirt's taut front over the thighs' press at each short stride",
+        "deg": "L",
+        "note": "mat: B",
+        "mat": "B",
+        "sheer_family": false
+      },
+      {
+        "id": "CR-A14",
+        "name": "Towel Hip Line",
+        "carrier": "the towel's fold riding the hips' widest line, one tuck from honesty",
+        "deg": "H",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      }
+    ],
+    "B": [
+      {
+        "id": "CR-B01",
+        "name": "Points Against Weave",
+        "carrier": "two dark points pressed against the weave of her top",
+        "deg": "H",
+        "note": "the house determiner form, C072-safe",
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-B02",
+        "name": "Shape Through Cold Cloth",
+        "carrier": "the full shape of her breasts against the cold cloth",
+        "deg": "H",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-B03",
+        "name": "Peaks Through Dry Knit",
+        "carrier": "the peaks standing through the dry knit, unmistakable without any wet",
+        "deg": "H",
+        "note": "THE anti-sheer point carrier",
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-B04",
+        "name": "Apex Contour",
+        "carrier": "the contour of her apex readable through the thick sweater",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-B05",
+        "name": "Underboob Crescent Shadow",
+        "carrier": "the underboob's crescent of shadow under the crop top's hem",
+        "deg": "M",
+        "note": "shadow-line, not exposure",
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-B06",
+        "name": "Sideboob Curve",
+        "carrier": "the sideboob's curve past the armhole's edge",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-B07",
+        "name": "Cleavage End-Shadow",
+        "carrier": "the cleavage's line ending in shadow where the neckline stops",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-B08",
+        "name": "Weight-Line",
+        "carrier": "the line where the bust's weight meets the ribcage, read through the bodice",
+        "deg": "M",
+        "note": "the inframammary read",
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-B09",
+        "name": "Backlit Silhouette",
+        "carrier": "her silhouette in the window light, the bust's whole profile honest in outline",
+        "deg": "M",
+        "note": "the silhouette register — light does the undressing",
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-B10",
+        "name": "Profile Curve",
+        "carrier": "the profile's exact curve taken in side light",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-B11",
+        "name": "Navel Dip",
+        "carrier": "the navel's dip visible through the thin jersey at the waist",
+        "deg": "L",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-B12",
+        "name": "Waist Carve",
+        "carrier": "the waist's inward curve carved sharper by the belt's line",
+        "deg": "L",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-B13",
+        "name": "Hip Flare",
+        "carrier": "the hip's flare past the waistband's cut",
+        "deg": "L",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-B14",
+        "name": "Cheek Shelf Under Drape",
+        "carrier": "the cheek's round shelf under the skirt's fall",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-B15",
+        "name": "Calf In Boot",
+        "carrier": "the calf's curve inside the tall boot's line",
+        "deg": "L",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-B16",
+        "name": "Shoulder-Ball",
+        "carrier": "the shoulder's ball and the collarbone's shelf in the off-shoulder knit",
+        "deg": "L",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-B17",
+        "name": "Spine Valley",
+        "carrier": "the spine's smooth valley as she bends, a single soft line",
+        "deg": "L",
+        "note": "§43-safe: no vertebra-by-vertebra",
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-B18",
+        "name": "Small-Of-Back Scoop",
+        "carrier": "the small of her back's inward scoop above the waistband",
+        "deg": "L",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-B19",
+        "name": "Dome At Quarter-Turn",
+        "carrier": "the dome of her chest leading the profile at the quarter-turn",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-B20",
+        "name": "Vinyl Print",
+        "carrier": "the shape of her behind printing flat against the vinyl stool",
+        "deg": "M",
+        "note": "hard-surface contact read",
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-B21",
+        "name": "Mound In Seam Shadow",
+        "carrier": "the mound's gentle swell in the seam's shadow at the front",
+        "deg": "M",
+        "note": "A-border, mild register",
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-B22",
+        "name": "Cup-Edge Ridge",
+        "carrier": "the bra's cup-edge ridge reading through the blouse",
+        "deg": "M",
+        "note": "L-pair",
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-B23",
+        "name": "Strap Line Through Bodice",
+        "carrier": "the strap's line across her back readable through the tight bodice",
+        "deg": "L",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-B24",
+        "name": "Unhidden Shadows",
+        "carrier": "the two soft shadows the sports bra can't hide under the tee",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-B25",
+        "name": "Apex Leading The Lean",
+        "carrier": "the apex leading the whole lean into the turn",
+        "deg": "M",
+        "note": "D-pair",
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-B26",
+        "name": "Side-Lie Contact Read",
+        "carrier": "the chest's full profile against the sheets when she lies on her side",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-B27",
+        "name": "Apex Darkness Under Pale Suit",
+        "carrier": "the darkness of the apex under the pale one-piece, dry and defiant",
+        "deg": "H",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-B28",
+        "name": "Padding Defeated",
+        "carrier": "the swimsuit's thin padding defeated by the cold water's verdict",
+        "deg": "H",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-B29",
+        "name": "Window Reflection",
+        "carrier": "the bust's shape doubled in the shop window's glass as she passes",
+        "deg": "M",
+        "note": "reflection-witness, house style",
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-B30",
+        "name": "Shoji Silhouette",
+        "carrier": "her silhouette through the paper screen, the chest's profile in lamp light",
+        "deg": "M",
+        "note": "japanese register",
+        "mat": null,
+        "sheer_family": false
+      }
+    ],
+    "C": [
+      {
+        "id": "CR-C01",
+        "name": "Denim Claim",
+        "carrier": "the cheeks claiming the denim's whole back, pocket to pocket",
+        "deg": "H",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-C02",
+        "name": "Vinyl Print",
+        "carrier": "the seat's full print through the thin hem on the vinyl stool",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-C03",
+        "name": "Undercurve Bare",
+        "carrier": "the undercurve bare below the suit's eaten edge",
+        "deg": "H",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-C04",
+        "name": "Wedgie Line",
+        "carrier": "the wedgie's taut line, front and back equally honest",
+        "deg": "H",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-C05",
+        "name": "Sit-Trap Hem",
+        "carrier": "the skirt's hem caught under the cheek as she sits, the fold's hostage",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-C06",
+        "name": "Staircase Arithmetic",
+        "carrier": "the miniskirt's coverage arithmetic lost to the staircase behind her",
+        "deg": "H",
+        "note": "G-pair",
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-C07",
+        "name": "Saddle Overflow",
+        "carrier": "the cheeks' overflow past the bike saddle's nose at the stand",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-C08",
+        "name": "Office Tilt",
+        "carrier": "the office chair's tilt presenting the seat to the window's whole view",
+        "deg": "M",
+        "note": "mat: B",
+        "mat": "B",
+        "sheer_family": false
+      },
+      {
+        "id": "CR-C09",
+        "name": "Pocket Frame",
+        "carrier": "the jeans' back pockets framing the full round, stitch by stitch",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-C10",
+        "name": "Boyshort Bisection",
+        "carrier": "the boyshorts' edge bisecting the cheek's lower half",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-C11",
+        "name": "Whale Tail",
+        "carrier": "the thong's waistband riding above the low-rise jeans' back line",
+        "deg": "H",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-C12",
+        "name": "Leather Squeak",
+        "carrier": "the leather skirt's squeak of the cheeks at the shift in the seat",
+        "deg": "L",
+        "note": "sound-witness",
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-C13",
+        "name": "Rail's Cold Kiss",
+        "carrier": "the stool's brass rail's cold kiss through the skirt at the heel-hook",
+        "deg": "L",
+        "note": "witness-object",
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-C14",
+        "name": "Paddleboard Wobble",
+        "carrier": "the paddleboard's wobble read through the whole seat's negotiation",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-C15",
+        "name": "Recliner Slouch",
+        "carrier": "the recliner's slouch, the seat's shelf and the shorts' retreat",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-C16",
+        "name": "Tights Seat Wear",
+        "carrier": "the tights' seat gone taut-shiny with the day's wear",
+        "deg": "M",
+        "note": "W-pair",
+        "mat": null,
+        "sheer_family": false
+      }
+    ],
+    "S": [
+      {
+        "id": "CR-S01",
+        "name": "Zettai Ryouiki",
+        "carrier": "the zettai ryouiki's band of bare thigh between sock-top and skirt's hem",
+        "deg": "M",
+        "note": "platform-native tag; mat: C",
+        "mat": "C",
+        "sheer_family": false
+      },
+      {
+        "id": "CR-S02",
+        "name": "Bare Shoulder Slope",
+        "carrier": "the bare shoulder's slope under the slipped collar's line",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-S03",
+        "name": "Collarbone Hollow Pendant",
+        "carrier": "the collarbone's shelf and the pendant at rest in its hollow",
+        "deg": "L",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-S04",
+        "name": "First Inch Of Cleavage",
+        "carrier": "the first inch of the cleavage's fall catching the window's light",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-S05",
+        "name": "Underboob Shadow-Line",
+        "carrier": "the underboob's line of shadow under the crop's hem at the raise",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-S06",
+        "name": "Sideboob Skin",
+        "carrier": "the sideboob's skin past the armhole's edge at the reach",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-S07",
+        "name": "Low Waistband Curve",
+        "carrier": "the lower belly's curve and the navel's dip above the low waistband",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-S08",
+        "name": "Back Dimples",
+        "carrier": "the back dimples' pair above the dropped waist at the mirror's turn",
+        "deg": "L",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-S09",
+        "name": "Inner Thigh Band",
+        "carrier": "the soft inner band of the thigh visible at the stride's widest step",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-S10",
+        "name": "Tan-Line Framing",
+        "carrier": "the tan lines' pale geometry framing what the bikini covered",
+        "deg": "H",
+        "note": "mat: C",
+        "mat": "C",
+        "sheer_family": false
+      },
+      {
+        "id": "CR-S11",
+        "name": "Sweat Track",
+        "carrier": "the sweat's track from the throat's hollow down the sternum's line",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-S12",
+        "name": "Water Beads",
+        "carrier": "the water's beads on the upper chest at the pool's ladder exit",
+        "deg": "L",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-S13",
+        "name": "Goosebumps Field",
+        "carrier": "the goosebumps' field across the bare arms and chest at the locker room's cold",
+        "deg": "L",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-S14",
+        "name": "Sunburn Straps",
+        "carrier": "the sunburn across the shoulders where the straps' coverage failed",
+        "deg": "M",
+        "note": "mat: C",
+        "mat": "C",
+        "sheer_family": false
+      },
+      {
+        "id": "CR-S15",
+        "name": "Garter Frame",
+        "carrier": "the garter's clasps and the thigh's soft frame between them",
+        "deg": "H",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-S16",
+        "name": "Exposed Nape",
+        "carrier": "the nape's bare line under the pinned-up hair, the collar's last fold",
+        "deg": "L",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-S17",
+        "name": "Anklet Chain",
+        "carrier": "the anklet's chain across the ankle bone's small frame",
+        "deg": "L",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-S18",
+        "name": "Choker Line",
+        "carrier": "the choker's line dividing the throat's length from the jaw's turn",
+        "deg": "L",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-S19",
+        "name": "Open-Back Field",
+        "carrier": "the bare back's whole field to the waist's start, the pendant hanging down it",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-S20",
+        "name": "Slip's Strap-Beds",
+        "carrier": "the slip's thin strap-beds on the shoulders, the skin's own memory",
+        "deg": "L",
+        "note": "I-pair",
+        "mat": null,
+        "sheer_family": false
+      }
+    ],
+    "E": [
+      {
+        "id": "CR-E01",
+        "name": "Tank Strap Fallen",
+        "carrier": "the tank's strap fallen off her shoulder, the armhole wide by design",
+        "deg": "M",
+        "note": "the classic — now 1 of 32, exit route self-named",
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-E02",
+        "name": "Bra Strap Escaped Boat Neck",
+        "carrier": "the bra strap escaped past the boat neckline onto her collarbone",
+        "deg": "M",
+        "note": "LAYER-STACK exemplar: exit named (boat neck)",
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-E03",
+        "name": "Off-Shoulder Ride",
+        "carrier": "the off-shoulder sweater's collar riding down her arm with the reach",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-E04",
+        "name": "Back Zipper",
+        "carrier": "the gown's zipper open to the small of her back, its own decision",
+        "deg": "H",
+        "note": "mat: A",
+        "mat": "A",
+        "sheer_family": false
+      },
+      {
+        "id": "CR-E05",
+        "name": "Wrap Gap",
+        "carrier": "the wrap dress's front gap widening at each stride, the pin long lost",
+        "deg": "H",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-E06",
+        "name": "Towel Fold",
+        "carrier": "the towel's fold held by one hand, opening by degrees",
+        "deg": "H",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-E07",
+        "name": "Robe Drift",
+        "carrier": "the robe's belt gone, the lapels drifting apart at the steam's push",
+        "deg": "H",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-E08",
+        "name": "One-Side Untuck",
+        "carrier": "the shirt untucked on one side only, the hem's asymmetric confession",
+        "deg": "L",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-E09",
+        "name": "Vent Gust Flip",
+        "carrier": "the skirt's hem flipped by the vent's gust, one second's flash of thigh",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-E10",
+        "name": "Barstool Ride",
+        "carrier": "the pleated skirt riding up on the barstool's round, the counter's own view",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-E11",
+        "name": "Waistband Roll",
+        "carrier": "the waistband rolled double under the curve of her hips",
+        "deg": "L",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-E12",
+        "name": "Last Button",
+        "carrier": "the blouse's last button doing all the work of the whole argument",
+        "deg": "H",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-E13",
+        "name": "Placket Gape",
+        "carrier": "the placket's gap between the buttons over the fullest line",
+        "deg": "M",
+        "note": "pairs W02",
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-E14",
+        "name": "Collar Askew",
+        "carrier": "the collar slipped askew, baring one shoulder blade to the hall's draft",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-E15",
+        "name": "Kimono Summer",
+        "carrier": "the kimono's collar opened wide against the summer heat, the nape doing the talking",
+        "deg": "M",
+        "note": "japanese register",
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-E16",
+        "name": "Gi Lapel Crossed Wrong",
+        "carrier": "the gi's left lapel crossed wrong after the throw, the belt still holding",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-E17",
+        "name": "Qipao Side-Slit",
+        "carrier": "the qipao's side-slit past the stocking top at the step",
+        "deg": "H",
+        "note": "mat: A",
+        "mat": "A",
+        "sheer_family": false
+      },
+      {
+        "id": "CR-E18",
+        "name": "Apron Strings",
+        "carrier": "the apron's strings untied, the bib hanging from the neck loop alone",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-E19",
+        "name": "Overall Unbuckled",
+        "carrier": "the overalls' one strap unbuckled, the bib sagging sideways",
+        "deg": "M",
+        "note": "mat: C — collegiate mishap register",
+        "mat": "C",
+        "sheer_family": false
+      },
+      {
+        "id": "CR-E20",
+        "name": "Leotard Leg-Line",
+        "carrier": "the leotard's leg-line riding at the hip's crease after the floor routine",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-E21",
+        "name": "Swimsuit Edge Migration",
+        "carrier": "the swimsuit bottom's edge migrated up the cheek after the dive",
+        "deg": "H",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-E22",
+        "name": "Thigh-High Roll",
+        "carrier": "the thigh-high rolled down to the ankle bone by the day's end",
+        "deg": "L",
+        "note": "mat: C",
+        "mat": "C",
+        "sheer_family": false
+      },
+      {
+        "id": "CR-E23",
+        "name": "Sock Slouch",
+        "carrier": "the sock's cuff slouched into the boot's mouth",
+        "deg": "L",
+        "note": "mat: C",
+        "mat": "C",
+        "sheer_family": false
+      },
+      {
+        "id": "CR-E24",
+        "name": "Glove Peel",
+        "carrier": "the glove peeled halfway off the wrist, held between two fingers",
+        "deg": "L",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-E25",
+        "name": "Cuff Lost Button",
+        "carrier": "one sleeve pushed up, the cuff's button gone, the forearm's claim",
+        "deg": "L",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-E26",
+        "name": "Camisole Peek",
+        "carrier": "the camisole's lace trim peeking below the blouse's hem at the waist",
+        "deg": "L",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-E27",
+        "name": "Stretched Neckhole",
+        "carrier": "the nightshirt's collar gone wide from years of washing, one shoulder always bare",
+        "deg": "M",
+        "note": "the accidental off-shoulder",
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-E28",
+        "name": "Hoodie Zipper",
+        "carrier": "the hoodie's zipper down to the sternum, the tee inside twisted with sleep",
+        "deg": "L",
+        "note": "mat: C",
+        "mat": "C",
+        "sheer_family": false
+      },
+      {
+        "id": "CR-E29",
+        "name": "Sarong Knot",
+        "carrier": "the sarong's knot loosening at the hip with the ferry's rock",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-E30",
+        "name": "Shoulder-Snap Popped",
+        "carrier": "the bodysuit's shoulder-snap popped at the stretch's top, the neckline's sudden freedom",
+        "deg": "H",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-E31",
+        "name": "Seam Giving",
+        "carrier": "the dress's shoulder seam giving at the stitch, one thread from the whole story",
+        "deg": "H",
+        "note": "torn-clothes danbooru family",
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-E32",
+        "name": "Petticoat Drop",
+        "carrier": "the petticoat's waistband surrendered to the dance's last spin, the skirt's whole line an inch lower",
+        "deg": "H",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      }
+    ],
+    "L": [
+      {
+        "id": "CR-L01",
+        "name": "Band Through White Tee",
+        "carrier": "the bra's band reading through the tight white tee at the spine",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-L02",
+        "name": "Lace Under Blazer",
+        "carrier": "the camisole's lace edge under the open blazer's frame at the sternum",
+        "deg": "M",
+        "note": "mat: B",
+        "mat": "B",
+        "sheer_family": false
+      },
+      {
+        "id": "CR-L03",
+        "name": "Double-Strap Cross",
+        "carrier": "the swimsuit's strap crossed with the sundress's own at the shoulder, an X of two loyalties",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-L04",
+        "name": "Corset Busk Ridge",
+        "carrier": "the corset's busk-ridge printing its line under the wrapping sweater",
+        "deg": "M",
+        "note": "mat: A",
+        "mat": "A",
+        "sheer_family": false
+      },
+      {
+        "id": "CR-L05",
+        "name": "Petticoat's Half",
+        "carrier": "the petticoat's white hem doing its half of the skirt's lifted reveal",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-L06",
+        "name": "Strapless Vigilance",
+        "carrier": "the strapless dress demanding her arms' vigilance at every dance's dip",
+        "deg": "M",
+        "note": "Theiss exemplar",
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-L07",
+        "name": "Strapless War",
+        "carrier": "the strapless bra's quiet war with gravity, the evening's whole subplot",
+        "deg": "M",
+        "note": "mat: A",
+        "mat": "A",
+        "sheer_family": false
+      },
+      {
+        "id": "CR-L08",
+        "name": "Boyshorts Waistband",
+        "carrier": "the boyshorts' waistband above the jeans' low cut at the spine's bend",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-L09",
+        "name": "Bandeau Migration",
+        "carrier": "the bandeau migrating under the loose tank's wide armholes with the run's every beat",
+        "deg": "H",
+        "note": "exit route named (wide armholes)",
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-L10",
+        "name": "Collars Overlapping Wrong",
+        "carrier": "the two shirts' collars overlapping wrong after the morning's rush",
+        "deg": "L",
+        "note": "mat: C",
+        "mat": "C",
+        "sheer_family": false
+      },
+      {
+        "id": "CR-L11",
+        "name": "Borrowed Jacket Strain",
+        "carrier": "the borrowed jacket one size small across the back seam, the shoulders' argument",
+        "deg": "L",
+        "note": "mat: C",
+        "mat": "C",
+        "sheer_family": false
+      },
+      {
+        "id": "CR-L12",
+        "name": "Shirt Over Suit",
+        "carrier": "the shirt open over the swimsuit, the suit's own claim beneath it",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-L13",
+        "name": "Hem-Length Game",
+        "carrier": "the negligee's hem two inches below the robe's own, the gap's slow reveal at the step",
+        "deg": "M",
+        "note": "mat: A",
+        "mat": "A",
+        "sheer_family": false
+      },
+      {
+        "id": "CR-L14",
+        "name": "Thigh-High Negotiation",
+        "carrier": "the thigh-high's lace top and the skirt's hem in negotiation at mid-thigh",
+        "deg": "M",
+        "note": "zettai ryouiki adjacent",
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-L15",
+        "name": "Pinafore Crossing",
+        "carrier": "the pinafore's straps crossing the blouse's own at the back, two geometries one back",
+        "deg": "L",
+        "note": "mat: C",
+        "mat": "C",
+        "sheer_family": false
+      },
+      {
+        "id": "CR-L16",
+        "name": "Hanfu Layers",
+        "carrier": "the hanfu's layered collar-lines sliding apart at the shoulder's turn",
+        "deg": "L",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-L17",
+        "name": "Three-Layer Confession",
+        "carrier": "the three layers' confession at the skirt's slit: slip, petticoat, velvet, in order",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-L18",
+        "name": "Cutout's Whole Point",
+        "carrier": "the cutout tank and the sports bra beneath, the cutout's whole engineered point",
+        "deg": "H",
+        "note": "mat: C",
+        "mat": "C",
+        "sheer_family": false
+      }
+    ],
+    "U": [
+      {
+        "id": "CR-U01",
+        "name": "Mid-Change",
+        "carrier": "one arm in the sleeve, the other out, the shirt's argument with the clock",
+        "deg": "H",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-U02",
+        "name": "Half-Buttoned Morning",
+        "carrier": "the shirt half-buttoned in the morning's rush, the buttons losing their order",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-U03",
+        "name": "Post-Shower Tee",
+        "carrier": "the towel's turban and the oversized tee's wide neck, the wet hair's drip",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-U04",
+        "name": "Borrowed Too-Small",
+        "carrier": "the borrowed shirt one size too small — every button's own opinion",
+        "deg": "M",
+        "note": "mat: C",
+        "mat": "C",
+        "sheer_family": false
+      },
+      {
+        "id": "CR-U05",
+        "name": "Laundry Day",
+        "carrier": "the laundry day's solution: his dress shirt and one sock, the basket's witness",
+        "deg": "H",
+        "note": "mat: C",
+        "mat": "C",
+        "sheer_family": false
+      },
+      {
+        "id": "CR-U06",
+        "name": "Car Door Catch",
+        "carrier": "the dress caught in the car door's shut, the fabric's pull taut across the seat",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-U07",
+        "name": "Seamstress Fitting",
+        "carrier": "the seamstress mid-fitting: pins in the hem, the dress unfinished at the side seam, the tape around the bust",
+        "deg": "M",
+        "note": "mat: A — atelier register",
+        "mat": "A",
+        "sheer_family": false
+      },
+      {
+        "id": "CR-U08",
+        "name": "Quick-Change Screen",
+        "carrier": "the quick-change behind the screen's shadow, the silhouette doing the changing",
+        "deg": "H",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-U09",
+        "name": "Fitting Room Curtain",
+        "carrier": "the fitting room's curtain half-drawn, the mirror's full view of the trial",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-U10",
+        "name": "Walk Home",
+        "carrier": "last night's dress on this morning's street, the smudge and the heels in hand",
+        "deg": "M",
+        "note": "mat: B",
+        "mat": "B",
+        "sheer_family": false
+      },
+      {
+        "id": "CR-U11",
+        "name": "Exam Dawn",
+        "carrier": "the hoodie over pajama shorts at the exam's dawn, the thermos the only adult thing",
+        "deg": "L",
+        "note": "mat: C — collegiate register",
+        "mat": "C",
+        "sheer_family": false
+      },
+      {
+        "id": "CR-U12",
+        "name": "Between-Dips",
+        "carrier": "the wet suit under the dry wrap at the pool's edge, both losing their arguments",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-U13",
+        "name": "Hotel Robe",
+        "carrier": "the hotel robe at the breakfast bar's edge, the belt's loose arithmetic",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-U14",
+        "name": "Hospital Gown",
+        "carrier": "the hospital gown's back tie and the hallway's draft doing the exposing",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-U15",
+        "name": "Door-Knock Gown",
+        "carrier": "the dressing gown held shut by one hand at the door's knock",
+        "deg": "H",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-U16",
+        "name": "Boyfriend Tee",
+        "carrier": "the boyfriend tee's hemline at mid-thigh, nothing beneath but the morning",
+        "deg": "H",
+        "note": "mat: C",
+        "mat": "C",
+        "sheer_family": false
+      },
+      {
+        "id": "CR-U17",
+        "name": "Shared Kitchen",
+        "carrier": "the sleepwear set in the shared kitchen at 3 a.m., the roommate's timing",
+        "deg": "M",
+        "note": "mat: C",
+        "mat": "C",
+        "sheer_family": false
+      },
+      {
+        "id": "CR-U18",
+        "name": "Apron Over Nightgown",
+        "carrier": "the apron over the nightgown at the stove, breakfast's own costume",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-U19",
+        "name": "Yukata Morning",
+        "carrier": "the yukata's morning looseness at the ryokan's veranda, the obi a rumor",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-U20",
+        "name": "Post-Comp Jacket",
+        "carrier": "the post-competition jacket over the leotard, the zipper's slow ride at the bus stop",
+        "deg": "M",
+        "note": "mat: C",
+        "mat": "C",
+        "sheer_family": false
+      }
+    ],
+    "F": [
+      {
+        "id": "CR-F01",
+        "name": "Wrestler Sprawl",
+        "carrier": "the knees apart in the wrestler's sprawl, the singlet at its limit",
+        "deg": "H",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-F02",
+        "name": "M-Sit",
+        "carrier": "the M-sit, soles together, knees wide, the skirt's decision point",
+        "deg": "H",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-F03",
+        "name": "Backbend Offer",
+        "carrier": "the backbend displaying the underboob's crescent to the ceiling",
+        "deg": "H",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-F04",
+        "name": "Under-Branch Crawl",
+        "carrier": "the all-fours crawl under the low branch, the chest's lead",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-F05",
+        "name": "Chair Straddle",
+        "carrier": "the straddle of the chair, back to the room, chin over the shoulder",
+        "deg": "H",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-F06",
+        "name": "Tide-Pool Squat",
+        "carrier": "the squat over the tide pool, the shorts' whole claim",
+        "deg": "H",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-F07",
+        "name": "Mirror Arch",
+        "carrier": "the arch into the mirror's full length, the nightgown's fall arrested",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-F08",
+        "name": "Jukebox Hip-Shot",
+        "carrier": "the hip-shot lean against the jukebox, one knee locked",
+        "deg": "L",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-F09",
+        "name": "Legs-Up-Wall",
+        "carrier": "the legs-up-the-wall rest, the shorts' legs riding with gravity's help",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-F10",
+        "name": "Pigeon Pose",
+        "carrier": "the pigeon pose's deep hip opening, the leggings' full map",
+        "deg": "M",
+        "note": "mat: C",
+        "mat": "C",
+        "sheer_family": false
+      },
+      {
+        "id": "CR-F11",
+        "name": "Side-Lie Drift",
+        "carrier": "the side-lie propped on one elbow, knees drifting apart in half-sleep",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-F12",
+        "name": "Pool-Table Reach",
+        "carrier": "the lean across the pool table's reach, the chest's long flat",
+        "deg": "M",
+        "note": "M-pair",
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-F13",
+        "name": "Dash Slouch",
+        "carrier": "the passenger slouch, knees on the dash, the skirt's last argument",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-F14",
+        "name": "Stage Crawl",
+        "carrier": "the stage crawl toward the footlights, the costume's every promise",
+        "deg": "H",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      }
+    ],
+    "D": [
+      {
+        "id": "CR-D01",
+        "name": "Full Drop Mid-Sway",
+        "carrier": "the full drop of her breasts mid-sway at the turn",
+        "deg": "H",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-D02",
+        "name": "Stair Bounce",
+        "carrier": "the bounce at each heel-strike on the stairs, two at a time",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-D03",
+        "name": "Quarter-Turn Lead",
+        "carrier": "the chest taking the lead into the quarter-turn",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-D04",
+        "name": "Overhead Reach Lift",
+        "carrier": "the lift of her breasts at the overhead reach for the top shelf",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-D05",
+        "name": "Forward-Lean Deepening",
+        "carrier": "the cleavage deepening at the forward lean over the pool table",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-D06",
+        "name": "Table Flattening",
+        "carrier": "her chest flattening against the table's edge as she signs the form",
+        "deg": "M",
+        "note": "M-pair",
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-D07",
+        "name": "Pendulum Lag",
+        "carrier": "the sway's far side lagging a half-beat behind the turn",
+        "deg": "M",
+        "note": "physics-honest",
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-D08",
+        "name": "Aftershock",
+        "carrier": "the last aftershock of the bounce as she stops at the door",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-D09",
+        "name": "Jog Rhythm",
+        "carrier": "the jog's rhythm writing itself down the whole front of her",
+        "deg": "H",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-D10",
+        "name": "Jump-Rope Double Beat",
+        "carrier": "the jump-rope's double beat, the sports bra's losing arithmetic",
+        "deg": "H",
+        "note": "mat: C",
+        "mat": "C",
+        "sheer_family": false
+      },
+      {
+        "id": "CR-D11",
+        "name": "Volleyball Spike",
+        "carrier": "the spike's full lift-and-drop in the frame's own freeze",
+        "deg": "H",
+        "note": "mat: C",
+        "mat": "C",
+        "sheer_family": false
+      },
+      {
+        "id": "CR-D12",
+        "name": "Breaststroke Push",
+        "carrier": "the breaststroke's pull pushing the suit's front flat, then releasing",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-D13",
+        "name": "Dive Streamline",
+        "carrier": "the dive's streamline pressing everything flat for one held breath",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-D14",
+        "name": "Equestrian Canter",
+        "carrier": "the canter rocking her through the whole torso, every third beat",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-D15",
+        "name": "Motorcycle Thrum",
+        "carrier": "the motorcycle's thrum arriving through the pillion seat in one long note",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-D16",
+        "name": "Tram Brake",
+        "carrier": "the tram's brake gathering her weight forward into the strap's hold",
+        "deg": "L",
+        "note": "mat: B",
+        "mat": "B",
+        "sheer_family": false
+      },
+      {
+        "id": "CR-D17",
+        "name": "Dance Dip",
+        "carrier": "the dance's dip spilling her toward the floor, the dress doing nothing",
+        "deg": "H",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-D18",
+        "name": "Spin Flare",
+        "carrier": "the spin's flare lifting the skirt's whole bell at the apex",
+        "deg": "M",
+        "note": "E-pair",
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-D19",
+        "name": "Curtsey Press",
+        "carrier": "the curtsey's press of thigh against thigh, the skirt's one deep fold",
+        "deg": "L",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-D20",
+        "name": "Waking Stretch",
+        "carrier": "the waking stretch's slow arch through the whole back, the tee at its mercy",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-D21",
+        "name": "Sneeze Event",
+        "carrier": "the sneeze's whole event through her chest, both arms crossed too late",
+        "deg": "L",
+        "note": "humor register, house-carried",
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-D22",
+        "name": "Laugh Bounce",
+        "carrier": "the laugh riding down her chest in bounces she doesn't notice",
+        "deg": "L",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-D23",
+        "name": "Shiver Ripple",
+        "carrier": "the shiver's ripple arriving across the chest's skin",
+        "deg": "L",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-D24",
+        "name": "Stairs Run-Down",
+        "carrier": "the run down the stairs, the whole front arriving one step ahead of her",
+        "deg": "H",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-D25",
+        "name": "Trampoline Amplitude",
+        "carrier": "the trampoline's full amplitude claiming the crop top's whole argument",
+        "deg": "H",
+        "note": "mat: C",
+        "mat": "C",
+        "sheer_family": false
+      },
+      {
+        "id": "CR-D26",
+        "name": "Swing Apex",
+        "carrier": "the swing's apex and drop at the chain's turn, the skirt's physics honest",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-D27",
+        "name": "Cheer Herkie",
+        "carrier": "the herkie's jump, the top's claim and the skirt's flare one event",
+        "deg": "H",
+        "note": "mat: C",
+        "mat": "C",
+        "sheer_family": false
+      },
+      {
+        "id": "CR-D28",
+        "name": "Arms-Crossed Gathering",
+        "carrier": "the arms crossed on the cold walk, the gathering she can't quite hold",
+        "deg": "L",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      }
+    ],
+    "M": [
+      {
+        "id": "CR-M01",
+        "name": "Seatbelt Diagonal",
+        "carrier": "the seatbelt's diagonal bisecting the chest's full line at the clunk",
+        "deg": "M",
+        "note": "mat: B",
+        "mat": "B",
+        "sheer_family": false
+      },
+      {
+        "id": "CR-M02",
+        "name": "Crossbody Ride",
+        "carrier": "the crossbody bag's strap riding the apex at every step's bounce",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-M03",
+        "name": "Table Edge",
+        "carrier": "the table's edge flattening her as she leans across for the far cup",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-M04",
+        "name": "Window Glass",
+        "carrier": "her whole front against the window glass at the lookout, the cold's print",
+        "deg": "H",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-M05",
+        "name": "Counter Reach",
+        "carrier": "the counter's lip pressed into the underboob's line at the top-shelf reach",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-M06",
+        "name": "Guitar Body",
+        "carrier": "the guitar's waist against hers, the strap's diagonal claim",
+        "deg": "L",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-M07",
+        "name": "Cello Embrace",
+        "carrier": "the cello's embrace between her knees, the instrument's own posture",
+        "deg": "M",
+        "note": "partner-implied",
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-M08",
+        "name": "Doorframe Squeeze",
+        "carrier": "the turn through the too-narrow gap taken shoulders-first, both claims at once",
+        "deg": "L",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-M09",
+        "name": "Crowd Press",
+        "carrier": "the crowd's press at the festival's front row, the mosh's honesty",
+        "deg": "M",
+        "note": "mat: C",
+        "mat": "C",
+        "sheer_family": false
+      },
+      {
+        "id": "CR-M10",
+        "name": "Hug Crush",
+        "carrier": "the hug's full crush against his jacket, the chin's landing",
+        "deg": "M",
+        "note": "partner-implied",
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-M11",
+        "name": "Dog's Paws",
+        "carrier": "the big dog's paws landing at her chest's full claim, her laugh one octave up",
+        "deg": "L",
+        "note": "witness-creature, humor register",
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-M12",
+        "name": "Backpack Chest Strap",
+        "carrier": "the backpack's chest strap's double claim at the trail's steepest pitch",
+        "deg": "M",
+        "note": "mat: C",
+        "mat": "C",
+        "sheer_family": false
+      },
+      {
+        "id": "CR-M13",
+        "name": "Life Jacket",
+        "carrier": "the life jacket's crush at the boat's lurch, everything the vest argues",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-M14",
+        "name": "Shawl's Crossed Arms",
+        "carrier": "the shawl held by her own crossed arms, the self-compression of the cold ferry",
+        "deg": "L",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-M15",
+        "name": "Corset Exhale",
+        "carrier": "the ribbon corset's exhale required to close the last two inches",
+        "deg": "H",
+        "note": "mat: A",
+        "mat": "A",
+        "sheer_family": false
+      },
+      {
+        "id": "CR-M16",
+        "name": "Measuring Tape",
+        "carrier": "the measuring tape's overlap at the bust line, the atelier's own arithmetic",
+        "deg": "M",
+        "note": "mat: A — the atelier sacrament",
+        "mat": "A",
+        "sheer_family": false
+      }
+    ],
+    "I": [
+      {
+        "id": "CR-I01",
+        "name": "Bra Release Lines",
+        "carrier": "the bra's release lines pressed red across the swell, minutes old",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-I02",
+        "name": "Pillow Crease",
+        "carrier": "the pillow's crease across one cheek and the chest's upper slope",
+        "deg": "L",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-I03",
+        "name": "Sheet's Hip Line",
+        "carrier": "the sheet's drape from the nap still holding the hip's line",
+        "deg": "L",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-I04",
+        "name": "Sock Rings",
+        "carrier": "the sock's elastic rings around the calves, the day's receipt",
+        "deg": "L",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-I05",
+        "name": "Belt Line",
+        "carrier": "the belt's pink line across the belly's low curve at the waistband's fold",
+        "deg": "L",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-I06",
+        "name": "Bikini Pale Borders",
+        "carrier": "the bikini's pale borders against the sunned skin, the summer's ledger",
+        "deg": "M",
+        "note": "mat: C",
+        "mat": "C",
+        "sheer_family": false
+      },
+      {
+        "id": "CR-I07",
+        "name": "Sung Strap Track",
+        "carrier": "the strap's pale track across the shoulder where the sun never reached",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-I08",
+        "name": "Love Bite Under Scarf",
+        "carrier": "the love bite under the scarf's careful knot, the scarf's whole employment",
+        "deg": "H",
+        "note": "mat: A",
+        "mat": "A",
+        "sheer_family": false
+      },
+      {
+        "id": "CR-I09",
+        "name": "Collar Transfer",
+        "carrier": "the lipstick's transfer on the shirt collar, third-party evidence",
+        "deg": "M",
+        "note": "mat: A",
+        "mat": "A",
+        "sheer_family": false
+      },
+      {
+        "id": "CR-I10",
+        "name": "Mascara Smear",
+        "carrier": "the mascara's smear of the long night, the pillow's testimony",
+        "deg": "L",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-I11",
+        "name": "Buttons One-Off",
+        "carrier": "the buttons realigned one hole off in the dark of the quick change",
+        "deg": "L",
+        "note": "U-pair; mat: C",
+        "mat": "C",
+        "sheer_family": false
+      },
+      {
+        "id": "CR-I12",
+        "name": "Inside-Out Shirt",
+        "carrier": "the shirt inside-out after the quick change, seams claiming the outside",
+        "deg": "L",
+        "note": "mat: C",
+        "mat": "C",
+        "sheer_family": false
+      },
+      {
+        "id": "CR-I13",
+        "name": "Grass Print",
+        "carrier": "the grass's print across the bare shoulder blades and the skirt's back",
+        "deg": "L",
+        "note": "mat: C",
+        "mat": "C",
+        "sheer_family": false
+      },
+      {
+        "id": "CR-I14",
+        "name": "Sand Cling",
+        "carrier": "the sand still clinging to the damp calves at the towel's edge",
+        "deg": "L",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-I15",
+        "name": "Seatbelt Sleep-Crease",
+        "carrier": "the seatbelt's sleep-crease across the chest's slope after the long haul",
+        "deg": "M",
+        "note": "M-pair; mat: B",
+        "mat": "B",
+        "sheer_family": false
+      },
+      {
+        "id": "CR-I16",
+        "name": "Garter Dents",
+        "carrier": "the garter's soft dents above and below the band, an hour's evidence",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-I17",
+        "name": "Wet Footprints",
+        "carrier": "the wet footprints leading away from the towel's damp rectangle",
+        "deg": "H",
+        "note": "implied state — the witness does the work",
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-I18",
+        "name": "Towel's Damp Rectangle",
+        "carrier": "the towel's damp rectangle on the chair and her walking past it in his shirt",
+        "deg": "H",
+        "note": "U-pair",
+        "mat": null,
+        "sheer_family": false
+      }
+    ],
+    "G": [
+      {
+        "id": "CR-G01",
+        "name": "Low Third",
+        "carrier": "the low angle filling the lower third with the seat's claim",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-G02",
+        "name": "Top-Down Shaft",
+        "carrier": "the top-down counting the cleavage's shaft",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-G03",
+        "name": "Between-Knees Sightline",
+        "carrier": "the between-the-knees sightline down the hall's length",
+        "deg": "H",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-G04",
+        "name": "Macro Escape",
+        "carrier": "the macro on the strap's escape at the collarbone's hollow",
+        "deg": "M",
+        "note": "E-pair; layer-stack compliant",
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-G05",
+        "name": "Water-Level Lens",
+        "carrier": "the water-level lens at the pool's edge, the suit's outline first",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-G06",
+        "name": "Staircase Under-Hem",
+        "carrier": "the shot up the staircase under the hem's shadow",
+        "deg": "H",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-G07",
+        "name": "Hip-Height Doorframe",
+        "carrier": "the hip-height frame through the door's gap, everything else cropped out of the argument",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-G08",
+        "name": "Fisheye Curve",
+        "carrier": "the fisheye's curve giving the seat the frame's whole election",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-G09",
+        "name": "Elevator Brass",
+        "carrier": "the reflection's double in the elevator's brass, front and back one claim",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-G10",
+        "name": "Strap Bow Bokeh",
+        "carrier": "the strap's bow in the foreground bokeh, the party out of focus behind",
+        "deg": "L",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-G11",
+        "name": "Over-Shoulder Mirror",
+        "carrier": "the over-shoulder mirror shot: her eyes on the lens, the reflection's neckline lower",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-G12",
+        "name": "Measuring Wall",
+        "carrier": "the full-length against the atelier's measuring wall, the tape's verdict pending",
+        "deg": "L",
+        "note": "M16-pair",
+        "mat": null,
+        "sheer_family": false
+      }
+    ],
+    "H": [
+      {
+        "id": "CR-H01",
+        "name": "Blush Flood",
+        "carrier": "the blush flooding down past the collarbones' line",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-H02",
+        "name": "Lip Bite At The Finding-Out",
+        "carrier": "the lip bitten around the finding-out, the mirror's own news",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-H03",
+        "name": "Thighs Losing",
+        "carrier": "the thighs pressing together against the feeling — and losing",
+        "deg": "H",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-H04",
+        "name": "Goosebumps On Spill",
+        "carrier": "the goosebumps riding the bare spill of the cup's edge",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-H05",
+        "name": "Upper-Chest Flush",
+        "carrier": "the flush mottling the upper chest in the sauna's first minute",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-H06",
+        "name": "Ear-Tips Burning",
+        "carrier": "the ears' tips burning their verdict at the compliment's landing",
+        "deg": "L",
+        "note": "mat: C",
+        "mat": "C",
+        "sheer_family": false
+      },
+      {
+        "id": "CR-H07",
+        "name": "Held Breath At Zipper",
+        "carrier": "the held breath at the zipper's catch halfway down her back",
+        "deg": "M",
+        "note": "E-pair",
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-H08",
+        "name": "Denied Arch",
+        "carrier": "the small involuntary arch, caught and denied mid-curtsey",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-H09",
+        "name": "Heat-Slick Sheen",
+        "carrier": "the heat-slick sheen on the offered curve of the shoulder",
+        "deg": "M",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-H10",
+        "name": "Pupil Widen",
+        "carrier": "the pupils' widen at her own reflection's argument",
+        "deg": "L",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-H11",
+        "name": "Collar-Edge Swallow",
+        "carrier": "the swallow at the collar's edge before the mirror, one hand at the clasp",
+        "deg": "L",
+        "note": null,
+        "mat": null,
+        "sheer_family": false
+      },
+      {
+        "id": "CR-H12",
+        "name": "Shiver At Strap Slide",
+        "carrier": "the shiver's honest ripple at the strap's slow slide",
+        "deg": "L",
+        "note": "E-pair",
+        "mat": null,
+        "sheer_family": false
+      }
+    ]
+  },
+  "core4_law": "R+ slots: >=4 carrier classes spanning all 4 mechanism groups (FABRIC+BODY+POSITION+PHYSICS); W <= 45% of a batch's carriers; sheer-family (§4G anti-monopoly) <= 2 carriers per prompt and <= 40% of a batch's R+ frames; G/H are AMPLIFIERS (0.5x weight, never count toward CORE-4). An R+ stack of four M-carriers beats one H-carrier + filler (the three-ladders doctrine).",
+  "notes": [
+    "deg ladder: L = suggest (reads at second glance), M = state (reads immediately), H = claim (the state is the frame's subject).",
+    "mat affinity (A=mature / B=adult woman / C=young woman, all 18+, aesthetic direction only) extracted from note text 'mat: X'; null when absent. 3.2 batch quotas: FAM-A <=35%, FAM-C >=15%, R+-subset <=50% one register.",
+    "sheer_family marked per §4G (see-through/sheer/transparent/wet/soaked/translucent + worn-thin/gauze/plastered/rain-sag); flagged, never removed.",
+    "PH doctrine: every carrier is noun-led (§4D-3) — the NOUN carries the claim.",
+    "Source section order was W,B,E,D,A,C,F,G,H,I,L,M,S,U; output uses canonical mech-group order W,A,B,C,S,E,L,U,F,D,M,I,G,H. Nothing reordered inside classes."
+  ]
+}

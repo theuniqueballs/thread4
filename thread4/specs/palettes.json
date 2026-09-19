@@ -1,0 +1,3503 @@
+{
+  "version": "1.0.0",
+  "born": "2026-09-19",
+  "source": "3.2 PALETTE_LIBRARY v1.0.0 (P21-P105, 6-slot) + ONTOLOGY P01-P20 (legacy 3-slot)",
+  "palettes": [
+    {
+      "id": "P01_NOIR_VELVET",
+      "name": "Noir Velvet",
+      "dominant": [
+        "deep-indigo",
+        "black"
+      ],
+      "secondary": [
+        "ivory",
+        "alabaster"
+      ],
+      "accent1": [
+        "crimson-red"
+      ],
+      "accent2": null,
+      "shadow": "warm-brown",
+      "forbidden": [
+        "neon",
+        "pure-white",
+        "saturated-green"
+      ],
+      "light_type": "hard_directional",
+      "sd_fragment": "high contrast, dramatic shadows, film noir lighting, chiaroscuro",
+      "mood": "mysterious_dramatic_sensual",
+      "family": "legacy_3slot",
+      "legacy_3slot": true,
+      "source": "ONTOLOGY.yaml (THREAD 2.0 reuse)"
+    },
+    {
+      "id": "P02_DAWN_AMBER",
+      "name": "Dawn Amber",
+      "dominant": [
+        "honey",
+        "warm-amber"
+      ],
+      "secondary": [
+        "dusty-rose",
+        "peach"
+      ],
+      "accent1": [
+        "cool-blue"
+      ],
+      "accent2": null,
+      "shadow": "cool-blue",
+      "forbidden": [
+        "neon",
+        "LED",
+        "fluorescent",
+        "blue-screen-glow"
+      ],
+      "light_type": "low_angle_warm",
+      "sd_fragment": "golden hour lighting, warm tones, long shadows, sunset glow",
+      "mood": "romantic_nostalgic_erotic_warm",
+      "family": "legacy_3slot",
+      "legacy_3slot": true,
+      "source": "ONTOLOGY.yaml (THREAD 2.0 reuse)"
+    },
+    {
+      "id": "P03_CYBER_ASH",
+      "name": "Cyber Ash",
+      "dominant": [
+        "steel-grey",
+        "dark-teal"
+      ],
+      "secondary": [
+        "pale-cyan",
+        "soft-violet"
+      ],
+      "accent1": [
+        "warm-amber"
+      ],
+      "accent2": null,
+      "shadow": "near-black-cyan-tint",
+      "forbidden": [
+        "candlelight",
+        "fire",
+        "warm-sunlight",
+        "golden-tones"
+      ],
+      "light_type": "neon_glow_offframe_rim",
+      "sd_fragment": "cyberpunk lighting, rim light, teal and orange, subtle neon",
+      "mood": "futuristic_sensual_controlled",
+      "family": "legacy_3slot",
+      "legacy_3slot": true,
+      "source": "ONTOLOGY.yaml (THREAD 2.0 reuse)"
+    },
+    {
+      "id": "P04_BLOOD_IVORY",
+      "name": "Blood Ivory",
+      "dominant": [
+        "deep-crimson",
+        "oxblood"
+      ],
+      "secondary": [
+        "black",
+        "charcoal"
+      ],
+      "accent1": [
+        "ivory",
+        "pale-gold"
+      ],
+      "accent2": null,
+      "shadow": "pure-black",
+      "forbidden": [
+        "neon",
+        "fluorescent",
+        "daylight",
+        "bright-blue"
+      ],
+      "light_type": "candle_red_tinted_lowkey",
+      "sd_fragment": "red and black palette, candlelit, low key lighting, dramatic",
+      "mood": "ritual_passionate_dangerous",
+      "family": "legacy_3slot",
+      "legacy_3slot": true,
+      "source": "ONTOLOGY.yaml (THREAD 2.0 reuse)"
+    },
+    {
+      "id": "P05_FOREST_MIST",
+      "name": "Forest Mist",
+      "dominant": [
+        "moss-green",
+        "jade"
+      ],
+      "secondary": [
+        "fog-white",
+        "pale-silver"
+      ],
+      "accent1": [
+        "gold-leaf"
+      ],
+      "accent2": null,
+      "shadow": "deep-emerald",
+      "forbidden": [
+        "neon",
+        "pure-red",
+        "fluorescent",
+        "concrete-grey"
+      ],
+      "light_type": "daylight_through_foliage",
+      "sd_fragment": "green and white palette, dappled light, jade tones",
+      "mood": "serene_elegant_ethereal",
+      "family": "legacy_3slot",
+      "legacy_3slot": true,
+      "source": "ONTOLOGY.yaml (THREAD 2.0 reuse)"
+    },
+    {
+      "id": "P06_OBSIDIAN_GOLD",
+      "name": "Obsidian Gold",
+      "dominant": [
+        "obsidian-black",
+        "gold-leaf"
+      ],
+      "secondary": [
+        "deep-brown",
+        "amber"
+      ],
+      "accent1": [
+        "ivory"
+      ],
+      "accent2": null,
+      "shadow": "pure-black",
+      "forbidden": [
+        "neon",
+        "fluorescent",
+        "daylight",
+        "pastel"
+      ],
+      "light_type": "multiple_candle_points",
+      "sd_fragment": "black and gold palette, candlelit, ceremonial lighting",
+      "mood": "ceremonial_heavy_sacred",
+      "family": "legacy_3slot",
+      "legacy_3slot": true,
+      "source": "ONTOLOGY.yaml (THREAD 2.0 reuse)"
+    },
+    {
+      "id": "P07_FROST_LAVENDER",
+      "name": "Frost Lavender",
+      "dominant": [
+        "ice-blue",
+        "frost-white"
+      ],
+      "secondary": [
+        "lavender",
+        "soft-violet"
+      ],
+      "accent1": [
+        "pale-rose"
+      ],
+      "accent2": null,
+      "shadow": "deep-violet",
+      "forbidden": [
+        "warm-candlelight",
+        "orange-fire",
+        "golden-hour",
+        "bright-red"
+      ],
+      "light_type": "moonlight_soft_diffuse",
+      "sd_fragment": "silver and lavender, moonlit, soft cool tones, ethereal",
+      "mood": "dreamy_melancholic_intimate",
+      "family": "legacy_3slot",
+      "legacy_3slot": true,
+      "source": "ONTOLOGY.yaml (THREAD 2.0 reuse)"
+    },
+    {
+      "id": "P08_MIDNIGHT_BLUE",
+      "name": "Midnight Blue",
+      "dominant": [
+        "midnight-blue",
+        "indigo"
+      ],
+      "secondary": [
+        "silver",
+        "starlight-white"
+      ],
+      "accent1": [
+        "warm-amber"
+      ],
+      "accent2": null,
+      "shadow": "near-black-indigo",
+      "forbidden": [
+        "neon",
+        "fluorescent",
+        "warm-candlelight",
+        "bright-red"
+      ],
+      "light_type": "starlight_moon_reflection_soft_bioluminescent",
+      "sd_fragment": "midnight blue palette, starlight, deep blue tones, cool atmosphere",
+      "mood": "vast_contemplative_deep",
+      "family": "legacy_3slot",
+      "legacy_3slot": true,
+      "source": "ONTOLOGY.yaml (THREAD 2.0 reuse)"
+    },
+    {
+      "id": "P09_CANDLE_AMBER",
+      "name": "Candle Amber",
+      "dominant": [
+        "warm-amber",
+        "candle-gold"
+      ],
+      "secondary": [
+        "deep-brown",
+        "mahogany"
+      ],
+      "accent1": [
+        "ivory-skin"
+      ],
+      "accent2": null,
+      "shadow": "deep-brown-near-black-warm",
+      "forbidden": [
+        "neon",
+        "fluorescent",
+        "daylight",
+        "blue-light"
+      ],
+      "light_type": "multiple_candle_flickering_chiaroscuro",
+      "sd_fragment": "candlelit, warm amber lighting, chiaroscuro, intimate atmosphere",
+      "mood": "intimate_sacramental_sensual",
+      "family": "legacy_3slot",
+      "legacy_3slot": true,
+      "source": "ONTOLOGY.yaml (THREAD 2.0 reuse)"
+    },
+    {
+      "id": "P10_ARCTIC_WHITE",
+      "name": "Arctic White",
+      "dominant": [
+        "white",
+        "frost-pale",
+        "ice-blue"
+      ],
+      "secondary": [
+        "pale-silver",
+        "frost-grey"
+      ],
+      "accent1": [
+        "amber",
+        "rose"
+      ],
+      "accent2": null,
+      "shadow": "blue-violet",
+      "forbidden": [
+        "neon",
+        "warm-candlelight",
+        "saturated-warm",
+        "bright-red"
+      ],
+      "light_type": "flat_overcast_diffuse_snow_reflection",
+      "sd_fragment": "arctic palette, white and blue, frost, cold beauty, diffused light",
+      "mood": "pure_fragile_cold_beauty",
+      "family": "legacy_3slot",
+      "legacy_3slot": true,
+      "source": "ONTOLOGY.yaml (THREAD 2.0 reuse)"
+    },
+    {
+      "id": "P11_OCEAN_DEEP",
+      "name": "Ocean Deep",
+      "dominant": [
+        "deep-teal",
+        "ocean-blue"
+      ],
+      "secondary": [
+        "coral-pink",
+        "seafoam"
+      ],
+      "accent1": [
+        "gold-sand"
+      ],
+      "accent2": null,
+      "shadow": "abyssal-black-blue",
+      "forbidden": [
+        "neon",
+        "firelight",
+        "warm-candlelight",
+        "concrete-grey"
+      ],
+      "light_type": "underwater_caustics_dappled_refracted",
+      "sd_fragment": "ocean palette, underwater lighting, teal and coral, caustics",
+      "mood": "submerged_otherworldly_fluid",
+      "family": "legacy_3slot",
+      "legacy_3slot": true,
+      "source": "ONTOLOGY.yaml (THREAD 2.0 reuse)"
+    },
+    {
+      "id": "P12_AUTUMN_RUST",
+      "name": "Autumn Rust",
+      "dominant": [
+        "rust",
+        "burnt-orange",
+        "copper"
+      ],
+      "secondary": [
+        "dark-green",
+        "olive"
+      ],
+      "accent1": [
+        "pale-gold",
+        "ivory"
+      ],
+      "accent2": null,
+      "shadow": "deep-brown-dark-green",
+      "forbidden": [
+        "neon",
+        "fluorescent",
+        "ice-blue",
+        "cool-grey"
+      ],
+      "light_type": "warm_afternoon_golden_leaves_filter",
+      "sd_fragment": "autumn palette, rust and copper, warm afternoon light",
+      "mood": "nostalgic_rich_decay_beauty",
+      "family": "legacy_3slot",
+      "legacy_3slot": true,
+      "source": "ONTOLOGY.yaml (THREAD 2.0 reuse)"
+    },
+    {
+      "id": "P13_ASH_VIOLET",
+      "name": "Ash Violet",
+      "dominant": [
+        "ash-grey",
+        "charcoal-violet"
+      ],
+      "secondary": [
+        "deep-purple",
+        "plum"
+      ],
+      "accent1": [
+        "pale-silver",
+        "white"
+      ],
+      "accent2": null,
+      "shadow": "near-black-violet",
+      "forbidden": [
+        "neon",
+        "bright-warm",
+        "golden-hour",
+        "saturated-red"
+      ],
+      "light_type": "overcast_muted_soft_diffuse",
+      "sd_fragment": "ash violet palette, muted tones, overcast lighting, melancholic",
+      "mood": "melancholic_introspective_haunting",
+      "family": "legacy_3slot",
+      "legacy_3slot": true,
+      "source": "ONTOLOGY.yaml (THREAD 2.0 reuse)"
+    },
+    {
+      "id": "P14_ROSE_GOLD",
+      "name": "Rose Gold",
+      "dominant": [
+        "rose-pink",
+        "soft-gold"
+      ],
+      "secondary": [
+        "cream",
+        "blush"
+      ],
+      "accent1": [
+        "deep-burgundy"
+      ],
+      "accent2": null,
+      "shadow": "warm-burgundy",
+      "forbidden": [
+        "neon",
+        "fluorescent",
+        "cold-blue",
+        "harsh-white"
+      ],
+      "light_type": "warm_soft_boudoir_rose_tinted",
+      "sd_fragment": "rose gold palette, soft warm lighting, boudoir, romantic",
+      "mood": "romantic_luxurious_feminine",
+      "family": "legacy_3slot",
+      "legacy_3slot": true,
+      "source": "ONTOLOGY.yaml (THREAD 2.0 reuse)"
+    },
+    {
+      "id": "P15_INDUSTRIAL_STEEL",
+      "name": "Industrial Steel",
+      "dominant": [
+        "steel-grey",
+        "gunmetal"
+      ],
+      "secondary": [
+        "rust-orange",
+        "copper"
+      ],
+      "accent1": [
+        "electric-blue"
+      ],
+      "accent2": null,
+      "shadow": "black_cold",
+      "forbidden": [
+        "pastel",
+        "warm-candlelight",
+        "rose",
+        "soft-pink"
+      ],
+      "light_type": "harsh_industrial_single_overhead_metal_reflection",
+      "sd_fragment": "industrial palette, steel grey, harsh lighting, metal surfaces",
+      "mood": "raw_mechanical_contrast",
+      "family": "legacy_3slot",
+      "legacy_3slot": true,
+      "source": "ONTOLOGY.yaml (THREAD 2.0 reuse)"
+    },
+    {
+      "id": "P16_ORCHID_SHADOW",
+      "name": "Orchid Shadow",
+      "dominant": [
+        "deep-orchid",
+        "dark-magenta"
+      ],
+      "secondary": [
+        "black",
+        "deep-violet"
+      ],
+      "accent1": [
+        "pale-lavender",
+        "white"
+      ],
+      "accent2": null,
+      "shadow": "pure-black",
+      "forbidden": [
+        "neon",
+        "daylight",
+        "warm-amber",
+        "bright-yellow"
+      ],
+      "light_type": "low_key_selective_orchid_tinted",
+      "sd_fragment": "orchid palette, dark magenta, low key lighting, sensual",
+      "mood": "opulent_mysterious_sensual_dark",
+      "family": "legacy_3slot",
+      "legacy_3slot": true,
+      "source": "ONTOLOGY.yaml (THREAD 2.0 reuse)"
+    },
+    {
+      "id": "P17_DESERT_BLEACH",
+      "name": "Desert Bleach",
+      "dominant": [
+        "bleached-white",
+        "sand-pale"
+      ],
+      "secondary": [
+        "terracotta",
+        "burnt-sienna"
+      ],
+      "accent1": [
+        "blue-sky"
+      ],
+      "accent2": null,
+      "shadow": "warm-shadow-short-hard",
+      "forbidden": [
+        "neon",
+        "cool-blue-light",
+        "fluorescent",
+        "deep-purple"
+      ],
+      "light_type": "harsh_sun_bleached_overexposed_warm_heat_haze",
+      "sd_fragment": "desert palette, bleached white, harsh sunlight, heat haze",
+      "mood": "stark_beautiful_harsh_mirage",
+      "family": "legacy_3slot",
+      "legacy_3slot": true,
+      "source": "ONTOLOGY.yaml (THREAD 2.0 reuse)"
+    },
+    {
+      "id": "P18_EARTH_WARM",
+      "name": "Earth Warm",
+      "dominant": [
+        "terracotta",
+        "umber",
+        "sienna"
+      ],
+      "secondary": [
+        "olive",
+        "warm-brown"
+      ],
+      "accent1": [
+        "ivory",
+        "pale-gold"
+      ],
+      "accent2": null,
+      "shadow": "deep-umber",
+      "forbidden": [
+        "neon",
+        "cool-blue",
+        "fluorescent",
+        "ice-white"
+      ],
+      "light_type": "warm_daylight_earthy_natural",
+      "sd_fragment": "earth tones, warm palette, terracotta, natural lighting",
+      "mood": "grounded_primal_tactile",
+      "family": "legacy_3slot",
+      "legacy_3slot": true,
+      "source": "ONTOLOGY.yaml (THREAD 2.0 reuse)"
+    },
+    {
+      "id": "P19_CINDER_SKY",
+      "name": "Cinder Sky",
+      "dominant": [
+        "smoke-grey",
+        "charcoal"
+      ],
+      "secondary": [
+        "ash-pale",
+        "ember-orange"
+      ],
+      "accent1": [
+        "dawn-pink"
+      ],
+      "accent2": null,
+      "shadow": "deep-charcoal",
+      "forbidden": [
+        "neon",
+        "pure-white",
+        "saturated-green",
+        "fluorescent"
+      ],
+      "light_type": "overcast_breaking_dawn_light",
+      "sd_fragment": "cinder sky palette, smoke and dawn pink, breaking overcast light",
+      "mood": "after_storm_recovery_hope",
+      "family": "legacy_3slot",
+      "legacy_3slot": true,
+      "source": "ONTOLOGY.yaml (THREAD 2.0 reuse)"
+    },
+    {
+      "id": "P20_VOID_PRISM",
+      "name": "Void Prism",
+      "dominant": [
+        "absolute-black"
+      ],
+      "secondary": [
+        "prism-spectrum-edge"
+      ],
+      "accent1": [
+        "single-rainbow-edge"
+      ],
+      "accent2": null,
+      "shadow": "absolute-black",
+      "forbidden": [
+        "neon-flat",
+        "warm-candlelight",
+        "earth-tones",
+        "pastel"
+      ],
+      "light_type": "single_prism_source_spectrum_split",
+      "sd_fragment": "void prism palette, absolute black, single rainbow edge, minimal",
+      "mood": "cosmic_minimal_abstract",
+      "family": "legacy_3slot",
+      "legacy_3slot": true,
+      "source": "ONTOLOGY.yaml (THREAD 2.0 reuse)"
+    },
+    {
+      "id": "P21_VOID_BLACK",
+      "name": "Void Black",
+      "dominant": [
+        "absolute-black",
+        "deep-charcoal"
+      ],
+      "secondary": [
+        "obsidian-reflection",
+        "oil-sheen"
+      ],
+      "accent1": [
+        "ivory-bone",
+        "the-only-light"
+      ],
+      "accent2": [
+        "cold-blue-edge",
+        "distant-starlight"
+      ],
+      "shadow": "pure-black",
+      "forbidden": [
+        "warm-tones",
+        "saturated-reds",
+        "gold",
+        "neon",
+        "fluorescent"
+      ],
+      "light_type": "rim_only_off_frame",
+      "sd_fragment": "absolute black backdrop, single ivory edge of light, deep void with cold rim, oil-sheen highlights",
+      "mood": "void_emergence_isolation",
+      "family": "NIGREDO",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P22_VOID_INDIGO",
+      "name": "Void Indigo",
+      "dominant": [
+        "midnight-indigo",
+        "deep-violet-blue"
+      ],
+      "secondary": [
+        "navy-deep",
+        "ink-shadow"
+      ],
+      "accent1": [
+        "silver-thread",
+        "moonlight-edge"
+      ],
+      "accent2": [
+        "pale-cyan",
+        "distant-aurora-glow"
+      ],
+      "shadow": "deep-indigo-black",
+      "forbidden": [
+        "warm-golds",
+        "fire-orange",
+        "neon",
+        "saturated-red",
+        "hot-pink"
+      ],
+      "light_type": "bioluminescent_distant",
+      "sd_fragment": "midnight indigo void with silver-thread highlights, distant pale-cyan aurora glow, deep navy shadows",
+      "mood": "contemplative_vast_medieval_void",
+      "family": "NIGREDO",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P23_VOID_VIOLET",
+      "name": "Void Violet",
+      "dominant": [
+        "deep-violet",
+        "royal-purple-shadow"
+      ],
+      "secondary": [
+        "amethyst-deep",
+        "lavender-shadow"
+      ],
+      "accent1": [
+        "gold-filigree",
+        "ceremonial-gold"
+      ],
+      "accent2": [
+        "ivory-bone",
+        "lace-white"
+      ],
+      "shadow": "violet-black",
+      "forbidden": [
+        "pure-black",
+        "fire-red",
+        "neon",
+        "hot-pink",
+        "fluorescent",
+        "saturated-yellow"
+      ],
+      "light_type": "candlelight_off_frame_warm",
+      "sd_fragment": "deep violet royal shadow with gold-filigree highlights, ivory-bone accents, ceremonial violet-black depth",
+      "mood": "ritualistic_imperial_void",
+      "family": "NIGREDO",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P24_VOID_MIDNIGHT",
+      "name": "Void Midnight",
+      "dominant": [
+        "midnight-blue",
+        "deep-cobalt-shadow"
+      ],
+      "secondary": [
+        "prussian-blue",
+        "ink-blue"
+      ],
+      "accent1": [
+        "steel-silver",
+        "cold-moon"
+      ],
+      "accent2": [
+        "pale-lavender",
+        "dawn-edge-cool"
+      ],
+      "shadow": "blue-black",
+      "forbidden": [
+        "warm-ambers",
+        "golden-glow",
+        "neon",
+        "fire",
+        "hot-pink"
+      ],
+      "light_type": "cold_moonlight_off_frame",
+      "sd_fragment": "midnight-blue void with cold-steel moonlight highlights, pale-lavender dawn-edge, deep prussian-blue shadow",
+      "mood": "cold_vast_aquatic_void",
+      "family": "NIGREDO",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P25_VOID_ABYSS",
+      "name": "Void Abyss",
+      "dominant": [
+        "abyss-teal",
+        "deepest-teal-black"
+      ],
+      "secondary": [
+        "deep-sea-green",
+        "kelp-shadow"
+      ],
+      "accent1": [
+        "bioluminescent-cyan",
+        "deep-sea-glow"
+      ],
+      "accent2": [
+        "pale-coral-pink",
+        "anomaly-color"
+      ],
+      "shadow": "abyssal-black",
+      "forbidden": [
+        "warm-ambers",
+        "gold",
+        "fire",
+        "neon",
+        "fluorescent",
+        "saturated-yellow"
+      ],
+      "light_type": "bioluminescent_self_emitting",
+      "sd_fragment": "abyss-teal void with bioluminescent cyan glow, deep-sea-green kelp-shadow, single coral-pink anomaly accent",
+      "mood": "deep_sea_void_breathless",
+      "family": "NIGREDO",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P26_VOID_ECLIPSE",
+      "name": "Void Eclipse",
+      "dominant": [
+        "eclipse-black",
+        "sun-corona-ring"
+      ],
+      "secondary": [
+        "deep-violet",
+        "eclipse-shadow"
+      ],
+      "accent1": [
+        "white-hot-corona",
+        "eclipse-ring-light"
+      ],
+      "accent2": [
+        "pale-gold-edge",
+        "corona-spill"
+      ],
+      "shadow": "corona-black",
+      "forbidden": [
+        "saturated-greens",
+        "neon",
+        "fluorescent",
+        "hot-pink",
+        "saturated-cyan"
+      ],
+      "light_type": "eclipse_corona_ring",
+      "sd_fragment": "eclipse-black backdrop with white-hot corona ring, deep-violet shadow, pale-gold corona-spill edge",
+      "mood": "celestial_eclipse_imminent",
+      "family": "NIGREDO",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P27_VOID_STARLIGHT",
+      "name": "Void Starlight",
+      "dominant": [
+        "deep-space-black",
+        "cosmic-indigo"
+      ],
+      "secondary": [
+        "stardust-violet",
+        "nebula-soft"
+      ],
+      "accent1": [
+        "white-star-pinpoint",
+        "single-star-light"
+      ],
+      "accent2": [
+        "pale-gold-dust",
+        "cosmic-shimmer"
+      ],
+      "shadow": "cosmic-black",
+      "forbidden": [
+        "fire-warm",
+        "neon-pure",
+        "hot-pink",
+        "saturated-cyan",
+        "fluorescent"
+      ],
+      "light_type": "starlight_pinpoint",
+      "sd_fragment": "deep-space-black void with single white-star pinpoint light, stardust-violet nebula softness, pale-gold cosmic-shimmer dust",
+      "mood": "cosmic_void_solitude",
+      "family": "NIGREDO",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P28_VOID_BONE",
+      "name": "Void Bone",
+      "dominant": [
+        "bone-white",
+        "ivory-pale"
+      ],
+      "secondary": [
+        "alabaster",
+        "marble-cold"
+      ],
+      "accent1": [
+        "black-shadow-ink",
+        "single-dark-line"
+      ],
+      "accent2": [
+        "dusty-rose-faint",
+        "the-only-warmth"
+      ],
+      "shadow": "pale-grey-shadow",
+      "forbidden": [
+        "saturated-red",
+        "neon",
+        "fire",
+        "hot-pink",
+        "fluorescent",
+        "gold-bright"
+      ],
+      "light_type": "bone-pale_diffuse",
+      "sd_fragment": "bone-white void with alabaster-marble secondary, single black-shadow-ink line accent, faint dusty-rose warmth",
+      "mood": "bone_void_purification",
+      "family": "ALBEDO",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P29_VOID_FOG",
+      "name": "Void Fog",
+      "dominant": [
+        "pale-fog",
+        "mist-white"
+      ],
+      "secondary": [
+        "cool-grey",
+        "slate-mist"
+      ],
+      "accent1": [
+        "silver-edge",
+        "fog-rim"
+      ],
+      "accent2": [
+        "pale-blue-cool",
+        "fog-shadow-cool"
+      ],
+      "shadow": "deep-mist-grey",
+      "forbidden": [
+        "warm-golds",
+        "fire",
+        "neon",
+        "hot-pink",
+        "saturated-red",
+        "fluorescent"
+      ],
+      "light_type": "fog_diffuse_cool",
+      "sd_fragment": "pale-fog void with cool-grey slate-mist secondary, silver-edge rim, pale-blue-cool fog-shadow",
+      "mood": "fog_void_dissolution",
+      "family": "ALBEDO",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P30_VOID_SMOKE",
+      "name": "Void Smoke",
+      "dominant": [
+        "smoke-grey",
+        "ash-white-warm"
+      ],
+      "secondary": [
+        "charcoal-pale",
+        "smoke-shadow"
+      ],
+      "accent1": [
+        "ember-faint-glow",
+        "dying-warmth"
+      ],
+      "accent2": [
+        "pale-ivory",
+        "smoke-edge"
+      ],
+      "shadow": "smoke-deep-charcoal",
+      "forbidden": [
+        "bright-gold",
+        "neon",
+        "fluorescent",
+        "hot-pink",
+        "saturated-cyan",
+        "fire-orange"
+      ],
+      "light_type": "ember_glow_off_frame",
+      "sd_fragment": "smoke-grey void with ash-white-warm secondary, ember-faint-glow dying warmth, pale-ivory smoke-edge",
+      "mood": "smoke_void_aftermath",
+      "family": "ALBEDO",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P31_VOID_ASH",
+      "name": "Void Ash",
+      "dominant": [
+        "ash-grey-pale",
+        "volcanic-ash"
+      ],
+      "secondary": [
+        "concrete-grey",
+        "slate-ash"
+      ],
+      "accent1": [
+        "ember-orange-dying",
+        "last-fire"
+      ],
+      "accent2": [
+        "bone-white",
+        "ash-edge"
+      ],
+      "shadow": "ash-deep-shadow",
+      "forbidden": [
+        "bright-gold",
+        "neon",
+        "fluorescent",
+        "hot-pink",
+        "saturated-cyan",
+        "blue-cold"
+      ],
+      "light_type": "ember_aftermath_off_frame",
+      "sd_fragment": "ash-grey-pale void with concrete-grey secondary, ember-orange-dying accent, bone-white ash-edge",
+      "mood": "ash_void_post_burn",
+      "family": "ALBEDO",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P32_VOID_ICE",
+      "name": "Void Ice",
+      "dominant": [
+        "ice-pale",
+        "glacier-white"
+      ],
+      "secondary": [
+        "frost-blue",
+        "cold-cyan-pale"
+      ],
+      "accent1": [
+        "silver-frost",
+        "ice-crystal-light"
+      ],
+      "accent2": [
+        "pale-violet-cold",
+        "twilight-cool"
+      ],
+      "shadow": "ice-deep-blue",
+      "forbidden": [
+        "warm-golds",
+        "fire-orange",
+        "neon-warm",
+        "hot-pink",
+        "saturated-red",
+        "fluorescent"
+      ],
+      "light_type": "ice_diffuse_cold",
+      "sd_fragment": "ice-pale void with frost-blue secondary, silver-frost crystal light, pale-violet-cold twilight",
+      "mood": "ice_void_frozen",
+      "family": "ALBEDO",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P33_VOID_PRISM",
+      "name": "Void Prism",
+      "dominant": [
+        "deep-prism-blue",
+        "glass-black"
+      ],
+      "secondary": [
+        "prism-violet",
+        "glass-purple"
+      ],
+      "accent1": [
+        "prism-rainbow-split",
+        "spectrum-edge"
+      ],
+      "accent2": [
+        "pale-gold-refraction",
+        "prism-light"
+      ],
+      "shadow": "prism-deep-violet",
+      "forbidden": [
+        "muddy-tones",
+        "desaturated-greys",
+        "flat-warm",
+        "hot-pink-neon"
+      ],
+      "light_type": "prism_split_refractive",
+      "sd_fragment": "deep-prism-blue void with prism-rainbow-split spectrum-edge, pale-gold refraction accent, glass-purple secondary",
+      "mood": "prism_void_refractive",
+      "family": "ALBEDO",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P34_VOID_AURORA",
+      "name": "Void Aurora",
+      "dominant": [
+        "night-sky-deep",
+        "aurora-backdrop"
+      ],
+      "secondary": [
+        "aurora-teal",
+        "aurora-violet"
+      ],
+      "accent1": [
+        "aurora-green-light",
+        "northern-glow"
+      ],
+      "accent2": [
+        "pale-pink-aurora",
+        "dawn-edge-cool"
+      ],
+      "shadow": "aurora-shadow-deep",
+      "forbidden": [
+        "fire-warm",
+        "hot-pink",
+        "fluorescent",
+        "saturated-yellow",
+        "neon-pure"
+      ],
+      "light_type": "aurora_atmospheric",
+      "sd_fragment": "night-sky-deep void with aurora-teal and aurora-violet secondary, aurora-green-light accent, pale-pink-aurora dawn-edge",
+      "mood": "aurora_void_imminent",
+      "family": "ALBEDO",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P35_VOID_EMBER",
+      "name": "Void Ember",
+      "dominant": [
+        "ember-deep-red",
+        "dying-fire-red"
+      ],
+      "secondary": [
+        "charcoal-black",
+        "ember-shadow"
+      ],
+      "accent1": [
+        "ember-orange-glow",
+        "last-warmth"
+      ],
+      "accent2": [
+        "ash-pale",
+        "ember-edge"
+      ],
+      "shadow": "ember-black-red",
+      "forbidden": [
+        "saturated-cyan",
+        "fluorescent",
+        "neon-blue",
+        "hot-pink",
+        "pure-white"
+      ],
+      "light_type": "ember_glow_off_frame_warm",
+      "sd_fragment": "ember-deep-red void with charcoal-black shadow, ember-orange-glow last warmth, ash-pale edge",
+      "mood": "ember_void_dying",
+      "family": "RUBEDO",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P36_VOID_RUST",
+      "name": "Void Rust",
+      "dominant": [
+        "rust-deep",
+        "oxidized-iron-red"
+      ],
+      "secondary": [
+        "patina-green-faint",
+        "rust-shadow"
+      ],
+      "accent1": [
+        "copper-edge",
+        "metal-warmth"
+      ],
+      "accent2": [
+        "ivory-bone-pale",
+        "rust-rim"
+      ],
+      "shadow": "rust-deep-black",
+      "forbidden": [
+        "saturated-cyan",
+        "fluorescent",
+        "neon",
+        "hot-pink",
+        "pure-white"
+      ],
+      "light_type": "rust_diffuse_warm",
+      "sd_fragment": "rust-deep void with patina-green-faint secondary, copper-edge metal warmth, ivory-bone-pale rim",
+      "mood": "rust_void_decay",
+      "family": "RUBEDO",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P37_BLOOD_MOON",
+      "name": "Blood Moon",
+      "dominant": [
+        "blood-moon-red",
+        "deep-crimson"
+      ],
+      "secondary": [
+        "shadow-crimson",
+        "blood-shadow"
+      ],
+      "accent1": [
+        "ivory-bone",
+        "the-only-light"
+      ],
+      "accent2": [
+        "pale-gold-faint",
+        "blood-edge"
+      ],
+      "shadow": "blood-deep-black-red",
+      "forbidden": [
+        "saturated-cyan",
+        "fluorescent",
+        "neon-cyan",
+        "hot-pink",
+        "pure-white"
+      ],
+      "light_type": "blood_moon_off_frame",
+      "sd_fragment": "blood-moon-red void with shadow-crimson secondary, ivory-bone single light, pale-gold-faint blood-edge",
+      "mood": "blood_void_imminent",
+      "family": "RUBEDO",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P38_VOID_BLOOD_ACCENT",
+      "name": "Void Blood Accent",
+      "dominant": [
+        "absolute-black",
+        "void-deep"
+      ],
+      "secondary": [
+        "charcoal-deep",
+        "void-shadow"
+      ],
+      "accent1": [
+        "blood-red-single",
+        "the-only-color"
+      ],
+      "accent2": [
+        "ivory-bone",
+        "the-only-light"
+      ],
+      "shadow": "void-black",
+      "forbidden": [
+        "saturated-greens",
+        "neon",
+        "fluorescent",
+        "hot-pink",
+        "gold-bright"
+      ],
+      "light_type": "monochrome_plus_blood",
+      "sd_fragment": "absolute-black void with single blood-red accent, ivory-bone single light, charcoal-deep shadow",
+      "mood": "blood_accent_void_solitary",
+      "family": "RUBEDO",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P39_VOID_INFRARED",
+      "name": "Void Infrared",
+      "dominant": [
+        "infrared-deep-red",
+        "heat-map-red"
+      ],
+      "secondary": [
+        "thermal-orange",
+        "infrared-shadow"
+      ],
+      "accent1": [
+        "cool-blue-thermal",
+        "the-cool-edge"
+      ],
+      "accent2": [
+        "pale-yellow-hot",
+        "the-hottest-point"
+      ],
+      "shadow": "infrared-deep-black",
+      "forbidden": [
+        "saturated-greens",
+        "neon",
+        "fluorescent",
+        "hot-pink",
+        "pure-white-cold"
+      ],
+      "light_type": "infrared_thermal",
+      "sd_fragment": "infrared-deep-red void with thermal-orange secondary, cool-blue-thermal accent, pale-yellow-hot hottest point",
+      "mood": "thermal_void_visible",
+      "family": "RUBEDO",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P40_VOID_MONOCHROME_RED",
+      "name": "Void Monochrome Red",
+      "dominant": [
+        "monochrome-red-deep",
+        "single-hue-red"
+      ],
+      "secondary": [
+        "red-shadow",
+        "red-mid"
+      ],
+      "accent1": [
+        "ivory-bone",
+        "the-only-non-red"
+      ],
+      "accent2": [
+        "pale-pink-faint",
+        "red-edge"
+      ],
+      "shadow": "monochrome-red-black",
+      "forbidden": [
+        "saturated-cyan",
+        "fluorescent",
+        "neon-blue",
+        "hot-pink",
+        "pure-white"
+      ],
+      "light_type": "monochrome_red_diffuse",
+      "sd_fragment": "monochrome-red-deep void with red-shadow secondary, ivory-bone single non-red accent, pale-pink-faint red-edge",
+      "mood": "monochrome_red_void_obsession",
+      "family": "RUBEDO",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P41_SUNSET_DRIFT",
+      "name": "Sunset Drift",
+      "dominant": [
+        "sunset-orange",
+        "coral-warm"
+      ],
+      "secondary": [
+        "pink-rose",
+        "dusty-rose"
+      ],
+      "accent1": [
+        "cool-blue-distant",
+        "the-cool-edge"
+      ],
+      "accent2": [
+        "pale-gold-dust",
+        "sunset-glow"
+      ],
+      "shadow": "sunset-purple-deep",
+      "forbidden": [
+        "neon",
+        "fluorescent",
+        "saturated-cyan-bright",
+        "hot-pink"
+      ],
+      "light_type": "sunset_warm_low",
+      "sd_fragment": "sunset-orange coral-warm with pink-rose dusty-rose secondary, cool-blue-distant accent, pale-gold-dust glow",
+      "mood": "nostalgic_drift_warm",
+      "family": "RAINBOW / SPECTRUM",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P42_PRE_DAWN_STILL",
+      "name": "Pre-Dawn Still",
+      "dominant": [
+        "pre-dawn-blue",
+        "indigo-morning"
+      ],
+      "secondary": [
+        "dawn-edge-pale",
+        "ivory-edge"
+      ],
+      "accent1": [
+        "warm-amber-faint",
+        "first-light"
+      ],
+      "accent2": [
+        "pale-rose-cool",
+        "dawn-cool"
+      ],
+      "shadow": "pre-dawn-deep-indigo",
+      "forbidden": [
+        "bright-gold",
+        "neon",
+        "fluorescent",
+        "hot-pink",
+        "saturated-cyan"
+      ],
+      "light_type": "pre_dawn_diffuse",
+      "sd_fragment": "pre-dawn-blue indigo-morning with dawn-edge-pale secondary, warm-amber-faint first-light, pale-rose-cool dawn",
+      "mood": "pre_dawn_still_expectant",
+      "family": "RAINBOW / SPECTRUM",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P43_OCEAN_DEEP_PRISM",
+      "name": "Ocean Deep Prism",
+      "dominant": [
+        "ocean-deep-teal",
+        "abyssal-blue"
+      ],
+      "secondary": [
+        "kelp-shadow-green",
+        "deep-sea-shadow"
+      ],
+      "accent1": [
+        "bioluminescent-cyan",
+        "prism-water-light"
+      ],
+      "accent2": [
+        "pale-coral-anomaly",
+        "the-only-warmth"
+      ],
+      "shadow": "abyssal-black",
+      "forbidden": [
+        "warm-golds",
+        "fire",
+        "neon",
+        "hot-pink",
+        "fluorescent"
+      ],
+      "light_type": "bioluminescent_underwater",
+      "sd_fragment": "ocean-deep-teal abyssal-blue with kelp-shadow-green secondary, bioluminescent-cyan prism-water light, pale-coral-anomaly warmth",
+      "mood": "ocean_prism_deep_breathless",
+      "family": "RAINBOW / SPECTRUM",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P44_DESERT_NIGHT",
+      "name": "Desert Night",
+      "dominant": [
+        "desert-night-indigo",
+        "dune-shadow"
+      ],
+      "secondary": [
+        "sand-pale-moonlit",
+        "cool-sand"
+      ],
+      "accent1": [
+        "pale-gold-moon",
+        "the-only-warmth"
+      ],
+      "accent2": [
+        "pale-violet-distant",
+        "night-cool"
+      ],
+      "shadow": "desert-deep-shadow",
+      "forbidden": [
+        "saturated-cyan",
+        "fluorescent",
+        "neon",
+        "hot-pink",
+        "fire-orange"
+      ],
+      "light_type": "moon_desert_diffuse",
+      "sd_fragment": "desert-night-indigo dune-shadow with sand-pale-moonlit secondary, pale-gold-moon warmth, pale-violet-distant cool",
+      "mood": "desert_night_solitude",
+      "family": "RAINBOW / SPECTRUM",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P45_FOREST_MIST_DAWN",
+      "name": "Forest Mist Dawn",
+      "dominant": [
+        "forest-mist-pale",
+        "dawn-green-cool"
+      ],
+      "secondary": [
+        "moss-shadow",
+        "forest-deep"
+      ],
+      "accent1": [
+        "gold-light-shaft",
+        "the-only-warmth"
+      ],
+      "accent2": [
+        "pale-ivory-edge",
+        "mist-rim"
+      ],
+      "shadow": "forest-deep-shadow",
+      "forbidden": [
+        "saturated-cyan",
+        "fluorescent",
+        "neon",
+        "hot-pink",
+        "fire-orange"
+      ],
+      "light_type": "forest_dawn_diffuse",
+      "sd_fragment": "forest-mist-pale dawn-green-cool with moss-shadow secondary, gold-light-shaft single warmth, pale-ivory-edge mist-rim",
+      "mood": "forest_mist_dawn_atmospheric",
+      "family": "RAINBOW / SPECTRUM",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P46_INK_WASH",
+      "name": "Ink Wash",
+      "dominant": [
+        "ink-wash-black",
+        "sumi-ink-deep"
+      ],
+      "secondary": [
+        "paper-ivory",
+        "washi-pale"
+      ],
+      "accent1": [
+        "single-stroke-vermilion",
+        "the-only-color"
+      ],
+      "accent2": [
+        "ink-shadow-mid",
+        "ink-wash-grey"
+      ],
+      "shadow": "ink-deep-black",
+      "forbidden": [
+        "saturated-cyan",
+        "fluorescent",
+        "neon",
+        "hot-pink",
+        "fire-orange"
+      ],
+      "light_type": "ink_wash_diffuse",
+      "sd_fragment": "ink-wash-black sumi-ink-deep with paper-ivory washi-pale secondary, single-stroke-vermilion accent, ink-shadow-mid grey",
+      "mood": "ink_wash_zen_void",
+      "family": "RAINBOW / SPECTRUM",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P47_PORCELAIN_LACQUER",
+      "name": "Porcelain Lacquer",
+      "dominant": [
+        "porcelain-ivory",
+        "lacquer-pale"
+      ],
+      "secondary": [
+        "lacquer-black-deep",
+        "lacquer-shadow"
+      ],
+      "accent1": [
+        "vermilion-lacquer",
+        "the-only-color"
+      ],
+      "accent2": [
+        "pale-gold-thread",
+        "the-only-warmth"
+      ],
+      "shadow": "porcelain-shadow-soft",
+      "forbidden": [
+        "saturated-cyan",
+        "fluorescent",
+        "neon",
+        "hot-pink",
+        "fire-orange"
+      ],
+      "light_type": "lacquer_polish_reflection",
+      "sd_fragment": "porcelain-ivory lacquer-pale with lacquer-black-deep secondary, vermilion-lacquer single color, pale-gold-thread warmth",
+      "mood": "porcelain_lacquer_formal",
+      "family": "RAINBOW / SPECTRUM",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P48_AURORA_SILK",
+      "name": "Aurora Silk",
+      "dominant": [
+        "aurora-teal-silk",
+        "shifting-green"
+      ],
+      "secondary": [
+        "aurora-violet-silk",
+        "shifting-violet"
+      ],
+      "accent1": [
+        "pale-gold-aurora",
+        "the-warm-edge"
+      ],
+      "accent2": [
+        "pale-pink-aurora",
+        "the-cool-edge"
+      ],
+      "shadow": "aurora-deep-shadow",
+      "forbidden": [
+        "saturated-fire",
+        "fluorescent",
+        "neon",
+        "hot-pink",
+        "pure-black"
+      ],
+      "light_type": "aurora_silk_shimmer",
+      "sd_fragment": "aurora-teal-silk shifting-green with aurora-violet-silk secondary, pale-gold-aurora warm edges, pale-pink-aurora cool edges",
+      "mood": "aurora_silk_liquid",
+      "family": "RAINBOW / SPECTRUM",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P49_CINNABAR_DREAM",
+      "name": "Cinnabar Dream",
+      "dominant": [
+        "cinnabar-deep-red",
+        "lacquer-red"
+      ],
+      "secondary": [
+        "jet-black-cinnabar",
+        "ink-shadow-deep"
+      ],
+      "accent1": [
+        "ivory-bone",
+        "the-only-light"
+      ],
+      "accent2": [
+        "pale-gold-cinnabar",
+        "the-warmth"
+      ],
+      "shadow": "cinnabar-black-deep",
+      "forbidden": [
+        "saturated-cyan",
+        "fluorescent",
+        "neon",
+        "hot-pink",
+        "saturated-blue"
+      ],
+      "light_type": "cinnabar_glow_off_frame",
+      "sd_fragment": "cinnabar-deep-red lacquer-red with jet-black-cinnabar secondary, ivory-bone single light, pale-gold-cinnabar warmth",
+      "mood": "cinnabar_dream_imperial",
+      "family": "RAINBOW / SPECTRUM",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P50_GLASS_AURORA",
+      "name": "Glass Aurora",
+      "dominant": [
+        "glass-clear-pale",
+        "refraction-edge"
+      ],
+      "secondary": [
+        "glass-violet-shadow",
+        "glass-deep"
+      ],
+      "accent1": [
+        "rainbow-refraction-edge",
+        "spectrum-light"
+      ],
+      "accent2": [
+        "pale-gold-glass",
+        "refraction-warmth"
+      ],
+      "shadow": "glass-deep-violet-shadow",
+      "forbidden": [
+        "opaque-tones",
+        "flat-colors",
+        "muddy-palette",
+        "hot-pink",
+        "fire-orange"
+      ],
+      "light_type": "glass_refraction_atmospheric",
+      "sd_fragment": "glass-clear-pale with glass-violet-shadow secondary, rainbow-refraction-edge spectrum-light, pale-gold-glass warmth",
+      "mood": "glass_aurora_ethereal",
+      "family": "RAINBOW / SPECTRUM",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P51_RAIN_STAINED_GLASS",
+      "name": "Rain Stained Glass",
+      "dominant": [
+        "cathedral-deep-blue",
+        "leaded-glass-shadow"
+      ],
+      "secondary": [
+        "stained-glass-crimson",
+        "cathedral-red-deep"
+      ],
+      "accent1": [
+        "gold-lead-frame",
+        "the-only-warmth"
+      ],
+      "accent2": [
+        "pale-ivory-glass",
+        "glass-edge-light"
+      ],
+      "shadow": "cathedral-deep-shadow",
+      "forbidden": [
+        "saturated-cyan",
+        "fluorescent",
+        "neon",
+        "hot-pink",
+        "fire-orange"
+      ],
+      "light_type": "stained_glass_diffuse_rain",
+      "sd_fragment": "cathedral-deep-blue leaded-glass-shadow with stained-glass-crimson secondary, gold-lead-frame warmth, pale-ivory-glass edge",
+      "mood": "cathedral_rain_sacred",
+      "family": "HISTORICAL / ATMOSPHERIC",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P52_MEIJI_DUSK",
+      "name": "Meiji Dusk",
+      "dominant": [
+        "meiji-indigo-deep",
+        "paper-screen-shadow"
+      ],
+      "secondary": [
+        "washi-ivory",
+        "screen-pale"
+      ],
+      "accent1": [
+        "warm-amber-off-frame",
+        "the-only-warmth"
+      ],
+      "accent2": [
+        "pale-vermilion-thread",
+        "lacquer-edge"
+      ],
+      "shadow": "meiji-shadow-deep",
+      "forbidden": [
+        "saturated-cyan",
+        "fluorescent",
+        "neon",
+        "hot-pink",
+        "fire-orange"
+      ],
+      "light_type": "warm_amber_off_frame",
+      "sd_fragment": "meiji-indigo-deep paper-screen-shadow with washi-ivory secondary, warm-amber-off-frame warmth, pale-vermilion-thread edge",
+      "mood": "meiji_dusk_domestic",
+      "family": "HISTORICAL / ATMOSPHERIC",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P53_OPULENT_DECADENCE",
+      "name": "Opulent Decadence",
+      "dominant": [
+        "burgundy-deep",
+        "wine-shadow"
+      ],
+      "secondary": [
+        "gold-brocade",
+        "gold-thread-deep"
+      ],
+      "accent1": [
+        "ivory-silk",
+        "the-only-light"
+      ],
+      "accent2": [
+        "pale-emerald-thread",
+        "brocade-edge"
+      ],
+      "shadow": "burgundy-deep-shadow",
+      "forbidden": [
+        "saturated-cyan",
+        "fluorescent",
+        "neon",
+        "hot-pink",
+        "fire-orange"
+      ],
+      "light_type": "candlelit_off_frame_warm",
+      "sd_fragment": "burgundy-deep wine-shadow with gold-brocade secondary, ivory-silk light, pale-emerald-thread brocade-edge",
+      "mood": "opulent_decadence_ripe",
+      "family": "HISTORICAL / ATMOSPHERIC",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P54_ART_DECO_PLATINUM",
+      "name": "Art Deco Platinum",
+      "dominant": [
+        "platinum-silver",
+        "polished-metal"
+      ],
+      "secondary": [
+        "black-lacquer-deep",
+        "deco-shadow"
+      ],
+      "accent1": [
+        "ivory-bone-deco",
+        "the-only-warmth"
+      ],
+      "accent2": [
+        "pale-gold-geometric",
+        "deco-edge"
+      ],
+      "shadow": "deco-black-deep",
+      "forbidden": [
+        "saturated-cyan",
+        "fluorescent",
+        "neon",
+        "hot-pink",
+        "fire-orange",
+        "pure-warm"
+      ],
+      "light_type": "deco_polished_reflection",
+      "sd_fragment": "platinum-silver polished-metal with black-lacquer-deep secondary, ivory-bone-deco warmth, pale-gold-geometric edge",
+      "mood": "deco_formal_cold_elegant",
+      "family": "HISTORICAL / ATMOSPHERIC",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P55_SYMBIOTE_BIOLUMINESCENT",
+      "name": "Symbiote Bioluminescent",
+      "dominant": [
+        "obsidian-deep",
+        "symbiote-black"
+      ],
+      "secondary": [
+        "bioluminescent-purple-deep",
+        "glow-shadow"
+      ],
+      "accent1": [
+        "bioluminescent-cyan-self",
+        "self-glowing"
+      ],
+      "accent2": [
+        "pale-magenta-glow",
+        "the-only-warm-edge"
+      ],
+      "shadow": "symbiote-deep-black",
+      "forbidden": [
+        "saturated-fire-orange",
+        "fluorescent",
+        "neon-warm",
+        "hot-pink",
+        "pure-white"
+      ],
+      "light_type": "bioluminescent_self_emitting",
+      "sd_fragment": "obsidian-deep symbiote-black with bioluminescent-purple-deep secondary, bioluminescent-cyan-self glow, pale-magenta-glow warmth",
+      "mood": "symbiote_void_self_luminous",
+      "family": "HISTORICAL / ATMOSPHERIC",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P56_AURORA_BOREALIS_NIGHT",
+      "name": "Aurora Borealis Night",
+      "dominant": [
+        "arctic-night-deep",
+        "polar-indigo"
+      ],
+      "secondary": [
+        "aurora-teal-shift",
+        "northern-glow"
+      ],
+      "accent1": [
+        "pale-moon-silver",
+        "the-only-light"
+      ],
+      "accent2": [
+        "pale-violet-aurora",
+        "the-warm-edge"
+      ],
+      "shadow": "arctic-shadow-deep",
+      "forbidden": [
+        "fire-warm",
+        "hot-pink",
+        "fluorescent",
+        "saturated-yellow",
+        "neon"
+      ],
+      "light_type": "aurora_atmospheric_arctic",
+      "sd_fragment": "arctic-night-deep polar-indigo with aurora-teal-shift secondary, pale-moon-silver light, pale-violet-aurora warm-edge",
+      "mood": "arctic_void_immense",
+      "family": "HISTORICAL / ATMOSPHERIC",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P57_SUNSET_ON_WATER",
+      "name": "Sunset on Water",
+      "dominant": [
+        "sunset-orange-water",
+        "amber-water-warm"
+      ],
+      "secondary": [
+        "deep-water-shadow",
+        "water-indigo"
+      ],
+      "accent1": [
+        "pale-gold-reflection",
+        "the-light"
+      ],
+      "accent2": [
+        "pale-rose-cool-edge",
+        "the-cool-edge"
+      ],
+      "shadow": "water-deep-shadow",
+      "forbidden": [
+        "saturated-cyan",
+        "fluorescent",
+        "neon",
+        "hot-pink",
+        "fire-pure"
+      ],
+      "light_type": "sunset_water_reflection",
+      "sd_fragment": "sunset-orange-water amber-water-warm with deep-water-shadow secondary, pale-gold-reflection light, pale-rose-cool-edge accent",
+      "mood": "sunset_water_nostalgic",
+      "family": "HISTORICAL / ATMOSPHERIC",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P58_INDUSTRIAL_DUST",
+      "name": "Industrial Dust",
+      "dominant": [
+        "concrete-grey",
+        "dust-pale"
+      ],
+      "secondary": [
+        "rust-edge",
+        "industrial-orange-deep"
+      ],
+      "accent1": [
+        "pale-amber-warm",
+        "the-only-warmth"
+      ],
+      "accent2": [
+        "pale-steel-cool",
+        "the-cool-edge"
+      ],
+      "shadow": "industrial-shadow-deep",
+      "forbidden": [
+        "saturated-cyan",
+        "fluorescent",
+        "neon",
+        "hot-pink",
+        "fire-bright"
+      ],
+      "light_type": "industrial_dust_diffuse",
+      "sd_fragment": "concrete-grey dust-pale with rust-edge industrial-orange-deep secondary, pale-amber-warm accent, pale-steel-cool edge",
+      "mood": "industrial_decay_atmospheric",
+      "family": "HISTORICAL / ATMOSPHERIC",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P59_RAINY_WINDOW",
+      "name": "Rainy Window",
+      "dominant": [
+        "rain-grey",
+        "glass-rain-blue"
+      ],
+      "secondary": [
+        "wet-stone-shadow",
+        "slate-rain"
+      ],
+      "accent1": [
+        "pale-warm-window",
+        "the-only-warmth"
+      ],
+      "accent2": [
+        "pale-cool-edge",
+        "rain-light-cool"
+      ],
+      "shadow": "rain-deep-shadow",
+      "forbidden": [
+        "saturated-fire",
+        "fluorescent",
+        "neon",
+        "hot-pink",
+        "gold-bright"
+      ],
+      "light_type": "rain_diffuse_cool",
+      "sd_fragment": "rain-grey glass-rain-blue with wet-stone-shadow secondary, pale-warm-window warmth, pale-cool-edge rain-light",
+      "mood": "rainy_window_melancholic",
+      "family": "HISTORICAL / ATMOSPHERIC",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P60_FIRE_ASH",
+      "name": "Fire Ash",
+      "dominant": [
+        "fire-deep-orange",
+        "fire-warm-glow"
+      ],
+      "secondary": [
+        "ash-grey-warm",
+        "smoke-shadow"
+      ],
+      "accent1": [
+        "ember-orange-dying",
+        "the-only-warmth"
+      ],
+      "accent2": [
+        "pale-ivory-ash",
+        "ash-edge"
+      ],
+      "shadow": "fire-deep-black",
+      "forbidden": [
+        "saturated-cyan",
+        "fluorescent",
+        "neon-cyan",
+        "hot-pink",
+        "pure-cold-white"
+      ],
+      "light_type": "fire_off_frame_warm",
+      "sd_fragment": "fire-deep-orange fire-warm-glow with ash-grey-warm secondary, ember-orange-dying accent, pale-ivory-ash edge",
+      "mood": "fire_ash_aftermath",
+      "family": "HISTORICAL / ATMOSPHERIC",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P61_MONOCHROME_VIOLET",
+      "name": "Monochrome Violet",
+      "dominant": [
+        "monochrome-violet-deep",
+        "single-hue-violet"
+      ],
+      "secondary": [
+        "violet-shadow",
+        "violet-mid"
+      ],
+      "accent1": [
+        "ivory-bone",
+        "the-only-non-violet"
+      ],
+      "accent2": [
+        "pale-lavender-edge",
+        "violet-rim"
+      ],
+      "shadow": "monochrome-violet-black",
+      "forbidden": [
+        "saturated-cyan",
+        "fluorescent",
+        "neon",
+        "hot-pink",
+        "fire-orange"
+      ],
+      "light_type": "monochrome_violet_diffuse",
+      "sd_fragment": "monochrome-violet-deep single-hue-violet with violet-shadow secondary, ivory-bone single non-violet accent, pale-lavender-edge rim",
+      "mood": "monochrome_violet_obsessive",
+      "family": "RARE / EXPERIMENTAL",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P62_PLATINUM_VOID",
+      "name": "Platinum Void",
+      "dominant": [
+        "platinum-pale",
+        "polished-silver"
+      ],
+      "secondary": [
+        "platinum-shadow",
+        "cool-grey-deep"
+      ],
+      "accent1": [
+        "single-warm-amber",
+        "the-only-warmth"
+      ],
+      "accent2": [
+        "pale-blue-cool",
+        "the-cool-edge"
+      ],
+      "shadow": "platinum-deep-shadow",
+      "forbidden": [
+        "saturated-cyan",
+        "fluorescent",
+        "neon",
+        "hot-pink",
+        "fire-orange"
+      ],
+      "light_type": "platinum_polished_cool",
+      "sd_fragment": "platinum-pale polished-silver with platinum-shadow secondary, single-warm-amber accent, pale-blue-cool edge",
+      "mood": "platinum_void_cold_elegant",
+      "family": "RARE / EXPERIMENTAL",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P63_GLACIER_BREACH",
+      "name": "Glacier Breach",
+      "dominant": [
+        "glacier-pale-blue",
+        "ice-deep-blue"
+      ],
+      "secondary": [
+        "frost-shadow-deep",
+        "ice-shadow"
+      ],
+      "accent1": [
+        "pale-gold-warm",
+        "the-only-warmth"
+      ],
+      "accent2": [
+        "pale-cyan-edge",
+        "the-cool-edge"
+      ],
+      "shadow": "glacier-deep-shadow",
+      "forbidden": [
+        "fire-warm",
+        "hot-pink",
+        "fluorescent",
+        "saturated-yellow",
+        "neon-warm"
+      ],
+      "light_type": "glacier_diffuse_cold",
+      "sd_fragment": "glacier-pale-blue ice-deep-blue with frost-shadow-deep secondary, pale-gold-warm accent, pale-cyan-edge cool",
+      "mood": "glacier_breach_immense",
+      "family": "RARE / EXPERIMENTAL",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P64_SUNRISE_INDIGO",
+      "name": "Sunrise Indigo",
+      "dominant": [
+        "pre-dawn-indigo-deep",
+        "sky-deep"
+      ],
+      "secondary": [
+        "sunrise-amber-edge",
+        "first-warmth"
+      ],
+      "accent1": [
+        "pale-gold-sun",
+        "the-light"
+      ],
+      "accent2": [
+        "pale-violet-cool-edge",
+        "the-cool-edge"
+      ],
+      "shadow": "pre-dawn-deep-shadow",
+      "forbidden": [
+        "saturated-cyan",
+        "fluorescent",
+        "neon",
+        "hot-pink",
+        "fire-orange"
+      ],
+      "light_type": "sunrise_edge_warm",
+      "sd_fragment": "pre-dawn-indigo-deep sky-deep with sunrise-amber-edge secondary, pale-gold-sun light, pale-violet-cool-edge cool",
+      "mood": "sunrise_indigo_imminent",
+      "family": "RARE / EXPERIMENTAL",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P65_OBSIDIAN_TEAL",
+      "name": "Obsidian Teal",
+      "dominant": [
+        "obsidian-teal-deep",
+        "mineral-black"
+      ],
+      "secondary": [
+        "teal-shadow-deep",
+        "mineral-shadow"
+      ],
+      "accent1": [
+        "pale-cyan-edge",
+        "the-only-light"
+      ],
+      "accent2": [
+        "pale-gold-mineral",
+        "the-warmth"
+      ],
+      "shadow": "obsidian-deep-black",
+      "forbidden": [
+        "fire-warm",
+        "hot-pink",
+        "fluorescent",
+        "saturated-yellow",
+        "neon-warm"
+      ],
+      "light_type": "mineral_polished_cool",
+      "sd_fragment": "obsidian-teal-deep mineral-black with teal-shadow-deep secondary, pale-cyan-edge light, pale-gold-mineral warmth",
+      "mood": "obsidian_mineral_void",
+      "family": "RARE / EXPERIMENTAL",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P66_DUSK_VERMILION",
+      "name": "Dusk Vermilion",
+      "dominant": [
+        "dusk-vermilion-deep",
+        "blood-orange-warm"
+      ],
+      "secondary": [
+        "shadow-crimson-deep",
+        "dusk-shadow"
+      ],
+      "accent1": [
+        "pale-gold-thread",
+        "the-warmth"
+      ],
+      "accent2": [
+        "pale-blue-cool-distant",
+        "the-cool-edge"
+      ],
+      "shadow": "dusk-deep-shadow",
+      "forbidden": [
+        "saturated-cyan",
+        "fluorescent",
+        "neon",
+        "hot-pink",
+        "fire-pure"
+      ],
+      "light_type": "dusk_vermilion_off_frame",
+      "sd_fragment": "dusk-vermilion-deep blood-orange-warm with shadow-crimson-deep secondary, pale-gold-thread warmth, pale-blue-cool-distant accent",
+      "mood": "dusk_vermilion_decadent",
+      "family": "RARE / EXPERIMENTAL",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P67_PEARL_VOID",
+      "name": "Pearl Void",
+      "dominant": [
+        "pearl-pale-iridescent",
+        "mother-of-pearl"
+      ],
+      "secondary": [
+        "pearl-shadow-soft",
+        "pale-iridescent-shadow"
+      ],
+      "accent1": [
+        "pale-rose-pearl",
+        "the-only-warmth"
+      ],
+      "accent2": [
+        "pale-cyan-pearl",
+        "the-cool-edge"
+      ],
+      "shadow": "pearl-deep-shadow",
+      "forbidden": [
+        "fire-warm",
+        "hot-pink",
+        "fluorescent",
+        "saturated-yellow",
+        "neon"
+      ],
+      "light_type": "pearl_iridescent_diffuse",
+      "sd_fragment": "pearl-pale-iridescent mother-of-pearl with pearl-shadow-soft secondary, pale-rose-pearl warmth, pale-cyan-pearl cool",
+      "mood": "pearl_void_ethereal",
+      "family": "RARE / EXPERIMENTAL",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P68_INK_AND_GOLD",
+      "name": "Ink and Gold",
+      "dominant": [
+        "ink-wash-deep-black",
+        "sumi-shadow"
+      ],
+      "secondary": [
+        "paper-ivory-pale",
+        "washi-light"
+      ],
+      "accent1": [
+        "gold-leaf-bright",
+        "the-only-color"
+      ],
+      "accent2": [
+        "pale-vermilion-edge",
+        "the-warmth"
+      ],
+      "shadow": "ink-deep-black",
+      "forbidden": [
+        "saturated-cyan",
+        "fluorescent",
+        "neon",
+        "hot-pink",
+        "fire-pure"
+      ],
+      "light_type": "ink_wash_gold_leaf",
+      "sd_fragment": "ink-wash-deep-black sumi-shadow with paper-ivory-pale secondary, gold-leaf-bright accent, pale-vermilion-edge warmth",
+      "mood": "ink_gold_imperial_formal",
+      "family": "RARE / EXPERIMENTAL",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P69_EMBER_FROST",
+      "name": "Ember Frost",
+      "dominant": [
+        "frost-pale-blue",
+        "ice-shadow"
+      ],
+      "secondary": [
+        "ember-deep-orange-dying",
+        "the-warmth"
+      ],
+      "accent1": [
+        "pale-gold-ember",
+        "the-warm-light"
+      ],
+      "accent2": [
+        "pale-blue-cool-edge",
+        "the-cool-edge"
+      ],
+      "shadow": "frost-deep-shadow",
+      "forbidden": [
+        "saturated-fire-pure",
+        "fluorescent",
+        "neon",
+        "hot-pink",
+        "pure-cold-white"
+      ],
+      "light_type": "ember_frost_dual",
+      "sd_fragment": "frost-pale-blue ice-shadow with ember-deep-orange-dying secondary, pale-gold-ember warm-light, pale-blue-cool-edge cool",
+      "mood": "ember_frost_dual_dramatic",
+      "family": "RARE / EXPERIMENTAL",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P70_VOID_FINAL",
+      "name": "Void Final",
+      "dominant": [
+        "absolute-void-black",
+        "the-deepest-black"
+      ],
+      "secondary": [
+        "shadow-void",
+        "no-color"
+      ],
+      "accent1": [
+        "single-ivory-thread",
+        "the-only-light"
+      ],
+      "accent2": [
+        "single-blood-edge",
+        "the-only-warmth"
+      ],
+      "shadow": "void-absolute",
+      "forbidden": [
+        "all-colors-except-single-ivory-and-single-blood",
+        "saturated-cyan",
+        "fluorescent",
+        "neon",
+        "hot-pink",
+        "gold-bright"
+      ],
+      "light_type": "absolute_void_minimal",
+      "sd_fragment": "absolute-void-black with shadow-void no-color, single-ivory-thread light, single-blood-edge warmth",
+      "mood": "absolute_void_final_resolution",
+      "family": "RARE / EXPERIMENTAL",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P71_HABIT_UMBER",
+      "name": "Habit Umber",
+      "dominant": [
+        "worn-umber-deep",
+        "chair-warm-brown"
+      ],
+      "secondary": [
+        "aged-leather",
+        "kept-warmth-shadow"
+      ],
+      "accent1": [
+        "honey-warm-glow",
+        "the-kept-warmth"
+      ],
+      "accent2": [
+        "brass-thread",
+        "furniture-edge"
+      ],
+      "shadow": "umber-black",
+      "forbidden": [
+        "saturated-cyan",
+        "neon",
+        "fluorescent",
+        "hot-pink",
+        "fire-pure",
+        "saturated-blue"
+      ],
+      "light_type": "kept_warmth_diffuse",
+      "sd_fragment": "worn-umber chair-warm brown with aged-leather secondary, honey-warm-glow accent, brass-thread edge",
+      "mood": "habit_kept_warm",
+      "family": "TENCENCIES",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P72_OPIUM_PLUM",
+      "name": "Opium Plum",
+      "dominant": [
+        "deep-plum-syrup",
+        "drowsy-violet"
+      ],
+      "secondary": [
+        "smoked-plum",
+        "syrup-shadow"
+      ],
+      "accent1": [
+        "pale-lilac-syrup",
+        "the-drowse-light"
+      ],
+      "accent2": [
+        "gilt-thread-faint",
+        "drowsy-gold"
+      ],
+      "shadow": "plum-black",
+      "forbidden": [
+        "saturated-cyan",
+        "fluorescent",
+        "neon",
+        "hot-pink",
+        "saturated-red-bright",
+        "pure-white"
+      ],
+      "light_type": "doped_diffuse_warm",
+      "sd_fragment": "deep-plum-syrup drowsy-violet with smoked-plum secondary, pale-lilac-syrup accent, gilt-thread-faint gold",
+      "mood": "drugged_decadent_lull",
+      "family": "TENCENCIES",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P73_VERMEIL_SMOKE",
+      "name": "Vermeil Smoke",
+      "dominant": [
+        "smoke-rose-grey",
+        "exhale-grey-warm"
+      ],
+      "secondary": [
+        "vermilion-ember-deep",
+        "last-ember-shadow"
+      ],
+      "accent1": [
+        "vermilion-ember",
+        "the-lit-edge"
+      ],
+      "accent2": [
+        "rose-smoke-pale",
+        "exhale-rim"
+      ],
+      "shadow": "smoke-plum-black",
+      "forbidden": [
+        "saturated-cyan",
+        "fluorescent",
+        "neon-blue",
+        "hot-pink",
+        "pure-white",
+        "pure-cold"
+      ],
+      "light_type": "ember_exhale_off_frame",
+      "sd_fragment": "smoke-rose-grey exhale-warm with vermilion-ember-deep secondary, vermilion-ember accent, rose-smoke-pale rim",
+      "mood": "slow_vice_evening",
+      "family": "TENCENCIES",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P74_HONEY_STATIC",
+      "name": "Honey Static",
+      "dominant": [
+        "amber-honey-deep",
+        "hum-gold"
+      ],
+      "secondary": [
+        "static-lilac-pale",
+        "static-shadow"
+      ],
+      "accent1": [
+        "pale-gold-hum",
+        "the-wanting-light"
+      ],
+      "accent2": [
+        "electric-lilac-faint",
+        "the-flicker"
+      ],
+      "shadow": "amber-black",
+      "forbidden": [
+        "saturated-cyan",
+        "fluorescent",
+        "neon",
+        "fire-pure",
+        "hot-pink",
+        "saturated-blue"
+      ],
+      "light_type": "hum_warm_diffuse",
+      "sd_fragment": "amber-honey-deep hum-gold with static-lilac-pale secondary, pale-gold-hum accent, electric-lilac-faint flicker",
+      "mood": "wanting_hum_gold",
+      "family": "TENCENCIES",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P75_VELVET_GRAVITY",
+      "name": "Velvet Gravity",
+      "dominant": [
+        "wine-velvet-deep",
+        "pull-burgundy"
+      ],
+      "secondary": [
+        "burgundy-shadow",
+        "cushion-dark"
+      ],
+      "accent1": [
+        "blush-velvet-light",
+        "the-soft-pull"
+      ],
+      "accent2": [
+        "antique-gold-thread",
+        "tassel-edge"
+      ],
+      "shadow": "velvet-black",
+      "forbidden": [
+        "saturated-cyan",
+        "neon",
+        "fluorescent",
+        "hot-pink",
+        "fire-pure",
+        "saturated-green"
+      ],
+      "light_type": "gravity_warm_low",
+      "sd_fragment": "wine-velvet-deep pull-burgundy with burgundy-shadow secondary, blush-velvet-light accent, antique-gold-thread edge",
+      "mood": "gravity_keeping_her",
+      "family": "TENCENCIES",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P76_IRON_TIDE",
+      "name": "Iron Tide",
+      "dominant": [
+        "iron-grey-deep",
+        "magnet-grey"
+      ],
+      "secondary": [
+        "tide-cold-blue",
+        "cold-current"
+      ],
+      "accent1": [
+        "crimson-pull",
+        "the-single-red"
+      ],
+      "accent2": [
+        "steel-silver-edge",
+        "cold-rim"
+      ],
+      "shadow": "iron-black",
+      "forbidden": [
+        "fire-orange",
+        "neon",
+        "fluorescent",
+        "hot-pink",
+        "saturated-yellow",
+        "warm-golds"
+      ],
+      "light_type": "cold_pull_gel",
+      "sd_fragment": "iron-grey-deep magnet-grey with tide-cold-blue secondary, crimson-pull single red accent, steel-silver-edge rim",
+      "mood": "magnet_iron_cold",
+      "family": "TENCENCIES",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P77_LATE_MILK",
+      "name": "Late Milk",
+      "dominant": [
+        "milk-pale-cool",
+        "midnight-kitchen-pale"
+      ],
+      "secondary": [
+        "kitchen-blue-shadow",
+        "tile-shadow"
+      ],
+      "accent1": [
+        "warm-square-gold",
+        "the-open-door"
+      ],
+      "accent2": [
+        "porcelain-edge-blue",
+        "cold-shelf-rim"
+      ],
+      "shadow": "milk-grey-shadow",
+      "forbidden": [
+        "fire-orange",
+        "neon",
+        "fluorescent",
+        "hot-pink",
+        "saturated-red",
+        "warm-ambers"
+      ],
+      "light_type": "open_door_square",
+      "sd_fragment": "milk-pale-cool midnight-kitchen with kitchen-blue-shadow secondary, warm-square-gold open-door accent, porcelain-edge-blue rim",
+      "mood": "midnight_appetite_quiet",
+      "family": "TENCENCIES",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P78_RUST_LULL",
+      "name": "Rust Lull",
+      "dominant": [
+        "rust-rose-deep",
+        "ember-rust"
+      ],
+      "secondary": [
+        "moss-shadow-soft",
+        "garden-dark"
+      ],
+      "accent1": [
+        "ember-copper-warm",
+        "the-kept-heat"
+      ],
+      "accent2": [
+        "patina-green-faint",
+        "oxidized-edge"
+      ],
+      "shadow": "rust-black",
+      "forbidden": [
+        "saturated-cyan",
+        "fluorescent",
+        "neon",
+        "hot-pink",
+        "pure-white",
+        "saturated-blue"
+      ],
+      "light_type": "ember_kept_off_frame",
+      "sd_fragment": "rust-rose-deep ember-rust with moss-shadow secondary, ember-copper-warm accent, patina-green-faint edge",
+      "mood": "rusting_in_place",
+      "family": "TENCENCIES",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P79_WAX_NOON",
+      "name": "Wax Noon",
+      "dominant": [
+        "wax-yellow-warm",
+        "inertia-gold"
+      ],
+      "secondary": [
+        "dust-gold-haze",
+        "noon-haze"
+      ],
+      "accent1": [
+        "sweat-sheen-gold",
+        "the-heat-light"
+      ],
+      "accent2": [
+        "linen-bone-pale",
+        "dry-edge"
+      ],
+      "shadow": "noon-brown-black",
+      "forbidden": [
+        "saturated-cyan",
+        "fluorescent",
+        "neon",
+        "hot-pink",
+        "saturated-blue",
+        "pure-cold-white"
+      ],
+      "light_type": "melting_noon_hard",
+      "sd_fragment": "wax-yellow-warm inertia-gold with dust-gold-haze secondary, sweat-sheen-gold accent, linen-bone-pale edge",
+      "mood": "melting_afternoon_still",
+      "family": "TENCENCIES",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P80_SALT_APPETITE",
+      "name": "Salt Appetite",
+      "dominant": [
+        "salt-white-warm",
+        "mineral-pale"
+      ],
+      "secondary": [
+        "brine-teal-deep",
+        "wet-shadow"
+      ],
+      "accent1": [
+        "coral-grain-bright",
+        "the-craving"
+      ],
+      "accent2": [
+        "sea-mineral-teal",
+        "salt-rim"
+      ],
+      "shadow": "brine-blue-black",
+      "forbidden": [
+        "fire-orange",
+        "neon",
+        "fluorescent",
+        "hot-pink",
+        "gold-bright",
+        "warm-ambers"
+      ],
+      "light_type": "mineral_glare_high",
+      "sd_fragment": "salt-white-warm mineral-pale with brine-teal-deep secondary, coral-grain-bright accent, sea-mineral-teal rim",
+      "mood": "salt_hunger_clean",
+      "family": "TENCENCIES",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P81_FAWN_FOLD",
+      "name": "Fawn Fold",
+      "dominant": [
+        "fawn-beige-soft",
+        "worn-soft-brown"
+      ],
+      "secondary": [
+        "taupe-shadow-warm",
+        "linen-shadow"
+      ],
+      "accent1": [
+        "worn-ivory-linen",
+        "the-soft-light"
+      ],
+      "accent2": [
+        "rose-fawn-faint",
+        "warmth-edge"
+      ],
+      "shadow": "fawn-brown-black",
+      "forbidden": [
+        "saturated-cyan",
+        "neon",
+        "fluorescent",
+        "hot-pink",
+        "fire-pure",
+        "saturated-blue"
+      ],
+      "light_type": "worn_soft_diffuse",
+      "sd_fragment": "fawn-beige-soft worn-brown with taupe-shadow secondary, worn-ivory-linen accent, rose-fawn-faint edge",
+      "mood": "worn_soft_repetition",
+      "family": "TENCENCIES",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P82_INK_SUNDOWN",
+      "name": "Ink Sundown",
+      "dominant": [
+        "ink-violet-dusk",
+        "repeated-dusk-deep"
+      ],
+      "secondary": [
+        "burnt-rose-deep",
+        "dusk-under-shadow"
+      ],
+      "accent1": [
+        "amber-rehearsal-glow",
+        "the-daily-glow"
+      ],
+      "accent2": [
+        "pale-lilac-ash",
+        "last-light-rim"
+      ],
+      "shadow": "ink-black",
+      "forbidden": [
+        "saturated-cyan",
+        "fluorescent",
+        "neon",
+        "hot-pink",
+        "fire-pure",
+        "saturated-green"
+      ],
+      "light_type": "dusk_rehearsal_off_frame",
+      "sd_fragment": "ink-violet-dusk repeated-deep with burnt-rose secondary, amber-rehearsal-glow accent, pale-lilac-ash rim",
+      "mood": "repeated_dusk_ink",
+      "family": "TENCENCIES",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P83_MIDNIGHT_LAGOON",
+      "name": "Midnight Lagoon",
+      "dominant": [
+        "lagoon-blue-deep",
+        "ink-water"
+      ],
+      "secondary": [
+        "moon-silver-lap",
+        "tide-glass"
+      ],
+      "accent1": [
+        "harbor-amber-glow",
+        "the-one-warmth"
+      ],
+      "accent2": [
+        "phosphor-cyan-fleck",
+        "night-water-spark"
+      ],
+      "shadow": "lagoon-black",
+      "forbidden": [
+        "daylight",
+        "saturated-yellow",
+        "neon",
+        "hot-pink",
+        "fire-orange"
+      ],
+      "light_type": "harbor_light_off_frame",
+      "sd_fragment": "lagoon-blue-deep ink-water with moon-silver-lap secondary, one harbor-amber-glow warmth, phosphor-cyan night-spark",
+      "mood": "lagoon_night_alone",
+      "family": "TINT",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P84_CERULEAN_STILL",
+      "name": "Cerulean Still",
+      "dominant": [
+        "cerulean-flat-calm",
+        "sky-glass"
+      ],
+      "secondary": [
+        "horizon-pale",
+        "noon-white"
+      ],
+      "accent1": [
+        "rooftop-amber-one",
+        "one-warm-hour"
+      ],
+      "accent2": [
+        "tide-teal-glass"
+      ],
+      "shadow": "still-water-shadow",
+      "forbidden": [
+        "fire-orange",
+        "neon",
+        "hot-pink",
+        "saturated-red",
+        "fluorescent"
+      ],
+      "light_type": "flat_calm_diffuse",
+      "sd_fragment": "cerulean flat-calm sky-glass with horizon-pale secondary, one rooftop-amber hour, tide-teal glass edge",
+      "mood": "horizon_empty_patient",
+      "family": "TINT",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P85_ULTRAMARINE_HOUR",
+      "name": "Ultramarine Hour",
+      "dominant": [
+        "ultramarine-saturated-deep"
+      ],
+      "secondary": [
+        "night-navy",
+        "keel-blue"
+      ],
+      "accent1": [
+        "brass-pier-glow",
+        "the-warm-coin"
+      ],
+      "accent2": [
+        "moon-silver-rim"
+      ],
+      "shadow": "ultramarine-black",
+      "forbidden": [
+        "saturated-yellow",
+        "neon",
+        "hot-pink",
+        "fluorescent",
+        "daylight"
+      ],
+      "light_type": "pier_glow_single",
+      "sd_fragment": "ultramarine-saturated-deep with night-navy keel-blue secondary, one brass-pier-glow warm coin, moon-silver rim",
+      "mood": "last_light_before_dark",
+      "family": "TINT",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P86_PRUSSIAN_BOTTLE",
+      "name": "Prussian Bottle",
+      "dominant": [
+        "prussian-bottle-glass"
+      ],
+      "secondary": [
+        "bottle-green-deep",
+        "sea-glass"
+      ],
+      "accent1": [
+        "label-gold-flake",
+        "the-kept-flake"
+      ],
+      "accent2": [
+        "seafoam-pale"
+      ],
+      "shadow": "prussian-black",
+      "forbidden": [
+        "fire-orange",
+        "hot-pink",
+        "neon",
+        "saturated-yellow",
+        "warm-ambers"
+      ],
+      "light_type": "bottle_glass_filtered",
+      "sd_fragment": "prussian bottle-glass blue with bottle-green sea-glass secondary, label-gold flake, seafoam-pale edge",
+      "mood": "bottled_evening_blue",
+      "family": "TINT",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P87_ICE_SHEET_FIRSTLIGHT",
+      "name": "Ice Sheet Firstlight",
+      "dominant": [
+        "ice-sheet-pale-blue"
+      ],
+      "secondary": [
+        "pack-ice-white",
+        "frost-white"
+      ],
+      "accent1": [
+        "dawn-rose-one-degree",
+        "the-first-warmth"
+      ],
+      "accent2": [
+        "glacier-cyan"
+      ],
+      "shadow": "ice-blue-shadow",
+      "forbidden": [
+        "fire-orange",
+        "hot-pink",
+        "neon",
+        "saturated-yellow",
+        "warm-gold"
+      ],
+      "light_type": "first_light_flat",
+      "sd_fragment": "ice-sheet pale-blue with pack-ice white, one dawn-rose degree of warmth, glacier-cyan edge",
+      "mood": "first_light_alone_wide",
+      "family": "TINT",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P88_COBALT_ROAD",
+      "name": "Cobalt Road",
+      "dominant": [
+        "cobalt-saturated-deep"
+      ],
+      "secondary": [
+        "asphalt-navy-wet"
+      ],
+      "accent1": [
+        "buoy-orange-single",
+        "the-signal"
+      ],
+      "accent2": [
+        "wave-crest-white"
+      ],
+      "shadow": "cobalt-black",
+      "forbidden": [
+        "hot-pink",
+        "neon",
+        "fluorescent",
+        "saturated-yellow"
+      ],
+      "light_type": "buoy_light_off_frame",
+      "sd_fragment": "cobalt-saturated-deep over wet asphalt-navy, one buoy-orange signal, wave-crest-white rim",
+      "mood": "open_water_signal",
+      "family": "TINT",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P89_THRESHOLD_GOLD",
+      "name": "Threshold Gold",
+      "dominant": [
+        "honey-domestic-deep",
+        "lamp-butter-gold"
+      ],
+      "secondary": [
+        "adventurine-green-leak",
+        "seam-fern"
+      ],
+      "accent1": [
+        "fairy-gold-bright",
+        "the-leaked-light"
+      ],
+      "accent2": [
+        "tea-brown-warm",
+        "kept-baseboard"
+      ],
+      "shadow": "pantry-brown-black",
+      "forbidden": [
+        "saturated-cyan",
+        "fluorescent",
+        "neon",
+        "hot-pink",
+        "pure-white",
+        "electric-violet"
+      ],
+      "light_type": "lamp_with_a_secret",
+      "sd_fragment": "honey-domestic-deep lamp-butter-gold with adventurine-green-leak secondary, fairy-gold-bright accent, tea-brown-warm edge",
+      "mood": "the_kitchen_suddenly_aware",
+      "family": "SEAM (N27 pre-flight, PALETTE_EXTENSION_v4)",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P90_FAIRY_LAUNDRY",
+      "name": "Fairy Laundry",
+      "dominant": [
+        "linen-white-warm",
+        "line-dried-cream"
+      ],
+      "secondary": [
+        "thistle-green-deep",
+        "hedge-shadow"
+      ],
+      "accent1": [
+        "moth-wing-dust-gold",
+        "the-powder"
+      ],
+      "accent2": [
+        "clothespin-wood-brown",
+        "domestic-tether"
+      ],
+      "shadow": "garden-green-black",
+      "forbidden": [
+        "fluorescent",
+        "neon",
+        "hot-pink",
+        "saturated-cyan",
+        "pure-white-cold",
+        "electric-blue"
+      ],
+      "light_type": "afternoon_through-sheets",
+      "sd_fragment": "linen-white-warm line-dried-cream with thistle-green-deep secondary, moth-wing-dust-gold accent, clothespin-wood-brown edge",
+      "mood": "chores_shared_with_small_gods",
+      "family": "SEAM (N27 pre-flight, PALETTE_EXTENSION_v4)",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P91_MIDNIGHT_BODEGA",
+      "name": "Midnight Bodega",
+      "dominant": [
+        "fluorescent-milk-green",
+        "cooler-light-static"
+      ],
+      "secondary": [
+        "moonglow-silver-deep",
+        "the-spill"
+      ],
+      "accent1": [
+        "citrus-wedge-bright",
+        "the_offer"
+      ],
+      "accent2": [
+        "shelf-teal-cool",
+        "glass-door-glow"
+      ],
+      "shadow": "street-ink-black",
+      "forbidden": [
+        "hot-pink",
+        "fire-orange",
+        "pure-white",
+        "warm-amber-domination",
+        "saturated-red"
+      ],
+      "light_type": "two_currencies_of_light",
+      "sd_fragment": "fluorescent-milk-green cooler-light-static with moonglow-silver-deep secondary, citrus-wedge-bright accent, shelf-teal-cool edge",
+      "mood": "open_all_hours_any_world",
+      "family": "SEAM (N27 pre-flight, PALETTE_EXTENSION_v4)",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P92_WITCHING_HOUR_KITCHEN",
+      "name": "Witching Hour Kitchen",
+      "dominant": [
+        "copper-pot-warm",
+        "stove-ember-brown"
+      ],
+      "secondary": [
+        "spell-teal-steam",
+        "the-murmur"
+      ],
+      "accent1": [
+        "flame-jade-bright",
+        "the-awake-burner"
+      ],
+      "accent2": [
+        "jar-amber-deep",
+        "shelved-remedy"
+      ],
+      "shadow": "kitchen-umber-black",
+      "forbidden": [
+        "neon",
+        "fluorescent",
+        "hot-pink",
+        "electric-violet",
+        "pure-white",
+        "saturated-cyan"
+      ],
+      "light_type": "steam_that_answers_back",
+      "sd_fragment": "copper-pot-warm stove-ember-brown with spell-teal-steam secondary, flame-jade-bright accent, jar-amber-deep edge",
+      "mood": "recipe_in_two_worlds",
+      "family": "SEAM (N27 pre-flight, PALETTE_EXTENSION_v4)",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P93_GLASS_BELL_JAR",
+      "name": "Glass Bell Jar",
+      "dominant": [
+        "greenhouse-green-soft",
+        "cloche-haze"
+      ],
+      "secondary": [
+        "silver-enchantment-cool",
+        "the_domes_answer"
+      ],
+      "accent1": [
+        "petal-coral-warm",
+        "the_kept_alive"
+      ],
+      "accent2": [
+        "condensation-silver",
+        "breath_on_glass"
+      ],
+      "shadow": "garden-midnight-black",
+      "forbidden": [
+        "fluorescent",
+        "neon",
+        "hot-pink",
+        "saturated-orange",
+        "pure-white",
+        "electric-yellow"
+      ],
+      "light_type": "light_that_stayed_in_jar",
+      "sd_fragment": "greenhouse-green-soft cloche-haze with silver-enchantment-cool secondary, petal-coral-warm accent, condensation-silver edge",
+      "mood": "tended_by_something_patient",
+      "family": "SEAM (N27 pre-flight, PALETTE_EXTENSION_v4)",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P94_TROLLBRIDGE_DUSK",
+      "name": "Trollbridge Dusk",
+      "dominant": [
+        "moss-stone-deep",
+        "under-arch-shade"
+      ],
+      "secondary": [
+        "lantern-amber-bright",
+        "toll-light"
+      ],
+      "accent1": [
+        "coin-brass-bright",
+        "the_fare"
+      ],
+      "accent2": [
+        "river-iron-cool",
+        "water-under-bridge"
+      ],
+      "shadow": "bridge-black",
+      "forbidden": [
+        "neon",
+        "fluorescent",
+        "hot-pink",
+        "electric-violet",
+        "saturated-cyan",
+        "pure-white"
+      ],
+      "light_type": "toll_collected_in_warmth",
+      "sd_fragment": "moss-stone-deep under-arch-shade with lantern-amber-bright secondary, coin-brass-bright accent, river-iron-cool edge",
+      "mood": "crossing_costs_small_change",
+      "family": "SEAM (N27 pre-flight, PALETTE_EXTENSION_v4)",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P95_SPELLBOUND_LINEN",
+      "name": "Spellbound Linen",
+      "dominant": [
+        "white-on-white-deep",
+        "pressed-ivory"
+      ],
+      "secondary": [
+        "aurora-thread-teal",
+        "the_stitch"
+      ],
+      "accent1": [
+        "embroidery-gold-bright",
+        "one_sewn_star"
+      ],
+      "accent2": [
+        "shadow-lavender-cool",
+        "folded-depth"
+      ],
+      "shadow": "linen-grey-black",
+      "forbidden": [
+        "saturated-cyan",
+        "neon",
+        "fluorescent",
+        "hot-pink",
+        "fire-orange",
+        "pure-white-flat"
+      ],
+      "light_type": "the_seam_sewn_shut",
+      "sd_fragment": "white-on-white-deep pressed-ivory with aurora-thread-teal secondary, embroidery-gold-bright accent, shadow-lavender-cool edge",
+      "mood": "linen_that_remembers_the_spell",
+      "family": "SEAM (N27 pre-flight, PALETTE_EXTENSION_v4)",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P96_GRIMOIRE_AND_JAM",
+      "name": "Grimoire and Jam",
+      "dominant": [
+        "ink-indigo-deep",
+        "study-black-blue"
+      ],
+      "secondary": [
+        "jam-ruby-thick",
+        "the_sweet_margin"
+      ],
+      "accent1": [
+        "red-currant-bright",
+        "bookmark_ribbon"
+      ],
+      "accent2": [
+        "leather-brown-warm",
+        "the_old-binding"
+      ],
+      "shadow": "margin-ink-black",
+      "forbidden": [
+        "neon",
+        "fluorescent",
+        "hot-pink",
+        "electric-green",
+        "pure-white",
+        "saturated-cyan"
+      ],
+      "light_type": "lamp_over_open_page",
+      "sd_fragment": "ink-indigo-deep study-black-blue with jam-ruby-thick secondary, red-currant-bright accent, leather-brown-warm edge",
+      "mood": "breakfast_with_a_labrador_familiar",
+      "family": "SEAM (N27 pre-flight, PALETTE_EXTENSION_v4)",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P97_SELKIE_COMMUTE",
+      "name": "Selkie Commute",
+      "dominant": [
+        "rain-grey-commute",
+        "coat-slate-deep"
+      ],
+      "secondary": [
+        "sea-spell-teal",
+        "the_flash"
+      ],
+      "accent1": [
+        "signal-amber-bright",
+        "the_last_train"
+      ],
+      "accent2": [
+        "harbor-green-dark",
+        "wake-foam-silver"
+      ],
+      "shadow": "platform-blue-black",
+      "forbidden": [
+        "hot-pink",
+        "neon",
+        "fluorescent",
+        "fire-orange",
+        "pure-white",
+        "saturated-magenta"
+      ],
+      "light_type": "one_flash_of_the_other_sea",
+      "sd_fragment": "rain-grey-commute coat-slate-deep with sea-spell-teal secondary, signal-amber-bright accent, harbor-green-dark edge",
+      "mood": "wet_things_with_schedules",
+      "family": "SEAM (N27 pre-flight, PALETTE_EXTENSION_v4)",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P98_PIXIE_SUMMER_SHIFT",
+      "name": "Pixie Summer Shift",
+      "dominant": [
+        "worn-denim-blue-faded",
+        "shift-cotton-soft"
+      ],
+      "secondary": [
+        "pollen-gold-heavy",
+        "the_haze"
+      ],
+      "accent1": [
+        "glint-wing-green-bright",
+        "the_dart"
+      ],
+      "accent2": [
+        "farm-red-brick",
+        "barn-answer"
+      ],
+      "shadow": "orchard-dusk-black",
+      "forbidden": [
+        "fluorescent",
+        "neon",
+        "electric-violet",
+        "hot-pink",
+        "pure-white",
+        "saturated-cyan"
+      ],
+      "light_type": "pollen_that_grants_wishes",
+      "sd_fragment": "worn-denim-blue-faded shift-cotton-soft with pollen-gold-heavy secondary, glint-wing-green-bright accent, farm-red-brick edge",
+      "mood": "hired_help_with_hidden_wings",
+      "family": "SEAM (N27 pre-flight, PALETTE_EXTENSION_v4)",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P99_MOONLIT_TOOLSHED",
+      "name": "Moonlit Toolshed",
+      "dominant": [
+        "shed-green-dark",
+        "workbench-shadow"
+      ],
+      "secondary": [
+        "moon-silver-bright",
+        "through-the-cracks"
+      ],
+      "accent1": [
+        "brass-fitting-glow",
+        "the_kept_tools"
+      ],
+      "accent2": [
+        "seed-packet-cream",
+        "spring's_ledger"
+      ],
+      "shadow": "shed-black",
+      "forbidden": [
+        "neon",
+        "fluorescent",
+        "hot-pink",
+        "electric-yellow",
+        "saturated-red",
+        "pure-white"
+      ],
+      "light_type": "moon_through_knot_holes",
+      "sd_fragment": "shed-green-dark workbench-shadow with moon-silver-bright secondary, brass-fitting-glow accent, seed-packet-cream edge",
+      "mood": "the_shed_repaired_itself",
+      "family": "SEAM (N27 pre-flight, PALETTE_EXTENSION_v4)",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P100_POCKETED_NOON",
+      "name": "Pocketed Noon",
+      "dominant": [
+        "noon-ink-blue-deep",
+        "pocket-shadow-navy"
+      ],
+      "secondary": [
+        "office-grey-soft"
+      ],
+      "accent1": [
+        "candy-pink-lining-bright",
+        "the-secret"
+      ],
+      "accent2": [
+        "brass-zip-gold"
+      ],
+      "shadow": "ink-black",
+      "forbidden": [
+        "neon",
+        "fluorescent",
+        "hot-pink-dominant",
+        "pure-white",
+        "saturated-cyan",
+        "electric-violet"
+      ],
+      "light_type": "bulb_over_desk_secret",
+      "sd_fragment": "noon-ink-blue-deep pocket-shadow-navy with office-grey-soft secondary, candy-pink-lining-bright accent, brass-zip-gold edge",
+      "mood": "the-lining-knows",
+      "family": "SECRET (arcana engine families)",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P101_ALIBI_LINEN",
+      "name": "Alibi Linen",
+      "dominant": [
+        "alibi-cream",
+        "linen-modest-warm"
+      ],
+      "secondary": [
+        "slate-evidence-grey"
+      ],
+      "accent1": [
+        "crimson-stitch-bright",
+        "the-one-red-thread"
+      ],
+      "accent2": [
+        "chalk-white"
+      ],
+      "shadow": "cream-black",
+      "forbidden": [
+        "neon",
+        "fluorescent",
+        "saturated-cyan",
+        "electric-blue",
+        "pure-white-flat",
+        "hot-pink"
+      ],
+      "light_type": "fitting-room_honest",
+      "sd_fragment": "alibi-cream linen-modest-warm with slate-evidence-grey secondary, crimson-stitch-bright accent, chalk-white edge",
+      "mood": "modesty-with-one-tell",
+      "family": "SECRET (arcana engine families)",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P102_CONFIDANT_BRASS",
+      "name": "Confidant Brass",
+      "dominant": [
+        "night-ink-blue-deep",
+        "midnight-ledger"
+      ],
+      "secondary": [
+        "office-green-dark"
+      ],
+      "accent1": [
+        "brass-key-bright",
+        "the-one-who-knows"
+      ],
+      "accent2": [
+        "ribbon-red-small"
+      ],
+      "shadow": "ink-black",
+      "forbidden": [
+        "neon",
+        "fluorescent",
+        "hot-pink",
+        "saturated-cyan",
+        "pure-white",
+        "electric-yellow"
+      ],
+      "light_type": "keyhole_spill",
+      "sd_fragment": "night-ink-blue-deep midnight-ledger with office-green-dark secondary, brass-key-bright accent, ribbon-red-small edge",
+      "mood": "objects-that-keep-secrets",
+      "family": "SECRET (arcana engine families)",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P103_TELLTALE_ROSE",
+      "name": "Telltale Rose",
+      "dominant": [
+        "grey-flannel-deep",
+        "commuter-charcoal"
+      ],
+      "secondary": [
+        "rain-slate"
+      ],
+      "accent1": [
+        "rose-seam-bright",
+        "the-giveaway-line"
+      ],
+      "accent2": [
+        "streetlight-amber"
+      ],
+      "shadow": "flannel-black",
+      "forbidden": [
+        "neon",
+        "fluorescent",
+        "hot-pink-dominant",
+        "electric-violet",
+        "pure-white",
+        "saturated-cyan"
+      ],
+      "light_type": "streetlamp_audit",
+      "sd_fragment": "grey-flannel-deep commuter-charcoal with rain-slate secondary, rose-seam-bright accent, streetlight-amber edge",
+      "mood": "the-seam-that-testifies",
+      "family": "SECRET (arcana engine families)",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P104_HUSH_GREEN",
+      "name": "Hush Green",
+      "dominant": [
+        "conservatory-green-deep",
+        "closed-stack-green"
+      ],
+      "secondary": [
+        "brass-dark"
+      ],
+      "accent1": [
+        "gold-button-bright",
+        "the-kept-shine"
+      ],
+      "accent2": [
+        "dust-mote-gold"
+      ],
+      "shadow": "stack-black",
+      "forbidden": [
+        "neon",
+        "fluorescent",
+        "hot-pink",
+        "electric-violet",
+        "saturated-red",
+        "pure-white"
+      ],
+      "light_type": "reading-lamp_after_hours",
+      "sd_fragment": "conservatory-green-deep closed-stack-green with brass-dark secondary, gold-button-bright accent, dust-mote-gold edge",
+      "mood": "libraries-keep-hours",
+      "family": "SECRET (arcana engine families)",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P105_MIDNIGHT_POCKET",
+      "name": "Midnight Pocket",
+      "dominant": [
+        "midnight-charcoal-deep",
+        "coat-shadow"
+      ],
+      "secondary": [
+        "city-orange-remote"
+      ],
+      "accent1": [
+        "neon-pink-lining-bright",
+        "the-under-layer"
+      ],
+      "accent2": [
+        "watch-face-silver"
+      ],
+      "shadow": "midnight-black",
+      "forbidden": [
+        "fluorescent",
+        "pure-white",
+        "saturated-cyan",
+        "electric-violet",
+        "hot-pink-dominant"
+      ],
+      "light_type": "lining_flash_only",
+      "sd_fragment": "midnight-charcoal-deep coat-shadow with city-orange-remote secondary, neon-pink-lining-bright accent, watch-face-silver edge",
+      "mood": "under-every-coat-a-color",
+      "family": "SECRET (arcana engine families)",
+      "legacy_3slot": false,
+      "source": "PALETTE_LIBRARY.yaml"
+    }
+  ],
+  "saturation_doctrine": "Five Locks (RULES §51, binding from N21): (1) DEEP-ANCHOR — dominant anchored as DEPTH, never pallor; (2) SATURATED ANCHOR — one full-saturation element per prompt named in POS; (3) CONTRAST CARRIER — >=1 light-contrast carrier (rim/specular/hard shadow/caustic); (4) ANTI-WASH NEG — 'washed-out, faded colors, low contrast' always in scene-block; (5) COLOR GATE — per-prompt DESAT/SAT <= 1.2 with SAT >= 3 unless MUTED-BY-ORDER.",
+  "usage_rules": [
+    "C066: batch uses >=7 distinct palettes (replaces C001).",
+    "C067: no palette more than 3x per batch.",
+    "C068_EXP (VOID mode): 21 distinct palettes for 21 prompts.",
+    "C069: 6-slot structure honored in POS; accent1 must appear as a named color word.",
+    "C070: forbidden colors must NOT appear in POS as named color words.",
+    "C071: prior batch's palettes blacklisted (cross-batch rotation)."
+  ]
+}

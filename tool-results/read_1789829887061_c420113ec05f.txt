@@ -1,0 +1,232 @@
+   230→{pl: PL73, preferred: [CAM08_back_to_camera, CAM05_over_shoulder, CAM02_three_quarter]}
+   231→{pl: PL74, preferred: [CAM02_three_quarter, CAM01_eye_level, CAM03_from_below]}
+   232→{pl: PL75, preferred: [CAM01_eye_level, CAM05_over_shoulder, CAM02_three_quarter]}
+   233→{pl: PL76, preferred: [CAM02_three_quarter, CAM01_eye_level, CAM04_from_above]}
+   234→{pl: PL77, preferred: [CAM03_from_below, CAM02_three_quarter, CAM01_eye_level]}
+   235→{pl: PL78, preferred: [CAM02_three_quarter, CAM01_eye_level, CAM06_side]}
+   236→{pl: PL79, preferred: [CAM02_three_quarter, CAM12_aerial, CAM01_eye_level]}
+   237→{pl: PL80, preferred: [CAM02_three_quarter, CAM05_over_shoulder, CAM01_eye_level]}
+   238→{pl: PL81, preferred: [CAM01_eye_level, CAM02_three_quarter, CAM14_top_down_shaft]}
+   239→{pl: PL82, preferred: [CAM01_eye_level, CAM02_three_quarter, CAM06_side]}
+   240→{pl: PL83, preferred: [CAM02_three_quarter, CAM06_side, CAM01_eye_level]}
+   241→{pl: PL84, preferred: [CAM02_three_quarter, CAM01_eye_level, CAM03_from_below]}
+   242→
+   243→ecchi_classic:
+   244→- {id: PL61, name: "Over-Shoulder Offer", sd: "back three-quarters to viewer, chin hooked over own shoulder, hands clasped behind the back, the arch of the twist presenting the collarbone and the neckline's fall", category: VERTICAL, risk: MID}
+   245→- {id: PL62, name: "Sweater Pull Mid-Off", sd: "the shirt's hem mid-drawn up past the ribs by crossed arms, face half-lost inside the garment, one shoulder already bare, the elbows framing the chest's shadow", category: VERTICAL, risk: HIGH}
+   246→- {id: PL63, name: "Marilyn Skirt Hold", sd: "both palms mid-pressing a belled skirt down against an updraft, laughing down at the hem's argument, knees pressed together in the classic defense", category: VERTICAL, risk: MID}
+   247→- {id: PL64, name: "Self Wall-Pin", sd: "spine flat to the wall, palms pressed back against it beside the hips, hips pushed a degree forward, head tilted to expose the throat's line", category: VERTICAL, risk: HIGH}
+   248→- {id: PL65, name: "Under-Bed Reach", sd: "bent at the hips looking under a bed or desk, one knee down, the other leg extended behind with the heel raised, hair hanging into the dust-light", category: BENT, risk: HIGH}
+   249→- {id: PL66, name: "Ladder Climb Look-Down", sd: "two rungs up a ladder mid-climb, glancing back down between own arm and the rail, skirt's hem at the climb's mercy, one hand gripping the top rung", category: VERTICAL, risk: MID}
+   250→- {id: PL67, name: "Wind-Fight Stride", sd: "mid-stride leaning into a headwind, one hand pinning a hat, the other flat to a skirt gone sideways, coat belled back, the walk itself almost losing", category: DYNAMIC, risk: MID}
+   251→- {id: PL68, name: "Apron-Only Oven Bend", sd: "bending to a oven's low door, apron strings the back's only claim, heels lifting, both hands on the handle, the bend squaring the shoulders", category: BENT, risk: HIGH}
+   252→- {id: PL69, name: "Doorframe Head-Tilt", sd: "one shoulder to the doorframe, head tilted to rest on it, wrists crossed low in front, hip released from the line", category: VERTICAL, risk: LOW}
+   253→- {id: PL70, name: "Wariza Sit-Back", sd: "sitting on the floor between own heels, knees together, weight dropped back onto one arm, the other hand loose at the thigh, the pose of the tired homebody", category: SEATED, risk: MID}
+   254→- {id: PL71, name: "Towel Clamp Stand", sd: "both arms crossed tight over the chest, hands gripping a bath towel's upper edge to the collarbone, hip cocked, hair still wet, the whole pose one deep breath from incident", category: VERTICAL, risk: MID}
+   255→- {id: PL72, name: "Bath-Rim Knee-Sit", sd: "perched on the tub's wide rim, one knee up, the other foot trailing in the water, shoulders wet, hair piled high and dripping", category: SEATED, risk: MID}
+   256→- {id: PL73, name: "Forward Crawl Glance", sd: "crawling forward on knees and one palm, the other arm reaching ahead, head turned back mid-motion to glance at something behind", category: KNEELING, risk: MID}
+   257→- {id: PL74, name: "Yawn Arc", sd: "mid-yawn with both arms overhead in a full stretch, back curved into a comma, eyes shut, the body's whole honesty on display", category: VERTICAL, risk: MID}
+   258→- {id: PL75, name: "Under-Chin Cup", sd: "sitting cross-legged, both palms cupping own chin, elbows on knees, leaned forward into the viewer's space with full attention", category: SEATED, risk: LOW}
+   259→- {id: PL76, name: "Bed Knee-Crawl", sd: "crawling over a bed toward the viewer, one knee advancing past the other, a sheet dragging from the trailing hand, shoulders low and level", category: KNEELING, risk: HIGH}
+   260→- {id: PL77, name: "Two-Arm Shelf Tiptoe", sd: "on tiptoes at a high shelf, both arms stretched full overhead, shirt risen past the ribs, heels together and lifting", category: VERTICAL, risk: MID}
+   261→- {id: PL78, name: "Slipper-Hunt Hop", sd: "standing on one leg mid-hop, the other foot raised behind, looking down at the floor for the missing slipper, arms out in comic asymmetry", category: DYNAMIC, risk: LOW}
+   262→- {id: PL79, name: "Covers-Peek Kneel", sd: "kneeling inside a bed's covers drawn to the chin, sheet held at the chest in both fists, only the eyes and crown out, peeking", category: KNEELING, risk: LOW}
+   263→- {id: PL80, name: "Caught Mid-Change", sd: "frozen half-in half-out of a garment, one arm in a sleeve, one leg out of the hem, head snapped toward the door", category: VERTICAL, risk: HIGH}
+   264→- {id: PL81, name: "Over-Lap Lean", sd: "leaning forward across a low table toward the viewer, palms flat on the far edge, chin low, the neckline falling with gravity", category: BENT, risk: HIGH}
+   265→- {id: PL82, name: "Fan-It Flush", sd: "kneeling upright, one hand fanning own flushed face, the other pressing a cold bottle to the collarbone, eyes squeezed half-shut", category: KNEELING, risk: LOW}
+   266→- {id: PL83, name: "Strap Adjust", sd: "standing, mid-adjusting a pack's or garment's strap over one shoulder with both hands, elbows high, hips turned away", category: VERTICAL, risk: LOW}
+   267→- {id: PL84, name: "Ankle-Cross Sock-Pull", sd: "seated on a bench edge, one ankle crossed over the other knee, mid-drawing a sock or stocking up the raised calf, toe pointed", category: SEATED, risk: HIGH}
+   268→
+   269→── DYNAMIC V2 — PL85-PL108 (the bolder-angle motion family) ──────────
+   270→{pl: PL85, preferred: [CAM02_three_quarter, CAM03_from_below, CAM06_side]}
+   271→{pl: PL86, preferred: [CAM06_side, CAM02_three_quarter, CAM01_eye_level]}
+   272→{pl: PL87, preferred: [CAM06_side, CAM02_three_quarter, CAM03_from_below]}
+   273→{pl: PL88, preferred: [CAM02_three_quarter, CAM01_eye_level, CAM05_over_shoulder]}
+   274→{pl: PL89, preferred: [CAM02_three_quarter, CAM01_eye_level, CAM09_dutch_tilt]}
+   275→{pl: PL90, preferred: [CAM06_side, CAM02_three_quarter, CAM01_eye_level]}
+   276→{pl: PL91, preferred: [CAM02_three_quarter, CAM12_aerial, CAM06_side]}
+   277→{pl: PL92, preferred: [CAM06_side, CAM01_eye_level, CAM02_three_quarter]}
+   278→{pl: PL93, preferred: [CAM06_side, CAM02_three_quarter, CAM03_from_below]}
+   279→{pl: PL94, preferred: [CAM01_eye_level, CAM03_from_below, CAM02_three_quarter]}
+   280→{pl: PL95, preferred: [CAM06_side, CAM02_three_quarter, CAM07_wide_env]}
+   281→{pl: PL96, preferred: [CAM03_from_below, CAM06_side, CAM02_three_quarter]}
+   282→{pl: PL97, preferred: [CAM02_three_quarter, CAM05_over_shoulder, CAM01_eye_level]}
+   283→{pl: PL98, preferred: [CAM06_side, CAM02_three_quarter, CAM07_wide_env]}
+   284→{pl: PL99, preferred: [CAM02_three_quarter, CAM06_side, CAM01_eye_level]}
+   285→{pl: PL100, preferred: [CAM01_eye_level, CAM02_three_quarter, CAM12_aerial]}
+   286→{pl: PL101, preferred: [CAM02_three_quarter, CAM01_eye_level, CAM06_side]}
+   287→{pl: PL102, preferred: [CAM02_three_quarter, CAM01_eye_level, CAM09_dutch_tilt]}
+   288→{pl: PL103, preferred: [CAM06_side, CAM02_three_quarter, CAM01_eye_level]}
+   289→{pl: PL104, preferred: [CAM01_eye_level, CAM02_three_quarter, CAM06_side]}
+   290→{pl: PL105, preferred: [CAM06_side, CAM02_three_quarter, CAM01_eye_level]}
+   291→{pl: PL106, preferred: [CAM02_three_quarter, CAM01_eye_level, CAM06_side]}
+   292→{pl: PL107, preferred: [CAM06_side, CAM02_three_quarter, CAM03_from_below]}
+   293→{pl: PL108, preferred: [CAM02_three_quarter, CAM06_side, CAM03_from_below]}
+   294→
+   295→dynamic_v2:
+   296→- {id: PL85, name: "Pirouette Bell", sd: "mid-full-turn on one toe, arms rounded overhead, skirt at its maximum bell, the face arriving around last", category: DYNAMIC, risk: MID}
+   297→- {id: PL86, name: "Hair-Whip Turn", sd: "spine mid-rotation, hair mid-whip across the face it just left, chin leading the turn, one arm swept to the side for the momentum", category: DYNAMIC, risk: MID}
+   298→- {id: PL87, name: "Rail Vault", sd: "mid-vault over a low railing, one hand on the rail, legs swung to one side, the other hand pinning the skirt's hem mid-flight", category: DYNAMIC, risk: HIGH}
+   299→- {id: PL88, name: "Stair-Skip Descent", sd: "skipping down stairs mid-skip, one hand skimming the rail, the ponytail leading the body down, every step a small bounce", category: DYNAMIC, risk: LOW}
+   300→- {id: PL89, name: "Curtain Swagger", sd: "pushing through a heavy curtain mid-stride, the fabric wrapping one shoulder as she passes, chin first into the next room", category: DYNAMIC, risk: MID}
+   301→- {id: PL90, name: "Swing Forward Apex", sd: "on a swing at the forward apex, legs extended, chain-grips high, hair lifted with the arc, the grin of stolen momentum", category: DYNAMIC, risk: LOW}
+   302→- {id: PL91, name: "Trampoline Float", sd: "mid-bounce at the zero-gravity top, hair and skirt floating, limbs loose, eyes wide with the steal", category: DYNAMIC, risk: MID}
+   303→- {id: PL92, name: "Handstand Split", sd: "inverted on both palms, legs lowering into a slow split overhead, one ankle crossed to govern the skirt's fall", category: DYNAMIC, risk: HIGH}
+   304→- {id: PL93, name: "Cartwheel Frame", sd: "mid-cartwheel, inverted, legs in a wide V against the sky, hands planted, hair hanging toward the ground's decision", category: DYNAMIC, risk: HIGH}
+   305→- {id: PL94, name: "Pool-Exit Push-Up", sd: "arms straight on the pool rim, body half-lifted from the water, one knee finding the tiles, water sheeting off the back's line", category: DYNAMIC, risk: HIGH}
+   306→- {id: PL95, name: "No-Hands Coast", sd: "standing tall on moving pedals, no hands, spine long, arms back at the sides, hair doing the steering", category: DYNAMIC, risk: MID}
+   307→- {id: PL96, name: "Invisible Partner's Dip", sd: "held mid-dip by no one: knees bent, spine arched back over the missing arm, one arm arched overhead as if received, head given to gravity", category: DYNAMIC, risk: HIGH}
+   308→- {id: PL97, name: "Run-Look-Back", sd: "mid-run, torso turned enough to glance over the shoulder, one arm still pumping, stride at its widest, hair streaming forward", category: DYNAMIC, risk: MID}
+   309→- {id: PL98, name: "Hedge Leap", sd: "mid-leap over a low hedge or puddle, knees tucked, arms up, skirt mid-float, the landing still owed", category: DYNAMIC, risk: LOW}
+   310→- {id: PL99, name: "Floor Slide", sd: "sliding on polished floor on the side of one leg, the other extended, one hand near the floor for the steer, hair trailing the slide's wake", category: DYNAMIC, risk: HIGH}
+   311→- {id: PL100, name: "Skirt-Fan Twirl", sd: "both hands mid-twirling the skirt out to each side like a fan, chin up, turning under own weather", category: DYNAMIC, risk: MID}
+   312→- {id: PL101, name: "Fence Hop-Down", sd: "mid-hop down from a fence, one foot landing, the other leg still trailing height, hair following a half-beat late", category: DYNAMIC, risk: MID}
+   313→- {id: PL102, name: "Tray-Level Recovery", sd: "post-slip balance catch on one foot, arms in full asymmetry, the held tray or book still perfectly level — the save as the pose", category: DYNAMIC, risk: LOW}
+   314→- {id: PL103, name: "Rolling Exit", sd: "rolling from bed or sofa mid-roll onto both feet, a sheet still wound around one leg, hair upside-down and arriving", category: DYNAMIC, risk: MID}
+   315→- {id: PL104, name: "Dance-Break Snap", sd: "mid-dance pose hit: knees bent inward, wrists snapping from crossed to open, head tilted into the beat's pocket", category: DYNAMIC, risk: MID}
+   316→- {id: PL105, name: "Sprinter's Set", sd: "the start position held as a pose: fingertips to the ground, hips high, one knee folded nearly to the brow, eyes forward down the lane", category: BENT, risk: HIGH}
+   317→- {id: PL106, name: "Windowsill Drop-In", sd: "mid-drop from a windowsill, hands still gripping the sill behind, body angled toward the floor, feet finding the first contact", category: DYNAMIC, risk: MID}
+   318→- {id: PL107, name: "Branch Swing-Through", sd: "swinging forward on a low branch, knees bent beneath, one arm's grip the whole anchor, skirt at the swing's mercy", category: DYNAMIC, risk: HIGH}
+   319→- {id: PL108, name: "Skid-Stop Turn", sd: "mid-skid into a turn, weight low, one hand's knuckles near the ground, dust or spray rising behind the stop", category: DYNAMIC, risk: HIGH}
+   320→
+   321→── ENV-INTERACTION — PL109-PL132 (the body meeting furniture & terrain) ──
+   322→{pl: PL109, preferred: [CAM02_three_quarter, CAM06_side, CAM01_eye_level]}
+   323→{pl: PL110, preferred: [CAM01_eye_level, CAM02_three_quarter, CAM03_from_below]}
+   324→{pl: PL111, preferred: [CAM02_three_quarter, CAM12_aerial, CAM06_side]}
+   325→{pl: PL112, preferred: [CAM06_side, CAM02_three_quarter, CAM03_from_below]}
+   326→{pl: PL113, preferred: [CAM02_three_quarter, CAM01_eye_level, CAM06_side]}
+   327→{pl: PL114, preferred: [CAM01_eye_level, CAM02_three_quarter, CAM05_over_shoulder]}
+   328→{pl: PL115, preferred: [CAM02_three_quarter, CAM06_side, CAM07_wide_env]}
+   329→{pl: PL116, preferred: [CAM06_side, CAM02_three_quarter, CAM12_aerial]}
+   330→{pl: PL117, preferred: [CAM12_aerial, CAM02_three_quarter, CAM01_eye_level]}
+   331→{pl: PL118, preferred: [CAM06_side, CAM02_three_quarter, CAM01_eye_level]}
+   332→{pl: PL119, preferred: [CAM02_three_quarter, CAM01_eye_level, CAM06_side]}
+   333→{pl: PL120, preferred: [CAM02_three_quarter, CAM01_eye_level, CAM05_over_shoulder]}
+   334→{pl: PL121, preferred: [CAM02_three_quarter, CAM06_side, CAM01_eye_level]}
+   335→{pl: PL122, preferred: [CAM06_side, CAM02_three_quarter, CAM03_from_below]}
+   336→{pl: PL123, preferred: [CAM02_three_quarter, CAM01_eye_level, CAM07_wide_env]}
+   337→{pl: PL124, preferred: [CAM02_three_quarter, CAM06_side, CAM01_eye_level]}
+   338→{pl: PL125, preferred: [CAM01_eye_level, CAM06_side, CAM02_three_quarter]}
+   339→{pl: PL126, preferred: [CAM01_eye_level, CAM02_three_quarter, CAM03_from_below]}
+   340→{pl: PL127, preferred: [CAM06_side, CAM02_three_quarter, CAM01_eye_level]}
+   341→{pl: PL128, preferred: [CAM02_three_quarter, CAM06_side, CAM01_eye_level]}
+   342→{pl: PL129, preferred: [CAM01_eye_level, CAM02_three_quarter, CAM06_side]}
+   343→{pl: PL130, preferred: [CAM02_three_quarter, CAM06_side, CAM01_eye_level]}
+   344→{pl: PL131, preferred: [CAM02_three_quarter, CAM06_side, CAM01_eye_level]}
+   345→{pl: PL132, preferred: [CAM01_eye_level, CAM02_three_quarter, CAM06_side]}
+   346→
+   347→env_interaction:
+   348→- {id: PL109, name: "Windowsill Dangle-Sit", sd: "sitting sideways in a windowsill, one leg dangling outside the frame of the room, back against the jamb, hair caught in the draft between weathers", category: SEATED, risk: LOW}
+   349→- {id: PL110, name: "Counter Hip-Rest", sd: "leaning back on a kitchen counter on both palms, heels hooked on the lower cabinet's edge, the whole front of her given to the room", category: VERTICAL, risk: LOW}
+   350→- {id: PL111, name: "Mid-Stair Sit", sd: "sitting on stairs midway up, knees two steps higher than the seat, chin on knees, elbows on the next riser", category: SEATED, risk: LOW}
+   351→- {id: PL112, name: "Banister Side-Slide", sd: "mid-slide down a banister sidesaddle, one hand on the rail, the skirt pressed flat by the ride, the other arm out for the balance", category: DYNAMIC, risk: HIGH}
+   352→- {id: PL113, name: "Tub Rim Arm-Drape", sd: "in the bath, both arms draped over the tub's rim, chin stacked on crossed wrists, the waterline riding the collarbone", category: SEATED, risk: MID}
+   353→- {id: PL114, name: "Pool Chin-Rest", sd: "in the water at the pool's edge, chin stacked on crossed forearms on the rim, feet floating up behind, hair slicked to the skull", category: SEATED, risk: LOW}
+   354→- {id: PL115, name: "Tree-Fork Sit", sd: "sitting in a tree's fork, one knee up against the trunk, back to the bark, the other leg hanging with the shoe dropped beneath", category: SEATED, risk: LOW}
+   355→- {id: PL116, name: "Hammock Belly-Reach", sd: "lying face-down in a hammock, one arm reaching for the ground, the weave printing its grid into hip and thigh", category: HORIZONTAL, risk: MID}
+   356→- {id: PL117, name: "Meadow Starfish", sd: "lying spread-eagle in deep grass, eyes to the sky, one knee fallen open, fingers combing the blades", category: HORIZONTAL, risk: LOW}
+   357→- {id: PL118, name: "Couch-Overhang Recline", sd: "back along the couch's seat, legs thrown up over the backrest, head hanging off the arm toward the floor, hair in free-fall", category: HORIZONTAL, risk: MID}
+   358→- {id: PL119, name: "Bed-Edge Morning Arc", sd: "sitting on the bed's edge, mid-morning stretch, sheet still across the lap, spine arched, eyes not yet open", category: SEATED, risk: MID}
+   359→- {id: PL120, name: "Laundry-Line Tangle", sd: "standing mid-tangled in a bedsheet strung to dry, one arm lost in the fold, laughing at the sheet's opinion", category: VERTICAL, risk: MID}
+   360→- {id: PL121, name: "High-Ledge Dangle", sd: "sitting on a high ledge, both legs dangling over the drop, hands gripping the edge beside the hips, weight easy", category: SEATED, risk: LOW}
+   361→- {id: PL122, name: "Gate-Climb Straddle", sd: "mid-climb over a gate, legs astride the top bar, one hand on the post, the horse-riding seat of it decided", category: VERTICAL, risk: HIGH}
+   362→- {id: PL123, name: "Roof-Tile Recline", sd: "reclined against roof tiles, one knee up, hands stacked behind the head, chimney at the shoulder", category: HORIZONTAL, risk: LOW}
+   363→- {id: PL124, name: "Railing Perch Lean", sd: "perched on a wide railing, feet hooked on the lower rung, torso leaned to one post, knee drawn up", category: SEATED, risk: LOW}
+   364→- {id: PL125, name: "Stone Side-Propp", sd: "propped on one elbow on a low mossy stone, knees stacked, ankles crossed, the pose of the permanent picnicker", category: HORIZONTAL, risk: MID}
+   365→- {id: PL126, name: "Doorframe Top-Hang", sd: "in a doorway, both hands gripping the top frame, on the stretch of the toes, ribs open, shoulders singing", category: VERTICAL, risk: MID}
+   366→- {id: PL127, name: "Sidesaddle Bike-Sit", sd: "sitting sidesaddle on a parked bike's seat, one toe to the ground, hands on the bars, the whole lean of it decorative", category: SEATED, risk: MID}
+   367→- {id: PL128, name: "Fence Chest-Lean", sd: "leaning chest over a low fence on both forearms, one knee bent to the toe behind, chin on stacked wrists", category: BENT, risk: MID}
+   368→- {id: PL129, name: "Stone-Step Splay", sd: "sitting on wide stone steps, knees open, forearms on the thighs, chin on one wrist, looking up the stair at the viewer", category: SEATED, risk: MID}
+   369→- {id: PL130, name: "Ladder-Lean Hook", sd: "standing on a rolling library ladder leaned to the shelf, one knee hooked on a rung, both hands full of book", category: VERTICAL, risk: MID}
+   370→- {id: PL131, name: "Balcony Elbow-Rail", sd: "standing at a balcony rail, both elbows on it, hips canted, a glass by two fingers, the city doing the lighting", category: BENT, risk: LOW}
+   371→- {id: PL132, name: "Tailgate Sit", sd: "sitting on a dropped tailgate, heels tapping the bumper, palms planted behind, face to the sky's last color", category: SEATED, risk: LOW}
+   372→
+   373→── PERFORMANCE & MIRROR — PL133-PL156 (self-aware frames) ────────────
+   374→{pl: PL133, preferred: [CAM11_mirror_reflection, CAM05_over_shoulder, CAM02_three_quarter]}
+   375→{pl: PL134, preferred: [CAM02_three_quarter, CAM11_mirror_reflection, CAM01_eye_level]}
+   376→{pl: PL135, preferred: [CAM06_side, CAM11_mirror_reflection, CAM02_three_quarter]}
+   377→{pl: PL136, preferred: [CAM01_eye_level, CAM02_three_quarter, CAM06_side]}
+   378→{pl: PL137, preferred: [CAM02_three_quarter, CAM06_side, CAM01_eye_level]}
+   379→{pl: PL138, preferred: [CAM01_eye_level, CAM02_three_quarter, CAM05_over_shoulder]}
+   380→{pl: PL139, preferred: [CAM06_side, CAM01_eye_level, CAM02_three_quarter]}
+   381→{pl: PL140, preferred: [CAM06_side, CAM02_three_quarter, CAM03_from_below]}
+   382→{pl: PL141, preferred: [CAM01_eye_level, CAM02_three_quarter, CAM06_side]}
+   383→{pl: PL142, preferred: [CAM02_three_quarter, CAM06_side, CAM01_eye_level]}
+   384→{pl: PL143, preferred: [CAM02_three_quarter, CAM01_eye_level, CAM05_over_shoulder]}
+   385→{pl: PL144, preferred: [CAM05_over_shoulder, CAM02_three_quarter, CAM01_eye_level]}
+   386→{pl: PL145, preferred: [CAM02_three_quarter, CAM06_side, CAM07_wide_env]}
+   387→{pl: PL146, preferred: [CAM02_three_quarter, CAM06_side, CAM01_eye_level]}
+   388→{pl: PL147, preferred: [CAM11_mirror_reflection, CAM01_eye_level, CAM05_macro]}
+   389→{pl: PL148, preferred: [CAM02_three_quarter, CAM06_side, CAM01_eye_level]}
+   390→{pl: PL149, preferred: [CAM02_three_quarter, CAM07_wide_env, CAM01_eye_level]}
+   391→{pl: PL150, preferred: [CAM06_side, CAM02_three_quarter, CAM01_eye_level]}
+   392→{pl: PL151, preferred: [CAM06_side, CAM02_three_quarter, CAM01_eye_level]}
+   393→{pl: PL152, preferred: [CAM02_three_quarter, CAM01_eye_level, CAM06_side]}
+   394→{pl: PL153, preferred: [CAM06_side, CAM02_three_quarter, CAM01_eye_level]}
+   395→{pl: PL154, preferred: [CAM12_aerial, CAM02_three_quarter, CAM06_side]}
+   396→{pl: PL155, preferred: [CAM02_three_quarter, CAM01_eye_level, CAM06_side]}
+   397→{pl: PL156, preferred: [CAM02_three_quarter, CAM06_side, CAM01_eye_level]}
+   398→
+   399→performance_mirror:
+   400→- {id: PL133, name: "Mirror Strap-Fix Glance", sd: "back to the mirror, glancing at the reflection over one shoulder, one strap mid-rescue at the shoulder, the fix performed for the glass", category: VERTICAL, risk: MID}
+   401→- {id: PL134, name: "Fitting-Room Lean-In", sd: "leaning into the fitting mirror to interrogate the neckline, breath fogging the glass, one hand flattening the fabric's lie", category: BENT, risk: MID}
+   402→- {id: PL135, name: "Dress-Twirl Verdict", sd: "the dress mid-twirl caught from the side, watching its own bell in the mirror with the verdict still pending", category: DYNAMIC, risk: LOW}
+   403→- {id: PL136, name: "Stage Bow", sd: "the post-number bow: knees together, one arm folded across the waist, the other swept wide, head dipped to the apron's edge", category: VERTICAL, risk: LOW}
+   404→- {id: PL137, name: "Runway Stride", sd: "mid-stride runway walk, chin level, one hip at the swing's peak, gaze fixed past everyone in the room", category: DYNAMIC, risk: MID}
+   405→- {id: PL138, name: "Self-Serenade", sd: "eyes shut, one hand flat on own chest, the other gripping own hair at the crown like a cord, mid-note", category: VERTICAL, risk: MID}
+   406→- {id: PL139, name: "Barre Plié Hold", sd: "mid-plié at the barre, one hand on it, heels together, knees bent outward, spine tall, the discipline the pose's whole point", category: VERTICAL, risk: MID}
+   407→- {id: PL140, name: "Arabesque Line", sd: "torso pitched forward on one leg, the other leg extended behind at height, both arms long, the body one diagonal", category: DYNAMIC, risk: HIGH}
+   408→- {id: PL141, name: "Fan-Snap Open", sd: "kneeling upright, a fan mid-snap open at the chin, wrist still turning from the strike", category: KNEELING, risk: MID}
+   409→- {id: PL142, name: "Kimono Sleeve-Flash", sd: "the walking turn that throws the kimono's sleeve back off the arm, wrist leading the reveal, sandals finding the next step", category: DYNAMIC, risk: MID}
+   410→- {id: PL143, name: "Veil Half-Lift", sd: "fingertips on a veil's edge mid-lift to the brow, eyes finding the viewer through the widening gap", category: VERTICAL, risk: MID}
+   411→- {id: PL144, name: "Hat-Tip Back", sd: "three-quarter turned away, hat mid-tipped off the head by the brim, one brow up over the shoulder", category: VERTICAL, risk: LOW}
+   412→- {id: PL145, name: "Coat-Flare Pivot", sd: "mid-pivot in a long coat, collar up, hem flared by the turn, one hand in the pocket, the other trailing the arc", category: DYNAMIC, risk: MID}
+   413→- {id: PL146, name: "Umbrella Shoulder-Rest", sd: "a closed umbrella hooked over the shoulder like a rifle, contrapposto lean, the rain that hasn't earned the open", category: VERTICAL, risk: LOW}
+   414→- {id: PL147, name: "Mirror Eye-Lock", sd: "leaning almost brow-to-glass with own reflection, gaze locked on the reflection's eyes, lips mid-part, breath on the surface", category: VERTICAL, risk: LOW}
+   415→- {id: PL148, name: "Mark-Through Count", sd: "mid-count marking choreography, one arm's arc frozen mid-number, fingers keeping the beat's tally, face professional blank", category: DYNAMIC, risk: LOW}
+   416→- {id: PL149, name: "Encore Arms", sd: "back to an invisible house, arms spread wide, head thrown, the laugh that answers applause nobody rendered", category: VERTICAL, risk: MID}
+   417→- {id: PL150, name: "Fencing En-Garde", sd: "en-garde: knees bent, rear arm raised in arch behind, foil extended at the invisible opponent, chin over the lead shoulder", category: DYNAMIC, risk: MID}
+   418→- {id: PL151, name: "Archery Full-Draw", sd: "side-on at full draw, the string at the cheek, chest forward of the line, quiver strap across the torso, breath held whole", category: DYNAMIC, risk: HIGH}
+   419→- {id: PL152, name: "Ropes Corner Lean", sd: "between rounds, forearms on the ring's top rope, forehead to laced gloves, back curved into the rest", category: VERTICAL, risk: MID}
+   420→- {id: PL153, name: "Yoga Cobra Rise", sd: "prone, chest lifted onto both palms, elbows soft, head relaxed back, the spine one long question", category: BENT, risk: HIGH}
+   421→- {id: PL154, name: "Child's-Pose Fold", sd: "kneeling folded forward, forehead to the mat, arms extended ahead, seat on the heels, the full surrender of the spine", category: KNEELING, risk: MID}
+   422→- {id: PL155, name: "Chalk-Cloud Clap", sd: "standing in a rising cloud of gymnast's chalk, mid-clap over the bowl, wrists loose, the dust doing the backlight", category: VERTICAL, risk: LOW}
+   423→- {id: PL156, name: "Partner-Lift Echo", sd: "on pointe with one leg in passé, arms curved as if received from a partner absent, the body remembering being held", category: DYNAMIC, risk: HIGH}
+   424→
+   425→── PARTNER-IMPLIED & PROP-LED — PL157-PL180 (solo girl, contact via world) ──
+   426→{pl: PL157, preferred: [CAM02_three_quarter, CAM06_side, CAM01_eye_level]}
+   427→{pl: PL158, preferred: [CAM06_side, CAM02_three_quarter, CAM01_eye_level]}
+   428→{pl: PL159, preferred: [CAM02_three_quarter, CAM06_side, CAM01_eye_level]}
+   429→{pl: PL160, preferred: [CAM02_three_quarter, CAM01_eye_level, CAM06_side]}
+   430→{pl: PL161, preferred: [CAM01_eye_level, CAM02_three_quarter, CAM06_side]}
+   431→{pl: PL162, preferred: [CAM06_side, CAM02_three_quarter, CAM03_from_below]}
+   432→{pl: PL163, preferred: [CAM02_three_quarter, CAM01_eye_level, CAM06_side]}
+   433→{pl: PL164, preferred: [CAM06_side, CAM02_three_quarter, CAM01_eye_level]}
+   434→{pl: PL165, preferred: [CAM02_three_quarter, CAM06_side, CAM01_eye_level]}
+   435→{pl: PL166, preferred: [CAM02_three_quarter, CAM06_side, CAM01_eye_level]}
+   436→{pl: PL167, preferred: [CAM02_three_quarter, CAM06_side, CAM01_eye_level]}
+   437→{pl: PL168, preferred: [CAM02_three_quarter, CAM06_side, CAM03_from_below]}
+   438→{pl: PL169, preferred: [CAM02_three_quarter, CAM01_eye_level, CAM06_side]}
+   439→{pl: PL170, preferred: [CAM06_side, CAM02_three_quarter, CAM07_wide_env]}
+   440→{pl: PL171, preferred: [CAM02_three_quarter, CAM01_eye_level, CAM06_side]}
+   441→{pl: PL172, preferred: [CAM02_three_quarter, CAM05_over_shoulder, CAM06_side]}
+   442→{pl: PL173, preferred: [CAM02_three_quarter, CAM06_side, CAM01_eye_level]}
+   443→{pl: PL174, preferred: [CAM06_side, CAM02_three_quarter, CAM01_eye_level]}
+   444→{pl: PL175, preferred: [CAM02_three_quarter, CAM06_side, CAM01_eye_level]}
+   445→{pl: PL176, preferred: [CAM02_three_quarter, CAM03_from_below, CAM01_eye_level]}
+   446→{pl: PL177, preferred: [CAM06_side, CAM02_three_quarter, CAM01_eye_level]}
+   447→{pl: PL178, preferred: [CAM02_three_quarter, CAM06_side, CAM01_eye_level]}
+   448→{pl: PL179, preferred: [CAM02_three_quarter, CAM03_from_below, CAM06_side]}
+   449→{pl: PL180, preferred: [CAM06_side, CAM02_three_quarter, CAM01_eye_level]}
+   450→
+   451→partner_implied:
+   452→- {id: PL157, name: "Waltz-Box Solo", sd: "mid-box-step alone, one hand raised as if received, eyes closed, turning through a room that owes her a floor", category: DYNAMIC, risk: MID}
+   453→- {id: PL158, name: "Ice-Glide Chin-High", sd: "mid-glide on one blade, arms crossed behind the back, chin high, the scarf streaming the speed", category: DYNAMIC, risk: MID}
+   454→- {id: PL159, name: "Leash-Bridge Unwind", sd: "bent to a leash wound around a bench's leg, hands mid-unwinding, hip cocked, the pet's opinion arriving off-frame", category: BENT, risk: MID}
+   455→- {id: PL160, name: "Scarf-Pull From Off-Frame", sd: "a long scarf mid-drawn from beyond the frame's edge, the girl leaning into the pull, half-smile conceding the game", category: DYNAMIC, risk: MID}
+   456→- {id: PL161, name: "High-Five Aftermath", sd: "hand mid-lowered from a high-five nobody rendered, mid-laugh, the other hand braced on a knee", category: VERTICAL, risk: LOW}
+   457→- {id: PL162, name: "Swing Back-Arc Lean", sd: "on a swing at the back-arc apex, leaned fully back into the push's momentum, chains slack, hair falling toward the ground", category: DYNAMIC, risk: LOW}
+   458→- {id: PL163, name: "Mid-Throw Follow-Through", sd: "the follow-through of a throw toward the viewer, arm extended past the release, back heel lifted, weight through the front foot", category: DYNAMIC, risk: LOW}
+   459→- {id: PL164, name: "Oar-Lean Pull", sd: "mid-pull on both oars, leaning back with the stroke, knees wide against the gunwales, river doing the resistance", category: SEATED, risk: MID}
+
+[showing lines 230-459 of 653; use offset=460 with limit to continue reading]

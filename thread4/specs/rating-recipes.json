@@ -1,0 +1,69 @@
+{
+  "version": "1.0.0",
+  "born": "2026-09-19",
+  "source": "author's tier table (2026-09-19) + 3.2 CARRIER_LIBRARY science + Claude-thread N30/N31 empirics",
+  "note": "A recipe is what makes a tier CLAIM true at render: signal tags (the claim), carriers (the mechanism), counter-NEG (the boundary), prose floor (what survives PH). The rating gate grades every slot against its declared tier's recipe.",
+  "tiers": {
+    "PG13": {
+      "name": "the tease tier",
+      "signals": ["sexy outfit", "bikini", "cleavage", "thighs", "off-shoulder", "bare shoulders", "short shorts", "miniskirt", "midriff", "zettai ryouiki", "thighhighs"],
+      "signal_min": 2,
+      "carrier_classes": ["S", "E", "W", "B"],
+      "carrier_note": "skin-framing (S) and exposure-positioning (E) lead; fabric states stay non-sheer; B shape-telegraph at L/M degree",
+      "counter_neg": ["nipples", "areola", "exposed genitals", "lingerie visible"],
+      "prose_floor": "state nouns >= 2; the outfit IS the claim",
+      "typical_genres": ["NICHE", "VOLT-light"],
+      "opener": "anime style"
+    },
+    "R": {
+      "name": "the underwear tier",
+      "signals": ["lingerie", "panties", "bra", "underwear", "upskirt", "erotic pose", "microbikini", "garter belt", "thong", "boyshorts", "pantyshot"],
+      "signal_min": 2,
+      "carrier_classes": ["L", "U", "D", "W"],
+      "carrier_note": "layers negotiate (L) and context undresses (U); the D kinetic axis makes the pose erotic (the author's table puts the POSE in the signal set); waistband/strap/cup states are the vocabulary",
+      "counter_neg": ["nipples", "areola", "exposed genitals", "cameltoe"],
+      "prose_floor": "state nouns >= 3; underwear state named explicitly, never implied",
+      "typical_genres": ["VOLT"],
+      "opener": "anime style, ecchi anime style"
+    },
+    "RPLUS": {
+      "name": "the edge tier",
+      "signals": ["cameltoe", "camel toe", "nipples through clothing", "clothed nipples", "extreme fanservice", "see-through", "wet clothes", "visible pantyline", "tight clothes", "almost naked", "topless with tape", "taped nipples", "handbra", "arms covering chest"],
+      "signal_min": 2,
+      "carrier_classes": ["W", "I", "E", "M"],
+      "carrier_note": "sheer/imprint/compression physics; cameltoe is I-class (imprint) by science; CORE-4 mandatory (>=4 classes x 4 mechanism groups); sheer-family <=2 carriers per prompt",
+      "counter_neg": ["nipples exposed", "areola", "exposed genitals", "naked breasts", "topless"],
+      "prose_floor": "state nouns >= 4; the fabric's PRESENCE must be claimed as hard as what shows through it (the counter-NEG is what holds the tier)",
+      "typical_genres": ["VOLT", "EXQUISITE"],
+      "opener": "anime style, ecchi anime style"
+    },
+    "X": {
+      "name": "the bare tier",
+      "signals": ["nipples", "topless", "exposed breasts", "naked", "nude", "bare breasts", "nsfw"],
+      "signal_min": 2,
+      "carrier_classes": ["B", "E", "D", "U"],
+      "carrier_note": "bare-state nouns stated plainly and at least doubled in prose (the render-confirmed half of the old recipe); situational (U) or fantasy amplification stages the bareness; open mouth is an OPTIONAL amplifier, never a requirement (the stub is retired); composition and light do the art — the body is already the claim",
+      "counter_neg": ["exposed genitals", "vulva", "pubic hair", "sex", "sexual act"],
+      "prose_floor": "state nouns >= 4; the bare state named in both tag block and prose (the doubling law); staging (where/light/witness) carries the dignity",
+      "typical_genres": ["VOLT", "EXQUISITE"],
+      "opener": "anime style, ecchi anime style, hentai anime style",
+      "platform_note": "X posts are algorithmically suppressed on Yodayo — art-for-art slots, default 2 per batch"
+    },
+    "XXX": {
+      "name": "never",
+      "signals": [],
+      "note": "a sexual act — NEVER used, ever. Hard floor. Any XXX signal in POS is a hard-gate failure of the whole batch."
+    }
+  },
+  "eternal_floors": {
+    "genital_lock": ["exposed genitals", "vulva", "pubic hair"],
+    "anti_loli": ["child", "children", "childish", "chibi", "young girl", "immature body", "oversized head", "loli", "shota"],
+    "leak_guard": ["signature", "watermark", "artist name", "logo"],
+    "candle_guard": ["candle", "candles", "candelabra", "lamp", "lantern", "torch", "chandelier", "brazier"],
+    "face_guard": ["realistic facial structure", "photorealistic facial proportions", "natural human nose bridge", "realistic lip shape", "semi-realistic anime face", "2.5D face", "3D face"]
+  },
+  "default_spread": {
+    "mains_21": { "R": 7, "RPLUS": 12, "X": 2 },
+    "note": "3.2's standing spread, kept until an order changes it; NICHE slots typically PG-13/R and rating-forgiven on strong concepts; EXQUISITE rides by vibe"
+  }
+}

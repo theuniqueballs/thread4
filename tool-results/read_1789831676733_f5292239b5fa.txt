@@ -1,0 +1,1027 @@
+     1→'use client'
+     2→
+     3→/**
+     4→ * THREAD 4 dashboard — spec renderers.
+     5→ * One specialized renderer per known spec id (carriers, poses, palettes,
+     6→ * pools, engines, oc-canon, races, rating-recipes, bans) + a generic
+     7→ * fallback that renders ANY json decently (sections / tables / chips).
+     8→ *
+     9→ * Every renderer is defensive: unknown field names or shapes fall through
+    10→ * to the generic view instead of crashing. `filter` is a lowercase
+    11→ * substring — items that do not contain it are hidden.
+    12→ */
+    13→
+    14→import type { ReactNode } from 'react'
+    15→
+    16→import {
+    17→  asArray,
+    18→  asRecord,
+    19→  asStr,
+    20→  humanizeKey,
+    21→  pickStr,
+    22→  pickStrArray,
+    23→} from './api'
+    24→import { Chip, DegreeBadge, EmptyState, RatingBadge } from './bits'
+    25→import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+    26→import { cn } from '@/lib/utils'
+    27→
+    28→/* ------------------------------------------------------------------ */
+    29→/* Shared extraction helpers                                           */
+    30→/* ------------------------------------------------------------------ */
+    31→
+    32→function matches(item: unknown, q: string): boolean {
+    33→  if (q === '') return true
+    34→  try {
+    35→    return JSON.stringify(item).toLowerCase().includes(q)
+    36→  } catch {
+    37→    return true
+    38→  }
+    39→}
+    40→
+    41→function firstArray(spec: unknown, keys: string[]): unknown[] | null {
+    42→  const rec = asRecord(spec)
+    43→  for (const k of keys) {
+    44→    if (Array.isArray(rec[k])) return rec[k]
+    45→  }
+    46→  if (Array.isArray(spec)) return spec
+    47→  return null
+    48→}
+    49→
+    50→/** Records from an array of objects or a keyed object of objects. */
+    51→function recordItems(v: unknown): { key: string; rec: Record<string, unknown> }[] {
+    52→  if (Array.isArray(v)) {
+    53→    return v
+    54→      .map((x, i) => ({ key: String(i), rec: asRecord(x) }))
+    55→      .filter((x) => Object.keys(x.rec).length > 0 || typeof v[x.rec ? 0 : 0] === 'object')
+    56→  }
+    57→  return Object.entries(asRecord(v)).map(([k, val]) => ({ key: k, rec: asRecord(val) }))
+    58→}
+    59→
+    60→function normalizeDegree(v: unknown): string {
+    61→  const s = asStr(v).trim().toUpperCase()
+    62→  if (s === 'LOW') return 'L'
+    63→  if (s === 'MEDIUM' || s === 'MED') return 'M'
+    64→  if (s === 'HIGH') return 'H'
+    65→  if (s === 'L' || s === 'M' || s === 'H') return s
+    66→  return ''
+    67→}
+    68→
+    69→const FILTER_EMPTY: Record<string, never> = {}
+    70→
+    71→/* ------------------------------------------------------------------ */
+    72→/* Carriers — table grouped by class, degree badges                    */
+    73→/* ------------------------------------------------------------------ */
+    74→
+    75→function CarriersView({ spec, filter }: { spec: unknown; filter: string }) {
+    76→  type Carrier = { name: string; cls: string; degree: string; mechanism: string; note: string; raw: unknown }
+    77→  const carriers: Carrier[] = []
+    78→
+    79→  const push = (rec: Record<string, unknown>, raw: unknown, fallbackCls = '') => {
+    80→    const name = pickStr(rec, 'name', 'id', 'label', 'carrier', 'tag')
+    81→    if (!name) return
+    82→    carriers.push({
+    83→      name,
+    84→      cls: pickStr(rec, 'class', 'cls', 'code', 'carrier_class') || fallbackCls,
+    85→      degree: normalizeDegree(rec.degree ?? rec.deg ?? rec.level),
+    86→      mechanism: pickStr(rec, 'mechanism', 'mechanism_group', 'group', 'family', 'type'),
+    87→      note: pickStr(rec, 'note', 'description', 'desc', 'why', 'use', 'usage'),
+    88→      raw,
+    89→    })
+    90→  }
+    91→
+    92→  const root = asRecord(spec)
+    93→  const direct = firstArray(spec, ['carriers', 'items'])
+    94→  if (direct) {
+    95→    for (const item of direct) {
+    96→      const rec = asRecord(item)
+    97→      if (Object.keys(rec).length === 0) {
+    98→        const s = asStr(item)
+    99→        if (s) carriers.push({ name: s, cls: '', degree: '', mechanism: '', note: '', raw: item })
+   100→      } else push(rec, item)
+   101→    }
+   102→  }
+   103→  // shape: { classes: [{ code, name, carriers: [...] }] }
+   104→  const classGroups = asArray(root.classes)
+   105→  if (classGroups.length > 0) {
+   106→    for (const g of classGroups) {
+   107→      const gRec = asRecord(g)
+   108→      const cls = pickStr(gRec, 'code', 'class', 'cls', 'id', 'name')
+   109→      for (const item of asArray(gRec.carriers ?? gRec.items)) {
+   110→        push(asRecord(item), item, cls)
+   111→      }
+   112→    }
+   113→  }
+   114→  // shape: keyed object of class → array
+   115→  if (carriers.length === 0) {
+   116→    for (const [k, v] of Object.entries(root)) {
+   117→      if (Array.isArray(v)) {
+   118→        for (const item of v) push(asRecord(item), item, k)
+   119→      }
+   120→    }
+   121→  }
+   122→
+   123→  if (carriers.length === 0) return <GenericSpecView data={spec} filter={filter} />
+   124→
+   125→  const filtered = carriers.filter((c) => matches(c.raw, filter))
+   126→  if (filtered.length === 0) return <FilterEmpty filter={filter} />
+   127→
+   128→  const groups = new Map<string, Carrier[]>()
+   129→  for (const c of filtered) {
+   130→    const key = c.cls || '—'
+   131→    const list = groups.get(key)
+   132→    if (list) list.push(c)
+   133→    else groups.set(key, [c])
+   134→  }
+   135→
+   136→  return (
+   137→    <div className="t4-scroll max-h-96 space-y-5 overflow-y-auto pr-1">
+   138→      {[...groups.entries()].map(([cls, items]) => (
+   139→        <div key={cls}>
+   140→          <div className="mb-2 flex items-center gap-2">
+   141→            <span className="inline-flex size-6 items-center justify-center rounded-md border border-amber-500/40 bg-amber-500/10 font-mono text-xs font-semibold text-amber-400">
+   142→              {cls}
+   143→            </span>
+   144→            <span className="text-xs font-medium uppercase tracking-wide text-zinc-500">
+   145→              {cls === '—' ? 'носители' : `класс ${cls}`} · {items.length}
+   146→            </span>
+   147→          </div>
+   148→          <div className="overflow-hidden rounded-lg border border-zinc-800">
+   149→            <Table>
+   150→              <TableHeader>
+   151→                <TableRow className="hover:bg-transparent">
+   152→                  <TableHead className="text-zinc-400">Носитель</TableHead>
+   153→                  <TableHead className="text-zinc-400">Степень</TableHead>
+   154→                  <TableHead className="text-zinc-400">Механизм</TableHead>
+   155→                  <TableHead className="text-zinc-400">Примечание</TableHead>
+   156→                </TableRow>
+   157→              </TableHeader>
+   158→              <TableBody>
+   159→                {items.map((c, i) => (
+   160→                  <TableRow key={`${c.name}-${i}`} className="border-zinc-800/70">
+   161→                    <TableCell className="font-medium text-zinc-200">{c.name}</TableCell>
+   162→                    <TableCell>{c.degree ? <DegreeBadge degree={c.degree} /> : <span className="text-zinc-600">—</span>}</TableCell>
+   163→                    <TableCell className="text-zinc-400">{c.mechanism || '—'}</TableCell>
+   164→                    <TableCell className="max-w-xs whitespace-normal text-xs leading-relaxed text-zinc-500">{c.note || '—'}</TableCell>
+   165→                  </TableRow>
+   166→                ))}
+   167→              </TableBody>
+   168→            </Table>
+   169→          </div>
+   170→        </div>
+   171→      ))}
+   172→    </div>
+   173→  )
+   174→}
+   175→
+   176→/* ------------------------------------------------------------------ */
+   177→/* Poses — table with category + risk badges                           */
+   178→/* ------------------------------------------------------------------ */
+   179→
+   180→function riskTone(risk: string): string {
+   181→  const r = risk.toLowerCase()
+   182→  if (['safe', 'low', 'clean', 'ok'].includes(r)) return 'border-emerald-600/40 bg-emerald-600/10 text-emerald-400'
+   183→  if (['edge', 'risky', 'medium', 'med', 'warn', 'spicy'].includes(r)) return 'border-amber-500/40 bg-amber-500/10 text-amber-400'
+   184→  if (['banned', 'high', 'hard', 'danger'].includes(r)) return 'border-rose-500/40 bg-rose-500/10 text-rose-400'
+   185→  return 'border-zinc-700 bg-zinc-800/60 text-zinc-300'
+   186→}
+   187→
+   188→function PosesView({ spec, filter }: { spec: unknown; filter: string }) {
+   189→  type Pose = { name: string; category: string; risk: string; note: string; raw: unknown }
+   190→  const poses: Pose[] = []
+   191→  const push = (item: unknown, fallbackCat = '') => {
+   192→    const rec = asRecord(item)
+   193→    const name = pickStr(rec, 'name', 'id', 'pose', 'tag') || asStr(item)
+   194→    if (!name || (Object.keys(rec).length === 0 && typeof item !== 'string')) return
+   195→    poses.push({
+   196→      name,
+   197→      category: pickStr(rec, 'category', 'type', 'family', 'group', 'class') || fallbackCat,
+   198→      risk: pickStr(rec, 'risk', 'risk_level', 'edge', 'safety', 'level'),
+   199→      note: pickStr(rec, 'note', 'description', 'desc', 'why', 'use'),
+   200→      raw: item,
+   201→    })
+   202→  }
+   203→  const direct = firstArray(spec, ['poses', 'items'])
+   204→  if (direct) for (const item of direct) push(item)
+   205→  const root = asRecord(spec)
+   206→  if (poses.length === 0) {
+   207→    for (const [k, v] of Object.entries(root)) {
+   208→      if (Array.isArray(v)) for (const item of v) push(item, k)
+   209→    }
+   210→  }
+   211→  if (poses.length === 0) return <GenericSpecView data={spec} filter={filter} />
+   212→
+   213→  const filtered = poses.filter((p) => matches(p.raw, filter))
+   214→  if (filtered.length === 0) return <FilterEmpty filter={filter} />
+   215→
+   216→  return (
+   217→    <div className="t4-scroll max-h-96 overflow-y-auto pr-1">
+   218→      <div className="overflow-hidden rounded-lg border border-zinc-800">
+   219→        <Table>
+   220→          <TableHeader>
+   221→            <TableRow className="hover:bg-transparent">
+   222→              <TableHead className="text-zinc-400">Поза</TableHead>
+   223→              <TableHead className="text-zinc-400">Категория</TableHead>
+   224→              <TableHead className="text-zinc-400">Риск</TableHead>
+   225→              <TableHead className="text-zinc-400">Примечание</TableHead>
+   226→            </TableRow>
+   227→          </TableHeader>
+   228→          <TableBody>
+   229→            {filtered.map((p, i) => (
+   230→              <TableRow key={`${p.name}-${i}`} className="border-zinc-800/70">
+   231→                <TableCell className="font-medium text-zinc-200">{p.name}</TableCell>
+   232→                <TableCell className="text-zinc-400">{p.category || '—'}</TableCell>
+   233→                <TableCell>
+   234→                  {p.risk ? (
+   235→                    <span className={cn('inline-flex items-center rounded-md border px-1.5 py-0.5 text-[11px] font-medium', riskTone(p.risk))}>
+   236→                      {p.risk}
+   237→                    </span>
+   238→                  ) : (
+   239→                    <span className="text-zinc-600">—</span>
+   240→                  )}
+   241→                </TableCell>
+   242→                <TableCell className="max-w-xs whitespace-normal text-xs leading-relaxed text-zinc-500">{p.note || '—'}</TableCell>
+   243→              </TableRow>
+   244→            ))}
+   245→          </TableBody>
+   246→        </Table>
+   247→      </div>
+   248→    </div>
+   249→  )
+   250→}
+   251→
+   252→/* ------------------------------------------------------------------ */
+   253→/* Palettes — color-swatch cards, color names as text chips            */
+   254→/* ------------------------------------------------------------------ */
+   255→
+   256→const COLOR_HEX: Record<string, string> = {
+   257→  black: '#18181b', 'pitch black': '#0a0a0a', charcoal: '#36454f', white: '#f4f4f5',
+   258→  'off-white': '#ececea', ivory: '#fffff0', cream: '#fffdd0', beige: '#f5f5dc',
+   259→  gray: '#71717a', grey: '#71717a', silver: '#c0c0c0', ash: '#b2beb5', slate: '#708090',
+   260→  red: '#dc2626', crimson: '#dc143c', scarlet: '#ff2400', cherry: '#d2042d',
+   261→  oxblood: '#4a0000', burgundy: '#800020', wine: '#722f37', maroon: '#800000',
+   262→  ruby: '#e0115f', pink: '#ec4899', rose: '#f43f5e', blush: '#de5d83',
+   263→  salmon: '#fa8072', coral: '#ff7f50', peach: '#ffdab9', magenta: '#ff00ff',
+   264→  fuchsia: '#ff77ff', orange: '#f97316', tangerine: '#f28500', apricot: '#fbceb4',
+   265→  amber: '#f59e0b', gold: '#d4af37', yellow: '#eab308', lemon: '#fff44f',
+   266→  sand: '#e1c699', khaki: '#c3b091', tan: '#d2b48c', camel: '#c19a6b',
+   267→  caramel: '#af6e4d', bronze: '#cd7f32', copper: '#b87333', rust: '#b7410e',
+   268→  terracotta: '#e2725b', brown: '#8b4513', chocolate: '#d2691e', coffee: '#6f4e37',
+   269→  espresso: '#4b3621', mocha: '#967969', green: '#22c55e', emerald: '#10b981',
+   270→  jade: '#00a86b', mint: '#98ff98', sage: '#9caf88', olive: '#808000',
+   271→  moss: '#8a9a5b', 'forest green': '#228b22', 'hunter green': '#355e3b', lime: '#84cc16',
+   272→  chartreuse: '#7fff00', teal: '#14b8a6', turquoise: '#40e0d0', aqua: '#00ffff',
+   273→  cyan: '#22d3ee', blue: '#3b82f6', navy: '#1e3a5f', 'midnight blue': '#191970',
+   274→  sky: '#87ceeb', azure: '#007fff', cobalt: '#0047ab', cerulean: '#2a52be',
+   275→  indigo: '#4b0082', violet: '#8f00ff', purple: '#a855f7', lavender: '#e6e6fa',
+   276→  lilac: '#c8a2c8', mauve: '#e0b0ff', plum: '#8e4585', orchid: '#da70d6',
+   277→}
+   278→
+   279→function hexOf(name: string, explicit?: string): string | null {
+   280→  const check = (s: string): string | null => {
+   281→    const t = s.trim()
+   282→    if (/^#?[0-9a-f]{3}$/.test(t)) return `#${t.replace('#', '')}`
+   283→    if (/^#?[0-9a-f]{6}$/.test(t)) return t.startsWith('#') ? t : `#${t}`
+   284→    return null
+   285→  }
+   286→  if (explicit) {
+   287→    const h = check(explicit)
+   288→    if (h) return h
+   289→  }
+   290→  const key = name.trim().toLowerCase().replace(/[_-]+/g, ' ')
+   291→  return COLOR_HEX[key] ?? null
+   292→}
+   293→
+   294→function PalettesView({ spec, filter }: { spec: unknown; filter: string }) {
+   295→  type Swatch = { name: string; hex: string | null }
+   296→  type Palette = { name: string; note: string; colors: Swatch[]; raw: unknown }
+   297→
+   298→  const toSwatches = (v: unknown): Swatch[] =>
+   299→    asArray(v)
+   300→      .map((c): Swatch | null => {
+   301→        if (typeof c === 'string') {
+   302→          const h = hexOf(c)
+   303→          return h || c.match(/^[a-z]/i) ? { name: c, hex: h } : null
+   304→        }
+   305→        const rec = asRecord(c)
+   306→        const name = pickStr(rec, 'name', 'label', 'color', 'title')
+   307→        const explicit = pickStr(rec, 'hex', 'value', 'color')
+   308→        if (!name && !explicit) return null
+   309→        const finalName = name || explicit
+   310→        return { name: finalName, hex: hexOf(finalName, explicit) }
+   311→      })
+   312→      .filter((s): s is Swatch => s != null)
+   313→
+   314→  // keyed object { colorName: hex } → swatches
+   315→  const recSwatches = (rec: Record<string, unknown>): Swatch[] =>
+   316→    Object.entries(rec)
+   317→      .filter(([, v]) => typeof v === 'string' && (hexOf(v) || hexOf('', v) || /^#?[0-9a-f]{3,6}$/i.test(v)))
+   318→      .map(([k, v]) => ({ name: k, hex: hexOf(k, asStr(v)) }))
+   319→
+   320→  const palettes: Palette[] = []
+   321→  const push = (item: unknown) => {
+   322→    const rec = asRecord(item)
+   323→    const name = pickStr(rec, 'name', 'id', 'palette', 'title')
+   324→    const colorVals = ['colors', 'swatches', 'palette', 'shades'].map((k) => rec[k]).find((v) => Array.isArray(v) || asRecord(v).constructor === Object)
+   325→    let colors: Swatch[] = []
+   326→    if (colorVals != null) colors = Array.isArray(colorVals) ? toSwatches(colorVals) : recSwatches(asRecord(colorVals))
+   327→    else colors = recSwatches(rec)
+   328→    if (!name && colors.length === 0) return
+   329→    palettes.push({
+   330→      name: name || 'Без имени',
+   331→      note: pickStr(rec, 'note', 'vibe', 'mood', 'description', 'use'),
+   332→      colors,
+   333→      raw: item,
+   334→    })
+   335→  }
+   336→
+   337→  const direct = firstArray(spec, ['palettes', 'items'])
+   338→  if (direct) for (const item of direct) push(item)
+   339→  if (palettes.length === 0) {
+   340→    for (const v of Object.values(asRecord(spec))) {
+   341→      if (Array.isArray(v)) for (const item of v) push(item)
+   342→    }
+   343→  }
+   344→  if (palettes.length === 0 && asRecord(spec).constructor === Object && !Array.isArray(spec)) {
+   345→    // maybe the spec itself is one palette
+   346→    const rec = asRecord(spec)
+   347→    if (pickStr(rec, 'name', 'id') || Object.keys(rec).length > 0) push(spec)
+   348→  }
+   349→
+   350→  if (palettes.length === 0 || palettes.every((p) => p.colors.length === 0 && !p.name)) {
+   351→    return <GenericSpecView data={spec} filter={filter} />
+   352→  }
+   353→
+   354→  const filtered = palettes.filter((p) => matches(p.raw, filter))
+   355→  if (filtered.length === 0) return <FilterEmpty filter={filter} />
+   356→
+   357→  return (
+   358→    <div className="t4-scroll max-h-96 space-y-4 overflow-y-auto pr-1">
+   359→      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+   360→        {filtered.map((p, i) => (
+   361→          <div key={`${p.name}-${i}`} className="rounded-lg border border-zinc-800 bg-zinc-900/60 p-4">
+   362→            <div className="mb-1 text-sm font-semibold text-zinc-100">{p.name}</div>
+   363→            {p.note ? <div className="mb-3 text-xs leading-relaxed text-zinc-500">{p.note}</div> : null}
+   364→            <div className="flex flex-wrap gap-1.5">
+   365→              {p.colors.length === 0 ? <span className="text-xs text-zinc-600">нет данных</span> : null}
+   366→              {p.colors.map((c, j) => (
+   367→                <span
+   368→                  key={`${c.name}-${j}`}
+   369→                  className="inline-flex items-center gap-1.5 rounded-md border border-zinc-700/70 bg-zinc-800/50 py-0.5 pl-0.5 pr-1.5"
+   370→                  title={c.hex ?? c.name}
+   371→                >
+   372→                  <span
+   373→                    className="size-4 rounded-[4px] border border-zinc-600/60"
+   374→                    style={c.hex ? { backgroundColor: c.hex } : { background: 'linear-gradient(135deg,#3f3f46 0%,#f59e0b 100%)' }}
+   375→                  />
+   376→                  <span className="text-[11px] text-zinc-300">{c.name}</span>
+   377→                </span>
+   378→              ))}
+   379→            </div>
+   380→          </div>
+   381→        ))}
+   382→      </div>
+   383→    </div>
+   384→  )
+   385→}
+   386→
+   387→/* ------------------------------------------------------------------ */
+   388→/* Engines — cards (law / on_body / failure_modes)                     */
+   389→/* ------------------------------------------------------------------ */
+   390→
+   391→function LabeledBlock({ label, children, tone }: { label: string; children: ReactNode; tone?: 'rose' | 'amber' }) {
+   392→  if (children == null) return null
+   393→  return (
+   394→    <div className="mt-3">
+   395→      <div className={cn('mb-1 text-[10px] font-semibold uppercase tracking-widest', tone === 'rose' ? 'text-rose-400/70' : tone === 'amber' ? 'text-amber-500/70' : 'text-zinc-500')}>
+   396→        {label}
+   397→      </div>
+   398→      <div className="text-xs leading-relaxed text-zinc-400">{children}</div>
+   399→    </div>
+   400→  )
+   401→}
+   402→
+   403→function EnginesView({ spec, filter }: { spec: unknown; filter: string }) {
+   404→  const engines = recordItems(asRecord(spec).engines ?? spec)
+   405→  const usable = engines.filter((e) => Object.keys(e.rec).length > 0)
+   406→  if (usable.length === 0) return <GenericSpecView data={spec} filter={filter} />
+   407→
+   408→  const filtered = usable.filter((e) => matches(e.rec, filter))
+   409→  if (filtered.length === 0) return <FilterEmpty filter={filter} />
+   410→
+   411→  return (
+   412→    <div className="t4-scroll max-h-96 space-y-4 overflow-y-auto pr-1">
+   413→      <div className="grid gap-4 lg:grid-cols-2">
+   414→        {filtered.map((e) => {
+   415→          const name = pickStr(e.rec, 'name', 'id', 'title') || humanizeKey(e.key)
+   416→          const version = pickStr(e.rec, 'version', 'generation', 'gen')
+   417→          const law = pickStr(e.rec, 'law', 'law_summary', 'summary', 'description', 'rule', 'thesis')
+   418→          const onBody = pickStr(e.rec, 'on_body', 'body', 'notes', 'usage', 'use')
+   419→          const failures = pickStrArray(e.rec, 'failure_modes', 'failures', 'failure', 'anti_patterns', 'traps')
+   420→          const { name: _n, version: _v, law: _l, on_body: _o, failure_modes: _f, failures: _ff, ...rest } = e.rec
+   421→          const extra = Object.entries(rest).slice(0, 3)
+   422→          return (
+   423→            <div key={e.key} className="rounded-lg border border-zinc-800 bg-zinc-900/60 p-4">
+   424→              <div className="flex items-center justify-between gap-2">
+   425→                <div className="text-sm font-semibold text-amber-200">{name}</div>
+   426→                {version ? <Chip>{version}</Chip> : null}
+   427→              </div>
+   428→              {law ? <LabeledBlock label="law">{law}</LabeledBlock> : null}
+   429→              {onBody ? <LabeledBlock label="on body">{onBody}</LabeledBlock> : null}
+   430→              {failures.length > 0 ? (
+   431→                <LabeledBlock label="failure modes" tone="rose">
+   432→                  <div className="flex flex-wrap gap-1.5">
+   433→                    {failures.map((f, i) => (
+   434→                      <Chip key={i} tone="rose">{f}</Chip>
+   435→                    ))}
+   436→                  </div>
+   437→                </LabeledBlock>
+   438→              ) : null}
+   439→              {extra.map(([k, v]) => {
+   440→                const s = asStr(v)
+   441→                if (!s) return null
+   442→                return (
+   443→                  <LabeledBlock key={k} label={humanizeKey(k)}>{s}</LabeledBlock>
+   444→                )
+   445→              })}
+   446→            </div>
+   447→          )
+   448→        })}
+   449→      </div>
+   450→    </div>
+   451→  )
+   452→}
+   453→
+   454→/* ------------------------------------------------------------------ */
+   455→/* OC canon — card per OC with recursive field rendering               */
+   456→/* ------------------------------------------------------------------ */
+   457→
+   458→function FieldValue({ value, depth }: { value: unknown; depth: number }): ReactNode {
+   459→  if (value == null) return <span className="text-zinc-600">—</span>
+   460→  if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+   461→    return <span className="text-zinc-300">{asStr(value)}</span>
+   462→  }
+   463→  if (Array.isArray(value)) {
+   464→    if (value.every((x) => typeof x === 'string' || typeof x === 'number')) {
+   465→      return (
+   466→        <span className="flex flex-wrap gap-1">
+   467→          {value.map((x, i) => (
+   468→            <Chip key={i}>{asStr(x)}</Chip>
+   469→          ))}
+   470→        </span>
+   471→      )
+   472→    }
+   473→    return (
+   474→      <span className="block space-y-1">
+   475→        {value.map((x, i) => (
+   476→          <span key={i} className="block text-zinc-400">
+   477→            <FieldValue value={x} depth={depth + 1} />
+   478→          </span>
+   479→        ))}
+   480→      </span>
+   481→    )
+   482→  }
+   483→  const rec = asRecord(value)
+   484→  const entries = Object.entries(rec).slice(0, 10)
+   485→  return (
+   486→    <span className={cn('block space-y-1', depth > 0 && 'border-l border-zinc-800 pl-3')}>
+   487→      {entries.map(([k, v]) => (
+   488→        <span key={k} className="block">
+   489→          <span className="text-[11px] uppercase tracking-wide text-zinc-600">{humanizeKey(k)}: </span>
+   490→          <FieldValue value={v} depth={depth + 1} />
+   491→        </span>
+   492→      ))}
+   493→    </span>
+   494→  )
+   495→}
+   496→
+   497→function OcCanonView({ spec, filter }: { spec: unknown; filter: string }) {
+   498→  const root = asRecord(spec)
+   499→  const raw = root.ocs ?? root.oc ?? root.characters ?? root.canon ?? spec
+   500→  const ocs = recordItems(raw)
+   501→  const usable = ocs.filter((o) => Object.keys(o.rec).length > 0)
+   502→  if (usable.length === 0) return <GenericSpecView data={spec} filter={filter} />
+   503→
+   504→  const filtered = usable.filter((o) => matches(o.rec, filter))
+   505→  if (filtered.length === 0) return <FilterEmpty filter={filter} />
+   506→
+   507→  return (
+   508→    <div className="t4-scroll max-h-96 space-y-4 overflow-y-auto pr-1">
+   509→      <div className="grid gap-4 lg:grid-cols-2">
+   510→        {filtered.map((oc) => {
+   511→          const name = pickStr(oc.rec, 'name', 'id', 'title') || humanizeKey(oc.key)
+   512→          const role = pickStr(oc.rec, 'role', 'archetype', 'type', 'summary')
+   513→          const { name: _n, role: _r, ...fields } = oc.rec
+   514→          return (
+   515→            <div key={oc.key} className="rounded-lg border border-zinc-800 bg-zinc-900/60 p-4">
+   516→              <div className="flex items-baseline justify-between gap-2">
+   517→                <div className="text-sm font-semibold text-amber-200">{name}</div>
+   518→                {role ? <Chip>{role}</Chip> : null}
+   519→              </div>
+   520→              <dl className="mt-3 space-y-2.5">
+   521→                {Object.entries(fields).slice(0, 14).map(([k, v]) => (
+   522→                  <div key={k}>
+   523→                    <dt className="text-[10px] font-semibold uppercase tracking-widest text-zinc-600">{humanizeKey(k)}</dt>
+   524→                    <dd className="mt-0.5 text-xs leading-relaxed">
+   525→                      <FieldValue value={v} depth={0} />
+   526→                    </dd>
+   527→                  </div>
+   528→                ))}
+   529→              </dl>
+   530→            </div>
+   531→          )
+   532→        })}
+   533→      </div>
+   534→    </div>
+   535→  )
+   536→}
+   537→
+   538→/* ------------------------------------------------------------------ */
+   539→/* Rating recipes — tier cards (signals / carriers / counter-NEG)      */
+   540→/* ------------------------------------------------------------------ */
+   541→
+   542→const TIER_ORDER = ['PG13', 'R', 'RPLUS', 'X', 'XXX']
+   543→
+   544→function tierTone(key: string): string {
+   545→  const k = key.toUpperCase()
+   546→  if (k === 'X') return 'border-rose-500/50 bg-rose-500/10 text-rose-300'
+   547→  if (k === 'XXX') return 'border-rose-600/60 bg-rose-600/15 text-rose-400'
+   548→  if (k === 'RPLUS') return 'border-amber-500/60 bg-amber-500/15 text-amber-300'
+   549→  if (k === 'R') return 'border-amber-500/40 bg-amber-500/10 text-amber-400'
+   550→  return 'border-zinc-700 bg-zinc-800/60 text-zinc-200'
+   551→}
+   552→
+   553→function tierLabel(key: string): string {
+   554→  const k = key.toUpperCase()
+   555→  if (k === 'PG13') return 'PG-13'
+   556→  if (k === 'RPLUS') return 'R+'
+   557→  return key.toUpperCase()
+   558→}
+   559→
+   560→function RatingRecipesView({ spec, filter }: { spec: unknown; filter: string }) {
+   561→  const root = asRecord(spec)
+   562→  const tiers = asRecord(root.tiers)
+   563→  if (Object.keys(tiers).length === 0) return <GenericSpecView data={spec} filter={filter} />
+   564→
+   565→  const tierKeys = [...TIER_ORDER.filter((k) => k in tiers), ...Object.keys(tiers).filter((k) => !TIER_ORDER.includes(k.toUpperCase()))]
+   566→  const filteredKeys = tierKeys.filter((k) => matches({ [k]: tiers[k] }, filter))
+   567→
+   568→  const floors = asRecord(root.eternal_floors ?? root.floors)
+   569→  const spread = asRecord(asRecord(root.default_spread).mains_21 ?? root.default_spread)
+   570→  const spreadNote = pickStr(asRecord(root.default_spread), 'note')
+   571→
+   572→  if (filteredKeys.length === 0 && Object.keys(floors).length === 0) return <FilterEmpty filter={filter} />
+   573→
+   574→  return (
+   575→    <div className="space-y-6">
+   576→      <div className="grid gap-4 lg:grid-cols-2">
+   577→        {filteredKeys.map((key) => {
+   578→          const t = asRecord(tiers[key])
+   579→          const signals = pickStrArray(t, 'signals')
+   580→          const counterNeg = pickStrArray(t, 'counter_neg', 'counter-NEG', 'counter_negatives')
+   581→          const carrierClasses = pickStrArray(t, 'carrier_classes', 'classes')
+   582→          const signalMin = asStr(t.signal_min)
+   583→          const note = pickStr(t, 'note')
+   584→          const platformNote = pickStr(t, 'platform_note')
+   585→          const { signals: _s, counter_neg: _c, carrier_classes: _cc, signal_min: _sm, name: _n, ...rest } = t
+   586→          const extra = Object.entries(rest).filter(([, v]) => typeof v === 'string').slice(0, 6)
+   587→          return (
+   588→            <div key={key} className={cn('rounded-lg border bg-zinc-900/60 p-4', tierTone(key).split(' ').slice(0, 2).join(' '))}>
+   589→              <div className="flex items-center justify-between gap-2">
+   590→                <span className={cn('inline-flex items-center rounded-md border px-2 py-0.5 text-sm font-bold tracking-tight', tierTone(key))}>
+   591→                  {tierLabel(key)}
+   592→                </span>
+   593→                {pickStr(t, 'name') ? <span className="text-xs italic text-zinc-500">{pickStr(t, 'name')}</span> : null}
+   594→                {signalMin ? <Chip tone="amber">min {signalMin}</Chip> : null}
+   595→              </div>
+   596→
+   597→              {note ? <p className="mt-3 text-xs leading-relaxed text-zinc-400">{note}</p> : null}
+   598→
+   599→              {signals.length > 0 ? (
+   600→                <LabeledBlock label="signals">
+   601→                  <div className="flex flex-wrap gap-1">
+   602→                    {signals.map((s, i) => <Chip key={i} tone="amber">{s}</Chip>)}
+   603→                  </div>
+   604→                </LabeledBlock>
+   605→              ) : null}
+   606→
+   607→              {carrierClasses.length > 0 ? (
+   608→                <LabeledBlock label="carrier classes">
+   609→                  <div className="flex flex-wrap gap-1">
+   610→                    {carrierClasses.map((c, i) => <Chip key={i}>{c}</Chip>)}
+   611→                  </div>
+   612→                </LabeledBlock>
+   613→              ) : null}
+   614→              {pickStr(t, 'carrier_note') ? (
+   615→                <p className="mt-1.5 text-xs leading-relaxed text-zinc-500">{pickStr(t, 'carrier_note')}</p>
+   616→              ) : null}
+   617→
+   618→              {counterNeg.length > 0 ? (
+   619→                <LabeledBlock label="counter-NEG" tone="rose">
+   620→                  <div className="flex flex-wrap gap-1">
+   621→                    {counterNeg.map((s, i) => <Chip key={i} tone="rose">{s}</Chip>)}
+   622→                  </div>
+   623→                </LabeledBlock>
+   624→              ) : null}
+   625→
+   626→              {extra.map(([k, v]) => (
+   627→                <LabeledBlock key={k} label={humanizeKey(k)}>{asStr(v)}</LabeledBlock>
+   628→              ))}
+   629→              {platformNote ? (
+   630→                <p className="mt-3 border-l-2 border-amber-500/40 pl-3 text-xs italic leading-relaxed text-amber-200/70">{platformNote}</p>
+   631→              ) : null}
+   632→            </div>
+   633→          )
+   634→        })}
+   635→      </div>
+   636→
+   637→      {Object.keys(floors).length > 0 && matches(floors, filter) ? (
+   638→        <div>
+   639→          <div className="mb-2 text-[10px] font-semibold uppercase tracking-widest text-zinc-500">eternal floors</div>
+   640→          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+   641→            {Object.entries(floors).map(([guard, terms]) => (
+   642→              <div key={guard} className="rounded-lg border border-zinc-800 bg-zinc-900/60 p-3">
+   643→                <div className="mb-2 font-mono text-xs text-zinc-300">{humanizeKey(guard)}</div>
+   644→                <div className="flex flex-wrap gap-1">
+   645→                  {pickStrArray({ v: terms }, 'v').map((s, i) => (
+   646→                    <Chip key={i} tone="rose">{s}</Chip>
+   647→                  ))}
+   648→                </div>
+   649→              </div>
+   650→            ))}
+   651→          </div>
+   652→        </div>
+   653→      ) : null}
+   654→
+   655→      {Object.keys(spread).length > 0 ? (
+   656→        <div>
+   657→          <div className="mb-2 text-[10px] font-semibold uppercase tracking-widest text-zinc-500">default spread · mains 21</div>
+   658→          <div className="flex flex-wrap items-center gap-2">
+   659→            {Object.entries(spread).map(([tier, n]) => (
+   660→              <span key={tier} className="inline-flex items-center gap-1.5 rounded-md border border-zinc-800 bg-zinc-900 px-2 py-1">
+   661→                <RatingBadge rating={tier} />
+   662→                <span className="text-xs font-semibold tabular-nums text-zinc-200">{asStr(n)}</span>
+   663→              </span>
+   664→            ))}
+   665→          </div>
+   666→          {spreadNote ? <p className="mt-2 text-xs leading-relaxed text-zinc-500">{spreadNote}</p> : null}
+   667→        </div>
+   668→      ) : null}
+   669→    </div>
+   670→  )
+   671→}
+   672→
+   673→/* ------------------------------------------------------------------ */
+   674→/* Races — status badges (gold=amber, banned=red)                      */
+   675→/* ------------------------------------------------------------------ */
+   676→
+   677→function statusTone(status: string): string {
+   678→  const s = status.toLowerCase()
+   679→  if (s === 'gold' || s === 'favorite' || s === 'beloved') return 'border-amber-500/60 bg-amber-500/15 text-amber-300'
+   680→  if (s === 'banned' || s === 'ban' || s === 'forbidden') return 'border-rose-500/50 bg-rose-500/15 text-rose-400'
+   681→  if (s === 'retired' || s === 'parked') return 'border-zinc-700 bg-zinc-800/40 text-zinc-500 line-through'
+   682→  return 'border-zinc-700 bg-zinc-800/60 text-zinc-300'
+   683→}
+   684→
+   685→function RacesView({ spec, filter }: { spec: unknown; filter: string }) {
+   686→  type Race = { name: string; status: string; note: string; raw: unknown }
+   687→  const races: Race[] = []
+   688→  const push = (item: unknown, fallbackStatus = '') => {
+   689→    const rec = asRecord(item)
+   690→    const name = pickStr(rec, 'name', 'id', 'race', 'title') || (typeof item === 'string' ? item : '')
+   691→    if (!name) return
+   692→    races.push({
+   693→      name,
+   694→      status: pickStr(rec, 'status', 'standing', 'state', 'tier') || fallbackStatus,
+   695→      note: pickStr(rec, 'note', 'description', 'why', 'role', 'use'),
+   696→      raw: item,
+   697→    })
+   698→  }
+   699→  const direct = firstArray(spec, ['races', 'items'])
+   700→  if (direct) for (const item of direct) push(item)
+   701→  if (races.length === 0) {
+   702→    for (const [k, v] of Object.entries(asRecord(spec))) {
+   703→      if (Array.isArray(v)) for (const item of v) push(item)
+   704→      else if (typeof v === 'object' && v != null) push(v, asStr(asRecord(v).status))
+   705→    }
+   706→    if (races.length === 0) {
+   707→      for (const [k, v] of Object.entries(asRecord(spec))) {
+   708→        if (typeof v === 'string') races.push({ name: k, status: v, note: '', raw: { [k]: v } })
+   709→      }
+   710→    }
+   711→  }
+   712→  if (races.length === 0) return <GenericSpecView data={spec} filter={filter} />
+   713→
+   714→  const filtered = races.filter((r) => matches(r.raw, filter))
+   715→  if (filtered.length === 0) return <FilterEmpty filter={filter} />
+   716→
+   717→  return (
+   718→    <div className="t4-scroll max-h-96 overflow-y-auto pr-1">
+   719→      <div className="overflow-hidden rounded-lg border border-zinc-800">
+   720→        <Table>
+   721→          <TableHeader>
+   722→            <TableRow className="hover:bg-transparent">
+   723→              <TableHead className="text-zinc-400">Раса</TableHead>
+   724→              <TableHead className="text-zinc-400">Статус</TableHead>
+   725→              <TableHead className="text-zinc-400">Примечание</TableHead>
+   726→            </TableRow>
+   727→          </TableHeader>
+   728→          <TableBody>
+   729→            {filtered.map((r, i) => (
+   730→              <TableRow key={`${r.name}-${i}`} className="border-zinc-800/70">
+   731→                <TableCell className="font-medium text-zinc-200">{r.name}</TableCell>
+   732→                <TableCell>
+   733→                  {r.status ? (
+   734→                    <span className={cn('inline-flex items-center rounded-md border px-1.5 py-0.5 text-[11px] font-medium', statusTone(r.status))}>
+   735→                      {r.status}
+   736→                    </span>
+   737→                  ) : (
+   738→                    <span className="text-zinc-600">—</span>
+   739→                  )}
+   740→                </TableCell>
+   741→                <TableCell className="max-w-md whitespace-normal text-xs leading-relaxed text-zinc-500">{r.note || '—'}</TableCell>
+   742→              </TableRow>
+   743→            ))}
+   744→          </TableBody>
+   745→        </Table>
+   746→      </div>
+   747→    </div>
+   748→  )
+   749→}
+   750→
+   751→/* ------------------------------------------------------------------ */
+   752→/* Pools — sections of chips                                           */
+   753→/* ------------------------------------------------------------------ */
+   754→
+   755→function PoolsView({ spec, filter }: { spec: unknown; filter: string }) {
+   756→  const root = asRecord(spec)
+   757→  const raw = root.pools ?? (Object.keys(root).length > 0 ? root : spec)
+   758→  const sections: { name: string; items: string[]; raw: unknown }[] = []
+   759→
+   760→  const pushSection = (name: string, v: unknown) => {
+   761→    if (Array.isArray(v)) {
+   762→      const strs = v.map(asStr).filter((s) => s !== '')
+   763→      if (strs.length > 0) sections.push({ name, items: strs, raw: v })
+   764→    } else if (typeof v === 'string' && v !== '') {
+   765→      sections.push({ name, items: [v], raw: v })
+   766→    } else {
+   767→      const rec = asRecord(v)
+   768→      const inner = pickStr(rec, 'items', 'concepts', 'values', 'pool')
+   769→      if (inner.length > 0) sections.push({ name: name || pickStr(rec, 'name', 'id'), items: inner, raw: v })
+   770→    }
+   771→  }
+   772→
+   773→  if (Array.isArray(raw)) {
+   774→    for (const item of raw) {
+   775→      const rec = asRecord(item)
+   776→      const name = pickStr(rec, 'name', 'id', 'title')
+   777→      pushSection(name || 'Пул', rec.items ?? rec.concepts ?? rec.values ?? item)
+   778→    }
+   779→  } else {
+   780→    for (const [k, v] of Object.entries(asRecord(raw))) pushSection(k, v)
+   781→  }
+   782→
+   783→  const filtered = sections.filter((s) => matches(s.raw, filter))
+   784→  if (filtered.length === 0) return <GenericSpecView data={spec} filter={filter} />
+   785→
+   786→  return (
+   787→    <div className="t4-scroll max-h-96 space-y-5 overflow-y-auto pr-1">
+   788→      {filtered.map((s, i) => (
+   789→        <div key={`${s.name}-${i}`}>
+   790→          <div className="mb-2 flex items-baseline gap-2">
+   791→            <span className="text-xs font-semibold uppercase tracking-wide text-zinc-300">{humanizeKey(s.name)}</span>
+   792→            <span className="text-[11px] text-zinc-600">{s.items.length}</span>
+   793→          </div>
+   794→          <div className="flex flex-wrap gap-1.5">
+   795→            {s.items.map((item, j) => (
+   796→              <Chip key={j}>{item}</Chip>
+   797→            ))}
+   798→          </div>
+   799→        </div>
+   800→      ))}
+   801→    </div>
+   802→  )
+   803→}
+   804→
+   805→/* ------------------------------------------------------------------ */
+   806→/* Bans — patterns table + rules                                       */
+   807→/* ------------------------------------------------------------------ */
+   808→
+   809→function BansView({ spec, filter }: { spec: unknown; filter: string }) {
+   810→  const root = asRecord(spec)
+   811→  const patterns = asArray(root.banned_patterns ?? root.patterns ?? root.bans)
+   812→  const faceLock = pickStr(root, 'face_lock')
+   813→  const posShape = pickStrArray(root, 'pos_shape')
+   814→  const qualityTags = pickStr(root, 'quality_tags')
+   815→  const wordBudget = asRecord(root.word_budget)
+   816→  const hedgeBudget = asStr(root.hedge_budget)
+   817→
+   818→  const patternRows = patterns
+   819→    .map((p) => {
+   820→      const rec = asRecord(p)
+   821→      return {
+   822→        pattern: pickStr(rec, 'pattern', 'ban', 'match'),
+   823→        replace: pickStr(rec, 'replace', 'replacement', 'with'),
+   824→        cap: asStr(rec.cap ?? rec.limit),
+   825→        raw: p,
+   826→      }
+   827→    })
+   828→    .filter((p) => p.pattern)
+   829→
+   830→  if (patternRows.length === 0 && Object.keys(root).length === 0) return <GenericSpecView data={spec} filter={filter} />
+   831→
+   832→  const filtered = patternRows.filter((p) => matches(p.raw, filter))
+   833→
+   834→  return (
+   835→    <div className="space-y-6">
+   836→      {filtered.length > 0 ? (
+   837→        <div className="overflow-hidden rounded-lg border border-zinc-800">
+   838→          <Table>
+   839→            <TableHeader>
+   840→              <TableRow className="hover:bg-transparent">
+   841→                <TableHead className="text-zinc-400">Паттерн (запрещён)</TableHead>
+   842→                <TableHead className="text-zinc-400">Замена</TableHead>
+   843→                <TableHead className="text-zinc-400">Cap</TableHead>
+   844→              </TableRow>
+   845→            </TableHeader>
+   846→            <TableBody>
+   847→              {filtered.map((p, i) => (
+   848→                <TableRow key={i} className="border-zinc-800/70">
+   849→                  <TableCell className="whitespace-normal font-mono text-xs text-rose-300/90">{p.pattern}</TableCell>
+   850→                  <TableCell className="max-w-xs whitespace-normal text-xs leading-relaxed text-zinc-300">{p.replace || '—'}</TableCell>
+   851→                  <TableCell>{p.cap && p.cap !== '' ? <Chip tone="amber">{p.cap}</Chip> : <span className="text-zinc-600">—</span>}</TableCell>
+   852→                </TableRow>
+   853→              ))}
+   854→            </TableBody>
+   855→          </Table>
+   856→        </div>
+   857→      ) : patternRows.length > 0 ? (
+   858→        <FilterEmpty filter={filter} />
+   859→      ) : null}
+   860→
+   861→      {faceLock && matches(faceLock, filter) ? (
+   862→        <div>
+   863→          <div className="mb-2 text-[10px] font-semibold uppercase tracking-widest text-zinc-500">face lock</div>
+   864→          <pre className="overflow-x-auto rounded-lg border border-zinc-800 bg-zinc-950 p-3 font-mono text-xs leading-relaxed text-amber-200/90">{faceLock}</pre>
+   865→        </div>
+   866→      ) : null}
+   867→
+   868→      {posShape.length > 0 ? (
+   869→        <div>
+   870→          <div className="mb-2 text-[10px] font-semibold uppercase tracking-widest text-zinc-500">POS shape</div>
+   871→          <div className="flex flex-wrap gap-1.5">
+   872→            {posShape.map((s, i) => <Chip key={i} tone="amber">{s}</Chip>)}
+   873→          </div>
+   874→        </div>
+   875→      ) : null}
+   876→
+   877→      {Object.keys(wordBudget).length > 0 ? (
+   878→        <div>
+   879→          <div className="mb-2 text-[10px] font-semibold uppercase tracking-widest text-zinc-500">word budget</div>
+   880→          <div className="flex flex-wrap items-center gap-2">
+   881→            {Object.entries(wordBudget).map(([k, v]) => {
+   882→              const s = asStr(v)
+   883→              if (!s) return null
+   884→              return (
+   885→                <span key={k} className="inline-flex items-center gap-1.5 rounded-md border border-zinc-800 bg-zinc-900 px-2 py-1 text-xs">
+   886→                  <span className="text-zinc-500">{humanizeKey(k)}</span>
+   887→                  <span className="font-semibold tabular-nums text-zinc-100">{s}</span>
+   888→                </span>
+   889→              )
+   890→            })}
+   891→          </div>
+   892→        </div>
+   893→      ) : null}
+   894→
+   895→      <div className="flex flex-wrap gap-4 text-xs text-zinc-500">
+   896→        {hedgeBudget ? <span>hedge budget: <span className="font-semibold text-zinc-200">{hedgeBudget}</span></span> : null}
+   897→        {qualityTags && matches(qualityTags, filter) ? <span className="max-w-xl">quality tags: <span className="text-zinc-300">{qualityTags}</span></span> : null}
+   898→      </div>
+   899→    </div>
+   900→  )
+   901→}
+   902→
+   903→/* ------------------------------------------------------------------ */
+   904→/* Generic fallback — renders any json                                 */
+   905→/* ------------------------------------------------------------------ */
+   906→
+   907→function GenericValue({ value, depth }: { value: unknown; depth: number }): ReactNode {
+   908→  if (value == null) return <span className="text-zinc-600">—</span>
+   909→  if (typeof value !== 'object') return <span className="text-zinc-300">{asStr(value)}</span>
+   910→
+   911→  if (Array.isArray(value)) {
+   912→    if (value.length === 0) return <span className="text-xs text-zinc-600">пусто</span>
+   913→    if (value.every((x) => typeof x !== 'object' || x === null)) {
+   914→      return (
+   915→        <span className="flex flex-wrap gap-1">
+   916→          {value.map((x, i) => <Chip key={i}>{asStr(x)}</Chip>)}
+   917→        </span>
+   918→      )
+   919→    }
+   920→    return <GenericTable items={value} depth={depth} />
+   921→  }
+   922→
+   923→  const rec = asRecord(value)
+   924→  const entries = Object.entries(rec)
+   925→  if (entries.length === 0) return <span className="text-xs text-zinc-600">пусто</span>
+   926→  if (depth >= 3) {
+   927→    return <span className="font-mono text-[11px] text-zinc-500">{JSON.stringify(value)}</span>
+   928→  }
+   929→  return (
+   930→    <div className="space-y-2">
+   931→      {entries.map(([k, v]) => (
+   932→        <div key={k} className={cn(depth > 0 && 'border-l border-zinc-800 pl-3')}>
+   933→          <div className="text-[10px] font-semibold uppercase tracking-widest text-zinc-600">{humanizeKey(k)}</div>
+   934→          <div className="mt-0.5 text-xs leading-relaxed">
+   935→            <GenericValue value={v} depth={depth + 1} />
+   936→          </div>
+   937→        </div>
+   938→      ))}
+   939→    </div>
+   940→  )
+   941→}
+   942→
+   943→function GenericTable({ items, depth }: { items: unknown[]; depth: number }) {
+   944→  const cols: string[] = []
+   945→  for (const item of items.slice(0, 20)) {
+   946→    for (const k of Object.keys(asRecord(item))) {
+   947→      if (!cols.includes(k) && cols.length < 7) cols.push(k)
+   948→    }
+   949→  }
+   950→  if (cols.length === 0) {
+   951→    return (
+   952→      <div className="space-y-1">
+   953→        {items.map((x, i) => <GenericValue key={i} value={x} depth={depth + 1} />)}
+   954→      </div>
+   955→    )
+   956→  }
+   957→  return (
+   958→    <div className="overflow-hidden rounded-lg border border-zinc-800">
+   959→      <Table>
+   960→        <TableHeader>
+   961→          <TableRow className="hover:bg-transparent">
+   962→            {cols.map((c) => (
+   963→              <TableHead key={c} className="text-zinc-400">{humanizeKey(c)}</TableHead>
+   964→            ))}
+   965→          </TableRow>
+   966→        </TableHeader>
+   967→        <TableBody>
+   968→          {items.map((item, i) => (
+   969→            <TableRow key={i} className="border-zinc-800/70">
+   970→              {cols.map((c) => (
+   971→                <TableCell key={c} className="max-w-xs whitespace-normal text-xs text-zinc-400">
+   972→                  <GenericValue value={asRecord(item)[c]} depth={depth + 1} />
+   973→                </TableCell>
+   974→              ))}
+   975→            </TableRow>
+   976→          ))}
+   977→        </TableBody>
+   978→      </Table>
+   979→    </div>
+   980→  )
+   981→}
+   982→
+   983→function GenericSpecView({ data, filter }: { data: unknown; filter: string }) {
+   984→  if (Array.isArray(data)) {
+   985→    const filtered = data.filter((x) => matches(x, filter))
+   986→    if (filtered.length === 0) return <FilterEmpty filter={filter} />
+   987→    return <GenericTable items={filtered} depth={0} />
+   988→  }
+   989→  if (!matches(data, filter)) return <FilterEmpty filter={filter} />
+   990→  return <GenericValue value={data} depth={0} />
+   991→}
+   992→
+   993→/* ------------------------------------------------------------------ */
+   994→/* Filter empty state + entry point                                    */
+   995→/* ------------------------------------------------------------------ */
+   996→
+   997→function FilterEmpty({ filter }: { filter: string }) {
+   998→  return <EmptyState title={`Ничего не найдено по фильтру «${filter}»`} hint="Попробуйте другой запрос или очистите фильтр." />
+   999→}
+  1000→
+  1001→export function SpecView({ id, spec, filter }: { id: string; spec: unknown; filter: string }) {
+  1002→  switch (id) {
+  1003→    case 'carriers':
+  1004→      return <CarriersView spec={spec} filter={filter} />
+  1005→    case 'poses':
+  1006→      return <PosesView spec={spec} filter={filter} />
+  1007→    case 'palettes':
+  1008→      return <PalettesView spec={spec} filter={filter} />
+  1009→    case 'engines':
+  1010→      return <EnginesView spec={spec} filter={filter} />
+  1011→    case 'oc-canon':
+  1012→      return <OcCanonView spec={spec} filter={filter} />
+  1013→    case 'rating-recipes':
+  1014→      return <RatingRecipesView spec={spec} filter={filter} />
+  1015→    case 'races':
+  1016→      return <RacesView spec={spec} filter={filter} />
+  1017→    case 'pools':
+  1018→      return <PoolsView spec={spec} filter={filter} />
+  1019→    case 'bans':
+  1020→      return <BansView spec={spec} filter={filter} />
+  1021→    default:
+  1022→      return <GenericSpecView data={spec} filter={filter} />
+  1023→  }
+  1024→}
+  1025→
+  1026→export { FILTER_EMPTY }
+  1027→

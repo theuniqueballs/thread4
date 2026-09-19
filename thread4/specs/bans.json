@@ -1,0 +1,18 @@
+{
+  "version": "1.0.0",
+  "banned_patterns": [
+    { "pattern": "vivid saturated colors|rich color palette|high color contrast", "replace": "palette-locked color harmony, named dominant/accent" },
+    { "pattern": "camera [a-z]+", "replace": "viewed from [angle] — Tsubaki draws 'camera' as an object" },
+    { "pattern": "beautiful, gorgeous, stunning, perfect skin", "replace": "specific texture or light effect" },
+    { "pattern": "the moment stretches", "replace": "explicit time-state (suspended/collapsing/arrested)" },
+    { "pattern": "\\[subject\\] does not \\[verb\\]", "replace": "active alternative", "cap": 2 },
+    { "pattern": "her [a-z]+ the primary focus", "replace": "active verb + light interaction", "cap": 3 },
+    { "pattern": "vertebra by vertebra|vertebrae", "replace": "smooth-back vocabulary — renders as external bone ridge" },
+    { "pattern": "desk lamp|brass lamp", "replace": "warm key from off-frame" }
+  ],
+  "face_lock": "Her face is rendered in stylized 2D anime style: anime eyes ([color/state]), small nose, small mouth [state], [tone] skin.",
+  "pos_shape": ["tag_block", "prose_body", "quality_tags"],
+  "word_budget": { "pos_target": 300, "pos_hard": 400, "note": "N28's density-war calibration; the recipe's payload must fit inside it" },
+  "hedge_budget": 2,
+  "quality_tags": "Masterpiece, best quality + palette-specific sd_fragment; never generic filler"
+}

@@ -1,0 +1,1047 @@
+     1→PALETTE_LIBRARY.yaml — THREAD 3.2-EXP V2
+     2→50 new palettes (P21-P70) for the 21×21 palette-rotation system.
+     3→Each palette has 6 color slots (vs the 3-slot P01-P20 palettes):
+     4→dominant, secondary, accent1, accent2, shadow, forbidden
+     5→Plus sd_fragment (rendering hint) and mood (emotional register).
+     6→Design philosophy: VARIETY over UNITY. The 3-slot palettes of P01-P20
+     7→produced stylistically-uniform batches (one dominant hue repeated 7×).
+     8→The 6-slot palettes force color DIVERSITY: every prompt can carry its own
+     9→unique color harmony without repeating another prompt's accent choice.
+    10→Usage with the VOID batch (21×21 mode): 21 palettes drawn from this
+    11→library, each with a "void backdrop" structure — deep dominant as the
+    12→void, accent1 as the body-light, accent2 as the setting-edge.
+    13→C001_NEW (replaces C001): batch uses ≥7 distinct palettes by default.
+    14→C001_EXP (VOID mode): 21 distinct palettes for 21 prompts.
+    15→version: "1.0.0"
+    16→
+    17→═══════════════════════════════════════════════════════════════════════
+    18→VOID-SERIES PALETTES (P21-P40) — deep backdrops, single accent identity
+    19→Designed for the VOID batch (21×21). Each palette = void + 1 signature.
+    20→═══════════════════════════════════════════════════════════════════════
+    21→palettes:
+    22→
+    23→── NIGREDO FAMILY (P21-P27) — blackness, void, emergence ──────────
+    24→id: P21_VOID_BLACK
+    25→name: "Void Black"
+    26→dominant: [absolute-black, deep-charcoal]
+    27→secondary: [obsidian-reflection, oil-sheen]
+    28→accent1: [ivory-bone, the-only-light]
+    29→accent2: [cold-blue-edge, distant-starlight]
+    30→shadow: pure-black
+    31→forbidden: [warm-tones, saturated-reds, gold, neon, fluorescent]
+    32→light_type: rim_only_off_frame
+    33→sd_fragment: "absolute black backdrop, single ivory edge of light, deep void with cold rim, oil-sheen highlights"
+    34→mood: void_emergence_isolation
+    35→id: P22_VOID_INDIGO
+    36→name: "Void Indigo"
+    37→dominant: [midnight-indigo, deep-violet-blue]
+    38→secondary: [navy-deep, ink-shadow]
+    39→accent1: [silver-thread, moonlight-edge]
+    40→accent2: [pale-cyan, distant-aurora-glow]
+    41→shadow: deep-indigo-black
+    42→forbidden: [warm-golds, fire-orange, neon, saturated-red, hot-pink]
+    43→light_type: bioluminescent_distant
+    44→sd_fragment: "midnight indigo void with silver-thread highlights, distant pale-cyan aurora glow, deep navy shadows"
+    45→mood: contemplative_vast_medieval_void
+    46→id: P23_VOID_VIOLET
+    47→name: "Void Violet"
+    48→dominant: [deep-violet, royal-purple-shadow]
+    49→secondary: [amethyst-deep, lavender-shadow]
+    50→accent1: [gold-filigree, ceremonial-gold]
+    51→accent2: [ivory-bone, lace-white]
+    52→shadow: violet-black
+    53→forbidden: [pure-black, fire-red, neon, hot-pink, fluorescent, saturated-yellow]
+    54→light_type: candlelight_off_frame_warm
+    55→sd_fragment: "deep violet royal shadow with gold-filigree highlights, ivory-bone accents, ceremonial violet-black depth"
+    56→mood: ritualistic_imperial_void
+    57→id: P24_VOID_MIDNIGHT
+    58→name: "Void Midnight"
+    59→dominant: [midnight-blue, deep-cobalt-shadow]
+    60→secondary: [prussian-blue, ink-blue]
+    61→accent1: [steel-silver, cold-moon]
+    62→accent2: [pale-lavender, dawn-edge-cool]
+    63→shadow: blue-black
+    64→forbidden: [warm-ambers, golden-glow, neon, fire, hot-pink]
+    65→light_type: cold_moonlight_off_frame
+    66→sd_fragment: "midnight-blue void with cold-steel moonlight highlights, pale-lavender dawn-edge, deep prussian-blue shadow"
+    67→mood: cold_vast_aquatic_void
+    68→id: P25_VOID_ABYSS
+    69→name: "Void Abyss"
+    70→dominant: [abyss-teal, deepest-teal-black]
+    71→secondary: [deep-sea-green, kelp-shadow]
+    72→accent1: [bioluminescent-cyan, deep-sea-glow]
+    73→accent2: [pale-coral-pink, anomaly-color]
+    74→shadow: abyssal-black
+    75→forbidden: [warm-ambers, gold, fire, neon, fluorescent, saturated-yellow]
+    76→light_type: bioluminescent_self_emitting
+    77→sd_fragment: "abyss-teal void with bioluminescent cyan glow, deep-sea-green kelp-shadow, single coral-pink anomaly accent"
+    78→mood: deep_sea_void_breathless
+    79→id: P26_VOID_ECLIPSE
+    80→name: "Void Eclipse"
+    81→dominant: [eclipse-black, sun-corona-ring]
+    82→secondary: [deep-violet, eclipse-shadow]
+    83→accent1: [white-hot-corona, eclipse-ring-light]
+    84→accent2: [pale-gold-edge, corona-spill]
+    85→shadow: corona-black
+    86→forbidden: [saturated-greens, neon, fluorescent, hot-pink, saturated-cyan]
+    87→light_type: eclipse_corona_ring
+    88→sd_fragment: "eclipse-black backdrop with white-hot corona ring, deep-violet shadow, pale-gold corona-spill edge"
+    89→mood: celestial_eclipse_imminent
+    90→id: P27_VOID_STARLIGHT
+    91→name: "Void Starlight"
+    92→dominant: [deep-space-black, cosmic-indigo]
+    93→secondary: [stardust-violet, nebula-soft]
+    94→accent1: [white-star-pinpoint, single-star-light]
+    95→accent2: [pale-gold-dust, cosmic-shimmer]
+    96→shadow: cosmic-black
+    97→forbidden: [fire-warm, neon-pure, hot-pink, saturated-cyan, fluorescent]
+    98→light_type: starlight_pinpoint
+    99→sd_fragment: "deep-space-black void with single white-star pinpoint light, stardust-violet nebula softness, pale-gold cosmic-shimmer dust"
+   100→mood: cosmic_void_solitude
+   101→── ALBEDO FAMILY (P28-P34) — whiteness, purification, body as only light ──
+   102→id: P28_VOID_BONE
+   103→name: "Void Bone"
+   104→dominant: [bone-white, ivory-pale]
+   105→secondary: [alabaster, marble-cold]
+   106→accent1: [black-shadow-ink, single-dark-line]
+   107→accent2: [dusty-rose-faint, the-only-warmth]
+   108→shadow: pale-grey-shadow
+   109→forbidden: [saturated-red, neon, fire, hot-pink, fluorescent, gold-bright]
+   110→light_type: bone-pale_diffuse
+   111→sd_fragment: "bone-white void with alabaster-marble secondary, single black-shadow-ink line accent, faint dusty-rose warmth"
+   112→mood: bone_void_purification
+   113→id: P29_VOID_FOG
+   114→name: "Void Fog"
+   115→dominant: [pale-fog, mist-white]
+   116→secondary: [cool-grey, slate-mist]
+   117→accent1: [silver-edge, fog-rim]
+   118→accent2: [pale-blue-cool, fog-shadow-cool]
+   119→shadow: deep-mist-grey
+   120→forbidden: [warm-golds, fire, neon, hot-pink, saturated-red, fluorescent]
+   121→light_type: fog_diffuse_cool
+   122→sd_fragment: "pale-fog void with cool-grey slate-mist secondary, silver-edge rim, pale-blue-cool fog-shadow"
+   123→mood: fog_void_dissolution
+   124→id: P30_VOID_SMOKE
+   125→name: "Void Smoke"
+   126→dominant: [smoke-grey, ash-white-warm]
+   127→secondary: [charcoal-pale, smoke-shadow]
+   128→accent1: [ember-faint-glow, dying-warmth]
+   129→accent2: [pale-ivory, smoke-edge]
+   130→shadow: smoke-deep-charcoal
+   131→forbidden: [bright-gold, neon, fluorescent, hot-pink, saturated-cyan, fire-orange]
+   132→light_type: ember_glow_off_frame
+   133→sd_fragment: "smoke-grey void with ash-white-warm secondary, ember-faint-glow dying warmth, pale-ivory smoke-edge"
+   134→mood: smoke_void_aftermath
+   135→id: P31_VOID_ASH
+   136→name: "Void Ash"
+   137→dominant: [ash-grey-pale, volcanic-ash]
+   138→secondary: [concrete-grey, slate-ash]
+   139→accent1: [ember-orange-dying, last-fire]
+   140→accent2: [bone-white, ash-edge]
+   141→shadow: ash-deep-shadow
+   142→forbidden: [bright-gold, neon, fluorescent, hot-pink, saturated-cyan, blue-cold]
+   143→light_type: ember_aftermath_off_frame
+   144→sd_fragment: "ash-grey-pale void with concrete-grey secondary, ember-orange-dying accent, bone-white ash-edge"
+   145→mood: ash_void_post_burn
+   146→id: P32_VOID_ICE
+   147→name: "Void Ice"
+   148→dominant: [ice-pale, glacier-white]
+   149→secondary: [frost-blue, cold-cyan-pale]
+   150→accent1: [silver-frost, ice-crystal-light]
+   151→accent2: [pale-violet-cold, twilight-cool]
+   152→shadow: ice-deep-blue
+   153→forbidden: [warm-golds, fire-orange, neon-warm, hot-pink, saturated-red, fluorescent]
+   154→light_type: ice_diffuse_cold
+   155→sd_fragment: "ice-pale void with frost-blue secondary, silver-frost crystal light, pale-violet-cold twilight"
+   156→mood: ice_void_frozen
+   157→id: P33_VOID_PRISM
+   158→name: "Void Prism"
+   159→dominant: [deep-prism-blue, glass-black]
+   160→secondary: [prism-violet, glass-purple]
+   161→accent1: [prism-rainbow-split, spectrum-edge]
+   162→accent2: [pale-gold-refraction, prism-light]
+   163→shadow: prism-deep-violet
+   164→forbidden: [muddy-tones, desaturated-greys, flat-warm, hot-pink-neon]
+   165→light_type: prism_split_refractive
+   166→sd_fragment: "deep-prism-blue void with prism-rainbow-split spectrum-edge, pale-gold refraction accent, glass-purple secondary"
+   167→mood: prism_void_refractive
+   168→id: P34_VOID_AURORA
+   169→name: "Void Aurora"
+   170→dominant: [night-sky-deep, aurora-backdrop]
+   171→secondary: [aurora-teal, aurora-violet]
+   172→accent1: [aurora-green-light, northern-glow]
+   173→accent2: [pale-pink-aurora, dawn-edge-cool]
+   174→shadow: aurora-shadow-deep
+   175→forbidden: [fire-warm, hot-pink, fluorescent, saturated-yellow, neon-pure]
+   176→light_type: aurora_atmospheric
+   177→sd_fragment: "night-sky-deep void with aurora-teal and aurora-violet secondary, aurora-green-light accent, pale-pink-aurora dawn-edge"
+   178→mood: aurora_void_imminent
+   179→── RUBEDO FAMILY (P35-P40) — redness, transformation, body returns color ──
+   180→id: P35_VOID_EMBER
+   181→name: "Void Ember"
+   182→dominant: [ember-deep-red, dying-fire-red]
+   183→secondary: [charcoal-black, ember-shadow]
+   184→accent1: [ember-orange-glow, last-warmth]
+   185→accent2: [ash-pale, ember-edge]
+   186→shadow: ember-black-red
+   187→forbidden: [saturated-cyan, fluorescent, neon-blue, hot-pink, pure-white]
+   188→light_type: ember_glow_off_frame_warm
+   189→sd_fragment: "ember-deep-red void with charcoal-black shadow, ember-orange-glow last warmth, ash-pale edge"
+   190→mood: ember_void_dying
+   191→id: P36_VOID_RUST
+   192→name: "Void Rust"
+   193→dominant: [rust-deep, oxidized-iron-red]
+   194→secondary: [patina-green-faint, rust-shadow]
+   195→accent1: [copper-edge, metal-warmth]
+   196→accent2: [ivory-bone-pale, rust-rim]
+   197→shadow: rust-deep-black
+   198→forbidden: [saturated-cyan, fluorescent, neon, hot-pink, pure-white]
+   199→light_type: rust_diffuse_warm
+   200→sd_fragment: "rust-deep void with patina-green-faint secondary, copper-edge metal warmth, ivory-bone-pale rim"
+   201→mood: rust_void_decay
+   202→id: P37_BLOOD_MOON
+   203→name: "Blood Moon"
+   204→dominant: [blood-moon-red, deep-crimson]
+   205→secondary: [shadow-crimson, blood-shadow]
+   206→accent1: [ivory-bone, the-only-light]
+   207→accent2: [pale-gold-faint, blood-edge]
+   208→shadow: blood-deep-black-red
+   209→forbidden: [saturated-cyan, fluorescent, neon-cyan, hot-pink, pure-white]
+   210→light_type: blood_moon_off_frame
+   211→sd_fragment: "blood-moon-red void with shadow-crimson secondary, ivory-bone single light, pale-gold-faint blood-edge"
+   212→mood: blood_void_imminent
+   213→id: P38_VOID_BLOOD_ACCENT
+   214→name: "Void Blood Accent"
+   215→dominant: [absolute-black, void-deep]
+   216→secondary: [charcoal-deep, void-shadow]
+   217→accent1: [blood-red-single, the-only-color]
+   218→accent2: [ivory-bone, the-only-light]
+   219→shadow: void-black
+   220→forbidden: [saturated-greens, neon, fluorescent, hot-pink, gold-bright]
+   221→light_type: monochrome_plus_blood
+   222→sd_fragment: "absolute-black void with single blood-red accent, ivory-bone single light, charcoal-deep shadow"
+   223→mood: blood_accent_void_solitary
+   224→id: P39_VOID_INFRARED
+   225→name: "Void Infrared"
+   226→dominant: [infrared-deep-red, heat-map-red]
+   227→secondary: [thermal-orange, infrared-shadow]
+   228→accent1: [cool-blue-thermal, the-cool-edge]
+   229→accent2: [pale-yellow-hot, the-hottest-point]
+   230→shadow: infrared-deep-black
+   231→forbidden: [saturated-greens, neon, fluorescent, hot-pink, pure-white-cold]
+   232→light_type: infrared_thermal
+   233→sd_fragment: "infrared-deep-red void with thermal-orange secondary, cool-blue-thermal accent, pale-yellow-hot hottest point"
+   234→mood: thermal_void_visible
+   235→id: P40_VOID_MONOCHROME_RED
+   236→name: "Void Monochrome Red"
+   237→dominant: [monochrome-red-deep, single-hue-red]
+   238→secondary: [red-shadow, red-mid]
+   239→accent1: [ivory-bone, the-only-non-red]
+   240→accent2: [pale-pink-faint, red-edge]
+   241→shadow: monochrome-red-black
+   242→forbidden: [saturated-cyan, fluorescent, neon-blue, hot-pink, pure-white]
+   243→light_type: monochrome_red_diffuse
+   244→sd_fragment: "monochrome-red-deep void with red-shadow secondary, ivory-bone single non-red accent, pale-pink-faint red-edge"
+   245→mood: monochrome_red_void_obsession
+   246→── RAINBOW / SPECTRUM FAMILY (P41-P50) — full color, designed for variety ──
+   247→id: P41_SUNSET_DRIFT
+   248→name: "Sunset Drift"
+   249→dominant: [sunset-orange, coral-warm]
+   250→secondary: [pink-rose, dusty-rose]
+   251→accent1: [cool-blue-distant, the-cool-edge]
+   252→accent2: [pale-gold-dust, sunset-glow]
+   253→shadow: sunset-purple-deep
+   254→forbidden: [neon, fluorescent, saturated-cyan-bright, hot-pink]
+   255→light_type: sunset_warm_low
+   256→sd_fragment: "sunset-orange coral-warm with pink-rose dusty-rose secondary, cool-blue-distant accent, pale-gold-dust glow"
+   257→mood: nostalgic_drift_warm
+   258→id: P42_PRE_DAWN_STILL
+   259→name: "Pre-Dawn Still"
+   260→dominant: [pre-dawn-blue, indigo-morning]
+   261→secondary: [dawn-edge-pale, ivory-edge]
+   262→accent1: [warm-amber-faint, first-light]
+   263→accent2: [pale-rose-cool, dawn-cool]
+   264→shadow: pre-dawn-deep-indigo
+   265→forbidden: [bright-gold, neon, fluorescent, hot-pink, saturated-cyan]
+   266→light_type: pre_dawn_diffuse
+   267→sd_fragment: "pre-dawn-blue indigo-morning with dawn-edge-pale secondary, warm-amber-faint first-light, pale-rose-cool dawn"
+   268→mood: pre_dawn_still_expectant
+   269→id: P43_OCEAN_DEEP_PRISM
+   270→name: "Ocean Deep Prism"
+   271→dominant: [ocean-deep-teal, abyssal-blue]
+   272→secondary: [kelp-shadow-green, deep-sea-shadow]
+   273→accent1: [bioluminescent-cyan, prism-water-light]
+   274→accent2: [pale-coral-anomaly, the-only-warmth]
+   275→shadow: abyssal-black
+   276→forbidden: [warm-golds, fire, neon, hot-pink, fluorescent]
+   277→light_type: bioluminescent_underwater
+   278→sd_fragment: "ocean-deep-teal abyssal-blue with kelp-shadow-green secondary, bioluminescent-cyan prism-water light, pale-coral-anomaly warmth"
+   279→mood: ocean_prism_deep_breathless
+   280→id: P44_DESERT_NIGHT
+   281→name: "Desert Night"
+   282→dominant: [desert-night-indigo, dune-shadow]
+   283→secondary: [sand-pale-moonlit, cool-sand]
+   284→accent1: [pale-gold-moon, the-only-warmth]
+   285→accent2: [pale-violet-distant, night-cool]
+   286→shadow: desert-deep-shadow
+   287→forbidden: [saturated-cyan, fluorescent, neon, hot-pink, fire-orange]
+   288→light_type: moon_desert_diffuse
+   289→sd_fragment: "desert-night-indigo dune-shadow with sand-pale-moonlit secondary, pale-gold-moon warmth, pale-violet-distant cool"
+   290→mood: desert_night_solitude
+   291→id: P45_FOREST_MIST_DAWN
+   292→name: "Forest Mist Dawn"
+   293→dominant: [forest-mist-pale, dawn-green-cool]
+   294→secondary: [moss-shadow, forest-deep]
+   295→accent1: [gold-light-shaft, the-only-warmth]
+   296→accent2: [pale-ivory-edge, mist-rim]
+   297→shadow: forest-deep-shadow
+   298→forbidden: [saturated-cyan, fluorescent, neon, hot-pink, fire-orange]
+   299→light_type: forest_dawn_diffuse
+   300→sd_fragment: "forest-mist-pale dawn-green-cool with moss-shadow secondary, gold-light-shaft single warmth, pale-ivory-edge mist-rim"
+   301→mood: forest_mist_dawn_atmospheric
+   302→id: P46_INK_WASH
+   303→name: "Ink Wash"
+   304→dominant: [ink-wash-black, sumi-ink-deep]
+   305→secondary: [paper-ivory, washi-pale]
+   306→accent1: [single-stroke-vermilion, the-only-color]
+   307→accent2: [ink-shadow-mid, ink-wash-grey]
+   308→shadow: ink-deep-black
+   309→forbidden: [saturated-cyan, fluorescent, neon, hot-pink, fire-orange]
+   310→light_type: ink_wash_diffuse
+   311→sd_fragment: "ink-wash-black sumi-ink-deep with paper-ivory washi-pale secondary, single-stroke-vermilion accent, ink-shadow-mid grey"
+   312→mood: ink_wash_zen_void
+   313→id: P47_PORCELAIN_LACQUER
+   314→name: "Porcelain Lacquer"
+   315→dominant: [porcelain-ivory, lacquer-pale]
+   316→secondary: [lacquer-black-deep, lacquer-shadow]
+   317→accent1: [vermilion-lacquer, the-only-color]
+   318→accent2: [pale-gold-thread, the-only-warmth]
+   319→shadow: porcelain-shadow-soft
+   320→forbidden: [saturated-cyan, fluorescent, neon, hot-pink, fire-orange]
+   321→light_type: lacquer_polish_reflection
+   322→sd_fragment: "porcelain-ivory lacquer-pale with lacquer-black-deep secondary, vermilion-lacquer single color, pale-gold-thread warmth"
+   323→mood: porcelain_lacquer_formal
+   324→id: P48_AURORA_SILK
+   325→name: "Aurora Silk"
+   326→dominant: [aurora-teal-silk, shifting-green]
+   327→secondary: [aurora-violet-silk, shifting-violet]
+   328→accent1: [pale-gold-aurora, the-warm-edge]
+   329→accent2: [pale-pink-aurora, the-cool-edge]
+   330→shadow: aurora-deep-shadow
+   331→forbidden: [saturated-fire, fluorescent, neon, hot-pink, pure-black]
+   332→light_type: aurora_silk_shimmer
+   333→sd_fragment: "aurora-teal-silk shifting-green with aurora-violet-silk secondary, pale-gold-aurora warm edges, pale-pink-aurora cool edges"
+   334→mood: aurora_silk_liquid
+   335→id: P49_CINNABAR_DREAM
+   336→name: "Cinnabar Dream"
+   337→dominant: [cinnabar-deep-red, lacquer-red]
+   338→secondary: [jet-black-cinnabar, ink-shadow-deep]
+   339→accent1: [ivory-bone, the-only-light]
+   340→accent2: [pale-gold-cinnabar, the-warmth]
+   341→shadow: cinnabar-black-deep
+   342→forbidden: [saturated-cyan, fluorescent, neon, hot-pink, saturated-blue]
+   343→light_type: cinnabar_glow_off_frame
+   344→sd_fragment: "cinnabar-deep-red lacquer-red with jet-black-cinnabar secondary, ivory-bone single light, pale-gold-cinnabar warmth"
+   345→mood: cinnabar_dream_imperial
+   346→id: P50_GLASS_AURORA
+   347→name: "Glass Aurora"
+   348→dominant: [glass-clear-pale, refraction-edge]
+   349→secondary: [glass-violet-shadow, glass-deep]
+   350→accent1: [rainbow-refraction-edge, spectrum-light]
+   351→accent2: [pale-gold-glass, refraction-warmth]
+   352→shadow: glass-deep-violet-shadow
+   353→forbidden: [opaque-tones, flat-colors, muddy-palette, hot-pink, fire-orange]
+   354→light_type: glass_refraction_atmospheric
+   355→sd_fragment: "glass-clear-pale with glass-violet-shadow secondary, rainbow-refraction-edge spectrum-light, pale-gold-glass warmth"
+   356→mood: glass_aurora_ethereal
+   357→── HISTORICAL / ATMOSPHERIC FAMILY (P51-P60) — period + weather moods ──
+   358→id: P51_RAIN_STAINED_GLASS
+   359→name: "Rain Stained Glass"
+   360→dominant: [cathedral-deep-blue, leaded-glass-shadow]
+   361→secondary: [stained-glass-crimson, cathedral-red-deep]
+   362→accent1: [gold-lead-frame, the-only-warmth]
+   363→accent2: [pale-ivory-glass, glass-edge-light]
+   364→shadow: cathedral-deep-shadow
+   365→forbidden: [saturated-cyan, fluorescent, neon, hot-pink, fire-orange]
+   366→light_type: stained_glass_diffuse_rain
+   367→sd_fragment: "cathedral-deep-blue leaded-glass-shadow with stained-glass-crimson secondary, gold-lead-frame warmth, pale-ivory-glass edge"
+   368→mood: cathedral_rain_sacred
+   369→id: P52_MEIJI_DUSK
+   370→name: "Meiji Dusk"
+   371→dominant: [meiji-indigo-deep, paper-screen-shadow]
+   372→secondary: [washi-ivory, screen-pale]
+   373→accent1: [warm-amber-off-frame, the-only-warmth]
+   374→accent2: [pale-vermilion-thread, lacquer-edge]
+   375→shadow: meiji-shadow-deep
+   376→forbidden: [saturated-cyan, fluorescent, neon, hot-pink, fire-orange]
+   377→light_type: warm_amber_off_frame
+   378→sd_fragment: "meiji-indigo-deep paper-screen-shadow with washi-ivory secondary, warm-amber-off-frame warmth, pale-vermilion-thread edge"
+   379→mood: meiji_dusk_domestic
+   380→id: P53_OPULENT_DECADENCE
+   381→name: "Opulent Decadence"
+   382→dominant: [burgundy-deep, wine-shadow]
+   383→secondary: [gold-brocade, gold-thread-deep]
+   384→accent1: [ivory-silk, the-only-light]
+   385→accent2: [pale-emerald-thread, brocade-edge]
+   386→shadow: burgundy-deep-shadow
+   387→forbidden: [saturated-cyan, fluorescent, neon, hot-pink, fire-orange]
+   388→light_type: candlelit_off_frame_warm
+   389→sd_fragment: "burgundy-deep wine-shadow with gold-brocade secondary, ivory-silk light, pale-emerald-thread brocade-edge"
+   390→mood: opulent_decadence_ripe
+   391→id: P54_ART_DECO_PLATINUM
+   392→name: "Art Deco Platinum"
+   393→dominant: [platinum-silver, polished-metal]
+   394→secondary: [black-lacquer-deep, deco-shadow]
+   395→accent1: [ivory-bone-deco, the-only-warmth]
+   396→accent2: [pale-gold-geometric, deco-edge]
+   397→shadow: deco-black-deep
+   398→forbidden: [saturated-cyan, fluorescent, neon, hot-pink, fire-orange, pure-warm]
+   399→light_type: deco_polished_reflection
+   400→sd_fragment: "platinum-silver polished-metal with black-lacquer-deep secondary, ivory-bone-deco warmth, pale-gold-geometric edge"
+   401→mood: deco_formal_cold_elegant
+   402→id: P55_SYMBIOTE_BIOLUMINESCENT
+   403→name: "Symbiote Bioluminescent"
+   404→dominant: [obsidian-deep, symbiote-black]
+   405→secondary: [bioluminescent-purple-deep, glow-shadow]
+   406→accent1: [bioluminescent-cyan-self, self-glowing]
+   407→accent2: [pale-magenta-glow, the-only-warm-edge]
+   408→shadow: symbiote-deep-black
+   409→forbidden: [saturated-fire-orange, fluorescent, neon-warm, hot-pink, pure-white]
+   410→light_type: bioluminescent_self_emitting
+   411→sd_fragment: "obsidian-deep symbiote-black with bioluminescent-purple-deep secondary, bioluminescent-cyan-self glow, pale-magenta-glow warmth"
+   412→mood: symbiote_void_self_luminous
+   413→id: P56_AURORA_BOREALIS_NIGHT
+   414→name: "Aurora Borealis Night"
+   415→dominant: [arctic-night-deep, polar-indigo]
+   416→secondary: [aurora-teal-shift, northern-glow]
+   417→accent1: [pale-moon-silver, the-only-light]
+   418→accent2: [pale-violet-aurora, the-warm-edge]
+   419→shadow: arctic-shadow-deep
+   420→forbidden: [fire-warm, hot-pink, fluorescent, saturated-yellow, neon]
+   421→light_type: aurora_atmospheric_arctic
+   422→sd_fragment: "arctic-night-deep polar-indigo with aurora-teal-shift secondary, pale-moon-silver light, pale-violet-aurora warm-edge"
+   423→mood: arctic_void_immense
+   424→id: P57_SUNSET_ON_WATER
+   425→name: "Sunset on Water"
+   426→dominant: [sunset-orange-water, amber-water-warm]
+   427→secondary: [deep-water-shadow, water-indigo]
+   428→accent1: [pale-gold-reflection, the-light]
+   429→accent2: [pale-rose-cool-edge, the-cool-edge]
+   430→shadow: water-deep-shadow
+   431→forbidden: [saturated-cyan, fluorescent, neon, hot-pink, fire-pure]
+   432→light_type: sunset_water_reflection
+   433→sd_fragment: "sunset-orange-water amber-water-warm with deep-water-shadow secondary, pale-gold-reflection light, pale-rose-cool-edge accent"
+   434→mood: sunset_water_nostalgic
+   435→id: P58_INDUSTRIAL_DUST
+   436→name: "Industrial Dust"
+   437→dominant: [concrete-grey, dust-pale]
+   438→secondary: [rust-edge, industrial-orange-deep]
+   439→accent1: [pale-amber-warm, the-only-warmth]
+   440→accent2: [pale-steel-cool, the-cool-edge]
+   441→shadow: industrial-shadow-deep
+   442→forbidden: [saturated-cyan, fluorescent, neon, hot-pink, fire-bright]
+   443→light_type: industrial_dust_diffuse
+   444→sd_fragment: "concrete-grey dust-pale with rust-edge industrial-orange-deep secondary, pale-amber-warm accent, pale-steel-cool edge"
+   445→mood: industrial_decay_atmospheric
+   446→id: P59_RAINY_WINDOW
+   447→name: "Rainy Window"
+   448→dominant: [rain-grey, glass-rain-blue]
+   449→secondary: [wet-stone-shadow, slate-rain]
+   450→accent1: [pale-warm-window, the-only-warmth]
+   451→accent2: [pale-cool-edge, rain-light-cool]
+   452→shadow: rain-deep-shadow
+   453→forbidden: [saturated-fire, fluorescent, neon, hot-pink, gold-bright]
+   454→light_type: rain_diffuse_cool
+   455→sd_fragment: "rain-grey glass-rain-blue with wet-stone-shadow secondary, pale-warm-window warmth, pale-cool-edge rain-light"
+   456→mood: rainy_window_melancholic
+   457→id: P60_FIRE_ASH
+   458→name: "Fire Ash"
+   459→dominant: [fire-deep-orange, fire-warm-glow]
+   460→secondary: [ash-grey-warm, smoke-shadow]
+   461→accent1: [ember-orange-dying, the-only-warmth]
+   462→accent2: [pale-ivory-ash, ash-edge]
+   463→shadow: fire-deep-black
+   464→forbidden: [saturated-cyan, fluorescent, neon-cyan, hot-pink, pure-cold-white]
+   465→light_type: fire_off_frame_warm
+   466→sd_fragment: "fire-deep-orange fire-warm-glow with ash-grey-warm secondary, ember-orange-dying accent, pale-ivory-ash edge"
+   467→mood: fire_ash_aftermath
+   468→── RARE / EXPERIMENTAL FAMILY (P61-P70) — designed for unique moments ──
+   469→id: P61_MONOCHROME_VIOLET
+   470→name: "Monochrome Violet"
+   471→dominant: [monochrome-violet-deep, single-hue-violet]
+   472→secondary: [violet-shadow, violet-mid]
+   473→accent1: [ivory-bone, the-only-non-violet]
+   474→accent2: [pale-lavender-edge, violet-rim]
+   475→shadow: monochrome-violet-black
+   476→forbidden: [saturated-cyan, fluorescent, neon, hot-pink, fire-orange]
+   477→light_type: monochrome_violet_diffuse
+   478→sd_fragment: "monochrome-violet-deep single-hue-violet with violet-shadow secondary, ivory-bone single non-violet accent, pale-lavender-edge rim"
+   479→mood: monochrome_violet_obsessive
+   480→id: P62_PLATINUM_VOID
+   481→name: "Platinum Void"
+   482→dominant: [platinum-pale, polished-silver]
+   483→secondary: [platinum-shadow, cool-grey-deep]
+   484→accent1: [single-warm-amber, the-only-warmth]
+   485→accent2: [pale-blue-cool, the-cool-edge]
+   486→shadow: platinum-deep-shadow
+   487→forbidden: [saturated-cyan, fluorescent, neon, hot-pink, fire-orange]
+   488→light_type: platinum_polished_cool
+   489→sd_fragment: "platinum-pale polished-silver with platinum-shadow secondary, single-warm-amber accent, pale-blue-cool edge"
+   490→mood: platinum_void_cold_elegant
+   491→id: P63_GLACIER_BREACH
+   492→name: "Glacier Breach"
+   493→dominant: [glacier-pale-blue, ice-deep-blue]
+   494→secondary: [frost-shadow-deep, ice-shadow]
+   495→accent1: [pale-gold-warm, the-only-warmth]
+   496→accent2: [pale-cyan-edge, the-cool-edge]
+   497→shadow: glacier-deep-shadow
+   498→forbidden: [fire-warm, hot-pink, fluorescent, saturated-yellow, neon-warm]
+   499→light_type: glacier_diffuse_cold
+   500→sd_fragment: "glacier-pale-blue ice-deep-blue with frost-shadow-deep secondary, pale-gold-warm accent, pale-cyan-edge cool"
+   501→mood: glacier_breach_immense
+   502→id: P64_SUNRISE_INDIGO
+   503→name: "Sunrise Indigo"
+   504→dominant: [pre-dawn-indigo-deep, sky-deep]
+   505→secondary: [sunrise-amber-edge, first-warmth]
+   506→accent1: [pale-gold-sun, the-light]
+   507→accent2: [pale-violet-cool-edge, the-cool-edge]
+   508→shadow: pre-dawn-deep-shadow
+   509→forbidden: [saturated-cyan, fluorescent, neon, hot-pink, fire-orange]
+   510→light_type: sunrise_edge_warm
+   511→sd_fragment: "pre-dawn-indigo-deep sky-deep with sunrise-amber-edge secondary, pale-gold-sun light, pale-violet-cool-edge cool"
+   512→mood: sunrise_indigo_imminent
+   513→id: P65_OBSIDIAN_TEAL
+   514→name: "Obsidian Teal"
+   515→dominant: [obsidian-teal-deep, mineral-black]
+   516→secondary: [teal-shadow-deep, mineral-shadow]
+   517→accent1: [pale-cyan-edge, the-only-light]
+   518→accent2: [pale-gold-mineral, the-warmth]
+   519→shadow: obsidian-deep-black
+   520→forbidden: [fire-warm, hot-pink, fluorescent, saturated-yellow, neon-warm]
+   521→light_type: mineral_polished_cool
+   522→sd_fragment: "obsidian-teal-deep mineral-black with teal-shadow-deep secondary, pale-cyan-edge light, pale-gold-mineral warmth"
+   523→mood: obsidian_mineral_void
+   524→id: P66_DUSK_VERMILION
+   525→name: "Dusk Vermilion"
+   526→dominant: [dusk-vermilion-deep, blood-orange-warm]
+   527→secondary: [shadow-crimson-deep, dusk-shadow]
+   528→accent1: [pale-gold-thread, the-warmth]
+   529→accent2: [pale-blue-cool-distant, the-cool-edge]
+   530→shadow: dusk-deep-shadow
+   531→forbidden: [saturated-cyan, fluorescent, neon, hot-pink, fire-pure]
+   532→light_type: dusk_vermilion_off_frame
+   533→sd_fragment: "dusk-vermilion-deep blood-orange-warm with shadow-crimson-deep secondary, pale-gold-thread warmth, pale-blue-cool-distant accent"
+   534→mood: dusk_vermilion_decadent
+   535→id: P67_PEARL_VOID
+   536→name: "Pearl Void"
+   537→dominant: [pearl-pale-iridescent, mother-of-pearl]
+   538→secondary: [pearl-shadow-soft, pale-iridescent-shadow]
+   539→accent1: [pale-rose-pearl, the-only-warmth]
+   540→accent2: [pale-cyan-pearl, the-cool-edge]
+   541→shadow: pearl-deep-shadow
+   542→forbidden: [fire-warm, hot-pink, fluorescent, saturated-yellow, neon]
+   543→light_type: pearl_iridescent_diffuse
+   544→sd_fragment: "pearl-pale-iridescent mother-of-pearl with pearl-shadow-soft secondary, pale-rose-pearl warmth, pale-cyan-pearl cool"
+   545→mood: pearl_void_ethereal
+   546→id: P68_INK_AND_GOLD
+   547→name: "Ink and Gold"
+   548→dominant: [ink-wash-deep-black, sumi-shadow]
+   549→secondary: [paper-ivory-pale, washi-light]
+   550→accent1: [gold-leaf-bright, the-only-color]
+   551→accent2: [pale-vermilion-edge, the-warmth]
+   552→shadow: ink-deep-black
+   553→forbidden: [saturated-cyan, fluorescent, neon, hot-pink, fire-pure]
+   554→light_type: ink_wash_gold_leaf
+   555→sd_fragment: "ink-wash-deep-black sumi-shadow with paper-ivory-pale secondary, gold-leaf-bright accent, pale-vermilion-edge warmth"
+   556→mood: ink_gold_imperial_formal
+   557→id: P69_EMBER_FROST
+   558→name: "Ember Frost"
+   559→dominant: [frost-pale-blue, ice-shadow]
+   560→secondary: [ember-deep-orange-dying, the-warmth]
+   561→accent1: [pale-gold-ember, the-warm-light]
+   562→accent2: [pale-blue-cool-edge, the-cool-edge]
+   563→shadow: frost-deep-shadow
+   564→forbidden: [saturated-fire-pure, fluorescent, neon, hot-pink, pure-cold-white]
+   565→light_type: ember_frost_dual
+   566→sd_fragment: "frost-pale-blue ice-shadow with ember-deep-orange-dying secondary, pale-gold-ember warm-light, pale-blue-cool-edge cool"
+   567→mood: ember_frost_dual_dramatic
+   568→id: P70_VOID_FINAL
+   569→name: "Void Final"
+   570→dominant: [absolute-void-black, the-deepest-black]
+   571→secondary: [shadow-void, no-color]
+   572→accent1: [single-ivory-thread, the-only-light]
+   573→accent2: [single-blood-edge, the-only-warmth]
+   574→shadow: void-absolute
+   575→forbidden: [all-colors-except-single-ivory-and-single-blood, saturated-cyan, fluorescent, neon, hot-pink, gold-bright]
+   576→light_type: absolute_void_minimal
+   577→sd_fragment: "absolute-void-black with shadow-void no-color, single-ivory-thread light, single-blood-edge warmth"
+   578→mood: absolute_void_final_resolution
+   579→── TENCENCIES FAMILY (P71-P82) — habits, gravities, small addictions ──
+   580→Added 2026-09-04 for batch N14 "TENCENCIES": the 3-batch window (N13+N12+
+   581→GOD LEFT) had consumed 46 of 50 palettes; only P29/P38/P39/P55/P57 remained
+   582→free. Twelve new palettes authored per the 6-slot doctrine. Mood register:
+   583→worn warmth, drowsy want, magnetic repetition — the body confessing habit.
+   584→═══════════════════════════════════════════════════════════════════════
+   585→id: P71_HABIT_UMBER
+   586→name: "Habit Umber"
+   587→dominant: [worn-umber-deep, chair-warm-brown]
+   588→secondary: [aged-leather, kept-warmth-shadow]
+   589→accent1: [honey-warm-glow, the-kept-warmth]
+   590→accent2: [brass-thread, furniture-edge]
+   591→shadow: umber-black
+   592→forbidden: [saturated-cyan, neon, fluorescent, hot-pink, fire-pure, saturated-blue]
+   593→light_type: kept_warmth_diffuse
+   594→sd_fragment: "worn-umber chair-warm brown with aged-leather secondary, honey-warm-glow accent, brass-thread edge"
+   595→mood: habit_kept_warm
+   596→id: P72_OPIUM_PLUM
+   597→name: "Opium Plum"
+   598→dominant: [deep-plum-syrup, drowsy-violet]
+   599→secondary: [smoked-plum, syrup-shadow]
+   600→accent1: [pale-lilac-syrup, the-drowse-light]
+   601→accent2: [gilt-thread-faint, drowsy-gold]
+   602→shadow: plum-black
+   603→forbidden: [saturated-cyan, fluorescent, neon, hot-pink, saturated-red-bright, pure-white]
+   604→light_type: doped_diffuse_warm
+   605→sd_fragment: "deep-plum-syrup drowsy-violet with smoked-plum secondary, pale-lilac-syrup accent, gilt-thread-faint gold"
+   606→mood: drugged_decadent_lull
+   607→id: P73_VERMEIL_SMOKE
+   608→name: "Vermeil Smoke"
+   609→dominant: [smoke-rose-grey, exhale-grey-warm]
+   610→secondary: [vermilion-ember-deep, last-ember-shadow]
+   611→accent1: [vermilion-ember, the-lit-edge]
+   612→accent2: [rose-smoke-pale, exhale-rim]
+   613→shadow: smoke-plum-black
+   614→forbidden: [saturated-cyan, fluorescent, neon-blue, hot-pink, pure-white, pure-cold]
+   615→light_type: ember_exhale_off_frame
+   616→sd_fragment: "smoke-rose-grey exhale-warm with vermilion-ember-deep secondary, vermilion-ember accent, rose-smoke-pale rim"
+   617→mood: slow_vice_evening
+   618→id: P74_HONEY_STATIC
+   619→name: "Honey Static"
+   620→dominant: [amber-honey-deep, hum-gold]
+   621→secondary: [static-lilac-pale, static-shadow]
+   622→accent1: [pale-gold-hum, the-wanting-light]
+   623→accent2: [electric-lilac-faint, the-flicker]
+   624→shadow: amber-black
+   625→forbidden: [saturated-cyan, fluorescent, neon, fire-pure, hot-pink, saturated-blue]
+   626→light_type: hum_warm_diffuse
+   627→sd_fragment: "amber-honey-deep hum-gold with static-lilac-pale secondary, pale-gold-hum accent, electric-lilac-faint flicker"
+   628→mood: wanting_hum_gold
+   629→id: P75_VELVET_GRAVITY
+   630→name: "Velvet Gravity"
+   631→dominant: [wine-velvet-deep, pull-burgundy]
+   632→secondary: [burgundy-shadow, cushion-dark]
+   633→accent1: [blush-velvet-light, the-soft-pull]
+   634→accent2: [antique-gold-thread, tassel-edge]
+   635→shadow: velvet-black
+   636→forbidden: [saturated-cyan, neon, fluorescent, hot-pink, fire-pure, saturated-green]
+   637→light_type: gravity_warm_low
+   638→sd_fragment: "wine-velvet-deep pull-burgundy with burgundy-shadow secondary, blush-velvet-light accent, antique-gold-thread edge"
+   639→mood: gravity_keeping_her
+   640→id: P76_IRON_TIDE
+   641→name: "Iron Tide"
+   642→dominant: [iron-grey-deep, magnet-grey]
+   643→secondary: [tide-cold-blue, cold-current]
+   644→accent1: [crimson-pull, the-single-red]
+   645→accent2: [steel-silver-edge, cold-rim]
+   646→shadow: iron-black
+   647→forbidden: [fire-orange, neon, fluorescent, hot-pink, saturated-yellow, warm-golds]
+   648→light_type: cold_pull_gel
+   649→sd_fragment: "iron-grey-deep magnet-grey with tide-cold-blue secondary, crimson-pull single red accent, steel-silver-edge rim"
+   650→mood: magnet_iron_cold
+   651→id: P77_LATE_MILK
+   652→name: "Late Milk"
+   653→dominant: [milk-pale-cool, midnight-kitchen-pale]
+   654→secondary: [kitchen-blue-shadow, tile-shadow]
+   655→accent1: [warm-square-gold, the-open-door]
+   656→accent2: [porcelain-edge-blue, cold-shelf-rim]
+   657→shadow: milk-grey-shadow
+   658→forbidden: [fire-orange, neon, fluorescent, hot-pink, saturated-red, warm-ambers]
+   659→light_type: open_door_square
+   660→sd_fragment: "milk-pale-cool midnight-kitchen with kitchen-blue-shadow secondary, warm-square-gold open-door accent, porcelain-edge-blue rim"
+   661→mood: midnight_appetite_quiet
+   662→id: P78_RUST_LULL
+   663→name: "Rust Lull"
+   664→dominant: [rust-rose-deep, ember-rust]
+   665→secondary: [moss-shadow-soft, garden-dark]
+   666→accent1: [ember-copper-warm, the-kept-heat]
+   667→accent2: [patina-green-faint, oxidized-edge]
+   668→shadow: rust-black
+   669→forbidden: [saturated-cyan, fluorescent, neon, hot-pink, pure-white, saturated-blue]
+   670→light_type: ember_kept_off_frame
+   671→sd_fragment: "rust-rose-deep ember-rust with moss-shadow secondary, ember-copper-warm accent, patina-green-faint edge"
+   672→mood: rusting_in_place
+   673→id: P79_WAX_NOON
+   674→name: "Wax Noon"
+   675→dominant: [wax-yellow-warm, inertia-gold]
+   676→secondary: [dust-gold-haze, noon-haze]
+   677→accent1: [sweat-sheen-gold, the-heat-light]
+   678→accent2: [linen-bone-pale, dry-edge]
+   679→shadow: noon-brown-black
+   680→forbidden: [saturated-cyan, fluorescent, neon, hot-pink, saturated-blue, pure-cold-white]
+   681→light_type: melting_noon_hard
+   682→sd_fragment: "wax-yellow-warm inertia-gold with dust-gold-haze secondary, sweat-sheen-gold accent, linen-bone-pale edge"
+   683→mood: melting_afternoon_still
+   684→id: P80_SALT_APPETITE
+   685→name: "Salt Appetite"
+   686→dominant: [salt-white-warm, mineral-pale]
+   687→secondary: [brine-teal-deep, wet-shadow]
+   688→accent1: [coral-grain-bright, the-craving]
+   689→accent2: [sea-mineral-teal, salt-rim]
+   690→shadow: brine-blue-black
+   691→forbidden: [fire-orange, neon, fluorescent, hot-pink, gold-bright, warm-ambers]
+   692→light_type: mineral_glare_high
+   693→sd_fragment: "salt-white-warm mineral-pale with brine-teal-deep secondary, coral-grain-bright accent, sea-mineral-teal rim"
+   694→mood: salt_hunger_clean
+   695→id: P81_FAWN_FOLD
+   696→name: "Fawn Fold"
+   697→dominant: [fawn-beige-soft, worn-soft-brown]
+   698→secondary: [taupe-shadow-warm, linen-shadow]
+   699→accent1: [worn-ivory-linen, the-soft-light]
+   700→accent2: [rose-fawn-faint, warmth-edge]
+   701→shadow: fawn-brown-black
+   702→forbidden: [saturated-cyan, neon, fluorescent, hot-pink, fire-pure, saturated-blue]
+   703→light_type: worn_soft_diffuse
+   704→sd_fragment: "fawn-beige-soft worn-brown with taupe-shadow secondary, worn-ivory-linen accent, rose-fawn-faint edge"
+   705→mood: worn_soft_repetition
+   706→id: P82_INK_SUNDOWN
+   707→name: "Ink Sundown"
+   708→dominant: [ink-violet-dusk, repeated-dusk-deep]
+   709→secondary: [burnt-rose-deep, dusk-under-shadow]
+   710→accent1: [amber-rehearsal-glow, the-daily-glow]
+   711→accent2: [pale-lilac-ash, last-light-rim]
+   712→shadow: ink-black
+   713→forbidden: [saturated-cyan, fluorescent, neon, hot-pink, fire-pure, saturated-green]
+   714→light_type: dusk_rehearsal_off_frame
+   715→sd_fragment: "ink-violet-dusk repeated-deep with burnt-rose secondary, amber-rehearsal-glow accent, pale-lilac-ash rim"
+   716→mood: repeated_dusk_ink
+   717→═══════════════════════════════════════════════════════════════════════
+   718→USAGE RULES (C066-C072 in CONSTRAINTS.yaml)
+   719→═══════════════════════════════════════════════════════════════════════
+   720→C066 replaces C001: batch uses ≥7 distinct palettes (was ≤3).
+   721→C067: no palette more than 3× per batch (forces ≥7 distinct when 21 prompts).
+   722→C068_EXP (VOID mode): 21 distinct palettes for 21 prompts, each used 1×.
+   723→C069: each palette's 6-slot structure must be honored in POS prose.
+   724→Every palette's accent1 must appear as a named color word in POS.
+   725→Every palette's dominant must set the overall color mood.
+   726→C070: palette's forbidden_colors must NOT appear in POS as named color words.
+   727→C071: palette cross-batch rotation — prior batch's palettes blacklisted.
+   728→C072: R+ Yodayo compliance — see RULES §41 (no bare nipple visible in POS).
+   729→
+   730→═══════════════════════════════════════════════════════════════════════
+   731→SATURATION DOCTRINE (v1.0, 2026-09-10 — «маска блеклости» fix; RULES §51)
+   732→═══════════════════════════════════════════════════════════════════════
+   733→DIAGNOSIS (scripts/color_audit.py, machine evidence, 2026-09-10):
+   734→- N20: DESAT/SAT word ratio 1.66, 7/21 wash-risk prompts (worst of series)
+   735→- N18: ~1.2, 6/21 · N19: 0.85, 5/21
+   736→- The library's own vocabulary (pale-/faint-/smoke-/ash-/fog-/worn- words,
+   737→  REQUIRED in POS by C069) + diffuse-dominant light types + ZERO anti-wash
+   738→  NEG terms = the model renders a milky film over otherwise good palettes.
+   739→  The palette is not the disease; the REGISTER is. Author's complaint,
+   740→  verbatim: «Бывает, что сама палитра хороша, а на картинках будто маска
+   741→  какой-то блеклости» — the named desaturated words ARE the mask.
+   742→
+   743→THE FIVE LOCKS (binding from N21; full law text in RULES §51):
+   744→1. DEEP-ANCHOR LOCK: the quality closer anchors the dominant as DEPTH,
+   745→   never as pallor — "deep-mist-grey depth", never "pale-fog tones"; every
+   746→   pale-family word in the closer is paired with a depth-qualifier in the
+   747→   same phrase.
+   748→2. SATURATED ANCHOR LOCK (one per prompt): every palette names ONE
+   749→   full-saturation element — accent1 when accent1 is saturated, else its
+   750→   highest-energy slot (the vermilion stroke, the blood-edge, the coral
+   751→   anomaly, the gilt thread). It appears in POS prose as a NAMED saturated
+   752→   color doing visible work. Monochrome+1-saturated is the classic
+   753→   punch-through; even P29_VOID_FOG carries its silver-edge at full polish.
+   754→3. CONTRAST CARRIER LOCK: every POS carries >=1 light-contrast carrier
+   755→   (rim, specular, wet-highlight, hard shadow line, caustic, corona) —
+   756→   contrast reads as color; a washed frame is a flat frame. FR4 preferred
+   757→   over FR1/FR2 when the dominant is a pale-family word.
+   758→4. ANTI-WASH NEG LOCK (TIER 3 scene-block, 3-6 terms, §49-compatible):
+   759→   "washed-out, faded colors, low contrast" always; plus "desaturated
+   760→   palette, milky haze, grey overlay, flat lighting" when the chosen
+   761→   palette's dominant is a pale-family word.
+   762→5. COLOR GATE (lint law): per-prompt DESAT/SAT <= 1.2 with SAT >= 3,
+   763→   unless the batch header declares MUTED-BY-ORDER (the author's explicit
+   764→   muted-theme order; N20's mono-no-aware would have carried it
+   765→   legitimately — muted BY ORDER, not by drift).
+   766→
+   767→FAMILY → SATURATION-ANCHOR GUIDANCE (which slot carries lock 2):
+   768→- VOID blacks (P21/P26/P27/P38/P70): the accent IS the anchor (ivory-thread,
+   769→  corona-ring, blood-edge) — render at full value; "bright" is allowed here
+   770→- ALBEDO whites (P28/P29/P30/P31/P32): depth lives in the SHADOW slot —
+   771→  name the deep shadow (deep-mist-grey, smoke-deep-charcoal, pearl-deep)
+   772→  as the depth carrier; the single warm accent (dusty-rose, ember-faint,
+   773→  ember-orange-dying) is the saturated anchor at full strength
+   774→- RUBEDO / SPECTRUM (P35-P50): naturally saturated — guard the contrast
+   775→  carrier instead; vermilion/lacquer/blood at full value by default
+   776→- HISTORICAL (P51-P60): stained-glass, brocade and gold families carry
+   777→  their own anchors; the grey families (P58, P59) obey the ALBEDO rule
+   778→- RARE (P61-P70): per-name — monochromes obey the "1 non-family accent at
+   779→  full saturation" rule (P61's ivory-bone, P70's single-blood-edge)
+   780→- TENCENCIES (P71-P82): worn-warmth families — the warmth word (honey,
+   781→  ember, coral, vermilion) is the anchor at full saturation; NO extra
+   782→  desaturation words beyond the palette's own slots
+   783→═══════════════════════════════════════════════════════════════════════
+   784→
+   785→── TINT FAMILY (P83-P88) — blue as a wearable condition ────────────
+   786→Added 2026-09-13 for batch N24 "BLUE IS THE LONELIEST COLOR": the watch
+   787→left 12 free palettes; a blue-dominant batch mints its own shelf. Doctrine:
+   788→every blue in this family is SATURATED at depth (the anti-wash law applies
+   789→to blue too — lonely is not washed out); each family carries exactly one
+   790→small warm witness (the harbor amber, the dawn rose, the blush, the neon),
+   791→and the warmth is always outnumbered.
+   792→id: P83_MIDNIGHT_LAGOON
+   793→name: "Midnight Lagoon"
+   794→dominant: [lagoon-blue-deep, ink-water]
+   795→secondary: [moon-silver-lap, tide-glass]
+   796→accent1: [harbor-amber-glow, the-one-warmth]
+   797→accent2: [phosphor-cyan-fleck, night-water-spark]
+   798→shadow: lagoon-black
+   799→forbidden: [daylight, saturated-yellow, neon, hot-pink, fire-orange]
+   800→light_type: harbor_light_off_frame
+   801→sd_fragment: "lagoon-blue-deep ink-water with moon-silver-lap secondary, one harbor-amber-glow warmth, phosphor-cyan night-spark"
+   802→mood: lagoon_night_alone
+   803→id: P84_CERULEAN_STILL
+   804→name: "Cerulean Still"
+   805→dominant: [cerulean-flat-calm, sky-glass]
+   806→secondary: [horizon-pale, noon-white]
+   807→accent1: [rooftop-amber-one, one-warm-hour]
+   808→accent2: [tide-teal-glass]
+   809→shadow: still-water-shadow
+   810→forbidden: [fire-orange, neon, hot-pink, saturated-red, fluorescent]
+   811→light_type: flat_calm_diffuse
+   812→sd_fragment: "cerulean flat-calm sky-glass with horizon-pale secondary, one rooftop-amber hour, tide-teal glass edge"
+   813→mood: horizon_empty_patient
+   814→id: P85_ULTRAMARINE_HOUR
+   815→name: "Ultramarine Hour"
+   816→dominant: [ultramarine-saturated-deep]
+   817→secondary: [night-navy, keel-blue]
+   818→accent1: [brass-pier-glow, the-warm-coin]
+   819→accent2: [moon-silver-rim]
+   820→shadow: ultramarine-black
+   821→forbidden: [saturated-yellow, neon, hot-pink, fluorescent, daylight]
+   822→light_type: pier_glow_single
+   823→sd_fragment: "ultramarine-saturated-deep with night-navy keel-blue secondary, one brass-pier-glow warm coin, moon-silver rim"
+   824→mood: last_light_before_dark
+   825→id: P86_PRUSSIAN_BOTTLE
+   826→name: "Prussian Bottle"
+   827→dominant: [prussian-bottle-glass]
+   828→secondary: [bottle-green-deep, sea-glass]
+   829→accent1: [label-gold-flake, the-kept-flake]
+   830→accent2: [seafoam-pale]
+   831→shadow: prussian-black
+   832→forbidden: [fire-orange, hot-pink, neon, saturated-yellow, warm-ambers]
+   833→light_type: bottle_glass_filtered
+   834→sd_fragment: "prussian bottle-glass blue with bottle-green sea-glass secondary, label-gold flake, seafoam-pale edge"
+   835→mood: bottled_evening_blue
+   836→id: P87_ICE_SHEET_FIRSTLIGHT
+   837→name: "Ice Sheet Firstlight"
+   838→dominant: [ice-sheet-pale-blue]
+   839→secondary: [pack-ice-white, frost-white]
+   840→accent1: [dawn-rose-one-degree, the-first-warmth]
+   841→accent2: [glacier-cyan]
+   842→shadow: ice-blue-shadow
+   843→forbidden: [fire-orange, hot-pink, neon, saturated-yellow, warm-gold]
+   844→light_type: first_light_flat
+   845→sd_fragment: "ice-sheet pale-blue with pack-ice white, one dawn-rose degree of warmth, glacier-cyan edge"
+   846→mood: first_light_alone_wide
+   847→id: P88_COBALT_ROAD
+   848→name: "Cobalt Road"
+   849→dominant: [cobalt-saturated-deep]
+   850→secondary: [asphalt-navy-wet]
+   851→accent1: [buoy-orange-single, the-signal]
+   852→accent2: [wave-crest-white]
+   853→shadow: cobalt-black
+   854→forbidden: [hot-pink, neon, fluorescent, saturated-yellow]
+   855→light_type: buoy_light_off_frame
+   856→sd_fragment: "cobalt-saturated-deep over wet asphalt-navy, one buoy-orange signal, wave-crest-white rim"
+   857→mood: open_water_signal
+   858→
+   859→id: P89_THRESHOLD_GOLD
+   860→name: "Threshold Gold"
+   861→dominant: [honey-domestic-deep, lamp-butter-gold]
+   862→secondary: [adventurine-green-leak, seam-fern]
+   863→accent1: [fairy-gold-bright, the-leaked-light]
+   864→accent2: [tea-brown-warm, kept-baseboard]
+   865→shadow: pantry-brown-black
+   866→forbidden: [saturated-cyan, fluorescent, neon, hot-pink, pure-white, electric-violet]
+   867→light_type: lamp_with_a_secret
+   868→sd_fragment: "honey-domestic-deep lamp-butter-gold with adventurine-green-leak secondary, fairy-gold-bright accent, tea-brown-warm edge"
+   869→mood: the_kitchen_suddenly_aware
+   870→id: P90_FAIRY_LAUNDRY
+   871→name: "Fairy Laundry"
+   872→dominant: [linen-white-warm, line-dried-cream]
+   873→secondary: [thistle-green-deep, hedge-shadow]
+   874→accent1: [moth-wing-dust-gold, the-powder]
+   875→accent2: [clothespin-wood-brown, domestic-tether]
+   876→shadow: garden-green-black
+   877→forbidden: [fluorescent, neon, hot-pink, saturated-cyan, pure-white-cold, electric-blue]
+   878→light_type: afternoon_through-sheets
+   879→sd_fragment: "linen-white-warm line-dried-cream with thistle-green-deep secondary, moth-wing-dust-gold accent, clothespin-wood-brown edge"
+   880→mood: chores_shared_with_small_gods
+   881→id: P91_MIDNIGHT_BODEGA
+   882→name: "Midnight Bodega"
+   883→dominant: [fluorescent-milk-green, cooler-light-static]
+   884→secondary: [moonglow-silver-deep, the-spill]
+   885→accent1: [citrus-wedge-bright, the_offer]
+   886→accent2: [shelf-teal-cool, glass-door-glow]
+   887→shadow: street-ink-black
+   888→forbidden: [hot-pink, fire-orange, pure-white, warm-amber-domination, saturated-red]
+   889→light_type: two_currencies_of_light
+   890→sd_fragment: "fluorescent-milk-green cooler-light-static with moonglow-silver-deep secondary, citrus-wedge-bright accent, shelf-teal-cool edge"
+   891→mood: open_all_hours_any_world
+   892→id: P92_WITCHING_HOUR_KITCHEN
+   893→name: "Witching Hour Kitchen"
+   894→dominant: [copper-pot-warm, stove-ember-brown]
+   895→secondary: [spell-teal-steam, the-murmur]
+   896→accent1: [flame-jade-bright, the-awake-burner]
+   897→accent2: [jar-amber-deep, shelved-remedy]
+   898→shadow: kitchen-umber-black
+   899→forbidden: [neon, fluorescent, hot-pink, electric-violet, pure-white, saturated-cyan]
+   900→light_type: steam_that_answers_back
+   901→sd_fragment: "copper-pot-warm stove-ember-brown with spell-teal-steam secondary, flame-jade-bright accent, jar-amber-deep edge"
+   902→mood: recipe_in_two_worlds
+   903→id: P93_GLASS_BELL_JAR
+   904→name: "Glass Bell Jar"
+   905→dominant: [greenhouse-green-soft, cloche-haze]
+   906→secondary: [silver-enchantment-cool, the_domes_answer]
+   907→accent1: [petal-coral-warm, the_kept_alive]
+   908→accent2: [condensation-silver, breath_on_glass]
+   909→shadow: garden-midnight-black
+   910→forbidden: [fluorescent, neon, hot-pink, saturated-orange, pure-white, electric-yellow]
+   911→light_type: light_that_stayed_in_jar
+   912→sd_fragment: "greenhouse-green-soft cloche-haze with silver-enchantment-cool secondary, petal-coral-warm accent, condensation-silver edge"
+   913→mood: tended_by_something_patient
+   914→id: P94_TROLLBRIDGE_DUSK
+   915→name: "Trollbridge Dusk"
+   916→dominant: [moss-stone-deep, under-arch-shade]
+   917→secondary: [lantern-amber-bright, toll-light]
+   918→accent1: [coin-brass-bright, the_fare]
+   919→accent2: [river-iron-cool, water-under-bridge]
+   920→shadow: bridge-black
+   921→forbidden: [neon, fluorescent, hot-pink, electric-violet, saturated-cyan, pure-white]
+   922→light_type: toll_collected_in_warmth
+   923→sd_fragment: "moss-stone-deep under-arch-shade with lantern-amber-bright secondary, coin-brass-bright accent, river-iron-cool edge"
+   924→mood: crossing_costs_small_change
+   925→id: P95_SPELLBOUND_LINEN
+   926→name: "Spellbound Linen"
+   927→dominant: [white-on-white-deep, pressed-ivory]
+   928→secondary: [aurora-thread-teal, the_stitch]
+   929→accent1: [embroidery-gold-bright, one_sewn_star]
+   930→accent2: [shadow-lavender-cool, folded-depth]
+   931→shadow: linen-grey-black
+   932→forbidden: [saturated-cyan, neon, fluorescent, hot-pink, fire-orange, pure-white-flat]
+   933→light_type: the_seam_sewn_shut
+   934→sd_fragment: "white-on-white-deep pressed-ivory with aurora-thread-teal secondary, embroidery-gold-bright accent, shadow-lavender-cool edge"
+   935→mood: linen_that_remembers_the_spell
+   936→id: P96_GRIMOIRE_AND_JAM
+   937→name: "Grimoire and Jam"
+   938→dominant: [ink-indigo-deep, study-black-blue]
+   939→secondary: [jam-ruby-thick, the_sweet_margin]
+   940→accent1: [red-currant-bright, bookmark_ribbon]
+   941→accent2: [leather-brown-warm, the_old-binding]
+   942→shadow: margin-ink-black
+   943→forbidden: [neon, fluorescent, hot-pink, electric-green, pure-white, saturated-cyan]
+   944→light_type: lamp_over_open_page
+   945→sd_fragment: "ink-indigo-deep study-black-blue with jam-ruby-thick secondary, red-currant-bright accent, leather-brown-warm edge"
+   946→mood: breakfast_with_a_labrador_familiar
+   947→id: P97_SELKIE_COMMUTE
+   948→name: "Selkie Commute"
+   949→dominant: [rain-grey-commute, coat-slate-deep]
+   950→secondary: [sea-spell-teal, the_flash]
+   951→accent1: [signal-amber-bright, the_last_train]
+   952→accent2: [harbor-green-dark, wake-foam-silver]
+   953→shadow: platform-blue-black
+   954→forbidden: [hot-pink, neon, fluorescent, fire-orange, pure-white, saturated-magenta]
+   955→light_type: one_flash_of_the_other_sea
+   956→sd_fragment: "rain-grey-commute coat-slate-deep with sea-spell-teal secondary, signal-amber-bright accent, harbor-green-dark edge"
+   957→mood: wet_things_with_schedules
+   958→id: P98_PIXIE_SUMMER_SHIFT
+   959→name: "Pixie Summer Shift"
+   960→dominant: [worn-denim-blue-faded, shift-cotton-soft]
+   961→secondary: [pollen-gold-heavy, the_haze]
+   962→accent1: [glint-wing-green-bright, the_dart]
+   963→accent2: [farm-red-brick, barn-answer]
+   964→shadow: orchard-dusk-black
+   965→forbidden: [fluorescent, neon, electric-violet, hot-pink, pure-white, saturated-cyan]
+   966→light_type: pollen_that_grants_wishes
+   967→sd_fragment: "worn-denim-blue-faded shift-cotton-soft with pollen-gold-heavy secondary, glint-wing-green-bright accent, farm-red-brick edge"
+   968→mood: hired_help_with_hidden_wings
+   969→id: P99_MOONLIT_TOOLSHED
+   970→name: "Moonlit Toolshed"
+   971→dominant: [shed-green-dark, workbench-shadow]
+   972→secondary: [moon-silver-bright, through-the-cracks]
+   973→accent1: [brass-fitting-glow, the_kept_tools]
+   974→accent2: [seed-packet-cream, spring's_ledger]
+   975→shadow: shed-black
+   976→forbidden: [neon, fluorescent, hot-pink, electric-yellow, saturated-red, pure-white]
+   977→light_type: moon_through_knot_holes
+   978→sd_fragment: "shed-green-dark workbench-shadow with moon-silver-bright secondary, brass-fitting-glow accent, seed-packet-cream edge"
+   979→mood: the_shed_repaired_itself
+   980→
+   981→id: P100_POCKETED_NOON
+   982→name: "Pocketed Noon"
+   983→dominant: [noon-ink-blue-deep, pocket-shadow-navy]
+   984→secondary: [office-grey-soft]
+   985→accent1: [candy-pink-lining-bright, the-secret]
+   986→accent2: [brass-zip-gold]
+   987→shadow: ink-black
+   988→forbidden: [neon, fluorescent, hot-pink-dominant, pure-white, saturated-cyan, electric-violet]
+   989→light_type: bulb_over_desk_secret
+   990→sd_fragment: "noon-ink-blue-deep pocket-shadow-navy with office-grey-soft secondary, candy-pink-lining-bright accent, brass-zip-gold edge"
+   991→mood: the-lining-knows
+   992→id: P101_ALIBI_LINEN
+   993→name: "Alibi Linen"
+   994→dominant: [alibi-cream, linen-modest-warm]
+   995→secondary: [slate-evidence-grey]
+   996→accent1: [crimson-stitch-bright, the-one-red-thread]
+   997→accent2: [chalk-white]
+   998→shadow: cream-black
+   999→forbidden: [neon, fluorescent, saturated-cyan, electric-blue, pure-white-flat, hot-pink]
+  1000→light_type: fitting-room_honest
+  1001→sd_fragment: "alibi-cream linen-modest-warm with slate-evidence-grey secondary, crimson-stitch-bright accent, chalk-white edge"
+  1002→mood: modesty-with-one-tell
+  1003→id: P102_CONFIDANT_BRASS
+  1004→name: "Confidant Brass"
+  1005→dominant: [night-ink-blue-deep, midnight-ledger]
+  1006→secondary: [office-green-dark]
+  1007→accent1: [brass-key-bright, the-one-who-knows]
+  1008→accent2: [ribbon-red-small]
+  1009→shadow: ink-black
+  1010→forbidden: [neon, fluorescent, hot-pink, saturated-cyan, pure-white, electric-yellow]
+  1011→light_type: keyhole_spill
+  1012→sd_fragment: "night-ink-blue-deep midnight-ledger with office-green-dark secondary, brass-key-bright accent, ribbon-red-small edge"
+  1013→mood: objects-that-keep-secrets
+  1014→id: P103_TELLTALE_ROSE
+  1015→name: "Telltale Rose"
+  1016→dominant: [grey-flannel-deep, commuter-charcoal]
+  1017→secondary: [rain-slate]
+  1018→accent1: [rose-seam-bright, the-giveaway-line]
+  1019→accent2: [streetlight-amber]
+  1020→shadow: flannel-black
+  1021→forbidden: [neon, fluorescent, hot-pink-dominant, electric-violet, pure-white, saturated-cyan]
+  1022→light_type: streetlamp_audit
+  1023→sd_fragment: "grey-flannel-deep commuter-charcoal with rain-slate secondary, rose-seam-bright accent, streetlight-amber edge"
+  1024→mood: the-seam-that-testifies
+  1025→id: P104_HUSH_GREEN
+  1026→name: "Hush Green"
+  1027→dominant: [conservatory-green-deep, closed-stack-green]
+  1028→secondary: [brass-dark]
+  1029→accent1: [gold-button-bright, the-kept-shine]
+  1030→accent2: [dust-mote-gold]
+  1031→shadow: stack-black
+  1032→forbidden: [neon, fluorescent, hot-pink, electric-violet, saturated-red, pure-white]
+  1033→light_type: reading-lamp_after_hours
+  1034→sd_fragment: "conservatory-green-deep closed-stack-green with brass-dark secondary, gold-button-bright accent, dust-mote-gold edge"
+  1035→mood: libraries-keep-hours
+  1036→id: P105_MIDNIGHT_POCKET
+  1037→name: "Midnight Pocket"
+  1038→dominant: [midnight-charcoal-deep, coat-shadow]
+  1039→secondary: [city-orange-remote]
+  1040→accent1: [neon-pink-lining-bright, the-under-layer]
+  1041→accent2: [watch-face-silver]
+  1042→shadow: midnight-black
+  1043→forbidden: [fluorescent, pure-white, saturated-cyan, electric-violet, hot-pink-dominant]
+  1044→light_type: lining_flash_only
+  1045→sd_fragment: "midnight-charcoal-deep coat-shadow with city-orange-remote secondary, neon-pink-lining-bright accent, watch-face-silver edge"
+  1046→mood: under-every-coat-a-color
+  1047→
