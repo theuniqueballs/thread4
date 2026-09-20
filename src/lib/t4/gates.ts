@@ -11,7 +11,8 @@ import path from 'node:path'
 
 import { BATCHES_DIR, CONTRACTS_DIR, readJson, readText } from './fsutil'
 import { appendEvent, foldState, readEvents } from './events'
-import { getBans, getCarriers, getOCCanon, getRatingRecipes } from './specs'
+import { getBans, getCarriers, getOCCanon, getRaces, getRatingRecipes } from './specs'
+import { LAWS } from './compiler'
 
 export type GateLevel = 'hard' | 'warn' | 'advisory'
 export type Verdict = 'PASS' | 'FAIL' | 'WARN' | 'REPORT'
@@ -42,6 +43,7 @@ export interface ParsedSlot {
   header: string
   anchor: string
   meta: string
+  genre: string // OC | NICHE | VOLT | EXQUISITE ('' if absent)
   thesis: string
   canon: string
   stack: string[]
@@ -54,6 +56,16 @@ export interface ParsedBatch {
   text: string
   title: string
   slots: ParsedSlot[]
+}
+
+const GENRES = ['OC', 'NICHE', 'VOLT', 'EXQUISITE'] as const
+
+function genreOf(meta: string): string {
+  const u = meta.toUpperCase()
+  for (const g of GENRES) {
+    if (new RegExp(`\\b${g}\\b`).test(u)) return g
+  }
+  return ''
 }
 
 export function parseBatch(slug: string, text: string): ParsedBatch {
@@ -85,6 +97,7 @@ export function parseBatch(slug: string, text: string): ParsedBatch {
       header,
       anchor: marks[i].anchor.replace(/\s*\(.*$/, ''),
       meta: header.replace(/^[^（(]*[（(]/, '').replace(/[)）]\s*$/, ''),
+      genre: genreOf(header.replace(/^[^（(]*[（(]/, '').replace(/[)）]\s*$/, '')),
       thesis: grab('THESIS'),
       canon: grab('Canon'),
       stack: stackLine
@@ -144,9 +157,9 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
   if (file == null) return null
 
   const batch = parseBatch(slug, file)
-  const contract = readJson<{ slots: { position: number; rating: string; carriers: { id: string }[] }[] }>(
-    path.join(CONTRACTS_DIR, `${slug}.json`)
-  )
+  const contract = readJson<{
+    slots: { position: number; rating: string; race?: string; carriers: { id: string }[] }[]
+  }>(path.join(CONTRACTS_DIR, `${slug}.json`))
   const recipes = getRatingRecipes()
   const bans = getBans()
   const carriers = getCarriers()
@@ -163,11 +176,18 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
   /* ---------------- 1. structure (hard) ---------------- */
   {
     const f: string[] = []
-    if (batch.slots.length !== 21) f.push(`слотов ${batch.slots.length}, ожидается 21 (3 OC + 18 mains)`)
+    if (batch.slots.length !== LAWS.slotsTotal) {
+      f.push(`слотов ${batch.slots.length}, ожидается ${LAWS.slotsTotal} (${LAWS.ocSlots} OC + ${LAWS.mainsTotal} мейнов — вердикт T4-02)`)
+    }
+    const mains = batch.slots.filter((s) => s.genre !== 'OC')
+    const ocSlots = batch.slots.filter((s) => s.genre === 'OC')
+    if (ocSlots.length !== LAWS.ocSlots) f.push(`OC-слотов ${ocSlots.length}, ожидается ${LAWS.ocSlots}`)
+    if (mains.length !== LAWS.mainsTotal) f.push(`мейнов ${mains.length}, ожидается ${LAWS.mainsTotal}`)
     for (const s of batch.slots) {
       if (s.pos === '') f.push(`P${s.position}: пустой POS`)
       if (s.neg === '') f.push(`P${s.position}: пустой NEG`)
       if (s.thesis === '') f.push(`P${s.position}: нет THESIS`)
+      if (s.genre === '') f.push(`P${s.position}: жанр не назван в шапке (OC/NICHE/VOLT/EXQUISITE — вердикт T4-02)`)
       if (s.pos && !/masterpiece/i.test(s.pos)) f.push(`P${s.position}: POS без quality-тегов`)
       if (s.pos && !/anime eyes/i.test(s.pos)) f.push(`P${s.position}: нет фейс-лока (anime eyes)`)
       if (s.pos && !/anime style/i.test(s.pos)) f.push(`P${s.position}: нет опенера (anime style)`)
@@ -221,6 +241,11 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
           break
         }
       }
+      // maturity tags (N30): milf is ALWAYS banned in POS; adult woman /
+      // mature female are warn-level (batch-wide MILF skew receipt)
+      if (/\b(milf|milfs)\b/i.test(s.pos)) {
+        f.push(`P${s.position}: тег зрелости в POS («milf») — N30: зрелость только нарративом`)
+      }
       // XXX never
       const posLow = s.pos.toLowerCase()
       for (const t of XXX_SIGNALS) {
@@ -259,14 +284,19 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
       if (!counterHit) {
         f.push(`P${s.position}: контр-NEG не держит границу тира (нужно ≥1 из: ${(recipe.counter_neg ?? []).slice(0, 3).join(', ')})`)
       }
-      // no above-tier signals (overclaim)
+      // no above-tier signals (overclaim) — but a higher-tier token that is a
+      // SUBSTRING of this tier's own signal phrase is by design (e.g. R+ «taped
+      // nipples» contains the X token «nipples») — not an overclaim
       const myOrder = TIER_ORDER[tier] ?? 0
+      const mySignals = recipe?.signals ?? []
       for (const [otherKey, other] of Object.entries(tiers)) {
         const otherTier =
           otherKey === 'PG13' ? 'PG-13' : otherKey === 'RPLUS' ? 'R+' : otherKey
         if ((TIER_ORDER[otherTier] ?? 0) > myOrder && otherTier !== 'XXX') {
           const over = (other.signals ?? []).filter(
-            (sig) => s.pos.toLowerCase().includes(sig.toLowerCase())
+            (sig) =>
+              s.pos.toLowerCase().includes(sig.toLowerCase()) &&
+              !mySignals.some((m) => m.toLowerCase().includes(sig.toLowerCase()))
           )
           if (over.length >= 1 && tier !== 'X') {
             f.push(`P${s.position}: заявлен ${tier}, но несёт сигнал выше тиром: «${over[0]}»`)
@@ -363,10 +393,12 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
     const palIds = batch.slots
       .map((s) => (/\b(P\d{1,3}_[A-Z_]+)\b/.exec(s.header) ?? [])[0])
       .filter(Boolean)
-    if (poseIds.length === 21 && palIds.length !== 21) {
-      f.push(`слотов с палитрой в шапке: ${palIds.length}/21`)
+    if (poseIds.length === LAWS.slotsTotal && palIds.length !== LAWS.slotsTotal) {
+      f.push(`слотов с палитрой в шапке: ${palIds.length}/${LAWS.slotsTotal}`)
     }
-    if (new Set(palIds).size < 21 && palIds.length >= 21) f.push('палитры не уникальны в батче')
+    if (palIds.length >= LAWS.slotsTotal && new Set(palIds).size < LAWS.slotsTotal) {
+      f.push('палитры не уникальны в батче')
+    }
     hard('diversity', f)
   }
 
@@ -431,28 +463,106 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
     warn('cadence', f)
   }
 
+  /* ---------------- 8b. niche legibility (warn — вердикт T4-02) ----- */
+  {
+    // Автор не увидел NICHE в T4-02 → ниша обязана быть видна:
+    // раса делает физическую работу (теги расы в POS) + свидетель в кадре.
+    const f: string[] = []
+    const racesSpec = getRaces()
+    const nicheSlots = batch.slots.filter((s) => s.genre === 'NICHE')
+    const WITNESS_WORDS = [
+      'mirror', 'shop glass', 'security monitor', 'door gap', 'propped phone',
+      'traffic mirror', 'level gauge', 'window pane', 'wet street', 'elevator brass',
+      'photo frame', 'spoon', 'watch face', 'car hood', 'fountain edge', 'witness',
+    ]
+    for (const s of nicheSlots) {
+      const posLower = s.pos.toLowerCase()
+      // race legibility: tokens of the assigned race (name + features) in POS
+      const slot = contract?.slots?.find((x) => x.position === s.position)
+      const raceName = slot?.race ?? ''
+      if (raceName) {
+        const raceEntry = racesSpec?.races.find(
+          (r) => raceName.toLowerCase().includes(r.name.toLowerCase().split(' (')[0]) ||
+            r.name.toLowerCase().includes(raceName.toLowerCase().split(' (')[0])
+        )
+        const tokens = new Set(
+          [
+            ...raceName.toLowerCase().replace(/[()-]/g, ' ').split(/\s+/),
+            ...(raceEntry?.features ?? []).join(' ').toLowerCase().replace(/[()-]/g, ' ').split(/\s+/),
+          ].filter((w) => w.length > 3 && !['girl', 'kin', 'with'].includes(w))
+        )
+        const hits = [...tokens].filter((w) => posLower.includes(w)).length
+        if (hits < 2) {
+          f.push(`P${s.position}: NICHE-раса «${raceName}» не читается в POS (тегов расы ${hits}/2) — раса делает физическую работу в кадре`)
+        }
+      }
+      const witnessHit = WITNESS_WORDS.some((w) => posLower.includes(w))
+      if (!witnessHit && raceName) {
+        f.push(`P${s.position}: NICHE без свидетеля в кадре (mirror/glass/monitor/phone/gauge…) — свидетель держит невозможное`)
+      }
+    }
+    if (nicheSlots.length === 0 && batch.slots.length === LAWS.slotsTotal) {
+      f.push('NICHE-слотов нет — жанровая структура батча сломана')
+    }
+    warn('niche-legibility', f)
+  }
+
+  /* ---------------- 8c. prop geometry (warn — вердикт T4-02) -------- */
+  {
+    // Штурвал в T4-02: «небольшая хуёвая геометрия расположения» —
+    // сложный проп требует названных якорей контакта (руки/ноги/корпус).
+    const f: string[] = []
+    const COMPLEX_PROPS = [
+      'wheel', 'helm', 'valve', 'ladder', 'stairs', 'staircase', 'railing', 'rail',
+      'bicycle', 'handlebar', 'rope', 'pulley', 'crane', 'swing', 'scaffold',
+      'scaffolding', 'mast', 'tiller', 'treadmill', 'steering', 'oar', 'winch',
+    ]
+    const ANCHORS = [
+      'hand on', 'hands on', 'hands at', 'fingers around', 'fingers curled', 'grip',
+      'gripping', 'grips', 'grip on', 'braced', 'brace', 'foot on', 'feet on',
+      'feet braced', 'feet planted', 'palm flat', 'palm on', 'knee on', 'elbow on',
+      'shoulder against', 'leaning against', 'lean against', 'arched against',
+      'heels planted', 'toes on', 'fingertips on', 'wrapped around', 'wound around',
+      'knuckles white', 'soles flat', 'held fast', 'anchored',
+    ]
+    for (const s of batch.slots) {
+      // тег-блок — то, что рендерер обязан нарисовать (до первой точки);
+      // метафоры прозы («her leg as its staircase») пропами не считаются
+      const firstPeriod = s.pos.indexOf('.')
+      const tagBlock = (firstPeriod > 0 ? s.pos.slice(0, firstPeriod) : s.pos).toLowerCase()
+      const prop = COMPLEX_PROPS.find((p) => new RegExp(`\\b${p}\\b`).test(tagBlock))
+      if (!prop) continue
+      const posLower = s.pos.toLowerCase()
+      const anchorHits = ANCHORS.filter((a) => posLower.includes(a)).length
+      if (anchorHits < 2) {
+        f.push(`P${s.position}: сложный проп «${prop}» с ${anchorHits}/2 якорей контакта — назови, где руки/ноги (вердикт T4-02, геометрия)`)
+      }
+    }
+    warn('prop-geometry', f)
+  }
+
   /* ---------------- 9. simcheck (warn) ---------------- */
   {
     const f: string[] = []
     const state = foldState(readEvents())
-    const mySentences = new Set(
-      batch.slots.flatMap((s) =>
+    // бойлерплейт (quality-теги, фейс-лок N31) общий для всех промптов —
+    // не считаем предложением автора, иначе J=1.00 на каждом кадре
+    const isBoilerplate = (s: string) =>
+      /masterpiece|best quality|anime artstyle/.test(s) ||
+      /her face is rendered in stylized/.test(s)
+    const sentencesOf = (batchParsed: ParsedBatch) =>
+      batchParsed.slots.flatMap((s) =>
         s.pos
           .split(/[.!?]\s+/)
           .map((x) => x.trim().toLowerCase())
-          .filter((x) => x.length > 40)
+          .filter((x) => x.length > 40 && !isBoilerplate(x))
       )
-    )
+    const mySentences = new Set(sentencesOf(batch))
     for (const w of state.windowSlugs) {
       const wText = readText(path.join(BATCHES_DIR, `${w}.md`))
       if (!wText) continue
       const wBatch = parseBatch(w, wText)
-      const wSentences = wBatch.slots.flatMap((s) =>
-        s.pos
-          .split(/[.!?]\s+/)
-          .map((x) => x.trim().toLowerCase())
-          .filter((x) => x.length > 40)
-      )
+      const wSentences = sentencesOf(wBatch)
       for (const mine of mySentences) {
         for (const theirs of wSentences) {
           const j = jaccard(words(mine), words(theirs))

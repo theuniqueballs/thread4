@@ -1,0 +1,96 @@
+{
+  "slug": "T4-03",
+  "title": "The Last Face",
+  "date": "2026-09-20T12:20:47.937Z",
+  "theme": "Faceless Void",
+  "engine": "counterfall",
+  "hardPass": true,
+  "firstRunClean": true,
+  "sha10": "d2bb5c0418",
+  "run": 1,
+  "receipts": [
+    {
+      "gate": "structure",
+      "level": "hard",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "floors",
+      "level": "hard",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "rating-recipe",
+      "level": "hard",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "canon",
+      "level": "hard",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "diversity",
+      "level": "hard",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "window",
+      "level": "hard",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "budget",
+      "level": "warn",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "cadence",
+      "level": "warn",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "niche-legibility",
+      "level": "warn",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "prop-geometry",
+      "level": "warn",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "simcheck",
+      "level": "warn",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "freq-report",
+      "level": "advisory",
+      "verdict": "REPORT",
+      "findings": [
+        "кандидаты в тики: anime 24/21 · style 24/21 · ecchi 24/21 · small 24/21 · rendered 24/21 · stylized 24/21 · mouth 24/21 · masterpiece 24/21 · quality 24/21 · artstyle 24/21 · whole 21/21 · claim 19/21"
+      ]
+    },
+    {
+      "gate": "usage",
+      "level": "advisory",
+      "verdict": "REPORT",
+      "findings": [
+        "носителей в стеках: 89; уникальных: 67",
+        "R+ слотов: 15; X: 2"
+      ]
+    }
+  ]
+}

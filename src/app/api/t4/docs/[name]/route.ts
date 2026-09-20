@@ -9,12 +9,14 @@ const TITLES: Record<string, string> = {
   constitution: 'Конституция',
   taste: 'Вкус',
   facts: 'Рендерер-факты',
+  forge: 'Кузница движков',
 }
 
 const FILES: Record<string, string> = {
   constitution: 'CONSTITUTION.md',
   taste: 'TASTE.md',
   facts: 'RENDERER_FACTS.md',
+  forge: 'ENGINE_FORGE.md',
 }
 
 export async function GET(

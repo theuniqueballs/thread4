@@ -18,8 +18,10 @@ import {
   FlaskConical,
   Heart,
   History,
+  PenLine,
   ScrollText,
   Sparkles,
+  Stamp,
 } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
@@ -37,6 +39,8 @@ import {
   postJson,
   useApi,
   type CompilePayload,
+  type DeliverResponse,
+  type ScribeResponse,
 } from '@/components/t4/api'
 import {
   Chip,
@@ -149,6 +153,7 @@ const DOCS = [
   { id: 'constitution', label: 'Конституция' },
   { id: 'taste', label: 'Вкус' },
   { id: 'facts', label: 'Рендерер-факты' },
+  { id: 'forge', label: 'Кузница движков' },
 ] as const
 
 function DocsTab() {
@@ -274,6 +279,15 @@ function CompileTab() {
   const [viewSlug, setViewSlug] = useState<string | null>(null)
   const detail = useApi<{ markdown: string }>(viewSlug ? `/api/t4/contracts/${viewSlug}` : null)
 
+  /* авто-писец */
+  const [scribe, setScribe] = useState<{
+    slug: string
+    busy: boolean
+    err: string | null
+    res: ScribeResponse | null
+  } | null>(null)
+  const [deliverNote, setDeliverNote] = useState<string | null>(null)
+
   async function compile() {
     const t = theme.trim()
     if (!t || busy) return
@@ -312,6 +326,37 @@ function CompileTab() {
     }
   }
 
+  async function runScribe(slug: string) {
+    if (scribe?.busy) return
+    setDeliverNote(null)
+    setScribe({ slug, busy: true, err: null, res: null })
+    try {
+      const res = await postJson<ScribeResponse>('/api/t4/scribe', { slug })
+      setScribe({ slug, busy: false, err: null, res })
+    } catch (e) {
+      setScribe({
+        slug,
+        busy: false,
+        err: e instanceof ApiError ? `API: ${e.message}` : 'Сеть недоступна — писец не смог',
+        res: null,
+      })
+    }
+  }
+
+  async function deliverOfficial(slug: string) {
+    setDeliverNote(null)
+    try {
+      const res = await postJson<DeliverResponse>('/api/t4/gates', { slug, deliver: true })
+      setDeliverNote(
+        res.delivered
+          ? `${slug} «${res.title}» сдан официально${res.result?.firstRunClean ? ' · FIRST RUN CLEAN' : ''} — батч, мета и ворклог во вкладке «Батчи»`
+          : `${slug}: hard FAIL — черновик чини (см. квитанции во вкладке «Батчи»)`
+      )
+    } catch (e) {
+      setDeliverNote(e instanceof ApiError ? `API: ${e.message}` : 'Сеть недоступна')
+    }
+  }
+
   const items = contracts.data?.items ?? []
 
   return (
@@ -319,9 +364,9 @@ function CompileTab() {
       <Panel title="Компилятор батча" icon={<FlaskConical className="size-4" />}>
         <div className="space-y-3">
           <p className="text-xs leading-relaxed text-zinc-500">
-            Тема от автора → слот-план 21+3 OC: жанры, рейтинги по рецептуре, назначенные носители, позы,
-            палитры, расы, регистры. Диверсия назначается ДО письма (не ловится линтами после).
-            Контракт = экспозиция для автора + закон для писца.
+            Тема от автора → слот-план 24 промпта (21 мейн + 3 OC — вердикт T4-02): жанры,
+            рейтинги по рецептуре, назначенные носители, позы, палитры, расы, регистры.
+            Диверсия назначается ДО письма. Контракт = экспозиция для автора + закон для писца.
           </p>
           <Textarea
             value={theme}
@@ -391,14 +436,18 @@ function CompileTab() {
             OC с их темами. Сборка занимает секунды и ни к чему не обязывает: это план, не батч.
           </li>
           <li>
-            <span className="text-amber-400">2 ·</span> Нажми «Приказ» у нужного контракта в списке ниже —
-            строка <Mono>{'«Super Z, произведи T4-NN»'}</Mono> скопируется одной кнопкой. Темы ОС, если
-            свои, допиши прямо в приказ.
+            <span className="text-amber-400">2а ·</span> <span className="text-zinc-200">Приказ в чате:</span> кнопка
+            «Приказ» у контракта копирует <Mono>{'«Super Z, произведи T4-NN»'}</Mono> — писец Super Z пишет
+            21 мейн + 3 OC, самопроверка, сдача с ворклогом.
           </li>
           <li>
-            <span className="text-amber-400">3 ·</span> Отправь приказ в чат. Писец пишет 21 промпт + 3 OC
-            против контракта в одном файле, самопроверка по гейтам, официальный прогон, сдача с ворклогом —
-            батч и квитанции гейтов появятся во вкладке «Батчи».
+            <span className="text-amber-400">2б ·</span> <span className="text-zinc-200">Авто-писец:</span> кнопка
+            «Писец» у контракта — машина пишет черновик по тому же контракту (2-5 минут), гейты
+            гоняют его автоматически, ремонт до 2 кругов. Потом — «Сдать» или моя полировка.
+          </li>
+          <li>
+            <span className="text-amber-400">3 ·</span> Батч и квитанции гейтов — во вкладке «Батчи»; твой
+            вердикт — там же, одной панелью чипов.
           </li>
         </ol>
       </Panel>
@@ -420,6 +469,21 @@ function CompileTab() {
                   <span className="truncate text-xs text-zinc-300">{c.theme}</span>
                 </button>
                 <div className="flex shrink-0 items-center gap-2">
+                  <button
+                    onClick={() => runScribe(c.slug)}
+                    disabled={scribe?.busy === true}
+                    title="Авто-писец: машина пишет черновик батча по этому контракту (2-5 минут)"
+                    className={cn(
+                      'flex items-center gap-1 rounded-md border px-2 py-1 text-[11px] transition-colors',
+                      scribe?.busy && scribe.slug === c.slug
+                        ? 'border-amber-500/60 bg-amber-500/20 text-amber-200'
+                        : 'border-zinc-700 bg-zinc-800/60 text-zinc-300 hover:border-amber-500/40 hover:text-amber-200',
+                      scribe?.busy === true ? 'cursor-wait opacity-60' : ''
+                    )}
+                  >
+                    <PenLine className="size-3" />
+                    {scribe?.busy && scribe.slug === c.slug ? 'Пишет…' : 'Писец'}
+                  </button>
                   <button
                     onClick={() => copyOrder(c.slug)}
                     title="Скопировать приказ на производство"
@@ -448,6 +512,89 @@ function CompileTab() {
           </div>
         )}
       </Panel>
+
+      {scribe ? (
+        <Panel
+          title={`Авто-писец · ${scribe.slug}`}
+          icon={<PenLine className="size-4" />}
+          action={
+            !scribe.busy ? (
+              <button
+                onClick={() => setScribe(null)}
+                className="text-[11px] text-zinc-500 transition-colors hover:text-zinc-300"
+              >
+                скрыть
+              </button>
+            ) : null
+          }
+        >
+          {scribe.busy ? (
+            <div className="flex items-start gap-3">
+              <span className="mt-1 size-3 shrink-0 animate-pulse rounded-full bg-amber-500" />
+              <div className="space-y-1 text-xs leading-relaxed text-zinc-400">
+                <p className="text-zinc-200">Машина пишет черновик: 24 слота против контракта, потом гейты всухую.</p>
+                <p>Это занимает 2-5 минут — страница ждёт ответа, не закрывай вкладку.</p>
+              </div>
+            </div>
+          ) : scribe.err ? (
+            <ErrorNote text={scribe.err} hint="Черновик можно перезапустить кнопкой «Писец»" />
+          ) : scribe.res ? (
+            <div className="space-y-3">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-sm font-semibold text-zinc-100">{scribe.res.title}</span>
+                {scribe.res.hardPass ? (
+                  <Chip tone="emerald">гейты dry PASS</Chip>
+                ) : (
+                  <Chip tone="rose">гейты dry FAIL</Chip>
+                )}
+                <Chip>ремонт: {scribe.res.rounds}</Chip>
+                <Chip>sha {scribe.res.sha10.slice(0, 6)}</Chip>
+              </div>
+              {scribe.res.failedSlots.length > 0 ? (
+                <p className="text-xs text-rose-300">
+                  Не написаны: P{scribe.res.failedSlots.join(', P')} — черновик нельзя сдавать, нужен ручной проход.
+                </p>
+              ) : null}
+              <div className="space-y-1">
+                {scribe.res.receipts
+                  .filter((r) => r.verdict !== 'PASS')
+                  .slice(0, 6)
+                  .map((r, i) => (
+                    <div key={i} className="flex flex-wrap items-center gap-2 text-[11px] text-zinc-500">
+                      <Mono>{r.gate}</Mono>
+                      <LevelBadge level={r.level} />
+                      <VerdictBadge verdict={r.verdict} />
+                      <span>{r.findings.slice(0, 2).join(' · ')}</span>
+                    </div>
+                  ))}
+              </div>
+              {scribe.res.hardPass && scribe.res.failedSlots.length === 0 ? (
+                <div className="flex flex-wrap items-center gap-3">
+                  <Button
+                    onClick={() => deliverOfficial(scribe.res!.slug)}
+                    className="h-9 bg-emerald-600 text-zinc-50 hover:bg-emerald-500"
+                  >
+                    <Stamp className="mr-1 size-3.5" />
+                    Сдать официально
+                  </Button>
+                  <span className="text-[11px] text-zinc-500">
+                    Официальный прогон гейтов + мета + ворклог + batch.delivered. Или сначала полируй — файл уже в «Батчах».
+                  </span>
+                </div>
+              ) : (
+                <p className="text-[11px] text-zinc-500">
+                  Черновик записан в «Батчи». Хард-фейлы — в квитанциях выше: правь файл или зови Super Z.
+                </p>
+              )}
+            </div>
+          ) : null}
+          {deliverNote ? (
+            <p className="mt-3 rounded-md border border-emerald-600/30 bg-emerald-600/10 px-3 py-2 text-xs text-emerald-300">
+              {deliverNote}
+            </p>
+          ) : null}
+        </Panel>
+      ) : null}
     </div>
   )
 }
@@ -455,6 +602,118 @@ function CompileTab() {
 /* ------------------------------------------------------------------ */
 /* Tab: Батчи                                                          */
 /* ------------------------------------------------------------------ */
+
+const QUICK_VERDICTS = [
+  { id: 'fire', label: '🔥 Огонь', tone: 'emerald' as const },
+  { id: 'good', label: '👍 Хорош', tone: 'amber' as const },
+  { id: 'fixes', label: '🩹 Правки', tone: 'amber' as const },
+  { id: 'weak', label: '💀 Слабо', tone: 'rose' as const },
+]
+
+const QUICK_ISSUES = [
+  'ниша не читается',
+  'геометрия поехала',
+  'скатилось в волт',
+  'милф-штамп',
+  'позы скучные',
+  'счёт слотов',
+  'тема не видна',
+]
+
+function QuickVerdict({ slug }: { slug: string }) {
+  const [verdict, setVerdict] = useState<string | null>(null)
+  const [issues, setIssues] = useState<string[]>([])
+  const [text, setText] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [note, setNote] = useState<string | null>(null)
+
+  function toggleIssue(x: string) {
+    setIssues((cur) => (cur.includes(x) ? cur.filter((i) => i !== x) : [...cur, x]))
+  }
+
+  async function submit() {
+    if (busy || !verdict) return
+    setBusy(true)
+    setNote(null)
+    const vLabel = QUICK_VERDICTS.find((v) => v.id === verdict)?.label ?? verdict
+    const prose = [text.trim(), issues.length > 0 ? `Проблемы: ${issues.join(', ')}.` : '']
+      .filter(Boolean)
+      .join('\n\n')
+    try {
+      await postJson('/api/t4/events', {
+        type: 'render.verdict',
+        summary: `${slug}: ${vLabel}${issues.length > 0 ? ` · ${issues.join(', ')}` : ''}${text.trim() ? ` — ${text.trim().slice(0, 90)}` : ''}`,
+        data: { slug, verdict, tags: issues, prose },
+      })
+      setNote('Вердикт записан в лог — он кормит правки закона и вкус.')
+      setVerdict(null)
+      setIssues([])
+      setText('')
+    } catch (e) {
+      setNote(e instanceof ApiError && isNotFound(e) ? 'API недоступен' : 'Не удалось записать')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <Panel title={`Вердикт по ${slug}`} icon={<Heart className="size-4" />}>
+      <div className="space-y-3">
+        <p className="text-xs leading-relaxed text-zinc-500">
+          Один клик — и вердикт в логе событий: он кодируется в право (T4-02 уже стал законом 24 слотов).
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {QUICK_VERDICTS.map((v) => (
+            <button
+              key={v.id}
+              onClick={() => setVerdict(verdict === v.id ? null : v.id)}
+              className={cn(
+                'rounded-md border px-2.5 py-1.5 text-xs font-medium transition-colors',
+                verdict === v.id
+                  ? 'border-amber-500/60 bg-amber-500/15 text-amber-200'
+                  : 'border-zinc-800 bg-zinc-900 text-zinc-400 hover:border-zinc-700 hover:text-zinc-200'
+              )}
+            >
+              {v.label}
+            </button>
+          ))}
+        </div>
+        <div className="flex flex-wrap gap-1.5">
+          {QUICK_ISSUES.map((x) => (
+            <button
+              key={x}
+              onClick={() => toggleIssue(x)}
+              className={cn(
+                'rounded-md border px-2 py-1 text-[11px] transition-colors',
+                issues.includes(x)
+                  ? 'border-rose-500/50 bg-rose-500/10 text-rose-300'
+                  : 'border-zinc-800 bg-zinc-900/60 text-zinc-500 hover:border-zinc-700 hover:text-zinc-300'
+              )}
+            >
+              {x}
+            </button>
+          ))}
+        </div>
+        <Textarea
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder="Детали — как видишь: «на P07 колесо поехало», «Lyn лучше всех»…"
+          className="min-h-20 border-zinc-800 bg-zinc-950 text-sm"
+        />
+        <div className="flex items-center gap-3">
+          <Button
+            onClick={submit}
+            disabled={busy || !verdict}
+            className="bg-amber-500 text-zinc-950 hover:bg-amber-400 disabled:opacity-40"
+          >
+            {busy ? 'Записываю…' : 'Записать вердикт'}
+          </Button>
+          {note ? <span className="text-xs text-zinc-400">{note}</span> : null}
+        </div>
+      </div>
+    </Panel>
+  )
+}
 
 function BatchesTab() {
   const list = useApi<{ items: { slug: string; title: string; date: string }[] }>('/api/t4/batches')
@@ -475,7 +734,7 @@ function BatchesTab() {
         {list.loading ? (
           <SkeletonBlock lines={3} />
         ) : items.length === 0 ? (
-          <EmptyState title="Батчей пока нет" hint="Сборка готова? Прикажи производство в чате — сданный батч появится здесь с квитанциями гейтов." />
+          <EmptyState title="Батчей пока нет" hint="Собери контракт во вкладке «Сборка» и жми «Писец» — черновик появится здесь с квитанциями гейтов." />
         ) : (
           <div className="grid gap-1.5">
             {items.map((b) => (
@@ -527,6 +786,7 @@ function BatchesTab() {
               <MarkdownView>{detail.data?.markdown ?? ''}</MarkdownView>
             )}
           </Panel>
+          <QuickVerdict slug={slug} />
         </>
       ) : null}
     </div>
@@ -574,11 +834,24 @@ function EventsTab() {
 /* Tab: Вердикты (форма + VLM-заглушка)                                */
 /* ------------------------------------------------------------------ */
 
+const VERDICT_PRESETS = [
+  'Огонь, канонизирую',
+  'Охуенная поза решила всё',
+  'Скатилось в волт',
+  'Ниша не прочиталась',
+  'Геометрия поехала',
+  'Милф-штамп вернулся',
+  'Счёт слотов не тот',
+  'Жадной эротики в волт',
+]
+
 function VerdictsTab() {
   const [slug, setSlug] = useState('')
   const [text, setText] = useState('')
   const [busy, setBusy] = useState(false)
   const [note, setNote] = useState<string | null>(null)
+  const batches = useApi<{ items: { slug: string; title: string }[] }>('/api/t4/batches')
+  const items = batches.data?.items ?? []
 
   async function submit() {
     if (busy || text.trim() === '') return
@@ -604,15 +877,39 @@ function VerdictsTab() {
       <Panel title="Вердикт автора" icon={<Heart className="size-4" />}>
         <div className="space-y-3">
           <p className="text-xs leading-relaxed text-zinc-500">
-            Авторская проза — самый сильный сигнал системы. Пиши как видишь; структура извлекается при
-            кодировании в taste-лог.
+            Авторская проза — самый сильный сигнал системы (конституция §1: вердикт — единственный
+            законодатель). Быстрые вердикты по конкретному батчу — во вкладке «Батчи»; здесь — свободный
+            текст с заготовками.
           </p>
-          <Input
-            value={slug}
-            onChange={(e) => setSlug(e.target.value)}
-            placeholder="Слаг батча — T4-01"
-            className="border-zinc-800 bg-zinc-950 text-sm"
-          />
+          <div className="grid gap-2 sm:grid-cols-[200px_1fr]">
+            <select
+              value={slug}
+              onChange={(e) => setSlug(e.target.value)}
+              className="h-9 rounded-md border border-zinc-800 bg-zinc-950 px-2 text-sm text-zinc-200"
+              aria-label="Слаг батча"
+            >
+              <option value="">— без слага —</option>
+              {items.map((b) => (
+                <option key={b.slug} value={b.slug}>
+                  {b.slug} · {b.title}
+                </option>
+              ))}
+            </select>
+            <p className="self-center text-[11px] leading-tight text-zinc-600">
+              {items.length > 0 ? 'Слаг подхватится из списка батчей.' : 'Слаг впишешь, когда появятся батчи.'}
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {VERDICT_PRESETS.map((p) => (
+              <button
+                key={p}
+                onClick={() => setText((t) => (t.trim() === '' ? p : `${t.trim()} ${p}`))}
+                className="rounded-md border border-zinc-800 bg-zinc-900/60 px-2 py-1 text-[11px] text-zinc-500 transition-colors hover:border-amber-500/40 hover:text-amber-200"
+              >
+                {p}
+              </button>
+            ))}
+          </div>
           <Textarea
             value={text}
             onChange={(e) => setText(e.target.value)}
@@ -634,8 +931,8 @@ function VerdictsTab() {
 
       <Panel title="VLM-разбор рендера" icon={<Sparkles className="size-4" />}>
         <EmptyState
-          title="VLM-петля — скоро"
-          hint="Загрузка рендера → автоматический разбор (силуэт / первый считыв / носители / scroll-stop). Автор разрешил попробовать — ядро подключит."
+          title="VLM-петля — готова к первому живому прогону"
+          hint="Загрузи рендер любого промпта T4-03 — машина разобьёт его по осям (силуэт / первый считыв / свидетель / физика / scroll-stop) и запишет render.verdict. Первый живой тест — за тобой."
         />
       </Panel>
     </div>
@@ -728,7 +1025,7 @@ export default function Home() {
             </div>
             <div className="flex items-center gap-2">
               <span className="size-2 animate-pulse rounded-full bg-emerald-500" />
-              <span className="hidden text-[11px] text-zinc-500 sm:inline">эпоха чистого листа</span>
+              <span className="hidden text-[11px] text-zinc-500 sm:inline">закон 24 · 10 движков · авто-писец готов</span>
             </div>
           </div>
           <ScrollArea className="whitespace-nowrap pb-px">
@@ -767,8 +1064,8 @@ export default function Home() {
 
       <footer className="mt-auto border-t border-zinc-800/80 bg-zinc-950 pb-[env(safe-area-inset-bottom)]">
         <div className="mx-auto flex w-full max-w-7xl flex-wrap items-center justify-between gap-2 px-4 py-4 text-[11px] text-zinc-600 sm:px-6">
-          <span>THREAD 4 · эпоха чистого листа · Super Z × Автор</span>
-          <span className="font-mono">3.2 → откат · T4-01 → ждёт тему</span>
+          <span>THREAD 4 · закон 24 слотов · Super Z × Автор</span>
+          <span className="font-mono">3.2 → откат · 21 мейн + 3 OC · 13 гейтов</span>
         </div>
       </footer>
     </div>

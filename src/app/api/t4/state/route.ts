@@ -24,7 +24,7 @@ export async function GET() {
       delivered.length === 0
         ? 'T4-01 — ждёт тему от автора'
         : `T4-${String(delivered.length + 1).padStart(2, '0')} — следующий цикл`,
-    gateHealth: 'hard / warn / advisory — 11 гейтов',
+    gateHealth: 'hard / warn / advisory — 13 гейтов (закон 24 слотов)',
     counts: {
       batches: delivered.length,
       events: events.length,

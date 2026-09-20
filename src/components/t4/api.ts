@@ -128,6 +128,25 @@ export interface ContractDetail {
   contract: unknown
 }
 
+export interface ScribeResponse {
+  ok: boolean
+  slug: string
+  title: string
+  rounds: number
+  hardPass: boolean
+  sha10: string
+  failedSlots: number[]
+  log: string[]
+  receipts: { gate: string; level: string; verdict: string; findings: string[] }[]
+}
+
+export interface DeliverResponse {
+  ok: boolean
+  delivered: boolean
+  title: string
+  result: { slug: string; runIndex: number; hardPass: boolean; firstRunClean: boolean; sha10: string }
+}
+
 /* ------------------------------------------------------------------ */
 /* Fetch primitives                                                    */
 /* ------------------------------------------------------------------ */

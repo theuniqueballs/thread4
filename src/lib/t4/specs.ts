@@ -70,10 +70,16 @@ export interface PaletteSpec {
 export interface Engine {
   first_batch: string
   status: string
+  status_note?: string
   law: string
   on_body: string
   strong_pairs: string
   failure_modes: string[]
+  /** Кузница v1.1.0: регистр свидетеля + жанровый раскол + генеалогия */
+  witness_register?: string
+  genre_split?: string
+  parents?: string[]
+  generation?: number
 }
 
 export interface EngineSpec {
@@ -81,6 +87,18 @@ export interface EngineSpec {
   engines: Record<string, Engine>
   open_seeds: string[]
   lineage_note: string
+}
+
+export interface EngineForgeSpec {
+  version: string
+  born: string
+  what: string
+  complexity_ladder: Record<string, string>
+  schema: Record<string, string>
+  components: Record<string, unknown>
+  assembly_protocol: string[]
+  forged: string[]
+  [k: string]: unknown
 }
 
 /* ------------------------------ oc canon --------------------------- */
@@ -185,6 +203,9 @@ export function getPalettes(): PaletteSpec | null {
 export function getEngines(): EngineSpec | null {
   return load<EngineSpec>('engines.json')
 }
+export function getEngineForge(): EngineForgeSpec | null {
+  return load<EngineForgeSpec>('engine-forge.json')
+}
 export function getOCCanon(): OCCanonSpec | null {
   return load<OCCanonSpec>('oc-canon.json')
 }
@@ -215,6 +236,8 @@ export function specInventory(): { id: string; name: string; count: number; vers
   if (pa) out.push({ id: 'palettes', name: 'Палитры', count: pa.palettes.length, version: pa.version })
   const e = getEngines()
   if (e) out.push({ id: 'engines', name: 'Движки', count: Object.keys(e.engines).length, version: e.version })
+  const ef = getEngineForge()
+  if (ef) out.push({ id: 'engine-forge', name: 'Кузница движков', count: ef.forged?.length ?? 0, version: ef.version })
   const o = getOCCanon()
   if (o) out.push({ id: 'oc-canon', name: 'OC канон', count: Object.keys(o.ocs).length, version: o.canon_version })
   const r = getRaces()

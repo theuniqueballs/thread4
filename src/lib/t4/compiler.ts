@@ -128,6 +128,7 @@ export interface CompileOptions {
   exquisite?: number // 0..4, default 1
   exploratory?: number // 0..2, default 1
   seed?: number
+  slug?: string // recompile override (T4-NN) — recompiles an existing slug under the current law
   dryRun?: boolean // no events, no files — for selftests
 }
 
@@ -192,18 +193,20 @@ function lruPick<T extends { id: string }>(
 /* ------------------------------------------------------------------ */
 
 export const LAWS = {
-  slotsTotal: 21,
+  /** Закон батча (вердикт T4-02, 2026-09-20): 21 мейн + 3 OC = 24 промпта. */
+  slotsTotal: 24,
   ocSlots: 3,
+  mainsTotal: 21,
   nicheCount: 7,
-  rplusMains: 9, // 9 R+ mains (incl. EXQUISITE) + 3 OC R+ = 12 R+ total
+  rplusMains: 12, // 12 R+ мейнов (вкл. EXQUISITE); спред мейнов R+×12 · R×7 · X×2 = 21
   exquisiteDefault: 1,
   xSlots: 2,
   core4Groups: 4,
   wCapPct: 45,
   sheerPerPrompt: 2,
   sheerFrameCapPct: 40,
-  poseDistinct: 21,
-  paletteDistinct: 21,
+  poseDistinct: 24,
+  paletteDistinct: 24,
   racialDefault: 10,
   posTarget: 300,
   posHard: 400,
@@ -240,7 +243,10 @@ export function compileBatch(theme: string, options: CompileOptions = {}): Batch
 
   const events = readEvents()
   const state = foldState(events)
-  const num = nextBatchNumber(state.batches)
+  const slugOverride = options.slug && /^T4-\d{2}$/.test(options.slug) ? options.slug : null
+  const num = slugOverride
+    ? parseInt(slugOverride.slice(3), 10)
+    : nextBatchNumber(state.batches)
   const slug = `T4-${String(num).padStart(2, '0')}`
   const seed = options.seed ?? hashSeed(`${slug}::${theme}`)
   const rng = makeRng(seed)
@@ -290,20 +296,36 @@ export function compileBatch(theme: string, options: CompileOptions = {}): Batch
     if (!ocNames.includes(o)) ocNames.push(o)
   }
 
-  /* genre skeleton: P01-P03 OC (R+), P04-P21 = 7 NICHE + 9 R+ mains (incl. EXQ) + 2 X */
+  /* genre skeleton (закон 24): P01-P03 OC (R+) · P04-P24 = 21 мейн:
+     7 NICHE R + 12 R+ мейнов (вкл. EXQUISITE) + 2 X — спред мейнов R+×12/R×7/X×2 */
   const exquisiteN = Math.max(0, Math.min(4, options.exquisite ?? LAWS.exquisiteDefault))
   const mains: { kind: SlotPlan['kind']; rating: SlotPlan['rating'] }[] = []
   for (let i = 0; i < LAWS.nicheCount; i++) mains.push({ kind: 'NICHE', rating: 'R' })
   for (let i = 0; i < LAWS.rplusMains - exquisiteN; i++) mains.push({ kind: 'VOLT', rating: 'R+' })
   for (let i = 0; i < exquisiteN; i++) mains.push({ kind: 'EXQUISITE', rating: 'R+' })
   for (let i = 0; i < LAWS.xSlots; i++) mains.push({ kind: 'VOLT', rating: 'X' })
+  if (mains.length !== LAWS.mainsTotal) {
+    throw new Error(`genre skeleton broken: ${mains.length} mains, expected ${LAWS.mainsTotal}`)
+  }
   const orderedMains = rng.shuffle(mains)
 
   /* pools for assignment */
-  const posePool = lruPick(poses.poses, usage.poses, rng)
+  // PL01 Neutral Stand отставлен навсегда («standing lineup» — анти-канон,
+  // N26; «Охуенная поза решила всё» — RF-001): сто́ящий дефолт не выбирается
+  const posePool = lruPick(
+    poses.poses.filter((p) => p.id !== 'PL01'),
+    usage.poses,
+    rng
+  )
   const palettePool = lruPick(palettes.palettes, usage.palettes, rng)
+  // расовый каст — только нечеловеческие расы: Human ничего не делает в кадре
+  // (memorability from NR features — races.json R01), слот не тратим
   const racePool = lruPick(
-    races.races.filter((r) => r.status === 'active' || r.status === 'gold'),
+    races.races.filter(
+      (r) =>
+        (r.status === 'active' || r.status === 'gold') &&
+        r.name.toLowerCase() !== 'human'
+    ),
     usage.races,
     rng
   )
@@ -318,7 +340,7 @@ export function compileBatch(theme: string, options: CompileOptions = {}): Batch
   const byClass = carriers.classes
   const groupOf = (cls: string) => carriers.class_defs[cls]?.mech ?? ''
   const carrierUsage = usage.carriers
-  // batch-level sheer budget: ≤40% of R+ frames may carry a sheer carrier
+  // batch-level sheer budget: ≤40% of R+ frames (12 mains + 3 OC = 15) may carry a sheer carrier
   const rplusTotal = LAWS.rplusMains + LAWS.ocSlots
   const maxSheerFrames = Math.floor((rplusTotal * LAWS.sheerFrameCapPct) / 100)
   let sheerFramesUsed = 0
@@ -381,15 +403,16 @@ export function compileBatch(theme: string, options: CompileOptions = {}): Batch
   const witnesses = lruPick(WITNESS_TYPES.map((id) => ({ id })), usage.witnesses, rng)
   const registers: SlotPlan['register'][] = []
   const regPlan = ['student', 'young', 'milf']
-  // balanced registers: roughly equal thirds, no register > 50%
-  for (let i = 0; i < 21; i++) registers.push(regPlan[i % 3])
+  // balanced registers: exact thirds of 24, no register > 50%
+  for (let i = 0; i < LAWS.slotsTotal; i++) registers.push(regPlan[i % 3])
   const shuffledRegisters = rng.shuffle(registers)
+  // racial cast: 10 of 21 MAINS (P04-P24) — race does physical work in frame
   const racialSlots = new Set(
-    rng.shuffle([...Array(18).keys()].map((i) => i + 4)).slice(0, LAWS.racialDefault)
+    rng.shuffle([...Array(LAWS.mainsTotal).keys()].map((i) => i + 4)).slice(0, LAWS.racialDefault)
   )
   const exploratoryN = Math.max(0, Math.min(2, options.exploratory ?? 1))
   const exploratorySlots = new Set(
-    rng.shuffle([...Array(18).keys()]).slice(0, exploratoryN).map((i) => i + 4)
+    rng.shuffle([...Array(LAWS.mainsTotal).keys()]).slice(0, exploratoryN).map((i) => i + 4)
   )
 
   let poseIdx = 0
@@ -400,7 +423,7 @@ export function compileBatch(theme: string, options: CompileOptions = {}): Batch
   let closerIdx = 0
   let witnessIdx = 0
 
-  for (let pos = 1; pos <= 21; pos++) {
+  for (let pos = 1; pos <= LAWS.slotsTotal; pos++) {
     const lead = leads[leadIdx % leads.length].id
     leadIdx += 1
     const closer = closers[closerIdx % closers.length].id
@@ -525,14 +548,11 @@ export function compileBatch(theme: string, options: CompileOptions = {}): Batch
     writeText(path.join(CONTRACTS_DIR, `${slug}.md`), contractMarkdown(contract))
     appendEvent(
       'batch.compiled',
-      `${slug} «${theme}» — контракт скомпилирован (движок ${engineKey}, спред ${contract.spread
-        .map((s) => `${s.rating}×${s.count}`)
-        .join(' ')})`,
-      { slug, theme, engine: engineKey, seed }
+      `${slug} «${theme}» — контракт ${slugOverride ? 'ПЕРЕкомпилирован (закон 24 слотов) · ' : ''}скомпилирован (движок ${engineKey}, мейны ${mainsSpreadText(contract)})`,
+      { slug, theme, engine: engineKey, seed, recompile: Boolean(slugOverride) }
     )
-    for (const oc of ocNames) {
-      appendEvent('oc.appeared', `OC ${oc} назначен в ${slug}`, { slug, name: oc })
-    }
+    // oc.appeared НЕ пишется при сборке: рекурсивные перекомпиляции засоряли
+    // бы ротацию. Ростер финален только при сдаче — deliverBatch записывает.
   }
 
   return contract
@@ -543,6 +563,16 @@ function engineWhyText(key: string, engine: { status: string; first_batch: strin
   return `Ротация движков: ${key} (${engine.status}, дебют ${engine.first_batch}). ` +
     `Семена на подъёмной сетке: ${seeds}. Движок — мировой закон, который носится на теле; ` +
     `тема автора ложится на его ось, NICHE-слоты несут невозможное, VOLT — плоть.`
+}
+
+/** Мейн-спред слотами (без OC): «R+×12 · R×7 · X×2». */
+export function mainsSpreadText(c: BatchContract): string {
+  const m: Record<string, number> = {}
+  for (const s of c.slots) {
+    if (s.kind === 'OC') continue
+    m[s.rating] = (m[s.rating] ?? 0) + 1
+  }
+  return Object.entries(m).map(([rating, count]) => `${rating}×${count}`).join(' · ')
 }
 
 /* ------------------------------------------------------------------ */
@@ -561,7 +591,9 @@ export function contractMarkdown(c: BatchContract): string {
   lines.push('')
   lines.push(c.engineWhy)
   lines.push('')
-  lines.push(`**Спред рейтингов**: ${c.spread.map((s) => `${s.rating}×${s.count}`).join(' · ')} — NICHE-слоты зарабатывают R эротической позой (честный тег), VOLT несёт R+ по рецептуре (сигнал-теги + контр-NEG), X — 2 слота (Yodayo душит алгоритмически, это art-for-art).`)
+  lines.push(`**Спред рейтингов (мейны P04-P24)**: ${mainsSpreadText(c)} + 3 OC R+ = ${c.slots.length} промпта — NICHE-слоты зарабатывают R эротической позой (честный тег), VOLT несёт R+ по рецептуре (сигнал-теги + контр-NEG), X — 2 слота (Yadayo душит алгоритмически, это art-for-art).`)
+  lines.push('')
+  lines.push(`**Жанры — как читать план** (вердикт T4-02: ниша/волт должны быть видны): **OC** — канон-локи персонажа, его тема в слоте; **NICHE** — невозможный образ: раса/природа делает ФИЗИЧЕСКУЮ работу в кадре (механизм, не костюм), свидетель держит кадр, невозможное — первое считывание силуэта; **VOLT** — плоть: камера-участник, тело в движении, взгляд-вектор, экспозиция тегом; **EXQUISITE** — ультра своего жанра. Жанр пишется в шапку КАЖДОГО промпта — это структурный идентификатор, гейтится.`)
   lines.push('')
   lines.push(`**Ротация OC**: ${c.ocRotation.map((o) => `${o.name} (было ${o.served})`).join(', ')} — по longest-rested.`)
   lines.push('')
@@ -570,11 +602,11 @@ export function contractMarkdown(c: BatchContract): string {
     lines.push(`**Темы OC (заказ автора)**: ${themed.map((s) => `${s.oc} — ${s.ocTheme}`).join(' · ')}`)
     lines.push('')
   }
-  lines.push(`**Расовый каст**: ${c.racialCount}/18 мейнов — раса делает физическую работу в кадре (механизм, не костюм).`)
+  lines.push(`**Расовый каст**: ${c.racialCount}/${LAWS.mainsTotal} мейнов — раса делает физическую работу в кадре (механизм, не костюм).`)
   lines.push('')
   lines.push('**Диверсия назначена до письма** (ядро §3): носители, позы, палитры, K, LEAD-зоны, клоузеры, регистры зрелости, свидетели — всё разложено по слотам ниже. Писец пишет ПРОТИВ этого плана; гейты проверяют те же числа, что здесь напечатаны.')
   lines.push('')
-  lines.push('## Слот-план')
+  lines.push('## Слот-план (24: P01-P03 OC · P04-P24 мейны)')
   lines.push('')
   lines.push('| P | Жанр | Рейтинг | OC/раса | Поза | Палитра | K | Носители | LEAD | Регистр | Клоузер |')
   lines.push('|---|---|---|---|---|---|---|---|---|---|---|')
@@ -591,6 +623,7 @@ export function contractMarkdown(c: BatchContract): string {
   }
   lines.push('## Законы письма (числа гейтов — те же константы)')
   lines.push('')
+  lines.push(`- **структура**: ${LAWS.slotsTotal} промпта = ${LAWS.ocSlots} OC (P01-P03) + ${LAWS.mainsTotal} мейн (P04-P24); жанр — в шапке каждого промпта (вердикт T4-02)`)
   for (const [k, v] of Object.entries(c.laws)) {
     lines.push(`- **${k}**: ${v}`)
   }
@@ -615,16 +648,20 @@ export function contractMarkdown(c: BatchContract): string {
   lines.push('- **T8**: лики PH (artist/character токены) — гарда в NEG.')
   lines.push('- **T9**: хеджи ≤2; бюджет 300/400 — плотность, не лепёшка.')
   lines.push('- **T10**: дубли-close (N25: 18/21 триплетов) — клоузеры назначены, вертеть.')
+  lines.push('- **T11** (вердикт T4-02, штурвал): сложный проп (wheel/лестница/перила/канат) ломает геометрию рендера — каждая контактная конечность названа (руки на…, ноги в…), ≥2 якоря; лучше один контактный проп, чем три.')
+  lines.push('- **T12** (вердикт T4-02): жанр виден — NICHE первым считыванием (раса работает), VOLT — плоть; если автор не понял, где ниша, — её нет.')
   lines.push('')
   lines.push('---')
   lines.push('')
   lines.push('## Производство — как пустить сборку в дело')
   lines.push('')
-  lines.push('Контракт готов. Производство батча — приказ писцу, в чате:')
+  lines.push('Контракт готов. Два пути производства:')
   lines.push('')
-  lines.push(`> **«Super Z, произведи ${c.slug}»**`)
+  lines.push(`> **«Super Z, произведи ${c.slug}»** — писец в чате: пишет ${LAWS.slotsTotal} промпта против контракта, самопроверка, сдача с ворклогом.`)
   lines.push('')
-  lines.push('Писец читает этот контракт, пишет 21 промпт + 3 OC в одном файле, самопроверка по гейтам (dry-run), официальный прогон, сдача с батч-ворклогом — батч и квитанции гейтов появятся во вкладке «Батчи». Темы ОС, если нужны свои, дописываются в приказ: «произведи ' + c.slug + ', темы ОС: Lyn — …, Sue — …»; пусто = писец выводит темы из темы батча и движка.')
+  lines.push(`> **«Писец» в дашборде** — авто-писец: машина пишет черновик по контракту (те же законы), гейты гоняют его автоматически; финальная полировка и сдача — как обычно.`)
+  lines.push('')
+  lines.push('Темы ОС, если нужны свои, дописываются в приказ: «произведи ' + c.slug + ', темы ОС: Lyn — …, Sue — …»; пусто = писец выводит темы из темы батча и движка. Батч и квитанции гейтов появятся во вкладке «Батчи».')
   lines.push('')
   lines.push('*Контракт — единственный документ писца. Право (конституция) и спеки — фон; всё, что нужно для чистого первого прогона, — выше.*')
   return lines.join('\n')

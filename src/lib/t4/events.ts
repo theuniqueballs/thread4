@@ -27,6 +27,7 @@ export const EVENT_TYPES = [
   'batch.delivered',
   'gate.run',
   'fixpass.paid',
+  'scribe.drafted',
   'render.verdict',
   'taste.datum',
   'experiment.logged',

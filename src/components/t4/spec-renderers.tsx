@@ -991,6 +991,129 @@ function GenericSpecView({ data, filter }: { data: unknown; filter: string }) {
 }
 
 /* ------------------------------------------------------------------ */
+/* Engine forge — the structure of building new, complex engines        */
+/* ------------------------------------------------------------------ */
+
+function ForgeView({ spec, filter }: { spec: unknown; filter: string }) {
+  const rec = asRecord(spec)
+  const what = asStr(rec.what)
+  const ladder = asRecord(rec.complexity_ladder)
+  const schema = asRecord(rec.schema)
+  const components = asRecord(rec.components)
+  const protocol = asArray(rec.assembly_protocol).map(asStr).filter(Boolean)
+  const forged = asArray(rec.forged).map(asStr).filter(Boolean)
+  const seeds = asArray(rec.open_seeds_waiting).map(asStr).filter(Boolean)
+
+  if (!matches(rec, filter)) return <FilterEmpty filter={filter} />
+
+  return (
+    <div className="t4-scroll max-h-96 space-y-5 overflow-y-auto pr-1">
+      {what ? (
+        <p className="text-xs leading-relaxed text-zinc-400">{what}</p>
+      ) : null}
+
+      {forged.length > 0 ? (
+        <div>
+          <div className="mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-amber-500/70">
+            Кованая тройка · генерация 8
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {forged.map((f) => (
+              <Chip key={f} tone="amber">{f}</Chip>
+            ))}
+          </div>
+        </div>
+      ) : null}
+
+      {Object.keys(ladder).length > 0 ? (
+        <div>
+          <div className="mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-zinc-500">
+            Лестница сложности
+          </div>
+          <div className="space-y-1.5">
+            {Object.entries(ladder).map(([k, v]) => (
+              <div key={k} className="rounded-md border border-zinc-800 bg-zinc-900/60 px-3 py-2">
+                <span className="font-mono text-[11px] text-amber-300">{humanizeKey(k)}</span>
+                <span className="ml-2 text-xs text-zinc-400">{asStr(v)}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : null}
+
+      {protocol.length > 0 ? (
+        <div>
+          <div className="mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-zinc-500">
+            Протокол сборки
+          </div>
+          <ol className="space-y-1">
+            {protocol.map((p, i) => (
+              <li key={i} className="text-xs leading-relaxed text-zinc-400">{p}</li>
+            ))}
+          </ol>
+        </div>
+      ) : null}
+
+      {Object.keys(schema).length > 0 ? (
+        <div>
+          <div className="mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-zinc-500">
+            Схема записи движка
+          </div>
+          <div className="space-y-1.5">
+            {Object.entries(schema).map(([k, v]) => (
+              <div key={k} className="rounded-md border border-zinc-800 bg-zinc-900/60 px-3 py-2">
+                <div className="font-mono text-[11px] text-amber-200">{k}</div>
+                <div className="mt-0.5 text-xs leading-relaxed text-zinc-400">{asStr(v)}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : null}
+
+      {Object.keys(components).length > 0 ? (
+        <div>
+          <div className="mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-zinc-500">
+            Компоненты (только доказанные)
+          </div>
+          <div className="space-y-1.5">
+            {Object.entries(components).map(([k, v]) => {
+              const arr = asArray(v).map(asStr).filter(Boolean)
+              return (
+                <div key={k} className="rounded-md border border-zinc-800 bg-zinc-900/60 px-3 py-2">
+                  <div className="font-mono text-[11px] text-amber-200">{humanizeKey(k)}</div>
+                  {arr.length > 0 ? (
+                    <div className="mt-1 flex flex-wrap gap-1">
+                      {arr.map((x, i) => (
+                        <Chip key={i}>{x.length > 90 ? `${x.slice(0, 90)}…` : x}</Chip>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="mt-0.5 text-xs text-zinc-400">{asStr(v)}</div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      ) : null}
+
+      {seeds.length > 0 ? (
+        <div>
+          <div className="mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-zinc-500">
+            Семена в ожидании
+          </div>
+          <div className="flex flex-wrap gap-1">
+            {seeds.map((s, i) => (
+              <Chip key={i} tone="rose">{s.length > 80 ? `${s.slice(0, 80)}…` : s}</Chip>
+            ))}
+          </div>
+        </div>
+      ) : null}
+    </div>
+  )
+}
+
+/* ------------------------------------------------------------------ */
 /* Filter empty state + entry point                                    */
 /* ------------------------------------------------------------------ */
 
@@ -1008,6 +1131,8 @@ export function SpecView({ id, spec, filter }: { id: string; spec: unknown; filt
       return <PalettesView spec={spec} filter={filter} />
     case 'engines':
       return <EnginesView spec={spec} filter={filter} />
+    case 'engine-forge':
+      return <ForgeView spec={spec} filter={filter} />
     case 'oc-canon':
       return <OcCanonView spec={spec} filter={filter} />
     case 'rating-recipes':

@@ -3,18 +3,20 @@
  * Usage (bun):
  *   bun thread4/cli.ts seed          # era.born + spec.imported + law.ratified (once)
  *   bun thread4/cli.ts compile "тема" [engine] [oc1,oc2,oc3]
+ *   bun thread4/cli.ts recompile T4-NN "тема" [engine]  # пересборка слага под текущий закон
  *   bun thread4/cli.ts check T4-01   # писец: сухой прогон гейтов (без событий)
  *   bun thread4/cli.ts gates T4-01   # официальный прогон гейтов (gate.run в лог)
  *   bun thread4/cli.ts deliver T4-01 # официальный прогон + сдача батча
+ *   bun thread4/cli.ts scribe T4-01  # авто-писец: черновик батча по контракту (LLM)
  *   bun thread4/cli.ts state
  *   bun thread4/cli.ts selftest      # compiler + gates smoke test
  */
 import { compileBatch, contractMarkdown } from '../src/lib/t4/compiler'
 import { runGates, parseBatch } from '../src/lib/t4/gates'
+import { deliverBatch } from '../src/lib/t4/deliver'
+import { scribeBatch } from '../src/lib/t4/scribe'
 import { appendEvent, foldState, readEvents } from '../src/lib/t4/events'
 import { specInventory } from '../src/lib/t4/specs'
-import { BATCHES_DIR, CONTRACTS_DIR, readJson, readText, writeJson } from '../src/lib/t4/fsutil'
-import path from 'node:path'
 
 const cmd = process.argv[2] ?? ''
 
@@ -59,6 +61,19 @@ async function main() {
     return
   }
 
+  if (cmd === 'recompile') {
+    const slug = process.argv[3]
+    const theme = process.argv[4]
+    if (!slug || !/^T4-\d{2}$/.test(slug) || !theme) {
+      console.error('usage: recompile T4-NN "тема" [engine]')
+      process.exit(1)
+    }
+    const engine = process.argv[5]
+    const contract = compileBatch(theme, { engine: engine || undefined, slug })
+    console.log(contractMarkdown(contract))
+    return
+  }
+
   if (cmd === 'compile') {
     const theme = process.argv[3]
     if (!theme) {
@@ -75,11 +90,56 @@ async function main() {
     return
   }
 
+  if (cmd === 'scribe') {
+    const slug = process.argv[3]
+    if (!slug || !/^T4-\d{2}$/.test(slug)) {
+      console.error('usage: scribe T4-NN [maxRepairRounds]')
+      process.exit(1)
+    }
+    const maxRepairRounds = process.argv[4] ? parseInt(process.argv[4], 10) : 2
+    scribeBatch(slug, {
+      maxRepairRounds: Number.isFinite(maxRepairRounds) ? maxRepairRounds : 2,
+      onLog: (line) => console.log(line),
+    })
+      .then((res) => {
+        console.log(`\nписец: ${res.slug} «${res.title}»`)
+        console.log(`слоты написаны, ремонт: ${res.rounds}, гейты dry: ${res.hardPass ? 'PASS' : 'FAIL'} (sha ${res.sha10})`)
+        if (res.failedSlots.length > 0) {
+          console.log(`НЕ написаны: P${res.failedSlots.join(', P')} — батч нельзя сдавать`)
+        }
+        for (const r of res.receipts.filter((x) => x.verdict !== 'PASS')) {
+          console.log(`  [${r.verdict}] ${r.gate} (${r.level})`)
+          for (const f of r.findings.slice(0, 4)) console.log(`       ${f}`)
+        }
+        console.log(`\nчерновик в batches/${res.slug}.md — сдача: bun thread4/cli.ts deliver ${res.slug}`)
+        process.exit(res.hardPass && res.failedSlots.length === 0 ? 0 : 1)
+      })
+      .catch((e) => {
+        console.error(e)
+        process.exit(1)
+      })
+    return
+  }
+
   if (cmd === 'check' || cmd === 'gates' || cmd === 'deliver') {
     const slug = process.argv[3]
     if (!slug) {
       console.error(`usage: ${cmd} T4-01`)
       process.exit(1)
+    }
+    if (cmd === 'deliver') {
+      const delivered = deliverBatch(slug)
+      if (!delivered) {
+        console.error(`batch ${slug} not found (нужен thread4/batches/${slug}.md)`)
+        process.exit(1)
+      }
+      printGates(delivered.result)
+      if (!delivered.ok) {
+        console.error('\nHARD FAIL — батч не сдаётся. Чини против контракта, потом снова deliver.')
+        process.exit(1)
+      }
+      console.log(`\ndelivered: ${slug} «${delivered.title}» — гейты, мета, ворклог и batch.delivered записаны`)
+      process.exit(0)
     }
     const result = runGates(slug, cmd === 'check')
     if (!result) {
@@ -87,34 +147,6 @@ async function main() {
       process.exit(1)
     }
     printGates(result)
-
-    if (cmd === 'deliver') {
-      if (!result.hardPass) {
-        console.error('\nHARD FAIL — батч не сдаётся. Чини против контракта, потом снова deliver.')
-        process.exit(1)
-      }
-      const text = readText(path.join(BATCHES_DIR, `${slug}.md`)) ?? ''
-      const parsed = parseBatch(slug, text)
-      const contract = readJson<{ theme?: string }>(path.join(CONTRACTS_DIR, `${slug}.json`))
-      const title = parsed.title || contract?.theme || slug
-      writeJson(path.join(BATCHES_DIR, `${slug}.json`), {
-        slug,
-        title,
-        date: new Date().toISOString(),
-        theme: contract?.theme ?? '',
-        hardPass: result.hardPass,
-        firstRunClean: result.firstRunClean,
-        sha10: result.sha10,
-        run: result.runIndex,
-        receipts: result.receipts,
-      })
-      appendEvent(
-        'batch.delivered',
-        `${slug} «${title}» сдан: гейты hard PASS${result.firstRunClean ? ' · FIRST RUN CLEAN' : ''} (sha ${result.sha10})`,
-        { slug, title, theme: contract?.theme ?? '', hardPass: true, firstRunClean: result.firstRunClean, sha10: result.sha10 }
-      )
-      console.log(`\ndelivered: ${slug} — батч, мета и событие batch.delivered записаны`)
-    }
     process.exit(result.hardPass ? 0 : 1)
   }
 
@@ -144,12 +176,19 @@ async function main() {
     const c1 = compileBatch('selftest-тема', { seed: 42, exquisite: 1, exploratory: 0, ocOrders: ['Sue', 'Miyu', 'Yui'], dryRun: true })
     const c2 = compileBatch('selftest-тема', { seed: 42, exquisite: 1, exploratory: 0, ocOrders: ['Sue', 'Miyu', 'Yui'], dryRun: true })
     check('compile deterministic (same seed → same slots)', JSON.stringify(c1.slots) === JSON.stringify(c2.slots))
-    check('21 slots', c1.slots.length === 21)
+    check('24 slots (закон T4-02: 21 мейн + 3 OC)', c1.slots.length === 24)
     check('3 OC first', c1.slots.slice(0, 3).every((s) => s.kind === 'OC'))
-    const spread = Object.fromEntries(c1.spread.map((s) => [s.rating, s.count]))
-    check('spread R7/R+12/X2', spread['R'] === 7 && spread['R+'] === 12 && spread['X'] === 2)
-    check('21 distinct poses', new Set(c1.slots.map((s) => s.pose)).size === 21)
-    check('21 distinct palettes', new Set(c1.slots.map((s) => s.palette)).size === 21)
+    const mainsSpread = Object.fromEntries(
+      c1.slots.filter((s) => s.kind !== 'OC').map((s) => [s.rating, 0])
+    )
+    for (const s of c1.slots) {
+      if (s.kind !== 'OC') mainsSpread[s.rating] = (mainsSpread[s.rating] ?? 0) + 1
+    }
+    check('mains spread R7/R+12/X2 (21 мейн)', mainsSpread['R'] === 7 && mainsSpread['R+'] === 12 && mainsSpread['X'] === 2)
+    const allSpread = Object.fromEntries(c1.spread.map((s) => [s.rating, s.count]))
+    check('all-slot spread R7/R+15/X2 (24)', allSpread['R'] === 7 && allSpread['R+'] === 15 && allSpread['X'] === 2)
+    check('24 distinct poses', new Set(c1.slots.map((s) => s.pose)).size === 24)
+    check('24 distinct palettes', new Set(c1.slots.map((s) => s.palette)).size === 24)
     const rplus = c1.slots.filter((s) => s.rating === 'R+' || s.rating === 'X')
     check('every R+/X slot has 4 carriers', rplus.every((s) => s.carriers.length >= 4))
     const groupsOk = rplus.every((s) => {
@@ -162,19 +201,20 @@ async function main() {
       return gs.size >= 4
     })
     check('core-4 groups on every R+/X slot', groupsOk)
-    check('racial count 10', c1.slots.filter((s) => s.race).length === 10)
+    check('racial count 10 (на мейнах)', c1.slots.filter((s) => s.race).length === 10)
+    check('races only on mains', c1.slots.slice(0, 3).every((s) => !s.race))
     const registers = c1.slots.reduce<Record<string, number>>((acc, s) => {
       acc[s.register] = (acc[s.register] ?? 0) + 1
       return acc
     }, {})
-    check('no register >50%', Object.values(registers).every((n) => n <= 11))
+    check('no register >50% (≤12 of 24)', Object.values(registers).every((n) => n <= 12))
     check('contract markdown rendered', contractMarkdown(c1).length > 2000)
     check('carrier stats present', c1.carrierStats.wSharePct <= 45)
 
     // parseBatch on a synthetic slot
     const synth = [
       '# THREAD 4 — Batch T4-99: "Test"',
-      'P01 — test-anchor (OC: Rue · VOLT · R+ · PL01 · P21_VOID_BLACK)',
+      'P01 — test-anchor (OC · Rue · R+ · PL01 · P21_VOID_BLACK)',
       'THESIS: a test thesis line',
       'Canon: Rue — dusty-rose crown braid, haunted ruby eyes',
       'Stack: CR-W01 + CR-B03 + CR-E05 + CR-D12',
@@ -189,12 +229,13 @@ async function main() {
     check('parseBatch: 1 slot', parsed.slots.length === 1)
     check('parseBatch: stack 4 carriers', parsed.slots[0].stack.length === 4)
     check('parseBatch: thesis grabbed', parsed.slots[0].thesis.includes('test thesis'))
+    check('parseBatch: genre OC распознан', parsed.slots[0].genre === 'OC')
 
     console.log(`\nselftest: ${ok} pass, ${fail} fail`)
     process.exit(fail === 0 ? 0 : 1)
   }
 
-  console.log('commands: seed | compile "theme" | check T4-NN | gates T4-NN | deliver T4-NN | state | selftest')
+  console.log('commands: seed | compile "theme" | recompile T4-NN "theme" | scribe T4-NN | check T4-NN | gates T4-NN | deliver T4-NN | state | selftest')
 }
 
 main().catch((e) => {

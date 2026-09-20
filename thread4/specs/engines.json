@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0",
+  "version": "1.1.0",
   "born": "2026-09-19",
   "source": "3.2 ENGINES.yaml (THREAD 3.2-EXP V16, Path B MVP-4, born 2026-09-14)",
   "engines": {
@@ -13,24 +13,28 @@
       "failure_modes": [
         "costume party — the sin as decoration AROUND her, not fitted ON her (the N22 autopsy: «весь батч — волт»)",
         "sermon — morality narrated in prose while the render shows a normal girl in a nice dress; if the law isn't visible in fabric, it isn't there"
-      ]
+      ],
+      "witness_register": "the occasion object — the sin's own prop that carries the frame's moral (the ledger, the key, the coat-check ticket, the borrowed coat); pre-tradition, retroactively named",
+      "genre_split": "NICHE carries the sin as an impossible institution (a city where guilt is tailored to measure); VOLT carries the wardrobe-failure sin fitted ON her — the N22 autopsy line: «весь батч — волт» is the failure, the split is the vaccine"
     },
     "tint": {
       "first_batch": "N24 \"Blue Is the Loneliest Color\"",
       "status": "proven",
-      "status_note": "V15 process closed live on this batch; renders pending at library birth — promotion to proven on render verdict",
+      "status_note": "V15 process closed live on this batch; renders pending at library birth — promotion to proven on render verdict | T4-02 «The Shape of a Moment» (2026-09-19): FIRST RUN CLEAN, sha 1244c0d2bf; author 2026-09-20: «Батч — отличный, позы — отличные», VOLT «прописал очень хорошо, понравилась реализация и персонажи» — VOLT doctrine validated at render; NICHE legibility flagged (→ law.amended 2026-09-20, genre visibility)",
       "law": "the concept is DYED INTO her — color as substance, absorbed into fabric/skin/hair chemistry, saturation as emotional state",
       "on_body": "the tint lives IN the material (dye-work, absorption, staining) — the color answers her body, not the lighting",
       "strong_pairs": "collarbone/lips LEAD + stillness K; monochrome-deep palettes (the TINT family P83-88 mint); LQ10/LQ14 cool ambient; the one non-family accent at full saturation (§51)",
       "failure_modes": [
         "filter look — color ON her instead of IN her; a girl standing in blue light is a tourist, not a dyer",
         "monochrome monotony — the wash risk the §51 anti-wash guards exist for; without the single saturated anchor the batch goes grey"
-      ]
+      ],
+      "witness_register": "the §51 accent — the one saturated non-family object that refuses the wash (the red exit-sign letter, the vermilion thread, the full-pigment point); confirmed at T4-02: every witness kept the stain",
+      "genre_split": "NICHE carries impossible color physics (the dye that remembers, the spore-print that bleaches, T4-02 EXPLORATORY dry-delivery); VOLT carries the soaked fabric on her body — color IN the material, never the lighting"
     },
     "counterfall": {
       "first_batch": "N25 \"The Rain Fell Upward\"",
       "status": "proven",
-      "status_note": "text-level praise at the 2026-09-14 review (S011); render pending",
+      "status_note": "text-level praise at the 2026-09-14 review (S011); render pending | T4-03 «Faceless Void» assigned (2026-09-19, recompiled 2026-09-20 under the 24-slot law)",
       "law": "one physical law of the world inverted — DRY FALLS / WET RISES; the reversal MEASURED ON her, undressing by claim-by-water, the wind retired",
       "on_body": "the wet is a climbing animal with manners: hems claimed upward, weave gone transparent in its own time, cuffs peeling off the ankles; ONE DOWNWARD WITNESS per frame (the bead/chain/key/weight — the direction that stays is the direction that loves)",
       "strong_pairs": "LQ04 underlight (light from below — the risen water's own glow) + low/waterline frames; K61 drip / K82 invert-suspend / K175-181 uprise family; witness = one warm metal (gold/brass/amber); eclipse-violet / ink-blue / ember-rust depth families",
@@ -38,7 +42,9 @@
         "scenery-girl — the physics admired in the environment while she stands dryly in it (the N22 lesson, generalized)",
         "wet-filter — wetness as adjective, not as claim; if the water never TAKES anything (fabric, warmth, direction), it's weather reportage",
         "witness-rhetoric — the downward witness and the LEAD repeating one job; three witnesses in a file must not share a register (custody / comedy / labor — the N25 OC trio's answer)"
-      ]
+      ],
+      "witness_register": "the DOWNWARD witness — one warm metal per frame (gold/brass/amber bead, chain, key, weight): the direction that stays is the direction that loves",
+      "genre_split": "NICHE carries the reversed law's impossible physics (wet climbing, dry falling); VOLT carries the wet claim on cloth — hem-by-hem, the water TAKES something"
     },
     "cantus": {
       "first_batch": "N26 \"Silence Is the Slowest Undressing\"",
@@ -51,7 +57,9 @@
         "concert-attendance — the girl standing IN a music scene while her own wardrobe ignores it (the N22 scenery lesson in acoustic form: if the law isn't visible in cloth, it isn't there)",
         "note-symbol kitsch — floating musical notation as decoration; the music must live in the FABRIC'S BEHAVIOR (streaming threads, breath-speed unravel), never in printed staves",
         "one-metaphor monotony — 21 girls all unraveling identically; the trio of registers (discovery / economy / estate) and the three OC answers (split-duet / unspendable-clause / laughter-re-weave) are the vaccine"
-      ]
+      ],
+      "witness_register": "the UNSUNG witness — brass/steel/bone/leather objects the song has no jurisdiction over (coins, kettle, metronome, bell, dog-tag, key-ring)",
+      "genre_split": "NICHE carries acoustic impossible physics (threads streaming toward the source, cloth obeying a held note); VOLT carries the breath-speed unravel on her wardrobe"
     },
     "limen": {
       "first_batch": "N27 \"Somewhere Between Here and Magic\"",
@@ -64,7 +72,9 @@
         "wardrobe-portal — magic framed as a glowing doorway SHE STANDS NEAR while her clothes stay mundane (the scenery-girl failure in threshold form; the seam must claim fabric, not just floorspace)",
         "theme-opaque — beautiful seam prose that renders as 'girl in nice light' (the N26 verdict «ничё толком не понял, потому что набор полуголых девчонок»; the seam line must be the FIRST READ of the silhouette, visible without the prose)",
         "uniform wonder — 21 identical fairy doors; the seam's LOCATION and MATERIAL rotate every prompt (21 distinct seams, zero repeats), the NICHE slots carry the impossible-physics read while VOLT slots carry the wardrobe read — the genre split working as designed"
-      ]
+      ],
+      "witness_register": "the MUNDANE witness — the one ordinary object that refuses the magic (the steaming kettle, the bus sign, the parking meter)",
+      "genre_split": "NICHE carries the impossible far-side (the magic legible AT A GLANCE); VOLT carries the wardrobe claimed by two weathers at the shoulder"
     },
     "arcana": {
       "first_batch": "N28 \"Nobody Knows\"",
@@ -76,7 +86,9 @@
       "failure_modes": [
         "one-carrier collapse — the secret delivered by sheer alone reads as one age register (the milf stamp); §61(2) anti-monopoly is the vaccine",
         "strap-layer bug — an under-strap escaping through a closed outer garment («лифчик под одеждой, лямки — снаружи»); §4F named exits are the fix"
-      ]
+      ],
+      "witness_register": "the CONFIDANT — the object that knows (the boot's inner seam, the candy lining, the filed horns under the bob)",
+      "genre_split": "NICHE carries impossible secrets (the tell that cannot exist); VOLT carries the graded reveal riding the wardrobe — one step more than the world gets"
     },
     "apocrypha": {
       "first_batch": "N29 \"No One Wrote This Scene\"",
@@ -89,7 +101,67 @@
         "posed-candid — a girl obviously working the lens is a written scene; the N22 scenery lesson in candid form (if the wardrobe serves the viewer, the scene was authored)",
         "witness-parade — 21 mirrors in a row is a gallery, not a world; the witness object rotates per frame the way LIMEN's seams did",
         "candid-flat — 'nobody wrote it' used as an excuse for zero craft; the improvised scene still carries core-4 (§61) — found, not starved"
-      ]
+      ],
+      "witness_register": "the ACCIDENTAL witness — the object that caught the scene without meaning to (mirror, shop glass, security monitor, door gap, propped phone, traffic mirror)",
+      "genre_split": "NICHE carries the found impossible scene (nobody authored it, the physics improvised); VOLT carries the caught state on her — mid-slip, mid-recover, the imprint fresh"
+    },
+    "tidefall": {
+      "first_batch": "— (awaiting debut)",
+      "status": "forged",
+      "status_note": "кузница, генерация 8: двухосевой композит (counterfall × семя tide-lock из N19/N24/N27); дебют — по приказу автора",
+      "generation": 8,
+      "parents": [
+        "counterfall",
+        "seed: tide-lock"
+      ],
+      "law": "the sea is a LANDLORD with visiting hours — the waterline is a lease line drawn on her wardrobe: what the tide touches it claims (hem, weave, warmth), what it releases it keeps wet until the moon's next hour; the wet rises when the moon says, and the lease is visible as ONE TIDE-LINE ON CLOTH per frame",
+      "on_body": "the tide-line is the frame's spine: dry weave above the line, claimed weave below it — the garment literally wearing two tenancies; the wet climbs at lunar speed (counterfall's uprise physics), the dry keeps its shape above; ONE FLOATING MARKER per frame (buoy, rope-float, duck, drifting leaf) rides the exact lease height — the tidefall witness register",
+      "strong_pairs": "hips/thighs LEAD (the lease line's latitude) + K175-181 uprise family + K61 drip; LQ04 underlight (the risen water's own glow) / LQ14 cool ambient; ink-blue / eclipse-violet / ember-rust depth families + the one full-saturation marker accent; thresholds and waterline frames from the LIMEN pose family (PL229-240)",
+      "failure_modes": [
+        "weather-report — the tide admired as scenery while she stands dry (the N22 law: if the lease line isn't ON the cloth, it isn't there)",
+        "two-engines-soup — counterfall physics AND limen seams AND arcana secrets all at once; a forged engine is ONE law with ONE economy, not a parade",
+        "marker-clutter — three floating objects competing for the lease height; the witness tradition is ONE marker, always"
+      ],
+      "witness_register": "the FLOATING MARKER — one object per frame riding the exact lease height (buoy, rope-float, duck, drifting leaf): the sea's receipt that the line is where it says it is",
+      "genre_split": "NICHE carries the impossible tide physics (the sea keeping visiting hours, the wet rising at moon-call on a dry wall); VOLT carries the lease on cloth — the tide-line crossing her body, claimed weave below, dry above"
+    },
+    "heldhour": {
+      "first_batch": "— (awaiting debut)",
+      "status": "forged",
+      "generation": 8,
+      "parents": [
+        "cantus",
+        "seed: lull (SP-05 / N26-P01 steam register)"
+      ],
+      "law": "the hour is HELD — one slowed hour per frame during which everything moves at breath-speed: fabric falls slow, spills hang, dust halts mid-sink; her wardrobe obeys the held hour (hems mid-fall, straps mid-slip, clasps opening at half-speed), and WHAT THE HOUR RELEASES finishes its fall IN frame",
+      "on_body": "every carrier is a MID-FALL state — the garment caught between two moments of its own physics; the held and the released share the frame: one piece suspended (the hour's mercy), one piece landing (the hour's decision); the stillness is INTENSITY, not absence — the lull engine's quiet frame",
+      "strong_pairs": "throat/hands LEAD (the breath that holds the hour) + K118-132 breath-and-lag family + K185-188 breath-ledger mints; LQ05 follow-spot / LQ07 beam (the light as accompanist); bisque / steam / cream palette families with ONE stopped-time accent (a single drip, a held pendant); OC Mab's banked music-box belongs here (the taste datum)",
+      "failure_modes": [
+        "frozen-photo — everything stopped reads as a statue, not a held hour; something must still be MOVING at breath-speed for the hold to exist",
+        "lull-flat — stillness as an excuse for zero craft; the held hour still carries core-4 carriers and a striking pose (found, not starved)",
+        "two-clocks — the held object and the released object obeying different physics without the frame saying which is which"
+      ],
+      "witness_register": "the STOPPED TIMEPIECE — one timekeeping object per frame frozen at the held minute (clock, egg-timer, dripping tap, stopped metronome): the ordinary world's receipt that time is being spent here",
+      "genre_split": "NICHE carries impossible slow-physics (the suspended spill, the mid-air laundry, dust that waits); VOLT carries the slow-fall wardrobe failures — the strap that has been slipping for an hour and is one breath from landing"
+    },
+    "glamour-tax": {
+      "first_batch": "— (awaiting debut)",
+      "status": "forged",
+      "generation": 8,
+      "parents": [
+        "arcana",
+        "seed: glamour-tax (N19 FET-floor strong frames)"
+      ],
+      "law": "every wonder BILLS her wardrobe — each act of magic deducts a garment-piece or a modesty-degree from her outfit: the tax is visible as a LEDGER ON CLOTH (a button that was there a breath ago, a hem paid, a strap spent), and the secret is what she refuses to pay",
+      "on_body": "the wardrobe is an ACCOUNT: paid pieces gone mid-frame (the seams still warm), kept pieces defended (held, knotted, pinned — the confidant objects), the remaining balance legible at a glance; R+-greedy engine — the tax makes exposure ECONOMIC, not casual: every lost piece was spent ON something visible",
+      "strong_pairs": "hands/throat LEAD (the zones that pay and defend) + the secret-carrying K family (K139-154 returns); LQ05 spot / LQ15 bioluminescent (the magic's own billing light); P100-105 secret families (modest dominant + one giveaway accent); FET scenario hooks as the collection occasions",
+      "failure_modes": [
+        "strip-roulette — pieces vanishing without a visible purchase; the tax must be SPENT on a named wonder in-frame or the ledger is fake",
+        "gratis-magic — wonders that cost nothing (the seed's own warning: everything magical must bill her wardrobe)",
+        "confidant-clutter — three kept objects doing one job; ONE confidant per frame, the rest is inventory"
+      ],
+      "witness_register": "the CONFIDANT-BALANCE — the one kept object that holds the unpaid remainder (the held glove, the closed clasp, the pinned hem): what she refused to spend",
+      "genre_split": "NICHE carries the magic doing the collecting (impossible hands at the hem, sprites reading the ledger); VOLT carries the paid/kept arithmetic on fabric — the exposure with a receipt"
     }
   },
   "open_seeds": [
@@ -99,7 +171,7 @@
     "lull (observed in SP-05's noon economy + the N26 P01 steam register:\n  the world slowed to the speed of one held hour; the quiet frame as\n  intensity — candidate for a stillness-engine cycle, Mab's banked\n  music-box belongs here)",
     "glamour-tax (observed in N19's FET-floor strong frames: everything\n  magical bills her wardrobe; each wonder deducted from the garment —\n  candidate for a R+-greedy cycle)"
   ],
-  "lineage_note": "BESPOKE -> TINT -> COUNTERFALL -> CANTUS -> LIMEN -> ARCANA -> APOCRYPHA: sin as\n  garment -> color as substance -> physics as measurement -> voice as employer ->\n  boundary as garment -> the secret as garment -> THE SCENE UNWRITTEN. Seven\n  generations of one idea (the concept must live IN/ON the material world of\n  her body), each tightening the N22 law. New engines join by proving an entry\n  at debut; historical batches (Requiem -> GOD LEFT THE LIGHTS ON) are\n  retro-documented on demand — no invention without the receipts.",
+  "lineage_note": "BESPOKE -> TINT -> COUNTERFALL -> CANTUS -> LIMEN -> ARCANA -> APOCRYPHA: sin as\n  garment -> color as substance -> physics as measurement -> voice as employer ->\n  boundary as garment -> the secret as garment -> THE SCENE UNWRITTEN. Seven generations of one idea (the concept must live IN/ON the material world of\n  her body), each tightening the N22 law. Generation 8 (2026-09-20, the forge): composite TWO-AXIS engines — a world law PLUS an economy layered on it (tidefall: law + lease; heldhour: law + time-budget; glamour-tax: law + ledger). Assembled in the FORGE (specs/engine-forge.json + ENGINE_FORGE.md) from proven components of the seven; they join the rotation as status:forged and must prove the entry at debut like any engine. New engines join by proving an entry\n  at debut; historical batches (Requiem -> GOD LEFT THE LIGHTS ON) are\n  retro-documented on demand — no invention without the receipts.",
   "entry_format": {
     "law": "one sentence, physical, testable in-frame",
     "on_body": "the exact channels the law claims on the girl",

@@ -83,6 +83,12 @@ floor — one gold concept per batch is not enough):
 
 A strong NICHE concept earns rating-forgiveness (the standing doctrine).
 
+**The genre must be VISIBLE** (T4-02 verdict receipt): every prompt's header
+carries its genre token (OC/NICHE/VOLT/EXQUISITE) as a structural identity —
+hard-gated; the batch opens with the genre legend. A NICHE the author cannot
+see is a NICHE that does not exist: the race's physical work and the witness
+are the first read, checked by the niche-legibility gate.
+
 **EXQUISITE** rides by vibe, 1–2 slots (up to 4 when the theme is rich):
 ultra-VOLT or ultra-NICHE — the extremity doctrine.
 
@@ -110,8 +116,10 @@ the gates cap monopoly:
 - Carriers: core-4 per R+ slot (≥4 classes × all 4 mechanism groups);
   W-class ≤45% of batch carrier instances; sheer-family ≤2 carriers/prompt
   and ≤40% of R+ frames.
-- Poses: 21 distinct per batch; standing-default retired («Охуенная поза
-  решила всё» — the strongest lever the render data ever named).
+- Poses: 24 distinct per batch (21 mains + 3 OC — the T4-02 verdict receipt:
+the batch is 21 MAIN prompts + 3 OC prompts, never 21 total); standing-default
+retired («Охуенная поза решила всё» — the strongest lever the render data ever
+named).
 - Palettes: distinct per slot, window-checked against the last 3 batches.
 - Maturity: voice diversity (students / young women / MILFs — no grannies)
   assigned as narrative registers at compile; **never** as POS tags
@@ -120,6 +128,9 @@ the gates cap monopoly:
 - Races: ~10/21 when cast, delivered through both channels (tag + active
   feature doing work in-frame).
 - Registers: closers, openings, witness objects — rotated, capped.
+- Complex props (wheel/ladder/railing/rope) carry named contact anchors for
+every limb that touches them (T4-02 verdict receipt: the valve-wheel frame
+rendered with broken geometry) — prop-geometry gate.
 
 ## §8. HARD FLOORS NEVER RELAX.
 
@@ -179,7 +190,7 @@ event log. A law that only ever blocks strong frames is a suspect law
 1. **ORDER** — author names the theme (or asks the house to choose).
 2. **COMPILE** — `t4 compile`: slot plan + assigned diversity + contract.
 3. **EXPOSITION** — the contract's human half goes to the author.
-4. **WRITE** — the batch (21 + 3 OC, one file) against the contract.
+4. **WRITE** — the batch (21 mains + 3 OC, one file) against the contract.
 5. **GATES** — hard must pass first-run; warns receipted; advisory reports.
 6. **DELIVER** — batch file + batch worklog; events appended.
 7. **RENDER** — author on Tsubaki.2 Pro; posts on Yodayo.

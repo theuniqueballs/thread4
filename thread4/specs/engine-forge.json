@@ -1,0 +1,68 @@
+{
+  "version": "1.0.0",
+  "born": "2026-09-20",
+  "what": "КУЗНИЦА ДВИЖКОВ — структура сборки новых, более комплексных движков. Движок — НЕ тема: это физический/метафорический закон мира, который можно НЕСТИ на теле (N22-закон). Кузница определяет, из чего движок собирается, по каким осям, и как доказывает право на дебют.",
+  "complexity_ladder": {
+    "gen_1_7": "одноосевые: один мировой закон (bespoke → apocrypha, семь поколений)",
+    "gen_8": "двухосевые КОВАНЫЕ: мировой закон + экономика (аренда tidefall / бюджет времени heldhour / счет glamour-tax). Компоненты — только доказанные части семёрки",
+    "gen_9_roadmap": "трёхосевые: закон + экономика + время (напр. «прилив, который помнит, что уже брал» — tidefall × heldhour). Собирать только после того, как генерация 8 докажет дебют"
+  },
+  "schema": {
+    "id": "kebab-case ключ; в engines.json живёт ПОЛНАЯ запись (единый источник правды — конституция §2)",
+    "generation": "1-7 — унаследованные; 8+ — кованые",
+    "status": "forged | seed | experimental | proven | render-graded | retired — кованый рождается forged, доказывает дебютом",
+    "parents": "из чего скован: движки-родители + семена (только с квитанциями — вердикты, сильные кадры)",
+    "law": "одно предложение, физично, проверяемо в кадре — плюс для генерации 8+: ВТОРАЯ ОСЬ (экономика: аренда/бюджет/счёт), тоже физичная",
+    "on_body": "точные каналы закона на ней: hem / hair / weave / kinetic / wardrobe-state — никогда декорации",
+    "witness_register": "один объект-свидетель на кадр, свой регистр у каждой линии (downward → unsung → mundane → confidant → accidental → floating-marker / stopped-timepiece / confidant-balance)",
+    "strong_pairs": "LEAD-зоны + K-семейства + LQ + палитренные семейства, которые несли движка",
+    "genre_split": "что несёт NICHE против что несёт VOLT — жанровый раскол есть у каждого движка (вердикт T4-02: жанр должен быть виден)",
+    "failure_modes": "наблюдённые способы смерти (из вскрытий) — минимум три, с квитанциями",
+    "debut": "первый батч; кованый движок обязан доказать запись на дебюте (как любой)"
+  },
+  "components": {
+    "laws_proven": [
+      "concept TAILORED ON the girl (bespoke) — концепт как крой по её меркам",
+      "concept DYED INTO her (tint) — цвет как субстанция, абсорбция",
+      "one physical law inverted, measured on her (counterfall) — физика как измерение",
+      "garment obeys the voice (cantus) — ткань подчиняется звучащему",
+      "magic through SEAMS, wardrobe claimed by two weathers (limen) — граница как garment",
+      "secret WORN with a visible tell (arcana) — секрет как носитель",
+      "scene FOUND, wardrobe mid-life (apocrypha) — сцена ненаписана"
+    ],
+    "economies_gen8": [
+      "LEASE (tidefall): у всего есть линия аренды — водная линия на одежде; что прилив тронул, то он и забрал",
+      "TIME-BUDGET (heldhour): у кадра есть бюджет времени — что-то держится, что-то отпущено, и отпускание видно",
+      "LEDGER (glamour-tax): каждое чудо списывает с гардероба — экспозиция с чеком"
+    ],
+    "witness_tradition": [
+      "downward (counterfall): один тёплый металл — направление, которое любит",
+      "unsung (cantus): латунь/сталь/кость — то, до чего песне нет дела",
+      "mundane (limen): один обычный предмет, отказывающийся от магии",
+      "confidant (arcana): объект, который знает",
+      "accidental (apocrypha): объект, поймавший сцену нечаянно",
+      "floating-marker / stopped-timepiece / confidant-balance — кованые регистры генерации 8"
+    ],
+    "delivery_channels": "wardrobe-state (fastening/failure/fit) · weave-physics (sheer/wet/imprint) · kinetic-lag (breath/return/mint) · race-mechanism (NICHE: раса делает физическую работу) · seam-claim (limen) · caught-state (apocrypha)",
+    "palette_families": "TINT P83-88 · SEAM P89-99 · SECRET P100-105 · depth-семейства (ink-blue/eclipse-violet/ember-rust) + §51: ровно один полно-насыщенный не-семейный акцент на кадр",
+    "kinetic_families": "K61 drip · K82 invert-suspend · K118-132 breath-lag · K139-154 garment-returns · K175-181 uprise · K185-188 breath-ledger · K192-195 seam",
+    "lq_proven": "LQ01 hard-key · LQ04 underlight · LQ05 follow-spot · LQ06 bounced · LQ07 beam · LQ10/LQ14 cool ambient · LQ12 UV · LQ15 biolum"
+  },
+  "assembly_protocol": [
+    "1. СЕМЯ — только с квитанцией: вердикт-событие, сильный кадр, авторское слово. «Мне кажется, прикольно будет» — не семя",
+    "2. ОСИ — закон (gen 1-7) или закон+экономика (gen 8+); каждая ось физична и проверяема в кадре без прозы",
+    "3. N22-ТЕСТ — как закон сидит НА НЕЙ? hem/hair/weave/kinetic/wardrobe-state; если только декорация — движу назад",
+    "4. СВИДЕТЕЛЬ — свой регистр, один объект на кадр, без парада",
+    "5. ЖАНРОВЫЙ РАСКОЛ — что несёт NICHE, что несёт VOLT; если раскола нет — движок однообразен к 24 кадрам",
+    "6. ПАРЫ — LEAD + K + LQ + палитренное семейство из доказанных компонентов",
+    "7. ПРОВАЛЫ — минимум три способа смерти, каждый с квитанцией из вскрытий",
+    "8. КОНТРАКТ-ТЕСТ — сухая сборка (compile) против нового движка: план 24 слотов собирается, гейты сухие — запись в engines.json (status: forged)",
+    "9. ДЕБЮТ — батч по приказу автора; вердикт решает: proven / доработка / в отставку. Никакой записи без дебюта"
+  ],
+  "open_seeds_waiting": [
+    "custody (N19: everything the deep was given, it kept — possession as care)",
+    "time-scarcity (N18 9.2/10 — the hour taking things)"
+  ],
+  "forged": ["tidefall", "heldhour", "glamour-tax"],
+  "note": "Полные записи кованых движков живут в engines.json (единый источник правды). Эта спека — структура и компоненты Кузницы."
+}

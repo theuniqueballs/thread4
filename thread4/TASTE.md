@@ -23,6 +23,11 @@ decision. Sources: 3.2 SUCCESS_LOG (S001–S011, RF-001..003), the author's
   entire argument; geometry carrying dignity (Una, S006).
 
 ### Whole-batch verdicts
+- **T4-02 «The Shape of a Moment» (2026-09-20)** — «Батч — отличный, позы —
+  отличные», VOLT: «прописал очень хорошо, понравилась реализация и
+  персонажи». The first T4 delivery validated: the 24-hour compile→write→gate
+  cycle, the VOLT doctrine (flesh, recipe-earned), the pose-first discipline.
+  Three fixes ordered (see VERDICT-DRIVEN LAWS below). (T4-02 verdict event)
 - **N18 «Too Much Feeling Not Enough Time» — 9.2/10**, the highest
   whole-batch verdict ever: the TIME-SCARCITY register held across all 21
   («в пределах прикольного, даже отличного»). Same verdict named the growth
@@ -91,6 +96,24 @@ decision. Sources: 3.2 SUCCESS_LOG (S001–S011, RF-001..003), the author's
 - **Crutch-accumulation** — «из-за кучи костылей последних версий полетела
   вся система» (2026-09-19). Architecture rot is a taste problem too.
 - **XXX / genitals** — never, ever (standing author floor).
+- **Unreadable genre split** (T4-02): «Не совсем понял, где там ниша, а где
+  волт… с нишей почему-то не получилось» — a NICHE that reads as a normal
+  frame is a FAILED niche. The genre must be visible at a glance.
+- **Broken prop geometry** (T4-02): «на промпте с колесом (штурвалом)
+  наблюдалась небольшая хуёвая геометрия расположения» — complex props
+  (wheel/ladder/railing) break render geometry; contact anchors required.
+- **Wrong slot count** (T4-02): «требовалось 21 промпт батча + 3 промпта ОС» —
+  the batch is 21 MAINS + 3 OC = 24, never 21 total.
+
+## VERDICT-DRIVEN LAWS (T4-02 → конституция, 2026-09-20)
+
+1. **24-slot law**: 21 mains (R+×12 · R×7 · X×2) + 3 OC — the batch file
+   structure, hard-gated (structure gate).
+2. **Genre visibility**: genre token in every prompt header (hard) + race
+   doing physical work + witness in frame (niche-legibility warn) + genre
+   legend at the top of every batch.
+3. **Prop geometry**: complex props carry ≥2 named contact anchors
+   (prop-geometry warn).
 
 ## TASTE HEURISTICS (what the compiler should optimize)
 
@@ -107,3 +130,5 @@ decision. Sources: 3.2 SUCCESS_LOG (S001–S011, RF-001..003), the author's
    Read together: greedier WITHIN the tier recipe, never sloppier across it.
 8. The verdict forgives a rating miss on a strong NICHE concept — never
    forgives a boring frame.
+9. Complex props: one contact-rich prop max per frame, every touching limb
+   named — geometry is part of the beauty (T4-02 receipt).
