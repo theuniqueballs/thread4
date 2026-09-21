@@ -23,6 +23,26 @@ decision. Sources: 3.2 SUCCESS_LOG (S001–S011, RF-001..003), the author's
   entire argument; geometry carrying dignity (Una, S006).
 
 ### Whole-batch verdicts
+- **T4-03 RENDER VERDICT (2026-09-21, 24 рендера, глаз автора + zip
+  T4-03.zip)** — скорборд подтверждён на картинках: R 7/7 ✅, X 2/2 ✅,
+  R+ 1/15 ❌ (P10 «еле-еле»), OC R+ 0/3 ❌. T4-04 OC-трио тоже пало:
+  «первые же сгенеренные картинки (3 ОС) не соответствуют R+ от слова
+  совсем» (Zia: «одетой грудью прижимается к стеклу — может быть на R»).
+  РЕНДЕР-ЗАКОНЫ (v1.2.0, см. конституцию §9-терция): cameltoe — мёртвый
+  тег (0 отрисовок); edge читает только через мокрую/прозрачную ткань (wet
+  clothes / see-through на одной тонкой светлой вещи); подслой (bra/camisole под
+  sheer) рендерер рисует вместо edge → R; мёртвые ткани (джинсы/бархат/
+  свитпаны/кожа) не несут заявку; X доставлен 2/2 — блок покрытия в NEG
+  заставляет рендерер взять тир; доставка R+ стохастична (~1/8) — закон
+  строит кадр лучшей вероятности, автор перекидывает. МЕТА: VLM-грейдинг
+  edge-тира завышает (VLM 8/12 vs глаз автора 1/15) — вердикт по эротике
+  принадлежит автору, VLM проверяет только сцену/структуру. (T4-03
+  render-verdict event + T4-04 OC report)
+- **ИМЕНА ОС В POS ЗАПРЕЩЕНЫ (приказ автора, 2026-09-21, по T4-04)** —
+  «ты пишешь имена ОС в POS промпта. Этого делать не надо, потому что это
+  триггерит возможных реально существующих персонажей». Miyu/Zia/Nix
+  вычищены из POS (теги + проза); писец получил NAME LAW + кодовую
+  гварду; hard-гейт в каноне. Дескрипторы вместо имён. (law.amended)
 - **T4-03 «The Last Face» (2026-09-21)** — «В общем и целом — нормально, но
   нужны доработки». The clinical scorecard: R 7/7 ✅, X 2/2 ✅, R+ 1/15
   (P10 «еле-еле») ❌ — the system delivers named-object tiers (underwear,
@@ -126,6 +146,22 @@ decision. Sources: 3.2 SUCCESS_LOG (S001–S011, RF-001..003), the author's
   render opaque and safe.
 - **Layer-order lottery** (T4-03): «чулки сквозь джинсы, какая-то майка
   поверх рубашки» — 3+ stacked tops make the renderer swap layers.
+- **Cameltoe-as-claim** (T4-03 render): the tag NEVER rendered (0
+  отрисовок из всех попыток) — claiming R+ by cameltoe is claiming
+  nothing; «от слова совсем».
+- **The underlayer steal** (T4-03 render): bra/camisole/bandeau under a
+  sheer top — the renderer draws the UNDERLAYER and the tier drops to R
+  (P12/P14); the read must be skin-through-fabric, one layer.
+- **Dead-fabric edge** (T4-03 render): jeans/denim/velvet/sweatpants/
+  breeches/suit carry no edge, ever — OC-3's cameltoe-through-jeans was
+  doomed on paper.
+- **OC names as tags** (автор, T4-04): «имена ОС в POS триггерят реально
+  существующих персонажей» — Miyu/Zia/Nix/Sol/Vae/Mab are noise-or-worse
+  to the renderer; descriptors only.
+- **VLM edge-grading** (T4-03 render, мета): the VLM audit read «nipples
+  through fabric» where the author's eye saw clothed R (8/12 vs 1/15) —
+  never let the machine grade the edge tier; it verifies scenes, not
+  erotica.
 
 ## VERDICT-DRIVEN LAWS (T4-02 → конституция, 2026-09-20)
 
@@ -149,6 +185,28 @@ decision. Sources: 3.2 SUCCESS_LOG (S001–S011, RF-001..003), the author's
    open to camera, ≤1 layer + claim target; ≤2 layers per zone, <3 tops;
    OC slots camera-facing — warn-gated (claim-visibility).
 
+## VERDICT-DRIVEN LAWS (T4-03 RENDER → конституция §9-терция/кватерна, 2026-09-21)
+
+1. **Render-proven claims only** (rating-recipes v1.2.0): R+ hard-claim =
+   visible pantyline / nipples through clothing / clothed nipples /
+   see-through / tape family. cameltoe NEVER a claim — hard-gated.
+2. **Fabric state mandatory**: through-fabric claims carry `wet clothes`
+   or `see-through` on ONE thin light garment — hard-gated; missing state
+   = the P13/P21 death.
+3. **No underlayer on the claim zone**: bra/camisole/bandeau under a
+   sheer top renders the underlayer, tier dies to R — hard-gated
+   (rating-recipe).
+4. **Dead fabrics carry no edge**: jeans/denim/leather/velvet/sweatpants/
+   breeches/suit — hard-gated (rating-recipe).
+5. **OC names never in POS** — tags or prose; descriptors only; scribe
+   code-guard + hard gate (canon) — author's order.
+6. **X delivery tool**: coverage-block NEG («covered breasts, bra,
+   clothing on chest») is the renderer-commit instrument — recipe v1.2.0.
+7. **Stochastic delivery**: R+ lands ~1/8 even when lawful — the gates
+   build best-odds frames; re-rolls are the author's tool, not a defect.
+8. **VLM grades scenes, never the edge** — edge-tier verdicts belong to
+   the author's eye only (VLM over-read 8/12 vs 1/15).
+
 ## TASTE HEURISTICS (what the compiler should optimize)
 
 1. One striking pose > a hundred safe ones. Assign pose risk deliberately.
@@ -166,3 +224,5 @@ decision. Sources: 3.2 SUCCESS_LOG (S001–S011, RF-001..003), the author's
    forgives a boring frame.
 9. Complex props: one contact-rich prop max per frame, every touching limb
    named — geometry is part of the beauty (T4-02 receipt).
+10. The renderer is a tag-reader, not a poet: fabric states and coverage
+    NEGs render; shape names and physics promises do not (T4-03 render).

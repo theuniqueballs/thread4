@@ -86,7 +86,7 @@ interface ScribeCtx {
 /* ------------------------------------------------------------------ */
 
 const GOLD_EXAMPLE = `P01 — milk-hours-lease (OC · Lyn · R+ · PL24 · P77_LATE_MILK)
-POS: anime style, ecchi anime style, 1girl, solo, Lyn, cat girl, cat ears, cat tail, copper-red hair, twin braids, slate-grey eyes, red velvet ribbon, kitchen, night, standing on tiptoes, camisole, shorts, off-shoulder, fallen strap, wet clothes, cameltoe, collarbone, bare shoulders, milk. The milk-pale hour owns the kitchen, and tonight it has begun to own her: the 3 a.m. pour went wide, a white ring across the cold tile, and she stepped in barefoot reaching for the high shelf, heels mid-lifting as the wet takes her weight. The midnight kitchen has dyed her all winter and the coat has taken: her camisole has gone milk-pale cool, the tank strap at her left shoulder has slipped its station, a declared retreat, the shoulder's line running bare into the collarbone's shallow pools. Her tufted tail flicks once — the hour is a tenant worth keeping — and the copper of her braids' tips stays the one full-pigment warm point, outnumbered and hers. Her face is rendered in stylized 2D anime style: anime eyes (slate-grey, half-lidded to lazy slits, vertical pupils), small nose, small mouth set in the level line of a girl who holds the night's lease, warm ivory skin. The stain keeps the shape of the pour. Masterpiece, best quality, anime artstyle.`
+POS: anime style, ecchi anime style, 1girl, solo, cat girl, cat ears, cat tail, copper-red hair, twin braids, slate-grey eyes, red velvet ribbon, kitchen, night, standing on tiptoes, wet clothes, see-through, nipples through clothing, camisole, shorts, off-shoulder, fallen strap, collarbone, bare shoulders, milk. The milk-pale hour owns the kitchen, and tonight it has begun to own her: the 3 a.m. pour went wide, a white ring across the cold tile, and she stepped in barefoot reaching for the high shelf, heels mid-lifting as the wide splash took her front — the milk soaking the camisole's thin cotton to sheer in one warm second, the fabric's whole argument gone transparent to its own cause, the read of her nipples through the milk-dark weave the frame's honest edge. The midnight kitchen has dyed her all winter and the coat has taken: the tank strap at her left shoulder has slipped its station, a declared retreat, the shoulder's line running bare into the collarbone's shallow pools. Her tufted tail flicks once — the hour is a tenant worth keeping — and the copper of her braids' tips stays the one full-pigment warm point, outnumbered and hers. Her face is rendered in stylized 2D anime style: anime eyes (slate-grey, half-lidded to lazy slits, vertical pupils), small nose, small mouth set in the level line of a girl who holds the night's lease, warm ivory skin. The stain keeps the shape of the pour. Masterpiece, best quality, anime artstyle.`
 
 const SYSTEM_PROMPT = `You are THE HOUSE SCRIBE of THREAD 4, an anime-art prompt pipeline (Tsubaki.2 Pro renderer → Yadayo). You write single-image ecchi prompts. Your output is assembled by a machine into the batch file; malformed output breaks the machine — follow the format EXACTLY.
 
@@ -98,6 +98,10 @@ POS = [tag block]. [prose]. [face lock]. [quality tags].
 4. QUALITY TAGS at the very end: "Masterpiece, best quality, anime artstyle."
 
 THE RATING IS EARNED BY TAGS, NOT PROSE. Each slot names its tier and the REQUIRED signal tags — include AT LEAST the stated minimum in the TAG BLOCK, and NEVER include signal tags of a higher tier (overclaim fails the gate). Prose may amplify what tags claim; it never substitutes them.
+
+THE RENDER LAW (render verdict T4-03 — 24 renders, the author's eye): the renderer obeys fabric-STATE tags and coverage NEGs; it IGNORES shape-name tags. cameltoe NEVER rendered (0 attempts) — it is flavor at most, NEVER the claim. The R+ edge reads through ONE thin LIGHT garment (blouse / tee / shirt / knit / swimsuit / leotard / romper / slip) tagged wet clothes AND/OR see-through, with NO underlayer on the zone: name a bra/camisole/bandeau under a sheer top and the renderer draws the UNDERLAYER and the tier dies to R. Opaque structured fabrics (jeans, denim, leather, velvet, sweatpants, breeches, suit) never carry an edge. Delivery is stochastic — build the best-odds frame; the claim tags sit before the environment tags.
+
+NAMES NEVER ENTER POS (author's order, T4-04): no character names anywhere in POS — tags or prose. Names trigger the renderer's learned foreign characters. Describe her by species / anatomy / hair / eyes / skin descriptors only; the name lives in the slot header and Canon line, which the renderer never reads.
 
 GENRES — the author must see the difference at a glance:
 - OC: her canon locks exact; the batch law rides her assigned theme.
@@ -115,7 +119,7 @@ HARD STYLE RULES:
 - The batch law is the FIRST READ of every frame — visible in silhouette, not narrated. A girl standing in nice light is a tourist.
 - §51: exactly ONE full-saturation non-family accent point per frame, outnumbered by the palette family.
 - Weave ALL assigned carriers into the frame (they are listed per slot) — each carrier is a physical state of fabric/body/position/physics, noun-led.
-- RATING EARNED IN FRAME (verdict T4-03): the tier's signal must be a NAMED OBJECT on a NAMED TARGET the camera can see — cameltoe on the leotard's seat, tape on bare skin, handbra with hands placed. Physics promises ("see-through", "wet clothes") alone render safe — the author reads them as a swimsuit. The claim zone is the lead zone and it stays OPEN: no skirts, cloaks or tied shirts over a lower claim, no buttoned tops over a chest claim. "Looks erotic but does nothing" is the named failure.
+- RATING EARNED IN FRAME (verdict T4-03 + render verdict): the tier's signal must be a RENDER-PROVEN claim on a NAMED TARGET the camera can see — visible pantyline through the tight thin bottom, nipples through the wet/sheer named top, tape on bare skin with the chest zone open. cameltoe is flavor, never the claim. Physics promises without the fabric state (wet clothes / see-through tags) render dry and safe. The claim zone is the lead zone and it stays OPEN, single-layer, NO underlayer: no skirts, cloaks or tied shirts over a lower claim, no buttoned tops or bras under a chest claim. "Looks erotic but does nothing" is the named failure.
 - LAYER CLARITY (verdict T4-03): ≤2 garment layers per body zone; the claim zone carries ≤1 layer + the claim target; never stack 3 tops (the renderer swaps their order — stockings through jeans, tank over shirt); layer order, when layered, is stated top-to-bottom.
 - OC slots: camera-facing poses — her claim faces the lens; no folds/prone/from-behind that hide the lead zone.
 
@@ -197,7 +201,8 @@ function slotFrame(slot: SlotPlan, ctx: ScribeCtx): string {
   if (slot.kind === 'OC' && slot.oc) {
     const oc = ctx.ocs[slot.oc]
     lines.push(`oc: ${slot.oc}${slot.ocTheme ? ` — author's theme for her: ${slot.ocTheme}` : ' — derive her theme from the batch law'}`)
-    if (oc) lines.push(`canon (locks exact):\n${canonTagHints(oc)}`)
+    lines.push(`NAME LAW: the name «${slot.oc}» NEVER appears in POS — not as a tag, not in prose (names trigger the renderer's foreign characters; author's order T4-04). Describe her by the descriptor tags below only.`)
+    if (oc) lines.push(`canon (locks exact, as DESCRIPTOR tags — no name):\n${canonTagHints(oc)}`)
   } else {
     lines.push(`who: ${raceLine(ctx.races.get(slot.race ?? ''), slot.raceFeature)}`)
   }
@@ -218,13 +223,13 @@ function slotFrame(slot: SlotPlan, ctx: ScribeCtx): string {
   if (slot.witness) lines.push(`witness: the ${slot.witness} — one object that holds the frame's law`)
   if (recipe) {
     const hardSignals = recipe.signals_hard ?? []
-    lines.push(`REQUIRED rating signals — include ≥${recipe.signal_min} of these IN THE TAG BLOCK: ${recipe.signals.slice(0, 14).join(', ')}`)
+    lines.push(`REQUIRED rating signals — include ≥${recipe.signal_min} of these IN THE TAG BLOCK (before the environment tags): ${recipe.signals.slice(0, 14).join(', ')}`)
     if (hardSignals.length > 0) {
       lines.push(
-        `HARD CLAIM (verdict T4-03 law): ≥${recipe.hard_min ?? 1} of these NAMED edge objects MUST be in the tag block — ${hardSignals.join(', ')}. Amplifiers (see-through / wet clothes / tight clothes / extreme fanservice) render safe on their own; the object renders. Name the TARGET it lands on (garment or skin).`
+        `HARD CLAIM (RENDER LAW v1.2.0, render verdict T4-03): ≥${recipe.hard_min ?? 1} RENDER-PROVEN claim in the tag block — ${hardSignals.join(', ')}. cameltoe is NOT a claim (0 renders ever — flavor only). Through-fabric claims REQUIRE the fabric state tags (wet clothes / see-through) on ONE thin LIGHT garment, NO underlayer on the zone (bra/camisole/bandeau under sheer renders the underlayer and the tier dies to R). Dead fabrics (jeans/denim/leather/velvet/sweatpants/breeches/suit) never carry the claim.`
       )
       lines.push(
-        `CLAIM ZONE = the lead zone (${slot.lead}), OPEN TO CAMERA: no skirt / cloak / coat / shirt tied at the waist over a cameltoe claim, no buttoned top over a tape/handbra claim. ≤2 garment layers per body zone, the claim zone carries ≤1 layer + the claim target. «Looks erotic but does nothing» is the failure this law kills.`
+        `CLAIM ZONE = the lead zone (${slot.lead}), OPEN TO CAMERA, single layer + the claim target. Delivery is stochastic (~1/8): build the best-odds frame — the claim and its fabric state EARLY in the tag run, the prose naming the same garment the tags claim. «Looks erotic but does nothing» is the failure this law kills.`
       )
     }
     lines.push(`tier boundary: do NOT use higher-tier signals (${higherTierSignals(slot.rating, ctx.recipes).join(', ')}) — the counter-negatives are added by the machine`)
@@ -320,6 +325,22 @@ function normalizePos(pos: string, slot: SlotPlan, ctx: ScribeCtx): string {
   let p = pos.replace(/\s*\n\s*/g, ' ').replace(/\s{2,}/g, ' ').trim()
   // strip accidental markdown fences
   p = p.replace(/^```[a-z]*\s*/i, '').replace(/```\s*$/, '').trim()
+  // ЗАПРЕТ ИМЁН (приказ автора, T4-04): имена ОС в POS — триггеры чужих
+  // персонажей у рендерера. Кодовая гварда: имя вычищается из POS всегда,
+  // даже если LLM его написал. Имена собственные, case-sensitive
+  // («ash-grey» не трогаем)
+  for (const name of Object.keys(ctx.ocs)) {
+    p = p
+      .replace(new RegExp(`\\b${name}\\b,\\s*`, 'g'), '') // «Miyu, tag» → «tag»
+      .replace(new RegExp(`,\\s*\\b${name}\\b`, 'g'), '') // «tag, Miyu» → «tag»
+      .replace(new RegExp(`\\s+\\b${name}\\b`, 'g'), '') // проза «… Miyu» → «…»
+  }
+  p = p
+    .replace(/\s{2,}/g, ' ')
+    .replace(/,\s*,/g, ',')
+    .replace(/,\s*\./g, '.')
+    .replace(/^\s*,\s*/, '')
+    .trim()
   if (!/anime style/i.test(p)) {
     p = `${recipeOpener(ctx.recipes, slot.rating)}, ${p}`
   }

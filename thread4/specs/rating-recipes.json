@@ -1,71 +1,267 @@
 {
-  "version": "1.1.0",
+  "version": "1.2.0",
   "born": "2026-09-19",
-  "reforged": "2026-09-21 — verdict T4-03: R+ failed 14/15 slots (R 7/7, X 2/2 delivered); the edge tier now demands a NAMED hard-claim object in frame, not physics promises",
+  "reforged": "2026-09-21 — RENDER verdict T4-03 (author's eye on 24 renders): R 7/7 ✅, X 2/2 ✅, R+ 1/15 ❌ («еле-еле» P10), OC R+ 0/3 ❌. v1.1.0 made claims prompt-honest but put the weight on cameltoe/tape — tags the renderer will not draw. v1.2.0 is built from what the renders actually did: the edge reads through WET/SEE-THROUGH thin fabric with NO underlayer; cameltoe is flavor, never the claim",
   "source": "author's tier table (2026-09-19) + 3.2 CARRIER_LIBRARY science + Claude-thread N30/N31 empirics",
   "note": "A recipe is what makes a tier CLAIM true at render: signal tags (the claim), carriers (the mechanism), counter-NEG (the boundary), prose floor (what survives PH). The rating gate grades every slot against its declared tier's recipe.",
   "tiers": {
     "PG13": {
       "name": "the tease tier",
-      "signals": ["sexy outfit", "bikini", "cleavage", "thighs", "off-shoulder", "bare shoulders", "short shorts", "miniskirt", "midriff", "zettai ryouiki", "thighhighs"],
+      "signals": [
+        "sexy outfit",
+        "bikini",
+        "cleavage",
+        "thighs",
+        "off-shoulder",
+        "bare shoulders",
+        "short shorts",
+        "miniskirt",
+        "midriff",
+        "zettai ryouiki",
+        "thighhighs"
+      ],
       "signal_min": 2,
-      "carrier_classes": ["S", "E", "W", "B"],
+      "carrier_classes": [
+        "S",
+        "E",
+        "W",
+        "B"
+      ],
       "carrier_note": "skin-framing (S) and exposure-positioning (E) lead; fabric states stay non-sheer; B shape-telegraph at L/M degree",
-      "counter_neg": ["nipples", "areola", "exposed genitals", "lingerie visible"],
+      "counter_neg": [
+        "nipples",
+        "areola",
+        "exposed genitals",
+        "lingerie visible"
+      ],
       "prose_floor": "state nouns >= 2; the outfit IS the claim",
-      "typical_genres": ["NICHE", "VOLT-light"],
+      "typical_genres": [
+        "NICHE",
+        "VOLT-light"
+      ],
       "opener": "anime style"
     },
     "R": {
       "name": "the underwear tier",
-      "signals": ["lingerie", "panties", "bra", "underwear", "upskirt", "erotic pose", "microbikini", "garter belt", "thong", "boyshorts", "pantyshot"],
+      "signals": [
+        "lingerie",
+        "panties",
+        "bra",
+        "underwear",
+        "upskirt",
+        "erotic pose",
+        "microbikini",
+        "garter belt",
+        "thong",
+        "boyshorts",
+        "pantyshot"
+      ],
       "signal_min": 2,
-      "carrier_classes": ["L", "U", "D", "W"],
+      "carrier_classes": [
+        "L",
+        "U",
+        "D",
+        "W"
+      ],
       "carrier_note": "layers negotiate (L) and context undresses (U); the D kinetic axis makes the pose erotic (the author's table puts the POSE in the signal set); waistband/strap/cup states are the vocabulary",
-      "counter_neg": ["nipples", "areola", "exposed genitals", "cameltoe"],
+      "counter_neg": [
+        "nipples",
+        "areola",
+        "exposed genitals",
+        "cameltoe"
+      ],
       "prose_floor": "state nouns >= 3; underwear state named explicitly, never implied",
-      "typical_genres": ["VOLT"],
+      "typical_genres": [
+        "VOLT"
+      ],
       "opener": "anime style, ecchi anime style"
     },
     "RPLUS": {
       "name": "the edge tier",
-      "signals": ["cameltoe", "camel toe", "nipples through clothing", "clothed nipples", "extreme fanservice", "see-through", "wet clothes", "visible pantyline", "tight clothes", "almost naked", "topless with tape", "taped nipples", "handbra", "arms covering chest"],
-      "signals_hard": ["cameltoe", "camel toe", "taped nipples", "topless with tape", "handbra", "visible pantyline"],
+      "signals": [
+        "cameltoe",
+        "camel toe",
+        "nipples through clothing",
+        "clothed nipples",
+        "extreme fanservice",
+        "see-through",
+        "wet clothes",
+        "visible pantyline",
+        "tight clothes",
+        "almost naked",
+        "topless with tape",
+        "taped nipples",
+        "handbra",
+        "arms covering chest"
+      ],
+      "signals_hard": [
+        "visible pantyline",
+        "nipples through clothing",
+        "clothed nipples",
+        "see-through",
+        "taped nipples",
+        "topless with tape",
+        "handbra"
+      ],
       "hard_min": 1,
       "signal_min": 2,
       "mechanisms": {
         "through_fabric": {
-          "hard": ["cameltoe", "camel toe", "visible pantyline"],
-          "amplifiers": ["see-through", "wet clothes", "tight clothes", "nipples through clothing", "clothed nipples"],
-          "counter_neg": ["nipples exposed", "areola", "exposed genitals", "naked breasts", "topless"],
-          "note": "the edge reads THROUGH a NAMED garment (leotard's seat, shirt gone sheer, waistband's line) — the garment stays on, the full chest counter-NEG holds the line"
+          "hard": [
+            "visible pantyline",
+            "nipples through clothing",
+            "clothed nipples",
+            "see-through"
+          ],
+          "amplifiers": [
+            "wet clothes",
+            "tight clothes",
+            "extreme fanservice",
+            "cameltoe",
+            "camel toe"
+          ],
+          "counter_neg": [
+            "nipples exposed",
+            "areola",
+            "exposed genitals",
+            "naked breasts",
+            "topless"
+          ],
+          "note": "RENDER LAW (T4-03, author's eye): the edge reads through ONE thin LIGHT garment (blouse/tee/shirt/knit/swimsuit/leotard/romper/slip) tagged wet clothes AND/OR see-through, with NO underlayer on the zone — the renderer draws the underlayer, not the edge, if one is named. cameltoe never rendered (0/N) — flavor only. Lower-zone claims are guarded by dead_fabrics_lower, chest claims by dead_fabrics_upper (the claim TARGET must be a sheer-able thin fabric). Delivery is stochastic (~1/8): build the best-odds frame, expect re-rolls",
+          "required_state": [
+            "wet clothes",
+            "see-through"
+          ],
+          "underlayer_block": [
+            "bra",
+            "sports bra",
+            "push-up bra",
+            "camisole",
+            "bandeau",
+            "tube top",
+            "swimsuit top",
+            "paddest bra",
+            "padded bra"
+          ],
+          "underlayer_block_applies_to": [
+            "nipples through clothing",
+            "clothed nipples",
+            "see-through"
+          ],
+          "dead_fabrics_lower": [
+            "jeans",
+            "denim",
+            "sweatpants",
+            "breeches",
+            "trousers",
+            "slacks",
+            "leather skirt",
+            "leather pants",
+            "vinyl",
+            "suede",
+            "suit"
+          ],
+          "dead_fabrics_upper": [
+            "velvet",
+            "leather",
+            "vinyl",
+            "suede",
+            "wool coat",
+            "parka",
+            "flannel",
+            "suit"
+          ],
+          "lower_claims": [
+            "visible pantyline"
+          ],
+          "upper_claims": [
+            "nipples through clothing",
+            "clothed nipples",
+            "see-through"
+          ]
         },
         "on_skin": {
-          "hard": ["taped nipples", "topless with tape", "handbra"],
-          "amplifiers": ["arms covering chest", "almost naked", "extreme fanservice"],
-          "counter_neg": ["nipples exposed", "areola", "exposed genitals"],
-          "counter_neg_lifted": ["naked breasts", "topless"],
-          "note": "the edge lives ON bare skin (tape, hands) — «topless, naked breasts» MUST be lifted from NEG or the renderer closes the chest and the tier dies (verdict T4-03: 'the only erotic thing is the swimsuit')"
+          "hard": [
+            "taped nipples",
+            "topless with tape",
+            "handbra"
+          ],
+          "amplifiers": [
+            "arms covering chest",
+            "almost naked",
+            "extreme fanservice"
+          ],
+          "counter_neg": [
+            "nipples exposed",
+            "areola",
+            "exposed genitals"
+          ],
+          "counter_neg_lifted": [
+            "naked breasts",
+            "topless"
+          ],
+          "note": "the edge lives ON bare skin (tape, hands) — «topless, naked breasts» MUST be lifted from NEG or the renderer closes the chest (verdict T4-03). Zone carries ≤1 layer + the claim",
+          "render_risk": "experimental — unproven at render (T4-03 OC-2: tape died to the NEG conflict + layers). Lawful only with: lifted counter-NEG, single layer on the zone, claim early in the tag-run. Expect re-rolls; prefer through_fabric when in doubt"
         }
       },
-      "carrier_classes": ["W", "I", "E", "M"],
+      "carrier_classes": [
+        "W",
+        "I",
+        "E",
+        "M"
+      ],
       "carrier_note": "sheer/imprint/compression physics; cameltoe is I-class (imprint) by science; CORE-4 mandatory (>=4 classes x 4 mechanism groups); sheer-family <=2 carriers per prompt; the claim zone carries <=1 garment layer + the claim target (layer-clarity law, verdict T4-03)",
-      "counter_neg": ["nipples exposed", "areola", "exposed genitals", "naked breasts", "topless"],
-      "prose_floor": "state nouns >= 4; the fabric's PRESENCE must be claimed as hard as what shows through it (the counter-NEG is what holds the tier); the hard claim names its TARGET GARMENT or SKIN explicitly — an amplifier without its object is a promise the renderer will not keep (verdict T4-03: looks erotic, does nothing)",
-      "typical_genres": ["VOLT", "EXQUISITE"],
+      "counter_neg": [
+        "nipples exposed",
+        "areola",
+        "exposed genitals",
+        "naked breasts",
+        "topless"
+      ],
+      "prose_floor": "state nouns >= 4; the hard claim is a RENDER-PROVEN signal (pantyline / nipples through clothing / see-through / tape) on a NAMED thin garment with its fabric state (wet / sheer) named in the TAG BLOCK — prose amplifies what the tags claim, it never substitutes them (render verdict T4-03: the renderer reads the tag-run, not the poetry)",
+      "typical_genres": [
+        "VOLT",
+        "EXQUISITE"
+      ],
       "opener": "anime style, ecchi anime style"
     },
     "X": {
       "name": "the bare tier",
-      "signals": ["nipples", "topless", "exposed breasts", "naked", "nude", "bare breasts", "nsfw"],
+      "signals": [
+        "nipples",
+        "topless",
+        "exposed breasts",
+        "naked",
+        "nude",
+        "bare breasts",
+        "nsfw"
+      ],
       "signal_min": 2,
-      "carrier_classes": ["B", "E", "D", "U"],
+      "carrier_classes": [
+        "B",
+        "E",
+        "D",
+        "U"
+      ],
       "carrier_note": "bare-state nouns stated plainly and at least doubled in prose (the render-confirmed half of the old recipe); situational (U) or fantasy amplification stages the bareness; open mouth is an OPTIONAL amplifier, never a requirement (the stub is retired); composition and light do the art — the body is already the claim",
-      "counter_neg": ["exposed genitals", "vulva", "pubic hair", "sex", "sexual act"],
+      "counter_neg": [
+        "exposed genitals",
+        "vulva",
+        "pubic hair",
+        "sex",
+        "sexual act",
+        "covered breasts",
+        "bra",
+        "clothing on chest"
+      ],
       "prose_floor": "state nouns >= 4; the bare state named in both tag block and prose (the doubling law); staging (where/light/witness) carries the dignity",
-      "typical_genres": ["VOLT", "EXQUISITE"],
+      "typical_genres": [
+        "VOLT",
+        "EXQUISITE"
+      ],
       "opener": "anime style, ecchi anime style, hentai anime style",
-      "platform_note": "X posts are algorithmically suppressed on Yodayo — art-for-art slots, default 2 per batch"
+      "platform_note": "X posts are algorithmically suppressed on Yodayo — art-for-art slots, default 2 per batch",
+      "render_note": "render-proven 2/2 at T4-03: the bare state doubled (tags + prose) PLUS the coverage-block NEG («covered breasts, bra, clothing on chest») makes the renderer commit — the NEG is the tool that renders the tier"
     },
     "XXX": {
       "name": "never",
@@ -74,14 +270,73 @@
     }
   },
   "eternal_floors": {
-    "genital_lock": ["exposed genitals", "vulva", "pubic hair"],
-    "anti_loli": ["child", "children", "childish", "chibi", "young girl", "immature body", "oversized head", "loli", "shota"],
-    "leak_guard": ["signature", "watermark", "artist name", "logo"],
-    "candle_guard": ["candle", "candles", "candelabra", "lamp", "lantern", "torch", "chandelier", "brazier"],
-    "face_guard": ["realistic facial structure", "photorealistic facial proportions", "natural human nose bridge", "realistic lip shape", "semi-realistic anime face", "2.5D face", "3D face"]
+    "genital_lock": [
+      "exposed genitals",
+      "vulva",
+      "pubic hair"
+    ],
+    "anti_loli": [
+      "child",
+      "children",
+      "childish",
+      "chibi",
+      "young girl",
+      "immature body",
+      "oversized head",
+      "loli",
+      "shota"
+    ],
+    "leak_guard": [
+      "signature",
+      "watermark",
+      "artist name",
+      "logo"
+    ],
+    "candle_guard": [
+      "candle",
+      "candles",
+      "candelabra",
+      "lamp",
+      "lantern",
+      "torch",
+      "chandelier",
+      "brazier"
+    ],
+    "face_guard": [
+      "realistic facial structure",
+      "photorealistic facial proportions",
+      "natural human nose bridge",
+      "realistic lip shape",
+      "semi-realistic anime face",
+      "2.5D face",
+      "3D face"
+    ]
   },
   "default_spread": {
-    "mains_21": { "R": 7, "RPLUS": 12, "X": 2 },
+    "mains_21": {
+      "R": 7,
+      "RPLUS": 12,
+      "X": 2
+    },
     "note": "3.2's standing spread, kept until an order changes it; NICHE slots typically PG-13/R and rating-forgiven on strong concepts; EXQUISITE rides by vibe"
+  },
+  "render_law": {
+    "born": "2026-09-21 · render verdict T4-03 (24 renders, author's eye)",
+    "scoreboard": {
+      "R": "7/7",
+      "X": "2/2",
+      "RPLUS_mains": "1/15 (P10 barely)",
+      "OC_RPLUS": "0/3"
+    },
+    "laws": [
+      "the renderer obeys NEG coverage-blocks and fabric-STATE tags (wet clothes / see-through) on thin garments",
+      "the renderer ignores shape-name tags: cameltoe never rendered (0 attempts); tape constructs mostly die",
+      "an underlayer (bra/camisole/bandeau) under a sheer garment renders the UNDERLAYER — the tier drops to R",
+      "3+ layers on a zone = the renderer picks a modest combination (PG-13/R)",
+      "signal tags at the TAIL of the tag-run render weak — claims sit in the first ~12 tags",
+      "opaque structured fabrics (jeans/denim/leather/velvet/sweatpants/breeches/suit) never carry an edge",
+      "R+ delivery is stochastic (~1/8 even when lawful): the gate enforces the best-odds construct, the author re-rolls"
+    ],
+    "meta": "VLM holistic grading OVER-READS the edge tier (VLM said 8/12 R+, the author's eye said 1/15) — edge-tier verdicts belong to the author; the VLM loop may verify scene/structure, never the edge itself"
   }
 }

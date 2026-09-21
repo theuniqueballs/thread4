@@ -261,6 +261,11 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
   /* ---------------- 3. rating-recipe (hard) ---------------- */
   {
     const f: string[] = []
+    // EXPLORATORY-слоты (§10: 1-2 слота могут нарушать нежёсткий закон с
+    // флагом в THESIS): нарушения RENDER LAW у них — квитанция warn, не
+    // hard-fail (эксперимент легален, вердикт автора решает)
+    const exploratoryFindings: string[] = []
+    const isExploratory = (s: (typeof batch.slots)[number]) => s.header.includes('⚗')
     const tiers = recipes?.tiers ?? {}
     const signalMinDefault: Record<string, number> = { 'PG-13': 2, R: 1, 'R+': 2, X: 2 }
     for (const s of batch.slots) {
@@ -282,17 +287,77 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
         )
       }
       // HARD-CLAIM (вердикт T4-03: 14/15 R+ слотов не дотянули): тир с
-      // signals_hard обязан нести именованный edge-объект в POS — усилители
-      // (see-through / wet clothes / tight clothes) рендерер решает в
-      // безопасную сторону, объект — рисует
+      // signals_hard обязан нести именованный edge-объект в POS.
+      // v1.2.0 (рендер-вердикт T4-03): hard-сигналы = только рендер-
+      // доказанные заявки (pantyline / nipples through / see-through / tape);
+      // cameltoe выведен — тег рендер-мёртв (0 отрисовок из всех попыток)
       const hardSignals = recipe.signals_hard ?? []
       if (hardSignals.length > 0) {
         const hard = countSignals(posLower, hardSignals)
         const hardMin = recipe.hard_min ?? 1
         if (hard < hardMin) {
+          const cameltoeOnly = /\bcameltoe\b|\bcamel toe\b/.test(posLower)
           f.push(
-            `P${s.position}: заявлен ${tier}, но HARD-сигнала нет (${hard}/${hardMin}) — edge назван объектом: ${hardSignals.slice(0, 4).join(', ')} (вердикт T4-03: «выглядит эротично, но ничего эротического не делает»)`
+            `P${s.position}: заявлен ${tier}, но рендер-доказанной заявки нет (${hard}/${hardMin})${cameltoeOnly ? ' — cameltoe рендер-мёртв (0 отрисовок, рендер-вердикт T4-03), заявку не зарабатывает' : ''}: ${hardSignals.slice(0, 4).join(', ')}`
           )
+        }
+      }
+      // RENDER LAW v1.2.0 — только для тиров с механизмами (R+): заявка
+      // живёт на состоянии ткани, без подслоя, не на мёртвой ткани
+      // (присутствие/подслой/мёртвая ткань = hard; позиция тега = warn,
+      // см. claim-visibility — рендер-эвиденс позиций неоднозначен)
+      const firstDot = s.pos.indexOf('.')
+      const tagRun = (firstDot > 0 ? s.pos.slice(0, firstDot) : s.pos).toLowerCase()
+      for (const [mechName, m] of Object.entries(recipe.mechanisms ?? {})) {
+        const mHard = m.hard ?? []
+        const activeHard = mHard.filter((h) => tagRun.includes(h.toLowerCase()))
+        if (activeHard.length === 0) continue
+        // (а) состояние ткани обязательно в тег-блоке
+        const reqState = m.required_state ?? []
+        if (reqState.length > 0) {
+          const stateHit = reqState.some((st) => tagRun.includes(st.toLowerCase()))
+          if (!stateHit) {
+            const msg = `P${s.position}: механизм «${mechName}» без состояния ткани — в тег-блоке нет ни одного из [${reqState.join(' / ')}] (рендер-вердикт T4-03: сухая плотная ткань не несёт edge, P13/P21 умерли именно так)`
+            if (isExploratory(s)) {
+              exploratoryFindings.push(`EXPLORATORY (§10, квитанция): ${msg}`)
+            } else {
+              f.push(msg)
+            }
+          }
+        }
+        // (б) подслой глушит чит: bra/camisole под sheer = рендерер рисует ПОДСЛОЙ
+        const blockApplies = m.underlayer_block_applies_to ?? []
+        if (blockApplies.some((h) => activeHard.includes(h))) {
+          for (const u of m.underlayer_block ?? []) {
+            const re = new RegExp(`\\b${u.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`)
+            if (re.test(tagRun)) {
+              f.push(
+                `P${s.position}: подслой «${u}» под сквозь-ткань заявкой — рендерер рисует подслой, не edge, тиры падают в R (рендер-вердикт T4-03: P12 sports bra под sheer → R, P14 bra под gauze → R)`
+              )
+              break
+            }
+          }
+        }
+        // (в) мёртвые ткани не несут заявку — зона-осознанно: lower-заявки
+        // (pantyline) гибнут на джинсах/коже/свитпанах; upper-заявки
+        // (nipples through / see-through) — на бархате/коже/фланели
+        const lowerClaims = m.lower_claims ?? []
+        const upperClaims = m.upper_claims ?? []
+        const isLower = activeHard.some((h) => lowerClaims.includes(h))
+        const isUpper = activeHard.some((h) => upperClaims.includes(h))
+        const deadList = isLower
+          ? [...(m.dead_fabrics_lower ?? []), ...(m.dead_fabrics_upper ?? []).filter((x) => x === 'suit')]
+          : isUpper
+            ? [...(m.dead_fabrics_upper ?? []), ...(m.dead_fabrics_lower ?? []).filter((x) => x === 'suit')]
+            : []
+        for (const df of deadList) {
+          const re = new RegExp(`\\b${df.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`)
+          if (re.test(tagRun)) {
+            f.push(
+              `P${s.position}: мёртвая ткань «${df}» в тег-блоке при активной ${isLower ? 'нижней' : 'грудной'} заявке «${mechName}» — эта ткань не несёт edge (рендер-вердикт T4-03: джинсы/бархат/костюм → PG-13)`
+            )
+            break
+          }
         }
       }
       // механизм-осознанный контр-NEG (вердикт T4-03: «только купальник»):
@@ -339,6 +404,15 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
       }
     }
     hard('rating-recipe', f)
+    // эксперименты (§10) — квитанцией в claim-visibility (warn), не блоком
+    if (exploratoryFindings.length > 0) {
+      receipts.push({
+        gate: 'rating-recipe-exploratory',
+        level: 'warn',
+        verdict: 'WARN',
+        findings: exploratoryFindings,
+      })
+    }
   }
 
   /* ---------------- 4. canon (hard) ---------------- */
@@ -350,6 +424,23 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
       return {
         hair: String(oc.hair ?? ''),
         eyes: String(oc.eyes ?? ''),
+      }
+    }
+    // ЗАПРЕТ ИМЁН В POS (приказ автора, вердикт T4-04): имена ОС в POS —
+    // триггеры реально существующих персонажей у рендерера. POS описывает
+    // персонажа дескрипторами (раса/анатомия/волосы/глаза/кожа); имя живёт
+    // в шапке и Canon-строке, которые рендерер не читает
+    const ocNames = Object.keys(ocCanon?.ocs ?? {})
+    for (const s of batch.slots) {
+      for (const name of ocNames) {
+        // case-sensitive: имена — имена собственные; «ash-grey» ≠ OC Ash
+        const re = new RegExp(`\\b${name}\\b`)
+        if (re.test(s.pos)) {
+          f.push(
+            `P${s.position}: имя ОС «${name}» в POS — триггер чужих персонажей у рендерера (приказ автора, T4-04); опиши её дескрипторами, имя живёт в шапке/Canon`
+          )
+          break
+        }
       }
     }
     for (const s of batch.slots.filter((x) => x.position <= 3)) {
@@ -450,13 +541,16 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
     const f: string[] = []
     const state = foldState(readEvents())
     if (state.windowSlugs.length > 0 && contract) {
+      // повторная сдача (v2): батч не конфликтует сам с собой — своё окно
+      // исключается (событие batch.delivered уже внесло слаг в окно)
+      const windowOthers = state.windowSlugs.filter((w) => w !== batch.slug)
       const myPoses = new Set(
         batch.slots.map((s) => (/\bPL\d{1,3}\b/.exec(s.header) ?? [])[0]).filter(Boolean)
       )
       const myPals = new Set(
         batch.slots.map((s) => (/\b(P\d{1,3}_[A-Z_]+)\b/.exec(s.header) ?? [])[0]).filter(Boolean)
       )
-      for (const w of state.windowSlugs) {
+      for (const w of windowOthers) {
         const wc = readJson<{ slots: { pose: string; palette: string }[] }>(
           path.join(CONTRACTS_DIR, `${w}.json`)
         )
@@ -674,6 +768,22 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
           )
         }
       }
+      // 5) позиция заявки/состояния в тег-ране (рендер-вердикт T4-03:
+      // хвостовые сигналы рендерятся слабо; эвиденс неоднозначен — warn).
+      // OC-слоты: канон-локи съедают первые ~15 тегов по закону — им люфт
+      if (tier === 'R+') {
+        const posTags = tagBlock.split(',').map((t) => t.trim())
+        const findIdx = (needle: string) => posTags.findIndex((t) => t.includes(needle))
+        // РАННЕЕ вхождение состояния решает (see-through №13 + wet №18 = раннее)
+        const idxs = [findIdx('wet clothes'), findIdx('see-through')].filter((i) => i >= 0)
+        const wetIdx = idxs.length > 0 ? Math.min(...idxs) : -1
+        const limit = s.genre === 'OC' ? 22 : 16 // 0-based
+        if (wetIdx >= limit) {
+          f.push(
+            `P${s.position}: состояние ткани стоит тегом №${wetIdx + 1} — хвост тег-рана рендерер читает слабо; подними wet clothes / see-through к началу (рендер-вердикт T4-03)`
+          )
+        }
+      }
     }
     warn('claim-visibility', f)
   }
@@ -695,7 +805,8 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
           .filter((x) => x.length > 40 && !isBoilerplate(x))
       )
     const mySentences = new Set(sentencesOf(batch))
-    for (const w of state.windowSlugs) {
+    // повторная сдача (v2): себя не сравниваем — своё окно исключено
+    for (const w of state.windowSlugs.filter((x) => x !== batch.slug)) {
       const wText = readText(path.join(BATCHES_DIR, `${w}.md`))
       if (!wText) continue
       const wBatch = parseBatch(w, wText)

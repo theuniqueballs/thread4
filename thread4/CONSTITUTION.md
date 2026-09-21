@@ -169,6 +169,39 @@ The edge tier is claimed by a NAMED OBJECT, not a physics promise:
   on-skin mechanisms (tape, handbra) LIFT `topless, naked breasts` from
   NEG — the boundary that holds the tier must not mute its own signal.
 
+**§9-терция (РЕNDER-вердикт T4-03, 2026-09-21 — 24 рендера, глаз автора:
+R 7/7 ✅ · X 2/2 ✅ · R+ 1/15 ❌ · OC R+ 0/3 ❌) — R+ ДОСТАВЛЯЕТСЯ
+СОСТОЯНИЕМ ТКАНИ.**
+v1.1.0 сделала заявки честными на бумаге — и положила их на cameltoe и
+tape, теги, которые рендерер не рисует. Рендер-доказанная механика:
+- Hard-заявка = только рендер-доказанные сигналы: `visible pantyline /
+  nipples through clothing / clothed nipples / see-through / taped
+  nipples / topless with tape / handbra`. **cameltoe НЕ заявка** — тег
+  рендер-мёртв (0 отрисовок из всех попыток), флэйвор максимум.
+- Через-ткань заявка ТРЕБУЕТ состояния ткани (`wet clothes` / 
+  `see-through`) на ОДНОЙ тонкой светлой вещи; сухая плотная ткань
+  заявку не несёт (P13/P21 умерли сухими).
+- **Подслой глушит чит**: bra/camisole/bandeau под sheer-верхом —
+  рендерер рисует ПОДСЛОЙ, тир падает в R (P12 sports bra под sheer
+  sweater → R; P14 bra под gauze tee → R).
+- Мёртвые ткани (jeans/denim/leather/velvet/sweatpants/breeches/suit)
+  заявку не несут никогда.
+- Доставка стохастична (~1/8 даже при законе): гейт строит кадр лучшей
+  вероятности; автор перекидывает, пока не ляжет.
+- X-тир доказан 2/2: bare state удвоен (теги + проза) + блок покрытия в
+  NEG (`covered breasts, bra, clothing on chest`) заставляет рендерер
+  взять тир — NEG-блокировка покрытия есть инструмент доставки.
+- Мета-закон: VLM-грейдинг edge-тира ЗАВЫШАЕТ (VLM: 8/12 R+; глаз автора:
+  1/15) — вердикт по edge-тиру принадлежит только автору; VLM-петля
+  проверяет сцену/структуру, не эротику.
+
+**§9-кватерна (приказ автора, 2026-09-21, T4-04) — ИМЕНА ОС НИКОГДА
+НЕ ВХОДЯТ В POS.**
+Ни тегом, ни прозой: имена триггерят реально существующих персонажей у
+рендерера. POS описывает персонажа дескрипторами (раса/анатомия/волосы/
+глаза/кожа); имя живёт в шапке слота и Canon-строке, которые рендерер
+не читает. Кодовая гварда в писце + hard-гейт в каноне.
+
 **§7-поправка (вердикт T4-03) — СЛОЕВАЯ ЧЁТКОСТЬ.**
 ≤2 garment layers per body zone; the claim zone carries ≤1 layer + the
 claim target; ≥3 stacked tops or ≥5 garments in a tag block break the

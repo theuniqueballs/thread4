@@ -551,9 +551,9 @@ export function compileBatch(theme: string, options: CompileOptions = {}): Batch
       leadMax: LAWS.leadMax,
       registerCapPct: LAWS.registerCapPct,
       signalMin: JSON.stringify(LAWS.signalMin),
-      rplusHardClaim: 'R+ несёт ≥1 HARD-сигнал — именованный edge-объект (cameltoe / taped nipples / topless with tape / handbra / visible pantyline) НА ИМЕНОВАННОЙ вещи; усилители (see-through / wet clothes / tight clothes) сами R+ не зарабатывают (вердикт T4-03)',
-      mechanismNeg: 'контр-NEG механизм-осознан: сквозь-ткань (cameltoe/pantyline/see-through) держит «nipples exposed, naked breasts, topless»; on-skin (tape/handbra) — эти два ПОДНЯТЫ из NEG, иначе рендер закрывает грудь (вердикт T4-03)',
-      layerClarity: '≤2 слоя одежды на зону; зона сигнала = LEAD-зона, несёт ≤1 слой + цель сигнала, открыта камере (без юбок/плащей/завязанных рубашек над cameltoe, без застёгнутого верха над tape); OC-слоты — камера-смотрящие позы (вердикт T4-03)',
+      rplusHardClaim: 'RENDER LAW v1.2.0 (рендер-вердикт T4-03: R 7/7, X 2/2, R+ 1/15): R+ несёт ≥1 РЕНДЕР-ДОКАЗАННУЮ заявку — visible pantyline / nipples through clothing / clothed nipples / see-through / taped nipples / topless with tape / handbra. cameltoe НЕ заявка (тег рендер-мёртв — 0 отрисовок). Сквозь-ткань заявка ТРЕБУЕТ состояния ткани (wet clothes / see-through) на ОДНОЙ тонкой светлой вещи, БЕЗ подслоя (bra/camisole/bandeau под sheer = рендерер рисует подслой, тир падает в R); мёртвые ткани (джинсы/деним/кожа/бархат/свитпаны/бриджи/костюм) заявку не несут',
+      mechanismNeg: 'контр-NEG механизм-осознан: сквозь-ткань (pantyline/nipples through/see-through) держит «nipples exposed, naked breasts, topless»; on-skin (tape/handbra) — эти два ПОДНЯТЫ из NEG, иначе рендер закрывает грудь (вердикт T4-03); X — блок покрытия («covered breasts, bra, clothing on chest») заставляет рендерер взять тир (доказано 2/2)',
+      layerClarity: '≤2 слоя одежды на зону; зона сигнала = LEAD-зона, несёт ≤1 слой + цель сигнала, открыта камере (без юбок/плащей/завязанных рубашек над pantyline, без застёгнутого верха над tape); OC-слоты — камера-смотрящие позы; ИМЕНА ОС В POS ЗАПРЕЩЕНЫ (приказ автора, T4-04) — только дескрипторы',
       faceLock: 'Her face is rendered in stylized 2D anime style: anime eyes ([color/state]), small nose, small mouth [state], [tone] skin.',
       posShape: 'POS = [тег-блок] → [проза] → [quality-теги] — PH-форма, проходит дословно',
       counters: 'экспозиция = сигнал-тег + контр-NEG (N31-рецепт); рейтинг зарабатывается тегами, не прозой',
@@ -667,8 +667,9 @@ export function contractMarkdown(c: BatchContract): string {
   lines.push('- **T10**: дубли-close (N25: 18/21 триплетов) — клоузеры назначены, вертеть.')
   lines.push('- **T11** (вердикт T4-02, штурвал): сложный проп (wheel/лестница/перила/канат) ломает геометрию рендера — каждая контактная конечность названа (руки на…, ноги в…), ≥2 якоря; лучше один контактный проп, чем три.')
   lines.push('- **T12** (вердикт T4-02): жанр виден — NICHE первым считыванием (раса работает), VOLT — плоть; если автор не понял, где ниша, — её нет.')
-  lines.push('- **T13** (вердикт T4-03, «выглядит эротично, но ничего не делает»): R+ = ДЕЛО в кадре, не вид — edge-объект назван и виден камере; поза/лирика без объекта = PG-13.')
+  lines.push('- **T13** (вердикт T4-03 + рендер-вердикт: R+ 1/15): R+ = ДЕЛО в кадре — РЕНДЕР-ДОКАЗАННАЯ заявка (pantyline / nipples through / see-through / tape) на тонкой светлой вещи с состоянием ткани (wet/sheer), без подслоя; cameltoe — только флэйвор, заявку не зарабатывает.')
   lines.push('- **T14** (вердикт T4-03, «чулки сквозь джинсы, майка поверх рубашки»): слоевой хаос — ≥3 верхних слоя или ≥5 предметов путают порядок; зона сигнала ≤1 слой.')
+  lines.push('- **T15** (приказ автора, T4-04): имена ОС никогда не входят в POS — ни тегом, ни прозой; имена триггерят чужих персонажей у рендерера. Только дескрипторы.')
   lines.push('')
   lines.push('---')
   lines.push('')

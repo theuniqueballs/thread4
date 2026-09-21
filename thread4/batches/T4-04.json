@@ -1,13 +1,13 @@
 {
   "slug": "T4-04",
   "title": "Paid in Thread",
-  "date": "2026-09-21T14:03:27.668Z",
+  "date": "2026-09-21T18:36:19.724Z",
   "theme": "The Price of a Wish",
   "engine": "cantus",
   "hardPass": true,
-  "firstRunClean": true,
-  "sha10": "bdca546e7d",
-  "run": 1,
+  "firstRunClean": false,
+  "sha10": "1fbb1af853",
+  "run": 2,
   "receipts": [
     {
       "gate": "structure",
@@ -26,6 +26,14 @@
       "level": "hard",
       "verdict": "PASS",
       "findings": []
+    },
+    {
+      "gate": "rating-recipe-exploratory",
+      "level": "warn",
+      "verdict": "WARN",
+      "findings": [
+        "EXPLORATORY (§10, квитанция): P15: механизм «through_fabric» без состояния ткани — в тег-блоке нет ни одного из [wet clothes / see-through] (рендер-вердикт T4-03: сухая плотная ткань не несёт edge, P13/P21 умерли именно так)"
+      ]
     },
     {
       "gate": "canon",
@@ -86,7 +94,7 @@
       "level": "advisory",
       "verdict": "REPORT",
       "findings": [
-        "кандидаты в тики: anime 24/21 · style 24/21 · ecchi 24/21 · small 24/21 · rendered 24/21 · stylized 24/21 · mouth 24/21 · masterpiece 24/21 · quality 24/21 · artstyle 24/21 · light 19/21 · still 14/21"
+        "кандидаты в тики: anime 24/21 · style 24/21 · ecchi 24/21 · small 24/21 · rendered 24/21 · stylized 24/21 · mouth 24/21 · masterpiece 24/21 · quality 24/21 · artstyle 24/21 · through 20/21 · light 19/21"
       ]
     },
     {

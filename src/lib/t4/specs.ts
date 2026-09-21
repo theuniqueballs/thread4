@@ -145,14 +145,39 @@ export interface TierRecipe {
   name: string
   signals: string[]
   signal_min: number
-  /** Вердикт T4-03: R+ обязан нести ≥1 hard-сигнал — именованный edge-объект. */
+  /** Вердикт T4-03: R+ обязан нести ≥1 hard-сигнал — именованный edge-объект.
+   *  v1.2.0 (рендер-вердикт T4-03): hard-сигналы = только рендер-доказанные
+   *  заявки; cameltoe выведен (тег рендер-мёртв: 0 отрисовок из всех попыток). */
   signals_hard?: string[]
   hard_min?: number
   /** Механизм-осознанный контр-NEG (вердикт T4-03): on-skin механизмы
-   *  поднимают «topless, naked breasts» из NEG, сквозь-ткань — держат полный. */
+   *  поднимают «topless, naked breasts» из NEG, сквозь-ткань — держат полный.
+   *  v1.2.0: through_fabric несёт RENDER LAW — состояние ткани обязательно и
+   *  ранним тегом, подслой глушится, мёртвые ткани не несут заявку. */
   mechanisms?: Record<
     string,
-    { hard?: string[]; amplifiers?: string[]; counter_neg?: string[]; counter_neg_lifted?: string[]; note?: string }
+    {
+      hard?: string[]
+      amplifiers?: string[]
+      counter_neg?: string[]
+      counter_neg_lifted?: string[]
+      note?: string
+      render_risk?: string
+      /** ≥1 обязан быть в тег-блоке (wet clothes / see-through) */
+      required_state?: string[]
+      /** подслой, который рендерер рисует вместо edge → тиры падают в R */
+      underlayer_block?: string[]
+      /** к каким hard-заявкам применяется underlayer_block */
+      underlayer_block_applies_to?: string[]
+      /** мёртвые ткани нижней зоны (джинсы/кожа/бархат…) — рендер-вердикт T4-03 */
+      dead_fabrics_lower?: string[]
+      /** мёртвые ткани верхней зоны */
+      dead_fabrics_upper?: string[]
+      /** lower-заявки (зона низа) */
+      lower_claims?: string[]
+      /** upper-заявки (зона груди) */
+      upper_claims?: string[]
+    }
   >
   carrier_classes: string[]
   carrier_note?: string
@@ -161,6 +186,8 @@ export interface TierRecipe {
   typical_genres?: string[]
   opener?: string
   platform_note?: string
+  /** рендер-статус тира (X: 2/2 доказан рендером T4-03) */
+  render_note?: string
 }
 
 export interface RatingRecipesSpec {
