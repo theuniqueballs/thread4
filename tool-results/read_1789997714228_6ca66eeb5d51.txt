@@ -1,0 +1,630 @@
+     1→/**
+     2→ * THREAD 4 — THE AUTO-SCRIBE (по приказу автора 2026-09-20).
+     3→ *
+     4→ * Автоматизированный писец: машина пишет ЧЕРНОВИК батча по контракту.
+     5→ * Детерминированные части (Canon/Spine/Stack/NEG-флооры/шапки) собирает
+     6→ * код; LLM пишет то, что и есть писательство — ANCHOR, THESIS, POS
+     7→ * (тег-блок + проза + фейс-лок), NEG-экстра. Затем гейты гоняют файл
+     8→ * всухую; провалы возвращаются модели на ремонт (≤ maxRepairRounds).
+     9→ * Событие scribe.drafted фиксирует черновик; официальная сдача —
+    10→ * отдельный шаг (deliverBatch), first-run-clean семантика сохраняется.
+    11→ *
+    12→ * z-ai-web-dev-sdk — ТОЛЬКО бэкенд (сюда импортируется и из API-роута,
+    13→ * и из bun-CLI).
+    14→ */
+    15→import path from 'node:path'
+    16→
+    17→import ZAI from 'z-ai-web-dev-sdk'
+    18→
+    19→import { BATCHES_DIR, CONTRACTS_DIR, readJson, writeText } from './fsutil'
+    20→import { appendEvent, foldState, readEvents } from './events'
+    21→import { runGates, type GateReceipt, type GatesResult } from './gates'
+    22→import { type BatchContract, type SlotPlan } from './compiler'
+    23→import {
+    24→  getBans,
+    25→  getCarriers,
+    26→  getOCCanon,
+    27→  getPalettes,
+    28→  getPoses,
+    29→  getRatingRecipes,
+    30→  getRaces,
+    31→  type Carrier,
+    32→  type Palette,
+    33→  type Pose,
+    34→  type Race,
+    35→  type OCLocks,
+    36→  type TierRecipe,
+    37→} from './specs'
+    38→
+    39→/* ------------------------------------------------------------------ */
+    40→/* Types                                                               */
+    41→/* ------------------------------------------------------------------ */
+    42→
+    43→export interface ScribeSlotOutput {
+    44→  position: number
+    45→  anchor: string
+    46→  thesis: string
+    47→  pos: string
+    48→  negExtra: string
+    49→}
+    50→
+    51→export interface ScribeResult {
+    52→  slug: string
+    53→  title: string
+    54→  rounds: number // repair rounds used (0 = clean first draft)
+    55→  hardPass: boolean
+    56→  firstRunClean: boolean
+    57→  sha10: string
+    58→  receipts: GateReceipt[]
+    59→  failedSlots: number[]
+    60→  log: string[]
+    61→  markdown: string
+    62→}
+    63→
+    64→export interface ScribeOptions {
+    65→  maxRepairRounds?: number // default 2
+    66→  chunkSize?: number // default 6
+    67→  onLog?: (line: string) => void // live progress (CLI prints as it goes)
+    68→}
+    69→
+    70→interface ScribeCtx {
+    71→  contract: BatchContract
+    72→  carriers: Map<string, Carrier>
+    73→  poses: Map<string, Pose>
+    74→  palettes: Map<string, Palette>
+    75→  races: Map<string, Race>
+    76→  ocs: Record<string, OCLocks>
+    77→  recipes: Record<string, TierRecipe>
+    78→  floors: Record<string, string[]>
+    79→  kNames: Map<string, { name: string; light: string }>
+    80→  batchThesis: string
+    81→  acts: string[]
+    82→}
+    83→
+    84→/* ------------------------------------------------------------------ */
+    85→/* The scribe identity (system prompt)                                 */
+    86→/* ------------------------------------------------------------------ */
+    87→
+    88→const GOLD_EXAMPLE = `P01 — milk-hours-lease (OC · Lyn · R+ · PL24 · P77_LATE_MILK)
+    89→POS: anime style, ecchi anime style, 1girl, solo, Lyn, cat girl, cat ears, cat tail, copper-red hair, twin braids, slate-grey eyes, red velvet ribbon, kitchen, night, standing on tiptoes, camisole, shorts, off-shoulder, fallen strap, wet clothes, cameltoe, collarbone, bare shoulders, milk. The milk-pale hour owns the kitchen, and tonight it has begun to own her: the 3 a.m. pour went wide, a white ring across the cold tile, and she stepped in barefoot reaching for the high shelf, heels mid-lifting as the wet takes her weight. The midnight kitchen has dyed her all winter and the coat has taken: her camisole has gone milk-pale cool, the tank strap at her left shoulder has slipped its station, a declared retreat, the shoulder's line running bare into the collarbone's shallow pools. Her tufted tail flicks once — the hour is a tenant worth keeping — and the copper of her braids' tips stays the one full-pigment warm point, outnumbered and hers. Her face is rendered in stylized 2D anime style: anime eyes (slate-grey, half-lidded to lazy slits, vertical pupils), small nose, small mouth set in the level line of a girl who holds the night's lease, warm ivory skin. The stain keeps the shape of the pour. Masterpiece, best quality, anime artstyle.`
+    90→
+    91→const SYSTEM_PROMPT = `You are THE HOUSE SCRIBE of THREAD 4, an anime-art prompt pipeline (Tsubaki.2 Pro renderer → Yadayo). You write single-image ecchi prompts. Your output is assembled by a machine into the batch file; malformed output breaks the machine — follow the format EXACTLY.
+    92→
+    93→THE DELIVERY SHAPE (Prompt Helper passes this shape verbatim):
+    94→POS = [tag block]. [prose]. [face lock]. [quality tags].
+    95→1. TAG BLOCK: comma-separated nouns — identity (girl type, race tags, hair, eyes, wardrobe, state), the assigned signal tags, environment. THE CLAIM.
+    96→2. PROSE: 2-5 sentences, noun-led, visually loaded; nouns carry the brand, verbs may be quiet. What PH keeps is what we rely on.
+    97→3. FACE LOCK, exactly this shape: "Her face is rendered in stylized 2D anime style: anime eyes ([color/state]), small nose, small mouth [state], [tone] skin."
+    98→4. QUALITY TAGS at the very end: "Masterpiece, best quality, anime artstyle."
+    99→
+   100→THE RATING IS EARNED BY TAGS, NOT PROSE. Each slot names its tier and the REQUIRED signal tags — include AT LEAST the stated minimum in the TAG BLOCK, and NEVER include signal tags of a higher tier (overclaim fails the gate). Prose may amplify what tags claim; it never substitutes them.
+   101→
+   102→GENRES — the author must see the difference at a glance:
+   103→- OC: her canon locks exact; the batch law rides her assigned theme.
+   104→- NICHE: the IMPOSSIBLE image. The race's anatomy does PHYSICAL WORK in the frame (mechanism, not costume) — race tags in the tag block, the impossibility is the FIRST read of the silhouette, the witness object holds the frame.
+   105→- VOLT: FLESH. Camera as participant (low-angle, over-shoulder, through-gap), body in motion (tagged physical state), gaze a deliberate vector (locked/averted/half-lidded), exposure by explicit signal tag.
+   106→- EXQUISITE: the ultra of its genre — extremity with dignity.
+   107→
+   108→HARD STYLE RULES:
+   109→- POS budget: ~230-300 words, never above 380. Density, not sprawl.
+   110→- Hedges (maybe, perhaps, slightly, almost, sort of, kind of, a bit): at most 2 per POS.
+   111→- Maturity is NEVER a tag: "adult woman", "mature female", "milf" are FORBIDDEN in POS. Maturity is a voice in prose only (a student's economy vs a woman's patience).
+   112→- Forbidden words: "cel-shaded", "large expressive eyes".
+   113→- Complex props (wheel, ladder, railing, rope, stair): name where hands and feet are — every touching limb anchored ("hands at ten and two", "feet braced on the lower rung").
+   114→- Rotate strong words: never lean on one pet adjective; vary the saturation family (full-pigment / full-strength / undiluted / saturated).
+   115→- The batch law is the FIRST READ of every frame — visible in silhouette, not narrated. A girl standing in nice light is a tourist.
+   116→- §51: exactly ONE full-saturation non-family accent point per frame, outnumbered by the palette family.
+   117→- Weave ALL assigned carriers into the frame (they are listed per slot) — each carrier is a physical state of fabric/body/position/physics, noun-led.
+   118→
+   119→NEG-EXTRA line: comma-separated EXTRA negative terms ONLY — canon anti-drift (wrong hair/eye color, wrong ears, "no tail" when she has none, "single braid" against twin braids) and frame-specific bans (male, man already handled by the machine — do not repeat). The machine already adds: face guards, anti-loli floor, genital lock, leak guard, candle guard, solo lock, tier counter-negatives. Do NOT repeat those.
+   120→
+   121→GOLD STANDARD — a delivered, author-praised slot (the voice we write in):
+   122→${GOLD_EXAMPLE}
+   123→
+   124→OUTPUT FORMAT — for EACH slot, EXACTLY:
+   125→### P05
+   126→ANCHOR: three-word-hyphenated-anchor
+   127→THESIS: one line — this frame's law in one sentence
+   128→POS: <single paragraph: tag block. prose. face lock. Masterpiece, best quality, anime artstyle.>
+   129→NEG-EXTRA: term, term, term
+   130→
+   131→No commentary, no markdown fences, no numbering of your own. Every slot of the chunk, in order.`
+   132→
+   133→/* ------------------------------------------------------------------ */
+   134→/* Helpers                                                             */
+   135→/* ------------------------------------------------------------------ */
+   136→
+   137→function recipeKeyOf(tier: string): string {
+   138→  if (tier === 'PG-13') return 'PG13'
+   139→  if (tier === 'R+') return 'RPLUS'
+   140→  return tier
+   141→}
+   142→
+   143→function recipeOpener(recipes: Record<string, TierRecipe>, tier: string): string {
+   144→  return recipes[recipeKeyOf(tier)]?.opener ?? 'anime style, ecchi anime style'
+   145→}
+   146→
+   147→function stripRaceParens(race?: string): string {
+   148→  if (!race) return '—'
+   149→  return race.replace(/\s*\([^)]*\)/g, '').trim() || '—'
+   150→}
+   151→
+   152→function canonLineOf(oc: OCLocks): string {
+   153→  const parts: string[] = [`${oc.name} —`]
+   154→  if (oc.hair) parts.push(String(oc.hair).split('(')[0].trim())
+   155→  if (oc.eyes) parts.push(String(oc.eyes).split('(')[0].trim())
+   156→  if (oc.skin) parts.push(`${String(oc.skin).split('(')[0].trim()} skin`)
+   157→  const marks = Array.isArray(oc.signature_marks) ? (oc.signature_marks as unknown[]).map(String) : []
+   158→  for (const m of marks.slice(0, 4)) parts.push(m.split('(')[0].trim())
+   159→  return parts.filter(Boolean).join(', ')
+   160→}
+   161→
+   162→function canonTagHints(oc: OCLocks): string {
+   163→  const marks = Array.isArray(oc.signature_marks) ? (oc.signature_marks as unknown[]).map(String) : []
+   164→  const shield = Array.isArray(oc.anti_shield) ? (oc.anti_shield as unknown[]).map(String) : []
+   165→  return [
+   166→    `hair: ${String(oc.hair ?? '')}`,
+   167→    `eyes: ${String(oc.eyes ?? '')}`,
+   168→    `skin: ${String(oc.skin ?? '')}`,
+   169→    marks.length ? `signature marks (carry as tags): ${marks.slice(0, 5).join(' | ')}` : '',
+   170→    shield.length ? `anti-drift (put these in NEG-EXTRA): ${shield.slice(0, 10).join(', ')}` : '',
+   171→  ]
+   172→    .filter(Boolean)
+   173→    .join('\n')
+   174→}
+   175→
+   176→function paletteLine(p: Palette | undefined): string {
+   177→  if (!p) return '—'
+   178→  const dom = (p.dominant ?? []).slice(0, 3).join(', ')
+   179→  const acc = [...(p.accent1 ?? []), ...(p.accent2 ?? []), ...(p.accent ?? [])].slice(0, 2).join(', ')
+   180→  return `${p.name} (dominants: ${dom}${acc ? `; §51 accent: ${acc}` : ''}${p.light_type ? `; light: ${p.light_type}` : ''})`
+   181→}
+   182→
+   183→function raceLine(race: Race | undefined, raceFeature: string | undefined): string {
+   184→  if (!race) return 'Human (no race tags; memorability from pose and carriers)'
+   185→  const feats = (race.features ?? []).slice(0, 3).join(' | ')
+   186→  return `${race.name}${feats ? ` — features: ${feats}` : ''}${raceFeature ? ` · assigned feature: ${raceFeature}` : ''}`
+   187→}
+   188→
+   189→function slotFrame(slot: SlotPlan, ctx: ScribeCtx): string {
+   190→  const lines: string[] = []
+   191→  const recipe = ctx.recipes[recipeKeyOf(slot.rating)]
+   192→  const carrier = ctx.carriers
+   193→  lines.push(`SLOT P${String(slot.position).padStart(2, '0')} · genre ${slot.kind}${slot.exploratory ? ' · EXPLORATORY (probe a non-floor law, name it in THESIS)' : ''} · rating ${slot.rating}`)
+   194→  if (slot.kind === 'OC' && slot.oc) {
+   195→    const oc = ctx.ocs[slot.oc]
+   196→    lines.push(`oc: ${slot.oc}${slot.ocTheme ? ` — author's theme for her: ${slot.ocTheme}` : ' — derive her theme from the batch law'}`)
+   197→    if (oc) lines.push(`canon (locks exact):\n${canonTagHints(oc)}`)
+   198→  } else {
+   199→    lines.push(`who: ${raceLine(ctx.races.get(slot.race ?? ''), slot.raceFeature)}`)
+   200→  }
+   201→  lines.push(`pose: ${slot.pose} ${slot.poseName} (risk ${slot.poseRisk}) — the pose is ASSIGNED, honor it, no standing default`)
+   202→  lines.push(`palette: ${paletteLine(ctx.palettes.get(slot.palette))}`)
+   203→  const carriers = slot.carriers
+   204→    .map((c) => {
+   205→      const full = carrier.get(c.id)
+   206→      return `  ${c.id} ${c.name} (deg ${c.deg})${full?.carrier ? ` — "${full.carrier}"` : ''}`
+   207→    })
+   208→    .join('\n')
+   209→  lines.push(`carriers — weave ALL of these into the frame, one per mechanism group:\n${carriers}`)
+   210→  const k = ctx.kNames.get(slot.kinetics[0] ?? '')
+   211→  lines.push(`kinetic: ${slot.kinetics[0] ?? '—'}${k ? ` ${k.name}${k.light ? ` (${k.light})` : ''}` : ''}`)
+   212→  lines.push(`lead zone (FIRST read of the silhouette): ${slot.lead}`)
+   213→  lines.push(`register: ${slot.register} — voice in prose ONLY, never tags`)
+   214→  lines.push(`closer: end the POS prose as a ${slot.closer} — ${closerHint(slot.closer)}`)
+   215→  if (slot.witness) lines.push(`witness: the ${slot.witness} — one object that holds the frame's law`)
+   216→  if (recipe) {
+   217→    lines.push(`REQUIRED rating signals — include ≥${recipe.signal_min} of these IN THE TAG BLOCK: ${recipe.signals.slice(0, 14).join(', ')}`)
+   218→    lines.push(`tier boundary: do NOT use higher-tier signals (${higherTierSignals(slot.rating, ctx.recipes).join(', ')}) — the counter-negatives are added by the machine`)
+   219→  }
+   220→  return lines.join('\n')
+   221→}
+   222→
+   223→function closerHint(closer: string): string {
+   224→  switch (closer) {
+   225→    case 'dialogue': return 'a short spoken line at the end'
+   226→    case 'long-fused': return 'a long-fuse image that keeps burning after the frame'
+   227→    case 'fragment-pair': return 'two sentence fragments, paired'
+   228→    case 'image-close': return 'a still image-read, the frame settling'
+   229→    case 'action-close': return 'the motion caught mid-beat'
+   230→    default: return 'a clean final image'
+   231→  }
+   232→}
+   233→
+   234→function higherTierSignals(tier: string, recipes: Record<string, TierRecipe>): string[] {
+   235→  const order: Record<string, number> = { 'PG-13': 0, R: 1, 'R+': 2, X: 3 }
+   236→  const mine = order[tier] ?? 0
+   237→  const out: string[] = []
+   238→  for (const [key, rec] of Object.entries(recipes)) {
+   239→    const t = key === 'PG13' ? 'PG-13' : key === 'RPLUS' ? 'R+' : key
+   240→    if ((order[t] ?? 0) > mine && t !== 'XXX') out.push(...(rec.signals ?? []).slice(0, 8))
+   241→  }
+   242→  return [...new Set(out)]
+   243→}
+   244→
+   245→/* ------------------------------------------------------------------ */
+   246→/* NEG assembly (the machine half)                                     */
+   247→/* ------------------------------------------------------------------ */
+   248→
+   249→function assembleNeg(slot: SlotPlan, out: ScribeSlotOutput, ctx: ScribeCtx): string {
+   250→  const f = ctx.floors
+   251→  const terms: string[] = []
+   252→  terms.push(...(f.face_guard ?? []))
+   253→  terms.push(...(f.anti_loli ?? []))
+   254→  terms.push(...(f.genital_lock ?? []), 'sex', 'sexual act')
+   255→  terms.push(...(f.leak_guard ?? []))
+   256→  const posLower = out.pos.toLowerCase()
+   257→  if (!/candle|lantern|torch|chandelier|lamp|brazier/.test(posLower)) {
+   258→    terms.push(...(f.candle_guard ?? []))
+   259→  }
+   260→  terms.push('male', 'man', '1boy', '2girls')
+   261→  const recipe = ctx.recipes[recipeKeyOf(slot.rating)]
+   262→  if (recipe) terms.push(...(recipe.counter_neg ?? []))
+   263→  if (slot.kind === 'OC' && slot.oc) {
+   264→    const oc = ctx.ocs[slot.oc]
+   265→    if (oc && Array.isArray(oc.anti_shield)) {
+   266→      terms.push(...(oc.anti_shield as unknown[]).map(String))
+   267→    }
+   268→  }
+   269→  if (out.negExtra.trim()) {
+   270→    for (const t of out.negExtra.split(/[,;]+/)) {
+   271→      const x = t.trim()
+   272→      if (x) terms.push(x)
+   273→    }
+   274→  }
+   275→  // dedupe (case-insensitive), keep first spelling
+   276→  const seen = new Set<string>()
+   277→  const final: string[] = []
+   278→  for (const t of terms) {
+   279→    const k = t.toLowerCase()
+   280→    if (seen.has(k)) continue
+   281→    seen.add(k)
+   282→    final.push(t)
+   283→  }
+   284→  return final.join(', ')
+   285→}
+   286→
+   287→/* ------------------------------------------------------------------ */
+   288→/* POS normalization (safe, deterministic)                             */
+   289→/* ------------------------------------------------------------------ */
+   290→
+   291→function normalizePos(pos: string, slot: SlotPlan, ctx: ScribeCtx): string {
+   292→  let p = pos.replace(/\s*\n\s*/g, ' ').replace(/\s{2,}/g, ' ').trim()
+   293→  // strip accidental markdown fences
+   294→  p = p.replace(/^```[a-z]*\s*/i, '').replace(/```\s*$/, '').trim()
+   295→  if (!/anime style/i.test(p)) {
+   296→    p = `${recipeOpener(ctx.recipes, slot.rating)}, ${p}`
+   297→  }
+   298→  if (!/masterpiece/i.test(p)) {
+   299→    p = `${p.replace(/[.\s]*$/, '')}. Masterpiece, best quality, anime artstyle.`
+   300→  }
+   301→  return p
+   302→}
+   303→
+   304→/* ------------------------------------------------------------------ */
+   305→/* Batch file assembly                                                 */
+   306→/* ------------------------------------------------------------------ */
+   307→
+   308→function assembleBatch(
+   309→  ctx: ScribeCtx,
+   310→  outputs: Map<number, ScribeSlotOutput>,
+   311→  title: string
+   312→): string {
+   313→  const c = ctx.contract
+   314→  const L: string[] = []
+   315→  L.push(`# THREAD 4 — Batch ${c.slug}: "${title}"`)
+   316→  L.push('')
+   317→  L.push(ctx.batchThesis.trim())
+   318→  L.push('')
+   319→  L.push('ЖАНРЫ (легенда — вердикт T4-02: жанр обязан быть виден): **OC** — канон-локи персонажа, тема в слоте; **NICHE** — невозможный образ: раса делает ФИЗИЧЕСКУЮ работу в кадре, свидетель держит кадр, невозможное — первое считывание силуэта; **VOLT** — плоть: камера-участник, тело в движении, взгляд-вектор, экспозиция тегом; **EXQUISITE** — ультра своего жанра.')
+   320→  const mains = c.slots.filter((s) => s.kind !== 'OC')
+   321→  const spread: Record<string, number> = {}
+   322→  for (const s of mains) spread[s.rating] = (spread[s.rating] ?? 0) + 1
+   323→  L.push(`СТРУКТУРА (закон 24): ${c.slots.length} промпта = 3 OC (P01-P03) + 21 мейн (P04-P24) · спред мейнов ${Object.entries(spread).map(([r, n]) => `${r}×${n}`).join(' · ')} · расовый каст ${c.racialCount}/21 · регистры третями.`)
+   324→  L.push('RENDER PROTOCOL: PH ON — тег-блок канал правды, проза несёт красоту. Спайн назначен контрактом до первого слова; гейты читают те же числа.')
+   325→  L.push('')
+   326→  const acts = ctx.acts.length === 3 ? ctx.acts : ['ACT I', 'ACT II', 'ACT III']
+   327→  const actRanges: [number, number][] = [[1, 8], [9, 16], [17, 24]]
+   328→  for (let a = 0; a < 3; a++) {
+   329→    L.push('════════════════════════════════════════════════════════════════════════')
+   330→    L.push(`ACT ${['I', 'II', 'III'][a]} — ${acts[a].toUpperCase()}`)
+   331→    L.push('════════════════════════════════════════════════════════════════════════')
+   332→    L.push('')
+   333→    for (let pos = actRanges[a][0]; pos <= actRanges[a][1]; pos++) {
+   334→      const slot = c.slots[pos - 1]
+   335→      const out = outputs.get(pos)
+   336→      if (!slot || !out) continue
+   337→      const who = slot.kind === 'OC' ? slot.oc : stripRaceParens(slot.race)
+   338→      L.push(`P${String(pos).padStart(2, '0')} — ${out.anchor} (${slot.kind}${slot.exploratory ? ' ⚗' : ''} · ${who} · ${slot.rating} · ${slot.pose} · ${slot.palette})`)
+   339→      L.push(`THESIS: ${out.thesis}`)
+   340→      if (slot.kind === 'OC' && slot.oc && ctx.ocs[slot.oc]) {
+   341→        L.push(`Canon: ${canonLineOf(ctx.ocs[slot.oc])}`)
+   342→      }
+   343→      const k = ctx.kNames.get(slot.kinetics[0] ?? '')
+   344→      const spineParts = [
+   345→        `${slot.pose} ${slot.poseName}`,
+   346→        `${slot.kinetics[0] ?? '—'}${k ? ` ${k.name}` : ''}`,
+   347→        `LEAD ${slot.lead}`,
+   348→        `${slot.register} register`,
+   349→        `closer ${slot.closer}`,
+   350→      ]
+   351→      if (slot.witness) spineParts.push(`witness: ${slot.witness}`)
+   352→      if (slot.ocTheme && slot.kind === 'OC') spineParts.push(`OC theme: ${slot.ocTheme}`)
+   353→      L.push(`Spine: ${spineParts.join(' · ')}`)
+   354→      L.push(`Stack: ${slot.carriers.map((x) => x.id).join(' + ')}`)
+   355→      L.push('POS:')
+   356→      L.push('')
+   357→      L.push(normalizePos(out.pos, slot, ctx))
+   358→      L.push('')
+   359→      L.push('NEG:')
+   360→      L.push('')
+   361→      L.push(assembleNeg(slot, out, ctx))
+   362→      L.push('')
+   363→    }
+   364→  }
+   365→  return L.join('\n').trimEnd() + '\n'
+   366→}
+   367→
+   368→/* ------------------------------------------------------------------ */
+   369→/* LLM plumbing                                                        */
+   370→/* ------------------------------------------------------------------ */
+   371→
+   372→type ZAiChat = Awaited<ReturnType<typeof ZAI.create>>
+   373→
+   374→async function chat(zai: ZAiChat, system: string, user: string, log: string[], retries = 2): Promise<string> {
+   375→  let lastErr: unknown = null
+   376→  for (let attempt = 0; attempt <= retries; attempt++) {
+   377→    try {
+   378→      const completion = await zai.chat.completions.create({
+   379→        messages: [
+   380→          { role: 'assistant', content: system },
+   381→          { role: 'user', content: user },
+   382→        ],
+   383→        thinking: { type: 'disabled' },
+   384→      })
+   385→      const content = completion.choices[0]?.message?.content ?? ''
+   386→      if (content.trim().length > 0) return content
+   387→      lastErr = new Error('empty completion')
+   388→    } catch (e) {
+   389→      lastErr = e
+   390→    }
+   391→    log.push(`  · LLM-вызов не удался (${attempt + 1}/${retries + 1})${attempt < retries ? ' — повтор' : ''}`)
+   392→  }
+   393→  throw lastErr instanceof Error ? lastErr : new Error('LLM failed')
+   394→}
+   395→
+   396→function parseSlots(raw: string): Map<number, ScribeSlotOutput> {
+   397→  const out = new Map<number, ScribeSlotOutput>()
+   398→  const blocks = raw.split(/^###\s*P(\d{1,2})\s*$/m)
+   399→  // split with capture: [pre, n1, body1, n2, body2, ...]
+   400→  for (let i = 1; i + 1 < blocks.length + 1; i += 2) {
+   401→    const n = parseInt(blocks[i], 10)
+   402→    const body = blocks[i + 1] ?? ''
+   403→    if (!Number.isFinite(n)) continue
+   404→    const grab = (key: string): string => {
+   405→      const re = new RegExp(`^${key}:\\s*(.*)$`, 'm')
+   406→      const m = re.exec(body)
+   407→      if (m) return m[1].trim()
+   408→      // multiline POS: key: then lines until next KEY: line
+   409→      const reM = new RegExp(`^${key}:\\s*\\n([\\s\\S]*?)(?=\\n[A-Z-]+:|$)`, 'm')
+   410→      const mM = reM.exec(body)
+   411→      return mM ? mM[1].trim() : ''
+   412→    }
+   413→    const posSingle = grab('POS')
+   414→    const posMulti = (() => {
+   415→      const re = /^POS:\s*\n?([\s\S]*?)(?=\nNEG-EXTRA:|$)/m.exec(body)
+   416→      return re ? re[1].trim() : ''
+   417→    })()
+   418→    out.set(n, {
+   419→      position: n,
+   420→      anchor:
+   421→        grab('ANCHOR').replace(/[^\w\s-]/g, '').trim().replace(/\s+/g, '-').toLowerCase().slice(0, 60) ||
+   422→        grab('THESIS').split(/\s+/).slice(0, 3).join('-').toLowerCase().replace(/[^\w-]/g, '') ||
+   423→        'unnamed-frame',
+   424→      thesis: grab('THESIS'),
+   425→      pos: (posSingle && posSingle.length > posMulti.length ? posSingle : posMulti) || posSingle || posMulti,
+   426→      negExtra: grab('NEG-EXTRA'),
+   427→    })
+   428→  }
+   429→  return out
+   430→}
+   431→
+   432→/* ------------------------------------------------------------------ */
+   433→/* The scribe                                                          */
+   434→/* ------------------------------------------------------------------ */
+   435→
+   436→export async function scribeBatch(
+   437→  slug: string,
+   438→  options: ScribeOptions = {}
+   439→): Promise<ScribeResult> {
+   440→  const log: string[] = []
+   441→  const maxRepairRounds = options.maxRepairRounds ?? 2
+   442→  const chunkSize = options.chunkSize ?? 6
+   443→  const say = (s: string) => {
+   444→    log.push(s)
+   445→    options.onLog?.(s)
+   446→  }
+   447→
+   448→  /* contract + specs */
+   449→  const contract = readJson<BatchContract>(path.join(CONTRACTS_DIR, `${slug}.json`))
+   450→  if (!contract) throw new Error(`контракт ${slug} не найден — сначала сборка`)
+   451→  // guard: сданный батч не перезаписывается черновиком (first-run-clean свято)
+   452→  const allDelivered = readEvents()
+   453→    .filter((e) => e.type === 'batch.delivered')
+   454→    .map((e) => String(e.data?.slug ?? ''))
+   455→  if (allDelivered.includes(slug)) {
+   456→    throw new Error(`${slug} уже сдан — черновик не перезаписывает сданный батч`)
+   457→  }
+   458→  const carriersSpec = getCarriers()
+   459→  const posesSpec = getPoses()
+   460→  const palettesSpec = getPalettes()
+   461→  const racesSpec = getRaces()
+   462→  const ocCanon = getOCCanon()
+   463→  const recipesSpec = getRatingRecipes()
+   464→  const bans = getBans()
+   465→  if (!carriersSpec || !posesSpec || !palettesSpec || !racesSpec || !ocCanon || !recipesSpec || !bans) {
+   466→    throw new Error('спеки не загружены')
+   467→  }
+   468→  const poolsSpec = readJson<{ sections: Record<string, { id: string; name?: string; light?: string }[]> }>(
+   469→    path.join(process.cwd(), 'thread4', 'specs', 'pools.json')
+   470→  )
+   471→  const kNames = new Map<string, { name: string; light: string }>()
+   472→  for (const k of poolsSpec?.sections?.kinetics_k ?? []) {
+   473→    kNames.set(k.id, { name: k.name ?? k.id, light: k.light ?? '' })
+   474→  }
+   475→
+   476→  const ctx: ScribeCtx = {
+   477→    contract,
+   478→    carriers: new Map(Object.values(carriersSpec.classes).flat().map((c) => [c.id, c])),
+   479→    poses: new Map(posesSpec.poses.map((p) => [p.id, p])),
+   480→    palettes: new Map(palettesSpec.palettes.map((p) => [p.id, p])),
+   481→    races: new Map(racesSpec.races.map((r) => [r.name, r])),
+   482→    ocs: ocCanon.ocs,
+   483→    recipes: recipesSpec.tiers as unknown as Record<string, TierRecipe>,
+   484→    floors: recipesSpec.eternal_floors as unknown as Record<string, string[]>,
+   485→    kNames,
+   486→    batchThesis: '',
+   487→    acts: [],
+   488→  }
+   489→
+   490→  const engine = contract.engineLaw
+   491→  const theme = contract.theme
+   492→
+   493→  say(`Писец: ${slug} «${theme}» · движок ${contract.engine} · ${contract.slots.length} слотов`)
+   494→
+   495→  const zai = await ZAI.create()
+   496→
+   497→  /* ---- call 0: batch spine (title, thesis, acts) ---- */
+   498→  say('Шаг 1/4: закон батча, название, три акта…')
+   499→  const spineRaw = await chat(
+   500→    zai,
+   501→    SYSTEM_PROMPT,
+   502→    `BATCH ${slug} «${theme}». ENGINE LAW: ${engine}\n\nPlan the batch spine. The theme rides the engine's axis and stays there. Return EXACTLY, nothing else:\nTITLE: <2-5 words, no quotes inside>\nTHESIS: <one paragraph, 90-140 words: the batch's ONE law, physical and testable in-frame, how it is delivered across the 24 frames, and how the three acts escalate it — no narrated morality, the law lives in fabric and silhouette>\nACT I: <act name, 2-5 words>\nACT II: <act name>\nACT III: <act name>`,
+   503→    log
+   504→  )
+   505→  const title = (/^TITLE:\s*(.+)$/m.exec(spineRaw)?.[1] ?? theme).replace(/^["«]|["»]$/g, '').trim().slice(0, 80) || theme
+   506→  const thesisP = (/^THESIS:\s*\n?([\s\S]*?)(?=\nACT I:|$)/m.exec(spineRaw)?.[1] ?? '').trim()
+   507→  ctx.batchThesis = thesisP || `The batch's law: ${engine}`
+   508→  ctx.acts = [
+   509→    (/^ACT I:\s*(.+)$/m.exec(spineRaw)?.[1] ?? 'The Law Arrives').trim(),
+   510→    (/^ACT II:\s*(.+)$/m.exec(spineRaw)?.[1] ?? 'The Law Worn In').trim(),
+   511→    (/^ACT III:\s*(.+)$/m.exec(spineRaw)?.[1] ?? 'What the Law Keeps').trim(),
+   512→  ]
+   513→  say(`  · «${title}» · акты: ${ctx.acts.join(' / ')}`)
+   514→
+   515→  /* ---- calls 1..N: slot chunks ---- */
+   516→  const outputs = new Map<number, ScribeSlotOutput>()
+   517→  const chunks: SlotPlan[][] = []
+   518→  for (let i = 0; i < contract.slots.length; i += chunkSize) {
+   519→    chunks.push(contract.slots.slice(i, i + chunkSize))
+   520→  }
+   521→  const batchLawBlock = `BATCH ${slug} «${title}» — theme: ${theme}\nENGINE LAW: ${engine}\nBATCH THESIS (yours, keep it): ${ctx.batchThesis}\nGENRE PLAN: ${contract.slots.filter((s) => s.kind === 'NICHE').length} NICHE (R) · ${contract.slots.filter((s) => s.kind === 'VOLT' || s.kind === 'EXQUISITE').length} VOLT/EXQUISITE (R+ incl. 3 OC) · 2 X`
+   522→
+   523→  for (let ci = 0; ci < chunks.length; ci++) {
+   524→    const chunk = chunks[ci]
+   525→    const positions = chunk.map((s) => `P${String(s.position).padStart(2, '0')}`).join(', ')
+   526→    say(`Шаг 2/4: пишу слоты ${positions} (чанк ${ci + 1}/${chunks.length})…`)
+   527→    const user = `${batchLawBlock}\n\nSLOTS (write ALL of them, in order):\n\n${chunk.map((s) => slotFrame(s, ctx)).join('\n\n')}`
+   528→    const raw = await chat(zai, SYSTEM_PROMPT, user, log)
+   529→    const parsed = parseSlots(raw)
+   530→    let missing = chunk.filter((s) => !parsed.has(s.position) || !(parsed.get(s.position)?.pos ?? '').trim())
+   531→    if (missing.length > 0) {
+   532→      say(`  · чанк ${ci + 1}: пропущены ${missing.map((s) => s.position).join(', ')} — повтор`)
+   533→      const retry = await chat(
+   534→        zai,
+   535→        SYSTEM_PROMPT,
+   536→        `${user}\n\nREMINDER: output EVERY slot above in the exact format. Do not skip any.`,
+   537→        log
+   538→      )
+   539→      for (const [n, o] of parseSlots(retry)) parsed.set(n, o)
+   540→      missing = chunk.filter((s) => !parsed.has(s.position) || !(parsed.get(s.position)?.pos ?? '').trim())
+   541→    }
+   542→    for (const s of chunk) {
+   543→      const o = parsed.get(s.position)
+   544→      if (o && o.pos.trim()) outputs.set(s.position, o)
+   545→    }
+   546→    if (missing.length > 0) {
+   547→      say(`  · чанк ${ci + 1}: НЕ написаны ${missing.map((s) => s.position).join(', ')} — уйдут в ремонт`)
+   548→    }
+   549→  }
+   550→
+   551→  /* ---- assembly + gates + repair ---- */
+   552→  let markdown = assembleBatch(ctx, outputs, title)
+   553→  let result: GatesResult | null = null
+   554→  let rounds = 0
+   555→  const batchPath = path.join(BATCHES_DIR, `${slug}.md`)
+   556→
+   557→  for (let round = 0; round <= maxRepairRounds; round++) {
+   558→    writeText(batchPath, markdown)
+   559→    say(`Шаг 3/4: гейты (сухой прогон, круг ${round + 1})…`)
+   560→    result = runGates(slug, true)
+   561→    if (!result) throw new Error('гейты не нашли файл батча')
+   562→    const hardFails = result.receipts.filter((r) => r.level === 'hard' && r.verdict === 'FAIL')
+   563→    const missingSlots = contract.slots.filter((s) => !outputs.has(s.position))
+   564→    if (hardFails.length === 0 && missingSlots.length === 0) {
+   565→      say(`  · круг ${round + 1}: hard PASS${round === 0 ? ' — чистый первый черновик' : ` — после ${round} круг(ов) ремонта`}`)
+   566→      break
+   567→    }
+   568→    if (round === maxRepairRounds) {
+   569→      say(`  · круг ${round + 1}: hard FAIL остался — сдача невозможна, черновик записан`)
+   570→      break
+   571→    }
+   572→    rounds = round + 1
+   573→    say(`  · круг ${round + 1}: hard FAIL — ремонт:`)
+   574→    for (const r of hardFails) {
+   575→      for (const fnd of r.findings.slice(0, 6)) say(`    [${r.gate}] ${fnd}`)
+   576→    }
+   577→    // failed positions from findings + missing slots
+   578→    const failed = new Set<number>(missingSlots.map((s) => s.position))
+   579→    for (const r of hardFails) {
+   580→      for (const fnd of r.findings) {
+   581→        const m = /P(\d{1,2})/.exec(fnd)
+   582→        if (m) {
+   583→          const p = parseInt(m[1], 10)
+   584→          if (p >= 1 && p <= contract.slots.length) failed.add(p)
+   585→        }
+   586→      }
+   587→    }
+   588→    if (failed.size === 0) break // nothing slot-specific to repair
+   589→    const repairSlots = contract.slots.filter((s) => failed.has(s.position))
+   590→    say(`  · ремонт слотов: ${[...failed].sort((a, b) => a - b).join(', ')}`)
+   591→    const repairUser = `${batchLawBlock}\n\nREWRITE THESE SLOTS — they failed the machine gates. Keep what worked, fix what is flagged. Same exact format.\n\n${repairSlots.map((s) => slotFrame(s, ctx)).join('\n\n')}\n\nGATE FAILURES TO FIX:\n${hardFails.flatMap((r) => r.findings.map((f) => `- [${r.gate}] ${f}`)).slice(0, 24).join('\n')}`
+   592→    const raw = await chat(zai, SYSTEM_PROMPT, repairUser, log)
+   593→    for (const [n, o] of parseSlots(raw)) {
+   594→      if (o.pos.trim()) outputs.set(n, o)
+   595→    }
+   596→    markdown = assembleBatch(ctx, outputs, title)
+   597→  }
+   598→
+   599→  if (!result) throw new Error('гейты не прогнались')
+   600→
+   601→  /* ---- record + event ---- */
+   602→  say(`Шаг 4/4: черновик записан → batches/${slug}.md`)
+   603→  appendEvent(
+   604→    'scribe.drafted',
+   605→    `${slug} «${title}»: авто-писец написал черновик — ${outputs.size}/${contract.slots.length} слотов, ремонт ${rounds} круг(а), гейты dry ${result.hardPass ? 'PASS' : 'FAIL'} (sha ${result.sha10})`,
+   606→    {
+   607→      slug,
+   608→      title,
+   609→      slots: outputs.size,
+   610→      rounds,
+   611→      hardPass: result.hardPass,
+   612→      sha10: result.sha10,
+   613→      engine: contract.engine,
+   614→    }
+   615→  )
+   616→
+   617→  return {
+   618→    slug,
+   619→    title,
+   620→    rounds,
+   621→    hardPass: result.hardPass,
+   622→    firstRunClean: result.firstRunClean,
+   623→    sha10: result.sha10,
+   624→    receipts: result.receipts,
+   625→    failedSlots: contract.slots.filter((s) => !outputs.has(s.position)).map((s) => s.position),
+   626→    log,
+   627→    markdown,
+   628→  }
+   629→}
+   630→

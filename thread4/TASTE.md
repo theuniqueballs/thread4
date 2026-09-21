@@ -23,6 +23,20 @@ decision. Sources: 3.2 SUCCESS_LOG (S001–S011, RF-001..003), the author's
   entire argument; geometry carrying dignity (Una, S006).
 
 ### Whole-batch verdicts
+- **T4-03 «The Last Face» (2026-09-21)** — «В общем и целом — нормально, но
+  нужны доработки». The clinical scorecard: R 7/7 ✅, X 2/2 ✅, R+ 1/15
+  (P10 «еле-еле») ❌ — the system delivers named-object tiers (underwear,
+  bare state) but the edge tier died: «выглядит эротично, но ничего
+  эротического не делает» (P22/P23), «там из эротического только купальник»
+  (P16), «даже учитывая эротичную позу — не дожали» (P14), «вообще не
+  эротично ни разу» (P17). Praise: P04/P05 красивы, P13 композиция, P18
+  «очень крутой цветокор и персонаж» (геометрию списали на модель), P20
+  совпала. OC-слоты провалились все три: P01 рубашка на талии закрыла
+  cameltoe, P02 наклон+NEG душат taped nipples, P03 «чулки сквозь джинсы,
+  майка поверх рубашки» — слоевой хаос. P19 «это точно ниша? что-то ты
+  перепутал» — рейтинг совпал, легибильность нет. → рецепт R+ перекован
+  v1.1.0: hard-claim + механизм-aware NEG + слоевая чёткость. (T4-03
+  verdict event)
 - **T4-02 «The Shape of a Moment» (2026-09-20)** — «Батч — отличный, позы —
   отличные», VOLT: «прописал очень хорошо, понравилась реализация и
   персонажи». The first T4 delivery validated: the 24-hour compile→write→gate
@@ -104,6 +118,14 @@ decision. Sources: 3.2 SUCCESS_LOG (S001–S011, RF-001..003), the author's
   (wheel/ladder/railing) break render geometry; contact anchors required.
 - **Wrong slot count** (T4-02): «требовалось 21 промпт батча + 3 промпта ОС» —
   the batch is 21 MAINS + 3 OC = 24, never 21 total.
+- **Looks-erotic-does-nothing** (T4-03): «Выглядит эротично, но ничего
+  эротического не делает» — presence without a named claim in frame is
+  PG-13 wearing perfume.
+- **The swimsuit read** (T4-03): «Там из эротического только купальник» —
+  physics amplifiers (see-through/wet/tight) without their named object
+  render opaque and safe.
+- **Layer-order lottery** (T4-03): «чулки сквозь джинсы, какая-то майка
+  поверх рубашки» — 3+ stacked tops make the renderer swap layers.
 
 ## VERDICT-DRIVEN LAWS (T4-02 → конституция, 2026-09-20)
 
@@ -114,6 +136,18 @@ decision. Sources: 3.2 SUCCESS_LOG (S001–S011, RF-001..003), the author's
    legend at the top of every batch.
 3. **Prop geometry**: complex props carry ≥2 named contact anchors
    (prop-geometry warn).
+
+## VERDICT-DRIVEN LAWS (T4-03 → конституция, 2026-09-21)
+
+1. **R+ hard-claim**: ≥1 named edge object (cameltoe / taped nipples /
+   handbra / pantyline) on a named target in the tag block — hard-gated
+   (rating-recipe); amplifiers never count alone.
+2. **Mechanism-aware counter-NEG**: on-skin mechanisms (tape, handbra) lift
+   «topless, naked breasts» from NEG — hard-gated; through-fabric keeps the
+   full chest boundary.
+3. **Claim visibility + layer clarity**: the claim zone is the LEAD zone,
+   open to camera, ≤1 layer + claim target; ≤2 layers per zone, <3 tops;
+   OC slots camera-facing — warn-gated (claim-visibility).
 
 ## TASTE HEURISTICS (what the compiler should optimize)
 

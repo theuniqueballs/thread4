@@ -1,6 +1,7 @@
 {
-  "version": "1.0.0",
+  "version": "1.1.0",
   "born": "2026-09-19",
+  "reforged": "2026-09-21 — verdict T4-03: R+ failed 14/15 slots (R 7/7, X 2/2 delivered); the edge tier now demands a NAMED hard-claim object in frame, not physics promises",
   "source": "author's tier table (2026-09-19) + 3.2 CARRIER_LIBRARY science + Claude-thread N30/N31 empirics",
   "note": "A recipe is what makes a tier CLAIM true at render: signal tags (the claim), carriers (the mechanism), counter-NEG (the boundary), prose floor (what survives PH). The rating gate grades every slot against its declared tier's recipe.",
   "tiers": {
@@ -29,11 +30,28 @@
     "RPLUS": {
       "name": "the edge tier",
       "signals": ["cameltoe", "camel toe", "nipples through clothing", "clothed nipples", "extreme fanservice", "see-through", "wet clothes", "visible pantyline", "tight clothes", "almost naked", "topless with tape", "taped nipples", "handbra", "arms covering chest"],
+      "signals_hard": ["cameltoe", "camel toe", "taped nipples", "topless with tape", "handbra", "visible pantyline"],
+      "hard_min": 1,
       "signal_min": 2,
+      "mechanisms": {
+        "through_fabric": {
+          "hard": ["cameltoe", "camel toe", "visible pantyline"],
+          "amplifiers": ["see-through", "wet clothes", "tight clothes", "nipples through clothing", "clothed nipples"],
+          "counter_neg": ["nipples exposed", "areola", "exposed genitals", "naked breasts", "topless"],
+          "note": "the edge reads THROUGH a NAMED garment (leotard's seat, shirt gone sheer, waistband's line) — the garment stays on, the full chest counter-NEG holds the line"
+        },
+        "on_skin": {
+          "hard": ["taped nipples", "topless with tape", "handbra"],
+          "amplifiers": ["arms covering chest", "almost naked", "extreme fanservice"],
+          "counter_neg": ["nipples exposed", "areola", "exposed genitals"],
+          "counter_neg_lifted": ["naked breasts", "topless"],
+          "note": "the edge lives ON bare skin (tape, hands) — «topless, naked breasts» MUST be lifted from NEG or the renderer closes the chest and the tier dies (verdict T4-03: 'the only erotic thing is the swimsuit')"
+        }
+      },
       "carrier_classes": ["W", "I", "E", "M"],
-      "carrier_note": "sheer/imprint/compression physics; cameltoe is I-class (imprint) by science; CORE-4 mandatory (>=4 classes x 4 mechanism groups); sheer-family <=2 carriers per prompt",
+      "carrier_note": "sheer/imprint/compression physics; cameltoe is I-class (imprint) by science; CORE-4 mandatory (>=4 classes x 4 mechanism groups); sheer-family <=2 carriers per prompt; the claim zone carries <=1 garment layer + the claim target (layer-clarity law, verdict T4-03)",
       "counter_neg": ["nipples exposed", "areola", "exposed genitals", "naked breasts", "topless"],
-      "prose_floor": "state nouns >= 4; the fabric's PRESENCE must be claimed as hard as what shows through it (the counter-NEG is what holds the tier)",
+      "prose_floor": "state nouns >= 4; the fabric's PRESENCE must be claimed as hard as what shows through it (the counter-NEG is what holds the tier); the hard claim names its TARGET GARMENT or SKIN explicitly — an amplifier without its object is a promise the renderer will not keep (verdict T4-03: looks erotic, does nothing)",
       "typical_genres": ["VOLT", "EXQUISITE"],
       "opener": "anime style, ecchi anime style"
     },

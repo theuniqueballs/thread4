@@ -115,6 +115,9 @@ HARD STYLE RULES:
 - The batch law is the FIRST READ of every frame — visible in silhouette, not narrated. A girl standing in nice light is a tourist.
 - §51: exactly ONE full-saturation non-family accent point per frame, outnumbered by the palette family.
 - Weave ALL assigned carriers into the frame (they are listed per slot) — each carrier is a physical state of fabric/body/position/physics, noun-led.
+- RATING EARNED IN FRAME (verdict T4-03): the tier's signal must be a NAMED OBJECT on a NAMED TARGET the camera can see — cameltoe on the leotard's seat, tape on bare skin, handbra with hands placed. Physics promises ("see-through", "wet clothes") alone render safe — the author reads them as a swimsuit. The claim zone is the lead zone and it stays OPEN: no skirts, cloaks or tied shirts over a lower claim, no buttoned tops over a chest claim. "Looks erotic but does nothing" is the named failure.
+- LAYER CLARITY (verdict T4-03): ≤2 garment layers per body zone; the claim zone carries ≤1 layer + the claim target; never stack 3 tops (the renderer swaps their order — stockings through jeans, tank over shirt); layer order, when layered, is stated top-to-bottom.
+- OC slots: camera-facing poses — her claim faces the lens; no folds/prone/from-behind that hide the lead zone.
 
 NEG-EXTRA line: comma-separated EXTRA negative terms ONLY — canon anti-drift (wrong hair/eye color, wrong ears, "no tail" when she has none, "single braid" against twin braids) and frame-specific bans (male, man already handled by the machine — do not repeat). The machine already adds: face guards, anti-loli floor, genital lock, leak guard, candle guard, solo lock, tier counter-negatives. Do NOT repeat those.
 
@@ -214,7 +217,16 @@ function slotFrame(slot: SlotPlan, ctx: ScribeCtx): string {
   lines.push(`closer: end the POS prose as a ${slot.closer} — ${closerHint(slot.closer)}`)
   if (slot.witness) lines.push(`witness: the ${slot.witness} — one object that holds the frame's law`)
   if (recipe) {
+    const hardSignals = recipe.signals_hard ?? []
     lines.push(`REQUIRED rating signals — include ≥${recipe.signal_min} of these IN THE TAG BLOCK: ${recipe.signals.slice(0, 14).join(', ')}`)
+    if (hardSignals.length > 0) {
+      lines.push(
+        `HARD CLAIM (verdict T4-03 law): ≥${recipe.hard_min ?? 1} of these NAMED edge objects MUST be in the tag block — ${hardSignals.join(', ')}. Amplifiers (see-through / wet clothes / tight clothes / extreme fanservice) render safe on their own; the object renders. Name the TARGET it lands on (garment or skin).`
+      )
+      lines.push(
+        `CLAIM ZONE = the lead zone (${slot.lead}), OPEN TO CAMERA: no skirt / cloak / coat / shirt tied at the waist over a cameltoe claim, no buttoned top over a tape/handbra claim. ≤2 garment layers per body zone, the claim zone carries ≤1 layer + the claim target. «Looks erotic but does nothing» is the failure this law kills.`
+      )
+    }
     lines.push(`tier boundary: do NOT use higher-tier signals (${higherTierSignals(slot.rating, ctx.recipes).join(', ')}) — the counter-negatives are added by the machine`)
   }
   return lines.join('\n')
@@ -259,7 +271,23 @@ function assembleNeg(slot: SlotPlan, out: ScribeSlotOutput, ctx: ScribeCtx): str
   }
   terms.push('male', 'man', '1boy', '2girls')
   const recipe = ctx.recipes[recipeKeyOf(slot.rating)]
-  if (recipe) terms.push(...(recipe.counter_neg ?? []))
+  if (recipe) {
+    // МЕХАНИЗМ-ОСОЗНАННЫЙ КОНТР-NEG (вердикт T4-03: «только купальник»):
+    // активный on-skin механизм (taped nipples / handbra) поднимает
+    // «topless, naked breasts» из NEG — иначе рендерер закрывает грудь и
+    // душит сигнал. Сквозь-ткань механизмы держат полный грудной NEG.
+    let counter = [...(recipe.counter_neg ?? [])]
+    for (const m of Object.values(recipe.mechanisms ?? {})) {
+      const hard = m.hard ?? []
+      const active = hard.some((h) => posLower.includes(h.toLowerCase()))
+      if (active) {
+        counter = counter.filter(
+          (t) => !(m.counter_neg_lifted ?? []).some((x) => x.toLowerCase() === t.toLowerCase())
+        )
+      }
+    }
+    terms.push(...counter)
+  }
   if (slot.kind === 'OC' && slot.oc) {
     const oc = ctx.ocs[slot.oc]
     if (oc && Array.isArray(oc.anti_shield)) {

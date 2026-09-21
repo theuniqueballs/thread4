@@ -271,7 +271,9 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
       }
       const recipe = tiers[recipeKey(tier)]
       if (!recipe) continue
-      const posLower = (s.pos + ' ' + s.neg).toLowerCase()
+      // сигнал-теги считаются в POS — NEG границу держит, а не зарабатывает
+      const posLower = s.pos.toLowerCase()
+      const negLower = s.neg.toLowerCase()
       const signals = countSignals(posLower, recipe.signals)
       const min = recipe.signal_min ?? signalMinDefault[tier] ?? 1
       if (signals < min) {
@@ -279,8 +281,40 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
           `P${s.position}: заявлен ${tier}, сигнал-тегов рецепта ${signals}/${min} — рейтинг не заработан (рецепт: ${recipe.signals.slice(0, 5).join(', ')}…)`
         )
       }
+      // HARD-CLAIM (вердикт T4-03: 14/15 R+ слотов не дотянули): тир с
+      // signals_hard обязан нести именованный edge-объект в POS — усилители
+      // (see-through / wet clothes / tight clothes) рендерер решает в
+      // безопасную сторону, объект — рисует
+      const hardSignals = recipe.signals_hard ?? []
+      if (hardSignals.length > 0) {
+        const hard = countSignals(posLower, hardSignals)
+        const hardMin = recipe.hard_min ?? 1
+        if (hard < hardMin) {
+          f.push(
+            `P${s.position}: заявлен ${tier}, но HARD-сигнала нет (${hard}/${hardMin}) — edge назван объектом: ${hardSignals.slice(0, 4).join(', ')} (вердикт T4-03: «выглядит эротично, но ничего эротического не делает»)`
+          )
+        }
+      }
+      // механизм-осознанный контр-NEG (вердикт T4-03: «только купальник»):
+      // активный механизм держит СВОЙ boundary — lifted-термины в NEG глушат
+      for (const [mechName, m] of Object.entries(recipe.mechanisms ?? {})) {
+        const mHard = m.hard ?? []
+        if (!mHard.some((h) => posLower.includes(h.toLowerCase()))) continue
+        for (const t of m.counter_neg ?? []) {
+          if (!negLower.includes(t.toLowerCase())) {
+            f.push(`P${s.position}: механизм «${mechName}» требует контр-NEG «${t}» в NEG`)
+          }
+        }
+        for (const t of m.counter_neg_lifted ?? []) {
+          if (negLower.includes(t.toLowerCase())) {
+            f.push(
+              `P${s.position}: механизм «${mechName}» заглушен — «${t}» в NEG закрывает грудь и душит сигнал (вердикт T4-03)`
+            )
+          }
+        }
+      }
       // counter-NEG: at least one boundary term present
-      const counterHit = (recipe.counter_neg ?? []).some((t) => s.neg.toLowerCase().includes(t.toLowerCase()))
+      const counterHit = (recipe.counter_neg ?? []).some((t) => negLower.includes(t.toLowerCase()))
       if (!counterHit) {
         f.push(`P${s.position}: контр-NEG не держит границу тира (нужно ≥1 из: ${(recipe.counter_neg ?? []).slice(0, 3).join(', ')})`)
       }
@@ -378,6 +412,15 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
         if (sheerIds.length > 0) sheerFrames += 1
       }
       allStacked.push(...s.stack)
+    }
+    // моно-носитель N28 (фикс после T4-03: CR-W27 вставал во все 15 R+/X
+    // слотов — lruPick не дедуплицировал внутри батча): один ID ≤4 слотов
+    const perCarrier: Record<string, number> = {}
+    for (const id of batch.slots.flatMap((s) => s.stack)) {
+      perCarrier[id] = (perCarrier[id] ?? 0) + 1
+    }
+    for (const [id, n] of Object.entries(perCarrier)) {
+      if (n > 4) f.push(`моно-носитель ${id} в ${n} слотах > 4 — моно-механизм N28`)
     }
     const wCount = allStacked.filter((id) => clsOf(id) === 'W').length
     const wShare = allStacked.length ? Math.round((wCount / allStacked.length) * 100) : 0
@@ -539,6 +582,100 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
       }
     }
     warn('prop-geometry', f)
+  }
+
+  /* ---------------- 8d. claim visibility (warn — вердикт T4-03) ------ */
+  {
+    // Вердикт T4-03: R+ сигнал заявлен на зоне, которую стейджинг закрывает
+    // (рубашка на талии, юбка, плащ), либо слоёв столько, что рендер путает
+    // порядок («чулки сквозь джинсы, майка поверх рубашки»), либо OC-слот
+    // ушёл позой от камеры. Зона сигнала = LEAD, открыта камере.
+    const f: string[] = []
+    const LOWER_COVERS = [
+      'skirt', 'dress', 'cloak', 'cape', 'coat', 'apron', 'happi',
+      'tied at waist', 'tied at the waist', 'shirt tied', 'towel around waist',
+      'waist wrap', 'sarong', 'long shirt', 'untucked shirt', 'peplum',
+    ]
+    const CHEST_COVERS = [
+      'buttoned shirt', 'buttoned-up', 'buttoned up', 'zipped up', 'zipped to',
+      'closed jacket', 'buttoned jacket', 'turtleneck', 'high-neck', 'closed coat',
+    ]
+    const TOP_LAYERS = [
+      'shirt', 'tee', 't-shirt', 'tank', 'camisole', 'blouse', 'sweater',
+      'pullover', 'hoodie', 'jacket', 'coat', 'blazer', 'cardigan', 'happi',
+      'tunic', 'turtleneck', 'button-down', 'flannel', 'jersey', 'varsity',
+      'parka', 'poncho', 'robe', 'overalls',
+    ]
+    const GARMENT_NOUNS = new Set([
+      ...TOP_LAYERS, 'leotard', 'bodysuit', 'swimsuit', 'bikini', 'microbikini',
+      'bra', 'panties', 'thong', 'boyshorts', 'lingerie', 'garter belt',
+      'stockings', 'thighhighs', 'socks', 'jeans', 'pants', 'trousers',
+      'breeches', 'shorts', 'skirt', 'dress', 'apron', 'towel', 'nightgown',
+      'slip', 'corset', 'harness', 'wrap', 'sarong', 'sash', 'obi', 'bolero',
+      'kimono', 'happi', 'leggings', 'fishnets', 'jersey', 'uniform', 'cloak', 'cape',
+    ])
+    const POSE_AWAY = [
+      'forward fold', 'prone', 'facedown', 'face down', 'from behind',
+      'back to camera', 'back turned', 'bent away',
+    ]
+    for (const s of batch.slots) {
+      const tier = tierOf(s.meta)
+      if (tier !== 'R+' && tier !== 'X') continue
+      const firstPeriod = s.pos.indexOf('.')
+      const tagBlock = (firstPeriod > 0 ? s.pos.slice(0, firstPeriod) : s.pos).toLowerCase()
+      const posLower = s.pos.toLowerCase()
+      // word-boundary матчинг: «escaped» не должен ловиться как «cape»
+      const coverIn = (list: string[]) =>
+        list.find((c) => new RegExp(`\\b${c.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`).test(tagBlock))
+      // 1) нижняя зона сигнала закрыта верхним предметом
+      const lowerClaim = ['cameltoe', 'camel toe', 'visible pantyline', 'pantyline'].some((c) =>
+        tagBlock.includes(c)
+      )
+      if (lowerClaim) {
+        const cover = coverIn(LOWER_COVERS)
+        if (cover) {
+          f.push(
+            `P${s.position}: зона сигнала (низ) закрыта «${cover}» — cameltoe/pantyline не виден камере; открой зону или перевези claim (вердикт T4-03)`
+          )
+        }
+      }
+      // 2) грудная on-skin зона закрыта застёгнутым верхом
+      const chestClaim = ['taped nipples', 'topless with tape', 'handbra'].some((c) =>
+        tagBlock.includes(c)
+      )
+      if (chestClaim) {
+        const cover = coverIn(CHEST_COVERS)
+        if (cover) {
+          f.push(
+            `P${s.position}: зона сигнала (грудь) закрыта «${cover}» — tape/handbra не виден камере (вердикт T4-03)`
+          )
+        }
+      }
+      // 3) слоевой хаос: ≥5 предметов одежды в тег-блоке
+      const garments = [...GARMENT_NOUNS].filter((g) => new RegExp(`\\b${g}\\b`).test(tagBlock))
+      if (garments.length >= 5) {
+        f.push(
+          `P${s.position}: ${garments.length} предметов одежды в тег-блоке (${garments.slice(0, 5).join(', ')}) — ≤2 слоя на зону, зона сигнала ≤1 (вердикт T4-03: слои путают рендер)`
+        )
+      }
+      // 3b) стопка верхних слоёв: ≥3 верхних предметов
+      const tops = TOP_LAYERS.filter((g) => new RegExp(`\\b${g}\\b`).test(tagBlock))
+      if (tops.length >= 3) {
+        f.push(
+          `P${s.position}: стопка верхних слоёв ${tops.length} (${tops.join(', ')}) — «майка поверх рубашки» ломает порядок слоёв (вердикт T4-03)`
+        )
+      }
+      // 4) OC-слот позой уходит от камеры — зона сигнала не читается
+      if (s.genre === 'OC') {
+        const away = POSE_AWAY.find((p) => tagBlock.includes(p) || posLower.includes(p))
+        if (away) {
+          f.push(
+            `P${s.position}: OC-слот с позой «${away}» — зона сигнала уходит от камеры; OC = любимые персонажи автора, камера-смотрящие позы (вердикт T4-03)`
+          )
+        }
+      }
+    }
+    warn('claim-visibility', f)
   }
 
   /* ---------------- 9. simcheck (warn) ---------------- */

@@ -324,3 +324,94 @@ Stage Summary:
   чистые; окно ротации теперь [T4-02, T4-03]
 - Открыто: авторский просмотр T4-03; первый живой VLM-вердикт по рендеру;
   дебют кованого движка (tidefall/heldhour/glamour-tax) — по приказу автора
+
+---
+Task ID: 5
+Agent: Super Z (main)
+Task: Приказ автора 2026-09-21: рассмотреть вердикт по T4-03, понять причину,
+исправить, произвести T4-04.
+
+Work Log:
+- Прочитал вердикт T4-03 (render.verdict 2026-09-21 13:21, по-слотовая
+  разметка всех 24 кадров) и сопоставил со слот-планом: скорборд R 7/7 ✅,
+  X 2/2 ✅, R+ 1/15 («еле-еле» P10) ❌ — система доставляет тиры именованных
+  объектов, но R+ умирает
+- КЛИНИЧЕСКИЙ ДИАГНОЗ (3 механизма отказа, все из цитат автора):
+  1) «Выглядит эротично, но ничего не делает» — сигнал заявлен на зоне,
+     которую стейджинг закрывает (рубашка на талии P01, юбка P21, плащ P16,
+     полу-снятые бриджи P17, наклон от камеры P02)
+  2) «Там из эротического только купальник» — контр-NEG «topless, naked
+     breasts» глушит on-skin механизмы (tape/handbra) и see-through
+  3) «Чулки сквозь джинсы, майка поверх рубашки» — слоевой хаос (3+ верхних
+     слоя) ломает порядок слоёв рендера
+- Вердикт → закон (event-sourcing): taste.datum + 3× law.amended:
+  §9-поправка R+ ЗАРАБАТЫВАЕТСЯ В КАДРЕ (hard-claim: именованный edge-объект
+  на именованной цели, зона = LEAD, открыта камере), §9-бис МЕХАНИЗМ-
+  ОСОЗНАННЫЙ КОНТР-NEG (on-skin поднимает «topless, naked breasts» из NEG),
+  §7-бис СЛОЕВАЯ ЧЁТКОСТЬ (≤2 слоя на зону, зона сигнала ≤1 слой, OC —
+  камера-смотрящие позы)
+- rating-recipes.json v1.1.0: RPLUS перекован — signals_hard (cameltoe /
+  camel toe / taped nipples / topless with tape / handbra / visible
+  pantyline) + hard_min 1 + mechanisms {through_fabric, on_skin} со своими
+  counter_neg/counter_neg_lifted; усилители сами R+ не зарабатывают
+- specs.ts: TierRecipe + signals_hard/hard_min/mechanisms (optional, без
+  поломки типов)
+- gates.ts: rating-recipe — hard-claim проверка (R+ без named edge-объекта =
+  FAIL) + механизм-aware NEG-глушение (tape/handbra в POS + «topless» в NEG
+  = FAIL) + сигналы считаются в POS (не POS+NEG); НОВЫЙ warn-гейт
+  claim-visibility (закрытая зона сигнала / слоевой хаос ≥5 предметов /
+  стопка ≥3 верхних / OC-позы от камеры); diversity — моно-носитель N28
+  (один ID >4 слотов = FAIL); claim-visibility — word-boundary матчинг
+  (фикс ложного «cape» в «escaped»)
+- ВАЖНО: сухой прогон НОВЫХ гейтов по СТАРОМУ T4-03 поймал ровно те слоты,
+  что назвал автор (P1 tied-at-waist, P2 NEG+fold, P13/P15/P16/P17/P21
+  закрытые зоны) — правоприменение доказано
+- compiler.ts: починен моно-носитель — lruPick не дедуплицировал внутри
+  батча, CR-W27 («spa steam darkening the blouse») вставал во все 15 R+/X
+  слотов (тик «steam-damp blouse» ×15 у авто-писца); теперь batchUse-щтраф
+  (×50) отодвигает выбранных носителей до исчерпания пула → T4-04: 89/89
+  уникальных, W 19%; contract.laws + rplusHardClaim/mechanismNeg/layerClarity
+  + ловушки T13/T14 в контрактMarkdown
+- scribe.ts: assembleNeg механизм-aware (on-skin → фильтр lifted-терминов —
+  код, не LLM); slotFrame — блоки HARD CLAIM + CLAIM ZONE для R+; SYSTEM_
+  PROMPT — 3 новых правила письма (RATING EARNED IN FRAME / LAYER CLARITY /
+  OC camera-facing)
+- CONSTITUTION.md §9-поправка + §7-поправка; TASTE.md — вердикт T4-03 в
+  whole-batch + анти-канон (looks-erotic-does-nothing, swimsuit read,
+  layer-order lottery) + VERDICT-DRIVEN LAWS T4-03
+- T4-04 «The Price of a Wish» (cantus): ПЕРЕкомпилирован под новым законом
+  (тот же сид 3696118591 → те же позы/палитры, новые стеки носителей);
+  авто-писец написал 2 черновика (24/24, 1 круг ремонта, dry PASS оба —
+  второй против чистого контракта, warn-лист = моя работа)
+- СТАРШИЙ писец (Super Z): полная перезапись прозы до уровня дома — закон
+  батча EVERY WISH IS WORN / THE PRICE IS THREAD (ткацкий станок вплетает
+  желание в одежду, ткань держится пока держится нота = голос носящего,
+  распускание течёт к источнику, цена — кожа), 3 акта (The Note Holds /
+  The Unravel / What the Wish Keeps), все 15 R+ слотов несут named
+  edge-объект на LEAD-зоне (cameltoe на названной вещи / tape на коже),
+  механизм-aware NEG собран вручную по закону, все 89 носителей вплетены,
+  свидетели/клоузеры/§51-акценты на местах; починил 14 заголовков (ID поз),
+  P18 milf-протечку, P20 свечную гварду, P10 якоря каната, ужал 5 слотов
+  до бюджета ≤300
+- ОФИЦИАЛЬНАЯ СДАЧА: bun thread4/cli.ts deliver T4-04 → run #1, ВСЕ 14
+  гейтов PASS (6 hard + 6 warn + 2 advisory), FIRST RUN CLEAN, sha
+  bdca546e7d; batch.delivered + gate.run + 3× oc.appeared (Miyu/Zia/Nix)
+- Верификация: lint 0/0; selftest 21/21; agent-browser: все вкладки, T4-04
+  с квитанциями (rating-recipe PASS, claim-visibility PASS), markdown
+  батча рендерится, события (3 закона + вердикт + доставка), конституция с
+  поправками, контракт T4-04 с rplusHardClaim/mechanismNeg, мобильный 390px
+  + десктоп, футер sticky, консоль чистая, ошибок нет
+
+Stage Summary:
+- Вердикт T4-03 обработан ПОЛНОСТЬЮ: причина найдена (3 механизма смерти
+  R+), исправлена на всех уровнях (рецепт v1.1.0 → гейты → писец →
+  компилятор → конституция → вкус) — правоприменение доказано прогоном
+  новых гейтов по старому батчу (поймали ровно слоты автора)
+- T4-04 «Paid in Thread» СДАН first run clean — 24 промпта, движок cantus
+  (дебют: ткань = выдержанная нота), OC Miyu/Zia/Nix, все 15 R+ с named
+  edge-объектами; окно ротации теперь [T4-02, T4-03, T4-04]
+- Попутно починен моно-носитель (N28): внутрисборочная дедупликация
+  носителей в компиляторе + гейт >4 слотов на ID
+- Открыто: авторский просмотр T4-04 (живёт ли hard-claim R+ на рендере?);
+  первый живой VLM-вердикт по рендеру; EXPLORATORY P15 (static-cling как
+  третий путь к edge) ждёт проверки рендером

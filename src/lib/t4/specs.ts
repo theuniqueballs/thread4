@@ -145,6 +145,15 @@ export interface TierRecipe {
   name: string
   signals: string[]
   signal_min: number
+  /** Вердикт T4-03: R+ обязан нести ≥1 hard-сигнал — именованный edge-объект. */
+  signals_hard?: string[]
+  hard_min?: number
+  /** Механизм-осознанный контр-NEG (вердикт T4-03): on-skin механизмы
+   *  поднимают «topless, naked breasts» из NEG, сквозь-ткань — держат полный. */
+  mechanisms?: Record<
+    string,
+    { hard?: string[]; amplifiers?: string[]; counter_neg?: string[]; counter_neg_lifted?: string[]; note?: string }
+  >
   carrier_classes: string[]
   carrier_note?: string
   counter_neg: string[]

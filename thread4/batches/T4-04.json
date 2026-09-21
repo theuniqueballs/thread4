@@ -1,12 +1,12 @@
 {
-  "slug": "T4-03",
-  "title": "The Last Face",
-  "date": "2026-09-20T12:20:47.937Z",
-  "theme": "Faceless Void",
-  "engine": "counterfall",
+  "slug": "T4-04",
+  "title": "Paid in Thread",
+  "date": "2026-09-21T14:03:27.668Z",
+  "theme": "The Price of a Wish",
+  "engine": "cantus",
   "hardPass": true,
   "firstRunClean": true,
-  "sha10": "d2bb5c0418",
+  "sha10": "bdca546e7d",
   "run": 1,
   "receipts": [
     {
@@ -70,6 +70,12 @@
       "findings": []
     },
     {
+      "gate": "claim-visibility",
+      "level": "warn",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
       "gate": "simcheck",
       "level": "warn",
       "verdict": "PASS",
@@ -80,7 +86,7 @@
       "level": "advisory",
       "verdict": "REPORT",
       "findings": [
-        "кандидаты в тики: anime 24/21 · style 24/21 · ecchi 24/21 · small 24/21 · rendered 24/21 · stylized 24/21 · mouth 24/21 · masterpiece 24/21 · quality 24/21 · artstyle 24/21 · whole 21/21 · claim 19/21"
+        "кандидаты в тики: anime 24/21 · style 24/21 · ecchi 24/21 · small 24/21 · rendered 24/21 · stylized 24/21 · mouth 24/21 · masterpiece 24/21 · quality 24/21 · artstyle 24/21 · light 19/21 · still 14/21"
       ]
     },
     {
@@ -88,7 +94,7 @@
       "level": "advisory",
       "verdict": "REPORT",
       "findings": [
-        "носителей в стеках: 89; уникальных: 67",
+        "носителей в стеках: 89; уникальных: 89",
         "R+ слотов: 15; X: 2"
       ]
     }

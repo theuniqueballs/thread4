@@ -152,6 +152,30 @@ A fix-pass is a defect: it costs a root-cause note in the batch worklog +
 a contract item (the trap becomes a constant). The receipt ledger
 (events: `gate.run`) is append-only; sha-delta between runs = fix-pass.
 
+**§9-поправка (вердикт T4-03, 2026-09-21) — R+ ЗАРАБАТЫВАЕТСЯ В КАДРЕ.**
+The edge tier is claimed by a NAMED OBJECT, not a physics promise:
+- ≥1 hard signal per R+ slot: `cameltoe / camel toe / taped nipples /
+  topless with tape / handbra / visible pantyline` — ON a named target
+  (the leotard's seat, bare skin, the waistband's line).
+- Amplifiers (`see-through`, `wet clothes`, `tight clothes`, `extreme
+  fanservice`, `nipples through clothing`, `almost naked`) render safe on
+  their own — the author reads the result as «только купальник».
+- The claim zone is the slot's LEAD zone, OPEN TO CAMERA: no skirts,
+  cloaks or shirts tied at the waist over a lower claim; no buttoned tops
+  over a chest claim. «Выглядит эротично, но ничего эротического не
+  делает» is the named failure (receipt: 14/15 R+ slots of T4-03).
+- **Mechanism-aware counter-NEG**: through-fabric mechanisms keep the full
+  chest boundary (`nipples exposed, naked breasts, topless` in NEG);
+  on-skin mechanisms (tape, handbra) LIFT `topless, naked breasts` from
+  NEG — the boundary that holds the tier must not mute its own signal.
+
+**§7-поправка (вердикт T4-03) — СЛОЕВАЯ ЧЁТКОСТЬ.**
+≤2 garment layers per body zone; the claim zone carries ≤1 layer + the
+claim target; ≥3 stacked tops or ≥5 garments in a tag block break the
+renderer's layer order («чулки сквозь джинсы, какая-то майка поверх
+рубашки»). OC slots take camera-facing poses — folds/prone/from-behind
+hide the claim from the lens.
+
 ## §10. FEEDBACK IS THE ONLY LAW-MAKER.
 
 Laws, recipes, and specs change only through verdict events (author words,

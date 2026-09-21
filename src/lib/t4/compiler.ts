@@ -340,6 +340,16 @@ export function compileBatch(theme: string, options: CompileOptions = {}): Batch
   const byClass = carriers.classes
   const groupOf = (cls: string) => carriers.class_defs[cls]?.mech ?? ''
   const carrierUsage = usage.carriers
+  // Внутрисборочная дедупликация (фикс после T4-03): lruPick смотрел только в
+  // окно ротации, и «свежий» носитель (CR-W27) выбирался первым во ВСЕ слоты —
+  // моно-носитель N28, тик на каждом кадре. Теперь каждый выбор маркируется
+  // и отодвигается в конец очереди до исчерпания пула.
+  const batchUse: Record<string, number> = {}
+  const lruPickBatch = <T extends { id: string }>(pool: T[], usage: Record<string, number>): T[] =>
+    rng.shuffle(pool).sort(
+      (a, b) =>
+        (usage[a.id] ?? 0) + (batchUse[a.id] ?? 0) * 50 - ((usage[b.id] ?? 0) + (batchUse[b.id] ?? 0) * 50)
+    )
   // batch-level sheer budget: ≤40% of R+ frames (12 mains + 3 OC = 15) may carry a sheer carrier
   const rplusTotal = LAWS.rplusMains + LAWS.ocSlots
   const maxSheerFrames = Math.floor((rplusTotal * LAWS.sheerFrameCapPct) / 100)
@@ -358,12 +368,13 @@ export function compileBatch(theme: string, options: CompileOptions = {}): Batch
       // prefer recipe classes within the group when possible
       const preferred = classes.filter((c) => prefer.includes(c))
       const ordered = [
-        ...lruPick(preferred.flatMap((c) => byClass[c] ?? []), carrierUsage, rng),
-        ...lruPick(classes.filter((c) => !preferred.includes(c)).flatMap((c) => byClass[c] ?? []), carrierUsage, rng),
+        ...lruPickBatch(preferred.flatMap((c) => byClass[c] ?? []), carrierUsage),
+        ...lruPickBatch(classes.filter((c) => !preferred.includes(c)).flatMap((c) => byClass[c] ?? []), carrierUsage),
       ]
       const nonSheer = ordered.filter((c) => !c.sheer_family || sheerBudgetLeft())
       const chosen = nonSheer[0] ?? ordered[0]
       if (chosen) {
+        batchUse[chosen.id] = (batchUse[chosen.id] ?? 0) + 1
         if (chosen.sheer_family) {
           sheerInPrompt += 1
           frameIsSheer = true
@@ -390,10 +401,13 @@ export function compileBatch(theme: string, options: CompileOptions = {}): Batch
     const key = rating === 'R' ? 'R' : 'PG13'
     const recipe = recipes.tiers[key]
     const prefer = recipe?.carrier_classes ?? ['S', 'E', 'W', 'B']
-    const pool = lruPick(prefer.flatMap((c) => byClass[c] ?? []), carrierUsage, rng)
-    return pool.slice(0, 3).map((c: Carrier) => ({
-      id: c.id, name: c.name, cls: clsOfCarrier(c.id), deg: c.deg,
-    }))
+    const pool = lruPickBatch(prefer.flatMap((c) => byClass[c] ?? []), carrierUsage)
+    return pool.slice(0, 3).map((c: Carrier) => {
+      batchUse[c.id] = (batchUse[c.id] ?? 0) + 1
+      return {
+        id: c.id, name: c.name, cls: clsOfCarrier(c.id), deg: c.deg,
+      }
+    })
   }
 
   /* slot assembly */
@@ -537,6 +551,9 @@ export function compileBatch(theme: string, options: CompileOptions = {}): Batch
       leadMax: LAWS.leadMax,
       registerCapPct: LAWS.registerCapPct,
       signalMin: JSON.stringify(LAWS.signalMin),
+      rplusHardClaim: 'R+ несёт ≥1 HARD-сигнал — именованный edge-объект (cameltoe / taped nipples / topless with tape / handbra / visible pantyline) НА ИМЕНОВАННОЙ вещи; усилители (see-through / wet clothes / tight clothes) сами R+ не зарабатывают (вердикт T4-03)',
+      mechanismNeg: 'контр-NEG механизм-осознан: сквозь-ткань (cameltoe/pantyline/see-through) держит «nipples exposed, naked breasts, topless»; on-skin (tape/handbra) — эти два ПОДНЯТЫ из NEG, иначе рендер закрывает грудь (вердикт T4-03)',
+      layerClarity: '≤2 слоя одежды на зону; зона сигнала = LEAD-зона, несёт ≤1 слой + цель сигнала, открыта камере (без юбок/плащей/завязанных рубашек над cameltoe, без застёгнутого верха над tape); OC-слоты — камера-смотрящие позы (вердикт T4-03)',
       faceLock: 'Her face is rendered in stylized 2D anime style: anime eyes ([color/state]), small nose, small mouth [state], [tone] skin.',
       posShape: 'POS = [тег-блок] → [проза] → [quality-теги] — PH-форма, проходит дословно',
       counters: 'экспозиция = сигнал-тег + контр-NEG (N31-рецепт); рейтинг зарабатывается тегами, не прозой',
@@ -650,6 +667,8 @@ export function contractMarkdown(c: BatchContract): string {
   lines.push('- **T10**: дубли-close (N25: 18/21 триплетов) — клоузеры назначены, вертеть.')
   lines.push('- **T11** (вердикт T4-02, штурвал): сложный проп (wheel/лестница/перила/канат) ломает геометрию рендера — каждая контактная конечность названа (руки на…, ноги в…), ≥2 якоря; лучше один контактный проп, чем три.')
   lines.push('- **T12** (вердикт T4-02): жанр виден — NICHE первым считыванием (раса работает), VOLT — плоть; если автор не понял, где ниша, — её нет.')
+  lines.push('- **T13** (вердикт T4-03, «выглядит эротично, но ничего не делает»): R+ = ДЕЛО в кадре, не вид — edge-объект назван и виден камере; поза/лирика без объекта = PG-13.')
+  lines.push('- **T14** (вердикт T4-03, «чулки сквозь джинсы, майка поверх рубашки»): слоевой хаос — ≥3 верхних слоя или ≥5 предметов путают порядок; зона сигнала ≤1 слой.')
   lines.push('')
   lines.push('---')
   lines.push('')
