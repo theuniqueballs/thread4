@@ -62,6 +62,43 @@ algorithmically suppressed on Yodayo — X slots are art-for-art, priced
 accordingly. The old X stub (open mouth + bare state doubled + fantasy
 anatomy) is RETIRED — each tier now has a full recipe.
 
+**§4-поправка (таблица приёмов автора, 2026-09-21 — «PG-13 → R → R+ →
+X Cut», буру-стиль для Tsubaki 2 / PixAI) — РЕЙТИНГ = СУММА СЛОЁВ,
+X CUT = ОДИН ЖЁСТКИЙ ФАКТ.**
+Таблица формализована как типизированный спек
+`specs/rating-techniques.json` (карта: куда теги ●/○ попадают; закон:
+сумма факторов; удержание: X Cut hold; факторы вне промпта) — рецепт
+v1.3.0 навигирует по ней:
+- **Принцип «для идиота» — четыре слоя**: (1) что видно (одежда/грудь);
+  (2) как показано (камера/поза); (3) зачем показано (лицо/настроение/
+  ecchi-подача); (4) что модель дорисовывает сама (вода/прозрачность/
+  «случайные» оголения). Чем больше слоёв включено, тем выше рейтинг.
+- **Закон суммы факторов (блок 8)**: 1 сигнал = PG-13/R; 2 R-сигнала =
+  R/R+ граница; **3+ R-сигнала через 2+ слоя = R+**; 3+ сильных + ecchi =
+  риск сорваться в X; R+ + мокрая ткань + просвечивание = очень высокий
+  риск нечаянного X. Гейт `technique-layers` (warn) даёт квитанцию на
+  каждый R+ кадр, не набравший сумму; advisory `technique-map` печатает
+  карту слоёв каждого R+/X кадра.
+- **X Cut = один жёсткий факт** (видимый сосок или ареола), не сумма
+  намёков — всё остальное (R, R+) есть лестница к этому факту.
+- **X Cut hold (блок 9)**: низ тела вне кадра (upper body / portrait /
+  cowboy shot) или в одежде (skirt/shorts/panties/pants); позы без
+  раскрытия ног; solo; полный граничный NEG (рецепт v1.3.0: + penis,
+  cum, uncensored, spread legs, nude lower body) — hard-гейт (rating-
+  recipe); кадрирование/закрытый низ — warn-квитанция (technique-layers).
+- **Ловушки** (модель дорисовывает X сама): covering breasts, hair
+  covering breasts, almost naked, torn clothes, clothes pull, bath/
+  bathhouse/onsen, undressing, steam censor — квитанция при встрече в
+  R+ тег-блоке. **Супрессоры** (держат PG-13): standing+shy, magazine
+  cover, fashion editorial.
+- **Факторы вне промпта (блок 10)**: модель/LoRA, веса тегов `(tag:1.2)`,
+  CFG, sampler/steps, соотношение сторон, **порядок тегов (ранние весят
+  больше — независимое подтверждение рендер-закона №5)**, правила
+  платформы.
+- Конфликт карта↔вердикт решает вердикт: cameltoe в таблице автора
+  отсутствует (= рендер-мёртв, T4-03) — карта подтверждает закон, не
+  оспаривая его.
+
 ## §5. VOLT LIVES ON THE BODY. NICHE LIVES ANYWHERE.
 
 **VOLT** (the erotic genre) must sit on body/fabric — visible on the

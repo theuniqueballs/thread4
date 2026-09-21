@@ -103,6 +103,8 @@ THE RENDER LAW (render verdict T4-03 — 24 renders, the author's eye): the rend
 
 NAMES NEVER ENTER POS (author's order, T4-04): no character names anywhere in POS — tags or prose. Names trigger the renderer's learned foreign characters. Describe her by species / anatomy / hair / eyes / skin descriptors only; the name lives in the slot header and Canon line, which the renderer never reads.
 
+THE TECHNIQUE MAP (author's table, 2026-09-21 — full map: specs/rating-techniques.json): a tier is a SUM OF LAYERS. Four layers: (1) WHAT is shown — clothes / breast tags; (2) HOW it is shown — camera / pose tags; (3) WHY it is shown — face / mood / ecchi-intent tags; (4) WHAT the model draws itself — water / sheer / «accident» tags. R+ = 3+ R-ladder signals across 2+ layers (2 signals is the R/R+ border, 1 is PG-13/R). X Cut = ONE hard fact — a visible nipple or areola — never a sum of hints; the lower body stays out of frame (upper body / portrait / cowboy shot) or clothed (skirt / shorts / panties / pants), never spread legs. TRAPS (the model draws the X itself): covering breasts, hair covering breasts, almost naked, torn clothes, clothes pull, bath/bathhouse/onsen, undressing. SUPPRESSORS (hold a frame at PG-13): standing+shy, magazine cover, fashion editorial. An R+ frame spreads its signals across layers — the claim (1) + the fabric state (4) + at least one camera/pose/intent tag (2 or 3); «looks erotic but does nothing» is the failure this kills.
+
 GENRES — the author must see the difference at a glance:
 - OC: her canon locks exact; the batch law rides her assigned theme.
 - NICHE: the IMPOSSIBLE image. The race's anatomy does PHYSICAL WORK in the frame (mechanism, not costume) — race tags in the tag block, the impossibility is the FIRST read of the silhouette, the witness object holds the frame.
@@ -233,6 +235,12 @@ function slotFrame(slot: SlotPlan, ctx: ScribeCtx): string {
       )
     }
     lines.push(`tier boundary: do NOT use higher-tier signals (${higherTierSignals(slot.rating, ctx.recipes).join(', ')}) — the counter-negatives are added by the machine`)
+  }
+  if (slot.rating === 'R+') {
+    lines.push(`TECHNIQUE MAP (блок 8 — сумма слоёв): 3+ R-сигнала через 2+ слоя — заявка (слой 1) + состояние ткани (слой 4) + ≥1 кадровый тег (слой 2: from below / close-up / bent over / back arch; или слой 3: seductive smile / bedroom eyes / fanservice). Ловушки — не пиши: covering breasts, hair covering breasts, almost naked, torn clothes, clothes pull, bath/onsen, undressing. Супрессоры — не пиши: standing+shy, magazine cover, fashion editorial.`)
+  }
+  if (slot.rating === 'X') {
+    lines.push(`X CUT HOLD (блок 9): ОДИН жёсткий факт (видимый сосок/ареола), не сумма намёков; низ — вне кадра (upper body / portrait / cowboy shot) или в одежде (skirt / shorts / panties / pants); БЕЗ spread legs — машина ставит полный граничный NEG (включая penis, cum, uncensored, nude lower body).`)
   }
   return lines.join('\n')
 }

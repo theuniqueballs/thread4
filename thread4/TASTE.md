@@ -95,6 +95,21 @@ decision. Sources: 3.2 SUCCESS_LOG (S001–S011, RF-001..003), the author's
 - **Repeat business: the author re-ordered ELDRITCH-CONTACT himself at
   higher intensity after seeing it rendered (S007)** — staging that reads
   as architecture, not tentacle-cliché; the tar as throne-arms.
+- **ТЕХНИКА-КАРТА РЕЙТИНГА (таблица автора, 2026-09-21 — «PG-13 → R → R+ →
+  X Cut»)** — автор сам передал полную таблицу приёмов (буру-стиль,
+  Tsubaki 2 / PixAI): принцип «для идиота» — ЧЕТЫРЕ СЛОЯ (что видно /
+  как показано / зачем показано / что модель дорисовывает сама), «чем
+  больше слоёв включено, тем выше рейтинг»; «X CUT = ОДИН ЖЁСТКИЙ ФАКТ,
+  а не сумма намёков — всё остальное лестница к нему»; сумма факторов
+  (3+ R-сигнала через 2+ слоя = R+); ловушки (модель дорисовывает сосок
+  сама: covering breasts / almost naked / torn clothes / bath-onsen /
+  undressing); супрессоры (standing+shy / magazine cover держат PG-13);
+  X Cut hold (низ вне кадра или в одежде + полный граничный NEG);
+  факторы вне промпта (веса тегов, CFG, sampler, порядок тегов — ранние
+  весят больше). Формализована: specs/rating-techniques.json v1.0.0
+  (104 приёма), рецепт v1.3.0, гейты technique-layers + technique-map,
+  конституция §4-поправка. cameltoe в таблице автора ОТСУТСТВУЕТ —
+  независимое подтверждение рендер-закона (тег рендер-мёртв).
 
 ### Empirics from the Claude thread (N30/N31, live-tested) [C]
 - Jellyfish-kin and harpy-kin confirmed gold by direct feedback.
@@ -226,3 +241,8 @@ decision. Sources: 3.2 SUCCESS_LOG (S001–S011, RF-001..003), the author's
    named — geometry is part of the beauty (T4-02 receipt).
 10. The renderer is a tag-reader, not a poet: fabric states and coverage
     NEGs render; shape names and physics promises do not (T4-03 render).
+11. A tier is a SUM OF LAYERS (таблица автора, блок 8): R+ = 3+ сигнала
+    через 2+ слоя — заявка (что видно) + состояние ткани (модель
+    дорисовывает) + кадр (камера/поза) или намерение (лицо/ecchi).
+    Один слой, сколько бы тегов в нём ни было, — это граница R/R+,
+    не R+ (техника-карта v1.0.0; квитанция technique-layers).

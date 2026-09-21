@@ -1,13 +1,13 @@
 {
   "slug": "T4-04",
   "title": "Paid in Thread",
-  "date": "2026-09-21T18:36:19.724Z",
+  "date": "2026-09-21T20:26:02.700Z",
   "theme": "The Price of a Wish",
   "engine": "cantus",
   "hardPass": true,
   "firstRunClean": false,
-  "sha10": "1fbb1af853",
-  "run": 2,
+  "sha10": "f7b1d6923e",
+  "run": 3,
   "receipts": [
     {
       "gate": "structure",
@@ -84,6 +84,19 @@
       "findings": []
     },
     {
+      "gate": "technique-layers",
+      "level": "warn",
+      "verdict": "WARN",
+      "findings": [
+        "P4: сумма факторов не набрана — 2 сигнал(а) через 2 слой(я) (видимо+зачем)· блок 8: R+ = 3+ сигнала через 2+ слоя — это R/R+ граница, не R+ сумма; карта кадра: taped nipples, fanservice",
+        "P8: сумма факторов не набрана — 2 сигнал(а) через 2 слой(я) (видимо+зачем)· блок 8: R+ = 3+ сигнала через 2+ слоя — это R/R+ граница, не R+ сумма; карта кадра: taped nipples, fanservice",
+        "P15: сумма факторов не набрана — 3 сигнал(а) через 1 слой(я) (видимо)· блок 8: R+ = 3+ сигнала через 2+ слоя — это R/R+ граница, не R+ сумма; карта кадра: backless dress, panties visible, corset",
+        "P16: ловушка «bath, bathhouse, onsen» — самый частый путь к X через «случайное» — ЛОВУШКА (X-риск известен до рендера)",
+        "P24: сумма факторов не набрана — 2 сигнал(а) через 2 слой(я) (видимо+дорисовывает)· блок 8: R+ = 3+ сигнала через 2+ слоя — это R/R+ граница, не R+ сумма; карта кадра: nipple outline, see-through",
+        "осознанный X-риск (блок 8, строка 5): 9 R+ слотов несут мокрое+сквозное (P1, P2, P3, P5, P6, P14, P16, P18, P22) — очень высокий риск нечаянного X при рендере; это рабочий механизм рецепта v1.2.0, автор фильтрует перекидкой"
+      ]
+    },
+    {
       "gate": "simcheck",
       "level": "warn",
       "verdict": "PASS",
@@ -104,6 +117,30 @@
       "findings": [
         "носителей в стеках: 89; уникальных: 89",
         "R+ слотов: 15; X: 2"
+      ]
+    },
+    {
+      "gate": "technique-map",
+      "level": "advisory",
+      "verdict": "REPORT",
+      "findings": [
+        "P01 R+: 5 сигнал(ов) · слои 1·видимо + 4·дорисовывает · corset, nipple outline, see-through, wet clothes, shower",
+        "P02 R+: 4 сигнал(ов) · слои 1·видимо + 4·дорисовывает · corset, nipple outline, see-through, wet clothes",
+        "P03 R+: 4 сигнал(ов) · слои 1·видимо + 4·дорисовывает · corset, open shirt, see-through, wet clothes",
+        "P04 R+: 2 сигнал(ов) · слои 1·видимо + 3·зачем · taped nipples, fanservice",
+        "P05 R+: 5 сигнал(ов) · слои 1·видимо + 4·дорисовывает · corset, nipple outline, see-through, wet clothes, sweat",
+        "P06 R+: 6 сигнал(ов) · слои 1·видимо + 4·дорисовывает · high slit, garter belt, corset, nipple outline, see-through, wet clothes",
+        "P07 R+: 3 сигнал(ов) · слои 2·как + 4·дорисовывает · sheer, see-through, arched back",
+        "P08 R+: 2 сигнал(ов) · слои 1·видимо + 3·зачем · taped nipples, fanservice",
+        "P10 R+: 4 сигнал(ов) · слои 1·видимо + 3·зачем · latex, underboob, taped nipples, fanservice",
+        "P13 X: 2 сигнал(ов) · слои 1·видимо · topless, no bra",
+        "P14 R+: 5 сигнал(ов) · слои 1·видимо + 4·дорисовывает · nipple outline, see-through, wet clothes, wet, shower",
+        "P15 R+: 3 сигнал(ов) · слои 1·видимо · backless dress, panties visible, corset",
+        "P16 R+: 6 сигнал(ов) · слои 1·видимо + 3·зачем + 4·дорисовывает · bikini, garter belt, nipple outline, see-through, wet clothes, bath",
+        "P18 R+: 7 сигнал(ов) · слои 1·видимо + 3·зачем + 4·дорисовывает · underboob, nipple outline, sheer, see-through, wet clothes, shower, fanservice",
+        "P20 X: 3 сигнал(ов) · слои 1·видимо + 3·зачем · topless, blush, rim light",
+        "P22 R+: 5 сигнал(ов) · слои 1·видимо + 4·дорисовывает · corset, nipple outline, see-through, wet clothes, shower",
+        "P24 R+: 2 сигнал(ов) · слои 1·видимо + 4·дорисовывает · nipple outline, see-through"
       ]
     }
   ]

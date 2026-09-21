@@ -671,6 +671,234 @@ function RatingRecipesView({ spec, filter }: { spec: unknown; filter: string }) 
 }
 
 /* ------------------------------------------------------------------ */
+/* Rating techniques — авторская таблица приёмов (PG-13 → R → R+ → X)  */
+/* ------------------------------------------------------------------ */
+
+function EffMark({ v }: { v: unknown }) {
+  const s = asStr(v)
+  if (s === '●') return <span className="inline-block text-center text-[13px] leading-none text-amber-300">●</span>
+  if (s === '○') return <span className="inline-block text-center text-[13px] leading-none text-zinc-500">○</span>
+  return <span className="inline-block text-center text-[13px] leading-none text-zinc-700">·</span>
+}
+
+function RatingTechniquesView({ spec, filter }: { spec: unknown; filter: string }) {
+  const root = asRecord(spec)
+  const techniques = asArray(root.techniques)
+  if (techniques.length === 0) return <GenericSpecView data={spec} filter={filter} />
+
+  const principle = asRecord(root.principle)
+  const layers = asArray(principle.layers).map((l, i) => {
+    const rec = asRecord(l) ?? {}
+    return { n: i + 1, name: asStr(rec.name) || `слой ${i + 1}`, note: asStr(rec.note) || '' }
+  })
+  const blocks = asRecord(root.blocks)
+  const sumRules = asRecord(root.sum_rules)
+  const floor = asRecord(sumRules.rplus_floor)
+  const sumRows = asArray(sumRules.rows)
+  const xcut = asRecord(root.xcut_hold)
+  const outside = asArray(asRecord(root.outside_prompt).factors)
+  const cheat = asArray(asRecord(root.cheat_sheet).rows)
+
+  const rows = techniques.map((t) => {
+    const rec = asRecord(t) ?? {}
+    return {
+      tag: asStr(rec.tag),
+      block: asStr(rec.block) || '?',
+      layer: asStr(rec.layer) || '?',
+      pg13: rec.pg13,
+      r: rec.r,
+      rplus: rec.rplus,
+      x: rec.x,
+      note: asStr(rec.note),
+      trap: rec.trap === true,
+      suppressor: rec.suppressor === true,
+      bridge: rec.bridge === true,
+      raw: t,
+    }
+  })
+  const shown = rows.filter((r) => matches(r.raw, filter))
+  const blockIds = [...new Set(rows.map((r) => r.block))]
+  const trapCount = rows.filter((r) => r.trap).length
+  const bridgeCount = rows.filter((r) => r.bridge).length
+
+  if (shown.length === 0) return <FilterEmpty filter={filter} />
+
+  return (
+    <div className="space-y-6">
+      {/* принцип «для идиота» */}
+      <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-4">
+        <div className="text-[10px] font-semibold uppercase tracking-widest text-amber-300/80">
+          принцип «для идиота» — {asStr(principle.for_idiots)}
+        </div>
+        <div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+          {layers.map((l) => (
+            <div key={l.n} className="rounded-md border border-zinc-800 bg-zinc-900/60 px-3 py-2">
+              <div className="text-xs font-semibold text-zinc-200">
+                <span className="mr-1.5 font-mono text-amber-300">{l.n}</span>{l.name}
+              </div>
+              <div className="mt-0.5 text-[11px] leading-relaxed text-zinc-500">{l.note}</div>
+            </div>
+          ))}
+        </div>
+        <p className="mt-3 border-l-2 border-amber-500/40 pl-3 text-xs italic leading-relaxed text-amber-200/80">
+          {asStr(principle.x_cut_one_fact)}
+        </p>
+        <p className="mt-2 text-[11px] leading-relaxed text-zinc-500">{asStr(root.relation)}</p>
+        <p className="mt-1 text-[11px] leading-relaxed text-zinc-600">{asStr(root.source)}</p>
+      </div>
+
+      {/* таблица приёмов по блокам */}
+      <div>
+        <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+          <div className="text-[10px] font-semibold uppercase tracking-widest text-zinc-500">
+            карта приёмов · {shown.length}/{rows.length} · ● обычно · ○ иногда · · нет
+          </div>
+          <div className="flex gap-1">
+            <Chip tone="rose">ловушки {trapCount}</Chip>
+            <Chip tone="emerald">мост рецепта {bridgeCount}</Chip>
+          </div>
+        </div>
+        <div className="space-y-4">
+          {blockIds.map((bid) => {
+            const brows = shown.filter((r) => r.block === bid)
+            if (brows.length === 0) return null
+            return (
+              <div key={bid} className="overflow-hidden rounded-lg border border-zinc-800">
+                <div className="border-b border-zinc-800 bg-zinc-900/80 px-4 py-2 text-xs font-semibold text-zinc-300">
+                  блок {bid} — {asStr(blocks[bid]) || ''}
+                </div>
+                <div className="max-h-96 overflow-y-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="border-zinc-800 hover:bg-transparent">
+                        <TableHead className="h-8 w-[34%] text-[11px] text-zinc-500">приём / тег</TableHead>
+                        <TableHead className="h-8 w-[7%] text-center text-[11px] text-zinc-500">PG-13</TableHead>
+                        <TableHead className="h-8 w-[7%] text-center text-[11px] text-zinc-500">R</TableHead>
+                        <TableHead className="h-8 w-[7%] text-center text-[11px] text-zinc-500">R+</TableHead>
+                        <TableHead className="h-8 w-[7%] text-center text-[11px] text-zinc-500">X</TableHead>
+                        <TableHead className="h-8 text-[11px] text-zinc-500">что происходит</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {brows.map((r, i) => (
+                        <TableRow key={i} className="border-zinc-800/70">
+                          <TableCell className="py-1.5 pr-2 font-mono text-[11px] text-zinc-200">
+                            {r.tag}
+                            {r.trap ? <span className="ml-1.5 rounded border border-rose-500/50 bg-rose-500/15 px-1 py-px text-[9px] font-sans font-semibold text-rose-400">ловушка</span> : null}
+                            {r.suppressor ? <span className="ml-1.5 rounded border border-emerald-500/40 bg-emerald-500/10 px-1 py-px text-[9px] font-sans font-semibold text-emerald-300">супрессор</span> : null}
+                            {r.bridge ? <span className="ml-1.5 rounded border border-zinc-600 bg-zinc-800/60 px-1 py-px text-[9px] font-sans font-semibold text-zinc-400">мост v1.2.0</span> : null}
+                          </TableCell>
+                          <TableCell className="py-1.5 text-center"><EffMark v={r.pg13} /></TableCell>
+                          <TableCell className="py-1.5 text-center"><EffMark v={r.r} /></TableCell>
+                          <TableCell className="py-1.5 text-center"><EffMark v={r.rplus} /></TableCell>
+                          <TableCell className="py-1.5 text-center"><EffMark v={r.x} /></TableCell>
+                          <TableCell className="py-1.5 pl-2 text-[11px] leading-snug text-zinc-500">{r.note}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* блок 8 — сумма факторов */}
+      {sumRows.length > 0 && matches(sumRules, filter) ? (
+        <div className="rounded-lg border border-amber-500/30 bg-zinc-900/60 p-4">
+          <div className="text-[10px] font-semibold uppercase tracking-widest text-amber-300/80">
+            блок 8 — сумма факторов: как получается R+
+          </div>
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <Chip tone="amber">R+ = ≥{asStr(floor.signals_min) || 3} сигнала</Chip>
+            <Chip tone="amber">через ≥{asStr(floor.layers_min) || 2} слоя</Chip>
+          </div>
+          <div className="mt-3 space-y-1.5">
+            {sumRows.map((row, i) => {
+              const rec = asRecord(row) ?? {}
+              return (
+                <div key={i} className="flex flex-col gap-0.5 rounded-md border border-zinc-800 bg-zinc-900/60 px-3 py-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+                  <span className="text-xs text-zinc-300">{asStr(rec.combo)}</span>
+                  <span className="shrink-0 font-mono text-[11px] text-amber-200/80">{asStr(rec.tiers)}</span>
+                </div>
+              )
+            })}
+          </div>
+          <p className="mt-2 text-[11px] leading-relaxed text-zinc-500">{asStr(sumRules.note)}</p>
+        </div>
+      ) : null}
+
+      {/* блок 9 — X Cut hold */}
+      {Object.keys(xcut).length > 0 && matches(xcut, filter) ? (
+        <div className="rounded-lg border border-rose-500/30 bg-rose-500/5 p-4">
+          <div className="text-[10px] font-semibold uppercase tracking-widest text-rose-300/80">
+            блок 9 — X Cut hold: как удержать, не улетая дальше
+          </div>
+          <p className="mt-2 text-xs leading-relaxed text-zinc-300">{asStr(xcut.definition)}</p>
+          <div className="mt-3 grid gap-3 md:grid-cols-2">
+            <div className="rounded-md border border-zinc-800 bg-zinc-900/60 p-3">
+              <div className="mb-1.5 font-mono text-[11px] text-zinc-400">кадрирование (низ вне кадра)</div>
+              <div className="flex flex-wrap gap-1">{pickStrArray({ v: xcut.framing }, 'v').map((s, i) => <Chip key={i}>{s}</Chip>)}</div>
+              <div className="mb-1.5 mt-3 font-mono text-[11px] text-zinc-400">низ в одежде</div>
+              <div className="flex flex-wrap gap-1">{pickStrArray({ v: xcut.lower_cover }, 'v').map((s, i) => <Chip key={i}>{s}</Chip>)}</div>
+            </div>
+            <div className="rounded-md border border-zinc-800 bg-zinc-900/60 p-3">
+              <div className="mb-1.5 font-mono text-[11px] text-zinc-400">граничный NEG (рецепт v1.3.0 — hard)</div>
+              <div className="flex flex-wrap gap-1">{pickStrArray({ v: xcut.neg_block }, 'v').map((s, i) => <Chip key={i} tone="rose">{s}</Chip>)}</div>
+              <div className="mb-1.5 mt-3 font-mono text-[11px] text-zinc-400">позы без раскрытия ног</div>
+              <div className="flex flex-wrap gap-1">{pickStrArray({ v: xcut.poses }, 'v').map((s, i) => <Chip key={i}>{s}</Chip>)}</div>
+            </div>
+          </div>
+          <p className="mt-2 text-[11px] leading-relaxed text-zinc-500">{asStr(xcut.neg_block_note)}</p>
+        </div>
+      ) : null}
+
+      {/* блок 10 — вне промпта */}
+      {outside.length > 0 && matches(asRecord(root.outside_prompt), filter) ? (
+        <div>
+          <div className="mb-2 text-[10px] font-semibold uppercase tracking-widest text-zinc-500">
+            блок 10 — что влияет вне самого промпта
+          </div>
+          <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+            {outside.map((f, i) => {
+              const rec = asRecord(f) ?? {}
+              return (
+                <div key={i} className="rounded-md border border-zinc-800 bg-zinc-900/60 px-3 py-2">
+                  <div className="text-[11px] font-semibold text-zinc-200">{asStr(rec.factor)}</div>
+                  <div className="mt-0.5 text-[11px] leading-relaxed text-zinc-500">{asStr(rec.effect)}</div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      ) : null}
+
+      {/* шпаргалка */}
+      {cheat.length > 0 && matches(asRecord(root.cheat_sheet), filter) ? (
+        <div>
+          <div className="mb-2 text-[10px] font-semibold uppercase tracking-widest text-zinc-500">
+            шпаргалка — один кадр, четыре рейтинга
+          </div>
+          <div className="space-y-1.5">
+            {cheat.map((row, i) => {
+              const rec = asRecord(row) ?? {}
+              return (
+                <div key={i} className="flex flex-col gap-1 rounded-md border border-zinc-800 bg-zinc-900/60 px-3 py-2 sm:flex-row sm:items-center sm:gap-3">
+                  <RatingBadge rating={asStr(rec.tier)} />
+                  <span className="font-mono text-[11px] leading-snug text-zinc-400">{asStr(rec.delta)}</span>
+                </div>
+              )
+            })}
+          </div>
+          <p className="mt-2 text-[11px] leading-relaxed text-zinc-600">{asStr(asRecord(root.cheat_sheet).note)}</p>
+        </div>
+      ) : null}
+    </div>
+  )
+}
+
+/* ------------------------------------------------------------------ */
 /* Races — status badges (gold=amber, banned=red)                      */
 /* ------------------------------------------------------------------ */
 
@@ -1137,6 +1365,8 @@ export function SpecView({ id, spec, filter }: { id: string; spec: unknown; filt
       return <OcCanonView spec={spec} filter={filter} />
     case 'rating-recipes':
       return <RatingRecipesView spec={spec} filter={filter} />
+    case 'rating-techniques':
+      return <RatingTechniquesView spec={spec} filter={filter} />
     case 'races':
       return <RacesView spec={spec} filter={filter} />
     case 'pools':

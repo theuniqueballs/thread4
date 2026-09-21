@@ -172,6 +172,34 @@ async function main() {
     const poses = inv.find((s) => s.id === 'poses')
     check('poses == 240', poses?.count === 240)
 
+    // техника-карта (таблица автора, 2026-09-21)
+    const tech = inv.find((s) => s.id === 'rating-techniques')
+    check('техника-карта в инвентаре (>=100 приёмов)', (tech?.count ?? 0) >= 100)
+    const recipes = inv.find((s) => s.id === 'rating-recipes')
+    check('рецепт v1.3.0 (X Cut hold вшит)', recipes?.version === '1.3.0')
+    {
+      const { getRatingRecipes, getRatingTechniques } = await import('../src/lib/t4/specs')
+      const rt = getRatingTechniques()
+      const rr = getRatingRecipes()
+      check('сумма факторов: R+ = 3+ сигнала через 2+ слоя',
+        rt?.sum_rules.rplus_floor.signals_min === 3 && rt?.sum_rules.rplus_floor.layers_min === 2)
+      check('X Cut hold: 5 новых терминов NEG в рецепте X',
+        ['penis', 'cum', 'uncensored', 'spread legs', 'nude lower body'].every((t) =>
+          (rr?.tiers.X.counter_neg ?? []).includes(t)))
+      check('cameltoe в карта не сигнал (рендер-мёртв)',
+        rt?.techniques.find((e) => e.tag.startsWith('cameltoe'))?.rplus === '')
+      // слой-скорер на синтетическом тег-блоке (T4-04 P01-подобный кадр)
+      const synth = 'student, steam damp blouse, wet clothes, see-through, nipples through clothing, tight clothes, steam press room, kneeling forward reach, brass key'
+      const boilerRe = /\b(?:hentai anime style|ecchi anime style|anime style|masterpiece|best quality|anime artstyle|1girl|solo)\b/gi
+      const tb = synth.toLowerCase().replace(boilerRe, ' ')
+      const hit = (m: string[][]) => m.some((alt) => alt.every((s) => new RegExp(`\\b${s}\\b`).test(tb)))
+      const hits = (rt?.techniques ?? []).filter((e) => e.match.length > 0 && hit(e.match))
+      const ladder = hits.filter((e) => e.r === '●' || e.rplus === '●' || e.x === '●')
+      const layers = new Set(ladder.map((e) => e.layer))
+      check('синтет-скорер: wet+see-through кадр = 3+ сигнала через 2+ слоя',
+        ladder.length >= 3 && layers.size >= 2)
+    }
+
     // compile determinism (dryRun — no events/files pollution)
     const c1 = compileBatch('selftest-тема', { seed: 42, exquisite: 1, exploratory: 0, ocOrders: ['Sue', 'Miyu', 'Yui'], dryRun: true })
     const c2 = compileBatch('selftest-тема', { seed: 42, exquisite: 1, exploratory: 0, ocOrders: ['Sue', 'Miyu', 'Yui'], dryRun: true })

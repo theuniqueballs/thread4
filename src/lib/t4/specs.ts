@@ -197,6 +197,73 @@ export interface RatingRecipesSpec {
   default_spread: { mains_21: Record<string, number>; note: string }
 }
 
+/* ------------------------- rating techniques ----------------------- */
+
+/** Одна строка таблицы приёмов автора (блоки 1–7): куда тег обычно попадает.
+ *  ●/○ — efficacy из таблицы, перенесена дословно; пусто = не работает. */
+export interface TechniqueEntry {
+  tag: string
+  /** альтернативы; внутри альтернативы — подстроки через И */
+  match: string[][]
+  block: number
+  /** 1 что видно · 2 как показано · 3 зачем показано · 4 модель дорисовывает */
+  layer: number
+  pg13: string
+  r: string
+  rplus: string
+  x: string
+  note?: string
+  /** мост из рецепта v1.2.0 (таблица автора этого тега не знает) */
+  bridge?: boolean
+  /** ловушка: модель часто дорисовывает сосок/низ сама */
+  trap?: boolean
+  /** супрессор: держит кадр в PG-13/R */
+  suppressor?: boolean
+}
+
+export interface RatingTechniquesSpec {
+  version: string
+  born: string
+  source: string
+  relation: string
+  principle: {
+    for_idiots: string
+    layers: { n: number; name: string; blocks: number[]; note: string }[]
+    x_cut_one_fact: string
+  }
+  efficacy_legend: Record<string, string>
+  blocks: Record<string, string>
+  match_semantics: string
+  techniques: TechniqueEntry[]
+  sum_rules: {
+    born: string
+    note: string
+    rplus_floor: { signals_min: number; layers_min: number; why: string }
+    rows: { combo: string; tiers: string }[]
+  }
+  xcut_hold: {
+    born: string
+    definition: string
+    framing: string[]
+    lower_cover: string[]
+    poses: string[]
+    pos_ban: string[]
+    neg_block: string[]
+    neg_block_note: string
+    solo: string
+    neutral_bg: string
+  }
+  outside_prompt: {
+    born: string
+    factors: { factor: string; effect: string }[]
+  }
+  cheat_sheet: {
+    born: string
+    rows: { tier: string; delta: string }[]
+    note: string
+  }
+}
+
 /* ------------------------------- bans ------------------------------ */
 
 export interface BansSpec {
@@ -251,6 +318,9 @@ export function getRaces(): RaceSpec | null {
 export function getRatingRecipes(): RatingRecipesSpec | null {
   return load<RatingRecipesSpec>('rating-recipes.json')
 }
+export function getRatingTechniques(): RatingTechniquesSpec | null {
+  return load<RatingTechniquesSpec>('rating-techniques.json')
+}
 export function getBans(): BansSpec | null {
   return load<BansSpec>('bans.json')
 }
@@ -280,6 +350,8 @@ export function specInventory(): { id: string; name: string; count: number; vers
   if (r) out.push({ id: 'races', name: 'Расы', count: r.races.length, version: r.version })
   const rr = getRatingRecipes()
   if (rr) out.push({ id: 'rating-recipes', name: 'Рейтинг-рецепты', count: Object.keys(rr.tiers).length, version: rr.version })
+  const rt = getRatingTechniques()
+  if (rt) out.push({ id: 'rating-techniques', name: 'Техника-карта рейтинга', count: rt.techniques.length, version: rt.version })
   const b = getBans()
   if (b) out.push({ id: 'bans', name: 'Баны и форма', count: b.banned_patterns.length, version: b.version })
   const po = getPools()

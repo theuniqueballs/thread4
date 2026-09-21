@@ -1,0 +1,911 @@
+     1→/**
+     2→ * THREAD 4 core — THE GATES (constitution §4, §9).
+     3→ *
+     4→ * Three tiers: hard (a delivered batch passes these FIRST RUN — always),
+     5→ * warn (receipted, must be acknowledged in the batch worklog), advisory
+     6→ * (reports only). The rating gate grades every slot against its recipe;
+     7→ * the diversity gate reads the same constants the contract printed.
+     8→ */
+     9→import crypto from 'node:crypto'
+    10→import path from 'node:path'
+    11→
+    12→import { BATCHES_DIR, CONTRACTS_DIR, readJson, readText } from './fsutil'
+    13→import { appendEvent, foldState, readEvents } from './events'
+    14→import { getBans, getCarriers, getOCCanon, getRaces, getRatingRecipes } from './specs'
+    15→import { LAWS } from './compiler'
+    16→
+    17→export type GateLevel = 'hard' | 'warn' | 'advisory'
+    18→export type Verdict = 'PASS' | 'FAIL' | 'WARN' | 'REPORT'
+    19→
+    20→export interface GateReceipt {
+    21→  gate: string
+    22→  level: GateLevel
+    23→  verdict: Verdict
+    24→  findings: string[]
+    25→}
+    26→
+    27→export interface GatesResult {
+    28→  slug: string
+    29→  runIndex: number
+    30→  sha10: string
+    31→  receipts: GateReceipt[]
+    32→  hardPass: boolean
+    33→  firstRunClean: boolean
+    34→  at: string
+    35→}
+    36→
+    37→/* ------------------------------------------------------------------ */
+    38→/* Batch file parsing                                                  */
+    39→/* ------------------------------------------------------------------ */
+    40→
+    41→export interface ParsedSlot {
+    42→  position: number
+    43→  header: string
+    44→  anchor: string
+    45→  meta: string
+    46→  genre: string // OC | NICHE | VOLT | EXQUISITE ('' if absent)
+    47→  thesis: string
+    48→  canon: string
+    49→  stack: string[]
+    50→  pos: string
+    51→  neg: string
+    52→}
+    53→
+    54→export interface ParsedBatch {
+    55→  slug: string
+    56→  text: string
+    57→  title: string
+    58→  slots: ParsedSlot[]
+    59→}
+    60→
+    61→const GENRES = ['OC', 'NICHE', 'VOLT', 'EXQUISITE'] as const
+    62→
+    63→function genreOf(meta: string): string {
+    64→  const u = meta.toUpperCase()
+    65→  for (const g of GENRES) {
+    66→    if (new RegExp(`\\b${g}\\b`).test(u)) return g
+    67→  }
+    68→  return ''
+    69→}
+    70→
+    71→export function parseBatch(slug: string, text: string): ParsedBatch {
+    72→  const titleMatch = /#\s*THREAD 4[^\n]*?Batch\s+(T4-\d+)[^\n]*?["«]([^"»]+)["»]/i.exec(text)
+    73→  const title = titleMatch ? titleMatch[2] : ''
+    74→  const slots: ParsedSlot[] = []
+    75→  const slotRe = /^P(\d{1,2})\s*—\s*(.+)$/gm
+    76→  const marks: { pos: number; n: number; anchor: string }[] = []
+    77→  let m: RegExpExecArray | null
+    78→  while ((m = slotRe.exec(text)) !== null) {
+    79→    marks.push({ pos: m.index, n: parseInt(m[1], 10), anchor: m[2] })
+    80→  }
+    81→  for (let i = 0; i < marks.length; i++) {
+    82→    const from = marks[i].pos
+    83→    const to = i + 1 < marks.length ? marks[i + 1].pos : text.length
+    84→    const block = text.slice(from, to)
+    85→    const lines = block.split('\n')
+    86→    const header = lines[0] ?? ''
+    87→    const grab = (key: string): string => {
+    88→      const re = new RegExp(`^${key}:\\s*(.*)$`, 'm')
+    89→      const mm = re.exec(block)
+    90→      return mm ? mm[1].trim() : ''
+    91→    }
+    92→    const posMatch = /^POS:\s*\n([\s\S]*?)(?=\nNEG:|\n[^ \n]|\n*$)/m.exec(block)
+    93→    const negMatch = /^NEG:\s*\n([\s\S]*?)(?=\n[^ \n]|\n*$)/m.exec(block)
+    94→    const stackLine = grab('Stack')
+    95→    slots.push({
+    96→      position: marks[i].n,
+    97→      header,
+    98→      anchor: marks[i].anchor.replace(/\s*\(.*$/, ''),
+    99→      meta: header.replace(/^[^（(]*[（(]/, '').replace(/[)）]\s*$/, ''),
+   100→      genre: genreOf(header.replace(/^[^（(]*[（(]/, '').replace(/[)）]\s*$/, '')),
+   101→      thesis: grab('THESIS'),
+   102→      canon: grab('Canon'),
+   103→      stack: stackLine
+   104→        ? (stackLine.match(/CR-[A-Z]\d{2}/g) ?? [])
+   105→        : [],
+   106→      pos: posMatch ? posMatch[1].trim() : '',
+   107→      neg: negMatch ? negMatch[1].trim() : '',
+   108→    })
+   109→  }
+   110→  return { slug, text, title, slots }
+   111→}
+   112→
+   113→/* ------------------------------------------------------------------ */
+   114→/* Helpers                                                             */
+   115→/* ------------------------------------------------------------------ */
+   116→
+   117→const TIER_ORDER: Record<string, number> = { 'PG-13': 0, PG13: 0, R: 1, 'R+': 2, RPLUS: 2, X: 3, XXX: 4 }
+   118→
+   119→function tierOf(meta: string): string {
+   120→  const u = meta.toUpperCase()
+   121→  // order matters: XXX before X, R+ before R («R+ ·» — \b after '+' never fires)
+   122→  if (/\bXXX\b/.test(u)) return 'XXX'
+   123→  if (/\bR\+/.test(u) || /\bRPLUS\b/.test(u)) return 'R+'
+   124→  if (/\bPG-13\b/.test(u) || /\bPG13\b/.test(u)) return 'PG-13'
+   125→  if (/\bX\b/.test(u)) return 'X'
+   126→  if (/\bR\b/.test(u)) return 'R'
+   127→  return ''
+   128→}
+   129→
+   130→function recipeKey(tier: string): string {
+   131→  if (tier === 'PG-13') return 'PG13'
+   132→  if (tier === 'R+') return 'RPLUS'
+   133→  return tier // R, X, XXX
+   134→}
+   135→
+   136→function countSignals(haystackLower: string, signals: string[]): number {
+   137→  let n = 0
+   138→  for (const s of signals) {
+   139→    if (haystackLower.includes(s.toLowerCase())) n += 1
+   140→  }
+   141→  return n
+   142→}
+   143→
+   144→const HEDGES = ['maybe', 'perhaps', 'slightly', 'almost', 'sort of', 'kind of', 'a bit']
+   145→
+   146→const XXX_SIGNALS = [
+   147→  'sex', 'sexual act', 'intercourse', 'penetration', 'creampie', 'cum ',
+   148→  'cumshot', 'semen', 'blowjob', 'handjob', 'masturbat',
+   149→]
+   150→
+   151→/* ------------------------------------------------------------------ */
+   152→/* Gate runner                                                         */
+   153→/* ------------------------------------------------------------------ */
+   154→
+   155→export function runGates(slug: string, dryRun = false): GatesResult | null {
+   156→  const file = readText(path.join(BATCHES_DIR, `${slug}.md`))
+   157→  if (file == null) return null
+   158→
+   159→  const batch = parseBatch(slug, file)
+   160→  const contract = readJson<{
+   161→    slots: { position: number; rating: string; race?: string; carriers: { id: string }[] }[]
+   162→  }>(path.join(CONTRACTS_DIR, `${slug}.json`))
+   163→  const recipes = getRatingRecipes()
+   164→  const bans = getBans()
+   165→  const carriers = getCarriers()
+   166→  const ocCanon = getOCCanon()
+   167→
+   168→  const receipts: GateReceipt[] = []
+   169→  const hard = (gate: string, findings: string[]) =>
+   170→    receipts.push({ gate, level: 'hard', verdict: findings.length ? 'FAIL' : 'PASS', findings })
+   171→  const warn = (gate: string, findings: string[]) =>
+   172→    receipts.push({ gate, level: 'warn', verdict: findings.length ? 'WARN' : 'PASS', findings })
+   173→  const advisory = (gate: string, findings: string[]) =>
+   174→    receipts.push({ gate, level: 'advisory', verdict: 'REPORT', findings })
+   175→
+   176→  /* ---------------- 1. structure (hard) ---------------- */
+   177→  {
+   178→    const f: string[] = []
+   179→    if (batch.slots.length !== LAWS.slotsTotal) {
+   180→      f.push(`слотов ${batch.slots.length}, ожидается ${LAWS.slotsTotal} (${LAWS.ocSlots} OC + ${LAWS.mainsTotal} мейнов — вердикт T4-02)`)
+   181→    }
+   182→    const mains = batch.slots.filter((s) => s.genre !== 'OC')
+   183→    const ocSlots = batch.slots.filter((s) => s.genre === 'OC')
+   184→    if (ocSlots.length !== LAWS.ocSlots) f.push(`OC-слотов ${ocSlots.length}, ожидается ${LAWS.ocSlots}`)
+   185→    if (mains.length !== LAWS.mainsTotal) f.push(`мейнов ${mains.length}, ожидается ${LAWS.mainsTotal}`)
+   186→    for (const s of batch.slots) {
+   187→      if (s.pos === '') f.push(`P${s.position}: пустой POS`)
+   188→      if (s.neg === '') f.push(`P${s.position}: пустой NEG`)
+   189→      if (s.thesis === '') f.push(`P${s.position}: нет THESIS`)
+   190→      if (s.genre === '') f.push(`P${s.position}: жанр не назван в шапке (OC/NICHE/VOLT/EXQUISITE — вердикт T4-02)`)
+   191→      if (s.pos && !/masterpiece/i.test(s.pos)) f.push(`P${s.position}: POS без quality-тегов`)
+   192→      if (s.pos && !/anime eyes/i.test(s.pos)) f.push(`P${s.position}: нет фейс-лока (anime eyes)`)
+   193→      if (s.pos && !/anime style/i.test(s.pos)) f.push(`P${s.position}: нет опенера (anime style)`)
+   194→    }
+   195→    // OC slots must carry canon lines
+   196→    for (const s of batch.slots.filter((x) => x.position <= 3)) {
+   197→      if (s.canon === '') f.push(`P${s.position} (OC): нет Canon-строки`)
+   198→    }
+   199→    hard('structure', f)
+   200→  }
+   201→
+   202→  /* ---------------- 2. floors (hard) ---------------- */
+   203→  {
+   204→    const f: string[] = []
+   205→    const floors = recipes?.eternal_floors ?? {}
+   206→    for (const s of batch.slots) {
+   207→      const neg = s.neg.toLowerCase()
+   208→      for (const term of floors.genital_lock ?? []) {
+   209→        if (!neg.includes(term.toLowerCase())) {
+   210→          f.push(`P${s.position}: генитальный лок пропускает «${term}»`)
+   211→          break
+   212→        }
+   213→      }
+   214→      const loliTerms = floors.anti_loli ?? []
+   215→      const loliHits = loliTerms.filter((t) => neg.includes(t.toLowerCase())).length
+   216→      if (loliHits < 4) {
+   217→        f.push(`P${s.position}: анти-лоли флоор слаб (${loliHits}/${loliTerms.length} терминов) — нужно ≥4`)
+   218→      }
+   219→      for (const term of floors.leak_guard ?? []) {
+   220→        if (!neg.includes(term.toLowerCase())) {
+   221→          f.push(`P${s.position}: лика-гарда пропускает «${term}»`)
+   222→          break
+   223→        }
+   224→      }
+   225→      // candle guard: required unless the concept itself names the light source
+   226→      const posLower = s.pos.toLowerCase()
+   227→      const conceptCalls =
+   228→        /candle|lantern|torch|chandelier|lamp|brazier/.test(posLower)
+   229→      if (!conceptCalls) {
+   230→        for (const term of floors.candle_guard ?? []) {
+   231→          if (!neg.includes(term.toLowerCase())) {
+   232→            f.push(`P${s.position}: свечная гарда пропускает «${term}»`)
+   233→            break
+   234→          }
+   235→        }
+   236→      }
+   237→      // face guard
+   238→      for (const term of floors.face_guard ?? []) {
+   239→        if (!neg.includes(term.toLowerCase())) {
+   240→          f.push(`P${s.position}: фейс-гарда пропускает «${term}»`)
+   241→          break
+   242→        }
+   243→      }
+   244→      // maturity tags (N30): milf is ALWAYS banned in POS; adult woman /
+   245→      // mature female are warn-level (batch-wide MILF skew receipt)
+   246→      if (/\b(milf|milfs)\b/i.test(s.pos)) {
+   247→        f.push(`P${s.position}: тег зрелости в POS («milf») — N30: зрелость только нарративом`)
+   248→      }
+   249→      // XXX never
+   250→      const posLow = s.pos.toLowerCase()
+   251→      for (const t of XXX_SIGNALS) {
+   252→        if (posLow.includes(t)) {
+   253→          f.push(`P${s.position}: XXX-сигнал в POS («${t.trim()}») — вечный потолок`)
+   254→          break
+   255→        }
+   256→      }
+   257→    }
+   258→    hard('floors', f)
+   259→  }
+   260→
+   261→  /* ---------------- 3. rating-recipe (hard) ---------------- */
+   262→  {
+   263→    const f: string[] = []
+   264→    // EXPLORATORY-слоты (§10: 1-2 слота могут нарушать нежёсткий закон с
+   265→    // флагом в THESIS): нарушения RENDER LAW у них — квитанция warn, не
+   266→    // hard-fail (эксперимент легален, вердикт автора решает)
+   267→    const exploratoryFindings: string[] = []
+   268→    const isExploratory = (s: (typeof batch.slots)[number]) => s.header.includes('⚗')
+   269→    const tiers = recipes?.tiers ?? {}
+   270→    const signalMinDefault: Record<string, number> = { 'PG-13': 2, R: 1, 'R+': 2, X: 2 }
+   271→    for (const s of batch.slots) {
+   272→      const tier = tierOf(s.meta)
+   273→      if (!tier) {
+   274→        f.push(`P${s.position}: рейтинг не распознан в шапке («${s.meta}»)`)
+   275→        continue
+   276→      }
+   277→      const recipe = tiers[recipeKey(tier)]
+   278→      if (!recipe) continue
+   279→      // сигнал-теги считаются в POS — NEG границу держит, а не зарабатывает
+   280→      const posLower = s.pos.toLowerCase()
+   281→      const negLower = s.neg.toLowerCase()
+   282→      const signals = countSignals(posLower, recipe.signals)
+   283→      const min = recipe.signal_min ?? signalMinDefault[tier] ?? 1
+   284→      if (signals < min) {
+   285→        f.push(
+   286→          `P${s.position}: заявлен ${tier}, сигнал-тегов рецепта ${signals}/${min} — рейтинг не заработан (рецепт: ${recipe.signals.slice(0, 5).join(', ')}…)`
+   287→        )
+   288→      }
+   289→      // HARD-CLAIM (вердикт T4-03: 14/15 R+ слотов не дотянули): тир с
+   290→      // signals_hard обязан нести именованный edge-объект в POS.
+   291→      // v1.2.0 (рендер-вердикт T4-03): hard-сигналы = только рендер-
+   292→      // доказанные заявки (pantyline / nipples through / see-through / tape);
+   293→      // cameltoe выведен — тег рендер-мёртв (0 отрисовок из всех попыток)
+   294→      const hardSignals = recipe.signals_hard ?? []
+   295→      if (hardSignals.length > 0) {
+   296→        const hard = countSignals(posLower, hardSignals)
+   297→        const hardMin = recipe.hard_min ?? 1
+   298→        if (hard < hardMin) {
+   299→          const cameltoeOnly = /\bcameltoe\b|\bcamel toe\b/.test(posLower)
+   300→          f.push(
+   301→            `P${s.position}: заявлен ${tier}, но рендер-доказанной заявки нет (${hard}/${hardMin})${cameltoeOnly ? ' — cameltoe рендер-мёртв (0 отрисовок, рендер-вердикт T4-03), заявку не зарабатывает' : ''}: ${hardSignals.slice(0, 4).join(', ')}`
+   302→          )
+   303→        }
+   304→      }
+   305→      // RENDER LAW v1.2.0 — только для тиров с механизмами (R+): заявка
+   306→      // живёт на состоянии ткани, без подслоя, не на мёртвой ткани
+   307→      // (присутствие/подслой/мёртвая ткань = hard; позиция тега = warn,
+   308→      // см. claim-visibility — рендер-эвиденс позиций неоднозначен)
+   309→      const firstDot = s.pos.indexOf('.')
+   310→      const tagRun = (firstDot > 0 ? s.pos.slice(0, firstDot) : s.pos).toLowerCase()
+   311→      for (const [mechName, m] of Object.entries(recipe.mechanisms ?? {})) {
+   312→        const mHard = m.hard ?? []
+   313→        const activeHard = mHard.filter((h) => tagRun.includes(h.toLowerCase()))
+   314→        if (activeHard.length === 0) continue
+   315→        // (а) состояние ткани обязательно в тег-блоке
+   316→        const reqState = m.required_state ?? []
+   317→        if (reqState.length > 0) {
+   318→          const stateHit = reqState.some((st) => tagRun.includes(st.toLowerCase()))
+   319→          if (!stateHit) {
+   320→            const msg = `P${s.position}: механизм «${mechName}» без состояния ткани — в тег-блоке нет ни одного из [${reqState.join(' / ')}] (рендер-вердикт T4-03: сухая плотная ткань не несёт edge, P13/P21 умерли именно так)`
+   321→            if (isExploratory(s)) {
+   322→              exploratoryFindings.push(`EXPLORATORY (§10, квитанция): ${msg}`)
+   323→            } else {
+   324→              f.push(msg)
+   325→            }
+   326→          }
+   327→        }
+   328→        // (б) подслой глушит чит: bra/camisole под sheer = рендерер рисует ПОДСЛОЙ
+   329→        const blockApplies = m.underlayer_block_applies_to ?? []
+   330→        if (blockApplies.some((h) => activeHard.includes(h))) {
+   331→          for (const u of m.underlayer_block ?? []) {
+   332→            const re = new RegExp(`\\b${u.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`)
+   333→            if (re.test(tagRun)) {
+   334→              f.push(
+   335→                `P${s.position}: подслой «${u}» под сквозь-ткань заявкой — рендерер рисует подслой, не edge, тиры падают в R (рендер-вердикт T4-03: P12 sports bra под sheer → R, P14 bra под gauze → R)`
+   336→              )
+   337→              break
+   338→            }
+   339→          }
+   340→        }
+   341→        // (в) мёртвые ткани не несут заявку — зона-осознанно: lower-заявки
+   342→        // (pantyline) гибнут на джинсах/коже/свитпанах; upper-заявки
+   343→        // (nipples through / see-through) — на бархате/коже/фланели
+   344→        const lowerClaims = m.lower_claims ?? []
+   345→        const upperClaims = m.upper_claims ?? []
+   346→        const isLower = activeHard.some((h) => lowerClaims.includes(h))
+   347→        const isUpper = activeHard.some((h) => upperClaims.includes(h))
+   348→        const deadList = isLower
+   349→          ? [...(m.dead_fabrics_lower ?? []), ...(m.dead_fabrics_upper ?? []).filter((x) => x === 'suit')]
+   350→          : isUpper
+   351→            ? [...(m.dead_fabrics_upper ?? []), ...(m.dead_fabrics_lower ?? []).filter((x) => x === 'suit')]
+   352→            : []
+   353→        for (const df of deadList) {
+   354→          const re = new RegExp(`\\b${df.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`)
+   355→          if (re.test(tagRun)) {
+   356→            f.push(
+   357→              `P${s.position}: мёртвая ткань «${df}» в тег-блоке при активной ${isLower ? 'нижней' : 'грудной'} заявке «${mechName}» — эта ткань не несёт edge (рендер-вердикт T4-03: джинсы/бархат/костюм → PG-13)`
+   358→            )
+   359→            break
+   360→          }
+   361→        }
+   362→      }
+   363→      // механизм-осознанный контр-NEG (вердикт T4-03: «только купальник»):
+   364→      // активный механизм держит СВОЙ boundary — lifted-термины в NEG глушат
+   365→      for (const [mechName, m] of Object.entries(recipe.mechanisms ?? {})) {
+   366→        const mHard = m.hard ?? []
+   367→        if (!mHard.some((h) => posLower.includes(h.toLowerCase()))) continue
+   368→        for (const t of m.counter_neg ?? []) {
+   369→          if (!negLower.includes(t.toLowerCase())) {
+   370→            f.push(`P${s.position}: механизм «${mechName}» требует контр-NEG «${t}» в NEG`)
+   371→          }
+   372→        }
+   373→        for (const t of m.counter_neg_lifted ?? []) {
+   374→          if (negLower.includes(t.toLowerCase())) {
+   375→            f.push(
+   376→              `P${s.position}: механизм «${mechName}» заглушен — «${t}» в NEG закрывает грудь и душит сигнал (вердикт T4-03)`
+   377→            )
+   378→          }
+   379→        }
+   380→      }
+   381→      // counter-NEG: at least one boundary term present
+   382→      const counterHit = (recipe.counter_neg ?? []).some((t) => negLower.includes(t.toLowerCase()))
+   383→      if (!counterHit) {
+   384→        f.push(`P${s.position}: контр-NEG не держит границу тира (нужно ≥1 из: ${(recipe.counter_neg ?? []).slice(0, 3).join(', ')})`)
+   385→      }
+   386→      // no above-tier signals (overclaim) — but a higher-tier token that is a
+   387→      // SUBSTRING of this tier's own signal phrase is by design (e.g. R+ «taped
+   388→      // nipples» contains the X token «nipples») — not an overclaim
+   389→      const myOrder = TIER_ORDER[tier] ?? 0
+   390→      const mySignals = recipe?.signals ?? []
+   391→      for (const [otherKey, other] of Object.entries(tiers)) {
+   392→        const otherTier =
+   393→          otherKey === 'PG13' ? 'PG-13' : otherKey === 'RPLUS' ? 'R+' : otherKey
+   394→        if ((TIER_ORDER[otherTier] ?? 0) > myOrder && otherTier !== 'XXX') {
+   395→          const over = (other.signals ?? []).filter(
+   396→            (sig) =>
+   397→              s.pos.toLowerCase().includes(sig.toLowerCase()) &&
+   398→              !mySignals.some((m) => m.toLowerCase().includes(sig.toLowerCase()))
+   399→          )
+   400→          if (over.length >= 1 && tier !== 'X') {
+   401→            f.push(`P${s.position}: заявлен ${tier}, но несёт сигнал выше тиром: «${over[0]}»`)
+   402→          }
+   403→        }
+   404→      }
+   405→    }
+   406→    hard('rating-recipe', f)
+   407→    // эксперименты (§10) — квитанцией в claim-visibility (warn), не блоком
+   408→    if (exploratoryFindings.length > 0) {
+   409→      receipts.push({
+   410→        gate: 'rating-recipe-exploratory',
+   411→        level: 'warn',
+   412→        verdict: 'WARN',
+   413→        findings: exploratoryFindings,
+   414→      })
+   415→    }
+   416→  }
+   417→
+   418→  /* ---------------- 4. canon (hard) ---------------- */
+   419→  {
+   420→    const f: string[] = []
+   421→    const ocText = (name: string) => {
+   422→      const oc = ocCanon?.ocs[name]
+   423→      if (!oc) return null
+   424→      return {
+   425→        hair: String(oc.hair ?? ''),
+   426→        eyes: String(oc.eyes ?? ''),
+   427→      }
+   428→    }
+   429→    // ЗАПРЕТ ИМЁН В POS (приказ автора, вердикт T4-04): имена ОС в POS —
+   430→    // триггеры реально существующих персонажей у рендерера. POS описывает
+   431→    // персонажа дескрипторами (раса/анатомия/волосы/глаза/кожа); имя живёт
+   432→    // в шапке и Canon-строке, которые рендерер не читает
+   433→    const ocNames = Object.keys(ocCanon?.ocs ?? {})
+   434→    for (const s of batch.slots) {
+   435→      for (const name of ocNames) {
+   436→        // case-sensitive: имена — имена собственные; «ash-grey» ≠ OC Ash
+   437→        const re = new RegExp(`\\b${name}\\b`)
+   438→        if (re.test(s.pos)) {
+   439→          f.push(
+   440→            `P${s.position}: имя ОС «${name}» в POS — триггер чужих персонажей у рендерера (приказ автора, T4-04); опиши её дескрипторами, имя живёт в шапке/Canon`
+   441→          )
+   442→          break
+   443→        }
+   444→      }
+   445→    }
+   446→    for (const s of batch.slots.filter((x) => x.position <= 3)) {
+   447→      const nameMatch = /\b(Sue|Miyu|Yui|Sol|Noa|Doe|Lua|Nix|Vae|Ash|Mab|Lyn|Rue|Zia|Rin|Una|Vera)\b/.exec(
+   448→        s.header + ' ' + s.canon
+   449→      )
+   450→      if (!nameMatch) {
+   451→        f.push(`P${s.position}: OC не опознан в шапке`)
+   452→        continue
+   453→      }
+   454→      const oc = ocText(nameMatch[1])
+   455→      if (!oc) continue
+   456→      const hairWords = (oc.hair.match(/[a-z]+/gi) ?? []).filter(
+   457→        (w) => w.length > 3 && !['hair', 'with', 'held', 'long', 'into'].includes(w.toLowerCase())
+   458→      )
+   459→      const eyeWords = (oc.eyes.match(/[a-z]+/gi) ?? []).filter(
+   460→        (w) => w.length > 3 && !['eyes', 'with', 'held'].includes(w.toLowerCase())
+   461→      )
+   462→      const hay = (s.canon + ' ' + s.pos).toLowerCase()
+   463→      const hairHit = hairWords.some((w) => hay.includes(w.toLowerCase()))
+   464→      const eyeHit = eyeWords.some((w) => hay.includes(w.toLowerCase()))
+   465→      if (!hairHit) f.push(`P${s.position} (${nameMatch[1]}): канон-лок волос не виден`)
+   466→      if (!eyeHit) f.push(`P${s.position} (${nameMatch[1]}): канон-лок глаз не виден`)
+   467→    }
+   468→    hard('canon', f)
+   469→  }
+   470→
+   471→  /* ---------------- 5. diversity (hard) ---------------- */
+   472→  {
+   473→    const f: string[] = []
+   474→    const mechOf = (cls: string) => carriers?.class_defs?.[cls]?.mech ?? ''
+   475→    const clsOf = (id: string) => (/^CR-([A-Z])/.exec(id) ?? [])[1] ?? '?'
+   476→    const allStacked: string[] = []
+   477→    let sheerFrames = 0
+   478→    let rplusCount = 0
+   479→    for (const s of batch.slots) {
+   480→      const tier = tierOf(s.meta)
+   481→      if (tier === 'R+' || tier === 'X') {
+   482→        rplusCount += 1
+   483→        const groups = new Set(s.stack.map((id) => mechOf(clsOf(id))))
+   484→        const classes = new Set(s.stack.map((id) => clsOf(id)))
+   485→        if (s.stack.length < 4) {
+   486→          f.push(`P${s.position}: стек ${s.stack.length}/4 носителей (core-4)`)
+   487→        }
+   488→        if (groups.size < 4) {
+   489→          f.push(`P${s.position}: механо-групп ${groups.size}/4 (${[...groups].join(',') || 'пусто'})`)
+   490→        }
+   491→        if (classes.size < 4) {
+   492→          f.push(`P${s.position}: классов ${classes.size}/4`)
+   493→        }
+   494→        const sheerIds = (s.stack ?? []).filter((id) => {
+   495→          const c = Object.values(carriers?.classes ?? {})
+   496→            .flat()
+   497→            .find((x) => x.id === id)
+   498→          return c?.sheer_family === true
+   499→        })
+   500→        if (sheerIds.length > 2) {
+   501→          f.push(`P${s.position}: sheer-носителей ${sheerIds.length} > 2`)
+   502→        }
+   503→        if (sheerIds.length > 0) sheerFrames += 1
+   504→      }
+   505→      allStacked.push(...s.stack)
+   506→    }
+   507→    // моно-носитель N28 (фикс после T4-03: CR-W27 вставал во все 15 R+/X
+   508→    // слотов — lruPick не дедуплицировал внутри батча): один ID ≤4 слотов
+   509→    const perCarrier: Record<string, number> = {}
+   510→    for (const id of batch.slots.flatMap((s) => s.stack)) {
+   511→      perCarrier[id] = (perCarrier[id] ?? 0) + 1
+   512→    }
+   513→    for (const [id, n] of Object.entries(perCarrier)) {
+   514→      if (n > 4) f.push(`моно-носитель ${id} в ${n} слотах > 4 — моно-механизм N28`)
+   515→    }
+   516→    const wCount = allStacked.filter((id) => clsOf(id) === 'W').length
+   517→    const wShare = allStacked.length ? Math.round((wCount / allStacked.length) * 100) : 0
+   518→    if (wShare > 45) f.push(`W-класс ${wShare}% > 45% (моно-механизм)`)
+   519→    if (rplusCount > 0) {
+   520→      const sheerPct = Math.round((sheerFrames / rplusCount) * 100)
+   521→      if (sheerPct > 40) f.push(`sheer-кадры ${sheerPct}% > 40% R+ слотов (N28-ловушка)`)
+   522→    }
+   523→    const poseIds = batch.slots.map((s) => (/\bPL\d{1,3}\b/.exec(s.header) ?? [])[0]).filter(Boolean)
+   524→    if (new Set(poseIds).size !== poseIds.length) f.push('позы не уникальны в батче')
+   525→    // palette ids are the underscore form (P77_LATE_MILK) — the bare P\d+ form
+   526→    // would catch the slot's own position marker (P01…) and never fail
+   527→    const palIds = batch.slots
+   528→      .map((s) => (/\b(P\d{1,3}_[A-Z_]+)\b/.exec(s.header) ?? [])[0])
+   529→      .filter(Boolean)
+   530→    if (poseIds.length === LAWS.slotsTotal && palIds.length !== LAWS.slotsTotal) {
+   531→      f.push(`слотов с палитрой в шапке: ${palIds.length}/${LAWS.slotsTotal}`)
+   532→    }
+   533→    if (palIds.length >= LAWS.slotsTotal && new Set(palIds).size < LAWS.slotsTotal) {
+   534→      f.push('палитры не уникальны в батче')
+   535→    }
+   536→    hard('diversity', f)
+   537→  }
+   538→
+   539→  /* ---------------- 6. window (hard, vacuous on clean slate) ------- */
+   540→  {
+   541→    const f: string[] = []
+   542→    const state = foldState(readEvents())
+   543→    if (state.windowSlugs.length > 0 && contract) {
+   544→      // повторная сдача (v2): батч не конфликтует сам с собой — своё окно
+   545→      // исключается (событие batch.delivered уже внесло слаг в окно)
+   546→      const windowOthers = state.windowSlugs.filter((w) => w !== batch.slug)
+   547→      const myPoses = new Set(
+   548→        batch.slots.map((s) => (/\bPL\d{1,3}\b/.exec(s.header) ?? [])[0]).filter(Boolean)
+   549→      )
+   550→      const myPals = new Set(
+   551→        batch.slots.map((s) => (/\b(P\d{1,3}_[A-Z_]+)\b/.exec(s.header) ?? [])[0]).filter(Boolean)
+   552→      )
+   553→      for (const w of windowOthers) {
+   554→        const wc = readJson<{ slots: { pose: string; palette: string }[] }>(
+   555→          path.join(CONTRACTS_DIR, `${w}.json`)
+   556→        )
+   557→        if (!wc) continue
+   558→        for (const s of wc.slots) {
+   559→          if (myPoses.has(s.pose)) f.push(`поза ${s.pose} конфликтует с окном (${w})`)
+   560→          if (myPals.has(s.palette)) f.push(`палитра ${s.palette} конфликтует с окном (${w})`)
+   561→        }
+   562→      }
+   563→    }
+   564→    hard('window', f)
+   565→  }
+   566→
+   567→  /* ---------------- 7. budget (warn) ---------------- */
+   568→  {
+   569→    const f: string[] = []
+   570→    const target = bans?.word_budget.pos_target ?? 300
+   571→    const hardCap = bans?.word_budget.pos_hard ?? 400
+   572→    for (const s of batch.slots) {
+   573→      const words = s.pos.split(/\s+/).filter(Boolean).length
+   574→      if (words > hardCap) f.push(`P${s.position}: POS ${words} слов > ${hardCap}`)
+   575→      else if (words > target) f.push(`P${s.position}: POS ${words} слов (цель ${target}) — плотнее`)
+   576→      const hedges = HEDGES.filter((h) => s.pos.toLowerCase().includes(h)).length
+   577→      if (hedges > (bans?.hedge_budget ?? 2)) f.push(`P${s.position}: хеджей ${hedges} > 2`)
+   578→    }
+   579→    warn('budget', f)
+   580→  }
+   581→
+   582→  /* ---------------- 8. cadence (warn) ---------------- */
+   583→  {
+   584→    const f: string[] = []
+   585→    const closers: Record<string, number> = { other: 0 }
+   586→    for (const s of batch.slots) {
+   587→      const sentences = s.pos.split(/(?<=[.!?…"\u00bb])\s+/).filter(Boolean)
+   588→      const last = sentences[sentences.length - 1] ?? ''
+   589→      if (/[«"„]/.test(last) || /"\s*$/.test(last)) closers.dialogue = (closers.dialogue ?? 0) + 1
+   590→      else if (/—\s*\S+[.,]?\s*$/.test(last)) closers['fragment-pair'] = (closers['fragment-pair'] ?? 0) + 1
+   591→      else if (/\b(waited|still|again|on)\.\s*$/i.test(last)) closers['image-close'] = (closers['image-close'] ?? 0) + 1
+   592→      else closers.other += 1
+   593→    }
+   594→    const total = batch.slots.length || 1
+   595→    for (const [cls, n] of Object.entries(closers)) {
+   596→      if (n / total > 0.6 && cls !== 'other') {
+   597→        f.push(`клоузер-формула: ${cls} ${Math.round((n / total) * 100)}% > 60% (N25-ловушка)`)
+   598→      }
+   599→    }
+   600→    warn('cadence', f)
+   601→  }
+   602→
+   603→  /* ---------------- 8b. niche legibility (warn — вердикт T4-02) ----- */
+   604→  {
+   605→    // Автор не увидел NICHE в T4-02 → ниша обязана быть видна:
+   606→    // раса делает физическую работу (теги расы в POS) + свидетель в кадре.
+   607→    const f: string[] = []
+   608→    const racesSpec = getRaces()
+   609→    const nicheSlots = batch.slots.filter((s) => s.genre === 'NICHE')
+   610→    const WITNESS_WORDS = [
+   611→      'mirror', 'shop glass', 'security monitor', 'door gap', 'propped phone',
+   612→      'traffic mirror', 'level gauge', 'window pane', 'wet street', 'elevator brass',
+   613→      'photo frame', 'spoon', 'watch face', 'car hood', 'fountain edge', 'witness',
+   614→    ]
+   615→    for (const s of nicheSlots) {
+   616→      const posLower = s.pos.toLowerCase()
+   617→      // race legibility: tokens of the assigned race (name + features) in POS
+   618→      const slot = contract?.slots?.find((x) => x.position === s.position)
+   619→      const raceName = slot?.race ?? ''
+   620→      if (raceName) {
+   621→        const raceEntry = racesSpec?.races.find(
+   622→          (r) => raceName.toLowerCase().includes(r.name.toLowerCase().split(' (')[0]) ||
+   623→            r.name.toLowerCase().includes(raceName.toLowerCase().split(' (')[0])
+   624→        )
+   625→        const tokens = new Set(
+   626→          [
+   627→            ...raceName.toLowerCase().replace(/[()-]/g, ' ').split(/\s+/),
+   628→            ...(raceEntry?.features ?? []).join(' ').toLowerCase().replace(/[()-]/g, ' ').split(/\s+/),
+   629→          ].filter((w) => w.length > 3 && !['girl', 'kin', 'with'].includes(w))
+   630→        )
+   631→        const hits = [...tokens].filter((w) => posLower.includes(w)).length
+   632→        if (hits < 2) {
+   633→          f.push(`P${s.position}: NICHE-раса «${raceName}» не читается в POS (тегов расы ${hits}/2) — раса делает физическую работу в кадре`)
+   634→        }
+   635→      }
+   636→      const witnessHit = WITNESS_WORDS.some((w) => posLower.includes(w))
+   637→      if (!witnessHit && raceName) {
+   638→        f.push(`P${s.position}: NICHE без свидетеля в кадре (mirror/glass/monitor/phone/gauge…) — свидетель держит невозможное`)
+   639→      }
+   640→    }
+   641→    if (nicheSlots.length === 0 && batch.slots.length === LAWS.slotsTotal) {
+   642→      f.push('NICHE-слотов нет — жанровая структура батча сломана')
+   643→    }
+   644→    warn('niche-legibility', f)
+   645→  }
+   646→
+   647→  /* ---------------- 8c. prop geometry (warn — вердикт T4-02) -------- */
+   648→  {
+   649→    // Штурвал в T4-02: «небольшая хуёвая геометрия расположения» —
+   650→    // сложный проп требует названных якорей контакта (руки/ноги/корпус).
+   651→    const f: string[] = []
+   652→    const COMPLEX_PROPS = [
+   653→      'wheel', 'helm', 'valve', 'ladder', 'stairs', 'staircase', 'railing', 'rail',
+   654→      'bicycle', 'handlebar', 'rope', 'pulley', 'crane', 'swing', 'scaffold',
+   655→      'scaffolding', 'mast', 'tiller', 'treadmill', 'steering', 'oar', 'winch',
+   656→    ]
+   657→    const ANCHORS = [
+   658→      'hand on', 'hands on', 'hands at', 'fingers around', 'fingers curled', 'grip',
+   659→      'gripping', 'grips', 'grip on', 'braced', 'brace', 'foot on', 'feet on',
+   660→      'feet braced', 'feet planted', 'palm flat', 'palm on', 'knee on', 'elbow on',
+   661→      'shoulder against', 'leaning against', 'lean against', 'arched against',
+   662→      'heels planted', 'toes on', 'fingertips on', 'wrapped around', 'wound around',
+   663→      'knuckles white', 'soles flat', 'held fast', 'anchored',
+   664→    ]
+   665→    for (const s of batch.slots) {
+   666→      // тег-блок — то, что рендерер обязан нарисовать (до первой точки);
+   667→      // метафоры прозы («her leg as its staircase») пропами не считаются
+   668→      const firstPeriod = s.pos.indexOf('.')
+   669→      const tagBlock = (firstPeriod > 0 ? s.pos.slice(0, firstPeriod) : s.pos).toLowerCase()
+   670→      const prop = COMPLEX_PROPS.find((p) => new RegExp(`\\b${p}\\b`).test(tagBlock))
+   671→      if (!prop) continue
+   672→      const posLower = s.pos.toLowerCase()
+   673→      const anchorHits = ANCHORS.filter((a) => posLower.includes(a)).length
+   674→      if (anchorHits < 2) {
+   675→        f.push(`P${s.position}: сложный проп «${prop}» с ${anchorHits}/2 якорей контакта — назови, где руки/ноги (вердикт T4-02, геометрия)`)
+   676→      }
+   677→    }
+   678→    warn('prop-geometry', f)
+   679→  }
+   680→
+   681→  /* ---------------- 8d. claim visibility (warn — вердикт T4-03) ------ */
+   682→  {
+   683→    // Вердикт T4-03: R+ сигнал заявлен на зоне, которую стейджинг закрывает
+   684→    // (рубашка на талии, юбка, плащ), либо слоёв столько, что рендер путает
+   685→    // порядок («чулки сквозь джинсы, майка поверх рубашки»), либо OC-слот
+   686→    // ушёл позой от камеры. Зона сигнала = LEAD, открыта камере.
+   687→    const f: string[] = []
+   688→    const LOWER_COVERS = [
+   689→      'skirt', 'dress', 'cloak', 'cape', 'coat', 'apron', 'happi',
+   690→      'tied at waist', 'tied at the waist', 'shirt tied', 'towel around waist',
+   691→      'waist wrap', 'sarong', 'long shirt', 'untucked shirt', 'peplum',
+   692→    ]
+   693→    const CHEST_COVERS = [
+   694→      'buttoned shirt', 'buttoned-up', 'buttoned up', 'zipped up', 'zipped to',
+   695→      'closed jacket', 'buttoned jacket', 'turtleneck', 'high-neck', 'closed coat',
+   696→    ]
+   697→    const TOP_LAYERS = [
+   698→      'shirt', 'tee', 't-shirt', 'tank', 'camisole', 'blouse', 'sweater',
+   699→      'pullover', 'hoodie', 'jacket', 'coat', 'blazer', 'cardigan', 'happi',
+   700→      'tunic', 'turtleneck', 'button-down', 'flannel', 'jersey', 'varsity',
+   701→      'parka', 'poncho', 'robe', 'overalls',
+   702→    ]
+   703→    const GARMENT_NOUNS = new Set([
+   704→      ...TOP_LAYERS, 'leotard', 'bodysuit', 'swimsuit', 'bikini', 'microbikini',
+   705→      'bra', 'panties', 'thong', 'boyshorts', 'lingerie', 'garter belt',
+   706→      'stockings', 'thighhighs', 'socks', 'jeans', 'pants', 'trousers',
+   707→      'breeches', 'shorts', 'skirt', 'dress', 'apron', 'towel', 'nightgown',
+   708→      'slip', 'corset', 'harness', 'wrap', 'sarong', 'sash', 'obi', 'bolero',
+   709→      'kimono', 'happi', 'leggings', 'fishnets', 'jersey', 'uniform', 'cloak', 'cape',
+   710→    ])
+   711→    const POSE_AWAY = [
+   712→      'forward fold', 'prone', 'facedown', 'face down', 'from behind',
+   713→      'back to camera', 'back turned', 'bent away',
+   714→    ]
+   715→    for (const s of batch.slots) {
+   716→      const tier = tierOf(s.meta)
+   717→      if (tier !== 'R+' && tier !== 'X') continue
+   718→      const firstPeriod = s.pos.indexOf('.')
+   719→      const tagBlock = (firstPeriod > 0 ? s.pos.slice(0, firstPeriod) : s.pos).toLowerCase()
+   720→      const posLower = s.pos.toLowerCase()
+   721→      // word-boundary матчинг: «escaped» не должен ловиться как «cape»
+   722→      const coverIn = (list: string[]) =>
+   723→        list.find((c) => new RegExp(`\\b${c.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`).test(tagBlock))
+   724→      // 1) нижняя зона сигнала закрыта верхним предметом
+   725→      const lowerClaim = ['cameltoe', 'camel toe', 'visible pantyline', 'pantyline'].some((c) =>
+   726→        tagBlock.includes(c)
+   727→      )
+   728→      if (lowerClaim) {
+   729→        const cover = coverIn(LOWER_COVERS)
+   730→        if (cover) {
+   731→          f.push(
+   732→            `P${s.position}: зона сигнала (низ) закрыта «${cover}» — cameltoe/pantyline не виден камере; открой зону или перевези claim (вердикт T4-03)`
+   733→          )
+   734→        }
+   735→      }
+   736→      // 2) грудная on-skin зона закрыта застёгнутым верхом
+   737→      const chestClaim = ['taped nipples', 'topless with tape', 'handbra'].some((c) =>
+   738→        tagBlock.includes(c)
+   739→      )
+   740→      if (chestClaim) {
+   741→        const cover = coverIn(CHEST_COVERS)
+   742→        if (cover) {
+   743→          f.push(
+   744→            `P${s.position}: зона сигнала (грудь) закрыта «${cover}» — tape/handbra не виден камере (вердикт T4-03)`
+   745→          )
+   746→        }
+   747→      }
+   748→      // 3) слоевой хаос: ≥5 предметов одежды в тег-блоке
+   749→      const garments = [...GARMENT_NOUNS].filter((g) => new RegExp(`\\b${g}\\b`).test(tagBlock))
+   750→      if (garments.length >= 5) {
+   751→        f.push(
+   752→          `P${s.position}: ${garments.length} предметов одежды в тег-блоке (${garments.slice(0, 5).join(', ')}) — ≤2 слоя на зону, зона сигнала ≤1 (вердикт T4-03: слои путают рендер)`
+   753→        )
+   754→      }
+   755→      // 3b) стопка верхних слоёв: ≥3 верхних предметов
+   756→      const tops = TOP_LAYERS.filter((g) => new RegExp(`\\b${g}\\b`).test(tagBlock))
+   757→      if (tops.length >= 3) {
+   758→        f.push(
+   759→          `P${s.position}: стопка верхних слоёв ${tops.length} (${tops.join(', ')}) — «майка поверх рубашки» ломает порядок слоёв (вердикт T4-03)`
+   760→        )
+   761→      }
+   762→      // 4) OC-слот позой уходит от камеры — зона сигнала не читается
+   763→      if (s.genre === 'OC') {
+   764→        const away = POSE_AWAY.find((p) => tagBlock.includes(p) || posLower.includes(p))
+   765→        if (away) {
+   766→          f.push(
+   767→            `P${s.position}: OC-слот с позой «${away}» — зона сигнала уходит от камеры; OC = любимые персонажи автора, камера-смотрящие позы (вердикт T4-03)`
+   768→          )
+   769→        }
+   770→      }
+   771→      // 5) позиция заявки/состояния в тег-ране (рендер-вердикт T4-03:
+   772→      // хвостовые сигналы рендерятся слабо; эвиденс неоднозначен — warn).
+   773→      // OC-слоты: канон-локи съедают первые ~15 тегов по закону — им люфт
+   774→      if (tier === 'R+') {
+   775→        const posTags = tagBlock.split(',').map((t) => t.trim())
+   776→        const findIdx = (needle: string) => posTags.findIndex((t) => t.includes(needle))
+   777→        // РАННЕЕ вхождение состояния решает (see-through №13 + wet №18 = раннее)
+   778→        const idxs = [findIdx('wet clothes'), findIdx('see-through')].filter((i) => i >= 0)
+   779→        const wetIdx = idxs.length > 0 ? Math.min(...idxs) : -1
+   780→        const limit = s.genre === 'OC' ? 22 : 16 // 0-based
+   781→        if (wetIdx >= limit) {
+   782→          f.push(
+   783→            `P${s.position}: состояние ткани стоит тегом №${wetIdx + 1} — хвост тег-рана рендерер читает слабо; подними wet clothes / see-through к началу (рендер-вердикт T4-03)`
+   784→          )
+   785→        }
+   786→      }
+   787→    }
+   788→    warn('claim-visibility', f)
+   789→  }
+   790→
+   791→  /* ---------------- 9. simcheck (warn) ---------------- */
+   792→  {
+   793→    const f: string[] = []
+   794→    const state = foldState(readEvents())
+   795→    // бойлерплейт (quality-теги, фейс-лок N31) общий для всех промптов —
+   796→    // не считаем предложением автора, иначе J=1.00 на каждом кадре
+   797→    const isBoilerplate = (s: string) =>
+   798→      /masterpiece|best quality|anime artstyle/.test(s) ||
+   799→      /her face is rendered in stylized/.test(s)
+   800→    const sentencesOf = (batchParsed: ParsedBatch) =>
+   801→      batchParsed.slots.flatMap((s) =>
+   802→        s.pos
+   803→          .split(/[.!?]\s+/)
+   804→          .map((x) => x.trim().toLowerCase())
+   805→          .filter((x) => x.length > 40 && !isBoilerplate(x))
+   806→      )
+   807→    const mySentences = new Set(sentencesOf(batch))
+   808→    // повторная сдача (v2): себя не сравниваем — своё окно исключено
+   809→    for (const w of state.windowSlugs.filter((x) => x !== batch.slug)) {
+   810→      const wText = readText(path.join(BATCHES_DIR, `${w}.md`))
+   811→      if (!wText) continue
+   812→      const wBatch = parseBatch(w, wText)
+   813→      const wSentences = sentencesOf(wBatch)
+   814→      for (const mine of mySentences) {
+   815→        for (const theirs of wSentences) {
+   816→          const j = jaccard(words(mine), words(theirs))
+   817→          if (j > 0.7) {
+   818→            f.push(`похоже на ${w}: «${mine.slice(0, 60)}…» (J=${j.toFixed(2)})`)
+   819→          }
+   820→        }
+   821→      }
+   822→    }
+   823→    if (f.length > 8) f.splice(8, f.length, `…и ещё ${f.length - 8} пар`)
+   824→    warn('simcheck', f)
+   825→  }
+   826→
+   827→  /* ---------------- 10. freq report (advisory) ---------------- */
+   828→  {
+   829→    const f: string[] = []
+   830→    const STOP = new Set(
+   831→      'the a an and or of in on at to with her his its from into over under is are was were be been by as for that this it she they them their not no but all one two'.split(' ')
+   832→    )
+   833→    const freq: Record<string, number> = {}
+   834→    for (const s of batch.slots) {
+   835→      const seen = new Set<string>()
+   836→      for (const w of s.pos.toLowerCase().match(/[a-z']+/g) ?? []) {
+   837→        if (STOP.has(w) || w.length < 5 || seen.has(w)) continue
+   838→        seen.add(w)
+   839→        freq[w] = (freq[w] ?? 0) + 1
+   840→      }
+   841→    }
+   842→    const tics = Object.entries(freq)
+   843→      .filter(([, n]) => n >= 8)
+   844→      .sort((a, b) => b[1] - a[1])
+   845→      .slice(0, 12)
+   846→      .map(([w, n]) => `${w} ${n}/21`)
+   847→    if (tics.length) f.push(`кандидаты в тики: ${tics.join(' · ')}`)
+   848→    else f.push('тиков не обнаружено')
+   849→    advisory('freq-report', f)
+   850→  }
+   851→
+   852→  /* ---------------- 11. usage (advisory) ---------------- */
+   853→  {
+   854→    const f: string[] = []
+   855→    const stacked = batch.slots.flatMap((s) => s.stack)
+   856→    f.push(`носителей в стеках: ${stacked.length}; уникальных: ${new Set(stacked).size}`)
+   857→    f.push(`R+ слотов: ${batch.slots.filter((s) => tierOf(s.meta) === 'R+').length}; X: ${batch.slots.filter((s) => tierOf(s.meta) === 'X').length}`)
+   858→    advisory('usage', f)
+   859→  }
+   860→
+   861→  /* ---------------- receipt + event ---------------- */
+   862→  const sha10 = crypto.createHash('sha256').update(file).digest('hex').slice(0, 10)
+   863→  const priorRuns = readEvents().filter(
+   864→    (e) => e.type === 'gate.run' && e.data?.slug === slug
+   865→  ).length
+   866→  const runIndex = priorRuns + 1
+   867→  const hardPass = receipts.filter((r) => r.level === 'hard').every((r) => r.verdict === 'PASS')
+   868→  const result: GatesResult = {
+   869→    slug,
+   870→    runIndex,
+   871→    sha10,
+   872→    receipts,
+   873→    hardPass,
+   874→    firstRunClean: hardPass && runIndex === 1,
+   875→    at: new Date().toISOString(),
+   876→  }
+   877→  if (!dryRun) {
+   878→    appendEvent(
+   879→      'gate.run',
+   880→      `${slug} гейты: прогон #${runIndex}, hard ${hardPass ? 'PASS' : 'FAIL'}${result.firstRunClean ? ' · FIRST RUN CLEAN' : ''} (sha ${sha10})`,
+   881→      {
+   882→        slug,
+   883→        run: runIndex,
+   884→        sha10,
+   885→        hardPass,
+   886→        firstRunClean: result.firstRunClean,
+   887→        hardFails: receipts
+   888→          .filter((r) => r.level === 'hard' && r.verdict === 'FAIL')
+   889→          .map((r) => r.gate),
+   890→        warns: receipts.filter((r) => r.level === 'warn' && r.verdict === 'WARN').length,
+   891→      }
+   892→    )
+   893→  }
+   894→  return result
+   895→}
+   896→
+   897→/* ------------------------------------------------------------------ */
+   898→/* utils                                                               */
+   899→/* ------------------------------------------------------------------ */
+   900→
+   901→function words(s: string): Set<string> {
+   902→  return new Set((s.toLowerCase().match(/[a-z']+/g) ?? []).filter((w) => w.length > 3))
+   903→}
+   904→
+   905→function jaccard(a: Set<string>, b: Set<string>): number {
+   906→  if (a.size === 0 || b.size === 0) return 0
+   907→  let inter = 0
+   908→  for (const x of a) if (b.has(x)) inter += 1
+   909→  return inter / (a.size + b.size - inter)
+   910→}
+   911→

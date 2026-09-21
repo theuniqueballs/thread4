@@ -1,0 +1,526 @@
+     1→# Shared Worklog
+     2→
+     3→---
+     4→Task ID: 1
+     5→Agent: Super Z (main)
+     6→Task: Thread 4 discovery — deep study of CHEMODAN THREAD 3.2-EXP-V21 (uploaded
+     7→tar.gz), clinical diagnosis of the current system, open-source/theory research,
+     8→clarifying questions to the author before building Thread 4.
+     9→
+    10→Work Log:
+    11→- Extracted /home/z/my-project/upload/CHEMODAN_THREAD_3.2-EXP_V21.tar.gz to
+    12→  /home/z/my-project/chemodan/CHEMODAN_THREAD_3.2-EXP_V21/ (83 files, ~4MB)
+    13→- Read: MANIFEST.md, README_MIGRATION.md, scripts/README.md, full live
+    14→  worklog.md (Tasks 31-39 + STATE), RULES_HISTORY.md, ENGINES.yaml (all 7
+    15→  engines + open seeds), OC_CANON.yaml head, RULES.md section map (§1-§62),
+    16→  V17-V21 changelog entries, BATCH_N29 head (the OC-merge format), spine.py +
+    17→  pipeline.py headers
+    18→- NOTE: the author mentioned "Файл 2" (Claude's Thread 4 attempt) — NOT in
+    19→  /home/z/my-project/upload/ (only the tar.gz arrived). Must ask for re-upload.
+    20→- Ran 17 web searches: promptfoo, Vale/proselint, Design by Contract, Oulipo,
+    21→  mutation testing (Stryker), event sourcing, SRE postmortems, TTR/MTLD/PATTR
+    22→  lexical diversity, GAN/LLM mode collapse, Verbalized Sampling (arXiv),
+    23→  danbooru tag tooling, sd-parsers/sd-prompt-reader, Langfuse/LangSmith,
+    24→  rule of least power, ComfyUI prompt libraries
+    25→- Delivered to author: clinical diagnosis of 3.2 (10 structural findings),
+    26→  research digest (12 mapped findings), 19 grouped clarifying questions,
+    27→  proposed Thread 4 architecture direction (Constitution + Compiler + Contract
+    28→  + Gates + Event-sourced ledgers + Feedback loop)
+    29→
+    30→Stage Summary:
+    31→- System understood end-to-end: 21-prompt batch pipeline (3 OC + 18 mains),
+    32→  PixAI/Tsubaki2 → Yadayo, PH-proof doctrine, 62 §-laws, 7 engine generations,
+    33→  5 gates + spine compiler + house_lint core, ledgers (TRACKER/MOTIF/SUCCESS/
+    34→  LINT_RECEIPTS), §62 FIRST-PASS LAW (V21) = contract-first writing
+    35→- Key insight for Thread 4: the §62 writer_contract (built from organ
+    36→  constants) is the seed of the whole architecture — generalize "lint ==
+    37→  contract by construction" to the entire system; state should be DERIVED
+    38→  from append-only events (event sourcing), not hand-maintained pseudo-YAML;
+    39→  diversity should be assigned at spine-compile time (Verbalized Sampling
+    40→  insight), not caught post-hoc by freq/rhythm lints
+    41→- Awaiting: author's answers to 19 questions + re-upload of Claude's file "2"
+    42→  before writing the Thread 4 document itself
+    43→
+    44→---
+    45→Task ID: 2-a
+    46→Agent: pool-parser (Task Agent 2-a, general-purpose)
+    47→Task: Convert legacy THREAD 3.2 system pools (pseudo-YAML, messy) into clean
+    48→typed JSON specs for THREAD 4. Author's order: pools are "всё пиздец как
+    49→полезно" — preserve everything useful, flag near-duplicates and anomalies,
+    50→lighten where possible, never delete content.
+    51→
+    52→Work Log:
+    53→- Read worklog (Task 1 context), then all 7 source files in
+    54→  chemodan/CHEMODAN_THREAD_3.2-EXP_V21/system/ (CARRIER_LIBRARY, POSE_LIBRARY,
+    55→  PALETTE_LIBRARY, POOLS_V8, ENGINES, OC_CANON, ONTOLOGY — ~4.6k lines total,
+    56→  read-only, untouched)
+    57→- Wrote /home/z/my-project/thread4/specs/parse_pools.py (~1000 lines,
+    58→  regex-only parser — PyYAML avoided since sources are pseudo-YAML: unbalanced
+    59→  braces, stray quotes, bare tokens, YAML-ish fragments). Kept as the import
+    60→  tool; rerunnable, self-validating (round-trips every JSON it writes).
+    61→- Produced 7 typed JSON specs (UTF-8, 2-space, all json.load-verified):
+    62→  * carriers.json — 280 carriers / 14 classes / 4+1 mech groups, all counts
+    63→    match the source's own ledger exactly (W30 A14 B30 C16 S20 E32 L18 U20
+    64→    F14 D28 M16 I18 G12 H12); mat affinities extracted from notes (A:14 B:9
+    65→    C:33, rest null); sheer_family flagged (7, all W-class, judgment calls
+    66→    documented); core4_law + doctrine notes embedded
+    67→  * poses.json — 240 poses + all 240 §33 pose-camera pairs merged in +
+    68→    family labels + usage doctrine v3.0 + cam reference table
+    69→  * palettes.json — 105 palettes (P01-P20 legacy 3-slot + P21-P105 6-slot),
+    70→    family labels, saturation doctrine (five locks), usage rules C066-C072
+    71→  * pools.json — full pool inventory: K kinetics 107 (102 numbered + 4
+    72→    comment-defined OC-exempt + K182 oc-exempt flag), FET 50, H 26, GAR 40 +
+    73→    GAR-F 24 (failure states incl. antigrav physics-undresses family), BRE 24,
+    74→    BK 16, B 22, HS 50, CAM 18, LQ 15, races 22 + collision table, NR 69,
+    75→    emotion 28, ENG 8, FAM-A/B/C breast families + rules, misc_axes (env/skin/
+    76→    material donor dicts, BDM, BPT, light verbs, gear pool, etc.), policies
+    77→    (K ledger, K-freeform, K-return law, ENV/OAS law, mint ledgers)
+    78→  * engines.json — all 7 engines (bespoke→apocrypha) with law/on_body/
+    79→    strong_pairs/failure_modes/status + 5 open seeds + lineage note
+    80→  * oc-canon.json — 16 active OCs, full lock state (hair/eyes/skin/body/
+    81→    signature_marks/anti_shield/neg_additions/presentation_modes/scenario
+    82→    exceptions), canon v1.7.1, 12 changelog notes, Rae+Iya inactive reserve,
+    83→    tarot/element/zodiac registries (registry-only policy preserved)
+    84→  * races.json — 22 races from 3.2 + Thread-4 directives applied: R17
+    85→    jellyfish-kin + R20 harpy-kin = gold (author-confirmed); dwarves/goblins/
+    86→    trolls/orcs = banned (BAN-01..04, new directive entries)
+    87→- Similarity analysis (Jaccard on normalized word sets, threshold 0.75):
+    88→  carriers 0 pairs flagged (closest: CR-W24~CR-C16 0.615, CR-B05~CR-S05
+    89→  0.615, CR-B06~CR-S06 0.600 — cross-class motif echoes, kept); poses 0
+    90→  flagged (max 0.400 — the ×4 "без повторок" order was honored; the source's
+    91→  own 4 documented near-neighbor pairs measure 0.107-0.314)
+    92→- Found + flagged anomalies (report §3): CAM axis split-brain (ONTOLOGY vs
+    93→  POSE_LIBRARY disagree on CAM02/04/05/06/07 — the big one for Thread 4),
+    94→  K numbering holes (K09-60, K94-97, K102, K105-108, K109-114 freeform,
+    95→  K123-125 skipped despite ledger promise, K136-138, K156-157), FET26-45
+    96→  retired hole, duplicate kinetic_extension_v5 key, broken braces in
+    97→  env/skin/material dicts, bare OC-exempt token (K182), comment-defined codes
+    98→  (K155/K172-174), K185-188/K192-195 referenced-but-in-batch-files,
+    99→  light-verb 'fire' subset has 3 verbs outside the 21-verb master pool
+   100→- Typos: the known P22 'idnight-indigo' is ALREADY FIXED in the V21 source
+   101→  (verified — no palette typos found); auto-repaired 4 stray-quote scene
+   102→  values in-memory (NRM08/NRM09/NRW02/NRW11 — missing opening quote), sources
+   103→  untouched
+   104→- Wrote /home/z/my-project/thread4/specs/PARSE_REPORT.md (full report:
+   105→  counts, typos, 14 anomalies, judgment calls, near-dup analysis, section
+   106→  inventory, 5 recommended next actions)
+   107→
+   108→Stage Summary:
+   109→- Thread 4 now has complete, typed, machine-readable copies of every 3.2
+   110→  pool: 280 carriers, 240 poses (+pairs), 105 palettes, 107 K-codes, 50 FET,
+   111→  26 H, 64 GAR (40 garments + 24 failure states), 62 technique codes
+   112→  (BRE24+BK16+B22), 50 HS, 18 CAM, 15 LQ, 22 races (+gold/banned directives),
+   113→  69 NR, 7 engines + 5 seeds, 16 OCs with full locks — every entry and ID
+   114→  preserved, nothing deleted, all anomalies flagged not fixed
+   115→- Key finding for the compiler team: the camera axis MUST be renumbered to
+   116→  one scheme (POSE_LIBRARY suffix-named codes recommended); K-numbering
+   117→  should go sequential-or-names; sheer-family = 7 flagged W-carriers under
+   118→  the §4G caps
+   119→- parse_pools.py is rerunnable and self-validating; sources in chemodan/ were
+   120→  never modified (read-only parse)
+   121→
+   122→---
+   123→Task ID: 2-b (completed by Super Z main — subagent timed out mid-build; its components were kept)
+   124→Agent: Super Z (main)
+   125→Task: THREAD 4 dashboard (single-page SPA at /).
+   126→
+   127→Work Log:
+   128→- Subagent 2-b created src/components/t4/{api.ts, bits.tsx, markdown.tsx, spec-renderers.tsx}
+   129→  (quality work — defensive API layer, design-system bits, GFM markdown viewer,
+   130→  9 spec renderers) but hit the context deadline before page.tsx
+   131→- Main finished: rewrote src/app/page.tsx — 8 tabs (Состояние/Документы/Спеки/
+   132→  Сборка/Батчи/События/Вердикты/Архив 3.2), dark atelier (zinc+amber, no blue),
+   133→  sticky footer with safe-area, mobile-first, loading/error/empty states
+   134→- Installed react-markdown + remark-gfm (tables render — constitution has them)
+   135→
+   136→Stage Summary:
+   137→- Dashboard complete and browser-verified; API contract implemented 1:1 (see Task 4)
+   138→
+   139→---
+   140→Task ID: 3-7 (core build, by Super Z main)
+   141→Agent: Super Z (main)
+   142→Task: THREAD 4 core: rating recipes, event store, compiler, gates, API routes,
+   143→integration, verification.
+   144→
+   145→Work Log:
+   146→- Wrote thread4/specs/rating-recipes.json (the author's 2026-09-19 tier table →
+   147→  full per-tier recipes: signals/signal_min/carrier_classes/counter-NEG/prose
+   148→  floor/opener ladder; eternal floors: genital lock, anti-loli, leak guard,
+   149→  candle guard, face guard; XXX never; default spread R7/R+12/X2) + bans.json
+   150→- Core TS lib (src/lib/t4/): fsutil.ts (paths), events.ts (append-only JSONL +
+   151→  fold: batches/window/OC rotation/debts), specs.ts (typed loaders + cache +
+   152→  inventory), compiler.ts (seeded deterministic RNG, LRU rotation pools, slot
+   153→  planner 21+3: OC longest-rested, 7 NICHE R / 9 R+ mains incl. EXQ / 2 X,
+   154→  core-4 carrier assignment per mech group with recipe preference, batch-level
+   155→  sheer budget ≤40% R+ frames + ≤2/prompt, W ≤45% by construction, 21 distinct
+   156→  poses/palettes, 10 racial, register thirds ≤50%, LEAD/closer/witness
+   157→  rotation, EXPLORATORY slots legalized; emits contracts/T4-NN.json + .md
+   158→  exposition; dryRun mode for selftests), gates.ts (11 gates: structure/floors/
+   159→  rating-recipe/canon/diversity/window HARD; budget/cadence/simcheck WARN;
+   160→  freq-report/usage ADVISORY; receipt + sha10 + first-run-clean verdict,
+   161→  gate.run events, dryRun mode)
+   162→- Fixed during selftest: bun parser vs type-literal generic (named interface);
+   163→  mains count arithmetic (9 R+ mains); closer missing from main slot push;
+   164→  tierOf regex («\b after '+' never fires» — explicit-order tier matching);
+   165→  sheer batch budget; dryRun to keep selftests out of the live ledger
+   166→- API routes (13): state, docs/[name], specs, specs/[id], compile, contracts,
+   167→  contracts/[slug], batches, batches/[slug], gates, events (GET+POST, typed),
+   168→  archive, archive/[name], feedback (VLM render analysis → render.verdict
+   169→  event, z-ai-web-dev-sdk backend-only)
+   170→- thread4/cli.ts: seed/compile/gates/state/selftest (bun); seeded era events
+   171→  (era.born, spec.imported, law.ratified, taste.datum)
+   172→- VERIFICATION: selftest 18/18 PASS (determinism, 21 slots, spread R7/R+12/X2,
+   173→  core-4 groups, racial 10, registers ≤50%, sheer/W caps, parseBatch);
+   174→  synthetic broken batch T4-98 → all 6 hard gates FAIL correctly with named
+   175→  findings; lint clean (0 errors 0 warnings); agent-browser e2e: all 8 tabs
+   176→  render, compile from UI (T4-02 created, contract rendered), archive N12
+   177→  readable, verdict form → render.verdict event recorded, mobile 390px OK,
+   178→  footer sticky, console clean, VLM screenshot review: «layout is NOT broken»
+   179→
+   180→Stage Summary:
+   181→- THREAD 4 v1.0.0 shipped: constitution + taste + renderer facts + 9 typed
+   182→  specs (280 carriers/240 poses/105 palettes/107 K/7 engines/16 OC/26 races/
+   183→  5 tier recipes/bans) + deterministic compiler + 11 gates + 13 API routes +
+   184→  VLM feedback loop + dashboard — all browser-verified
+   185→- Standing demo: T4-01 «Город, где усталость носят как меха» contract compiled
+   186→  (engine bespoke, OC Ash/Zia/Lua, sheer 33%, W 25%); author blesses it or
+   187→  names his own theme (ledger reset = one command)
+   188→- Open for the author: theme order for the first real batch; render verdicts;
+   189→  VLM loop first live test
+   190→
+   191→---
+   192→Task ID: 3
+   193→Agent: Super Z (main)
+   194→Task: Ответ автору на «как запустить производство батча 21+3 OC, куда вписывать
+   195→темы ОС» + закрытие дыр + первый живой прогон: производство T4-02.
+   196→
+   197→Work Log:
+   198→- Прочитал контракт T4-02 (tint, R7/R+12/X2, Lyn/Sue/Una, полный слот-план),
+   199→  gates.ts (формат батча, парсер, все проверки), cli.ts, compiler.ts, спеки
+   200→  (rating-recipes, oc-canon Lyn/Sue/Una, K-коды, палитры, sheer-семейство
+   201→  W07/W08/W09/W10/W11/W12/W17)
+   202→- Ответ на вопрос автора: производство = приказ писцу в чате («Super Z,
+   203→  произведи T4-NN»). Сборка — план; писец пишет 21+3 против контракта,
+   204→  самопроверка гейтами (dry), официальный прогон, сдача с ворклогом.
+   205→  Вшил этот ответ в саму систему, чтобы он больше не требовался:
+   206→  * compiler.ts: ocThemes (Record имя→тема) → ocTheme в слот-план; секция
+   207→    «Темы OC (заказ автора)» в md контракта; секция «Производство» в КАЖДЫЙ
+   208→    контракт (приказ, куда дописывать темы ОС)
+   209→  * compile route: приём ocThemes (валидация, ≤300 симв.)
+   210→  * page.tsx Сборка: поле движка + 3 ряда «имя OC | тема» + панель
+   211→    «Производство — от сборки к батчу» (3 шага) + кнопка «Приказ» у каждого
+   212→    контракта (копирует «Super Z, произведи T4-NN» в клипборд); пустое
+   213→    состояние Батчей ведёт в чат
+   214→  * cli.ts: новые команды check (сухой прогон писца, без событий) и deliver
+   215→    (официальный прогон + мета batches/T4-NN.json с квитанциями + событие
+   216→    batch.delivered; hard FAIL → не сдаётся)
+   217→- gates.ts: починил палитренную уникальность — старый regex ловил маркер
+   218→  слота «P01» вместо палитры (вакуумный PASS); теперь underscore-форма
+   219→  (P77_LATE_MILK) + требование 21/21 слотов с палитрой в шапке
+   220→- НАПИСАЛ БАТЧ T4-02 «The Shape of a Moment» (24 промпта: 3 OC + 18 мейнов,
+   221→  thread4/batches/T4-02.md): закон батча «every stain keeps the shape of its
+   222→  moment», tint-доставка молоком/тушью/углём/спорами/паром/водой/распылом/
+   223→  порогом, свидетели NICHE хранят пятно, §51-акцент в каждом кадре, три акта
+   224→  (The Dye Arrives / Set Past the Skin / What the Color Keeps), OC-темы
+   225→  выведены писцом (автор не заказывал), EXPLORATORY P04 = tint-доставка
+   226→  порошком без жидкости
+   227→- Итерации писца (check, без записи): P04 уронил 4-й носитель CR-E14 →
+   228→  вернул + вшил collar-askew в прозу; 17 промптов за бюджетом 300 → ужаты
+   229→  (финал: все ≤300); тик «saturated» 20/21 → раскидан по синонимам
+   230→  (full-pigment / full-strength / undiluted), остался «keeps 15/21» —
+   231→  намеренный глагол-хребет закона батча
+   232→- ОФИЦИАЛЬНАЯ СДАЧА: bun thread4/cli.ts deliver T4-02 → run #1, hard PASS
+   233→  (structure/floors/rating-recipe/canon/diversity/window), 3 warn-PASS,
+   234→  FIRST RUN CLEAN, sha10 1244c0d2bf; batch.delivered + gate.run в логе;
+   235→  окно ротации теперь [T4-02]
+   236→- Проверки: lint 0/0; сухой компилят с ocThemes (Lyn/Sue темы в слоты,
+   237→  Una undefined → ротация темы писцом, md-секции рендерятся); браузер:
+   238→  Сборка (все новые поля/панель/кнопки Приказ), Батчи (T4-02 + 11 квитанций
+   239→  PASS/REPORT), батч-маркдаун рендерится, футер sticky, консоль чистая
+   240→
+   241→Stage Summary:
+   242→- Производство закрыто end-to-end и ОПРОБОВАНО вживую: T4-02 сдан first run
+   243→  clean. Ответ на «через чат?» — да: кнопка «Приказ» в Сборке копирует
+   244→  строку приказа; темы ОС вписываются при сборке (3 ряда) или в приказе
+   245→- Цикл автора теперь: Сборка (сек) → «Приказ» → писец пишет/гоняет/сдаёт →
+   246→  Батчи (квитанции) → Вердикты (VLM по рендерам) → следующая сборка видит
+   247→  окно ротации T4-02
+   248→- Открыто: авторский просмотр T4-02 (вкус? правки?); первый живой VLM-вердикт
+   249→  по рендеру; X-слоты P11/P15 ждут читки (art-for-art, Yadayo душит)
+   250→
+   251→---
+   252→Task ID: 4
+   253→Agent: Super Z (main)
+   254→Task: Приказ автора 2026-09-20: (1) рассмотреть вердикт по T4-02, (2)
+   255→автоматизированный писец, (3) кнопки/фичи в интерфейсе, (4) обновить движки +
+   256→структура сборки комплексных движков, (5) произвести T4-03.
+   257→
+   258→Work Log:
+   259→- Прочитал вердикт T4-02 (render.verdict 2026-09-20 11:42): батч отличный,
+   260→  позы отличные, VOLT прописан хорошо; три правки — NICHE не читалась,
+   261→  геометрия штурвала, счёт должен быть 21 мейн + 3 OC (не 21 всего)
+   262→- Вердикт стал законом (event-sourcing): 3× law.amended + taste.datum.
+   263→  Компилятор: LAWS 24 слота (slotsTotal 24, mainsTotal 21, rplusMains 12),
+   264→  регистры 8/8/8, расовый каст 10/21 на мейнах, поддержка recompile (слаг-
+   265→  override), oc.appeared переведён на сдачу (deliverBatch), из лога вычищены
+   266→  12 ложных oc.appeared по несданным батчам (+note-событие)
+   267→- Компилятор-фиксы по вкусу: PL01 Neutral Stand исключён из пула (анти-канон
+   268→  «standing lineup»), Human исключён из расового каста
+   269→- Гейты: structure ждёт 24 + жанр-токен в каждой шапке (hard, вердикт T4-02);
+   270→  новый warn niche-legibility (раса-теги ≥2 + свидетель); новый warn
+   271→  prop-geometry (сложные пропы: ≥2 якоря контакта, только тег-блок — метафоры
+   272→  прозы не считаются); floors: milf-тег в POS = hard fail (N30); simcheck
+   273→  игнорирует бойлерплейт (quality-теги/фейс-лок); rating-оверклейм не ругается
+   274→  на сигнал своего тира («taped nipples» ⊃ «nipples»). Selftest 21/21 под
+   275→  новый закон
+   276→- Конституция §5/§7 поправлена (жанр виден; 24 позы; якоря пропов), TASTE.md
+   277→  + секция VERDICT-DRIVEN LAWS (анти-канон: нечитаемая ниша, геометрия,
+   278→  счёт)
+   279→- Движки v1.1.0: всем 7 вписаны witness_register + genre_split, tint получил
+   280→  квитанцию T4-02, counterfall — назначение T4-03; +3 КОВАНЫХ двухосевых
+   281→  движка генерации 8 (tidefall, heldhour, glamour-tax) со свидетелями своих
+   282→  регистров
+   283→- КУЗНИЦА: specs/engine-forge.json (лестница сложности gen1-7/8/9, схема
+   284→  5-осевой записи, библиотека доказанных компонентов, протокол сборки 9
+   285→  шагов) + ENGINE_FORGE.md (док во «Документах», рендерер ForgeView в Спеках)
+   286→- АВТО-ПИСЕЦ (реализуем — сделан): src/lib/t4/scribe.ts — LLM пишет
+   287→  ANCHOR/THESIS/POS/NEG-экста по контрактным фреймам (чанки по 6 слотов),
+   288→  код собирает детерминистику (Canon/Spine/Stack/NEG-флооры/шапки/легенда),
+   289→  гейты dry-run + ремонтная петля (≤2 круга); deliver вынесен в lib/t4/deliver.ts
+   290→  (+ WORKLOG-секция в файл батча при сдаче); роут /api/t4/scribe (maxDuration
+   291→  600, гарда «сданный батч не перезаписывается»); gates route {deliver:true};
+   292→  cli: scribe/recompile; событие scribe.drafted
+   293→- UI: кнопка «Писец» у каждого контракта + панель прогресса/квитанций +
+   294→  «Сдать официально»; в Батчах панель быстрых вердиктов (4 вердикта-чипа +
+   295→  7 чипов проблем + проза → render.verdict со структурой); Вердикты: слаг из
+   296→  списка батчей + 8 чипов-заготовок; Документы + Кузница; тексты 21+3=24;
+   297→  футер/статус обновлены
+   298→- T4-03 «Faceless Void» (counterfall): перекомпилирован под закон 24 (OC
+   299→  Sol/Vae/Mab — как в исходном заказе), авто-писец написал черновик «Wet
+   300→  Gravity's Pull» (24/24 слота, 1 круг ремонта, dry PASS — оверклеймы
+   301→  P12/P14/P21 починены петлей), затем СТАРШИЙ писец (Super Z) переписал прозу
+   302→  до уровня дома: «The Last Face» — закон батча WET RISES, DRY FALLS +
+   303→  THE VOID KEEPS NO FACES (свидетели безлики, её лицо — последнее), 3 акта
+   304→  (The Water Chooses / The Climb / The Last Face), все носители вплетены,
+   305→  якоря геометрии у railing/swing/rail, свидетели дословно
+   306→- СДАЧА: deliver T4-03 → run #1, ВСЕ 13 гейтов PASS (6 hard + 5 warn + 2
+   307→  advisory), FIRST RUN CLEAN, sha d2bb5c0418; батч+мета+ворклог+события
+   308→- Верификация: lint 0/0; selftest 21/21; agent-browser: все вкладки, T4-03
+   309→  с квитанциями, быстрые вердикты e2e (событие в логе), Кузница в Спеках и
+   310→  Документах, писец-кнопки, мобильный футер sticky, консоль чистая; полный
+   311→  тест /api/t4/scribe на T4-01 (петля LLM под Next.js живая, старый контракт
+   312→  честно зафейлен новым законом, черновик удалён)
+   313→
+   314→Stage Summary:
+   315→- Вердикт T4-02 обработан полностью: 21+3=24 — закон (hard), жанр виден —
+   316→  закон (hard), ниша-легибильность + геометрия пропов — warn-гейты, всё в
+   317→  конституции/TASTE/событиях
+   318→- Авто-писец РАБОТАЕТ и доказан вживую (CLI + Next-роут): машина пишет
+   319→  черновик за ~2-4 мин с ремонтной петлёй; финальная проза — моя полировка
+   320→  (честное разделение: машина = каркас/теги/структура, дом = голос)
+   321→- Движки: 10 штук (7 обновлённых + 3 кованых двухосевых), Кузница —
+   322→  структура сборки новых (лестница сложности, протокол, компоненты)
+   323→- T4-03 «The Last Face» СДАН first run clean — 24 промпта, все 13 гейтов
+   324→  чистые; окно ротации теперь [T4-02, T4-03]
+   325→- Открыто: авторский просмотр T4-03; первый живой VLM-вердикт по рендеру;
+   326→  дебют кованого движка (tidefall/heldhour/glamour-tax) — по приказу автора
+   327→
+   328→---
+   329→Task ID: 5
+   330→Agent: Super Z (main)
+   331→Task: Приказ автора 2026-09-21: рассмотреть вердикт по T4-03, понять причину,
+   332→исправить, произвести T4-04.
+   333→
+   334→Work Log:
+   335→- Прочитал вердикт T4-03 (render.verdict 2026-09-21 13:21, по-слотовая
+   336→  разметка всех 24 кадров) и сопоставил со слот-планом: скорборд R 7/7 ✅,
+   337→  X 2/2 ✅, R+ 1/15 («еле-еле» P10) ❌ — система доставляет тиры именованных
+   338→  объектов, но R+ умирает
+   339→- КЛИНИЧЕСКИЙ ДИАГНОЗ (3 механизма отказа, все из цитат автора):
+   340→  1) «Выглядит эротично, но ничего не делает» — сигнал заявлен на зоне,
+   341→     которую стейджинг закрывает (рубашка на талии P01, юбка P21, плащ P16,
+   342→     полу-снятые бриджи P17, наклон от камеры P02)
+   343→  2) «Там из эротического только купальник» — контр-NEG «topless, naked
+   344→     breasts» глушит on-skin механизмы (tape/handbra) и see-through
+   345→  3) «Чулки сквозь джинсы, майка поверх рубашки» — слоевой хаос (3+ верхних
+   346→     слоя) ломает порядок слоёв рендера
+   347→- Вердикт → закон (event-sourcing): taste.datum + 3× law.amended:
+   348→  §9-поправка R+ ЗАРАБАТЫВАЕТСЯ В КАДРЕ (hard-claim: именованный edge-объект
+   349→  на именованной цели, зона = LEAD, открыта камере), §9-бис МЕХАНИЗМ-
+   350→  ОСОЗНАННЫЙ КОНТР-NEG (on-skin поднимает «topless, naked breasts» из NEG),
+   351→  §7-бис СЛОЕВАЯ ЧЁТКОСТЬ (≤2 слоя на зону, зона сигнала ≤1 слой, OC —
+   352→  камера-смотрящие позы)
+   353→- rating-recipes.json v1.1.0: RPLUS перекован — signals_hard (cameltoe /
+   354→  camel toe / taped nipples / topless with tape / handbra / visible
+   355→  pantyline) + hard_min 1 + mechanisms {through_fabric, on_skin} со своими
+   356→  counter_neg/counter_neg_lifted; усилители сами R+ не зарабатывают
+   357→- specs.ts: TierRecipe + signals_hard/hard_min/mechanisms (optional, без
+   358→  поломки типов)
+   359→- gates.ts: rating-recipe — hard-claim проверка (R+ без named edge-объекта =
+   360→  FAIL) + механизм-aware NEG-глушение (tape/handbra в POS + «topless» в NEG
+   361→  = FAIL) + сигналы считаются в POS (не POS+NEG); НОВЫЙ warn-гейт
+   362→  claim-visibility (закрытая зона сигнала / слоевой хаос ≥5 предметов /
+   363→  стопка ≥3 верхних / OC-позы от камеры); diversity — моно-носитель N28
+   364→  (один ID >4 слотов = FAIL); claim-visibility — word-boundary матчинг
+   365→  (фикс ложного «cape» в «escaped»)
+   366→- ВАЖНО: сухой прогон НОВЫХ гейтов по СТАРОМУ T4-03 поймал ровно те слоты,
+   367→  что назвал автор (P1 tied-at-waist, P2 NEG+fold, P13/P15/P16/P17/P21
+   368→  закрытые зоны) — правоприменение доказано
+   369→- compiler.ts: починен моно-носитель — lruPick не дедуплицировал внутри
+   370→  батча, CR-W27 («spa steam darkening the blouse») вставал во все 15 R+/X
+   371→  слотов (тик «steam-damp blouse» ×15 у авто-писца); теперь batchUse-щтраф
+   372→  (×50) отодвигает выбранных носителей до исчерпания пула → T4-04: 89/89
+   373→  уникальных, W 19%; contract.laws + rplusHardClaim/mechanismNeg/layerClarity
+   374→  + ловушки T13/T14 в контрактMarkdown
+   375→- scribe.ts: assembleNeg механизм-aware (on-skin → фильтр lifted-терминов —
+   376→  код, не LLM); slotFrame — блоки HARD CLAIM + CLAIM ZONE для R+; SYSTEM_
+   377→  PROMPT — 3 новых правила письма (RATING EARNED IN FRAME / LAYER CLARITY /
+   378→  OC camera-facing)
+   379→- CONSTITUTION.md §9-поправка + §7-поправка; TASTE.md — вердикт T4-03 в
+   380→  whole-batch + анти-канон (looks-erotic-does-nothing, swimsuit read,
+   381→  layer-order lottery) + VERDICT-DRIVEN LAWS T4-03
+   382→- T4-04 «The Price of a Wish» (cantus): ПЕРЕкомпилирован под новым законом
+   383→  (тот же сид 3696118591 → те же позы/палитры, новые стеки носителей);
+   384→  авто-писец написал 2 черновика (24/24, 1 круг ремонта, dry PASS оба —
+   385→  второй против чистого контракта, warn-лист = моя работа)
+   386→- СТАРШИЙ писец (Super Z): полная перезапись прозы до уровня дома — закон
+   387→  батча EVERY WISH IS WORN / THE PRICE IS THREAD (ткацкий станок вплетает
+   388→  желание в одежду, ткань держится пока держится нота = голос носящего,
+   389→  распускание течёт к источнику, цена — кожа), 3 акта (The Note Holds /
+   390→  The Unravel / What the Wish Keeps), все 15 R+ слотов несут named
+   391→  edge-объект на LEAD-зоне (cameltoe на названной вещи / tape на коже),
+   392→  механизм-aware NEG собран вручную по закону, все 89 носителей вплетены,
+   393→  свидетели/клоузеры/§51-акценты на местах; починил 14 заголовков (ID поз),
+   394→  P18 milf-протечку, P20 свечную гварду, P10 якоря каната, ужал 5 слотов
+   395→  до бюджета ≤300
+   396→- ОФИЦИАЛЬНАЯ СДАЧА: bun thread4/cli.ts deliver T4-04 → run #1, ВСЕ 14
+   397→  гейтов PASS (6 hard + 6 warn + 2 advisory), FIRST RUN CLEAN, sha
+   398→  bdca546e7d; batch.delivered + gate.run + 3× oc.appeared (Miyu/Zia/Nix)
+   399→- Верификация: lint 0/0; selftest 21/21; agent-browser: все вкладки, T4-04
+   400→  с квитанциями (rating-recipe PASS, claim-visibility PASS), markdown
+   401→  батча рендерится, события (3 закона + вердикт + доставка), конституция с
+   402→  поправками, контракт T4-04 с rplusHardClaim/mechanismNeg, мобильный 390px
+   403→  + десктоп, футер sticky, консоль чистая, ошибок нет
+   404→
+   405→Stage Summary:
+   406→- Вердикт T4-03 обработан ПОЛНОСТЬЮ: причина найдена (3 механизма смерти
+   407→  R+), исправлена на всех уровнях (рецепт v1.1.0 → гейты → писец →
+   408→  компилятор → конституция → вкус) — правоприменение доказано прогоном
+   409→  новых гейтов по старому батчу (поймали ровно слоты автора)
+   410→- T4-04 «Paid in Thread» СДАН first run clean — 24 промпта, движок cantus
+   411→  (дебют: ткань = выдержанная нота), OC Miyu/Zia/Nix, все 15 R+ с named
+   412→  edge-объектами; окно ротации теперь [T4-02, T4-03, T4-04]
+   413→- Попутно починен моно-носитель (N28): внутрисборочная дедупликация
+   414→  носителей в компиляторе + гейт >4 слотов на ID
+   415→- Открыто: авторский просмотр T4-04 (живёт ли hard-claim R+ на рендере?);
+   416→  первый живой VLM-вердикт по рендеру; EXPLORATORY P15 (static-cling как
+   417→  третий путь к edge) ждёт проверки рендером
+   418→
+   419→---
+   420→Task ID: 6
+   421→Agent: Super Z (main)
+   422→Task: Приказ автора 2026-09-21 (второй): рассмотреть РЕНДЕР-вердикт по T4-03
+   423→(zip с 21 картинкой: сравнить рейтинг vs картинки, разобраться нативно) +
+   424→починить имена ОС в POS (найдены в T4-04) + перепроизвести T4-04.
+   425→
+   426→Work Log:
+   427→- Распаковал T4-03.zip (21 webp, upload/t4-03-imgs): порядок подтверждён
+   428→  нативно — по возрастанию P04→P24 по mtime (сцены совпали с промптами
+   429→  дословно: гамак=P06, эльф-палата=P07, кицунэ-пляж=P08 … дриада=P24);
+   430→  OC-сегмента в zip нет (автор описал его словами — «2 прижимается одетой
+   431→  грудью к стеклу» = T4-04 P02 Zia: рендерил и T4-04 OC-трио)
+   432→- VLM-аудит всех 21 кадров (thread4/tools/analyze-renders.ts, 2 прохода,
+   433→  скептическая верификация слабых сигналов): сцены сматчены 100%, но
+   434→  МЕТА-НАХОДКА — VLM ЗАВЫШАЕТ edge-тир (8/12 R+ против глаза автора 1/15):
+   435→  «bra под sheer» VLM читает как edge, автор справедливо — как R
+   436→- Сверил с по-слотовым вердиктом автора 09-21 (уже в логе): скорборд
+   437→  R 7/7 ✅ · X 2/2 ✅ · R+ 1/15 (P10 «еле-еле») ❌ · OC 0/3 ❌ —
+   438→  подтверждён картинками; подозрение автора о T4-04 подтверждено промпт-
+   439→  форензикой: v1.1.0 положила заявки на cameltoe (28 вхождений) — тег,
+   440→  который рендерер НЕ РИСУЕТ (0 отрисовок из всех попыток)
+   441→- КЛИНИЧЕСКИЙ ДИАГНОЗ (RENDER LAW, из картинок): (1) cameltoe — мёртвый
+   442→  тег; (2) edge читает только через wet clothes / see-through на ОДНОЙ
+   443→  тонкой светлой вещи; (3) подслой (bra/camisole/bandeau под sheer)
+   444→  рендерер рисует ВМЕСТО edge → тиры падают в R (P12 sports bra, P14);
+   445→  (4) мёртвые ткани (джинсы/бархат/свитпаны/бриджи/кожа/костюм) заявку
+   446→  не несут; (5) слоевой хаос (3+ верхних) → скромная комбинация; (6)
+   447→  X доставлен 2/2 — блок покрытия в NEG («covered breasts, bra, clothing
+   448→  on chest») заставляет рендерер взять тир; (7) доставка R+ стохастична
+   449→  (~1/8 при законе) — гейт строит кадр лучшей вероятности, автор
+   450→  перекидывает
+   451→- Вердикт → закон (event-sourcing): render.verdict (T4-03 zip + T4-04
+   452→  OC-репорт) + law.amended §9-терция (RENDER LAW) + law.amended §9-кватерна
+   453→  (ИМЕНА ОС НИКОГДА НЕ В POS — приказ автора: триггерят чужих персонажей)
+   454→  + taste.datum (рендерер — читатель тегов, не поэт; VLM edge не грейдит)
+   455→- rating-recipes.json v1.2.0: signals_hard = только рендер-доказанные
+   456→  (pantyline / nipples through clothing / clothed nipples / see-through /
+   457→  tape); cameltoe выведен (flavor); through_fabric: required_state (wet
+   458→  clothes / see-through) + underlayer_block (bra/camisole/… — рендерер
+   459→  рисует подслой) + dead_fabrics_lower/upper (зона-осознанно); on_skin
+   460→  render_risk (экспериментальный); X: coverage-block в counter_neg
+   461→  (доказанный инструмент доставки 2/2)
+   462→- gates.ts: rating-recipe — 3 новых hard-проверки (состояние ткани /
+   463→  подслой / мёртвая ткань) + cameltoe-специфичная формулировка; canon —
+   464→  hard-бан имён ОС в POS (case-sensitive, word-boundary, все 16 канонных
+   465→  имён); claim-visibility — позиция состояния в тег-ране (warn, раннее
+   466→  вхождение решает, OC-люфт 22); НОВЫЙ warn-гейт rating-recipe-
+   467→  exploratory (нарушения RENDER LAW у ⚗-слотов = квитанция §10, не блок);
+   468→  window + simcheck — исключение своего слага при re-delivery (себя
+   469→  не сравниваем)
+   470→- scribe.ts: RENDER LAW + NAMES NEVER ENTER POS в SYSTEM_PROMPT; GOLD-
+   471→  пример переписан (имя убрано, заявка = wet+see-through+nipples through);
+   472→  slotFrame: NAME LAW строка + HARD CLAIM v1.2.0; normalizePos — КОДОВАЯ
+   473→  ГВАРДА: имена ОС вычищаются из POS детерминистично (даже если LLM
+   474→  написал); compiler.ts: контрактные законы rplusHardClaim/mechanismNeg/
+   475→  layerClarity переписаны + ловушка T15 (имена)
+   476→- CONSTITUTION.md §9-терция + §9-кватерна; TASTE.md: T4-03 RENDER VERDICT
+   477→  (полный скорборд + 7 законов + мета VLM) + анти-канон (cameltoe-as-
+   478→  claim, underlayer steal, dead-fabric edge, OC names as tags, VLM
+   479→  edge-grading) + VERDICT-DRIVEN LAWS T4-03 RENDER (8 законов) + эвристика
+   480→  №10 (рендерер — читатель тегов)
+   481→- T4-04 v2 «Paid in Thread» ПЕРЕпроизведён: имена Miyu/Zia/Nix вычищены
+   482→  из всех POS (теги+проза; остались только в шапках/Canon, которые
+   483→  рендерер не читает); все 15 R+ слотов перевезены на рендер-доказанные
+   484→  заявки: P01 steam-damp blouse + wet/see-through/nipples-through (нагрудник
+   485→  отстёгнут, зона открыта), P02 damp blouse к стеклу (cameltoe на джинсе
+   486→  снят — мёртвая ткань), P03 salt-damp sheet + see-through, P05 sweat-
+   487→  soaked leotard, P06 бархат→шёлк (мокрый шёлк кимоно), P07 sheer seat +
+   488→  bra strap из тегов убран, P14 заявка перевезена джинс→мокрый халтер,
+   489→  P15 оставлен как §10-эксперимент (static cling — третий путь, квитанция),
+   490→  P16/P18/P22/P24 wet+see-through+nipples-through, P18 tape→steam, P22
+   491→  camisole (подслой!) убран; X-слотам P13/P20 вшил блок покрытия в NEG;
+   492→  P18 NEG восстановлен (topless, naked breasts — заявка теперь сквозь-
+   493→  ткань); бюджеты P02/P14/P22 ужаты ≤300; WORKLOG-секция v2
+   494→- ПРАВОПРИМЕНЕНИЕ ДОКАЗАНО: сухой прогон НОВЫХ гейтов по СТАРОМУ T4-03 —
+   495→  15 hard-находок: 10× cameltoe-only (P1/P3/P8/P9/P10/P13/P17/P21/P22/P23
+   496→  — точный провальный список автора), P12/P15 underlayer (sports bra/bra
+   497→  под sheer), P15 мёртвые бриджи, P2 NEG глушит tape — закон ловит всё,
+   498→  что умерло на рендере, детерминистично
+   499→- ОФИЦИАЛЬНАЯ СДАЧА v2: bun thread4/cli.ts deliver T4-04 → run #2, hard
+   500→  PASS, все warn чистые (единственная квитанция — §10-эксперимент P15),
+   501→  batch.delivered + gate.run записаны
+   502→- Верификация: selftest 21/21; lint 0/0; agent-browser: все вкладки,
+   503→  T4-04 квитанции (rating-recipe hard PASS + rating-recipe-exploratory
+   504→  WARN), рендер-законы видны в батче (13 вхождений wet/see-through/
+   505→  nipples-through), имена ОС только в шапках/Canon, события (render.
+   506→  verdict + 2× law.amended + taste.datum), конституция с §9-терция/
+   507→  кватерна (7 вхождений), мобильный 390px футер sticky, консоль чистая,
+   508→  dev.log без ошибок
+   509→
+   510→Stage Summary:
+   511→- Рендер-вердикт T4-03 обработан ПОЛНОСТЬЮ: root cause найден нативно
+   512→  (7 рендер-законов из картинок + глаза автора), исправлен на всех
+   513→  уровнях (рецепт v1.2.0 → гейты → писец + кодовая гварда имён →
+   514→  компилятор → конституция §9-терция/кватерна → вкус)
+   515→- Приказ об именах исполнен системно: hard-гейт + кодовая гварда в
+   516→  normalizePos + инструкция писцу — имена больше физически не могут
+   517→  попасть в POS
+   518→- T4-04 v2 «Paid in Thread» СДАН: все 15 R+ на рендер-доказанных
+   519→  механизмах, X усилен блоком покрытия, P15 — легальный §10-эксперимент
+   520→  (static cling как третий путь к edge — вердикт автора решит)
+   521→- Мета-закон: VLM не грейдит edge-тир (завышение 8/12 vs 1/15) —
+   522→  вердикт по эротике только у автора; VLM-петля проверяет сцену/структуру
+   523→- Открыто: авторский рендер T4-04 v2 (живёт ли R+ через wet/sheer?);
+   524→  вердикт по P15-эксперименту; re-roll дисциплина (R+ стохастичен ~1/8 —
+   525→  перекидывание слота = инструмент автора, не дефект системы)
+   526→

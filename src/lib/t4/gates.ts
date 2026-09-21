@@ -11,7 +11,7 @@ import path from 'node:path'
 
 import { BATCHES_DIR, CONTRACTS_DIR, readJson, readText } from './fsutil'
 import { appendEvent, foldState, readEvents } from './events'
-import { getBans, getCarriers, getOCCanon, getRaces, getRatingRecipes } from './specs'
+import { getBans, getCarriers, getOCCanon, getRaces, getRatingRecipes, getRatingTechniques, type TechniqueEntry } from './specs'
 import { LAWS } from './compiler'
 
 export type GateLevel = 'hard' | 'warn' | 'advisory'
@@ -147,6 +147,56 @@ const XXX_SIGNALS = [
   'sex', 'sexual act', 'intercourse', 'penetration', 'creampie', 'cum ',
   'cumshot', 'semen', 'blowjob', 'handjob', 'masturbat',
 ]
+
+/* ------------------------------------------------------------------ */
+/* Техника-карта (таблица автора 2026-09-21, PG-13→R→R+→X Cut):        */
+/* матчинг приёмов по тег-блоку. Бойлерплейт (опенеры/quality/1girl/   */
+/* solo) вырезается — «ecchi anime style» не должен дарить слой 3.     */
+/* ------------------------------------------------------------------ */
+
+const TECH_BOILER_RE =
+  /\b(?:hentai anime style|ecchi anime style|anime style|masterpiece|best quality|anime artstyle|1girl|solo)\b/gi
+
+function techTagBlock(pos: string): string {
+  const firstPeriod = pos.indexOf('.')
+  const tb = (firstPeriod > 0 ? pos.slice(0, firstPeriod) : pos).toLowerCase()
+  return tb.replace(TECH_BOILER_RE, ' ')
+}
+
+function techHit(tb: string, match: string[][]): boolean {
+  if (match.length === 0) return false
+  return match.some((alt) =>
+    alt.every((s) => new RegExp(`\\b${s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`).test(tb))
+  )
+}
+
+/** Сигнал лестницы R+: ● на R / R+ / X (живёт на R-уровне или выше). */
+function isLadderSignal(e: TechniqueEntry): boolean {
+  return e.r === '●' || e.rplus === '●' || e.x === '●'
+}
+
+/** Дедупликация субсумируемых тегов: «taped nipples» уже содержит «nipples» —
+ *  голый X-тег не считается вторым сигналом (двойной счёт ломает сумму). */
+function dedupeSubsumed(hits: TechniqueEntry[]): TechniqueEntry[] {
+  const has = (re: RegExp) => hits.some((e) => re.test(e.tag))
+  return hits.filter((e) => {
+    if (e.tag === 'nipples' && has(/nipples through|taped nipples|clothed nipples|covered nipples|nipple outline/)) return false
+    if (e.tag === 'naked, nude' && has(/naked apron|naked shirt|almost naked/)) return false
+    if (e.tag === 'see-through' && has(/see-through breasts/)) return false
+    if (e.tag === 'bare breasts' && has(/breasts out|one breast out/)) return false
+    return true
+  })
+}
+
+const LAYER_NAMES: Record<number, string> = {
+  1: 'видимо',
+  2: 'как',
+  3: 'зачем',
+  4: 'дорисовывает',
+}
+
+const TECH_WET_RE = /\b(?:wet clothes|steam|shower|rain|sweat)\b/
+const TECH_SHEER_RE = /\bsee-through\b/
 
 /* ------------------------------------------------------------------ */
 /* Gate runner                                                         */
@@ -382,6 +432,23 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
       const counterHit = (recipe.counter_neg ?? []).some((t) => negLower.includes(t.toLowerCase()))
       if (!counterHit) {
         f.push(`P${s.position}: контр-NEG не держит границу тира (нужно ≥1 из: ${(recipe.counter_neg ?? []).slice(0, 3).join(', ')})`)
+      }
+      // X CUT HOLD (техника-карта автора, блок 9 — рецепт v1.3.0): X = грудь/
+      // соски, низ — в одежде или вне кадра. NEG несёт ВЕСЬ блок границы
+      // тира (не ≥1), POS не приглашает рендерер вниз
+      if (tier === 'X') {
+        const missing = (recipe.counter_neg ?? []).filter((t) => !negLower.includes(t.toLowerCase()))
+        if (missing.length > 0) {
+          f.push(
+            `P${s.position}: X Cut hold (блок 9) — в NEG нет: ${missing.join(', ')} — весь блок границы X обязан стоять в NEG (главная угроза X Cut — модель дорисовывает ниже; это флоор-сила, не совет)`
+          )
+        }
+        for (const t of ['spread legs', 'nude lower body', 'uncensored']) {
+          if (tagRun.includes(t)) {
+            f.push(`P${s.position}: X Cut hold (блок 9) — «${t}» в POS приглашает рендерер ниже груди`)
+            break
+          }
+        }
       }
       // no above-tier signals (overclaim) — but a higher-tier token that is a
       // SUBSTRING of this tier's own signal phrase is by design (e.g. R+ «taped
@@ -788,6 +855,69 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
     warn('claim-visibility', f)
   }
 
+  /* ---------------- 8e. technique-layers (warn — таблица автора) ----- */
+  {
+    // ТЕХНИКА-КАРТА (2026-09-21): закон суммы факторов (блок 8) — R+ = 3+
+    // R-сигнала через 2+ из четырёх слоёв (что видно / как показано / зачем
+    // показано / что модель дорисовывает); ловушки (X-● теги — модель
+    // дорисовывает сосок сама); супрессоры (держат PG-13); мокрое+сквозное
+    // = осознанный X-риск (блок 8, строка 5); X Cut hold — кадрирование/
+    // низ в одежде (блок 9). Всё — квитанции: вердикт по эротике у автора.
+    const tech = getRatingTechniques()
+    const f: string[] = []
+    if (tech) {
+      const wetSheerSlots: string[] = []
+      for (const s of batch.slots) {
+        const tier = tierOf(s.meta)
+        if (tier !== 'R+' && tier !== 'X') continue
+        const tb = techTagBlock(s.pos)
+        const hits = dedupeSubsumed(tech.techniques.filter((e) => techHit(tb, e.match)))
+        const ladder = hits.filter(isLadderSignal)
+        const layersHit = [...new Set(ladder.map((e) => e.layer))].sort((a, b) => a - b)
+        if (tier === 'R+') {
+          // (1) сумма факторов — R+ зарабатывается суммой, не одним слоем
+          const floor = tech.sum_rules.rplus_floor
+          if (ladder.length < floor.signals_min || layersHit.length < floor.layers_min) {
+            const map = ladder.map((e) => e.tag.split(',')[0]).slice(0, 6).join(', ')
+            f.push(
+              `P${s.position}: сумма факторов не набрана — ${ladder.length} сигнал(а) через ${layersHit.length} слой(я) ${layersHit.length > 0 ? `(${layersHit.map((l) => LAYER_NAMES[l]).join('+')})` : ''}· блок 8: R+ = ${floor.signals_min}+ сигнала через ${floor.layers_min}+ слоя — это R/R+ граница, не R+ сумма; карта кадра: ${map || '—'}`
+            )
+          }
+          // (2) ловушки: X-● теги в R+ тег-блоке — модель часто решает за тебя
+          for (const e of hits) {
+            if (e.trap) {
+              f.push(`P${s.position}: ловушка «${e.tag}» — ${e.note} (X-риск известен до рендера)`)
+            }
+          }
+          // (3) супрессоры: держат кадр в PG-13/R сколько бы слоёв ни было
+          for (const e of hits) {
+            if (e.suppressor) {
+              f.push(`P${s.position}: супрессор «${e.tag}» — держит кадр ниже заявленного, снимай или компенсируй (блок 4/7)`)
+            }
+          }
+          // (4) мокрое + сквозное — осознанный X-риск (считается батч-уровнем ниже)
+          if (TECH_WET_RE.test(tb) && TECH_SHEER_RE.test(tb)) wetSheerSlots.push(`P${s.position}`)
+        }
+        if (tier === 'X') {
+          // (5) X Cut hold: кадрирование или закрытый низ (блок 9)
+          const framing = tech.xcut_hold.framing.some((t) => techHit(tb, [[t]]))
+          const covered = tech.xcut_hold.lower_cover.some((t) => techHit(tb, [[t]]))
+          if (!framing && !covered) {
+            f.push(
+              `P${s.position}: X Cut hold (блок 9) — низ тела ни закрыт (${tech.xcut_hold.lower_cover.slice(0, 5).join('/')}…), ни выведен из кадра (${tech.xcut_hold.framing.join('/')}) — модель может «дорисовать» ниже`
+            )
+          }
+        }
+      }
+      if (wetSheerSlots.length > 0) {
+        f.push(
+          `осознанный X-риск (блок 8, строка 5): ${wetSheerSlots.length} R+ слотов несут мокрое+сквозное (${wetSheerSlots.join(', ')}) — очень высокий риск нечаянного X при рендере; это рабочий механизм рецепта v1.2.0, автор фильтрует перекидкой`
+        )
+      }
+    }
+    warn('technique-layers', f)
+  }
+
   /* ---------------- 9. simcheck (warn) ---------------- */
   {
     const f: string[] = []
@@ -856,6 +986,33 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
     f.push(`носителей в стеках: ${stacked.length}; уникальных: ${new Set(stacked).size}`)
     f.push(`R+ слотов: ${batch.slots.filter((s) => tierOf(s.meta) === 'R+').length}; X: ${batch.slots.filter((s) => tierOf(s.meta) === 'X').length}`)
     advisory('usage', f)
+  }
+
+  /* ---------------- 12. technique map (advisory — карта слоёв) ------- */
+  {
+    // Карта слоёв автора (принцип «для идиота»): сколько сигналов и через
+    // какие слои набрано в каждом R+/X кадре. Отчёт, не квитанция —
+    // прозрачность для автора: что именно рендерер увидит в тег-ране.
+    const tech = getRatingTechniques()
+    const f: string[] = []
+    if (tech) {
+      for (const s of batch.slots) {
+        const tier = tierOf(s.meta)
+        if (tier !== 'R+' && tier !== 'X') continue
+        const tb = techTagBlock(s.pos)
+        const hits = dedupeSubsumed(tech.techniques.filter((e) => techHit(tb, e.match)))
+        const ladder = hits.filter(isLadderSignal)
+        const layersHit = [...new Set(ladder.map((e) => e.layer))].sort((a, b) => a - b)
+        const map = ladder.map((e) => e.tag.split(',')[0]).slice(0, 8).join(', ')
+        f.push(
+          `P${String(s.position).padStart(2, '0')} ${tier}: ${ladder.length} сигнал(ов) · слои ${layersHit.map((l) => `${l}·${LAYER_NAMES[l]}`).join(' + ') || '—'} · ${map || '—'}`
+        )
+      }
+      if (f.length === 0) f.push('R+/X слотов в батче нет')
+    } else {
+      f.push('техника-карта не загружена (specs/rating-techniques.json)')
+    }
+    advisory('technique-map', f)
   }
 
   /* ---------------- receipt + event ---------------- */
