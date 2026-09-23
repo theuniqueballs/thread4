@@ -5,6 +5,8 @@
 import fs from 'node:fs'
 import path from 'node:path'
 
+import { scheduleSnapshot } from './persist'
+
 export const T4_ROOT = path.join(process.cwd(), 'thread4')
 export const SPECS_DIR = path.join(T4_ROOT, 'specs')
 export const EVENTS_DIR = path.join(T4_ROOT, 'events')
@@ -48,6 +50,8 @@ export function readJson<T>(p: string): T | null {
 export function writeText(p: string, content: string): void {
   fs.mkdirSync(path.dirname(p), { recursive: true })
   fs.writeFileSync(p, content, 'utf-8')
+  /* durability: каждая запись состояния — кандидат на git-снапшот */
+  scheduleSnapshot(`write:${path.relative(process.cwd(), p)}`)
 }
 
 export function writeJson(p: string, data: unknown): void {

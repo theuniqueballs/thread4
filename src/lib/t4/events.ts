@@ -9,6 +9,7 @@ import fs from 'node:fs'
 import crypto from 'node:crypto'
 
 import { ensureDirs, EVENT_LOG } from './fsutil'
+import { scheduleSnapshot } from './persist'
 
 export interface T4Event {
   id: string
@@ -49,6 +50,8 @@ export function appendEvent(
     ...(data ? { data } : {}),
   }
   fs.appendFileSync(EVENT_LOG, JSON.stringify(evt) + '\n', 'utf-8')
+  /* durability: событие записано — состояние меняется, фиксируем в git */
+  scheduleSnapshot(`event:${type}`)
   return evt
 }
 

@@ -6,7 +6,7 @@
  * for gates. No blue, no indigo. Single-page tabbed SPA — no routing.
  */
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
   Activity,
   Archive as ArchiveIcon,
@@ -20,6 +20,7 @@ import {
   History,
   PenLine,
   ScrollText,
+  ShieldCheck,
   Sparkles,
   Stamp,
 } from 'lucide-react'
@@ -57,6 +58,14 @@ import {
 } from '@/components/t4/bits'
 import { MarkdownView } from '@/components/t4/markdown'
 import { SpecView } from '@/components/t4/spec-renderers'
+import {
+  cacheCurrentState,
+  deleteSnapshot,
+  getSnapshot,
+  listSnapshots,
+  restoreSnapshot,
+  type VaultMeta,
+} from '@/components/t4/vault'
 
 /* ------------------------------------------------------------------ */
 /* Tab model                                                           */
@@ -70,6 +79,7 @@ type TabId =
   | 'batches'
   | 'events'
   | 'verdicts'
+  | 'vault'
   | 'archive'
 
 const TABS: { id: TabId; label: string; icon: React.ReactNode }[] = [
@@ -80,6 +90,7 @@ const TABS: { id: TabId; label: string; icon: React.ReactNode }[] = [
   { id: 'batches', label: 'Батчи', icon: <FileText className="size-3.5" /> },
   { id: 'events', label: 'События', icon: <History className="size-3.5" /> },
   { id: 'verdicts', label: 'Вердикты', icon: <Heart className="size-3.5" /> },
+  { id: 'vault', label: 'Хранилище', icon: <ShieldCheck className="size-3.5" /> },
   { id: 'archive', label: 'Архив 3.2', icon: <ArchiveIcon className="size-3.5" /> },
 ]
 

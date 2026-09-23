@@ -8,6 +8,7 @@ import path from 'node:path'
 import { BATCHES_DIR, CONTRACTS_DIR, readJson, readText, writeJson, writeText } from './fsutil'
 import { appendEvent, readEvents } from './events'
 import { parseBatch, runGates, type GatesResult } from './gates'
+import { snapshotNow } from './persist'
 
 export interface DeliverResult {
   ok: boolean
@@ -104,5 +105,7 @@ export function deliverBatch(slug: string): DeliverResult | null {
       sha10: result.sha10,
     }
   )
+  /* durability: сдача батча — священный момент, коммит в git немедленно */
+  snapshotNow(`deliver:${slug}`)
   return { ok: true, result, title }
 }
