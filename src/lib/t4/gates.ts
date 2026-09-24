@@ -46,6 +46,7 @@ export interface ParsedSlot {
   genre: string // OC | NICHE | VOLT | EXQUISITE ('' if absent)
   thesis: string
   canon: string
+  spine: string
   stack: string[]
   pos: string
   neg: string
@@ -100,6 +101,7 @@ export function parseBatch(slug: string, text: string): ParsedBatch {
       genre: genreOf(header.replace(/^[^（(]*[（(]/, '').replace(/[)）]\s*$/, '')),
       thesis: grab('THESIS'),
       canon: grab('Canon'),
+      spine: grab('Spine'),
       stack: stackLine
         ? (stackLine.match(/CR-[A-Z]\d{2}/g) ?? [])
         : [],
@@ -208,7 +210,14 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
 
   const batch = parseBatch(slug, file)
   const contract = readJson<{
-    slots: { position: number; rating: string; race?: string; carriers: { id: string }[] }[]
+    slots: {
+      position: number
+      rating: string
+      race?: string
+      poseRisk?: string
+      poseName?: string
+      carriers: { id: string }[]
+    }[]
   }>(path.join(CONTRACTS_DIR, `${slug}.json`))
   const recipes = getRatingRecipes()
   const bans = getBans()
@@ -918,6 +927,135 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
     warn('technique-layers', f)
   }
 
+  /* ---------------- 8f. noun-lock (warn — §10-поправка, Claude №4) ---- */
+  {
+    // ЗАКОН САЛИЕНСА, следствие noun-lock: заявка живёт на ИМЕНОВАННОМ
+    // объекте (тонкая светлая вещь с именем-существительным), и подслой
+    // под сквозь-ткань заявку должен быть ЗАЛОЧЕН в NEG — тишина по
+    // подслою = дыра: рендерер дорисовывает bra/camisole сам, тир падает
+    // в R (рендер-вердикт T4-03: P12/P14). PRESENT ≠ VISIBLE ≠ LEGIBLE.
+    const f: string[] = []
+    const UPPER_LIGHT = [
+      'blouse', 'tee', 't-shirt', 'shirt', 'knit', 'cardigan', 'leotard',
+      'bodysuit', 'swimsuit', 'bikini', 'romper', 'slip', 'dress',
+      'sundress', 'nightgown', 'gown', 'robe', 'kimono', 'yukata', 'sheet',
+      'towel', 'halter', 'tunic', 'apron', 'qipao', 'cheongsam',
+      'sweater', 'gi', 'nightshirt',
+    ]
+    const LOWER_LIGHT = [
+      'skirt', 'shorts', 'pants', 'trousers', 'leggings', 'tights',
+      'pantyhose', 'dress', 'sheet', 'towel', 'sarong', 'wrap', 'slip',
+      'leotard', 'bodysuit', 'swimsuit', 'bikini', 'romper', 'qipao', 'boyshorts',
+    ]
+    const UNDERLOCK = [
+      'bra', 'sports bra', 'push-up bra', 'camisole', 'bandeau',
+      'undershirt', 'swimsuit top',
+    ]
+    const hasWord = (hay: string, word: string) =>
+      new RegExp(`\\b${word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`).test(hay)
+    const UPPER_CLAIMS = ['nipples through clothing', 'clothed nipples', 'see-through']
+    const LOWER_CLAIMS = ['visible pantyline', 'pantyline']
+    const ON_SKIN = ['taped nipples', 'topless with tape', 'handbra']
+    for (const s of batch.slots) {
+      const tier = tierOf(s.meta)
+      if (tier !== 'R+') continue
+      const firstPeriod = s.pos.indexOf('.')
+      const tagBlock = (firstPeriod > 0 ? s.pos.slice(0, firstPeriod) : s.pos).toLowerCase()
+      const negLower = s.neg.toLowerCase()
+      const posLowerFull = s.pos.toLowerCase()
+      const upperActive = UPPER_CLAIMS.filter((c) => tagBlock.includes(c))
+      const lowerActive = LOWER_CLAIMS.filter((c) => tagBlock.includes(c))
+      const onSkinActive = ON_SKIN.filter((c) => tagBlock.includes(c))
+      if (upperActive.length === 0 && lowerActive.length === 0 && onSkinActive.length === 0) continue
+      // on-skin заявки (tape/handbra) garment не требуют — зона голая
+      if (upperActive.length > 0) {
+        const garment = UPPER_LIGHT.find((g) => hasWord(tagBlock, g))
+        if (!garment) {
+          f.push(
+            `P${s.position}: сквозь-ткань заявка (${upperActive[0]}) не залочена на именованную тонкую вещь — назови garment существительным (blouse/tee/shirt/knit/swimsuit/leotard/sheet/towel…), прилагательное заявку не несёт (§10-поправка, noun-lock)`
+          )
+        }
+        // тишина по подслою = дыра: NEG лочит подслой, иначе рендерер
+        // дорисовывает его сам (P12 sports bra под sheer → R, P14 bra → R).
+        // Границы слов обязательны: «brazier» свечной гарды ≠ «bra»
+        const lock = UNDERLOCK.filter((t) => !hasWord(tagBlock, t)).find((t) =>
+          new RegExp(`\\b${t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`).test(negLower)
+        )
+        if (!lock) {
+          f.push(
+            `P${s.position}: тишина по подслою = дыра — NEG не лочит подслой (bra / camisole / bandeau / undershirt): рендерер дорисует его сам и тир упадёт в R (§10-поправка, noun-lock)`
+          )
+        }
+        // §9-септима, правило 1 — BARE-UNDER ПОЗИТИВОМ (вердикт T4-05,
+        // P07: лифчик нарисован ПОВЕРХ NEG-лока): негатива мало — POS
+        // обязан нести позитивное утверждение голого подслоя. Требование
+        // — только для сквозь-ткань заявки СОСКОВ (nipples through /
+        // clothed nipples): see-through сам по себе подслой не заявляет.
+        const BARE_UNDER = [
+          'nothing underneath', 'nothing beneath', 'nothing under', 'braless',
+          'no bra', 'without underlayer', 'worn without a bra',
+          'worn without underlayer', 'unlined', 'only layer', 'single layer',
+          'worn alone', 'on bare skin', 'against bare skin',
+        ]
+        const needsBareUnder = upperActive.some((c) =>
+          c === 'nipples through clothing' || c === 'clothed nipples'
+        )
+        if (needsBareUnder && !BARE_UNDER.some((t) => posLowerFull.includes(t))) {
+          f.push(
+            `P${s.position}: подслой не заявлен позитивом — «braless / nothing underneath» нет в POS: негатива мало, рендерер рисует лифчик ПОВЕРХ NEG-лока (вердикт T4-05, P07) — POS обязан нести позитивное утверждение (§9-септима, noun-lock bare-under)`
+          )
+        }
+      }
+      if (lowerActive.length > 0) {
+        const garment = LOWER_LIGHT.find((g) => hasWord(tagBlock, g))
+        if (!garment) {
+          f.push(
+            `P${s.position}: нижняя заявка (${lowerActive[0]}) не залочена на именованную вещь — pantyline живёт на именованном низе (skirt/shorts/leggings/sheet…), не в воздухе (§10-поправка, noun-lock)`
+          )
+        }
+      }
+    }
+    warn('noun-lock', f)
+  }
+
+  /* ------- 8g. character-collision (warn — §9-септима, правило 3) ---- */
+  {
+    // ВЕРДИКТ T4-05, P08: слово «aurora» из палитры → рендерер матнул
+    // aurora_(arknights) и ВПУСТИЛ чужого персонажа в кадр («пробежал
+    // персонаж»). Данбуру-омонимы (слова-имена чужих персонажей) в POS
+    // допустимы ТОЛЬКО составными (aurora borealis sky), одиночное слово
+    // — триггер. Список растёт от вердиктов: каждый пойманный омоним
+    // становится строкой здесь.
+    const f: string[] = []
+    const HOMONYMS: Record<string, string[]> = {
+      // слово → безопасные продолжения (составные формы)
+      aurora: ['borealis', 'australis', 'sky', 'light', 'dawn', 'veil', 'crown', 'glow', 'shimmer'],
+      meteor: ['shower', 'strike', 'glow'],
+      nova: ['burst', 'glow'],
+      alice: ['in wonderland', 'band', 'blue'],
+      miku: ['hatsune'],
+      celestia: ['gown', 'veil'],
+    }
+    for (const s of batch.slots) {
+      const firstPeriod = s.pos.indexOf('.')
+      const tagBlock = (firstPeriod > 0 ? s.pos.slice(0, firstPeriod) : s.pos).toLowerCase()
+      const prose = (firstPeriod > 0 ? s.pos.slice(firstPeriod) : '').toLowerCase()
+      for (const [word, safe] of Object.entries(HOMONYMS)) {
+        // одиночное слово — триггер; составное (продолжение из
+        // safe-списка) — разрешено; тег-блок и проза проверяются одним
+        // правилом («только составные»)
+        const re = new RegExp(`\\b${word}\\b(?!\\s+(?:${safe.join('|')}))`, 'i')
+        if (re.test(tagBlock) || re.test(prose)) {
+          f.push(
+            `P${s.position}: омоним данбуру «${word}» в POS — рендерер матчит чужого персонажа (${word}_…: T4-05 P08 — aurora_(arknights) «пробежал персонаж»). Только составной формой (§9-септима, character-collision)`
+          )
+          break
+        }
+      }
+    }
+    warn('character-collision', f)
+  }
+
   /* ---------------- 9. simcheck (warn) ---------------- */
   {
     const f: string[] = []
@@ -1013,6 +1151,149 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
       f.push('техника-карта не загружена (specs/rating-techniques.json)')
     }
     advisory('technique-map', f)
+  }
+
+  /* ------------- 12b. salience-chain v2 (advisory — §9-секста + §9-септима) - */
+  {
+    // ЗАКОН САЛИЕНСА (ChatGPT, external.review 2026-09-23): рейтинг =
+    // цепочка OBJECT → EXPOSURE → CAMERA → CONTRAST → SALIENCE →
+    // INTERPRETATION; провал звена роняет тир. §9-септима (вердикт
+    // T4-05) достроила три звена: BLOCKER (шаль крестом = «the frame's
+    // one closed door», P21 — мёртвый слот до рендера), LEGIBILITY
+    // (дистанция кадра: P23 T4-05 — рассвет съел заявку), POSE-RISK
+    // (акробатика × R+ = амплификатор мутаций: P04 дрейф / P22 мутация /
+    // P17 недолёт). Итого 9 звеньев; ≥2 порванных = тир под угрозой.
+    // Ретроспектива T4-04: P05 «dark» (пятно-риск) и P03 (слияние со
+    // светлым фоном) предсказаны до рендера; T4-05: смерти P21/P07/P17
+    // предсказаны до рендера (P07 — noun-lock bare-under).
+    const f: string[] = []
+    const LIGHT_WORDS = ['white', 'pale', 'cream', 'ivory', 'pastel', 'pink', 'salt', 'linen', 'silver', 'chalk']
+    const GLOW_WORDS = ['glow', 'spotlight', 'backlit', 'backlight', 'rim light', 'sunlit', 'sunlight', 'lit from', 'flare']
+    const DARK_SCENE = ['night', 'noir', 'midnight', 'dark', 'deep indigo', 'black', 'dusk', 'shadow', 'ultramarine deep', 'eclipse']
+    const CAMERA_TAGS = [
+      'from below', 'close-up', 'closeup', 'cowboy shot', 'upper body', 'portrait',
+      'pov', 'over-shoulder', 'through-gap', 'dutch angle', 'from above', 'wide shot',
+      'foreshortening', 'looking up', 'looking down', 'close on',
+    ]
+    const INTENT_TAGS = [
+      'erotic pose', 'extreme fanservice', 'fanservice', 'seductive', 'seductive smile',
+      'bedroom eyes', 'half-closed eyes', 'half-lidded', 'parted lips', 'teasing',
+      'suggestive', 'provocative', 'come hither', 'sultry', 'looking at viewer', 'eye contact',
+    ]
+    const UPPER_LIGHT = [
+      'blouse', 'tee', 't-shirt', 'shirt', 'knit', 'cardigan', 'leotard', 'bodysuit',
+      'swimsuit', 'bikini', 'romper', 'slip', 'dress', 'sundress', 'nightgown', 'gown',
+      'robe', 'kimono', 'yukata', 'sheet', 'towel', 'halter', 'tunic', 'apron', 'qipao', 'cheongsam',
+      'sweater', 'gi', 'nightshirt',
+    ]
+    const X_SIGNALS = ['topless', 'bare breasts', 'exposed breasts', 'nsfw', 'nude', 'naked']
+    const POSE_VERBS = 'standing|kneel|sitting|leaning|climb|slide|stretch|arch|bend|turn|twirl|float|stride|spiral|hang|curl|lean|reach|prone|crouch|drape|sprawl|recline|straddl|waltz|handstand|cartwheel|pli|sprint|jump|bounce|balance|extend|lock|draw|halt'
+    const LOWER_COVERS_SC = ['skirt', 'dress', 'cloak', 'cape', 'coat', 'apron', 'tied at waist', 'tied at the waist', 'shirt tied', 'waist wrap', 'sarong', 'long shirt', 'peplum']
+    const CHEST_COVERS_SC = ['buttoned shirt', 'buttoned-up', 'buttoned up', 'zipped up', 'closed jacket', 'buttoned jacket', 'turtleneck', 'high-neck', 'closed coat']
+    const poseRiskByPos = new Map<number, string>()
+    for (const c of contract?.slots ?? []) {
+      poseRiskByPos.set(c.position, c.poseRisk ?? '')
+    }
+    let atRisk = 0
+    for (const s of batch.slots) {
+      const tier = tierOf(s.meta)
+      if (tier !== 'R+' && tier !== 'X') continue
+      const firstPeriod = s.pos.indexOf('.')
+      const tagBlock = (firstPeriod > 0 ? s.pos.slice(0, firstPeriod) : s.pos).toLowerCase()
+      const posLower = s.pos.toLowerCase()
+      const spineLower = s.spine.toLowerCase()
+      const tags = tagBlock.split(',').map((t) => t.trim())
+      const mark = (ok: boolean, unclear = false) => (ok ? '✓' : unclear ? '?' : '✗')
+      const isX = tier === 'X'
+      // OBJECT: именованная заявка (X: bare-state сигнал, R+: сигнал-тег + вещь)
+      const upperClaim = ['nipples through clothing', 'clothed nipples', 'see-through', 'taped nipples', 'topless with tape', 'handbra'].find((c) => tagBlock.includes(c))
+      const lowerClaim = ['visible pantyline', 'pantyline'].find((c) => tagBlock.includes(c))
+      const xClaim = X_SIGNALS.find((c) => tagBlock.includes(c))
+      const garmentTag = tags.find((t) => UPPER_LIGHT.some((g) => new RegExp(`\\b${g}\\b`).test(t)))
+      const onSkin = upperClaim === 'taped nipples' || upperClaim === 'topless with tape' || upperClaim === 'handbra'
+      const objOk = isX
+        ? Boolean(xClaim)
+        : Boolean((upperClaim || lowerClaim) && (onSkin || garmentTag))
+      // EXPOSURE: зона заявки открыта камере
+      const coverLower = lowerClaim ? LOWER_COVERS_SC.find((c) => tagBlock.includes(c)) : undefined
+      const coverChest = onSkin ? CHEST_COVERS_SC.find((c) => tagBlock.includes(c)) : undefined
+      const expOk = !coverLower && !coverChest
+      const expUnclear = !expOk ? false : (garmentTag ? tags.filter((t) => /shirt|cardigan|jacket|robe|kimono/.test(t)).length >= 2 : false)
+      // CAMERA: камера-участник (явный тег, поза в тегах или поза спайна)
+      const camTag = CAMERA_TAGS.find((c) => tagBlock.includes(c))
+      const camOk = Boolean(camTag) || new RegExp(POSE_VERBS).test(tagBlock) || new RegExp(POSE_VERBS).test(spineLower)
+      // CONTRAST: сигнал читается — свет НА зоне заявки, не в декорациях.
+      // Ретроспектива T4-04: мокрая тёмная ткань без света = пятно (P05
+      // «dark»); светлое на светлом = слияние с фоном (P03) — оба убивают
+      // сигнал сильнее любого дальнего света сцены.
+      const garmentLight = garmentTag ? LIGHT_WORDS.some((w) => garmentTag.includes(w)) : false
+      const sceneGlow = GLOW_WORDS.some((w) => tagBlock.includes(w))
+      const darkScene = DARK_SCENE.some((w) => tagBlock.includes(w))
+      // фоновая светимость: светлые слова в НЕ-телесных тегах (волосы/кожа/
+      // чулки — не фон; слияние ловится только фоновой доминантой)
+      const bodyWordsRe = /hair|skin|eyes|stocking|sock|thighhigh|pantyhose|scales|ears|tail|horn|freckle|cheek/i
+      const bgLightCount = tags.filter(
+        (t) => t !== garmentTag && !bodyWordsRe.test(t) && LIGHT_WORDS.some((w) => t.includes(w))
+      ).length
+      const wet = tagBlock.includes('wet clothes')
+      let conOk = false
+      let conUnclear = false
+      let conWhy = ''
+      if (wet && darkScene && !garmentLight) {
+        conWhy = 'мокрая тёмная ткань без света — пятно-риск'
+      } else if (garmentLight && bgLightCount >= 2) {
+        conWhy = 'светлое на светлом — слияние с фоном'
+      } else if (garmentLight || sceneGlow || isX) {
+        conOk = true
+      } else {
+        conUnclear = true
+        conWhy = 'нет ни светлой вещи, ни света на зоне'
+      }
+      // SALIENCE: заявка стоит рано в тег-ране (ранние весят больше)
+      const limit = isX ? 20 : s.genre === 'OC' ? 22 : 16
+      const claimCandidates = [upperClaim, lowerClaim, xClaim, 'wet clothes', 'see-through']
+        .filter((c): c is string => Boolean(c) && tagBlock.includes(c as string))
+        .map((c) => tags.findIndex((t) => t.includes(c as string)))
+        .filter((i) => i >= 0)
+      const claimIdx = claimCandidates.length > 0 ? Math.min(...claimCandidates) : 99
+      const salOk = claimIdx < limit
+      // INTERPRETATION: подача (зачем показано); X: bare state = заявление
+      const intent = INTENT_TAGS.find((c) => tagBlock.includes(c) || posLower.includes(c))
+      const intOk = isX ? Boolean(xClaim) : Boolean(intent)
+      // §9-септима, звено 7 — BLOCKER: в кадре нет запертой двери на зоне
+      // заявки (шаль/платок/руки крестом поверх claim — P21: «the frame's
+      // one closed door», мёртвый слот до рендера)
+      const BLOCKERS_SC = [
+        'crossed arms', 'arms crossed', 'crossed shawl', 'shawl crossed',
+        'scarf crossed', 'crossed scarf', 'crossed over her chest',
+        'arms over her chest', 'arms over chest', 'shawl over her chest',
+      ]
+      const blockerHit = BLOCKERS_SC.find((c) => posLower.includes(c))
+      const blkOk = !blockerHit
+      // §9-септима, звено 8 — LEGIBILITY: различимость на дистанции кадра:
+      // близкая камера (close-up / cowboy / portrait / pov / upper body)
+      // или свет НА зоне при читаемой вещи (потеря различимости — артефакт
+      // T4-05 P23: рассвет съел заявку)
+      const CLOSE_CAM = ['close-up', 'closeup', 'cowboy shot', 'portrait', 'pov', 'upper body', 'close on']
+      const closeCam = CLOSE_CAM.find((c) => tagBlock.includes(c))
+      const legOk = Boolean(closeCam) || (conOk && (garmentLight || sceneGlow))
+      // §9-септима, звено 9 — POSE-RISK: HIGH-поза × R+/X = амплификатор
+      // мутаций (вердикт T4-05: P04 дрейф · P22 мутация · P17 недолёт) —
+      // RENDER LAW v1.3.0: R+/X получают только LOW/MID позы
+      const poseRisk = poseRiskByPos.get(s.position) ?? ''
+      const prOk = poseRisk !== 'HIGH'
+      const broken = [objOk, expOk, camOk, conOk, salOk, intOk, blkOk, legOk, prOk].filter((x) => !x).length
+      if (broken >= 2) atRisk += 1
+      f.push(
+        `P${String(s.position).padStart(2, '0')} ${tier}: OBJECT ${mark(objOk)}${objOk && garmentTag && !isX ? ` (${garmentTag.split(' ').slice(-1)[0]})` : objOk && isX && xClaim ? ` (${xClaim})` : ''} · EXPOSURE ${mark(expOk, expUnclear)}${!expOk && (coverLower || coverChest) ? ` (закрыта «${coverLower ?? coverChest}»)` : ''} · CAMERA ${mark(camOk)}${camTag ? ` (${camTag})` : ' (поза)'} · CONTRAST ${mark(conOk, conUnclear)}${!conOk ? ` — ${conWhy}` : ''} · SALIENCE ${mark(salOk)}${claimIdx === 99 ? ' (нет заявки)' : ` (№${claimIdx + 1})`} · INTERPRETATION ${mark(intOk)}${intent && !isX ? ` (${intent})` : isX ? ' (bare state = заявление)' : ' (без подачи)'} · BLOCKER ${mark(blkOk)}${!blkOk ? ` («${blockerHit}» — the frame's one closed door, P21)` : ''} · LEGIBILITY ${mark(legOk)}${closeCam ? ` (${closeCam})` : legOk ? ' (свет на зоне)' : ' (дистанция кадра)'} · POSE-RISK ${mark(prOk)}${poseRisk ? ` (${poseRisk})` : ''}${broken >= 2 ? ` → ${broken} звена порваны: ПРОГНОЗ — тир под угрозой` : broken === 1 ? ' → 1 звено порвано' : ' → цепочка цела'}`
+      )
+    }
+    if (f.length > 0) {
+      f.unshift(
+        `салиенс-цепочка (§9-секста + §9-септима BLOCKER/LEGIBILITY/POSE-RISK, вердикт T4-05): ${f.length} R+/X слотов, под угрозой ${atRisk} (≥2 порванных звеньев — провал звена роняет тир)`
+      )
+    }
+    advisory('salience-chain', f)
   }
 
   /* ---------------- receipt + event ---------------- */

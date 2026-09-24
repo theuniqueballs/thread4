@@ -33,6 +33,7 @@ export const EVENT_TYPES = [
   'taste.datum',
   'experiment.logged',
   'oc.appeared',
+  'external.review',
   'note',
 ] as const
 

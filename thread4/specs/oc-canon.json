@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "born": "2026-09-19",
   "source": "3.2 OC_CANON.yaml (THREAD 3.0 format, canon v1.7.1)",
-  "canon_version": "1.7.1",
+  "canon_version": "1.7.2",
   "usage_policy": "Tarot / element / zodiac fields below are REGISTRY DATA for the author's own\nseries (Rider-Waite-style card prompts, zodiac prompts). They are NOT batch\nmaterial. Without the author's explicit per-request direction, NO card, sign,\nor ability symbolism may appear in any batch prompt — not in POS, not in NEG,\nnot in theses, palettes, or prompt naming. Batch prompts use the OC's\nAPPEARANCE and origin-continuity motifs only. Card/zodiac assignments stay\nhere so the author can look them up for HIS series.",
   "selection_rule": "────────────────────────────────────────────────────\nPer session: author selects 3 of the 16 active OCs by vibe/theme fit.\nNo forced rotation schedule — author's call each time.",
   "ocs": {
@@ -182,20 +182,21 @@
       "zodiac": "Virgo — the monastic sign: purity, ritual, quiet service",
       "role": "relic-keeper — custodian of saints' relics and votive threads (per author master list 2026-09-03)",
       "hair": "very long ivory-white hair (not platinum, not silver — ivory)",
-      "eyes": "eyes rarely seen — covered by a thin white veil (canonical). When visible: black sclera, yellow irises, slit pupils — the eyes of a saint who saw too much.",
-      "eye_detail": "black sclera, yellow irises with slit pupils — ONLY visible when the veil is lifted or removed in a specific prompt. In veiled prompts, the eyes are not described.",
+      "eyes": "VEIL-REWRITE 2026-09-23 (author order, T4-05 verdict): the thin white veil covers the WHOLE FACE EXCEPT THE MOUTH — 'всё кроме рта'. The mouth stays bare (speech, breath, the relic-keeper's vows). The EYES are NEVER described in veiled prompts and are NEVER visible through the weave — eyes appear ONLY by the author's explicit per-prompt order (a specific lift/remove directive). When (and only when) the author orders it: black sclera, yellow irises, slit pupils — the eyes of a saint who saw too much.",
+      "eye_detail": "PERMISSION-GATED: black sclera, yellow irises with slit pupils — visible ONLY when the author explicitly orders the veil lifted/removed in the prompt. Default: veiled, eyes not described, not visible, not implied through fabric.",
       "skin": "snow-pale",
       "body_type": "slender",
       "signature_marks": [
-        "thin white veil covering the eyes",
+        "thin white veil covering the whole face except the mouth (canonical; rewritten 2026-09-23 — 'всё кроме рта')",
         "simple white cotton monastic garments",
         "crown of thorns over the veil (optional per-prompt)"
       ],
       "anti_shield": "platinum hair, silver hair, visible bare eyes when veiled, colorful garments, white sclera, normal pupils, round pupils, brown eyes, blue eyes, green eyes",
       "neg_additions_when_eyes_visible": "white sclera, normal sclera, round pupils, brown eyes, blue eyes, green eyes, soft eyes, warm eyes",
-      "neg_additions_when_veiled": "visible eyes, bare eyes, eyes visible through veil, eye color visible",
+      "neg_additions_when_veiled": "visible eyes, bare eyes, eyes visible through veil, eye color visible, eye shape visible through fabric, parted veil, lifted veil, transparent veil, sheer veil, open face, exposed face, visible nose, visible cheeks",
       "id": "ash",
-      "active": true
+      "active": true,
+      "veil_rewrite_note": "2026-09-23, T4-05 P01 render receipt: the veil rendered inconsistently (edge lifting, eyes ghosting through the weave). Author's order: rewrite — everything covered except the mouth; eyes only by explicit order. The anti-shield above is law."
     },
     "Mab": {
       "name": "Mab",
@@ -330,6 +331,27 @@
       "collision_note": "hair family brushes Sol (long silver-WHITE layered) and Nix (platinum french bob) — Una is silver-GREY shoulder SHAG, distinct on cut and length; ruby eyes shared with Vae (single-color red, black hair + white streak, obsidian) and Rue (haunted ruby, dusty-rose crown braid, ash-grey skin) — Una distinct on hair and cool-ivory skin; the pince-nez + eyebrow-scar pair is hers alone. Do not cast with Nix in one batch (platinum-family collision) or with Vae/Rue unless the eye contrast is deliberate.",
       "id": "una",
       "active": true
+    },
+    "Ana": {
+      "name": "Ana",
+      "tarot": "III — The Empress (author-fixed 2026-09-23)",
+      "element": "GOLD (author-fixed) — the sovereign metal; wealth worn as skin",
+      "zodiac": "Taurus — the Empress's earth; the body as dominion (assistant-assigned, pending author veto)",
+      "birth": "promoted from batch T4-05 P14 'waltz-box-solo' (author order 2026-09-23, T4-05 verdict processing)",
+      "hair": "very long straight black hair with a cold blue-black sheen, worn loose and heavy to the hips",
+      "eyes": "obsidian-black eyes with vertical pupils — the dragon's ledger, depth without reflection",
+      "skin": "GOLD-LEAF SKIN — UNIQUE (author-fixed): no other OC and no batch girl may wear gold-leaf or metallic-gold skin; the Empress's exclusive mark",
+      "body_type": "tall, full-figured, unhurried — the bearing of dominion",
+      "signature_marks": [
+        "dragon-kin anatomy: ridged swept-back horns, small smooth scales as forearm-patches, wing-fragments at the shoulder-blades",
+        "gold-leaf skin with living seams at the joints — the metal remembers it was poured, not born",
+        "vertical obsidian pupils"
+      ],
+      "wardrobe_policy": "NO canonical garment — the outfit follows the batch's PALETTE-HUE (PH): each batch dresses her once, in that palette's key fabric, per author order 2026-09-23 («наряд по PH»)",
+      "anti_shield": "pale skin, porcelain skin, brown skin, tan skin, round pupils, horizontal pupils, human eyes without vertical pupils, no horns, no scales, antler horns, branching horns, gold-leaf skin on any OTHER character (exclusive)",
+      "neg_additions": "round pupils, horizontal pupils, pale skin, silver skin, bronze skin, no horns",
+      "id": "ana",
+      "active": true
     }
   },
   "inactive_reserve": {
@@ -375,7 +397,8 @@
     "2026-09-05 v1.5.0 — AUTHOR RENAME + OC ORDERS REDO: name \"Vera\" rejected by",
     "2026-09-05 v1.6.1 — SOL TAIL LOCK (author hard directive, night message: \"у Сол",
     "2026-09-05 v1.6.0 — SET 2 OC orders (author directive, evening): three more",
-    "2026-09-08 v1.7.0 — AUTHOR CONFIRMATION (morning order, \"Кожу доу, в целом,"
+    "2026-09-08 v1.7.0 — AUTHOR CONFIRMATION (morning order, \"Кожу доу, в целом,",
+    "2026-09-23 (T4-05 verdict processing): Ana canonized (III — The Empress, gold-leaf skin UNIQUE, outfit per PH — no canonical garment); Ash's veil rewritten ('всё кроме рта', eyes permission-gated). Canon v1.7.1 → v1.7.2."
   ],
   "note_on_status": "16 ACTIVE OCs (3 drawn per session by author vibe/theme fit, no forced rotation). Rae and Iya are INACTIVE RESERVE (added accidentally, never used, bios retained). SP-registry characters (Nicole, Puppet/Valentine, Ereshkigal/Tito_Lopes) live in download/SP_ORDERS.md, never in OC canon."
 }

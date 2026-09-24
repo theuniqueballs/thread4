@@ -1,0 +1,27 @@
+[
+  {
+    "file": "7094d4db-15e7-4701-8e4b-3c3d845dd456.webp",
+    "hint": "empty dance hall at dawn, floor slide",
+    "analysis": "(FAILED: Error: API request failed with status 400: {\"contentFilter\":[{\"level\":2,\"role\":\"user\"}],\"error\":{\"code\":\"1301\",\"message\":\"系统检测到输入或生成内容可能包含不安全或敏感内容，请您避免输入易产生敏感内容的提示语，感谢您的配合。\"}})"
+  },
+  {
+    "file": "298753df-a459-47dc-be1d-496fc96dbde4.webp",
+    "hint": "houseboat galley at sunset, tree branch indoors",
+    "analysis": "SCENE: Houseboat galley interior, bright golden hour sunlight streaming through windows, tree branches with green leaves indoors.\nCHARACTER: Long, wavy light-brown hair, pointed elf ears, fair skin.\nWEAR: White long-sleeved dress with a matching apron tied at the waist; fabric is opaque and dry.\nPOSE: Sitting with one arm raised high holding a branch, the other hand gripping a branch for support, leaning back slightly, low-angle shot focusing on the upper body and thighs.\nTAGS: cleavage, thighs\nDELIVERED: PG13\nWHY: The character is wearing a modest opaque dress that shows some cleavage and thigh but no underwear or intimate details."
+  },
+  {
+    "file": "12f89906-8bc7-4fb7-8d17-997f233c7e66.webp",
+    "hint": "old atelier fitting room at midnight",
+    "analysis": "(FAILED: Error: API request failed with status 400: {\"contentFilter\":[{\"level\":2,\"role\":\"user\"}],\"error\":{\"code\":\"1301\",\"message\":\"系统检测到输入或生成内容可能包含不安全或敏感内容，请您避免输入易产生敏感内容的提示语，感谢您的配合。\"}})"
+  },
+  {
+    "file": "6a82cb67-099c-4457-b55c-5451e08d5f91.webp",
+    "hint": "small night shop aisles",
+    "analysis": "SCENE: Convenience store interior, brightly lit by refrigerated display case lighting.\nCHARACTER: Long black hair, green eyes, bat-like ears and wings, pale skin.\nWEAR: Black strapless dress with white lace trim (opaque), white ruffled apron (opaque).\nPOSE: Reaching up into a refrigerator, viewed from a low side angle focusing on the upper body and torso.\nTAGS: cleavage\nDELIVERED: PG13\nWHY: The image displays significant cleavage and a form-fitting outfit but contains no visible underwear or nudity."
+  },
+  {
+    "file": "80ccc5f0-28ca-47e5-8afb-85a0da335a5e.webp",
+    "hint": "atelier fitting room, tall mirror",
+    "analysis": "SCENE: Indoor fitting room with a tall mirror and curtains, bright natural lighting.\nCHARACTER: Long blonde hair, pale skin.\nWEAR: Sheer white robe (wet/soaked), red stitching detail on the chest; no other garments visible.\nPOSE: Standing in profile, leaning slightly forward with one knee raised, looking into the mirror; medium shot focusing on the upper body and thighs.\nTAGS: cleavage, wet see-through fabric\nDELIVERED: R+\nWHY: The sheer, wet fabric of the robe allows the shape of the breasts and cleavage to be clearly visible through the material."
+  }
+]

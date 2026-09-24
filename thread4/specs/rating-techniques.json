@@ -1,15 +1,46 @@
 {
-  "version": "1.0.0",
+  "version": "1.1.0",
   "born": "2026-09-21",
   "source": "таблица приёмов рейтинга автора (PG-13 → R → R+ → X Cut), доставлена 2026-09-21 — буру-стиль тегов для Tsubaki 2 / PixAI; перенесена дословно, efficacy ●/○ сохранена",
   "relation": "rating-recipes.json = ЗАКОН (что делает заявку тира правдой на рендере: рендер-доказанные заявки, носители, контр-NEG). rating-techniques.json = КАРТА (куда теги обычно попадают: ●/○ по тирам, принцип четырёх слоёв, закон суммы факторов, X Cut hold, факторы вне промпта). Рецепт навигирует по карте; где карта и рендер-вердикт расходятся (cameltoe), вердикт сильнее.",
   "principle": {
     "for_idiots": "рейтинг складывается из четырёх слоёв; чем больше слоёв «включено», тем выше рейтинг",
     "layers": [
-      { "n": 1, "name": "что видно", "blocks": [1, 2], "note": "сколько кожи, белья, груди" },
-      { "n": 2, "name": "как показано", "blocks": [4, 5], "note": "камера, поза, кадрирование" },
-      { "n": 3, "name": "зачем показано", "blocks": [6, 7], "note": "выражение лица, атмосфера, ecchi/pin-up-подача" },
-      { "n": 4, "name": "что модель дорисовывает сама", "blocks": [3], "note": "вода, прозрачность, «случайные» оголения" }
+      {
+        "n": 1,
+        "name": "что видно",
+        "blocks": [
+          1,
+          2
+        ],
+        "note": "сколько кожи, белья, груди"
+      },
+      {
+        "n": 2,
+        "name": "как показано",
+        "blocks": [
+          4,
+          5
+        ],
+        "note": "камера, поза, кадрирование"
+      },
+      {
+        "n": 3,
+        "name": "зачем показано",
+        "blocks": [
+          6,
+          7
+        ],
+        "note": "выражение лица, атмосфера, ecchi/pin-up-подача"
+      },
+      {
+        "n": 4,
+        "name": "что модель дорисовывает сама",
+        "blocks": [
+          3
+        ],
+        "note": "вода, прозрачность, «случайные» оголения"
+      }
     ],
     "x_cut_one_fact": "X Cut = ОДИН жёсткий факт (видимый сосок или ареола), а не сумма намёков. Всё остальное (R, R+) — лестница к этому факту."
   },
@@ -29,133 +60,2091 @@
   },
   "match_semantics": "match = массив альтернатив; каждая альтернатива = массив подстрок, объединённых И (все обязаны присутствовать в тег-блоке). Матчинг — по границе слова, case-insensitive, против тег-блока POS (до первой точки) с вырезанным бойлерплейтом (anime style / ecchi / hentai / masterpiece / 1girl / solo).",
   "techniques": [
-    { "tag": "bare shoulders, off-shoulder", "match": [["bare shoulders"], ["off-shoulder"], ["off shoulder"], ["one shoulder bare"]], "block": 1, "layer": 1, "pg13": "●", "r": "", "rplus": "", "x": "", "note": "лёгкая кожа, нейтрально" },
-    { "tag": "midriff, bare waist, crop top", "match": [["midriff"], ["bare waist"], ["crop top"], ["crop"]], "block": 1, "layer": 1, "pg13": "●", "r": "○", "rplus": "", "x": "", "note": "голый живот, слабый сигнал" },
-    { "tag": "backless dress", "match": [["backless"], ["bare back"]], "block": 1, "layer": 1, "pg13": "●", "r": "●", "rplus": "", "x": "", "note": "зависит от глубины выреза спины" },
-    { "tag": "bare thighs, thigh gap", "match": [["bare thighs"], ["thigh gap"]], "block": 1, "layer": 1, "pg13": "●", "r": "○", "rplus": "", "x": "", "note": "становится R при явном акценте" },
-    { "tag": "thighhighs + miniskirt", "match": [["thighhigh", "miniskirt"], ["thighhigh", "micro skirt"], ["zettai ryouiki"]], "block": 1, "layer": 1, "pg13": "●", "r": "●", "rplus": "", "x": "", "note": "«зона» между юбкой и чулком: классический fanservice" },
-    { "tag": "high slit, side slit", "match": [["high slit"], ["side slit"], ["skirt slit"]], "block": 1, "layer": 1, "pg13": "●", "r": "●", "rplus": "○", "x": "", "note": "чем выше разрез, тем сильнее сигнал" },
-    { "tag": "micro skirt, micro shorts", "match": [["micro skirt"], ["micro shorts"]], "block": 1, "layer": 1, "pg13": "○", "r": "●", "rplus": "●", "x": "", "note": "важна степень оголения, не длина" },
-    { "tag": "swimsuit, one-piece swimsuit", "match": [["swimsuit"], ["one-piece"]], "block": 1, "layer": 1, "pg13": "●", "r": "○", "rplus": "", "x": "", "note": "обычный купальник" },
-    { "tag": "bikini", "match": [["bikini"]], "block": 1, "layer": 1, "pg13": "●", "r": "●", "rplus": "", "x": "", "note": "пограничный PG-13/R" },
-    { "tag": "micro bikini, sling bikini, string bikini", "match": [["micro bikini"], ["microbikini"], ["sling bikini"], ["string bikini"]], "block": 1, "layer": 1, "pg13": "", "r": "●", "rplus": "●", "x": "○", "note": "почти нет ткани; при сдвиге ткани → X" },
-    { "tag": "underwear, lingerie", "match": [["underwear"], ["lingerie"]], "block": 1, "layer": 1, "pg13": "", "r": "●", "rplus": "●", "x": "", "note": "белье как одежда: надёжный R" },
-    { "tag": "bra, bra only, underwear only", "match": [["bra"], ["underwear only"]], "block": 1, "layer": 1, "pg13": "", "r": "●", "rplus": "●", "x": "", "note": "бельё как основная одежда" },
-    { "tag": "panties visible, panty shot", "match": [["panties visible"], ["panty shot"], ["pantyshot"], ["visible pantyline"], ["pantyline"]], "block": 1, "layer": 1, "pg13": "", "r": "●", "rplus": "●", "x": "", "note": "явный R-триггер; visible pantyline — рендер-доказанная форма рецепта v1.2.0", "bridge": true },
-    { "tag": "garter belt, stockings, lace", "match": [["garter belt"], ["stockings"], ["lace"], ["thighhigh"]], "block": 1, "layer": 1, "pg13": "", "r": "●", "rplus": "●", "x": "", "note": "аксессуары белья усиливают сигнал" },
-    { "tag": "corset, tight clothes, bodysuit", "match": [["corset"], ["tight clothes"], ["bodysuit"], ["tight dress"]], "block": 1, "layer": 1, "pg13": "●", "r": "●", "rplus": "●", "x": "", "note": "подчёркивает форму тела" },
-    { "tag": "latex, leather, bondage outfit", "match": [["latex"], ["leather"], ["bondage"]], "block": 1, "layer": 1, "pg13": "", "r": "○", "rplus": "●", "x": "", "note": "фетиш-эстетика поднимает уровень; НО рендер-вердикт T4-03: leather — мёртвая ткань, заявку не несёт (карта ≠ носитель)" },
-    { "tag": "naked apron", "match": [["naked apron"]], "block": 1, "layer": 1, "pg13": "", "r": "", "rplus": "●", "x": "○", "note": "почти голая: граница R+/X по тому, что видно сбоку" },
-    { "tag": "naked shirt, oversized shirt only", "match": [["naked shirt"], ["oversized shirt"]], "block": 1, "layer": 1, "pg13": "", "r": "●", "rplus": "●", "x": "○", "note": "«одна рубашка на голое тело»: вверх, если видна грудь" },
-    { "tag": "open shirt, unbuttoned", "match": [["open shirt"], ["unbuttoned"], ["unbutton"], ["placket gap"]], "block": 1, "layer": 1, "pg13": "○", "r": "●", "rplus": "●", "x": "○", "note": "зависит, что видно в разрезе; placket gap — форма, встречающаяся в наших промптах", "bridge": true },
-    { "tag": "almost naked, barely clothed", "match": [["almost naked"], ["barely clothed"]], "block": 1, "layer": 1, "pg13": "", "r": "", "rplus": "●", "x": "●", "note": "модель часто решает за тебя: рискует уйти в X — ЛОВУШКА", "trap": true },
-    { "tag": "cleavage", "match": [["cleavage"]], "block": 2, "layer": 1, "pg13": "●", "r": "●", "rplus": "●", "x": "", "note": "декольте; глубина решает" },
-    { "tag": "large breasts, huge breasts", "match": [["large breasts"], ["huge breasts"]], "block": 2, "layer": 1, "pg13": "○", "r": "●", "rplus": "●", "x": "", "note": "размер повышает акцент сам по себе" },
-    { "tag": "breast focus", "match": [["breast focus"]], "block": 2, "layer": 1, "pg13": "", "r": "●", "rplus": "●", "x": "", "note": "композиция говорит «смотри на грудь»" },
-    { "tag": "sideboob", "match": [["sideboob"], ["side boob"]], "block": 2, "layer": 1, "pg13": "", "r": "●", "rplus": "●", "x": "", "note": "бок груди, классический R" },
-    { "tag": "underboob", "match": [["underboob"], ["under boob"]], "block": 2, "layer": 1, "pg13": "", "r": "○", "rplus": "●", "x": "", "note": "нижняя часть груди, очень сильный R+" },
-    { "tag": "deep neckline, plunging neckline", "match": [["deep neckline"], ["plunging neckline"]], "block": 2, "layer": 1, "pg13": "", "r": "●", "rplus": "●", "x": "", "note": "экстремальное декольте" },
-    { "tag": "breasts pushed together, squeezing", "match": [["breasts pushed together"], ["pushed together"], ["squeezing"]], "block": 2, "layer": 1, "pg13": "", "r": "●", "rplus": "●", "x": "", "note": "самоприкосновение и давление на грудь" },
-    { "tag": "hand on breast, groping self", "match": [["hand on breast"], ["groping"]], "block": 2, "layer": 1, "pg13": "", "r": "●", "rplus": "●", "x": "○", "note": "рука на груди; при сдвиге руки → X" },
-    { "tag": "covering breasts, arms covering breasts", "match": [["covering breasts"], ["arms covering chest"], ["arms covering breasts"]], "block": 2, "layer": 1, "pg13": "", "r": "●", "rplus": "●", "x": "●", "note": "ЛОВУШКА: рука/локти часто не скрывают сосок, модель рисует его; arms covering chest — форма рецепта v1.2.0", "trap": true, "bridge": true },
-    { "tag": "hair covering breasts", "match": [["hair covering breasts"]], "block": 2, "layer": 1, "pg13": "", "r": "●", "rplus": "●", "x": "●", "note": "волосы не отменяют X, если сосок читается — ЛОВУШКА", "trap": true },
-    { "tag": "nipple outline, nipples through clothes", "match": [["nipple outline"], ["nipples through clothes"], ["nipples through clothing"], ["clothed nipples"]], "block": 2, "layer": 1, "pg13": "", "r": "", "rplus": "●", "x": "○", "note": "контур соска сквозь ткань: R+, граница X; nipples through clothing — основная рендер-доказанная заявка рецепта v1.2.0", "bridge": true },
-    { "tag": "covered nipples", "match": [["covered nipples"]], "block": 2, "layer": 1, "pg13": "", "r": "", "rplus": "●", "x": "○", "note": "сосок под тканью; модель может «проявить» его" },
-    { "tag": "wardrobe malfunction", "match": [["wardrobe malfunction"]], "block": 2, "layer": 1, "pg13": "", "r": "●", "rplus": "●", "x": "○", "note": "без наготы R/R+, с соском X" },
-    { "tag": "clothes pull, shirt lift, dress pull", "match": [["clothes pull"], ["clothes pulled"], ["shirt lift"], ["dress pull"]], "block": 2, "layer": 1, "pg13": "", "r": "●", "rplus": "●", "x": "●", "note": "одежда сдвинута: результат зависит от того, что открылось — ЛОВУШКА", "trap": true },
-    { "tag": "torn clothes", "match": [["torn clothes"], ["clothes torn"]], "block": 2, "layer": 1, "pg13": "○", "r": "●", "rplus": "●", "x": "●", "note": "рвань: рейтинг определяет то, что под ней — ЛОВУШКА", "trap": true },
-    { "tag": "breasts out, one breast out, breast slip", "match": [["breasts out"], ["one breast out"], ["breast slip"]], "block": 2, "layer": 1, "pg13": "", "r": "", "rplus": "", "x": "●", "note": "грудь открыта напрямую" },
-    { "tag": "topless", "match": [["topless"]], "block": 2, "layer": 1, "pg13": "", "r": "", "rplus": "", "x": "●", "note": "прямой X-триггер" },
-    { "tag": "nipples", "match": [["nipples"]], "block": 2, "layer": 1, "pg13": "", "r": "", "rplus": "", "x": "●", "note": "соски явно видны" },
-    { "tag": "areolae, puffy areolae", "match": [["areolae"], ["areola"]], "block": 2, "layer": 1, "pg13": "", "r": "", "rplus": "", "x": "●", "note": "ареолы видны: тоже X" },
-    { "tag": "no bra, bare breasts", "match": [["no bra"], ["bare breasts"]], "block": 2, "layer": 1, "pg13": "", "r": "", "rplus": "", "x": "●", "note": "прямая нагота груди" },
-    { "tag": "naked, nude", "match": [["naked"], ["nude"]], "block": 2, "layer": 1, "pg13": "", "r": "", "rplus": "", "x": "●", "note": "нагота; для X Cut фиксируй композицию так, чтобы низ тела не читался (блок 9)" },
-    { "tag": "taped nipples, topless with tape", "match": [["taped nipples"], ["topless with tape"], ["tape"]], "block": 2, "layer": 1, "pg13": "", "r": "", "rplus": "●", "x": "○", "note": "on-skin заявка (рецепт v1.2.0); таблица автора тейп не знает — платформенный эмпиризм 3.2: X-tape рендерится и классифицируется R+", "bridge": true },
-    { "tag": "handbra", "match": [["handbra"]], "block": 2, "layer": 1, "pg13": "", "r": "", "rplus": "●", "x": "○", "note": "on-skin заявка (рецепт v1.2.0), таблица автора не знает — та же семья, что hand on breast", "bridge": true },
-    { "tag": "cameltoe, camel toe", "match": [["cameltoe"], ["camel toe"]], "block": 2, "layer": 1, "pg13": "", "r": "", "rplus": "", "x": "", "note": "RENDER-DEAD (рендер-вердикт T4-03: 0 отрисовок из всех попыток) — флэйвор максимум, НИКОГДА не заявка и не сигнал; в таблице автора отсутствует — подтверждение, а не пропуск", "bridge": true },
-    { "tag": "sheer, semi-transparent", "match": [["sheer"], ["semi-transparent"]], "block": 3, "layer": 4, "pg13": "●", "r": "●", "rplus": "●", "x": "", "note": "слабое просвечивание может остаться PG-13" },
-    { "tag": "see-through", "match": [["see-through"], ["see through"]], "block": 3, "layer": 4, "pg13": "", "r": "●", "rplus": "●", "x": "●", "note": "всё решает то, что видно под тканью; рендер-доказанное состояние ткани рецепта v1.2.0", "bridge": true },
-    { "tag": "see-through breasts", "match": [["see-through breasts"]], "block": 3, "layer": 4, "pg13": "", "r": "", "rplus": "●", "x": "●", "note": "грудь читается насквозь, переход к X" },
-    { "tag": "wet clothes, wet shirt", "match": [["wet clothes"], ["wet shirt"]], "block": 3, "layer": 4, "pg13": "●", "r": "●", "rplus": "●", "x": "○", "note": "мокрая ткань липнет и просвечивает; рендер-доказанное состояние ткани рецепта v1.2.0", "bridge": true },
-    { "tag": "wet, dripping, water droplets", "match": [["dripping"], ["water droplets"], ["water beads"]], "block": 3, "layer": 4, "pg13": "●", "r": "●", "rplus": "●", "x": "", "note": "усилитель, сам по себе не X; голое «wet» не матчится — слишком жадно (wet hem, wet line)" },
-    { "tag": "shower, steam, rain", "match": [["shower"], ["steam"], ["rain"]], "block": 3, "layer": 4, "pg13": "●", "r": "●", "rplus": "●", "x": "○", "note": "сильный amplifier прозрачности" },
-    { "tag": "oil, shiny skin, glossy skin", "match": [["oil"], ["shiny skin"], ["glossy skin"]], "block": 3, "layer": 4, "pg13": "●", "r": "●", "rplus": "●", "x": "", "note": "блеск кожи: сексуальный усилитель" },
-    { "tag": "sweat, sweaty", "match": [["sweat"], ["sweaty"]], "block": 3, "layer": 4, "pg13": "●", "r": "●", "rplus": "●", "x": "", "note": "слабый усилитель" },
-    { "tag": "steam censor, light rays censor", "match": [["steam censor"], ["light rays censor"], ["censor"]], "block": 3, "layer": 4, "pg13": "", "r": "●", "rplus": "●", "x": "●", "note": "модель рисует наготу, «цензура» закрывает часть — ЛОВУШКА", "trap": true },
-    { "tag": "full body, cowboy shot", "match": [["full body"], ["cowboy shot"]], "block": 4, "layer": 2, "pg13": "●", "r": "●", "rplus": "", "x": "", "note": "нейтральное кадрирование" },
-    { "tag": "from behind", "match": [["from behind"]], "block": 4, "layer": 2, "pg13": "●", "r": "●", "rplus": "●", "x": "", "note": "нейтрально, но легко становится сексуальным" },
-    { "tag": "from below, low angle", "match": [["from below"], ["low angle"]], "block": 4, "layer": 2, "pg13": "", "r": "●", "rplus": "●", "x": "", "note": "снизу: под юбку, на бёдра" },
-    { "tag": "upskirt (partial)", "match": [["upskirt"]], "block": 4, "layer": 2, "pg13": "", "r": "●", "rplus": "●", "x": "", "note": "классический R-триггер" },
-    { "tag": "close-up, breast close-up", "match": [["close-up"], ["closeup"], ["breast close-up"]], "block": 4, "layer": 2, "pg13": "", "r": "●", "rplus": "●", "x": "○", "note": "крупный план груди: R+, а при наготе X" },
-    { "tag": "thigh close-up", "match": [["thigh close-up"]], "block": 4, "layer": 2, "pg13": "●", "r": "●", "rplus": "●", "x": "", "note": "аналогичный эффект" },
-    { "tag": "ass focus, from behind ass", "match": [["ass focus"], ["from behind ass"]], "block": 4, "layer": 2, "pg13": "", "r": "●", "rplus": "●", "x": "", "note": "быстро уходит в R+" },
-    { "tag": "pov", "match": [["pov"]], "block": 4, "layer": 2, "pg13": "", "r": "○", "rplus": "●", "x": "", "note": "взгляд от первого лица усиливает интимность" },
-    { "tag": "head out of frame", "match": [["head out of frame"]], "block": 4, "layer": 2, "pg13": "", "r": "●", "rplus": "●", "x": "", "note": "персонаж как «тело», сильный body-part framing" },
-    { "tag": "dutch angle, dynamic angle", "match": [["dutch angle"], ["dynamic angle"]], "block": 4, "layer": 2, "pg13": "●", "r": "●", "rplus": "●", "x": "", "note": "нейтральный драйв, слабый" },
-    { "tag": "depth of field on chest", "match": [["depth of field"]], "block": 4, "layer": 2, "pg13": "", "r": "●", "rplus": "●", "x": "", "note": "фокус на груди через размытие" },
-    { "tag": "full body, standing, shy", "match": [["full body", "shy"], ["standing", "shy"]], "block": 4, "layer": 2, "pg13": "●", "r": "○", "rplus": "", "x": "", "note": "выглядит безопаснее, УДЕРЖИВАЕТ PG-13 — супрессор", "suppressor": true },
-    { "tag": "standing, sitting, walking", "match": [["standing"], ["sitting"], ["walking"]], "block": 5, "layer": 2, "pg13": "●", "r": "", "rplus": "", "x": "", "note": "нейтрально" },
-    { "tag": "hand on hip", "match": [["hand on hip"]], "block": 5, "layer": 2, "pg13": "●", "r": "●", "rplus": "", "x": "", "note": "слабый сигнал" },
-    { "tag": "arched back, back arched", "match": [["arched back"], ["back arched"], ["back arch"]], "block": 5, "layer": 2, "pg13": "●", "r": "●", "rplus": "●", "x": "", "note": "чем нарочитее, тем выше" },
-    { "tag": "hips toward camera, hip out", "match": [["hips toward camera"], ["hip out"]], "block": 5, "layer": 2, "pg13": "", "r": "●", "rplus": "●", "x": "", "note": "бёдра к зрителю" },
-    { "tag": "lying, on back, on side", "match": [["lying"], ["on back"], ["on side"]], "block": 5, "layer": 2, "pg13": "●", "r": "●", "rplus": "●", "x": "", "note": "само по себе не эротика" },
-    { "tag": "lying + revealing clothes", "match": [], "block": 5, "layer": 2, "pg13": "", "r": "●", "rplus": "●", "x": "", "note": "КОМБИНАЦИЯ: лежать + раскрытая одежда повышает рейтинг; компоненты считаются каждый сам" },
-    { "tag": "on bed, bedroom", "match": [["on bed"], ["bedroom"]], "block": 5, "layer": 2, "pg13": "●", "r": "●", "rplus": "●", "x": "", "note": "контекст без секса" },
-    { "tag": "bed + lingerie + seductive pose", "match": [], "block": 5, "layer": 2, "pg13": "", "r": "", "rplus": "●", "x": "○", "note": "КОМБИНАЦИЯ: контекст + намерение = R+; компоненты считаются каждый сам" },
-    { "tag": "all fours, on all fours", "match": [["all fours"]], "block": 5, "layer": 2, "pg13": "", "r": "", "rplus": "●", "x": "", "note": "сильный R+ сигнал, зависит от кадра" },
-    { "tag": "spread legs (clothed)", "match": [["spread legs"]], "block": 5, "layer": 2, "pg13": "", "r": "○", "rplus": "●", "x": "", "note": "даже с одеждой очень сильный R+; для X Cut — в NEG (блок 9)" },
-    { "tag": "arms up, stretching", "match": [["arms up"], ["stretching"], ["arm above head"]], "block": 5, "layer": 2, "pg13": "●", "r": "●", "rplus": "", "x": "", "note": "легко открывает грудь/бок; one arm above head — рендер-надёжная форма [C-N30/31]" },
-    { "tag": "bent over", "match": [["bent over"]], "block": 5, "layer": 2, "pg13": "", "r": "●", "rplus": "●", "x": "", "note": "груди и ягодицы попадают в кадр" },
-    { "tag": "sitting on floor, legs apart", "match": [["legs apart"]], "block": 5, "layer": 2, "pg13": "", "r": "●", "rplus": "●", "x": "", "note": "смотря на угол камеры" },
-    { "tag": "looking back over shoulder", "match": [["looking back"], ["over shoulder"]], "block": 5, "layer": 2, "pg13": "●", "r": "●", "rplus": "●", "x": "", "note": "нейтрально, но эротичность зависит от контекста" },
-    { "tag": "erotic pose", "match": [["erotic pose"]], "block": 5, "layer": 2, "pg13": "", "r": "●", "rplus": "○", "x": "", "note": "сигнал рецепта R (таблица автора не знает); поза как R-триггер — «таблица кладёт ПОЗУ в сигналы» (рецепт v1.1.0)", "bridge": true },
-    { "tag": "smile, gentle, looking at viewer", "match": [["smile"], ["looking at viewer"]], "block": 6, "layer": 3, "pg13": "●", "r": "●", "rplus": "", "x": "", "note": "безопасное выражение" },
-    { "tag": "blush, embarrassed", "match": [["blush"], ["embarrassed"]], "block": 6, "layer": 3, "pg13": "●", "r": "●", "rplus": "", "x": "", "note": "слабо повышает" },
-    { "tag": "parted lips", "match": [["parted lips"]], "block": 6, "layer": 3, "pg13": "●", "r": "●", "rplus": "●", "x": "", "note": "зависит от контекста" },
-    { "tag": "seductive smile, half-lidded eyes", "match": [["seductive smile"], ["half-lidded"]], "block": 6, "layer": 3, "pg13": "○", "r": "●", "rplus": "●", "x": "", "note": "повышает именно намерение" },
-    { "tag": "bedroom eyes", "match": [["bedroom eyes"]], "block": 6, "layer": 3, "pg13": "", "r": "●", "rplus": "●", "x": "", "note": "аналогично" },
-    { "tag": "heavy breathing, flushed face", "match": [["heavy breathing"], ["flushed face"], ["flushed"]], "block": 6, "layer": 3, "pg13": "", "r": "●", "rplus": "●", "x": "", "note": "сильный тон" },
-    { "tag": "tongue out", "match": [["tongue out"]], "block": 6, "layer": 3, "pg13": "", "r": "●", "rplus": "●", "x": "", "note": "может резко усилить R+" },
-    { "tag": "ahegao, orgasm face", "match": [["ahegao"], ["orgasm face"]], "block": 6, "layer": 3, "pg13": "", "r": "", "rplus": "●", "x": "●", "note": "это уже эротическая подача, но не обязательно X по соску" },
-    { "tag": "naughty face, smug", "match": [["naughty face"], ["smug"]], "block": 6, "layer": 3, "pg13": "○", "r": "●", "rplus": "●", "x": "", "note": "игривое выражение" },
-    { "tag": "expressionless, neutral face", "match": [["expressionless"], ["neutral face"]], "block": 6, "layer": 3, "pg13": "●", "r": "●", "rplus": "●", "x": "●", "note": "НЕ СНИЖАЕТ рейтинг, если тело открыто" },
-    { "tag": "pin-up", "match": [["pin-up"], ["pinup"]], "block": 7, "layer": 3, "pg13": "●", "r": "●", "rplus": "●", "x": "", "note": "стиль сам рейтинг не определяет" },
-    { "tag": "ecchi", "match": [["ecchi"]], "block": 7, "layer": 3, "pg13": "", "r": "●", "rplus": "●", "x": "", "note": "тянет вверх на R-направление; опенер «ecchi anime style» вырезается из матчинга как бойлерплейт" },
-    { "tag": "fanservice", "match": [["fanservice"]], "block": 7, "layer": 3, "pg13": "", "r": "●", "rplus": "●", "x": "", "note": "намеренный выбор кадра" },
-    { "tag": "sexually suggestive, suggestive", "match": [["suggestive"]], "block": 7, "layer": 3, "pg13": "", "r": "●", "rplus": "●", "x": "", "note": "общее «повышение» по тону" },
-    { "tag": "intimate atmosphere, private room", "match": [["intimate atmosphere"], ["private room"]], "block": 7, "layer": 3, "pg13": "●", "r": "●", "rplus": "●", "x": "", "note": "атмосфера" },
-    { "tag": "candlelight, soft warm light", "match": [["candlelight"], ["soft warm light"]], "block": 7, "layer": 3, "pg13": "●", "r": "●", "rplus": "●", "x": "", "note": "свет усиливает, но не решает" },
-    { "tag": "rim light, backlighting, silhouette", "match": [["rim light"], ["backlighting"], ["silhouette"]], "block": 7, "layer": 3, "pg13": "●", "r": "●", "rplus": "●", "x": "", "note": "силуэт и контуры тела" },
-    { "tag": "dark background, low key", "match": [["dark background"], ["low key"]], "block": 7, "layer": 3, "pg13": "●", "r": "●", "rplus": "●", "x": "", "note": "скрывает лишнее, но не понижает рейтинг" },
-    { "tag": "boudoir, glamour photography", "match": [["boudoir"], ["glamour"]], "block": 7, "layer": 3, "pg13": "", "r": "●", "rplus": "●", "x": "○", "note": "тянет на «взрослую» эстетику" },
-    { "tag": "magazine cover, fashion editorial", "match": [["magazine cover"], ["fashion editorial"]], "block": 7, "layer": 3, "pg13": "●", "r": "●", "rplus": "", "x": "", "note": "ДЕРЖИТ уровень ближе к PG-13 — супрессор", "suppressor": true },
-    { "tag": "lingerie photoshoot", "match": [["lingerie photoshoot"], ["photoshoot"]], "block": 7, "layer": 3, "pg13": "", "r": "●", "rplus": "●", "x": "", "note": "предметная сцена" },
-    { "tag": "bath, bathhouse, onsen", "match": [["bath"], ["bathhouse"], ["onsen"]], "block": 7, "layer": 3, "pg13": "●", "r": "●", "rplus": "●", "x": "●", "note": "самый частый путь к X через «случайное» — ЛОВУШКА", "trap": true },
-    { "tag": "beach, poolside", "match": [["beach"], ["poolside"]], "block": 7, "layer": 3, "pg13": "●", "r": "●", "rplus": "", "x": "", "note": "купальник как контекст" },
-    { "tag": "after changing, undressing", "match": [["after changing"], ["undressing"], ["changing"]], "block": 7, "layer": 3, "pg13": "", "r": "●", "rplus": "●", "x": "●", "note": "действие «после раздевания» — ЛОВУШКА", "trap": true }
+    {
+      "tag": "bare shoulders, off-shoulder",
+      "match": [
+        [
+          "bare shoulders"
+        ],
+        [
+          "off-shoulder"
+        ],
+        [
+          "off shoulder"
+        ],
+        [
+          "one shoulder bare"
+        ]
+      ],
+      "block": 1,
+      "layer": 1,
+      "pg13": "●",
+      "r": "",
+      "rplus": "",
+      "x": "",
+      "note": "лёгкая кожа, нейтрально"
+    },
+    {
+      "tag": "midriff, bare waist, crop top",
+      "match": [
+        [
+          "midriff"
+        ],
+        [
+          "bare waist"
+        ],
+        [
+          "crop top"
+        ],
+        [
+          "crop"
+        ]
+      ],
+      "block": 1,
+      "layer": 1,
+      "pg13": "●",
+      "r": "○",
+      "rplus": "",
+      "x": "",
+      "note": "голый живот, слабый сигнал"
+    },
+    {
+      "tag": "backless dress",
+      "match": [
+        [
+          "backless"
+        ],
+        [
+          "bare back"
+        ]
+      ],
+      "block": 1,
+      "layer": 1,
+      "pg13": "●",
+      "r": "●",
+      "rplus": "",
+      "x": "",
+      "note": "зависит от глубины выреза спины"
+    },
+    {
+      "tag": "bare thighs, thigh gap",
+      "match": [
+        [
+          "bare thighs"
+        ],
+        [
+          "thigh gap"
+        ]
+      ],
+      "block": 1,
+      "layer": 1,
+      "pg13": "●",
+      "r": "○",
+      "rplus": "",
+      "x": "",
+      "note": "становится R при явном акценте"
+    },
+    {
+      "tag": "thighhighs + miniskirt",
+      "match": [
+        [
+          "thighhigh",
+          "miniskirt"
+        ],
+        [
+          "thighhigh",
+          "micro skirt"
+        ],
+        [
+          "zettai ryouiki"
+        ]
+      ],
+      "block": 1,
+      "layer": 1,
+      "pg13": "●",
+      "r": "●",
+      "rplus": "",
+      "x": "",
+      "note": "«зона» между юбкой и чулком: классический fanservice"
+    },
+    {
+      "tag": "high slit, side slit",
+      "match": [
+        [
+          "high slit"
+        ],
+        [
+          "side slit"
+        ],
+        [
+          "skirt slit"
+        ]
+      ],
+      "block": 1,
+      "layer": 1,
+      "pg13": "●",
+      "r": "●",
+      "rplus": "○",
+      "x": "",
+      "note": "чем выше разрез, тем сильнее сигнал"
+    },
+    {
+      "tag": "micro skirt, micro shorts",
+      "match": [
+        [
+          "micro skirt"
+        ],
+        [
+          "micro shorts"
+        ]
+      ],
+      "block": 1,
+      "layer": 1,
+      "pg13": "○",
+      "r": "●",
+      "rplus": "●",
+      "x": "",
+      "note": "важна степень оголения, не длина"
+    },
+    {
+      "tag": "swimsuit, one-piece swimsuit",
+      "match": [
+        [
+          "swimsuit"
+        ],
+        [
+          "one-piece"
+        ]
+      ],
+      "block": 1,
+      "layer": 1,
+      "pg13": "●",
+      "r": "○",
+      "rplus": "",
+      "x": "",
+      "note": "обычный купальник"
+    },
+    {
+      "tag": "bikini",
+      "match": [
+        [
+          "bikini"
+        ]
+      ],
+      "block": 1,
+      "layer": 1,
+      "pg13": "●",
+      "r": "●",
+      "rplus": "",
+      "x": "",
+      "note": "пограничный PG-13/R"
+    },
+    {
+      "tag": "micro bikini, sling bikini, string bikini",
+      "match": [
+        [
+          "micro bikini"
+        ],
+        [
+          "microbikini"
+        ],
+        [
+          "sling bikini"
+        ],
+        [
+          "string bikini"
+        ]
+      ],
+      "block": 1,
+      "layer": 1,
+      "pg13": "",
+      "r": "●",
+      "rplus": "●",
+      "x": "○",
+      "note": "почти нет ткани; при сдвиге ткани → X"
+    },
+    {
+      "tag": "underwear, lingerie",
+      "match": [
+        [
+          "underwear"
+        ],
+        [
+          "lingerie"
+        ]
+      ],
+      "block": 1,
+      "layer": 1,
+      "pg13": "",
+      "r": "●",
+      "rplus": "●",
+      "x": "",
+      "note": "белье как одежда: надёжный R"
+    },
+    {
+      "tag": "bra, bra only, underwear only",
+      "match": [
+        [
+          "bra"
+        ],
+        [
+          "underwear only"
+        ]
+      ],
+      "block": 1,
+      "layer": 1,
+      "pg13": "",
+      "r": "●",
+      "rplus": "●",
+      "x": "",
+      "note": "бельё как основная одежда"
+    },
+    {
+      "tag": "panties visible, panty shot",
+      "match": [
+        [
+          "panties visible"
+        ],
+        [
+          "panty shot"
+        ],
+        [
+          "pantyshot"
+        ],
+        [
+          "visible pantyline"
+        ],
+        [
+          "pantyline"
+        ]
+      ],
+      "block": 1,
+      "layer": 1,
+      "pg13": "",
+      "r": "●",
+      "rplus": "●",
+      "x": "",
+      "note": "явный R-триггер; visible pantyline — рендер-доказанная форма рецепта v1.2.0",
+      "bridge": true
+    },
+    {
+      "tag": "garter belt, stockings, lace",
+      "match": [
+        [
+          "garter belt"
+        ],
+        [
+          "stockings"
+        ],
+        [
+          "lace"
+        ],
+        [
+          "thighhigh"
+        ]
+      ],
+      "block": 1,
+      "layer": 1,
+      "pg13": "",
+      "r": "●",
+      "rplus": "●",
+      "x": "",
+      "note": "аксессуары белья усиливают сигнал"
+    },
+    {
+      "tag": "corset, tight clothes, bodysuit",
+      "match": [
+        [
+          "corset"
+        ],
+        [
+          "tight clothes"
+        ],
+        [
+          "bodysuit"
+        ],
+        [
+          "tight dress"
+        ]
+      ],
+      "block": 1,
+      "layer": 1,
+      "pg13": "●",
+      "r": "●",
+      "rplus": "●",
+      "x": "",
+      "note": "подчёркивает форму тела"
+    },
+    {
+      "tag": "latex, leather, bondage outfit",
+      "match": [
+        [
+          "latex"
+        ],
+        [
+          "leather"
+        ],
+        [
+          "bondage"
+        ]
+      ],
+      "block": 1,
+      "layer": 1,
+      "pg13": "",
+      "r": "○",
+      "rplus": "●",
+      "x": "",
+      "note": "фетиш-эстетика поднимает уровень; НО рендер-вердикт T4-03: leather — мёртвая ткань, заявку не несёт (карта ≠ носитель)"
+    },
+    {
+      "tag": "naked apron",
+      "match": [
+        [
+          "naked apron"
+        ]
+      ],
+      "block": 1,
+      "layer": 1,
+      "pg13": "",
+      "r": "",
+      "rplus": "●",
+      "x": "○",
+      "note": "почти голая: граница R+/X по тому, что видно сбоку"
+    },
+    {
+      "tag": "naked shirt, oversized shirt only",
+      "match": [
+        [
+          "naked shirt"
+        ],
+        [
+          "oversized shirt"
+        ]
+      ],
+      "block": 1,
+      "layer": 1,
+      "pg13": "",
+      "r": "●",
+      "rplus": "●",
+      "x": "○",
+      "note": "«одна рубашка на голое тело»: вверх, если видна грудь"
+    },
+    {
+      "tag": "open shirt, unbuttoned",
+      "match": [
+        [
+          "open shirt"
+        ],
+        [
+          "unbuttoned"
+        ],
+        [
+          "unbutton"
+        ],
+        [
+          "placket gap"
+        ]
+      ],
+      "block": 1,
+      "layer": 1,
+      "pg13": "○",
+      "r": "●",
+      "rplus": "●",
+      "x": "○",
+      "note": "зависит, что видно в разрезе; placket gap — форма, встречающаяся в наших промптах",
+      "bridge": true
+    },
+    {
+      "tag": "almost naked, barely clothed",
+      "match": [
+        [
+          "almost naked"
+        ],
+        [
+          "barely clothed"
+        ]
+      ],
+      "block": 1,
+      "layer": 1,
+      "pg13": "",
+      "r": "",
+      "rplus": "●",
+      "x": "●",
+      "note": "модель часто решает за тебя: рискует уйти в X — ЛОВУШКА",
+      "trap": true
+    },
+    {
+      "tag": "cleavage",
+      "match": [
+        [
+          "cleavage"
+        ]
+      ],
+      "block": 2,
+      "layer": 1,
+      "pg13": "●",
+      "r": "●",
+      "rplus": "●",
+      "x": "",
+      "note": "декольте; глубина решает"
+    },
+    {
+      "tag": "large breasts, huge breasts",
+      "match": [
+        [
+          "large breasts"
+        ],
+        [
+          "huge breasts"
+        ]
+      ],
+      "block": 2,
+      "layer": 1,
+      "pg13": "○",
+      "r": "●",
+      "rplus": "●",
+      "x": "",
+      "note": "размер повышает акцент сам по себе"
+    },
+    {
+      "tag": "breast focus",
+      "match": [
+        [
+          "breast focus"
+        ]
+      ],
+      "block": 2,
+      "layer": 1,
+      "pg13": "",
+      "r": "●",
+      "rplus": "●",
+      "x": "",
+      "note": "композиция говорит «смотри на грудь»"
+    },
+    {
+      "tag": "sideboob",
+      "match": [
+        [
+          "sideboob"
+        ],
+        [
+          "side boob"
+        ]
+      ],
+      "block": 2,
+      "layer": 1,
+      "pg13": "",
+      "r": "●",
+      "rplus": "●",
+      "x": "",
+      "note": "бок груди, классический R"
+    },
+    {
+      "tag": "underboob",
+      "match": [
+        [
+          "underboob"
+        ],
+        [
+          "under boob"
+        ]
+      ],
+      "block": 2,
+      "layer": 1,
+      "pg13": "",
+      "r": "○",
+      "rplus": "●",
+      "x": "",
+      "note": "нижняя часть груди, очень сильный R+"
+    },
+    {
+      "tag": "deep neckline, plunging neckline",
+      "match": [
+        [
+          "deep neckline"
+        ],
+        [
+          "plunging neckline"
+        ]
+      ],
+      "block": 2,
+      "layer": 1,
+      "pg13": "",
+      "r": "●",
+      "rplus": "●",
+      "x": "",
+      "note": "экстремальное декольте"
+    },
+    {
+      "tag": "breasts pushed together, squeezing",
+      "match": [
+        [
+          "breasts pushed together"
+        ],
+        [
+          "pushed together"
+        ],
+        [
+          "squeezing"
+        ]
+      ],
+      "block": 2,
+      "layer": 1,
+      "pg13": "",
+      "r": "●",
+      "rplus": "●",
+      "x": "",
+      "note": "самоприкосновение и давление на грудь"
+    },
+    {
+      "tag": "hand on breast, groping self",
+      "match": [
+        [
+          "hand on breast"
+        ],
+        [
+          "groping"
+        ]
+      ],
+      "block": 2,
+      "layer": 1,
+      "pg13": "",
+      "r": "●",
+      "rplus": "●",
+      "x": "○",
+      "note": "рука на груди; при сдвиге руки → X"
+    },
+    {
+      "tag": "covering breasts, arms covering breasts",
+      "match": [
+        [
+          "covering breasts"
+        ],
+        [
+          "arms covering chest"
+        ],
+        [
+          "arms covering breasts"
+        ]
+      ],
+      "block": 2,
+      "layer": 1,
+      "pg13": "",
+      "r": "●",
+      "rplus": "●",
+      "x": "●",
+      "note": "ЛОВУШКА: рука/локти часто не скрывают сосок, модель рисует его; arms covering chest — форма рецепта v1.2.0",
+      "trap": true,
+      "bridge": true
+    },
+    {
+      "tag": "hair covering breasts",
+      "match": [
+        [
+          "hair covering breasts"
+        ]
+      ],
+      "block": 2,
+      "layer": 1,
+      "pg13": "",
+      "r": "●",
+      "rplus": "●",
+      "x": "●",
+      "note": "волосы не отменяют X, если сосок читается — ЛОВУШКА",
+      "trap": true
+    },
+    {
+      "tag": "nipple outline, nipples through clothes",
+      "match": [
+        [
+          "nipple outline"
+        ],
+        [
+          "nipples through clothes"
+        ],
+        [
+          "nipples through clothing"
+        ],
+        [
+          "clothed nipples"
+        ]
+      ],
+      "block": 2,
+      "layer": 1,
+      "pg13": "",
+      "r": "",
+      "rplus": "●",
+      "x": "○",
+      "note": "контур соска сквозь ткань: R+, граница X; nipples through clothing — основная рендер-доказанная заявка рецепта v1.2.0",
+      "bridge": true
+    },
+    {
+      "tag": "covered nipples",
+      "match": [
+        [
+          "covered nipples"
+        ]
+      ],
+      "block": 2,
+      "layer": 1,
+      "pg13": "",
+      "r": "",
+      "rplus": "●",
+      "x": "○",
+      "note": "сосок под тканью; модель может «проявить» его"
+    },
+    {
+      "tag": "wardrobe malfunction",
+      "match": [
+        [
+          "wardrobe malfunction"
+        ]
+      ],
+      "block": 2,
+      "layer": 1,
+      "pg13": "",
+      "r": "●",
+      "rplus": "●",
+      "x": "○",
+      "note": "без наготы R/R+, с соском X"
+    },
+    {
+      "tag": "clothes pull, shirt lift, dress pull",
+      "match": [
+        [
+          "clothes pull"
+        ],
+        [
+          "clothes pulled"
+        ],
+        [
+          "shirt lift"
+        ],
+        [
+          "dress pull"
+        ]
+      ],
+      "block": 2,
+      "layer": 1,
+      "pg13": "",
+      "r": "●",
+      "rplus": "●",
+      "x": "●",
+      "note": "одежда сдвинута: результат зависит от того, что открылось — ЛОВУШКА",
+      "trap": true
+    },
+    {
+      "tag": "torn clothes",
+      "match": [
+        [
+          "torn clothes"
+        ],
+        [
+          "clothes torn"
+        ]
+      ],
+      "block": 2,
+      "layer": 1,
+      "pg13": "○",
+      "r": "●",
+      "rplus": "●",
+      "x": "●",
+      "note": "рвань: рейтинг определяет то, что под ней — ЛОВУШКА",
+      "trap": true
+    },
+    {
+      "tag": "breasts out, one breast out, breast slip",
+      "match": [
+        [
+          "breasts out"
+        ],
+        [
+          "one breast out"
+        ],
+        [
+          "breast slip"
+        ]
+      ],
+      "block": 2,
+      "layer": 1,
+      "pg13": "",
+      "r": "",
+      "rplus": "",
+      "x": "●",
+      "note": "грудь открыта напрямую"
+    },
+    {
+      "tag": "topless",
+      "match": [
+        [
+          "topless"
+        ]
+      ],
+      "block": 2,
+      "layer": 1,
+      "pg13": "",
+      "r": "",
+      "rplus": "",
+      "x": "●",
+      "note": "прямой X-триггер"
+    },
+    {
+      "tag": "nipples",
+      "match": [
+        [
+          "nipples"
+        ]
+      ],
+      "block": 2,
+      "layer": 1,
+      "pg13": "",
+      "r": "",
+      "rplus": "",
+      "x": "●",
+      "note": "соски явно видны"
+    },
+    {
+      "tag": "areolae, puffy areolae",
+      "match": [
+        [
+          "areolae"
+        ],
+        [
+          "areola"
+        ]
+      ],
+      "block": 2,
+      "layer": 1,
+      "pg13": "",
+      "r": "",
+      "rplus": "",
+      "x": "●",
+      "note": "ареолы видны: тоже X"
+    },
+    {
+      "tag": "no bra, bare breasts",
+      "match": [
+        [
+          "no bra"
+        ],
+        [
+          "bare breasts"
+        ]
+      ],
+      "block": 2,
+      "layer": 1,
+      "pg13": "",
+      "r": "",
+      "rplus": "",
+      "x": "●",
+      "note": "прямая нагота груди"
+    },
+    {
+      "tag": "naked, nude",
+      "match": [
+        [
+          "naked"
+        ],
+        [
+          "nude"
+        ]
+      ],
+      "block": 2,
+      "layer": 1,
+      "pg13": "",
+      "r": "",
+      "rplus": "",
+      "x": "●",
+      "note": "нагота; для X Cut фиксируй композицию так, чтобы низ тела не читался (блок 9)"
+    },
+    {
+      "tag": "taped nipples, topless with tape",
+      "match": [
+        [
+          "taped nipples"
+        ],
+        [
+          "topless with tape"
+        ],
+        [
+          "tape"
+        ]
+      ],
+      "block": 2,
+      "layer": 1,
+      "pg13": "",
+      "r": "",
+      "rplus": "●",
+      "x": "○",
+      "note": "on-skin заявка (рецепт v1.2.0); таблица автора тейп не знает — платформенный эмпиризм 3.2: X-tape рендерится и классифицируется R+",
+      "bridge": true
+    },
+    {
+      "tag": "handbra",
+      "match": [
+        [
+          "handbra"
+        ]
+      ],
+      "block": 2,
+      "layer": 1,
+      "pg13": "",
+      "r": "",
+      "rplus": "●",
+      "x": "○",
+      "note": "on-skin заявка (рецепт v1.2.0), таблица автора не знает — та же семья, что hand on breast",
+      "bridge": true
+    },
+    {
+      "tag": "cameltoe, camel toe",
+      "match": [
+        [
+          "cameltoe"
+        ],
+        [
+          "camel toe"
+        ]
+      ],
+      "block": 2,
+      "layer": 1,
+      "pg13": "",
+      "r": "",
+      "rplus": "",
+      "x": "",
+      "note": "RENDER-DEAD (рендер-вердикт T4-03: 0 отрисовок из всех попыток) — флэйвор максимум, НИКОГДА не заявка и не сигнал; в таблице автора отсутствует — подтверждение, а не пропуск",
+      "bridge": true
+    },
+    {
+      "tag": "sheer, semi-transparent",
+      "match": [
+        [
+          "sheer"
+        ],
+        [
+          "semi-transparent"
+        ]
+      ],
+      "block": 3,
+      "layer": 4,
+      "pg13": "●",
+      "r": "●",
+      "rplus": "●",
+      "x": "",
+      "note": "слабое просвечивание может остаться PG-13"
+    },
+    {
+      "tag": "see-through",
+      "match": [
+        [
+          "see-through"
+        ],
+        [
+          "see through"
+        ]
+      ],
+      "block": 3,
+      "layer": 4,
+      "pg13": "",
+      "r": "●",
+      "rplus": "●",
+      "x": "●",
+      "note": "всё решает то, что видно под тканью; рендер-доказанное состояние ткани рецепта v1.2.0",
+      "bridge": true
+    },
+    {
+      "tag": "see-through breasts",
+      "match": [
+        [
+          "see-through breasts"
+        ]
+      ],
+      "block": 3,
+      "layer": 4,
+      "pg13": "",
+      "r": "",
+      "rplus": "●",
+      "x": "●",
+      "note": "грудь читается насквозь, переход к X"
+    },
+    {
+      "tag": "wet clothes, wet shirt",
+      "match": [
+        [
+          "wet clothes"
+        ],
+        [
+          "wet shirt"
+        ]
+      ],
+      "block": 3,
+      "layer": 4,
+      "pg13": "●",
+      "r": "●",
+      "rplus": "●",
+      "x": "○",
+      "note": "мокрая ткань липнет и просвечивает; рендер-доказанное состояние ткани рецепта v1.2.0",
+      "bridge": true
+    },
+    {
+      "tag": "wet, dripping, water droplets",
+      "match": [
+        [
+          "dripping"
+        ],
+        [
+          "water droplets"
+        ],
+        [
+          "water beads"
+        ]
+      ],
+      "block": 3,
+      "layer": 4,
+      "pg13": "●",
+      "r": "●",
+      "rplus": "●",
+      "x": "",
+      "note": "усилитель, сам по себе не X; голое «wet» не матчится — слишком жадно (wet hem, wet line)"
+    },
+    {
+      "tag": "shower, steam, rain",
+      "match": [
+        [
+          "shower"
+        ],
+        [
+          "steam"
+        ],
+        [
+          "rain"
+        ]
+      ],
+      "block": 3,
+      "layer": 4,
+      "pg13": "●",
+      "r": "●",
+      "rplus": "●",
+      "x": "○",
+      "note": "сильный amplifier прозрачности"
+    },
+    {
+      "tag": "oil, shiny skin, glossy skin",
+      "match": [
+        [
+          "oil"
+        ],
+        [
+          "shiny skin"
+        ],
+        [
+          "glossy skin"
+        ]
+      ],
+      "block": 3,
+      "layer": 4,
+      "pg13": "●",
+      "r": "●",
+      "rplus": "●",
+      "x": "",
+      "note": "блеск кожи: сексуальный усилитель"
+    },
+    {
+      "tag": "sweat, sweaty",
+      "match": [
+        [
+          "sweat"
+        ],
+        [
+          "sweaty"
+        ]
+      ],
+      "block": 3,
+      "layer": 4,
+      "pg13": "●",
+      "r": "●",
+      "rplus": "●",
+      "x": "",
+      "note": "слабый усилитель"
+    },
+    {
+      "tag": "steam censor, light rays censor",
+      "match": [
+        [
+          "steam censor"
+        ],
+        [
+          "light rays censor"
+        ],
+        [
+          "censor"
+        ]
+      ],
+      "block": 3,
+      "layer": 4,
+      "pg13": "",
+      "r": "●",
+      "rplus": "●",
+      "x": "●",
+      "note": "модель рисует наготу, «цензура» закрывает часть — ЛОВУШКА",
+      "trap": true
+    },
+    {
+      "tag": "full body, cowboy shot",
+      "match": [
+        [
+          "full body"
+        ],
+        [
+          "cowboy shot"
+        ]
+      ],
+      "block": 4,
+      "layer": 2,
+      "pg13": "●",
+      "r": "●",
+      "rplus": "",
+      "x": "",
+      "note": "нейтральное кадрирование"
+    },
+    {
+      "tag": "from behind",
+      "match": [
+        [
+          "from behind"
+        ]
+      ],
+      "block": 4,
+      "layer": 2,
+      "pg13": "●",
+      "r": "●",
+      "rplus": "●",
+      "x": "",
+      "note": "нейтрально, но легко становится сексуальным"
+    },
+    {
+      "tag": "from below, low angle",
+      "match": [
+        [
+          "from below"
+        ],
+        [
+          "low angle"
+        ]
+      ],
+      "block": 4,
+      "layer": 2,
+      "pg13": "",
+      "r": "●",
+      "rplus": "●",
+      "x": "",
+      "note": "снизу: под юбку, на бёдра"
+    },
+    {
+      "tag": "upskirt (partial)",
+      "match": [
+        [
+          "upskirt"
+        ]
+      ],
+      "block": 4,
+      "layer": 2,
+      "pg13": "",
+      "r": "●",
+      "rplus": "●",
+      "x": "",
+      "note": "классический R-триггер"
+    },
+    {
+      "tag": "close-up, breast close-up",
+      "match": [
+        [
+          "close-up"
+        ],
+        [
+          "closeup"
+        ],
+        [
+          "breast close-up"
+        ]
+      ],
+      "block": 4,
+      "layer": 2,
+      "pg13": "",
+      "r": "●",
+      "rplus": "●",
+      "x": "○",
+      "note": "крупный план груди: R+, а при наготе X"
+    },
+    {
+      "tag": "thigh close-up",
+      "match": [
+        [
+          "thigh close-up"
+        ]
+      ],
+      "block": 4,
+      "layer": 2,
+      "pg13": "●",
+      "r": "●",
+      "rplus": "●",
+      "x": "",
+      "note": "аналогичный эффект"
+    },
+    {
+      "tag": "ass focus, from behind ass",
+      "match": [
+        [
+          "ass focus"
+        ],
+        [
+          "from behind ass"
+        ]
+      ],
+      "block": 4,
+      "layer": 2,
+      "pg13": "",
+      "r": "●",
+      "rplus": "●",
+      "x": "",
+      "note": "быстро уходит в R+"
+    },
+    {
+      "tag": "pov",
+      "match": [
+        [
+          "pov"
+        ]
+      ],
+      "block": 4,
+      "layer": 2,
+      "pg13": "",
+      "r": "○",
+      "rplus": "●",
+      "x": "",
+      "note": "взгляд от первого лица усиливает интимность"
+    },
+    {
+      "tag": "head out of frame",
+      "match": [
+        [
+          "head out of frame"
+        ]
+      ],
+      "block": 4,
+      "layer": 2,
+      "pg13": "",
+      "r": "●",
+      "rplus": "●",
+      "x": "",
+      "note": "персонаж как «тело», сильный body-part framing"
+    },
+    {
+      "tag": "dutch angle, dynamic angle",
+      "match": [
+        [
+          "dutch angle"
+        ],
+        [
+          "dynamic angle"
+        ]
+      ],
+      "block": 4,
+      "layer": 2,
+      "pg13": "●",
+      "r": "●",
+      "rplus": "●",
+      "x": "",
+      "note": "нейтральный драйв, слабый"
+    },
+    {
+      "tag": "depth of field on chest",
+      "match": [
+        [
+          "depth of field"
+        ]
+      ],
+      "block": 4,
+      "layer": 2,
+      "pg13": "",
+      "r": "●",
+      "rplus": "●",
+      "x": "",
+      "note": "фокус на груди через размытие"
+    },
+    {
+      "tag": "full body, standing, shy",
+      "match": [
+        [
+          "full body",
+          "shy"
+        ],
+        [
+          "standing",
+          "shy"
+        ]
+      ],
+      "block": 4,
+      "layer": 2,
+      "pg13": "●",
+      "r": "○",
+      "rplus": "",
+      "x": "",
+      "note": "выглядит безопаснее, УДЕРЖИВАЕТ PG-13 — супрессор",
+      "suppressor": true
+    },
+    {
+      "tag": "standing, sitting, walking",
+      "match": [
+        [
+          "standing"
+        ],
+        [
+          "sitting"
+        ],
+        [
+          "walking"
+        ]
+      ],
+      "block": 5,
+      "layer": 2,
+      "pg13": "●",
+      "r": "",
+      "rplus": "",
+      "x": "",
+      "note": "нейтрально"
+    },
+    {
+      "tag": "hand on hip",
+      "match": [
+        [
+          "hand on hip"
+        ]
+      ],
+      "block": 5,
+      "layer": 2,
+      "pg13": "●",
+      "r": "●",
+      "rplus": "",
+      "x": "",
+      "note": "слабый сигнал"
+    },
+    {
+      "tag": "arched back, back arched",
+      "match": [
+        [
+          "arched back"
+        ],
+        [
+          "back arched"
+        ],
+        [
+          "back arch"
+        ]
+      ],
+      "block": 5,
+      "layer": 2,
+      "pg13": "●",
+      "r": "●",
+      "rplus": "●",
+      "x": "",
+      "note": "чем нарочитее, тем выше"
+    },
+    {
+      "tag": "hips toward camera, hip out",
+      "match": [
+        [
+          "hips toward camera"
+        ],
+        [
+          "hip out"
+        ]
+      ],
+      "block": 5,
+      "layer": 2,
+      "pg13": "",
+      "r": "●",
+      "rplus": "●",
+      "x": "",
+      "note": "бёдра к зрителю"
+    },
+    {
+      "tag": "lying, on back, on side",
+      "match": [
+        [
+          "lying"
+        ],
+        [
+          "on back"
+        ],
+        [
+          "on side"
+        ]
+      ],
+      "block": 5,
+      "layer": 2,
+      "pg13": "●",
+      "r": "●",
+      "rplus": "●",
+      "x": "",
+      "note": "само по себе не эротика"
+    },
+    {
+      "tag": "lying + revealing clothes",
+      "match": [],
+      "block": 5,
+      "layer": 2,
+      "pg13": "",
+      "r": "●",
+      "rplus": "●",
+      "x": "",
+      "note": "КОМБИНАЦИЯ: лежать + раскрытая одежда повышает рейтинг; компоненты считаются каждый сам"
+    },
+    {
+      "tag": "on bed, bedroom",
+      "match": [
+        [
+          "on bed"
+        ],
+        [
+          "bedroom"
+        ]
+      ],
+      "block": 5,
+      "layer": 2,
+      "pg13": "●",
+      "r": "●",
+      "rplus": "●",
+      "x": "",
+      "note": "контекст без секса"
+    },
+    {
+      "tag": "bed + lingerie + seductive pose",
+      "match": [],
+      "block": 5,
+      "layer": 2,
+      "pg13": "",
+      "r": "",
+      "rplus": "●",
+      "x": "○",
+      "note": "КОМБИНАЦИЯ: контекст + намерение = R+; компоненты считаются каждый сам"
+    },
+    {
+      "tag": "all fours, on all fours",
+      "match": [
+        [
+          "all fours"
+        ]
+      ],
+      "block": 5,
+      "layer": 2,
+      "pg13": "",
+      "r": "",
+      "rplus": "●",
+      "x": "",
+      "note": "сильный R+ сигнал, зависит от кадра"
+    },
+    {
+      "tag": "spread legs (clothed)",
+      "match": [
+        [
+          "spread legs"
+        ]
+      ],
+      "block": 5,
+      "layer": 2,
+      "pg13": "",
+      "r": "○",
+      "rplus": "●",
+      "x": "",
+      "note": "даже с одеждой очень сильный R+; для X Cut — в NEG (блок 9)"
+    },
+    {
+      "tag": "arms up, stretching",
+      "match": [
+        [
+          "arms up"
+        ],
+        [
+          "stretching"
+        ],
+        [
+          "arm above head"
+        ]
+      ],
+      "block": 5,
+      "layer": 2,
+      "pg13": "●",
+      "r": "●",
+      "rplus": "",
+      "x": "",
+      "note": "легко открывает грудь/бок; one arm above head — рендер-надёжная форма [C-N30/31]"
+    },
+    {
+      "tag": "bent over",
+      "match": [
+        [
+          "bent over"
+        ]
+      ],
+      "block": 5,
+      "layer": 2,
+      "pg13": "",
+      "r": "●",
+      "rplus": "●",
+      "x": "",
+      "note": "груди и ягодицы попадают в кадр"
+    },
+    {
+      "tag": "sitting on floor, legs apart",
+      "match": [
+        [
+          "legs apart"
+        ]
+      ],
+      "block": 5,
+      "layer": 2,
+      "pg13": "",
+      "r": "●",
+      "rplus": "●",
+      "x": "",
+      "note": "смотря на угол камеры"
+    },
+    {
+      "tag": "looking back over shoulder",
+      "match": [
+        [
+          "looking back"
+        ],
+        [
+          "over shoulder"
+        ]
+      ],
+      "block": 5,
+      "layer": 2,
+      "pg13": "●",
+      "r": "●",
+      "rplus": "●",
+      "x": "",
+      "note": "нейтрально, но эротичность зависит от контекста"
+    },
+    {
+      "tag": "erotic pose",
+      "match": [
+        [
+          "erotic pose"
+        ]
+      ],
+      "block": 5,
+      "layer": 2,
+      "pg13": "",
+      "r": "●",
+      "rplus": "○",
+      "x": "",
+      "note": "сигнал рецепта R (таблица автора не знает); поза как R-триггер — «таблица кладёт ПОЗУ в сигналы» (рецепт v1.1.0)",
+      "bridge": true
+    },
+    {
+      "tag": "smile, gentle, looking at viewer",
+      "match": [
+        [
+          "smile"
+        ],
+        [
+          "looking at viewer"
+        ]
+      ],
+      "block": 6,
+      "layer": 3,
+      "pg13": "●",
+      "r": "●",
+      "rplus": "",
+      "x": "",
+      "note": "безопасное выражение"
+    },
+    {
+      "tag": "blush, embarrassed",
+      "match": [
+        [
+          "blush"
+        ],
+        [
+          "embarrassed"
+        ]
+      ],
+      "block": 6,
+      "layer": 3,
+      "pg13": "●",
+      "r": "●",
+      "rplus": "",
+      "x": "",
+      "note": "слабо повышает"
+    },
+    {
+      "tag": "parted lips",
+      "match": [
+        [
+          "parted lips"
+        ]
+      ],
+      "block": 6,
+      "layer": 3,
+      "pg13": "●",
+      "r": "●",
+      "rplus": "●",
+      "x": "",
+      "note": "зависит от контекста"
+    },
+    {
+      "tag": "seductive smile, half-lidded eyes",
+      "match": [
+        [
+          "seductive smile"
+        ],
+        [
+          "half-lidded"
+        ]
+      ],
+      "block": 6,
+      "layer": 3,
+      "pg13": "○",
+      "r": "●",
+      "rplus": "●",
+      "x": "",
+      "note": "повышает именно намерение"
+    },
+    {
+      "tag": "bedroom eyes",
+      "match": [
+        [
+          "bedroom eyes"
+        ]
+      ],
+      "block": 6,
+      "layer": 3,
+      "pg13": "",
+      "r": "●",
+      "rplus": "●",
+      "x": "",
+      "note": "аналогично"
+    },
+    {
+      "tag": "heavy breathing, flushed face",
+      "match": [
+        [
+          "heavy breathing"
+        ],
+        [
+          "flushed face"
+        ],
+        [
+          "flushed"
+        ]
+      ],
+      "block": 6,
+      "layer": 3,
+      "pg13": "",
+      "r": "●",
+      "rplus": "●",
+      "x": "",
+      "note": "сильный тон"
+    },
+    {
+      "tag": "tongue out",
+      "match": [
+        [
+          "tongue out"
+        ]
+      ],
+      "block": 6,
+      "layer": 3,
+      "pg13": "",
+      "r": "●",
+      "rplus": "●",
+      "x": "",
+      "note": "может резко усилить R+"
+    },
+    {
+      "tag": "ahegao, orgasm face",
+      "match": [
+        [
+          "ahegao"
+        ],
+        [
+          "orgasm face"
+        ]
+      ],
+      "block": 6,
+      "layer": 3,
+      "pg13": "",
+      "r": "",
+      "rplus": "●",
+      "x": "●",
+      "note": "это уже эротическая подача, но не обязательно X по соску"
+    },
+    {
+      "tag": "naughty face, smug",
+      "match": [
+        [
+          "naughty face"
+        ],
+        [
+          "smug"
+        ]
+      ],
+      "block": 6,
+      "layer": 3,
+      "pg13": "○",
+      "r": "●",
+      "rplus": "●",
+      "x": "",
+      "note": "игривое выражение"
+    },
+    {
+      "tag": "expressionless, neutral face",
+      "match": [
+        [
+          "expressionless"
+        ],
+        [
+          "neutral face"
+        ]
+      ],
+      "block": 6,
+      "layer": 3,
+      "pg13": "●",
+      "r": "●",
+      "rplus": "●",
+      "x": "●",
+      "note": "НЕ СНИЖАЕТ рейтинг, если тело открыто"
+    },
+    {
+      "tag": "pin-up",
+      "match": [
+        [
+          "pin-up"
+        ],
+        [
+          "pinup"
+        ]
+      ],
+      "block": 7,
+      "layer": 3,
+      "pg13": "●",
+      "r": "●",
+      "rplus": "●",
+      "x": "",
+      "note": "стиль сам рейтинг не определяет"
+    },
+    {
+      "tag": "ecchi",
+      "match": [
+        [
+          "ecchi"
+        ]
+      ],
+      "block": 7,
+      "layer": 3,
+      "pg13": "",
+      "r": "●",
+      "rplus": "●",
+      "x": "",
+      "note": "тянет вверх на R-направление; опенер «ecchi anime style» вырезается из матчинга как бойлерплейт"
+    },
+    {
+      "tag": "fanservice",
+      "match": [
+        [
+          "fanservice"
+        ]
+      ],
+      "block": 7,
+      "layer": 3,
+      "pg13": "",
+      "r": "●",
+      "rplus": "●",
+      "x": "",
+      "note": "намеренный выбор кадра"
+    },
+    {
+      "tag": "sexually suggestive, suggestive",
+      "match": [
+        [
+          "suggestive"
+        ]
+      ],
+      "block": 7,
+      "layer": 3,
+      "pg13": "",
+      "r": "●",
+      "rplus": "●",
+      "x": "",
+      "note": "общее «повышение» по тону"
+    },
+    {
+      "tag": "intimate atmosphere, private room",
+      "match": [
+        [
+          "intimate atmosphere"
+        ],
+        [
+          "private room"
+        ]
+      ],
+      "block": 7,
+      "layer": 3,
+      "pg13": "●",
+      "r": "●",
+      "rplus": "●",
+      "x": "",
+      "note": "атмосфера"
+    },
+    {
+      "tag": "candlelight, soft warm light",
+      "match": [
+        [
+          "candlelight"
+        ],
+        [
+          "soft warm light"
+        ]
+      ],
+      "block": 7,
+      "layer": 3,
+      "pg13": "●",
+      "r": "●",
+      "rplus": "●",
+      "x": "",
+      "note": "свет усиливает, но не решает"
+    },
+    {
+      "tag": "rim light, backlighting, silhouette",
+      "match": [
+        [
+          "rim light"
+        ],
+        [
+          "backlighting"
+        ],
+        [
+          "silhouette"
+        ]
+      ],
+      "block": 7,
+      "layer": 3,
+      "pg13": "●",
+      "r": "●",
+      "rplus": "●",
+      "x": "",
+      "note": "силуэт и контуры тела"
+    },
+    {
+      "tag": "dark background, low key",
+      "match": [
+        [
+          "dark background"
+        ],
+        [
+          "low key"
+        ]
+      ],
+      "block": 7,
+      "layer": 3,
+      "pg13": "●",
+      "r": "●",
+      "rplus": "●",
+      "x": "",
+      "note": "скрывает лишнее, но не понижает рейтинг"
+    },
+    {
+      "tag": "boudoir, glamour photography",
+      "match": [
+        [
+          "boudoir"
+        ],
+        [
+          "glamour"
+        ]
+      ],
+      "block": 7,
+      "layer": 3,
+      "pg13": "",
+      "r": "●",
+      "rplus": "●",
+      "x": "○",
+      "note": "тянет на «взрослую» эстетику"
+    },
+    {
+      "tag": "magazine cover, fashion editorial",
+      "match": [
+        [
+          "magazine cover"
+        ],
+        [
+          "fashion editorial"
+        ]
+      ],
+      "block": 7,
+      "layer": 3,
+      "pg13": "●",
+      "r": "●",
+      "rplus": "",
+      "x": "",
+      "note": "ДЕРЖИТ уровень ближе к PG-13 — супрессор",
+      "suppressor": true
+    },
+    {
+      "tag": "lingerie photoshoot",
+      "match": [
+        [
+          "lingerie photoshoot"
+        ],
+        [
+          "photoshoot"
+        ]
+      ],
+      "block": 7,
+      "layer": 3,
+      "pg13": "",
+      "r": "●",
+      "rplus": "●",
+      "x": "",
+      "note": "предметная сцена"
+    },
+    {
+      "tag": "bath, bathhouse, onsen",
+      "match": [
+        [
+          "bath"
+        ],
+        [
+          "bathhouse"
+        ],
+        [
+          "onsen"
+        ]
+      ],
+      "block": 7,
+      "layer": 3,
+      "pg13": "●",
+      "r": "●",
+      "rplus": "●",
+      "x": "●",
+      "note": "самый частый путь к X через «случайное» — ЛОВУШКА",
+      "trap": true
+    },
+    {
+      "tag": "beach, poolside",
+      "match": [
+        [
+          "beach"
+        ],
+        [
+          "poolside"
+        ]
+      ],
+      "block": 7,
+      "layer": 3,
+      "pg13": "●",
+      "r": "●",
+      "rplus": "",
+      "x": "",
+      "note": "купальник как контекст"
+    },
+    {
+      "tag": "after changing, undressing",
+      "match": [
+        [
+          "after changing"
+        ],
+        [
+          "undressing"
+        ],
+        [
+          "changing"
+        ]
+      ],
+      "block": 7,
+      "layer": 3,
+      "pg13": "",
+      "r": "●",
+      "rplus": "●",
+      "x": "●",
+      "note": "действие «после раздевания» — ЛОВУШКА",
+      "trap": true
+    },
+    {
+      "tag": "threadbare",
+      "match": [
+        [
+          "threadbare"
+        ],
+        [
+          "worn thin"
+        ],
+        [
+          "worn-through"
+        ],
+        [
+          "see-through worn"
+        ]
+      ],
+      "block": 4,
+      "layer": 4,
+      "pg13": "",
+      "r": "○",
+      "rplus": "●",
+      "x": "",
+      "note": "истёртая до прозрачности ткань БЕЗ воды — второй живой путь edge: износ как состояние ткани (T4-05 P09 «threadbare-nape» — доставлено)",
+      "bridge": true
+    },
+    {
+      "tag": "named underlayer display",
+      "match": [
+        [
+          "visible bra"
+        ],
+        [
+          "visible camisole"
+        ],
+        [
+          "named underlayer"
+        ]
+      ],
+      "block": 1,
+      "layer": 1,
+      "pg13": "",
+      "r": "●",
+      "rplus": "●",
+      "x": "",
+      "note": "ИМЕНОВАННЫЙ видимый подслой как САМОСТОЯТЕЛЬНАЯ заявка (не под sheer-верхом!) — подслой становится главным словом кадра (T4-05: 1/1 доставлено)",
+      "bridge": true
+    },
+    {
+      "tag": "breast environment contact",
+      "match": [
+        [
+          "chest against"
+        ],
+        [
+          "pressed against glass"
+        ],
+        [
+          "breast contact"
+        ],
+        [
+          "flattened against"
+        ]
+      ],
+      "block": 2,
+      "layer": 2,
+      "pg13": "",
+      "r": "●",
+      "rplus": "○",
+      "x": "",
+      "note": "контакт груди со средой (стекло/пол/края) — деформация как сигнал, среда делает работу позы (T4-05: 1/1)",
+      "bridge": true
+    },
+    {
+      "tag": "frame legibility loss",
+      "match": [
+        [
+          "dawn glow"
+        ],
+        [
+          "washed out"
+        ],
+        [
+          "long shot"
+        ],
+        [
+          "wide shot"
+        ]
+      ],
+      "block": 10,
+      "layer": 2,
+      "pg13": "",
+      "r": "",
+      "rplus": "✗",
+      "x": "",
+      "note": "потеря различимости: дистанция кадра/залитый свет съедают заявку — АНТИ-приём, гейт salience-chain LEGIBILITY (T4-05 P23: рассвет съел X-заявку)",
+      "bridge": true
+    }
   ],
   "traps_note": "ловушки = теги X-● (или X-○ с дорисовкой): модель часто дорисовывает сосок/низ сама. Гейт technique-layers даёт квитанцию на каждую ловушку в R+ тег-блоке — автор должен знать до рендера.",
   "suppressors_note": "супрессоры держат кадр в PG-13/R, сколько бы слоёв ни было включено. Гейт technique-layers даёт квитанцию на супрессор в R+ слоте.",
   "sum_rules": {
-    "born": "блок 8 таблицы автора — сумма факторов",
+    "born": "2026-09-21 · v1.1.0 2026-09-23 (вердикт T4-05: +4 моста из delivery-stats v0.2.0 — threadbare / named-underlayer / breast-contact / legibility-loss)",
     "note": "рейтинг = сумма включённых слоёв; 4 слоя см. principle; X Cut = один жёсткий факт, не сумма намёков",
-    "rplus_floor": { "signals_min": 3, "layers_min": 2, "why": "3 R-сигнала (одежда + поза + камера) = типичная причина R+; 2 сигнала = R/R+ граница; 1 сигнал = PG-13/R" },
+    "rplus_floor": {
+      "signals_min": 3,
+      "layers_min": 2,
+      "why": "3 R-сигнала (одежда + поза + камера) = типичная причина R+; 2 сигнала = R/R+ граница; 1 сигнал = PG-13/R"
+    },
     "rows": [
-      { "combo": "1 сигнал (только cleavage)", "tiers": "PG-13 / R (при сильном акценте)" },
-      { "combo": "2 R-сигнала (cleavage + from below)", "tiers": "R / R+ (начало суммирования)" },
-      { "combo": "3 R-сигнала (одежда + поза + камера)", "tiers": "R+ — типичная причина" },
-      { "combo": "3+ сильных сигнала + ecchi", "tiers": "R+ / риск сорваться в X («over the top»)" },
-      { "combo": "R+ + мокрая ткань + просвечивание", "tiers": "R+ → ОЧЕНЬ высокий риск нечаянного X" }
+      {
+        "combo": "1 сигнал (только cleavage)",
+        "tiers": "PG-13 / R (при сильном акценте)"
+      },
+      {
+        "combo": "2 R-сигнала (cleavage + from below)",
+        "tiers": "R / R+ (начало суммирования)"
+      },
+      {
+        "combo": "3 R-сигнала (одежда + поза + камера)",
+        "tiers": "R+ — типичная причина"
+      },
+      {
+        "combo": "3+ сильных сигнала + ecchi",
+        "tiers": "R+ / риск сорваться в X («over the top»)"
+      },
+      {
+        "combo": "R+ + мокрая ткань + просвечивание",
+        "tiers": "R+ → ОЧЕНЬ высокий риск нечаянного X"
+      }
     ]
   },
   "xcut_hold": {
     "born": "блок 9 таблицы автора — как удержать X Cut, не улетая дальше",
     "definition": "X Cut = грудь и соски, БЕЗ гениталий и без секс-действия. Главная угроза: модель сама «дорисовывает» ниже.",
-    "framing": ["upper body", "portrait", "cowboy shot", "close-up"],
-    "lower_cover": ["skirt", "shorts", "panties", "pants", "jeans", "dress", "sheet wrap", "wrap", "towel", "apron"],
-    "poses": ["standing", "sitting", "crossed legs"],
-    "pos_ban": ["spread legs", "nude lower body", "uncensored"],
-    "neg_block": ["exposed genitals", "vulva", "pubic hair", "sex", "penis", "cum", "uncensored", "spread legs", "nude lower body"],
+    "framing": [
+      "upper body",
+      "portrait",
+      "cowboy shot",
+      "close-up"
+    ],
+    "lower_cover": [
+      "skirt",
+      "shorts",
+      "panties",
+      "pants",
+      "jeans",
+      "dress",
+      "sheet wrap",
+      "wrap",
+      "towel",
+      "apron"
+    ],
+    "poses": [
+      "standing",
+      "sitting",
+      "crossed legs"
+    ],
+    "pos_ban": [
+      "spread legs",
+      "nude lower body",
+      "uncensored"
+    ],
+    "neg_block": [
+      "exposed genitals",
+      "vulva",
+      "pubic hair",
+      "sex",
+      "penis",
+      "cum",
+      "uncensored",
+      "spread legs",
+      "nude lower body"
+    ],
     "neg_block_note": "канонизировано в rating-recipes.json v1.3.0 → tiers.X.counter_neg (полный список там; гейт требует ВСЕ термины в NEG X-слота)",
     "solo": "один персонаж — нет второго тела и секс-контекста (машина добавляет male/man/1boy/2girls в NEG каждого промпта)",
     "neutral_bg": "нейтральный/мягкий фон убирает «сюжетную» сексуальность"
@@ -163,22 +2152,55 @@
   "outside_prompt": {
     "born": "блок 10 таблицы автора — что влияет вне самого промпта",
     "factors": [
-      { "factor": "Модель / LoRA", "effect": "разные веса тянут в разные стороны: одни «стесняются», другие рисуют наготу сами" },
-      { "factor": "Вес тегов (tag:1.2)", "effect": "усиливает или ослабляет конкретный сигнал" },
-      { "factor": "CFG scale", "effect": "высокий CFG слушается промпта жёстче, низкий даёт «случайные» вольности" },
-      { "factor": "Sampler / steps", "effect": "влияют на детали (соски, ареолы, прозрачность)" },
-      { "factor": "Соотношение сторон", "effect": "вертикальный кадр акцентирует фигуру, горизонтальный вносит сцену" },
-      { "factor": "Порядок тегов", "effect": "ранние теги весят больше — НЕЗАВИСИМОЕ ПОДТВЕРЖДЕНИЕ рендер-закона №5 (T4-03: хвостовые сигналы рендерятся слабо)" },
-      { "factor": "Правила платформы", "effect": "Yodayo/PixAI сами метят и фильтруют по рейтингу — проверяй разъяснения площадки" }
+      {
+        "factor": "Модель / LoRA",
+        "effect": "разные веса тянут в разные стороны: одни «стесняются», другие рисуют наготу сами"
+      },
+      {
+        "factor": "Вес тегов (tag:1.2)",
+        "effect": "усиливает или ослабляет конкретный сигнал"
+      },
+      {
+        "factor": "CFG scale",
+        "effect": "высокий CFG слушается промпта жёстче, низкий даёт «случайные» вольности"
+      },
+      {
+        "factor": "Sampler / steps",
+        "effect": "влияют на детали (соски, ареолы, прозрачность)"
+      },
+      {
+        "factor": "Соотношение сторон",
+        "effect": "вертикальный кадр акцентирует фигуру, горизонтальный вносит сцену"
+      },
+      {
+        "factor": "Порядок тегов",
+        "effect": "ранние теги весят больше — НЕЗАВИСИМОЕ ПОДТВЕРЖДЕНИЕ рендер-закона №5 (T4-03: хвостовые сигналы рендерятся слабо)"
+      },
+      {
+        "factor": "Правила платформы",
+        "effect": "Yodayo/PixAI сами метят и фильтруют по рейтингу — проверяй разъяснения площадки"
+      }
     ]
   },
   "cheat_sheet": {
     "born": "шпаргалка автора — один и тот же кадр, четыре рейтинга",
     "rows": [
-      { "tier": "PG-13", "delta": "adult woman, summer dress, off-shoulder, smile, standing" },
-      { "tier": "R", "delta": "+ cleavage, from below, seductive smile, tight dress" },
-      { "tier": "R+", "delta": "+ sideboob, wet clothes, see-through, breast focus, bedroom eyes" },
-      { "tier": "X (Cut)", "delta": "+ topless, nipples, areolae · кадрирование upper body · низ в одежде" }
+      {
+        "tier": "PG-13",
+        "delta": "adult woman, summer dress, off-shoulder, smile, standing"
+      },
+      {
+        "tier": "R",
+        "delta": "+ cleavage, from below, seductive smile, tight dress"
+      },
+      {
+        "tier": "R+",
+        "delta": "+ sideboob, wet clothes, see-through, breast focus, bedroom eyes"
+      },
+      {
+        "tier": "X (Cut)",
+        "delta": "+ topless, nipples, areolae · кадрирование upper body · низ в одежде"
+      }
     ],
     "note": "в нашей системе adult woman в POS запрещён (N30: милф-скач всей пачки) — шпаргалка читается как карта сигналов, а не как дословный шаблон"
   }

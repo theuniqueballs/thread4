@@ -14,15 +14,18 @@ import {
   Boxes,
   Check,
   Copy,
+  Download,
   FileText,
   FlaskConical,
   Heart,
   History,
   PenLine,
+  ScanEye,
   ScrollText,
   ShieldCheck,
   Sparkles,
   Stamp,
+  Upload,
 } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
@@ -842,42 +845,1066 @@ function EventsTab() {
 }
 
 /* ------------------------------------------------------------------ */
-/* Tab: Вердикты (форма + VLM-заглушка)                                */
+/* Tab: Вердикты (форма автора + VLM first-pass)                       */
 /* ------------------------------------------------------------------ */
 
-const VERDICT_PRESETS = [
-  'Огонь, канонизирую',
-  'Охуенная поза решила всё',
-  'Скатилось в волт',
-  'Ниша не прочиталась',
-  'Геометрия поехала',
-  'Милф-штамп вернулся',
-  'Счёт слотов не тот',
-  'Жадной эротики в волт',
-]
+/* ------------------------------------------------------------------ */
+/* Tab: Вердикты — VLM первый проход (шаг 1) + Приёмник батча (шаг 2)  */
+/* ------------------------------------------------------------------ */
 
-function VerdictsTab() {
+interface ContractSlot {
+  position: number
+  kind: string
+  rating: string
+  pose: string
+  poseName: string
+  lead: string
+  oc?: string
+  race?: string
+  ab?: { pair: string; half: string; withSlot: number; lead: string }
+  exploratory?: string
+}
+
+interface ContractPayload {
+  slug: string
+  theme: string
+  contract: { slots?: ContractSlot[] } | null
+}
+
+/** Слепая структурная карточка (§10-поправка: машине не показывается заявка). */
+interface BlindCard {
+  scene?: string
+  character?: string
+  clothing?: string
+  fabric_state?: string
+  underlayer?: string
+  pose?: string
+  signals?: string[]
+  nipple_read?: string
+  mutation_drift?: string[]
+  camera?: string
+  light?: string
+  rating_hint?: string
+  notes?: string
+}
+
+type VlmFlag = 'ok' | 'mutation' | 'drift' | 'skipped'
+
+interface JournalEntry {
+  position: string
+  flag: VlmFlag | ''
+  tierHint: string
+  drift: number
+  ts: string
+}
+
+interface DraftSlot {
+  myTier: string
+  yodayoTier: string
+  ph: string
+  vlmFlag: VlmFlag | ''
+  phText: string
+  note: string
+}
+
+interface ReceiverDraft {
+  slots: Record<string, DraftSlot>
+  prose: string
+  updatedAt: string
+}
+
+const TIER_OPTIONS = ['PG-13', 'R', 'R+', 'X'] as const
+const PH_OPTIONS = ['PH', 'Raw', 'A', 'B'] as const
+const VLM_FLAG_LABEL: Record<string, string> = {
+  ok: 'ок',
+  mutation: 'мутация',
+  drift: 'дрейф',
+  skipped: 'не прогонял',
+}
+
+function emptyDraftSlot(): DraftSlot {
+  return { myTier: '', yodayoTier: '', ph: '', vlmFlag: '', phText: '', note: '' }
+}
+
+function readDraft(slug: string): ReceiverDraft {
+  if (typeof window === 'undefined' || !slug) return { slots: {}, prose: '', updatedAt: '' }
+  try {
+    const raw = window.localStorage.getItem(`t4-receiver-draft-${slug}`)
+    if (raw) {
+      const parsed = JSON.parse(raw) as ReceiverDraft
+      return { slots: parsed.slots ?? {}, prose: parsed.prose ?? '', updatedAt: parsed.updatedAt ?? '' }
+    }
+  } catch {
+    /* битый черновик = новый черновик */
+  }
+  return { slots: {}, prose: '', updatedAt: '' }
+}
+
+function writeDraft(slug: string, draft: ReceiverDraft) {
+  if (typeof window === 'undefined' || !slug) return
+  draft.updatedAt = new Date().toISOString()
+  window.localStorage.setItem(`t4-receiver-draft-${slug}`, JSON.stringify(draft))
+  window.dispatchEvent(new CustomEvent('t4-receiver-updated', { detail: { slug } }))
+}
+
+function readJournal(slug: string): JournalEntry[] {
+  if (typeof window === 'undefined' || !slug) return []
+  try {
+    const raw = window.localStorage.getItem(`t4-vlm-journal-${slug}`)
+    if (raw) return (JSON.parse(raw) as JournalEntry[]) ?? []
+  } catch {
+    /* пусто */
+  }
+  return []
+}
+
+function writeJournal(slug: string, entries: JournalEntry[]) {
+  if (typeof window === 'undefined' || !slug) return
+  window.localStorage.setItem(`t4-vlm-journal-${slug}`, JSON.stringify(entries))
+  window.dispatchEvent(new CustomEvent('t4-receiver-updated', { detail: { slug } }))
+}
+
+const TIER_ORDER_MAP: Record<string, number> = { 'PG-13': 0, R: 1, 'R+': 2, X: 3 }
+
+function tierDeltaIcon(a: string, b: string): string {
+  const va = TIER_ORDER_MAP[a]
+  const vb = TIER_ORDER_MAP[b]
+  if (va === undefined || vb === undefined) return ''
+  if (va > vb) return '↑'
+  if (va < vb) return '↓'
+  return '='
+}
+
+/** Уменьшает картинку до ≤1024px JPEG — VLM не нужен оригинал. */
+function shrinkImage(file: File): Promise<string> {
+  return new Promise<string>((resolve, reject) => {
+    const fr = new FileReader()
+    fr.onerror = () => reject(new Error('read failed'))
+    fr.onload = () => {
+      const img = new Image()
+      img.onerror = () => reject(new Error('decode failed'))
+      img.onload = () => {
+        const max = 1024
+        const scale = Math.min(1, max / Math.max(img.width, img.height))
+        const w = Math.max(1, Math.round(img.width * scale))
+        const h = Math.max(1, Math.round(img.height * scale))
+        const canvas = document.createElement('canvas')
+        canvas.width = w
+        canvas.height = h
+        const ctx = canvas.getContext('2d')
+        if (!ctx) {
+          resolve(String(fr.result))
+          return
+        }
+        ctx.drawImage(img, 0, 0, w, h)
+        resolve(canvas.toDataURL('image/jpeg', 0.85))
+      }
+      img.src = String(fr.result)
+    }
+    fr.readAsDataURL(file)
+  })
+}
+
+/* ------------------------------------------------------------------ */
+/* Панель 1: VLM первый проход (слепой структурный фильтр)             */
+/* ------------------------------------------------------------------ */
+
+function VlmFirstPassPanel() {
   const [slug, setSlug] = useState('')
-  const [text, setText] = useState('')
+  const [position, setPosition] = useState('')
+  const [preview, setPreview] = useState<string | null>(null)
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [filtered, setFiltered] = useState<string | null>(null)
+  const [card, setCard] = useState<BlindCard | null>(null)
+  const [flagNote, setFlagNote] = useState<string | null>(null)
+  const [journal, setJournal] = useState<JournalEntry[]>([])
+  const [summaryNote, setSummaryNote] = useState<string | null>(null)
+  const [dragOver, setDragOver] = useState(false)
+  const batches = useApi<{ items: { slug: string; title: string }[] }>('/api/t4/batches')
+  const contract = useApi<ContractPayload>(slug ? `/api/t4/contracts/${slug}` : null)
+
+  const items = batches.data?.items ?? []
+  const slots = contract.data?.contract?.slots ?? []
+  const slot = slots.find((s) => `P${String(s.position).padStart(2, '0')}` === position)
+
+  useEffect(() => {
+    setJournal(readJournal(slug))
+  }, [slug])
+
+  useEffect(() => {
+    const h = () => setJournal(readJournal(slug))
+    window.addEventListener('t4-receiver-updated', h)
+    return () => window.removeEventListener('t4-receiver-updated', h)
+  }, [slug])
+
+  // Ctrl+V скрином прямо с площадки
+  useEffect(() => {
+    function onPaste(e: ClipboardEvent) {
+      const file = Array.from(e.clipboardData?.files ?? [])[0]
+      if (file && file.type.startsWith('image/')) {
+        void onFile(file)
+      }
+    }
+    document.addEventListener('paste', onPaste)
+    return () => document.removeEventListener('paste', onPaste)
+  }, [])
+
+  const journalFlags = journal.reduce<Record<string, number>>((acc, j) => {
+    if (j.flag) acc[j.flag] = (acc[j.flag] ?? 0) + 1
+    return acc
+  }, {})
+  const covered = new Set(journal.map((j) => j.position))
+  const remaining = Math.max(0, slots.length - covered.size)
+
+  async function onFile(file: File | null) {
+    setError(null)
+    setFiltered(null)
+    if (!file) return
+    try {
+      setPreview(await shrinkImage(file))
+      setCard(null)
+    } catch {
+      setError('Не удалось прочитать файл')
+    }
+  }
+
+  async function runBlind() {
+    if (busy || !preview) return
+    setBusy(true)
+    setError(null)
+    setFiltered(null)
+    setFlagNote(null)
+    try {
+      const res = await postJson<{ ok: boolean; filtered?: boolean; message?: string; analysis?: Record<string, unknown> }>(
+        '/api/t4/feedback',
+        { imageBase64: preview, mimeType: 'image/jpeg', slug: slug.trim(), position: position.trim(), blind: true }
+      )
+      if (res.filtered) {
+        setFiltered(res.message ?? 'Контент-фильтр провайдера (400/1301)')
+        setCard(null)
+        return
+      }
+      setCard(res.analysis ? (res.analysis as unknown as BlindCard) : null)
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'VLM не ответил')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  function setFlag(flag: VlmFlag) {
+    if (!slug || !position) return
+    // журнал прогона по батчу
+    const entries = readJournal(slug).filter((j) => j.position !== position)
+    entries.push({
+      position,
+      flag,
+      tierHint: card?.rating_hint ?? '',
+      drift: Array.isArray(card?.mutation_drift) ? card.mutation_drift.length : 0,
+      ts: new Date().toISOString(),
+    })
+    writeJournal(slug, entries)
+    // флаг вшивается в черновик приёмника вживую
+    const draft = readDraft(slug)
+    const d = draft.slots[position] ?? emptyDraftSlot()
+    d.vlmFlag = flag
+    draft.slots[position] = d
+    writeDraft(slug, draft)
+    setFlagNote(`Флаг «${VLM_FLAG_LABEL[flag]}» вшит в черновик приёмника (P${position.slice(1)} обновлён без перезагрузки)`)
+  }
+
+  async function writeSummary() {
+    if (!slug || journal.length === 0) return
+    setSummaryNote(null)
+    try {
+      await postJson('/api/t4/events', {
+        type: 'note',
+        summary: `VLM-сводка ${slug}: прогонов ${journal.length}/${slots.length} — флаги: ок ${journalFlags.ok ?? 0} · мутация ${journalFlags.mutation ?? 0} · дрейф ${journalFlags.drift ?? 0} · не прогонял ${journalFlags.skipped ?? 0}${remaining > 0 ? ` · осталось ${remaining}` : ' · батч покрыт'}`,
+        data: { slug, kind: 'vlm-summary', runs: journal.length, total: slots.length, flags: journalFlags, positions: journal.map((j) => j.position) },
+      })
+      setSummaryNote('Сводка записана в лог событий (note).')
+    } catch {
+      setSummaryNote('Не удалось записать сводку.')
+    }
+  }
+
+  const signals = Array.isArray(card?.signals) ? card.signals : []
+  const drift = Array.isArray(card?.mutation_drift) ? card.mutation_drift : []
+
+  return (
+    <Panel title="VLM первый проход — шаг 1 воркфлоу" icon={<ScanEye className="size-4" />}>
+      <div className="space-y-4">
+        <p className="text-xs leading-relaxed text-zinc-500">
+          Слепой структурный фильтр (§10-поправка): машине НЕ показывается заявка слота — иначе она
+          якорится и «подтверждает» ожидаемое. Карточка читается фактом; сопоставление с заявкой — твоя
+          работа. Тир-ориентир приглушён намеренно:{' '}
+          <span className="text-amber-300">вердикт по эротике выносит только глаз автора</span> (мета-закон
+          T4-03). Рендер → слепой прогон → флаг (ок / мутация / дрейф) → глаз ставит тир в приёмнике ниже.
+        </p>
+
+        <div className="grid gap-3 sm:grid-cols-[1fr_170px_130px]">
+          <div
+            onDragOver={(e) => {
+              e.preventDefault()
+              setDragOver(true)
+            }}
+            onDragLeave={() => setDragOver(false)}
+            onDrop={(e) => {
+              e.preventDefault()
+              setDragOver(false)
+              void onFile(e.dataTransfer.files?.[0] ?? null)
+            }}
+            className={cn(
+              'flex cursor-pointer items-center justify-center gap-2 rounded-md border border-dashed px-3 py-2.5 text-xs transition-colors',
+              dragOver
+                ? 'border-amber-500/70 bg-amber-500/10 text-amber-200'
+                : 'border-zinc-700 bg-zinc-950 text-zinc-400 hover:border-amber-500/40 hover:text-amber-200'
+            )}
+            onClick={() => document.getElementById('vlm-first-file')?.click()}
+            role="button"
+            aria-label="Кинуть рендер: дроп, клик или Ctrl+V"
+          >
+            <input
+              id="vlm-first-file"
+              type="file"
+              accept="image/*"
+              className="sr-only"
+              onChange={(e) => onFile(e.target.files?.[0] ?? null)}
+            />
+            <Upload className="size-3.5" />
+            {preview ? 'Заменить кадр (дроп / клик / Ctrl+V)' : 'Кинь рендер: дроп, клик или Ctrl+V скрином'}
+          </div>
+          <select
+            value={slug}
+            onChange={(e) => {
+              setSlug(e.target.value)
+              setPosition('')
+              setCard(null)
+            }}
+            className="h-10 rounded-md border border-zinc-800 bg-zinc-950 px-2 text-sm text-zinc-200"
+            aria-label="Батч"
+          >
+            <option value="">— батч —</option>
+            {items.map((b) => (
+              <option key={b.slug} value={b.slug}>
+                {b.slug}
+              </option>
+            ))}
+          </select>
+          <select
+            value={position}
+            onChange={(e) => {
+              setPosition(e.target.value)
+              setCard(null)
+              setFiltered(null)
+            }}
+            className="h-10 rounded-md border border-zinc-800 bg-zinc-950 px-2 text-sm text-zinc-200"
+            aria-label="Слот"
+            disabled={slots.length === 0}
+          >
+            <option value="">— слот —</option>
+            {slots.map((s) => (
+              <option key={s.position} value={`P${String(s.position).padStart(2, '0')}`}>
+                P{String(s.position).padStart(2, '0')} · {s.rating}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {slot ? (
+          <div className="rounded-md border border-amber-500/25 bg-amber-500/5 px-3 py-2">
+            <p className="text-[11px] leading-relaxed text-amber-200/80">
+              Заявка слота (видишь ты — машина нет):{' '}
+              <span className="font-mono text-amber-200">{slot.rating}</span> · поза {slot.pose}{' '}
+              {slot.poseName} · LEAD {slot.lead}
+              {slot.ab ? ` · A/B-пара ${slot.ab.pair}, половина ${slot.ab.half}` : ''}
+              {slot.oc ? ` · OC ${slot.oc}` : slot.race ? ` · ${slot.race}` : ''}
+            </p>
+          </div>
+        ) : null}
+
+        {preview ? (
+          <img
+            src={preview}
+            alt="Рендер для слепого прогона"
+            className="max-h-56 w-auto rounded-md border border-zinc-800"
+          />
+        ) : null}
+
+        <div className="flex flex-wrap items-center gap-3">
+          <Button
+            onClick={runBlind}
+            disabled={busy || !preview}
+            className="bg-amber-500 text-zinc-950 hover:bg-amber-400 disabled:opacity-40"
+          >
+            {busy ? 'Слепой прогон… 10-20 сек' : 'Слепой прогон'}
+          </Button>
+          {error ? <span className="text-xs text-rose-400">{error}</span> : null}
+          {card ? <span className="text-xs text-zinc-500">render.verdict (vlm · blind) записан в лог</span> : null}
+        </div>
+
+        {filtered ? (
+          <div className="rounded-md border border-rose-500/40 bg-rose-500/10 px-3 py-2.5 text-xs leading-relaxed text-rose-200">
+            {filtered}. X-слот неверифицируем VLM в принципе — тир только глазом, во приёмнике ставь
+            «не прогонял».
+          </div>
+        ) : null}
+
+        {card ? (
+          <div className="space-y-3 rounded-md border border-zinc-800 bg-zinc-950/60 p-4">
+            <p className="text-[11px] uppercase tracking-wider text-zinc-500">
+              Структурная карточка — факт, не вердикт
+            </p>
+            <dl className="grid gap-2 text-xs sm:grid-cols-2">
+              {[
+                ['Сцена', card.scene],
+                ['Персонаж', card.character],
+                ['Одежда + ткань', `${card.clothing ?? '—'} [${card.fabric_state ?? '?'}]`],
+                ['Подслой', card.underlayer],
+                ['Поза', card.pose],
+                ['Камера', card.camera],
+                ['Свет', card.light],
+                ['Сосок', card.nipple_read],
+              ].map(([k, v]) => (
+                <div key={String(k)} className="rounded-md border border-zinc-800/80 bg-zinc-900/40 px-2.5 py-1.5">
+                  <dt className="text-[10px] uppercase tracking-wider text-zinc-600">{k}</dt>
+                  <dd className="mt-0.5 leading-snug text-zinc-300">{v || '—'}</dd>
+                </div>
+              ))}
+            </dl>
+            {signals.length > 0 ? (
+              <div>
+                <p className="mb-1 text-[10px] uppercase tracking-wider text-zinc-600">Видимые сигналы</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {signals.map((s, i) => (
+                    <Chip key={i} tone="amber">
+                      {s}
+                    </Chip>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+            {drift.length > 0 ? (
+              <ul className="space-y-0.5 text-[11px] text-rose-300/90">
+                {drift.slice(0, 6).map((d, i) => (
+                  <li key={i}>— {d}</li>
+                ))}
+              </ul>
+            ) : null}
+            <div className="flex flex-wrap items-center gap-2 border-t border-zinc-800/80 pt-3">
+              <span className="text-xs text-zinc-500">Тир-ориентир:</span>
+              <span className="rounded-md border border-zinc-700 bg-zinc-800/60 px-2 py-0.5 font-mono text-[11px] text-zinc-400">
+                {card.rating_hint ?? '—'}
+              </span>
+              <span className="text-[10px] text-zinc-600">
+                не вердикт — VLM слеп к тирам в обе стороны (завышал 8/12, занижал до PG-13)
+              </span>
+            </div>
+            {card.notes ? (
+              <p className="text-xs leading-relaxed text-zinc-400">{card.notes}</p>
+            ) : null}
+
+            <div className="flex flex-wrap items-center gap-2 border-t border-zinc-800/80 pt-3">
+              <span className="text-xs text-zinc-500">Сравнил с заявкой → флаг:</span>
+              {(['ok', 'mutation', 'drift', 'skipped'] as const).map((f) => (
+                <button
+                  key={f}
+                  onClick={() => setFlag(f)}
+                  className={cn(
+                    'rounded-md border px-2.5 py-1 text-xs font-medium transition-colors',
+                    f === 'ok'
+                      ? 'border-emerald-600/50 bg-emerald-600/10 text-emerald-300 hover:bg-emerald-600/20'
+                      : f === 'skipped'
+                        ? 'border-zinc-700 bg-zinc-900 text-zinc-400 hover:border-zinc-600'
+                        : 'border-rose-500/40 bg-rose-500/10 text-rose-300 hover:bg-rose-500/20'
+                  )}
+                >
+                  {VLM_FLAG_LABEL[f]}
+                </button>
+              ))}
+              {flagNote ? <span className="text-[11px] text-emerald-400">{flagNote}</span> : null}
+            </div>
+          </div>
+        ) : null}
+
+        {slug && slots.length > 0 ? (
+          <div className="rounded-md border border-zinc-800 bg-zinc-900/40 p-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <p className="text-[11px] uppercase tracking-wider text-zinc-500">
+                Журнал прогона · {slug}: {journal.length}/{slots.length}
+              </p>
+              <button
+                onClick={writeSummary}
+                disabled={journal.length === 0}
+                className="rounded-md border border-amber-500/40 bg-amber-500/10 px-2 py-1 text-[11px] text-amber-300 transition-colors hover:bg-amber-500/20 disabled:opacity-40"
+              >
+                Записать сводку в лог
+              </button>
+            </div>
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              <Chip tone="emerald">ок {journalFlags.ok ?? 0}</Chip>
+              <Chip tone="rose">мутация {journalFlags.mutation ?? 0}</Chip>
+              <Chip tone="rose">дрейф {journalFlags.drift ?? 0}</Chip>
+              <Chip>не прогонял {journalFlags.skipped ?? 0}</Chip>
+              <Chip tone="amber">осталось {remaining}</Chip>
+            </div>
+            {journal.length > 0 ? (
+              <div className="mt-2 max-h-28 space-y-0.5 overflow-y-auto t4-scroll">
+                {[...journal]
+                  .sort((a, b) => a.position.localeCompare(b.position))
+                  .map((j) => (
+                    <p key={j.position + j.ts} className="text-[11px] text-zinc-500">
+                      <span className="font-mono text-zinc-400">{j.position}</span> ·{' '}
+                      {VLM_FLAG_LABEL[j.flag] ?? '—'}
+                      {j.tierHint ? ` · ориентир ${j.tierHint}` : ''}
+                      {j.drift > 0 ? ` · дрейф ${j.drift}` : ''}
+                    </p>
+                  ))}
+              </div>
+            ) : null}
+            {summaryNote ? <p className="mt-2 text-[11px] text-emerald-400">{summaryNote}</p> : null}
+          </div>
+        ) : null}
+      </div>
+    </Panel>
+  )
+}
+
+/* ------------------------------------------------------------------ */
+/* Панель 2: Приёмник батча — одна запись на батч                      */
+/* ------------------------------------------------------------------ */
+
+interface BatchVerdictRecord {
+  id: string
+  at: string
+  slug: string
+  summary: string
+  scoreboard: {
+    slots?: number
+    claimed?: Record<string, number>
+    delivered?: Record<string, number>
+    claimDelta?: { up: number; down: number }
+    platformDelta?: { up: number; down: number }
+    vlmFlags?: Record<string, number>
+  } | null
+  slots: {
+    position: string
+    claim?: string
+    myTier?: string
+    yodayoTier?: string
+    ph?: string
+    vlmFlag?: string
+    note?: string
+  }[]
+}
+
+function BatchReceiverPanel() {
+  const [slug, setSlug] = useState('')
+  const [draft, setDraft] = useState<ReceiverDraft>({ slots: {}, prose: '', updatedAt: '' })
   const [busy, setBusy] = useState(false)
   const [note, setNote] = useState<string | null>(null)
+  const [expanded, setExpanded] = useState<string | null>(null)
+  const [curlCopied, setCurlCopied] = useState(false)
   const batches = useApi<{ items: { slug: string; title: string }[] }>('/api/t4/batches')
-  const items = batches.data?.items ?? []
+  const contract = useApi<ContractPayload>(slug ? `/api/t4/contracts/${slug}` : null)
+  const records = useApi<{ records: BatchVerdictRecord[] }>('/api/t4/batch-verdict')
 
-  async function submit() {
-    if (busy || text.trim() === '') return
+  const items = batches.data?.items ?? []
+  const slots = contract.data?.contract?.slots ?? []
+
+  useEffect(() => {
+    setDraft(readDraft(slug))
+  }, [slug])
+
+  useEffect(() => {
+    function h(e: Event) {
+      const detail = (e as CustomEvent<{ slug: string }>).detail
+      if (!detail?.slug || detail.slug === slug) setDraft(readDraft(slug))
+    }
+    window.addEventListener('t4-receiver-updated', h)
+    return () => window.removeEventListener('t4-receiver-updated', h)
+  }, [slug])
+
+  function slotDraft(position: string): DraftSlot {
+    return draft.slots[position] ?? emptyDraftSlot()
+  }
+
+  function updateSlot(position: string, patch: Partial<DraftSlot>) {
+    // next вычисляется вне апдейтера: writeDraft диспатчит событие, а
+    // побочные эффекты внутри setDraft-рендера роняют React
+    const next: ReceiverDraft = {
+      ...draft,
+      slots: {
+        ...draft.slots,
+        [position]: { ...emptyDraftSlot(), ...draft.slots[position], ...patch },
+      },
+    }
+    writeDraft(slug, next)
+    setDraft(next)
+  }
+
+  // скорборд на лету
+  const live = useMemo(() => {
+    const claimed: Record<string, number> = {}
+    const delivered: Record<string, number> = {}
+    let up = 0
+    let down = 0
+    let pUp = 0
+    let pDown = 0
+    let filled = 0
+    for (const s of slots) {
+      const p = `P${String(s.position).padStart(2, '0')}`
+      claimed[s.rating] = (claimed[s.rating] ?? 0) + 1
+      const d = slotDraft(p)
+      if (d.myTier) {
+        filled += 1
+        delivered[d.myTier] = (delivered[d.myTier] ?? 0) + 1
+        const dc = TIER_ORDER_MAP[d.myTier] - TIER_ORDER_MAP[s.rating]
+        if (dc > 0) up += 1
+        else if (dc < 0) down += 1
+        if (d.yodayoTier) {
+          const dp = TIER_ORDER_MAP[d.myTier] - TIER_ORDER_MAP[d.yodayoTier]
+          if (dp > 0) pUp += 1
+          else if (dp < 0) pDown += 1
+        }
+      }
+    }
+    return { claimed, delivered, up, down, pUp, pDown, filled }
+  }, [slots, draft])
+
+  function buildPayload() {
+    return {
+      slug,
+      prose: draft.prose,
+      slots: slots.map((s) => {
+        const p = `P${String(s.position).padStart(2, '0')}`
+        const d = slotDraft(p)
+        return {
+          position: p,
+          claim: s.rating,
+          pose: `${s.pose} ${s.poseName}`,
+          lead: s.lead,
+          myTier: d.myTier,
+          yodayoTier: d.yodayoTier,
+          ph: d.ph,
+          vlmFlag: d.vlmFlag,
+          phText: d.phText,
+          note: d.note,
+        }
+      }),
+    }
+  }
+
+  async function submitBatch() {
+    if (busy || !slug || live.filled === 0) return
     setBusy(true)
     setNote(null)
     try {
-      await postJson('/api/t4/events', {
-        type: 'render.verdict',
-        summary: `${slug.trim() || 'batch'}: ${text.trim().slice(0, 120)}`,
-        data: { slug: slug.trim(), prose: text.trim() },
-      })
-      setNote('Вердикт записан в лог событий.')
-      setText('')
+      const res = await postJson<{ ok: boolean; scoreboard?: { claimDelta?: { up: number; down: number } } }>(
+        '/api/t4/batch-verdict',
+        buildPayload()
+      )
+      setNote(
+        res.ok
+          ? `Батч-вердикт ${slug} записан ОДНОЙ записью (render.verdict · author-batch): ${live.filled}/${slots.length} слотов · расхождения ↑${res.scoreboard?.claimDelta?.up ?? live.up} ↓${res.scoreboard?.claimDelta?.down ?? live.down}`
+          : 'Не записано'
+      )
+      records.reload()
     } catch (e) {
-      setNote(e instanceof ApiError && isNotFound(e) ? 'API появится после интеграции ядра' : 'Не удалось записать')
+      setNote(e instanceof ApiError ? `API: ${e.message}` : 'Сеть недоступна')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  function downloadJson() {
+    const payload = buildPayload()
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `${slug}-batch-verdict.json`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  async function copyCurl() {
+    try {
+      await navigator.clipboard.writeText(
+        `curl -X POST /api/t4/batch-verdict -H 'Content-Type: application/json' --data @${slug}-batch-verdict.json`
+      )
+      setCurlCopied(true)
+      setTimeout(() => setCurlCopied(false), 2500)
+    } catch {
+      setCurlCopied(false)
+    }
+  }
+
+  const recordList = records.data?.records ?? []
+
+  return (
+    <Panel title="Приёмник батча — одна запись на батч" icon={<Stamp className="size-4" />}>
+      <div className="space-y-4">
+        <p className="text-xs leading-relaxed text-zinc-500">
+          Черновик живёт здесь — по одному на батч, переживает перезагрузку (localStorage). Выбери батч →
+          24 слота уже с заявками из контракта (тир + поза + LEAD); вбей построчно свой тир / тир Йодайо /
+          PH-Raw-A-B / VLM-флаг (вшивается панелью выше) / PH-текст / заметку. Расхождения считаются на
+          лету. «Записать одной записью» кладёт весь батч одним render.verdict (slots + scoreboard).
+        </p>
+
+        <div className="grid gap-3 sm:grid-cols-[200px_1fr]">
+          <select
+            value={slug}
+            onChange={(e) => {
+              setSlug(e.target.value)
+              setNote(null)
+            }}
+            className="h-9 rounded-md border border-zinc-800 bg-zinc-950 px-2 text-sm text-zinc-200"
+            aria-label="Батч приёмника"
+          >
+            <option value="">— выбери батч —</option>
+            {items.map((b) => (
+              <option key={b.slug} value={b.slug}>
+                {b.slug} · {b.title}
+              </option>
+            ))}
+          </select>
+          {slug ? (
+            <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
+              {Object.entries(live.claimed).map(([t, n]) => (
+                <Chip key={t} tone="zinc">
+                  {t}: доставлено {live.delivered[t] ?? 0}/{n}
+                </Chip>
+              ))}
+              <Chip tone={live.down > 0 ? 'rose' : 'emerald'}>
+                заявка ↑{live.up} ↓{live.down}
+              </Chip>
+              <Chip tone="amber">площадка ↑{live.pUp} ↓{live.pDown}</Chip>
+              <Chip>
+                заполнено {live.filled}/{slots.length}
+              </Chip>
+            </div>
+          ) : null}
+        </div>
+
+        {slug && slots.length > 0 ? (
+          <>
+            <div className="max-h-[26rem] overflow-auto rounded-md border border-zinc-800 t4-scroll">
+              <table className="w-full min-w-[880px] border-collapse text-left text-xs">
+                <thead className="sticky top-0 z-10 bg-zinc-900/95 backdrop-blur">
+                  <tr className="text-[10px] uppercase tracking-wider text-zinc-500">
+                    <th className="px-2 py-2 font-medium">P</th>
+                    <th className="px-2 py-2 font-medium">Заявка (контракт)</th>
+                    <th className="px-2 py-2 font-medium">Мой тир</th>
+                    <th className="px-2 py-2 font-medium">Йодайо</th>
+                    <th className="px-2 py-2 font-medium">PH/Raw/A-B</th>
+                    <th className="px-2 py-2 font-medium">VLM</th>
+                    <th className="px-2 py-2 font-medium">PH-текст</th>
+                    <th className="px-2 py-2 font-medium">Заметка</th>
+                    <th className="px-2 py-2 font-medium">Δ</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {slots.map((s) => {
+                    const p = `P${String(s.position).padStart(2, '0')}`
+                    const d = slotDraft(p)
+                    const dc = d.myTier ? tierDeltaIcon(d.myTier, s.rating) : ''
+                    const dp = d.myTier && d.yodayoTier ? tierDeltaIcon(d.myTier, d.yodayoTier) : ''
+                    return (
+                      <tr key={p} className="border-t border-zinc-800/60 hover:bg-zinc-900/40">
+                        <td className="whitespace-nowrap px-2 py-1.5 font-mono text-[11px] text-amber-200/80">{p}</td>
+                        <td className="px-2 py-1.5">
+                          <div className="flex flex-wrap items-center gap-1">
+                            <RatingBadge rating={s.rating} />
+                            <span className="text-[10px] text-zinc-500">
+                              {s.pose} {s.poseName.slice(0, 24)} · LEAD {s.lead}
+                              {s.ab ? ` · ${s.ab.half}/${s.ab.pair}` : ''}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="px-2 py-1.5">
+                          <select
+                            value={d.myTier}
+                            onChange={(e) => updateSlot(p, { myTier: e.target.value })}
+                            className="h-7 w-[74px] rounded border border-zinc-800 bg-zinc-950 px-1 text-[11px] text-zinc-200"
+                            aria-label={`Мой тир ${p}`}
+                          >
+                            <option value="">—</option>
+                            {TIER_OPTIONS.map((t) => (
+                              <option key={t} value={t}>
+                                {t}
+                              </option>
+                            ))}
+                          </select>
+                        </td>
+                        <td className="px-2 py-1.5">
+                          <select
+                            value={d.yodayoTier}
+                            onChange={(e) => updateSlot(p, { yodayoTier: e.target.value })}
+                            className="h-7 w-[74px] rounded border border-zinc-800 bg-zinc-950 px-1 text-[11px] text-zinc-200"
+                            aria-label={`Тир Йодайо ${p}`}
+                          >
+                            <option value="">—</option>
+                            {TIER_OPTIONS.map((t) => (
+                              <option key={t} value={t}>
+                                {t}
+                              </option>
+                            ))}
+                          </select>
+                        </td>
+                        <td className="px-2 py-1.5">
+                          <select
+                            value={d.ph}
+                            onChange={(e) => updateSlot(p, { ph: e.target.value })}
+                            className="h-7 w-[70px] rounded border border-zinc-800 bg-zinc-950 px-1 text-[11px] text-zinc-200"
+                            aria-label={`PH/Raw/A-B ${p}`}
+                          >
+                            <option value="">—</option>
+                            {PH_OPTIONS.map((t) => (
+                              <option key={t} value={t}>
+                                {t}
+                              </option>
+                            ))}
+                          </select>
+                        </td>
+                        <td className="px-2 py-1.5">
+                          {d.vlmFlag ? (
+                            <Chip tone={d.vlmFlag === 'ok' ? 'emerald' : d.vlmFlag === 'skipped' ? 'zinc' : 'rose'}>
+                              {VLM_FLAG_LABEL[d.vlmFlag] ?? d.vlmFlag}
+                            </Chip>
+                          ) : (
+                            <span className="text-zinc-700">—</span>
+                          )}
+                        </td>
+                        <td className="px-2 py-1.5">
+                          <input
+                            value={d.phText}
+                            onChange={(e) => updateSlot(p, { phText: e.target.value })}
+                            placeholder="что PH сделал с промптом…"
+                            className="h-7 w-full min-w-[110px] rounded border border-zinc-800 bg-zinc-950 px-1.5 text-[11px] text-zinc-200 placeholder:text-zinc-700"
+                          />
+                        </td>
+                        <td className="px-2 py-1.5">
+                          <input
+                            value={d.note}
+                            onChange={(e) => updateSlot(p, { note: e.target.value })}
+                            placeholder="заметка…"
+                            className="h-7 w-full min-w-[90px] rounded border border-zinc-800 bg-zinc-950 px-1.5 text-[11px] text-zinc-200 placeholder:text-zinc-700"
+                          />
+                        </td>
+                        <td className="whitespace-nowrap px-2 py-1.5 font-mono text-[11px]">
+                          <span
+                            className={
+                              dc === '↑'
+                                ? 'text-emerald-400'
+                                : dc === '↓'
+                                  ? 'text-rose-400'
+                                  : 'text-zinc-600'
+                            }
+                          >
+                            {dc || '·'}
+                          </span>
+                          <span className="mx-0.5 text-zinc-700">/</span>
+                          <span
+                            className={
+                              dp === '↑'
+                                ? 'text-emerald-400'
+                                : dp === '↓'
+                                  ? 'text-rose-400'
+                                  : 'text-zinc-600'
+                            }
+                          >
+                            {dp || '·'}
+                          </span>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            <Textarea
+              value={draft.prose}
+              onChange={(e) => {
+                const next = { ...draft, prose: e.target.value }
+                setDraft(next)
+                writeDraft(slug, next)
+              }}
+              placeholder="Проза вердикта по батчу — как есть: «мокрый шёлк решил всё, P07 пятно…» (переживёт перезагрузку)"
+              className="min-h-20 border-zinc-800 bg-zinc-950 text-sm"
+            />
+
+            <div className="flex flex-wrap items-center gap-3">
+              <Button
+                onClick={submitBatch}
+                disabled={busy || live.filled === 0}
+                className="bg-emerald-600 text-zinc-50 hover:bg-emerald-500 disabled:opacity-40"
+              >
+                <Stamp className="mr-1 size-3.5" />
+                {busy ? 'Записываю…' : 'Записать одной записью'}
+              </Button>
+              <button
+                onClick={downloadJson}
+                className="flex items-center gap-1 rounded-md border border-zinc-700 bg-zinc-800/60 px-2 py-1.5 text-[11px] text-zinc-300 transition-colors hover:border-amber-500/40 hover:text-amber-200"
+              >
+                <Download className="size-3" />
+                Скачать JSON
+              </button>
+              <button
+                onClick={copyCurl}
+                className="flex items-center gap-1 rounded-md border border-zinc-700 bg-zinc-800/60 px-2 py-1.5 text-[11px] text-zinc-300 transition-colors hover:border-amber-500/40 hover:text-amber-200"
+              >
+                {curlCopied ? <Check className="size-3" /> : <Copy className="size-3" />}
+                {curlCopied ? 'Скопировано' : 'curl одной командой'}
+              </button>
+              {note ? <span className="text-xs text-emerald-400">{note}</span> : null}
+            </div>
+          </>
+        ) : null}
+
+        <div className="space-y-2">
+          <p className="text-[11px] uppercase tracking-wider text-zinc-500">
+            Записанные батч-вердикты · {recordList.length}
+          </p>
+          {records.loading ? (
+            <SkeletonBlock lines={2} />
+          ) : recordList.length === 0 ? (
+            <p className="text-xs text-zinc-600">
+              Пока пусто — первый батч-вердикт ляжет сюда одной строкой и раскроется в таблицу.
+            </p>
+          ) : (
+            <div className="space-y-1.5">
+              {recordList.map((r) => (
+                <div key={r.id} className="rounded-md border border-zinc-800 bg-zinc-900/60">
+                  <button
+                    onClick={() => setExpanded(expanded === r.id ? null : r.id)}
+                    className="flex w-full flex-wrap items-center justify-between gap-2 px-3 py-2 text-left"
+                  >
+                    <span className="flex min-w-0 items-center gap-2">
+                      <Mono>{r.slug}</Mono>
+                      <span className="truncate text-xs text-zinc-400">{r.summary.slice(0, 110)}</span>
+                    </span>
+                    <span className="shrink-0 text-[11px] text-zinc-600">{formatDate(r.at)}</span>
+                  </button>
+                  {expanded === r.id ? (
+                    <div className="border-t border-zinc-800/60 p-3">
+                      {r.scoreboard ? (
+                        <div className="mb-3 flex flex-wrap gap-1.5">
+                          {Object.entries(r.scoreboard.claimed ?? {}).map(([t, n]) => (
+                            <Chip key={t}>
+                              {t}: {r.scoreboard?.delivered?.[t] ?? 0}/{n}
+                            </Chip>
+                          ))}
+                          <Chip tone="amber">
+                            заявка ↑{r.scoreboard.claimDelta?.up ?? 0} ↓{r.scoreboard.claimDelta?.down ?? 0}
+                          </Chip>
+                          <Chip tone="amber">
+                            площадка ↑{r.scoreboard.platformDelta?.up ?? 0} ↓{r.scoreboard.platformDelta?.down ?? 0}
+                          </Chip>
+                        </div>
+                      ) : null}
+                      <div className="max-h-64 overflow-auto rounded-md border border-zinc-800 t4-scroll">
+                        <table className="w-full min-w-[560px] border-collapse text-left text-[11px]">
+                          <thead className="sticky top-0 bg-zinc-900/95">
+                            <tr className="text-[10px] uppercase tracking-wider text-zinc-500">
+                              <th className="px-2 py-1.5 font-medium">P</th>
+                              <th className="px-2 py-1.5 font-medium">Заявка</th>
+                              <th className="px-2 py-1.5 font-medium">Мой</th>
+                              <th className="px-2 py-1.5 font-medium">Йодайо</th>
+                              <th className="px-2 py-1.5 font-medium">PH</th>
+                              <th className="px-2 py-1.5 font-medium">VLM</th>
+                              <th className="px-2 py-1.5 font-medium">Заметка</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {r.slots.map((s) => (
+                              <tr key={s.position} className="border-t border-zinc-800/60">
+                                <td className="px-2 py-1 font-mono text-amber-200/70">{s.position}</td>
+                                <td className="px-2 py-1 text-zinc-400">{s.claim || '—'}</td>
+                                <td className="px-2 py-1 text-zinc-200">{s.myTier || '—'}</td>
+                                <td className="px-2 py-1 text-zinc-400">{s.yodayoTier || '—'}</td>
+                                <td className="px-2 py-1 text-zinc-500">{s.ph || '—'}</td>
+                                <td className="px-2 py-1 text-zinc-500">
+                                  {s.vlmFlag ? VLM_FLAG_LABEL[s.vlmFlag] ?? s.vlmFlag : '—'}
+                                </td>
+                                <td className="px-2 py-1 text-zinc-500">{s.note || '—'}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  ) : null}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </Panel>
+  )
+}
+
+function VerdictsTab() {
+  return (
+    <div className="space-y-6">
+      <VlmFirstPassPanel />
+      <BatchReceiverPanel />
+    </div>
+  )
+}
+
+/* ------------------------------------------------------------------ */
+/* Tab: Хранилище (браузерный сейф — инцидент 2026-09-23)               */
+/* ------------------------------------------------------------------ */
+
+function VaultTab() {
+  const [snaps, setSnaps] = useState<VaultMeta[]>([])
+  const [busy, setBusy] = useState(false)
+  const [note, setNote] = useState<string | null>(null)
+  const [report, setReport] = useState<{ restored: string[]; skipped: string[]; mergedEvents: number } | null>(null)
+
+  async function refresh() {
+    setSnaps(await listSnapshots())
+  }
+
+  useEffect(() => {
+    void refresh()
+  }, [])
+
+  async function snapshotNow() {
+    if (busy) return
+    setBusy(true)
+    setNote(null)
+    try {
+      const meta = await cacheCurrentState()
+      setNote(
+        meta
+          ? `Снимок в сейфе: ${meta.batches} батчей · ${(meta.bytes / 1024).toFixed(0)} КБ — переживёт любую смерть контейнера`
+          : 'Состояние не изменилось — свежий снимок уже в сейфе'
+      )
+      await refresh()
+    } catch {
+      setNote('Не удалось снять снимок — API недоступен')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function restore(meta: VaultMeta) {
+    if (busy) return
+    setBusy(true)
+    setNote(null)
+    setReport(null)
+    try {
+      const bundle = await getSnapshot(meta.key)
+      if (!bundle) throw new Error('снимок не читается')
+      setReport(await restoreSnapshot(bundle))
+      await refresh()
+    } catch {
+      setNote('Восстановление не удалось — снимок не читается')
     } finally {
       setBusy(false)
     }
@@ -885,66 +1912,77 @@ function VerdictsTab() {
 
   return (
     <div className="space-y-6">
-      <Panel title="Вердикт автора" icon={<Heart className="size-4" />}>
+      <Panel title="Браузерный сейф" icon={<ShieldCheck className="size-4" />}>
         <div className="space-y-3">
           <p className="text-xs leading-relaxed text-zinc-500">
-            Авторская проза — самый сильный сигнал системы (конституция §1: вердикт — единственный
-            законодатель). Быстрые вердикты по конкретному батчу — во вкладке «Батчи»; здесь — свободный
-            текст с заготовками.
+            Полный снимок состояния THREAD 4 (батчи, контракты, спеки, документы, события) живёт в
+            IndexedDB <Mono>твоего</Mono> браузера — сервер контейнера эфемерен, браузер нет.
+            Инцидент 2026-09-23 (гибель T4-05 и T4-07 с контейнером) больше не повторится:
+            достаточно один раз открыть Workflow после сдачи — и снимок уже здесь. Восстановление
+            возвращает на диск только недостающее, события вливаются с дедупликацией по id.
           </p>
-          <div className="grid gap-2 sm:grid-cols-[200px_1fr]">
-            <select
-              value={slug}
-              onChange={(e) => setSlug(e.target.value)}
-              className="h-9 rounded-md border border-zinc-800 bg-zinc-950 px-2 text-sm text-zinc-200"
-              aria-label="Слаг батча"
-            >
-              <option value="">— без слага —</option>
-              {items.map((b) => (
-                <option key={b.slug} value={b.slug}>
-                  {b.slug} · {b.title}
-                </option>
-              ))}
-            </select>
-            <p className="self-center text-[11px] leading-tight text-zinc-600">
-              {items.length > 0 ? 'Слаг подхватится из списка батчей.' : 'Слаг впишешь, когда появятся батчи.'}
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-1.5">
-            {VERDICT_PRESETS.map((p) => (
-              <button
-                key={p}
-                onClick={() => setText((t) => (t.trim() === '' ? p : `${t.trim()} ${p}`))}
-                className="rounded-md border border-zinc-800 bg-zinc-900/60 px-2 py-1 text-[11px] text-zinc-500 transition-colors hover:border-amber-500/40 hover:text-amber-200"
-              >
-                {p}
-              </button>
-            ))}
-          </div>
-          <Textarea
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            placeholder="«Охуенная поза решила всё…», «скатились в волт…» — как есть"
-            className="min-h-32 border-zinc-800 bg-zinc-950 text-sm"
-          />
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             <Button
-              onClick={submit}
-              disabled={busy || text.trim() === ''}
+              onClick={snapshotNow}
+              disabled={busy}
               className="bg-amber-500 text-zinc-950 hover:bg-amber-400 disabled:opacity-40"
             >
-              {busy ? 'Записываю…' : 'Записать вердикт'}
+              <ShieldCheck className="mr-1 size-3.5" />
+              {busy ? 'Работаю…' : 'Снять снимок сейчас'}
             </Button>
-            {note ? <span className="text-xs text-zinc-400">{note}</span> : null}
+            <span className="text-[11px] text-zinc-600">хранятся последние 5 снимков</span>
+            {note ? <span className="text-xs text-emerald-300">{note}</span> : null}
           </div>
+          {report ? (
+            <div className="rounded-md border border-emerald-600/30 bg-emerald-600/10 px-3 py-2 text-xs text-emerald-300">
+              Восстановлено файлов: {report.restored.length} · событий влито: {report.mergedEvents}
+              {report.skipped.length > 0 ? ` · пропущено: ${report.skipped.length} (уже на диске)` : ''}
+            </div>
+          ) : null}
         </div>
       </Panel>
 
-      <Panel title="VLM-разбор рендера" icon={<Sparkles className="size-4" />}>
-        <EmptyState
-          title="VLM-петля — готова к первому живому прогону"
-          hint="Загрузи рендер любого промпта T4-03 — машина разобьёт его по осям (силуэт / первый считыв / свидетель / физика / scroll-stop) и запишет render.verdict. Первый живой тест — за тобой."
-        />
+      <Panel title="Снимки в сейфе" icon={<History className="size-4" />} bodyClassName="max-h-[60vh] overflow-y-auto t4-scroll">
+        {snaps.length === 0 ? (
+          <EmptyState
+            title="Сейф пуст"
+            hint="Сними первый снимок — он переживёт выключение компьютера, откат контейнера и смерть сессии."
+          />
+        ) : (
+          <div className="space-y-1.5">
+            {snaps.map((s) => (
+              <div
+                key={s.key}
+                className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-zinc-800 bg-zinc-900/60 px-3 py-2"
+              >
+                <div className="flex min-w-0 flex-wrap items-center gap-2">
+                  <Mono>{formatDate(s.savedAt)}</Mono>
+                  <Chip>{s.batches} батчей</Chip>
+                  <Chip>{(s.bytes / 1024).toFixed(0)} КБ</Chip>
+                  <Chip tone="emerald">{s.counts.events ?? '—'} соб.</Chip>
+                </div>
+                <div className="flex shrink-0 items-center gap-2">
+                  <button
+                    onClick={() => restore(s)}
+                    disabled={busy}
+                    className="rounded-md border border-emerald-600/40 bg-emerald-600/10 px-2 py-1 text-[11px] text-emerald-300 transition-colors hover:bg-emerald-600/20 disabled:opacity-40"
+                  >
+                    Восстановить
+                  </button>
+                  <button
+                    onClick={async () => {
+                      await deleteSnapshot(s.key)
+                      await refresh()
+                    }}
+                    className="rounded-md border border-zinc-700 bg-zinc-800/60 px-2 py-1 text-[11px] text-zinc-400 transition-colors hover:border-rose-500/40 hover:text-rose-300"
+                  >
+                    Удалить
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </Panel>
     </div>
   )
@@ -1070,13 +2108,14 @@ export default function Home() {
         {tab === 'batches' ? <BatchesTab /> : null}
         {tab === 'events' ? <EventsTab /> : null}
         {tab === 'verdicts' ? <VerdictsTab /> : null}
+        {tab === 'vault' ? <VaultTab /> : null}
         {tab === 'archive' ? <ArchiveTab /> : null}
       </main>
 
       <footer className="mt-auto border-t border-zinc-800/80 bg-zinc-950 pb-[env(safe-area-inset-bottom)]">
         <div className="mx-auto flex w-full max-w-7xl flex-wrap items-center justify-between gap-2 px-4 py-4 text-[11px] text-zinc-600 sm:px-6">
           <span>THREAD 4 · закон 24 слотов · Super Z × Автор</span>
-          <span className="font-mono">3.2 → откат · 21 мейн + 3 OC · 13 гейтов</span>
+          <span className="font-mono">19 гейтов · салиенс + noun-lock + коллизия · приёмник батча · сейф</span>
         </div>
       </footer>
     </div>

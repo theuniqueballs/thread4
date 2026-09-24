@@ -171,7 +171,7 @@ export function VerdictBadge({ verdict }: { verdict: string }) {
   return <span className={cn(badgeBase, tone)}>{v || '—'}</span>
 }
 
-/** Event-type badge: batch=amber, verdict=rose, law=zinc, gate=green. */
+/** Event-type badge: batch=amber, verdict=rose, law=zinc, gate=green, external=teal. */
 export function TypeBadge({ type }: { type: string }) {
   const t = (type || '').toLowerCase()
   let tone = 'border-zinc-700 bg-zinc-800/60 text-zinc-400'
@@ -179,6 +179,7 @@ export function TypeBadge({ type }: { type: string }) {
   else if (t.includes('verdict')) tone = 'border-rose-500/40 bg-rose-500/10 text-rose-400'
   else if (t.includes('gate')) tone = 'border-emerald-600/40 bg-emerald-600/10 text-emerald-400'
   else if (t.includes('law')) tone = 'border-zinc-600 bg-zinc-800/60 text-zinc-300'
+  else if (t.includes('external')) tone = 'border-teal-500/40 bg-teal-500/10 text-teal-300'
   return <span className={cn(badgeBase, 'font-mono', tone)}>{type || '—'}</span>
 }
 

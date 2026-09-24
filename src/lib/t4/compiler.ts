@@ -97,6 +97,8 @@ export interface SlotPlan {
   witness?: string // NICHE/engine witness object
   closer: string
   exploratory?: string
+  /** A/B-пара (§10-поправка): один канал доставки (LEAD-зона), разная подача */
+  ab?: { pair: string; half: 'A' | 'B'; withSlot: number; lead: string }
 }
 
 export interface BatchContract {
@@ -111,6 +113,8 @@ export interface BatchContract {
   slots: SlotPlan[]
   ocRotation: { name: string; served: number }[]
   racialCount: number
+  /** A/B-пары (§10-поправка): 2-3 пары R+-слотов — один канал, разная подача */
+  abPairs: { pair: string; a: number; b: number; lead: string }[]
   carrierStats: {
     wSharePct: number
     sheerRplusPct: number
@@ -215,6 +219,9 @@ export const LAWS = {
   closerCapPct: 40,
   registerCapPct: 50,
   signalMin: { 'PG-13': 2, R: 1, 'R+': 2, X: 2 } as Record<string, number>,
+  /** A/B-дисциплина (§10-поправка): 2-3 пары на батч — системно, не случайно */
+  abPairsMin: 2,
+  abPairsMax: 3,
 } as const
 
 const LEAD_ZONES = [
@@ -443,21 +450,33 @@ export function compileBatch(theme: string, options: CompileOptions = {}): Batch
     const closer = closers[closerIdx % closers.length].id
     closerIdx += 1
     const register = shuffledRegisters[pos - 1]
-    const pose = posePool[poseIdx++ % posePool.length]
+    /* RENDER LAW v1.3.0 (вердикт T4-05, §9-септима POSE-RISK): R+/X
+       получают только LOW/MID позы — HIGH × R+ = амплификатор мутаций
+       (P04 дрейф · P22 мутация · P17 недолёт). R-слоты могут брать HIGH. */
+    const pickPose = (rating: string) => {
+      const calm = rating === 'R+' || rating === 'X'
+      for (let i = 0; i < posePool.length; i++) {
+        const cand = posePool[poseIdx++ % posePool.length]
+        if (calm && cand.risk === 'HIGH') continue
+        return cand
+      }
+      return posePool[poseIdx++ % posePool.length]
+    }
     const palette = palettePool[paletteIdx++ % palettePool.length]
 
     if (pos <= 3) {
       const ocName = ocNames[pos - 1]
       const carriers4 = assignCore4('R+', pos)
+      const ocPose = pickPose('R+')
       slots.push({
         position: pos,
         kind: 'OC',
         oc: ocName,
         ocTheme: options.ocThemes?.[ocName]?.trim() || undefined,
         rating: 'R+',
-        pose: pose.id,
-        poseName: pose.name,
-        poseRisk: pose.risk,
+        pose: ocPose.id,
+        poseName: ocPose.name,
+        poseRisk: ocPose.risk,
         palette: palette.id,
         paletteName: palette.name,
         kinetics: [kPool[kIdx++ % kPool.length]?.id].filter(Boolean) as string[],
@@ -476,6 +495,7 @@ export function compileBatch(theme: string, options: CompileOptions = {}): Batch
       main.rating === 'R+' || main.rating === 'X'
         ? assignCore4(main.rating, pos)
         : assignTierCarriers(main.rating)
+    const mainPose = pickPose(main.rating)
 
     slots.push({
       position: pos,
@@ -483,9 +503,9 @@ export function compileBatch(theme: string, options: CompileOptions = {}): Batch
       rating: main.rating,
       race: race?.name,
       raceFeature: race?.features?.[0],
-      pose: pose.id,
-      poseName: pose.name,
-      poseRisk: pose.risk,
+      pose: mainPose.id,
+      poseName: mainPose.name,
+      poseRisk: mainPose.risk,
       palette: palette.id,
       paletteName: palette.name,
       kinetics: [kPool[kIdx++ % kPool.length]?.id].filter(Boolean) as string[],
@@ -502,6 +522,49 @@ export function compileBatch(theme: string, options: CompileOptions = {}): Batch
 
   const spreadMap: Record<string, number> = {}
   for (const s of slots) spreadMap[s.rating] = (spreadMap[s.rating] ?? 0) + 1
+
+  /* A/B-дисциплина (§10-поправка, рекомендация Claude №3): 2-3 пары R+-
+     слотов на батч — СИСТЕМНО, а не случайно как P10. Пара = одна
+     LEAD-зона (один канал доставки: зона заявки одна и та же), подача
+     разная (поза/камера/палитра назначены разные). Вердикт приёмника
+     атрибутирует канал, а не случайность. */
+  const abPairs: { pair: string; a: number; b: number; lead: string }[] = []
+  {
+    const rplusAll = slots.filter((s) => s.rating === 'R+')
+    const byLead = new Map<string, SlotPlan[]>()
+    for (const s of rplusAll) {
+      const list = byLead.get(s.lead) ?? []
+      list.push(s)
+      byLead.set(s.lead, list)
+    }
+    const pairNames = ['α', 'β', 'γ']
+    const used = new Set<number>()
+    // сперва пары среди мейнов (OC — как запас для третьей пары: OC R+ 0/3,
+    // канал на OC-слоте тоже заслуживает атрибуции)
+    for (const mainsFirst of [true, false]) {
+      for (const [lead, list] of byLead) {
+        if (abPairs.length >= LAWS.abPairsMax) break
+        const free = list.filter(
+          (s) => !used.has(s.position) && (mainsFirst ? s.kind !== 'OC' : true)
+        )
+        if (free.length >= 2) {
+          const a = free[0]
+          const b = free[1]
+          const name = pairNames[abPairs.length]
+          abPairs.push({ pair: name, a: a.position, b: b.position, lead })
+          used.add(a.position)
+          used.add(b.position)
+        }
+      }
+      if (abPairs.length >= LAWS.abPairsMin) break
+    }
+    for (const p of abPairs) {
+      const sa = slots.find((s) => s.position === p.a)
+      const sb = slots.find((s) => s.position === p.b)
+      if (sa) sa.ab = { pair: p.pair, half: 'A', withSlot: p.b, lead: p.lead }
+      if (sb) sb.ab = { pair: p.pair, half: 'B', withSlot: p.a, lead: p.lead }
+    }
+  }
 
   /* batch-level carrier stats — the same numbers the diversity gate reads */
   const allAssigned = slots.flatMap((s) => s.carriers)
@@ -531,6 +594,7 @@ export function compileBatch(theme: string, options: CompileOptions = {}): Batch
     slots,
     ocRotation: ocNames.map((n) => ({ name: n, served: served(n) })),
     racialCount: slots.filter((s) => s.race).length,
+    abPairs,
     carrierStats: {
       wSharePct: wShare,
       sheerRplusPct: sheerPct,
@@ -557,6 +621,9 @@ export function compileBatch(theme: string, options: CompileOptions = {}): Batch
       faceLock: 'Her face is rendered in stylized 2D anime style: anime eyes ([color/state]), small nose, small mouth [state], [tone] skin.',
       posShape: 'POS = [тег-блок] → [проза] → [quality-теги] — PH-форма, проходит дословно',
       counters: 'экспозиция = сигнал-тег + контр-NEG (N31-рецепт); рейтинг зарабатывается тегами, не прозой',
+      abDiscipline: 'A/B-дисциплина (§10-поправка): 2-3 пары R+-слотов на батч, пары по LEAD-зоне — заявка одна (тот же канал доставки), подача разная; вердикт приёмника атрибутирует канал (системно, а не случайно как P10)',
+      salienceLaw: 'закон салиенса (§9-секста): PRESENT ≠ VISIBLE ≠ LEGIBLE; цепочка OBJECT → EXPOSURE → CAMERA → CONTRAST → SALIENCE → INTERPRETATION — провал звена роняет тир; свет на зоне заявки, не в декорациях (мокрая тёмная ткань без света = пятно; светлое на светлом = слияние)',
+      underlayerLock: 'noun-lock (§10-поправка): сквозь-ткань заявка лочится на именованную тонкую светлую вещь; подслой лочится в NEG (bra/camisole/bandeau/undershirt) — тишина по подслою = дыра, рендерер дорисует его сам',
     },
   }
 
@@ -614,6 +681,10 @@ export function contractMarkdown(c: BatchContract): string {
   lines.push('')
   lines.push(`**Ротация OC**: ${c.ocRotation.map((o) => `${o.name} (было ${o.served})`).join(', ')} — по longest-rested.`)
   lines.push('')
+  if ((c.abPairs ?? []).length > 0) {
+    lines.push(`**A/B-дисциплина (§10-поправка)**: ${c.abPairs.map((p) => `пара ${p.pair} = P${String(p.a).padStart(2, '0')} × P${String(p.b).padStart(2, '0')} (LEAD ${p.lead})`).join(' · ')} — один канал доставки (заявка одна и та же), подача разная; вердикт приёмника атрибутирует канал, а не случай (системно, а не как P10).`)
+    lines.push('')
+  }
   const themed = c.slots.filter((s) => s.oc && s.ocTheme)
   if (themed.length > 0) {
     lines.push(`**Темы OC (заказ автора)**: ${themed.map((s) => `${s.oc} — ${s.ocTheme}`).join(' · ')}`)
@@ -629,8 +700,9 @@ export function contractMarkdown(c: BatchContract): string {
   lines.push('|---|---|---|---|---|---|---|---|---|---|---|')
   for (const s of c.slots) {
     const who = s.oc ?? s.race ?? '—'
+    const abMark = s.ab ? ` · ${s.ab.half}/${s.ab.pair}` : ''
     lines.push(
-      `| P${String(s.position).padStart(2, '0')} | ${s.kind}${s.exploratory ? ' ⚗' : ''} | ${s.rating} | ${who} | ${s.pose} ${s.poseName} (${s.poseRisk}) | ${s.palette} | ${s.kinetics.join(',') || '—'} | ${s.carriers.map((x) => x.id).join(' + ') || '—'} | ${s.lead} | ${s.register} | ${s.closer} |`
+      `| P${String(s.position).padStart(2, '0')} | ${s.kind}${s.exploratory ? ' ⚗' : ''}${abMark} | ${s.rating} | ${who} | ${s.pose} ${s.poseName} (${s.poseRisk}) | ${s.palette} | ${s.kinetics.join(',') || '—'} | ${s.carriers.map((x) => x.id).join(' + ') || '—'} | ${s.lead} | ${s.register} | ${s.closer} |`
     )
   }
   lines.push('')
@@ -670,6 +742,7 @@ export function contractMarkdown(c: BatchContract): string {
   lines.push('- **T13** (вердикт T4-03 + рендер-вердикт: R+ 1/15): R+ = ДЕЛО в кадре — РЕНДЕР-ДОКАЗАННАЯ заявка (pantyline / nipples through / see-through / tape) на тонкой светлой вещи с состоянием ткани (wet/sheer), без подслоя; cameltoe — только флэйвор, заявку не зарабатывает.')
   lines.push('- **T14** (вердикт T4-03, «чулки сквозь джинсы, майка поверх рубашки»): слоевой хаос — ≥3 верхних слоя или ≥5 предметов путают порядок; зона сигнала ≤1 слой.')
   lines.push('- **T15** (приказ автора, T4-04): имена ОС никогда не входят в POS — ни тегом, ни прозой; имена триггерят чужих персонажей у рендерера. Только дескрипторы.')
+  lines.push('- **T16** (§9-секста, закон салиенса): PRESENT ≠ VISIBLE ≠ LEGIBLE — тег в POS ≠ сигнал в кадре; цепочка OBJECT → EXPOSURE → CAMERA → CONTRAST → SALIENCE → INTERPRETATION, провал звена роняет тир (мокрая тёмная ткань без света = пятно, T4-04 P05; светлое на светлом = слияние, T4-04 P03). Анти-тиран: подавай сигнал светом на зоне заявки, не декорациями.')
   lines.push('')
   lines.push('---')
   lines.push('')

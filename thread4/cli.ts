@@ -176,11 +176,21 @@ async function main() {
     const tech = inv.find((s) => s.id === 'rating-techniques')
     check('техника-карта в инвентаре (>=100 приёмов)', (tech?.count ?? 0) >= 100)
     const recipes = inv.find((s) => s.id === 'rating-recipes')
-    check('рецепт v1.3.0 (X Cut hold вшит)', recipes?.version === '1.3.0')
+    check('рецепт v1.4.0 (X Cut hold + §9-септима: bare-under/framing/pose)', recipes?.version === '1.4.0')
+    // статa доставки (рекомендация Claude №2, external.review 2026-09-23;
+    // v0.2.0 — вердикт T4-05: 13 → 18 каналов)
+    const dstats = inv.find((s) => s.id === 'delivery-stats')
+    check('стата доставки в инвентаре (18 каналов, v0.2.0)', dstats?.count === 18 && dstats?.version === '0.2.0')
     {
-      const { getRatingRecipes, getRatingTechniques } = await import('../src/lib/t4/specs')
+      const { getRatingRecipes, getRatingTechniques, getDeliveryStats } = await import('../src/lib/t4/specs')
       const rt = getRatingTechniques()
       const rr = getRatingRecipes()
+      const ds = getDeliveryStats()
+      check('каналы доставки v0.2.0: wet-sheer+подача 5 доставлено, cameltoe 0/15, OC R+ 0/9, площадка-оракул 45/45',
+        ds?.channels.find((c) => c.id === 'wet-sheer-delivery')?.delivered === 5 &&
+        ds?.channels.find((c) => c.id === 'cameltoe')?.delivered === 0 &&
+        ds?.channels.find((c) => c.id === 'oc-rplus')?.delivered === 0 &&
+        ds?.channels.find((c) => c.id === 'platform-tier-oracle')?.delivered === 45)
       check('сумма факторов: R+ = 3+ сигнала через 2+ слоя',
         rt?.sum_rules.rplus_floor.signals_min === 3 && rt?.sum_rules.rplus_floor.layers_min === 2)
       check('X Cut hold: 5 новых терминов NEG в рецепте X',
@@ -188,6 +198,11 @@ async function main() {
           (rr?.tiers.X.counter_neg ?? []).includes(t)))
       check('cameltoe в карта не сигнал (рендер-мёртв)',
         rt?.techniques.find((e) => e.tag.startsWith('cameltoe'))?.rplus === '')
+      check('техника-карта v1.1.0 = 108 приёмов (+4 моста delivery-stats v0.2.0)',
+        rt?.version === '1.1.0' && rt?.techniques.length === 108)
+      check('§9-септима: bare-under маркеры в рецепте through_fabric',
+        Array.isArray(rr?.tiers.RPLUS?.mechanisms?.through_fabric?.bare_under_marker) &&
+        (rr?.tiers.RPLUS?.mechanisms?.through_fabric?.bare_under_marker?.length ?? 0) >= 5)
       // слой-скорер на синтетическом тег-блоке (T4-04 P01-подобный кадр)
       const synth = 'student, steam damp blouse, wet clothes, see-through, nipples through clothing, tight clothes, steam press room, kneeling forward reach, brass key'
       const boilerRe = /\b(?:hentai anime style|ecchi anime style|anime style|masterpiece|best quality|anime artstyle|1girl|solo)\b/gi
@@ -231,6 +246,16 @@ async function main() {
     check('core-4 groups on every R+/X slot', groupsOk)
     check('racial count 10 (на мейнах)', c1.slots.filter((s) => s.race).length === 10)
     check('races only on mains', c1.slots.slice(0, 3).every((s) => !s.race))
+    // A/B-дисциплина (§10-поправка): 2-3 пары R+-слотов по LEAD-зоне
+    check('A/B-пары: 2-3 на батч (§10-поправка)',
+      c1.abPairs.length >= 2 && c1.abPairs.length <= 3)
+    check('A/B-пары: обе половины в одной LEAD-зоне, R+',
+      c1.abPairs.every((p) => {
+        const sa = c1.slots.find((s) => s.position === p.a)
+        const sb = c1.slots.find((s) => s.position === p.b)
+        return sa && sb && sa.lead === p.lead && sa.rating === 'R+' && sb.rating === 'R+' &&
+          sa.ab?.pair === sb.ab?.pair && sa.ab?.half !== sb.ab?.half
+      }))
     const registers = c1.slots.reduce<Record<string, number>>((acc, s) => {
       acc[s.register] = (acc[s.register] ?? 0) + 1
       return acc

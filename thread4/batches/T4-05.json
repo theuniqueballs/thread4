@@ -1,0 +1,165 @@
+{
+  "slug": "T4-05",
+  "title": "The Unnamed Goddess",
+  "date": "2026-09-23T12:28:20.343Z",
+  "theme": "The Unnamed Goddess",
+  "engine": "arcana",
+  "hardPass": true,
+  "firstRunClean": true,
+  "sha10": "452733e897",
+  "run": 1,
+  "receipts": [
+    {
+      "gate": "structure",
+      "level": "hard",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "floors",
+      "level": "hard",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "rating-recipe",
+      "level": "hard",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "canon",
+      "level": "hard",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "diversity",
+      "level": "hard",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "window",
+      "level": "hard",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "budget",
+      "level": "warn",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "cadence",
+      "level": "warn",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "niche-legibility",
+      "level": "warn",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "prop-geometry",
+      "level": "warn",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "claim-visibility",
+      "level": "warn",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "technique-layers",
+      "level": "warn",
+      "verdict": "WARN",
+      "findings": [
+        "осознанный X-риск (блок 8, строка 5): 13 R+ слотов несут мокрое+сквозное (P1, P2, P3, P4, P7, P13, P15, P17, P19, P20, P21, P22, P24) — очень высокий риск нечаянного X при рендере; это рабочий механизм рецепта v1.2.0, автор фильтрует перекидкой"
+      ]
+    },
+    {
+      "gate": "noun-lock",
+      "level": "warn",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "simcheck",
+      "level": "warn",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "freq-report",
+      "level": "advisory",
+      "verdict": "REPORT",
+      "findings": [
+        "кандидаты в тики: anime 24/21 · style 24/21 · ecchi 24/21 · rendered 24/21 · stylized 24/21 · small 24/21 · mouth 24/21 · masterpiece 24/21 · quality 24/21 · artstyle 24/21 · white 17/21 · through 17/21"
+      ]
+    },
+    {
+      "gate": "usage",
+      "level": "advisory",
+      "verdict": "REPORT",
+      "findings": [
+        "носителей в стеках: 89; уникальных: 89",
+        "R+ слотов: 15; X: 2"
+      ]
+    },
+    {
+      "gate": "technique-map",
+      "level": "advisory",
+      "verdict": "REPORT",
+      "findings": [
+        "P01 R+: 5 сигнал(ов) · слои 1·видимо + 3·зачем + 4·дорисовывает · open shirt, nipple outline, see-through, wet clothes, seductive smile",
+        "P02 R+: 3 сигнал(ов) · слои 1·видимо + 4·дорисовывает · nipple outline, see-through, wet clothes",
+        "P03 R+: 4 сигнал(ов) · слои 1·видимо + 3·зачем + 4·дорисовывает · nipple outline, see-through, wet clothes, candlelight",
+        "P04 R+: 4 сигнал(ов) · слои 1·видимо + 4·дорисовывает · nipple outline, see-through, wet clothes, shower",
+        "P07 R+: 3 сигнал(ов) · слои 1·видимо + 4·дорисовывает · nipple outline, see-through, wet clothes",
+        "P09 R+: 3 сигнал(ов) · слои 1·видимо + 2·как + 4·дорисовывает · nipple outline, see-through, close-up",
+        "P11 R+: 3 сигнал(ов) · слои 1·видимо + 3·зачем + 4·дорисовывает · nipple outline, see-through, heavy breathing",
+        "P13 R+: 3 сигнал(ов) · слои 1·видимо + 4·дорисовывает · nipple outline, see-through, wet clothes",
+        "P15 R+: 6 сигнал(ов) · слои 1·видимо + 2·как + 4·дорисовывает · nipple outline, see-through, wet clothes, from below, close-up, on bed",
+        "P16 X: 2 сигнал(ов) · слои 1·видимо · topless, no bra",
+        "P17 R+: 3 сигнал(ов) · слои 1·видимо + 4·дорисовывает · nipple outline, see-through, wet clothes",
+        "P19 R+: 4 сигнал(ов) · слои 1·видимо + 4·дорисовывает · nipple outline, see-through, wet clothes, sweat",
+        "P20 R+: 6 сигнал(ов) · слои 1·видимо + 2·как + 3·зачем + 4·дорисовывает · panties visible, see-through, wet clothes, close-up, bent over, blush",
+        "P21 R+: 3 сигнал(ов) · слои 1·видимо + 4·дорисовывает · nipple outline, see-through, wet clothes",
+        "P22 R+: 3 сигнал(ов) · слои 1·видимо + 4·дорисовывает · nipple outline, see-through, wet clothes",
+        "P23 X: 1 сигнал(ов) · слои 1·видимо · topless",
+        "P24 R+: 5 сигнал(ов) · слои 1·видимо + 2·как + 4·дорисовывает · nipple outline, see-through, wet clothes, shower, looking back over shoulder"
+      ]
+    },
+    {
+      "gate": "salience-chain",
+      "level": "advisory",
+      "verdict": "REPORT",
+      "findings": [
+        "салиенс-цепочка (§9-секста): 17 R+/X слотов, под угрозой 1 (≥2 порванных звеньев — провал звена роняет тир)",
+        "P01 R+: OBJECT ✓ (robe) · EXPOSURE ✓ · CAMERA ✓ (поза) · CONTRAST ✓ · SALIENCE ✓ (№10) · INTERPRETATION ✓ (half-lidded) → цепочка цела",
+        "P02 R+: OBJECT ✓ (slip) · EXPOSURE ✓ · CAMERA ✓ (поза) · CONTRAST ✓ · SALIENCE ✓ (№12) · INTERPRETATION ✓ (half-lidded) → цепочка цела",
+        "P03 R+: OBJECT ✓ (apron) · EXPOSURE ✓ · CAMERA ✓ (поза) · CONTRAST ✓ · SALIENCE ✓ (№12) · INTERPRETATION ✓ (eye contact) → цепочка цела",
+        "P04 R+: OBJECT ✓ (jacket) · EXPOSURE ✓ · CAMERA ✓ (поза) · CONTRAST ✓ · SALIENCE ✓ (№5) · INTERPRETATION ✓ (half-lidded) → цепочка цела",
+        "P07 R+: OBJECT ✓ (shirt) · EXPOSURE ✓ · CAMERA ✓ (поза) · CONTRAST ✓ · SALIENCE ✓ (№5) · INTERPRETATION ✗ (без подачи) → 1 звено порвано",
+        "P09 R+: OBJECT ✓ (tee) · EXPOSURE ✓ · CAMERA ✓ (close-up) · CONTRAST ✓ · SALIENCE ✓ (№6) · INTERPRETATION ✗ (без подачи) → 1 звено порвано",
+        "P11 R+: OBJECT ✓ (slip) · EXPOSURE ✓ · CAMERA ✓ (поза) · CONTRAST ✓ · SALIENCE ✓ (№6) · INTERPRETATION ✓ (half-lidded) → цепочка цела",
+        "P13 R+: OBJECT ✓ (dress) · EXPOSURE ✓ · CAMERA ✓ (поза) · CONTRAST ✓ · SALIENCE ✓ (№6) · INTERPRETATION ✓ (half-lidded) → цепочка цела",
+        "P15 R+: OBJECT ✓ (robe) · EXPOSURE ✓ · CAMERA ✓ (from below) · CONTRAST ✗ — мокрая тёмная ткань без света — пятно-риск · SALIENCE ✓ (№8) · INTERPRETATION ✓ (half-lidded) → 1 звено порвано",
+        "P16 X: OBJECT ✓ (topless) · EXPOSURE ✓ · CAMERA ✓ (upper body) · CONTRAST ✓ · SALIENCE ✓ (№13) · INTERPRETATION ✓ (bare state = заявление) → цепочка цела",
+        "P17 R+: OBJECT ✓ (blouse) · EXPOSURE ✓ · CAMERA ✗ (поза) · CONTRAST ✓ · SALIENCE ✓ (№8) · INTERPRETATION ✗ (без подачи) → 2 звена порваны: ПРОГНОЗ — тир под угрозой",
+        "P19 R+: OBJECT ✓ (tee) · EXPOSURE ✓ · CAMERA ✓ (поза) · CONTRAST ✓ · SALIENCE ✓ (№10) · INTERPRETATION ✗ (без подачи) → 1 звено порвано",
+        "P20 R+: OBJECT ✓ (sweater) · EXPOSURE ✓ · CAMERA ✓ (close-up) · CONTRAST ? — нет ни светлой вещи, ни света на зоне · SALIENCE ✓ (№10) · INTERPRETATION ✓ (half-lidded) → 1 звено порвано",
+        "P21 R+: OBJECT ✓ (gown) · EXPOSURE ✓ · CAMERA ✓ (поза) · CONTRAST ✓ · SALIENCE ✓ (№6) · INTERPRETATION ✗ (без подачи) → 1 звено порвано",
+        "P22 R+: OBJECT ✓ (leotard) · EXPOSURE ✓ · CAMERA ✓ (поза) · CONTRAST ✓ · SALIENCE ✓ (№9) · INTERPRETATION ✗ (без подачи) → 1 звено порвано",
+        "P23 X: OBJECT ✓ (topless) · EXPOSURE ✓ · CAMERA ✓ (upper body) · CONTRAST ✓ · SALIENCE ✓ (№10) · INTERPRETATION ✓ (bare state = заявление) → цепочка цела",
+        "P24 R+: OBJECT ✓ (dress) · EXPOSURE ✓ · CAMERA ✓ (поза) · CONTRAST ✓ · SALIENCE ✓ (№7) · INTERPRETATION ✓ (half-lidded) → цепочка цела"
+      ]
+    }
+  ]
+}

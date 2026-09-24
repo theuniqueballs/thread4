@@ -1,0 +1,171 @@
+{
+  "slug": "T4-07",
+  "title": "The Maiden and the Monster",
+  "date": "2026-09-23T16:43:52.572Z",
+  "theme": "The Maiden and the Monster",
+  "engine": "apocrypha",
+  "hardPass": true,
+  "firstRunClean": true,
+  "sha10": "62d9df47f4",
+  "run": 1,
+  "receipts": [
+    {
+      "gate": "structure",
+      "level": "hard",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "floors",
+      "level": "hard",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "rating-recipe",
+      "level": "hard",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "canon",
+      "level": "hard",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "diversity",
+      "level": "hard",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "window",
+      "level": "hard",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "budget",
+      "level": "warn",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "cadence",
+      "level": "warn",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "niche-legibility",
+      "level": "warn",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "prop-geometry",
+      "level": "warn",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "claim-visibility",
+      "level": "warn",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "technique-layers",
+      "level": "warn",
+      "verdict": "WARN",
+      "findings": [
+        "осознанный X-риск (блок 8, строка 5): 15 R+ слотов несут мокрое+сквозное (P1, P2, P3, P5, P6, P8, P11, P12, P14, P16, P19, P20, P21, P22, P24) — очень высокий риск нечаянного X при рендере; это рабочий механизм рецепта v1.2.0, автор фильтрует перекидкой"
+      ]
+    },
+    {
+      "gate": "noun-lock",
+      "level": "warn",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "character-collision",
+      "level": "warn",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "simcheck",
+      "level": "warn",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "freq-report",
+      "level": "advisory",
+      "verdict": "REPORT",
+      "findings": [
+        "кандидаты в тики: anime 24/21 · style 24/21 · ecchi 24/21 · small 24/21 · rendered 24/21 · stylized 24/21 · mouth 24/21 · masterpiece 24/21 · quality 24/21 · artstyle 24/21 · through 19/21 · where 18/21"
+      ]
+    },
+    {
+      "gate": "usage",
+      "level": "advisory",
+      "verdict": "REPORT",
+      "findings": [
+        "носителей в стеках: 89; уникальных: 89",
+        "R+ слотов: 15; X: 2"
+      ]
+    },
+    {
+      "gate": "technique-map",
+      "level": "advisory",
+      "verdict": "REPORT",
+      "findings": [
+        "P01 R+: 5 сигнал(ов) · слои 1·видимо + 2·как + 3·зачем + 4·дорисовывает · nipple outline, see-through, wet clothes, close-up, parted lips",
+        "P02 R+: 5 сигнал(ов) · слои 1·видимо + 2·как + 3·зачем + 4·дорисовывает · nipple outline, see-through, wet clothes, full body, parted lips",
+        "P03 R+: 5 сигнал(ов) · слои 1·видимо + 2·как + 4·дорисовывает · nipple outline, see-through, wet clothes, sweat, close-up",
+        "P04 X: 4 сигнал(ов) · слои 1·видимо + 2·как + 4·дорисовывает · nipples, no bra, wet clothes, close-up",
+        "P05 R+: 6 сигнал(ов) · слои 1·видимо + 2·как + 4·дорисовывает · corset, see-through, wet clothes, shower, close-up, threadbare",
+        "P06 R+: 4 сигнал(ов) · слои 1·видимо + 2·как + 4·дорисовывает · nipple outline, see-through, wet clothes, close-up",
+        "P08 R+: 7 сигнал(ов) · слои 1·видимо + 2·как + 3·зачем + 4·дорисовывает · corset, nipple outline, see-through, wet clothes, shower, close-up, parted lips",
+        "P11 R+: 7 сигнал(ов) · слои 1·видимо + 2·как + 3·зачем + 4·дорисовывает · nipple outline, see-through, wet clothes, full body, close-up, blush, seductive smile",
+        "P12 R+: 5 сигнал(ов) · слои 1·видимо + 2·как + 3·зачем + 4·дорисовывает · nipple outline, see-through, wet clothes, close-up, parted lips",
+        "P14 R+: 6 сигнал(ов) · слои 1·видимо + 2·как + 4·дорисовывает · nipple outline, see-through, wet clothes, shower, from below, close-up",
+        "P16 R+: 4 сигнал(ов) · слои 1·видимо + 2·как + 4·дорисовывает · nipple outline, see-through, wet clothes, full body",
+        "P17 X: 3 сигнал(ов) · слои 1·видимо + 2·как · no bra, taped nipples, close-up",
+        "P19 R+: 4 сигнал(ов) · слои 1·видимо + 2·как + 4·дорисовывает · nipple outline, see-through, wet clothes, close-up",
+        "P20 R+: 7 сигнал(ов) · слои 1·видимо + 2·как + 3·зачем + 4·дорисовывает · nipple outline, see-through, wet clothes, shower, from below, close-up, parted lips",
+        "P21 R+: 4 сигнал(ов) · слои 1·видимо + 2·как + 4·дорисовывает · nipple outline, see-through, wet clothes, close-up",
+        "P22 R+: 5 сигнал(ов) · слои 1·видимо + 2·как + 4·дорисовывает · corset, nipple outline, see-through, wet clothes, close-up",
+        "P24 R+: 6 сигнал(ов) · слои 1·видимо + 2·как + 3·зачем + 4·дорисовывает · nipple outline, see-through, wet clothes, shower, from below, parted lips"
+      ]
+    },
+    {
+      "gate": "salience-chain",
+      "level": "advisory",
+      "verdict": "REPORT",
+      "findings": [
+        "салиенс-цепочка (§9-секста + §9-септима BLOCKER/LEGIBILITY/POSE-RISK, вердикт T4-05): 17 R+/X слотов, под угрозой 0 (≥2 порванных звеньев — провал звена роняет тир)",
+        "P01 R+: OBJECT ✓ (shirt) · EXPOSURE ✓ · CAMERA ✓ (close-up) · CONTRAST ✓ · SALIENCE ✓ (№7) · INTERPRETATION ✓ (parted lips) · BLOCKER ✓ · LEGIBILITY ✓ (close-up) · POSE-RISK ✓ (LOW) → цепочка цела",
+        "P02 R+: OBJECT ✓ (dress) · EXPOSURE ✓ · CAMERA ✓ (cowboy shot) · CONTRAST ✓ · SALIENCE ✓ (№7) · INTERPRETATION ✓ (parted lips) · BLOCKER ✓ · LEGIBILITY ✓ (cowboy shot) · POSE-RISK ✓ (MID) → цепочка цела",
+        "P03 R+: OBJECT ✓ (shirt) · EXPOSURE ✓ · CAMERA ✓ (close-up) · CONTRAST ✓ · SALIENCE ✓ (№7) · INTERPRETATION ✓ (half-lidded) · BLOCKER ✓ · LEGIBILITY ✓ (close-up) · POSE-RISK ✓ (LOW) → цепочка цела",
+        "P04 X: OBJECT ✓ (bare breasts) · EXPOSURE ✓ · CAMERA ✓ (close-up) · CONTRAST ✓ · SALIENCE ✓ (№11) · INTERPRETATION ✓ (bare state = заявление) · BLOCKER ✓ · LEGIBILITY ✓ · POSE-RISK ✓ (MID) → цепочка цела",
+        "P05 R+: OBJECT ✓ (blouse) · EXPOSURE ✓ · CAMERA ✓ (close-up) · CONTRAST ✓ · SALIENCE ✓ (№9) · INTERPRETATION ✓ (half-lidded) · BLOCKER ✓ · LEGIBILITY ✓ (close-up) · POSE-RISK ✓ (LOW) → цепочка цела",
+        "P06 R+: OBJECT ✓ (swimsuit) · EXPOSURE ✓ · CAMERA ✓ (close-up) · CONTRAST ✓ · SALIENCE ✓ (№6) · INTERPRETATION ✓ (eye contact) · BLOCKER ✓ · LEGIBILITY ✓ (close-up) · POSE-RISK ✓ (LOW) → цепочка цела",
+        "P08 R+: OBJECT ✓ (sweater) · EXPOSURE ✓ · CAMERA ✓ (close-up) · CONTRAST ✓ · SALIENCE ✓ (№10) · INTERPRETATION ✓ (parted lips) · BLOCKER ✓ · LEGIBILITY ✓ (close-up) · POSE-RISK ✓ (MID) → цепочка цела",
+        "P11 R+: OBJECT ✓ (robe) · EXPOSURE ✓ · CAMERA ✓ (close-up) · CONTRAST ✓ · SALIENCE ✓ (№11) · INTERPRETATION ✓ (half-lidded) · BLOCKER ✓ · LEGIBILITY ✓ (close-up) · POSE-RISK ✓ (LOW) → цепочка цела",
+        "P12 R+: OBJECT ✓ (qipao) · EXPOSURE ✓ · CAMERA ✓ (close-up) · CONTRAST ✓ · SALIENCE ✓ (№9) · INTERPRETATION ✓ (parted lips) · BLOCKER ✓ · LEGIBILITY ✓ (close-up) · POSE-RISK ✓ (MID) → цепочка цела",
+        "P14 R+: OBJECT ✓ (robe) · EXPOSURE ✓ · CAMERA ✓ (from below) · CONTRAST ✓ · SALIENCE ✓ (№8) · INTERPRETATION ✓ (half-lidded) · BLOCKER ✓ · LEGIBILITY ✓ (close-up) · POSE-RISK ✓ (MID) → цепочка цела",
+        "P16 R+: OBJECT ✓ (shirt) · EXPOSURE ✓ · CAMERA ✓ (cowboy shot) · CONTRAST ✓ · SALIENCE ✓ (№8) · INTERPRETATION ✓ (half-lidded) · BLOCKER ✓ · LEGIBILITY ✓ (cowboy shot) · POSE-RISK ✓ (MID) → цепочка цела",
+        "P17 X: OBJECT ✓ (bare breasts) · EXPOSURE ✓ · CAMERA ✓ (close-up) · CONTRAST ✓ · SALIENCE ✓ (№10) · INTERPRETATION ✓ (bare state = заявление) · BLOCKER ✓ · LEGIBILITY ✓ · POSE-RISK ✓ (MID) → цепочка цела",
+        "P19 R+: OBJECT ✓ (dress) · EXPOSURE ✓ · CAMERA ✓ (close-up) · CONTRAST ✗ — мокрая тёмная ткань без света — пятно-риск · SALIENCE ✓ (№11) · INTERPRETATION ✓ (half-lidded) · BLOCKER ✓ · LEGIBILITY ✓ (close-up) · POSE-RISK ✓ (LOW) → 1 звено порвано",
+        "P20 R+: OBJECT ✓ (shirt) · EXPOSURE ✓ · CAMERA ✓ (from below) · CONTRAST ✓ · SALIENCE ✓ (№9) · INTERPRETATION ✓ (parted lips) · BLOCKER ✓ · LEGIBILITY ✓ (close-up) · POSE-RISK ✓ (MID) → цепочка цела",
+        "P21 R+: OBJECT ✓ (shirt) · EXPOSURE ✓ · CAMERA ✓ (close-up) · CONTRAST ✓ · SALIENCE ✓ (№12) · INTERPRETATION ✓ (half-closed eyes) · BLOCKER ✓ · LEGIBILITY ✓ (close-up) · POSE-RISK ✓ (MID) → цепочка цела",
+        "P22 R+: OBJECT ✓ (sweater) · EXPOSURE ✓ · CAMERA ✓ (close-up) · CONTRAST ✓ · SALIENCE ✓ (№8) · INTERPRETATION ✓ (half-lidded) · BLOCKER ✓ · LEGIBILITY ✓ (close-up) · POSE-RISK ✓ (MID) → цепочка цела",
+        "P24 R+: OBJECT ✓ (dress) · EXPOSURE ✓ · CAMERA ✓ (from below) · CONTRAST ✓ · SALIENCE ✓ (№8) · INTERPRETATION ✓ (parted lips) · BLOCKER ✓ · LEGIBILITY ✓ (from below) · POSE-RISK ✓ (MID) → цепочка цела"
+      ]
+    }
+  ]
+}

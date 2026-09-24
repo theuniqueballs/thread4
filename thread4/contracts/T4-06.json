@@ -1,11 +1,11 @@
 {
-  "slug": "T4-05",
+  "slug": "T4-06",
   "theme": "The Unnamed Goddess",
-  "engine": "arcana",
-  "engineLaw": "the secret is WORN — one kept secret per frame, one visible tell, one confidant (the object that knows); undressing is disclosure",
-  "engineWhy": "Ротация движков: arcana (render-graded, дебют N28 \"Nobody Knows\"). Семена на подъёмной сетке: 5. Движок — мировой закон, который носится на теле; тема автора ложится на его ось, NICHE-слоты несут невозможное, VOLT — плоть.",
+  "engine": "limen",
+  "engineLaw": "magic is ADJACENT, not abroad — it arrives through SEAMS (door's edge, mirror's plane, laundry line, tide's rim, curb, hem of fog); every frame carries ONE VISIBLE SEAM cutting the composition, the girl straddling it MID-CROSSING — and the magic is legible AT A GLANCE, never narrated (the N26 audit's lesson: «ничё толком не понял»)",
+  "engineWhy": "Ротация движков: limen (experimental, дебют N27 \"Somewhere Between Here and Magic\"). Семена на подъёмной сетке: 5. Движок — мировой закон, который носится на теле; тема автора ложится на его ось, NICHE-слоты несут невозможное, VOLT — плоть.",
   "seed": 585640759,
-  "createdAt": "2026-09-23T12:17:46.563Z",
+  "createdAt": "2026-09-23T11:27:01.902Z",
   "spread": [
     {
       "rating": "R+",
@@ -190,13 +190,7 @@
       ],
       "lead": "hands",
       "register": "milf",
-      "closer": "long-fused",
-      "ab": {
-        "pair": "α",
-        "half": "A",
-        "withSlot": 17,
-        "lead": "hands"
-      }
+      "closer": "long-fused"
     },
     {
       "position": 5,
@@ -315,13 +309,7 @@
       "lead": "hamstrings",
       "register": "milf",
       "closer": "dialogue",
-      "exploratory": "EXPLORATORY slot — the law it probes is named in the batch worklog at delivery",
-      "ab": {
-        "pair": "β",
-        "half": "A",
-        "withSlot": 20,
-        "lead": "hamstrings"
-      }
+      "exploratory": "EXPLORATORY slot — the law it probes is named in the batch worklog at delivery"
     },
     {
       "position": 8,
@@ -400,13 +388,7 @@
       ],
       "lead": "nape",
       "register": "milf",
-      "closer": "long-fused",
-      "ab": {
-        "pair": "γ",
-        "half": "A",
-        "withSlot": 22,
-        "lead": "nape"
-      }
+      "closer": "long-fused"
     },
     {
       "position": 10,
@@ -735,13 +717,7 @@
       ],
       "lead": "hands",
       "register": "young",
-      "closer": "dialogue",
-      "ab": {
-        "pair": "α",
-        "half": "B",
-        "withSlot": 4,
-        "lead": "hands"
-      }
+      "closer": "dialogue"
     },
     {
       "position": 18,
@@ -868,13 +844,7 @@
       ],
       "lead": "hamstrings",
       "register": "young",
-      "closer": "action-close",
-      "ab": {
-        "pair": "β",
-        "half": "B",
-        "withSlot": 7,
-        "lead": "hamstrings"
-      }
+      "closer": "action-close"
     },
     {
       "position": 21,
@@ -960,13 +930,7 @@
       ],
       "lead": "nape",
       "register": "young",
-      "closer": "dialogue",
-      "ab": {
-        "pair": "γ",
-        "half": "B",
-        "withSlot": 9,
-        "lead": "nape"
-      }
+      "closer": "dialogue"
     },
     {
       "position": 23,
@@ -1070,26 +1034,6 @@
     }
   ],
   "racialCount": 10,
-  "abPairs": [
-    {
-      "pair": "α",
-      "a": 4,
-      "b": 17,
-      "lead": "hands"
-    },
-    {
-      "pair": "β",
-      "a": 7,
-      "b": 20,
-      "lead": "hamstrings"
-    },
-    {
-      "pair": "γ",
-      "a": 9,
-      "b": 22,
-      "lead": "nape"
-    }
-  ],
   "carrierStats": {
     "wSharePct": 19,
     "sheerRplusPct": 27,
@@ -1119,9 +1063,6 @@
     "layerClarity": "≤2 слоя одежды на зону; зона сигнала = LEAD-зона, несёт ≤1 слой + цель сигнала, открыта камере (без юбок/плащей/завязанных рубашек над pantyline, без застёгнутого верха над tape); OC-слоты — камера-смотрящие позы; ИМЕНА ОС В POS ЗАПРЕЩЕНЫ (приказ автора, T4-04) — только дескрипторы",
     "faceLock": "Her face is rendered in stylized 2D anime style: anime eyes ([color/state]), small nose, small mouth [state], [tone] skin.",
     "posShape": "POS = [тег-блок] → [проза] → [quality-теги] — PH-форма, проходит дословно",
-    "counters": "экспозиция = сигнал-тег + контр-NEG (N31-рецепт); рейтинг зарабатывается тегами, не прозой",
-    "abDiscipline": "A/B-дисциплина (§10-поправка): 2-3 пары R+-слотов на батч, пары по LEAD-зоне — заявка одна (тот же канал доставки), подача разная; вердикт приёмника атрибутирует канал (системно, а не случайно как P10)",
-    "salienceLaw": "закон салиенса (§9-секста): PRESENT ≠ VISIBLE ≠ LEGIBLE; цепочка OBJECT → EXPOSURE → CAMERA → CONTRAST → SALIENCE → INTERPRETATION — провал звена роняет тир; свет на зоне заявки, не в декорациях (мокрая тёмная ткань без света = пятно; светлое на светлом = слияние)",
-    "underlayerLock": "noun-lock (§10-поправка): сквозь-ткань заявка лочится на именованную тонкую светлую вещь; подслой лочится в NEG (bra/camisole/bandeau/undershirt) — тишина по подслою = дыра, рендерер дорисует его сам"
+    "counters": "экспозиция = сигнал-тег + контр-NEG (N31-рецепт); рейтинг зарабатывается тегами, не прозой"
   }
 }

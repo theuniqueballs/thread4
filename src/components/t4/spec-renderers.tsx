@@ -1342,6 +1342,103 @@ function ForgeView({ spec, filter }: { spec: unknown; filter: string }) {
 }
 
 /* ------------------------------------------------------------------ */
+/* delivery-stats (рекомендация Claude №2): каналы доставки рейтинга   */
+/* ------------------------------------------------------------------ */
+
+function statusChipTone(status: string): 'emerald' | 'rose' | 'amber' | 'zinc' {
+  if (status === 'live') return 'emerald'
+  if (status === 'dead') return 'rose'
+  if (status === 'artifact') return 'amber'
+  return 'zinc'
+}
+
+const STATUS_LABEL: Record<string, string> = {
+  live: 'живой',
+  dead: 'мёртвый',
+  artifact: 'артефакт',
+  special: 'особый',
+}
+
+function DeliveryStatsView({ spec, filter }: { spec: unknown; filter: string }) {
+  const rec = asRecord(spec)
+  const channels = asArray(rec.channels)
+    .map(asRecord)
+    .filter((c) => matches(c, filter))
+  const law = asStr(rec.law)
+  const chain = asStr(rec.chain)
+  const directive = asStr(rec.compiler_directive)
+
+  const groups: { status: string; label: string }[] = [
+    { status: 'live', label: 'Живые — вердиктом доказано' },
+    { status: 'dead', label: 'Мёртвые — вердиктом похоронены' },
+    { status: 'artifact', label: 'Артефакты' },
+    { status: 'special', label: 'Особые' },
+  ]
+
+  return (
+    <div className="space-y-5">
+      {law ? (
+        <div className="rounded-md border border-amber-500/30 bg-amber-500/5 p-3">
+          <p className="text-xs leading-relaxed text-amber-200/90">{law}</p>
+          {chain ? <p className="mt-1.5 font-mono text-[11px] text-zinc-400">{chain}</p> : null}
+        </div>
+      ) : null}
+
+      {groups.map((g) => {
+        const items = channels.filter((c) => asStr(c.status) === g.status)
+        if (items.length === 0) return null
+        return (
+          <div key={g.status} className="space-y-2">
+            <p className="text-[11px] uppercase tracking-wider text-zinc-500">
+              {g.label} · {items.length}
+            </p>
+            <div className="space-y-2">
+              {items.map((c, i) => {
+                const attempts = Number(c.attempts ?? 0)
+                const delivered = Number(c.delivered ?? 0)
+                const pct = attempts > 0 ? Math.round((delivered / attempts) * 100) : null
+                const status = asStr(c.status)
+                return (
+                  <div key={asStr(c.id) || i} className="rounded-md border border-zinc-800 bg-zinc-900/60 p-3">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="font-mono text-xs text-amber-200/90">{asStr(c.id)}</span>
+                      <Chip tone={statusChipTone(status)}>{STATUS_LABEL[status] ?? status}</Chip>
+                      {asStr(c.tier) && asStr(c.tier) !== 'any' ? <RatingBadge rating={asStr(c.tier)} /> : null}
+                      {attempts > 0 ? (
+                        <Chip tone={pct !== null && pct >= 50 ? 'emerald' : pct === 0 ? 'rose' : 'amber'}>
+                          {delivered}/{attempts}{pct !== null ? ` · ${pct}%` : ''}
+                        </Chip>
+                      ) : null}
+                    </div>
+                    <p className="mt-1.5 text-sm text-zinc-200">{asStr(c.name)}</p>
+                    {asStr(c.note) ? <p className="mt-1 text-xs leading-relaxed text-zinc-500">{asStr(c.note)}</p> : null}
+                    {asArray(c.evidence).length > 0 ? (
+                      <div className="mt-1.5 flex flex-wrap gap-1.5">
+                        {asArray(c.evidence).map((e, j) => (
+                          <Chip key={j}>{asStr(e)}</Chip>
+                        ))}
+                      </div>
+                    ) : null}
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )
+      })}
+
+      {directive ? (
+        <div className="rounded-md border border-zinc-800 bg-zinc-950/60 p-3">
+          <p className="text-[11px] uppercase tracking-wider text-zinc-500">Директива компилятору (§10-поправка)</p>
+          <p className="mt-1 text-xs leading-relaxed text-zinc-400">{directive}</p>
+        </div>
+      ) : null}
+      {channels.length === 0 ? <FilterEmpty filter={filter} /> : null}
+    </div>
+  )
+}
+
+/* ------------------------------------------------------------------ */
 /* Filter empty state + entry point                                    */
 /* ------------------------------------------------------------------ */
 
@@ -1367,6 +1464,8 @@ export function SpecView({ id, spec, filter }: { id: string; spec: unknown; filt
       return <RatingRecipesView spec={spec} filter={filter} />
     case 'rating-techniques':
       return <RatingTechniquesView spec={spec} filter={filter} />
+    case 'delivery-stats':
+      return <DeliveryStatsView spec={spec} filter={filter} />
     case 'races':
       return <RacesView spec={spec} filter={filter} />
     case 'pools':

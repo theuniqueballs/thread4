@@ -264,6 +264,33 @@ export interface RatingTechniquesSpec {
   }
 }
 
+/* -------------------------- delivery stats ------------------------- */
+
+/** Канал доставки рейтинга (delivery-stats.json, рекомендация Claude №2):
+ *  частота измерена глазом автора — PRESENT ≠ VISIBLE ≠ LEGIBLE. */
+export interface DeliveryChannel {
+  id: string
+  name: string
+  status: 'live' | 'dead' | 'artifact' | 'special' | string
+  tier: string
+  attempts?: number
+  delivered?: number
+  evidence?: string[]
+  note?: string
+}
+
+export interface DeliveryStatsSpec {
+  version: string
+  born: string
+  source: string
+  law: string
+  chain: string
+  channel_schema: Record<string, string>
+  channels: DeliveryChannel[]
+  compiler_directive: string
+  update_protocol: string
+}
+
 /* ------------------------------- bans ------------------------------ */
 
 export interface BansSpec {
@@ -321,6 +348,9 @@ export function getRatingRecipes(): RatingRecipesSpec | null {
 export function getRatingTechniques(): RatingTechniquesSpec | null {
   return load<RatingTechniquesSpec>('rating-techniques.json')
 }
+export function getDeliveryStats(): DeliveryStatsSpec | null {
+  return load<DeliveryStatsSpec>('delivery-stats.json')
+}
 export function getBans(): BansSpec | null {
   return load<BansSpec>('bans.json')
 }
@@ -352,6 +382,8 @@ export function specInventory(): { id: string; name: string; count: number; vers
   if (rr) out.push({ id: 'rating-recipes', name: 'Рейтинг-рецепты', count: Object.keys(rr.tiers).length, version: rr.version })
   const rt = getRatingTechniques()
   if (rt) out.push({ id: 'rating-techniques', name: 'Техника-карта рейтинга', count: rt.techniques.length, version: rt.version })
+  const ds = getDeliveryStats()
+  if (ds) out.push({ id: 'delivery-stats', name: 'Стата доставки рейтинга', count: ds.channels.length, version: ds.version })
   const b = getBans()
   if (b) out.push({ id: 'bans', name: 'Баны и форма', count: b.banned_patterns.length, version: b.version })
   const po = getPools()
