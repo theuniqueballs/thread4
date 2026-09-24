@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "born": "2026-09-19",
   "source": "3.2 OC_CANON.yaml (THREAD 3.0 format, canon v1.7.1)",
-  "canon_version": "1.7.3",
+  "canon_version": "1.8.0",
   "usage_policy": "Tarot / element / zodiac fields below are REGISTRY DATA for the author's own\nseries (Rider-Waite-style card prompts, zodiac prompts). They are NOT batch\nmaterial. Without the author's explicit per-request direction, NO card, sign,\nor ability symbolism may appear in any batch prompt — not in POS, not in NEG,\nnot in theses, palettes, or prompt naming. Batch prompts use the OC's\nAPPEARANCE and origin-continuity motifs only. Card/zodiac assignments stay\nhere so the author can look them up for HIS series.",
   "selection_rule": "────────────────────────────────────────────────────\nPer session: author selects 3 of the 16 active OCs by vibe/theme fit.\nNo forced rotation schedule — author's call each time.",
   "ocs": {
@@ -338,19 +338,21 @@
       "element": "GOLD (author-fixed) — the sovereign metal; wealth worn as skin",
       "zodiac": "Taurus — the Empress's earth; the body as dominion (assistant-assigned, pending author veto)",
       "birth": "promoted from batch T4-05 P14 'waltz-box-solo' (author order 2026-09-23, T4-05 verdict processing)",
-      "hair": "very long straight black hair with a cold blue-black sheen, worn loose and heavy to the hips",
-      "eyes": "obsidian-black eyes with vertical pupils — the dragon's ledger, depth without reflection",
-      "skin": "GOLD-LEAF SKIN — UNIQUE (author-fixed): no other OC and no batch girl may wear gold-leaf or metallic-gold skin; the Empress's exclusive mark",
+      "hair": "long golden-blonde hair with cyan-teal under-streaks, worn loose past the chest (render-locked 2026-09-25)",
+      "eyes": "large glossy obsidian-black eyes — the dragon ledger, depth without reflection; the pupil reads as one dark surface",
+      "skin": "fair warm ivory-gold skin; the gold-leaf reads as metallic sheen, not full-body paint",
       "body_type": "tall, full-figured, unhurried — the bearing of dominion",
       "signature_marks": [
-        "dragon-kin anatomy: ridged swept-back horns, small smooth scales as forearm-patches, wing-fragments at the shoulder-blades",
-        "gold-leaf skin with living seams at the joints — the metal remembers it was poured, not born",
-        "vertical obsidian pupils"
+        "teal-blue ridged swept-back horns, semi-crystal translucence",
+        "cyan translucent fin-fans at the head (fin-ears)",
+        "large translucent cyan-teal wings at the shoulder blades — iridescent, dragonfly-honest, NEVER vestigial or small",
+        "gold-teal metallic scale fields across shoulders, upper arms and hip-lines (UNIQUE to Ana — no other OC or batch girl wears the fields)",
+        "thick finned dragon tail, teal-gold, fin-edged"
       ],
       "wardrobe_policy": "NO canonical garment — the outfit follows the batch's PALETTE-HUE (PH): each batch dresses her once, in that palette's key fabric, per author order 2026-09-23 («наряд по PH»)",
-      "anti_shield": "pale skin, porcelain skin, brown skin, tan skin, round pupils, horizontal pupils, human eyes without vertical pupils, no horns, no scales, antler horns, branching horns, gold-leaf skin on any OTHER character (exclusive), fairy wings, butterfly wings, large wings, transparent wings, iridescent wings, full body scales, scales on chest, scales on neck, blonde hair, golden hair, yellow hair, tail, dragon tail, fin tail",
-      "neg_additions": "round pupils, horizontal pupils, pale skin, silver skin, bronze skin, no horns, fairy wings, butterfly wings, large wings, transparent wings, iridescent wings, full body scales, scales on chest, scales on neck, tail, dragon tail, fin tail, blonde hair, golden hair, yellow hair, brown hair, short hair",
-      "render_receipts": "2026-09-25 (T4-05 OC-slot re-render, author report 'пофикси мне Ana'): hair untagged → blonde default; 'wing-fragments' mutated into full fairy wings + head-fins; tail spawned (never canon); scales spread body-wide vs forearm-patches; 6-garment tag stack (T14 layer lottery). Fix: hair/skin tags EARLY in tag run, 'vestigial wings' as the danbooru-safe tag, anti_shield/neg_additions extended — v1.7.3.",
+      "anti_shield": "black hair, brown hair, short hair, dark skin, grey skin, green skin, no wings, missing wings, small wings, vestigial wings, no tail, small tail, antler horns, branching horns, round pupils, horizontal pupils, human eyes with visible iris, gold-teal scale fields on any OTHER character (exclusive)",
+      "neg_additions": "black hair, brown hair, short hair, dark skin, grey skin, green skin, no wings, small wings, vestigial wings, no tail, small tail, antler horns, branching horns",
+      "render_receipts": "2026-09-25: the author rendered the T4-05 OC slot and CANONIZED THE RESULT («мне понравилось именно то, что я в итоге увидел на картинке»). The blonde-default, fairy-wing mutation, tail spawn and spread scales are NO LONGER violations — they are the canon. v1.7.3 anti-drift REVERSED by author order; canon v1.8.0 = the render itself. Hair and scale tags still ride EARLY in the tag run.",
       "id": "ana",
       "active": true
     }
@@ -400,7 +402,8 @@
     "2026-09-05 v1.6.0 — SET 2 OC orders (author directive, evening): three more",
     "2026-09-08 v1.7.0 — AUTHOR CONFIRMATION (morning order, \"Кожу доу, в целом,",
     "2026-09-23 (T4-05 verdict processing): Ana canonized (III — The Empress, gold-leaf skin UNIQUE, outfit per PH — no canonical garment); Ash's veil rewritten ('всё кроме рта', eyes permission-gated). Canon v1.7.1 → v1.7.2.",
-    "2026-09-25 (T4-05 OC re-render receipt, author order «пофикси мне Ana»): Ana anti_shield/neg_additions extended — fairy/butterfly/large/transparent wings, full-body scales, tail family, blonde/golden hair defaults. Hair and gold-leaf skin must sit EARLY in the tag run (the old prompt carried them only in the face lock — the tail of the run renders weak). Canon v1.7.2 → v1.7.3."
+    "2026-09-25 (T4-05 OC re-render receipt, author order «пофикси мне Ana»): Ana anti_shield/neg_additions extended — fairy/butterfly/large/transparent wings, full-body scales, tail family, blonde/golden hair defaults. Hair and gold-leaf skin must sit EARLY in the tag run (the old prompt carried them only in the face lock — the tail of the run renders weak). Canon v1.7.2 → v1.7.3.",
+    "2026-09-25 (author order, chat): Ana v1.8.0 — CANON = THE RENDER. Blonde hair with cyan-teal streaks, large glossy obsidian eyes, teal crystal horns, head fin-fans, large translucent cyan wings, gold-teal scale fields (exclusive), finned tail. The v1.7.3 receipt-laws are reversed: those «violations» were the author intent. Hair/scale tags stay EARLY in the tag run."
   ],
   "note_on_status": "16 ACTIVE OCs (3 drawn per session by author vibe/theme fit, no forced rotation). Rae and Iya are INACTIVE RESERVE (added accidentally, never used, bios retained). SP-registry characters (Nicole, Puppet/Valentine, Ereshkigal/Tito_Lopes) live in download/SP_ORDERS.md, never in OC canon."
 }
