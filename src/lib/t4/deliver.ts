@@ -14,13 +14,41 @@ export interface DeliverResult {
   ok: boolean
   result: GatesResult
   title: string
+  alreadyDelivered?: boolean
 }
 
 export function deliverBatch(slug: string): DeliverResult | null {
   const text0 = readText(path.join(BATCHES_DIR, `${slug}.md`))
   if (text0 == null) return null
 
+  // охрана повторной сдачи (аудит N-10): второй batch.delivered двигал бы
+  // окно ротации и дублировал события — сданный батч не сдаётся дважды
+  const priorDelivery = readEvents().some(
+    (e) => e.type === 'batch.delivered' && e.data?.slug === slug
+  )
+  if (priorDelivery) {
+    const gates = runGates(slug, true)
+    const dryResult: GatesResult =
+      gates ??
+      {
+        slug,
+        runIndex: 0,
+        sha10: '',
+        receipts: [],
+        hardPass: true,
+        firstRunClean: false,
+        at: new Date().toISOString(),
+      }
+    return {
+      ok: false,
+      alreadyDelivered: true,
+      result: dryResult,
+      title: slug,
+    }
+  }
+
   const result = runGates(slug, false)
+  if (!result) return null // файл есть (text0 прочитан) — недостижимо, но честно для типов
   if (!result.hardPass) {
     return { ok: false, result, title: slug }
   }
@@ -75,7 +103,9 @@ export function deliverBatch(slug: string): DeliverResult | null {
         wl.push(`- Квитанция warn [${w.gate}]: ${w.findings.slice(0, 4).join(' · ')}`)
       }
     }
-    wl.push('- Вердикт T4-02 учтён: жанр в шапках, 24 слота, якоря геометрии у сложных пропов.')
+    // актуальный пакет законов на момент сдачи (шаблон больше не заморожен
+    // на вердикте T4-02 — аудит RC-5: одна истина, не застывший текст)
+    wl.push('- Законы в силе: 24 слота (3 OC + 21 мейн) · жанр в шапках · R+-рецепт v1.4.0 (hard-claim, bare-under позитивом, framing-тег, LOW/MID позы) · noun-lock + подслой-лок · salience-chain 9 звеньев · character-collision.')
     text = `${text.trimEnd()}\n\n${wl.join('\n')}\n`
     writeText(path.join(BATCHES_DIR, `${slug}.md`), text)
   }

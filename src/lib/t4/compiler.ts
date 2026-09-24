@@ -24,6 +24,7 @@ import {
 import {
   allCarrierIds,
   getCarriers,
+  getDeliveryStats,
   getEngines,
   getOCCanon,
   getPalettes,
@@ -122,6 +123,16 @@ export interface BatchContract {
     sheerFrameCapPct: number
   }
   windowSlugs: string[]
+  /** Стата доставки (внешний вердикт №3, Claude): живые/кандидатные/мёртвые
+   *  каналы контракта — экспозиция для автора, поведение не меняет (§10). */
+  channelStats: {
+    version: string
+    live: string[]
+    candidate: string[]
+    dead: string[]
+    /** каналы, ЗАЯВЛЕННЫЕ этим контрактом, но мёртвые по стате */
+    deadClaims: { zone: string; channel: string; evidence: string }[]
+  }
   laws: Record<string, string | number>
 }
 
@@ -582,6 +593,24 @@ export function compileBatch(theme: string, options: CompileOptions = {}): Batch
     ? Math.round((rplusSlots.filter((s) => sheerFrames.includes(s)).length / rplusSlots.length) * 100)
     : 0
 
+  /* стата доставки: экспозиция каналов (внешний вердикт №3, Claude 2026-09-24).
+     Поведение не меняет (§10: только вердикт автора меняет законы) — но
+     контракт обязан показывать, какие заявки статистика считает мёртвыми. */
+  const ds = getDeliveryStats()
+  const dsChannels = ds?.channels ?? []
+  const channelLive = dsChannels.filter((c) => c.status === 'live').map((c) => c.id)
+  const channelCandidate = dsChannels.filter((c) => c.status === 'candidate').map((c) => c.id)
+  const channelDead = dsChannels.filter((c) => c.status === 'dead').map((c) => c.id)
+  const deadClaims: { zone: string; channel: string; evidence: string }[] = []
+  if (dsChannels.some((c) => c.id === 'oc-rplus' && c.status === 'dead')) {
+    const oc = dsChannels.find((c) => c.id === 'oc-rplus')
+    deadClaims.push({
+      zone: 'P01-P03 OC R+',
+      channel: 'oc-rplus',
+      evidence: oc?.evidence?.join('; ') ?? '0/N по вердиктам',
+    })
+  }
+
   const contract: BatchContract = {
     slug,
     theme,
@@ -602,6 +631,13 @@ export function compileBatch(theme: string, options: CompileOptions = {}): Batch
       sheerFrameCapPct: LAWS.sheerFrameCapPct,
     },
     windowSlugs: state.windowSlugs,
+    channelStats: {
+      version: ds?.version ?? '—',
+      live: channelLive,
+      candidate: channelCandidate,
+      dead: channelDead,
+      deadClaims,
+    },
     laws: {
       core4: 'R+/X слоты: 4 носителя из 4 механо-групп (FABRIC/BODY/POSITION/PHYSICS), ≥4 классов',
       wCapPct: LAWS.wCapPct,
@@ -692,6 +728,14 @@ export function contractMarkdown(c: BatchContract): string {
   }
   lines.push(`**Расовый каст**: ${c.racialCount}/${LAWS.mainsTotal} мейнов — раса делает физическую работу в кадре (механизм, не костюм).`)
   lines.push('')
+  const cs = c.channelStats
+  if (cs && cs.version !== '—') {
+    lines.push(`**Каналы доставки (delivery-stats ${cs.version})**: live — ${cs.live.join(', ') || '—'}; candidate (n<3, доверия меньше) — ${cs.candidate.join(', ') || '—'}; dead — ${cs.dead.join(', ') || '—'}.`)
+    for (const dc of cs.deadClaims) {
+      lines.push(`  ⚠ dead-канал в контракте: ${dc.zone} (${dc.channel}) — ${dc.evidence}. Заявка законна по скелету 24 слотов, но статистика доставок её не подтверждает.`)
+    }
+    lines.push('')
+  }
   lines.push('**Диверсия назначена до письма** (ядро §3): носители, позы, палитры, K, LEAD-зоны, клоузеры, регистры зрелости, свидетели — всё разложено по слотам ниже. Писец пишет ПРОТИВ этого плана; гейты проверяют те же числа, что здесь напечатаны.')
   lines.push('')
   lines.push('## Слот-план (24: P01-P03 OC · P04-P24 мейны)')

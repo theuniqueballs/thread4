@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server'
 
-import { foldState, readEvents } from '@/lib/t4/events'
+import { foldState, nextBatchNumber, readEvents } from '@/lib/t4/events'
 import { specInventory } from '@/lib/t4/specs'
+import { GATES_TOTAL } from '@/lib/t4/gates'
 import { listFiles, BATCHES_DIR } from '@/lib/t4/fsutil'
 
 export const dynamic = 'force-dynamic'
@@ -16,15 +17,20 @@ export async function GET() {
   const palettes = inv.find((s) => s.id === 'palettes')
   const delivered = state.batches.filter((b) => b.deliveredAt)
   const last = delivered[delivered.length - 1]
+  // следующий номер — по максимальному НЕзакрытому слагу (T4-06 void не считается)
+  const nextNum = nextBatchNumber(state.batches, state.voidedSlugs)
+  const nextStep =
+    delivered.length === 0
+      ? `T4-${String(nextNum).padStart(2, '0')} — ждёт тему от автора`
+      : `T4-${String(nextNum).padStart(2, '0')} — следующий цикл`
 
   return NextResponse.json({
     era: 'THREAD 4',
     lastBatch: last ? `${last.slug}${last.title ? ` «${last.title}»` : ''}` : '— (эра только родилась)',
-    nextStep:
-      delivered.length === 0
-        ? 'T4-01 — ждёт тему от автора'
-        : `T4-${String(delivered.length + 1).padStart(2, '0')} — следующий цикл`,
-    gateHealth: 'hard / warn / advisory — 13 гейтов (закон 24 слотов)',
+    nextStep,
+    gateHealth: `hard / warn / advisory — ${GATES_TOTAL} гейтов (закон 24 слотов)`,
+    gatesTotal: GATES_TOTAL,
+    voidedSlugs: state.voidedSlugs,
     counts: {
       batches: delivered.length,
       events: events.length,

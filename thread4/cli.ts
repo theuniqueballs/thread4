@@ -121,6 +121,22 @@ async function main() {
     return
   }
 
+  if (cmd === 'void') {
+    const slug = process.argv[3]
+    const reason = process.argv[4] ?? 'решение автора'
+    if (!slug || !/^T4-\d{2}$/.test(slug)) {
+      console.error('usage: void T4-NN "причина"')
+      process.exit(1)
+    }
+    appendEvent(
+      'batch.void',
+      `${slug} закрыт по приказу автора: ${reason}. Контракт остаётся в архиве как провенанс; в нумерации и ротации не участвует.`,
+      { slug, reason }
+    )
+    console.log(`void: ${slug} закрыт (${reason})`)
+    return
+  }
+
   if (cmd === 'check' || cmd === 'gates' || cmd === 'deliver') {
     const slug = process.argv[3]
     if (!slug) {
@@ -135,7 +151,11 @@ async function main() {
       }
       printGates(delivered.result)
       if (!delivered.ok) {
-        console.error('\nHARD FAIL — батч не сдаётся. Чини против контракта, потом снова deliver.')
+        if (delivered.alreadyDelivered) {
+          console.error(`\n${slug} уже сдан — повторная сдача не производится (охрана окна ротации).`)
+        } else {
+          console.error('\nHARD FAIL — батч не сдаётся. Чини против контракта, потом снова deliver.')
+        }
         process.exit(1)
       }
       console.log(`\ndelivered: ${slug} «${delivered.title}» — гейты, мета, ворклог и batch.delivered записаны`)
@@ -180,17 +200,21 @@ async function main() {
     // статa доставки (рекомендация Claude №2, external.review 2026-09-23;
     // v0.2.0 — вердикт T4-05: 13 → 18 каналов)
     const dstats = inv.find((s) => s.id === 'delivery-stats')
-    check('стата доставки в инвентаре (18 каналов, v0.2.0)', dstats?.count === 18 && dstats?.version === '0.2.0')
+    check('стата доставки в инвентаре (18 каналов, v0.2.1: candidate-статусы)', dstats?.count === 18 && dstats?.version === '0.2.1')
     {
       const { getRatingRecipes, getRatingTechniques, getDeliveryStats } = await import('../src/lib/t4/specs')
       const rt = getRatingTechniques()
       const rr = getRatingRecipes()
       const ds = getDeliveryStats()
-      check('каналы доставки v0.2.0: wet-sheer+подача 5 доставлено, cameltoe 0/15, OC R+ 0/9, площадка-оракул 45/45',
+      check('каналы доставки v0.2.1: wet-sheer+подача 5 доставлено, cameltoe 0/15, OC R+ 0/9, площадка-оракул 45/45',
         ds?.channels.find((c) => c.id === 'wet-sheer-delivery')?.delivered === 5 &&
         ds?.channels.find((c) => c.id === 'cameltoe')?.delivered === 0 &&
         ds?.channels.find((c) => c.id === 'oc-rplus')?.delivered === 0 &&
         ds?.channels.find((c) => c.id === 'platform-tier-oracle')?.delivered === 45)
+      check('maturity law: n<3 каналы — candidate, не live (внешний вердикт №3)',
+        ['threadbare-sheer', 'named-underlayer-display', 'breast-environment-contact'].every(
+          (id) => ds?.channels.find((c) => c.id === id)?.status === 'candidate'
+        ) && ds?.channels.find((c) => c.id === 'wet-sheer-delivery')?.status === 'live')
       check('сумма факторов: R+ = 3+ сигнала через 2+ слоя',
         rt?.sum_rules.rplus_floor.signals_min === 3 && rt?.sum_rules.rplus_floor.layers_min === 2)
       check('X Cut hold: 5 новых терминов NEG в рецепте X',
@@ -234,16 +258,19 @@ async function main() {
     check('24 distinct palettes', new Set(c1.slots.map((s) => s.palette)).size === 24)
     const rplus = c1.slots.filter((s) => s.rating === 'R+' || s.rating === 'X')
     check('every R+/X slot has 4 carriers', rplus.every((s) => s.carriers.length >= 4))
-    const groupsOk = rplus.every((s) => {
-      const gs = new Set(
-        s.carriers.map((c) => {
-          const cls = c.cls
-          return cls === 'W' ? 'FABRIC' : 'ABCS'.includes(cls) ? 'BODY' : 'ELUF'.includes(cls) ? 'POSITION' : 'PHYSICS'
-        })
-      )
-      return gs.size >= 4
-    })
-    check('core-4 groups on every R+/X slot', groupsOk)
+    // карта класс→мех читается ИЗ СПЕКА (аудит RC-2: selftest не держит копию)
+    {
+      const { getCarriers } = await import('../src/lib/t4/specs')
+      const cs = getCarriers()
+      const mechOf = (cls: string) => cs?.class_defs?.[cls]?.mech ?? ''
+      const groupsOk = rplus.every((s) => {
+        const gs = new Set(s.carriers.map((c) => mechOf(c.cls)))
+        return gs.size >= 4
+      })
+      check('core-4 groups on every R+/X slot (мех из carriers.json)', groupsOk)
+      check('contract channelStats printed (dead-каналы видимы автору)',
+        (c1.channelStats?.dead ?? []).includes('oc-rplus') && c1.channelStats?.deadClaims?.length === 1)
+    }
     check('racial count 10 (на мейнах)', c1.slots.filter((s) => s.race).length === 10)
     check('races only on mains', c1.slots.slice(0, 3).every((s) => !s.race))
     // A/B-дисциплина (§10-поправка): 2-3 пары R+-слотов по LEAD-зоне
@@ -264,7 +291,8 @@ async function main() {
     check('contract markdown rendered', contractMarkdown(c1).length > 2000)
     check('carrier stats present', c1.carrierStats.wSharePct <= 45)
 
-    // parseBatch on a synthetic slot
+    // parseBatch on a synthetic slot (имена ОС в POS запрещены законом —
+    // пример сам соблюдает name law; аудит RC-2: selftest не учит неправильному)
     const synth = [
       '# THREAD 4 — Batch T4-99: "Test"',
       'P01 — test-anchor (OC · Rue · R+ · PL01 · P21_VOID_BLACK)',
@@ -272,7 +300,7 @@ async function main() {
       'Canon: Rue — dusty-rose crown braid, haunted ruby eyes',
       'Stack: CR-W01 + CR-B03 + CR-E05 + CR-D12',
       'POS:',
-      'anime style, ecchi anime style, 1girl, solo, Rue, dusty-rose hair, ruby eyes.',
+      'anime style, ecchi anime style, 1girl, solo, dusty-rose hair, ruby eyes.',
       'Her face is rendered in stylized 2D anime style: anime eyes (haunted ruby, level), small nose, small mouth set, ash-grey skin.',
       'The taut weave of her shirt across the chest. Masterpiece, best quality, anime artstyle.',
       'NEG:',

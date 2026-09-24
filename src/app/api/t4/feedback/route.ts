@@ -1,14 +1,20 @@
 /**
  * THREAD 4 — VLM render-feedback loop (constitution §12 cycle step 8).
- * The author said «если хочешь — можем попробовать» — trying.
- * Backend-only z-ai-web-dev-sdk. Upload a render → structured frame read
- * on the 3.2 §56C five axes → render.verdict event.
+ * Backend-only z-ai-web-dev-sdk.
+ *
+ * Два режима:
+ * - blind: true (панель «VLM первый проход» / «Куча») — слепой структурный
+ *   прогон по единому протоколу src/lib/t4/vlm.ts: карточка-факт, детекция
+ *   контент-фильтра (X-кадры неверифицирумы), БЕЗ записи в лог событий
+ *   (лог хранит только авторские вердикты — флаги уезжают через приёмник).
+ * - без blind — классический 5-осевой разбор (§56C) с записью render.verdict.
  */
 import { NextResponse } from 'next/server'
 
 import ZAI from 'z-ai-web-dev-sdk'
 
 import { appendEvent } from '@/lib/t4/events'
+import { BLIND_PROMPT, isProviderBlocked, parseBlindCard } from '@/lib/t4/vlm'
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 120
@@ -30,7 +36,7 @@ const PROMPT = `You are the render analyst of an anime-art prompt pipeline. Anal
 Judge only what is visible. Numbers are integers.`
 
 export async function POST(req: Request) {
-  let body: { imageBase64?: string; slug?: string; position?: string; mimeType?: string }
+  let body: { imageBase64?: string; slug?: string; position?: string; mimeType?: string; blind?: boolean }
   try {
     body = await req.json()
   } catch {
@@ -46,6 +52,29 @@ export async function POST(req: Request) {
 
   try {
     const zai = await ZAI.create()
+
+    /* ---- слепой режим: единый протокол, карточка, без лога ---- */
+    if (body.blind) {
+      const completion = await zai.chat.completions.createVision({
+        messages: [
+          {
+            role: 'user',
+            content: [
+              { type: 'text', text: BLIND_PROMPT },
+              { type: 'image_url', image_url: { url: `data:${mimeType};base64,${b64}` } },
+            ],
+          },
+        ],
+        thinking: { type: 'disabled' },
+      })
+      const raw = completion.choices[0]?.message?.content ?? ''
+      if (raw.trim() === '') {
+        return NextResponse.json({ ok: false, error: 'пустой ответ модели' }, { status: 502 })
+      }
+      return NextResponse.json({ ok: true, card: parseBlindCard(raw), raw })
+    }
+
+    /* ---- классический 5-осевой разбор (с записью события) ---- */
     const completion = await zai.chat.completions.createVision({
       messages: [
         {
@@ -85,9 +114,12 @@ export async function POST(req: Request) {
     )
     return NextResponse.json({ ok: true, analysis })
   } catch (e) {
-    return NextResponse.json(
-      { error: e instanceof Error ? e.message : 'VLM failed' },
-      { status: 500 }
-    )
+    const msg = e instanceof Error ? e.message : String(e)
+    // Контент-фильтр провайдера: кадр не принят НА ВХОДЕ → слот
+    // неверифицируем VLM-петлёй (X-кадры, T4-04: 12+ попыток, все 400/1301)
+    if (isProviderBlocked(msg)) {
+      return NextResponse.json({ ok: false, blocked: true, message: 'Контент-фильтр провайдера (400/1301)' })
+    }
+    return NextResponse.json({ error: msg.slice(0, 300) }, { status: 500 })
   }
 }

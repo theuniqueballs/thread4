@@ -26,6 +26,10 @@ export interface BatchVerdictSlotInput {
   vlmFlag?: string // ok | mutation | drift | skipped
   phText?: string
   note?: string
+  rolls?: number // число перекидок слота (roll-journal, ауди́т RC-4a)
+  settings?: string // CFG/sampler/веса — факторы блока 10 техники-карты
+  genreRead?: string // NICHE: жанр прочитан? (yes | no | '')
+  wow?: string // NICHE: вау? (yes | no | '')
 }
 
 function normPos(raw: unknown): string {
@@ -72,15 +76,25 @@ export async function POST(req: Request) {
   // заявки контракта — источник истины для ↑↓ (если слот не принёс свою)
   const contract = readJson<{
     theme?: string
-    slots?: { position: number; rating: string; pose?: string; poseName?: string; lead?: string; ab?: { pair: string; half: string } }[]
+    slots?: {
+      position: number
+      rating: string
+      pose?: string
+      poseName?: string
+      lead?: string
+      kind?: string
+      ab?: { pair: string; half: string; withSlot: number; lead: string }
+    }[]
   }>(path.join(CONTRACTS_DIR, `${slug}.json`))
-  const contractByPos = new Map<number, { rating: string; pose: string; poseName: string; lead: string }>()
+  const contractByPos = new Map<number, { rating: string; pose: string; poseName: string; lead: string; kind: string; ab?: { pair: string; half: string; withSlot: number; lead: string } }>()
   for (const s of contract?.slots ?? []) {
     contractByPos.set(s.position, {
       rating: s.rating,
       pose: s.pose ?? '',
       poseName: s.poseName ?? '',
       lead: s.lead ?? '',
+      kind: s.kind ?? '',
+      ab: s.ab,
     })
   }
 
@@ -100,6 +114,10 @@ export async function POST(req: Request) {
         vlmFlag: String(s.vlmFlag ?? '').trim(),
         phText: String(s.phText ?? '').trim().slice(0, 500),
         note: String(s.note ?? '').trim().slice(0, 500),
+        rolls: typeof s.rolls === 'number' && Number.isFinite(s.rolls) && s.rolls >= 0 ? Math.floor(s.rolls) : undefined,
+        settings: String(s.settings ?? '').trim().slice(0, 200) || undefined,
+        genreRead: ['yes', 'no'].includes(String(s.genreRead ?? '')) ? String(s.genreRead) : undefined,
+        wow: ['yes', 'no'].includes(String(s.wow ?? '')) ? String(s.wow) : undefined,
       }
     })
     .filter((s) => s.position !== '')
@@ -136,6 +154,29 @@ export async function POST(req: Request) {
       return acc
     }, {}),
   }
+  const rollsLogged = slots.filter((s) => typeof s.rolls === 'number')
+  const nicheRead = slots.filter((s) => s.genreRead || s.wow)
+
+  // A/B-атрибуция (§10-поправка, внешний вердикт №3): пара = один канал
+  // (LEAD-зона), подача разная. Таблица 2×2: полуслот × дельта доставки.
+  // До этого момента поле ab контракта читалось и выбрасывалось (аудит N-3).
+  const abAttribution = Object.values(
+    contractByPos.size > 0
+      ? slots.reduce<Record<string, { pair: string; lead: string; halves: Record<string, { position: string; myTier: string; claim: string; delta: number }> }>>((acc, s) => {
+          const n = parseInt(s.position.slice(1), 10)
+          const c = contractByPos.get(n)
+          if (!c?.ab) return acc
+          acc[c.ab.pair] ??= { pair: c.ab.pair, lead: c.ab.lead ?? c.lead, halves: {} }
+          acc[c.ab.pair].halves[c.ab.half] = {
+            position: s.position,
+            myTier: s.myTier,
+            claim: s.claim,
+            delta: tierDelta(s.myTier, s.claim),
+          }
+          return acc
+        }, {})
+      : {}
+  )
 
   const prose = String(body.prose ?? '').trim().slice(0, 2000)
   const theme = contract?.theme ?? ''
@@ -150,6 +191,13 @@ export async function POST(req: Request) {
     title: theme,
     slots,
     scoreboard,
+    abAttribution,
+    rollJournal: rollsLogged.length
+      ? rollsLogged.map((s) => ({ position: s.position, rolls: s.rolls, settings: s.settings }))
+      : undefined,
+    nicheReport: nicheRead.length
+      ? nicheRead.map((s) => ({ position: s.position, genreRead: s.genreRead, wow: s.wow }))
+      : undefined,
     prose,
   })
   return NextResponse.json({ ok: true, event: evt, scoreboard })

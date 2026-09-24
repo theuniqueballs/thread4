@@ -26,6 +26,7 @@ export const EVENT_TYPES = [
   'law.amended',
   'batch.compiled',
   'batch.delivered',
+  'batch.void',
   'gate.run',
   'fixpass.paid',
   'scribe.drafted',
@@ -34,6 +35,7 @@ export const EVENT_TYPES = [
   'experiment.logged',
   'oc.appeared',
   'external.review',
+  'debt.paid',
   'note',
 ] as const
 
@@ -92,6 +94,7 @@ export interface T4DerivedState {
   batches: BatchRecord[] // compiled batches in slug order
   windowSlugs: string[] // last 3 delivered (or fewer)
   ocAppearances: Record<string, number> // OC name -> times served
+  voidedSlugs: string[] // batch.void — закрытые по приказу автора
   openDebts: string[]
   lastEventAt: string | null
 }
@@ -100,6 +103,7 @@ export interface T4DerivedState {
 export function foldState(events: T4Event[]): T4DerivedState {
   const batches = new Map<string, BatchRecord>()
   const ocAppearances: Record<string, number> = {}
+  const voidedSlugs: string[] = []
   const openDebts: string[] = []
   let lastEventAt: string | null = null
 
@@ -126,12 +130,21 @@ export function foldState(events: T4Event[]): T4DerivedState {
         deliveredAt: e.at,
       })
     }
+    if (e.type === 'batch.void' && typeof d.slug === 'string') {
+      const slug = d.slug as string
+      if (!voidedSlugs.includes(slug)) voidedSlugs.push(slug)
+    }
     if (e.type === 'oc.appeared' && typeof d.name === 'string') {
       const name = d.name as string
       ocAppearances[name] = (ocAppearances[name] ?? 0) + 1
     }
     if (e.type === 'note' && typeof d.debt === 'string') {
       openDebts.push(d.debt as string)
+    }
+    // долг погашен: гасим первый долг, содержащий строку из data.debt
+    if (e.type === 'debt.paid' && typeof d.debt === 'string') {
+      const idx = openDebts.findIndex((x) => x.includes(d.debt as string))
+      if (idx >= 0) openDebts.splice(idx, 1)
     }
   }
 
@@ -144,15 +157,17 @@ export function foldState(events: T4Event[]): T4DerivedState {
     batches: [...batches.values()].sort((a, b) => a.slug.localeCompare(b.slug)),
     windowSlugs,
     ocAppearances,
+    voidedSlugs,
     openDebts,
     lastEventAt,
   }
 }
 
-/** Next batch number: T4-01 if none, else max+1. */
-export function nextBatchNumber(batches: BatchRecord[]): number {
+/** Next batch number: max+1 среди НЕ закрытых (void) слагов. */
+export function nextBatchNumber(batches: BatchRecord[], voidedSlugs: string[] = []): number {
   let max = 0
   for (const b of batches) {
+    if (voidedSlugs.includes(b.slug)) continue
     const m = /^T4-(\d+)$/.exec(b.slug)
     if (m) max = Math.max(max, parseInt(m[1], 10))
   }

@@ -34,6 +34,9 @@ export interface GatesResult {
   at: string
 }
 
+/** Всего гейтов в прогоне (state-панель читает отсюда — одна истина). */
+export const GATES_TOTAL = 19
+
 /* ------------------------------------------------------------------ */
 /* Batch file parsing                                                  */
 /* ------------------------------------------------------------------ */
@@ -1073,17 +1076,33 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
           .filter((x) => x.length > 40 && !isBoilerplate(x))
       )
     const mySentences = new Set(sentencesOf(batch))
+    // ВНУТРИ-батчевый сход (вердикт-диагноз 2026-09-24: T4-07 P01/P02 —
+    // дословные близнецы «the read of her nipples through the damp weave»
+    // в одном файле; cross-batch simcheck их не видит)
+    const mine = sentencesOf(batch)
+    const intra: string[] = []
+    for (let i = 0; i < mine.length; i++) {
+      for (let j = i + 1; j < mine.length; j++) {
+        const jj = jaccard(words(mine[i]), words(mine[j]))
+        if (jj > 0.75) {
+          intra.push(`P${batch.slots[i]?.position ?? '?'}≈P${batch.slots[j]?.position ?? '?'}: «${mine[i].slice(0, 60)}…» (J=${jj.toFixed(2)})`)
+        }
+      }
+    }
+    if (intra.length > 0) {
+      f.push(`внутри-батчевые близнецы: ${intra.slice(0, 4).join(' · ')}${intra.length > 4 ? ` — и ещё ${intra.length - 4}` : ''}`)
+    }
     // повторная сдача (v2): себя не сравниваем — своё окно исключено
     for (const w of state.windowSlugs.filter((x) => x !== batch.slug)) {
       const wText = readText(path.join(BATCHES_DIR, `${w}.md`))
       if (!wText) continue
       const wBatch = parseBatch(w, wText)
       const wSentences = sentencesOf(wBatch)
-      for (const mine of mySentences) {
+      for (const mineS of mySentences) {
         for (const theirs of wSentences) {
-          const j = jaccard(words(mine), words(theirs))
+          const j = jaccard(words(mineS), words(theirs))
           if (j > 0.7) {
-            f.push(`похоже на ${w}: «${mine.slice(0, 60)}…» (J=${j.toFixed(2)})`)
+            f.push(`похоже на ${w}: «${mineS.slice(0, 60)}…» (J=${j.toFixed(2)})`)
           }
         }
       }
