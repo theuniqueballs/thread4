@@ -523,7 +523,9 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
       }
     }
     for (const s of batch.slots.filter((x) => x.position <= 3)) {
-      const nameMatch = /\b(Sue|Miyu|Yui|Sol|Noa|Doe|Lua|Nix|Vae|Ash|Mab|Lyn|Rue|Zia|Rin|Una|Vera)\b/.exec(
+      // Ana канонизирована 2026-09-23 (oc-canon v1.7.2) — список имён гейта
+      // читает канон, а не историю своего застывания (аудит RC-5)
+      const nameMatch = /\b(Sue|Miyu|Yui|Sol|Noa|Doe|Lua|Nix|Vae|Ash|Mab|Lyn|Rue|Zia|Rin|Una|Ana|Vera)\b/.exec(
         s.header + ' ' + s.canon
       )
       if (!nameMatch) {
