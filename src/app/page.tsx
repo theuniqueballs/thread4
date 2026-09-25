@@ -1199,6 +1199,14 @@ function VlmFirstPassPanel() {
             )
             return
           }
+          // ключ жив, но на vision-модели (glm-4.5v) нет оплаченного баланса
+          if (/Insufficient balance|no resource package|"code":"1113"/i.test(msg)) {
+            setQueue((q) => q.map((x) => (x.id === item.id ? { ...x, status: 'error', error: 'нет баланса на vision-модели' } : x)))
+            setSetupHint(
+              'Ключ Z.ai жив, но vision-модель (glm-4.5v) не оплачена на твоём счёте: пополни баланс в консоли z.ai — и Куча оживёт сама, без моего ведома. Пока — грейдь кадры в чате со мной: кидай картинки, я возвращаю структурные карточки.'
+            )
+            return
+          }
           setQueue((q) =>
             q.map((x) => (x.id === item.id ? { ...x, status: 'error', error: msg } : x))
           )
