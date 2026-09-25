@@ -47,6 +47,10 @@ export async function GET() {
         return { ok: v.ok, events: v.events, storedLinks: v.storedLinks, head: v.head?.slice(0, 10) ?? null, problems: v.problems }
       })(),
       atomicWrites: true,
+      /* Issue #2 Кенни: доверенная граница чтения — объявлена, а не молчит.
+         dev-скрипт слушает 127.0.0.1 (package.json -H); если когда-нибудь
+         понадобится смотреть тред снаружи — появляется read-key, не тишина. */
+      readBoundary: 'loopback-only (dev -H 127.0.0.1; внешний доступ = read-key, не молчание)',
     },
   })
 }

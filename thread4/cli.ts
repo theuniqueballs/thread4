@@ -355,6 +355,12 @@ async function main() {
       let guardThrew = false
       try { appendEvent('note', 'wounded \uFFFD wound') } catch { guardThrew = true }
       check('guard рождения: U+FFFD в summary отвергается до записи', guardThrew)
+      let enumThrew = false
+      try { appendEvent('render.verdict', 'T4-99: test', { source: 'дичь' }) } catch { enumThrew = true }
+      check('guard рождения: render.verdict с source вне enum отвергается (Issue #1 Кенни)', enumThrew)
+      let noSrcThrew = false
+      try { appendEvent('render.verdict', 'T4-99: test') } catch { noSrcThrew = true }
+      check('guard рождения: render.verdict без source отвергается (Issue #1 Кенни)', noSrcThrew)
     }
 
     console.log(`\nselftest: ${ok} pass, ${fail} fail`)

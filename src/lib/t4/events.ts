@@ -53,12 +53,36 @@ function assertBornClean(summary: string): void {
   }
 }
 
+/** Источники вердиктов — enum вместо прозы (Issue #1 Кенни 2026-09-26):
+ *  12 событий, 7 написаний, приёмник видел 1/12 — рана идентичности
+ *  закрывается на рождении. 'author' — основной канал author-vision
+ *  (вердикт автора №4). Единственное место истины для всех потребителей. */
+export const VERDICT_SOURCES = [
+  'vlm',
+  'author',
+  'author-batch',
+  'author-verbatim',
+  'author-oc',
+] as const
+
+function assertBornSemantics(type: string, data?: Record<string, unknown>): void {
+  if (type === 'render.verdict') {
+    const src = data?.source
+    if (typeof src !== 'string' || !(VERDICT_SOURCES as readonly string[]).includes(src)) {
+      throw new Error(
+        `event born wounded: render.verdict требует data.source из enum [${VERDICT_SOURCES.join(', ')}] — проза-идентичность и пустота запрещены (Issue #1 Кенни)`
+      )
+    }
+  }
+}
+
 export function appendEvent(
   type: string,
   summary: string,
   data?: Record<string, unknown>
 ): T4Event {
   assertBornClean(summary)
+  assertBornSemantics(type, data)
   ensureDirs()
   const evt: T4Event = {
     id: crypto.randomUUID().slice(0, 8),
