@@ -37,6 +37,8 @@ export const EVENT_TYPES = [
   'external.review',
   'debt.paid',
   'author.pinned',
+  'channel.retired',
+  'scribe.objection',
   'note',
 ] as const
 

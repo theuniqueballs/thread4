@@ -26,6 +26,7 @@ import {
   getCarriers,
   getDeliveryStats,
   getEngines,
+  getFacts,
   getOCCanon,
   getPalettes,
   getPolicy,
@@ -103,6 +104,8 @@ export interface SlotPlan {
   ab?: { pair: string; half: 'A' | 'B'; withSlot: number; lead: string }
   /** author_pin (Залп 2): назначение вопреки статистике — помечено прицелом */
   pinned?: string[]
+  /** rehab-добор (Залп 3): канал доставки, который этот слот пытается оживить */
+  targetChannel?: string
 }
 
 export interface BatchContract {
@@ -138,6 +141,8 @@ export interface BatchContract {
     /** каналы, ЗАЯВЛЕННЫЕ этим контрактом, но мёртвые по стате */
     deadClaims: { zone: string; channel: string; evidence: string }[]
   }
+  /** Факты мира (Залп 3): платформа/экономика/доказанное — планируем с потерями */
+  platform?: Record<string, unknown>
   laws: Record<string, string | number>
 }
 
@@ -542,6 +547,27 @@ export function compileBatch(theme: string, options: CompileOptions = {}): Batch
   const spreadMap: Record<string, number> = {}
   for (const s of slots) spreadMap[s.rating] = (spreadMap[s.rating] ?? 0) + 1
 
+  /* Залп 3 «Мир» (policy.channels.rehab): добор каналов по вердикту автора
+     («надо добрать, чтобы было сильно разнообразней») — R+ мейны получают
+     targetChannel ротацией по rehab-списку; с abandons и verdicts статистика
+     набирает n до порога. Реабилитация dead-каналов вне списка — только pin. */
+  {
+    const chPolicy = getPolicy().channels as {
+      rehab_channels?: string[]
+      rehab_quota_per_batch?: number
+    }
+    const rehab = chPolicy.rehab_channels ?? []
+    const quota = Math.min(chPolicy.rehab_quota_per_batch ?? 0, rehab.length || 1)
+    if (rehab.length > 0 && quota > 0) {
+      slots
+        .filter((s) => s.kind !== 'OC' && s.rating === 'R+')
+        .slice(0, quota)
+        .forEach((s, i) => {
+          s.targetChannel = rehab[i % rehab.length]
+        })
+    }
+  }
+
   /* A/B-дисциплина (§10-поправка, рекомендация Claude №3): 2-3 пары R+-
      слотов на батч — СИСТЕМНО, а не случайно как P10. Пара = одна
      LEAD-зона (один канал доставки: зона заявки одна и та же), подача
@@ -658,6 +684,12 @@ export function compileBatch(theme: string, options: CompileOptions = {}): Batch
       dead: channelDead,
       deadClaims,
     },
+    platform: ((): Record<string, unknown> | undefined => {
+      const f = getFacts()
+      return f
+        ? { platform: f.platform, economics: f.economics, proven: f.proven_facts, ph_behavior: f.ph_behavior }
+        : undefined
+    })(),
     laws: {
       core4: 'R+/X слоты: 4 носителя из 4 механо-групп (FABRIC/BODY/POSITION/PHYSICS), ≥4 классов',
       wCapPct: LAWS.wCapPct,
@@ -738,7 +770,39 @@ export function contractMarkdown(c: BatchContract): string {
   lines.push('')
   lines.push(c.engineWhy)
   lines.push('')
-  lines.push(`**Спред рейтингов (мейны P04-P24)**: ${mainsSpreadText(c)} + 3 OC R+ = ${c.slots.length} промпта — NICHE-слоты зарабатывают R эротической позой (честный тег), VOLT несёт R+ по рецептуре (сигнал-теги + контр-NEG), X — 2 слота (Yadayo душит алгоритмически, это art-for-art).`)
+
+  /* Залп 3 «Мир»: платформа как элемент модели — планируем с потерями */
+  if (c.platform) {
+    const pf = c.platform as {
+      platform?: { gallery?: string; renderer?: string; content_filter?: { codes?: string[] } }
+      proven?: { id: string; fact: string; n?: number }[]
+    }
+    const p = pf.platform ?? {}
+    const cf = p.content_filter ?? {}
+    const stoch = (pf.proven ?? []).find((f) => f.id === 'stochastic-reroll')
+    lines.push(
+      `**Мир**: ${p.gallery ?? '—'} ← ${p.renderer ?? '—'} · фильтр [${(cf.codes ?? []).join(', ')}] душит X (проверка судьбы) · стохастика рероллов n=${stoch?.n ?? '—'} — планируем с потерями (specs/facts.json)`
+    )
+    lines.push('')
+  }
+
+  /* Залп 3: rehab-добор каналов — вердикт приёмника кормит статистику */
+  const rehabTargets = c.slots.filter((s) => s.targetChannel)
+  if (rehabTargets.length > 0) {
+    lines.push(
+      `**REHAB-добор** (policy.channels.rehab): ${rehabTargets
+        .map((s) => `P${String(s.position).padStart(2, '0')} → ${s.targetChannel}`)
+        .join(', ')} — слоты пытаются оживить каналы, добор до n=15.`
+    )
+    lines.push('')
+  }
+  /* спред OC-слотов из контракта (дауншифт делает их R — строка честная) */
+  const ocSpread = (() => {
+    const m: Record<string, number> = {}
+    for (const s of c.slots.filter((x) => x.kind === 'OC')) m[s.rating] = (m[s.rating] ?? 0) + 1
+    return Object.entries(m).map(([r, n]) => `${r}×${n}`).join(' + ') || '—'
+  })()
+  lines.push(`**Спред рейтингов (мейны P04-P24)**: ${mainsSpreadText(c)} + OC ${ocSpread} = ${c.slots.length} промпта — NICHE-слоты зарабатывают R эротической позой (честный тег), VOLT несёт R+ по рецептуре (сигнал-теги + контр-NEG), X — 2 слота (Yadayo душит алгоритмически, это art-for-art).`)
   lines.push('')
   lines.push(`**Жанры — как читать план** (вердикт T4-02: ниша/волт должны быть видны): **OC** — канон-локи персонажа, его тема в слоте; **NICHE** — невозможный образ: раса/природа делает ФИЗИЧЕСКУЮ работу в кадре (механизм, не костюм), свидетель держит кадр, невозможное — первое считывание силуэта; **VOLT** — плоть: камера-участник, тело в движении, взгляд-вектор, экспозиция тегом; **EXQUISITE** — ультра своего жанра. Жанр пишется в шапку КАЖДОГО промпта — это структурный идентификатор, гейтится.`)
   lines.push('')

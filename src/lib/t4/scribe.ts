@@ -24,6 +24,7 @@ import { type BatchContract, type SlotPlan } from './compiler'
 import {
   getBans,
   getCarriers,
+  getGoldenCorpus,
   getOCCanon,
   getPalettes,
   getPoses,
@@ -132,7 +133,7 @@ NEG-EXTRA line: comma-separated EXTRA negative terms ONLY — canon anti-drift (
 
 GOLD STANDARD — a delivered, author-praised slot (the voice we write in):
 ${GOLD_EXAMPLE}
-
+___GOLD_CORPUS___
 OUTPUT FORMAT — for EACH slot, EXACTLY:
 ### P05
 ANCHOR: three-word-hyphenated-anchor
@@ -145,6 +146,33 @@ No commentary, no markdown fences, no numbering of your own. Every slot of the c
 /* ------------------------------------------------------------------ */
 /* Helpers                                                             */
 /* ------------------------------------------------------------------ */
+
+/* Залп 3 «Ученик»: golden corpus — few-shot из реальных PH-квитанций T4-04.
+   Писец учится на отрендеренной реальности (что PH отправил → что увидел
+   автор), а не на самооценке; берём один точный R+-попадок и один промах —
+   и голос, и границу доставки. */
+function goldenCorpusBlock(): string {
+  const corpus = getGoldenCorpus()
+  if (!corpus || corpus.entries.length === 0) return ''
+  const exactRplus = corpus.entries.filter((e) => e.claim === e.delivered && e.delivered === 'R+')[0]
+  const miss = corpus.entries.filter((e) => e.claim !== e.delivered)[0]
+  const picks = [exactRplus, miss].filter(Boolean)
+  if (picks.length === 0) return ''
+  return (
+    '\nREAL RENDER RECEIPTS — golden corpus (what PH actually sent, what the author SAW; learn the voice and the delivery logic, never the content):\n' +
+    picks
+      .map(
+        (e) =>
+          `[${e.slot}] claim ${e.claim} → DELIVERED ${e.delivered}. Author's eye: ${e.author_note}\nPH TEXT (verbatim): ${e.ph_text}`
+      )
+      .join('\n---\n') +
+    '\n'
+  )
+}
+
+function systemPrompt(): string {
+  return SYSTEM_PROMPT.replace('___GOLD_CORPUS___', goldenCorpusBlock())
+}
 
 function recipeKeyOf(tier: string): string {
   if (tier === 'PG-13') return 'PG13'
@@ -427,6 +455,7 @@ function assembleBatch(
       ]
       if (slot.witness) spineParts.push(`witness: ${slot.witness}`)
       if (slot.ocTheme && slot.kind === 'OC') spineParts.push(`OC theme: ${slot.ocTheme}`)
+      if (slot.targetChannel) spineParts.push(`REHAB target channel: ${slot.targetChannel} (добор по вердикту автора — сделай заявку этого канала_delivery главным сигналом кадра)`)
       L.push(`Spine: ${spineParts.join(' · ')}`)
       L.push(`Stack: ${slot.carriers.map((x) => x.id).join(' + ')}`)
       L.push('POS:')
@@ -454,7 +483,9 @@ async function chat(zai: ZAiChat, system: string, user: string, log: string[], r
     try {
       const completion = await zai.chat.completions.create({
         messages: [
-          { role: 'assistant', content: system },
+          /* Залп 3: system — системной ролью (аудит v1 🟡); при капризах
+             upstream первый ретрай откатывается на assistant-совместимость */
+          { role: attempt === 0 ? 'system' : 'assistant', content: system },
           { role: 'user', content: user },
         ],
         thinking: { type: 'disabled' },
@@ -532,6 +563,16 @@ export async function scribeBatch(
   if (allDelivered.includes(slug)) {
     throw new Error(`${slug} уже сдан — черновик не перезаписывает сданный батч`)
   }
+  /* scribe.objection (Залп 3 «Ученик»): право писца возразить контракту
+     официально — заявка мёртвых каналов без прицела автора = печать сомнения */
+  const deadClaims = contract.channelStats?.deadClaims ?? []
+  if (deadClaims.length > 0 && !contract.authorPin?.length) {
+    appendEvent(
+      'scribe.objection',
+      `${slug}: писец возражает — контракт заявляет мёртвые каналы [${deadClaims.map((c) => c.channel).join(', ')}] без author_pin; исполняю приказ, но печать сомнения стоит`,
+      { slug, channels: deadClaims.map((c) => c.channel) }
+    )
+  }
   const carriersSpec = getCarriers()
   const posesSpec = getPoses()
   const palettesSpec = getPalettes()
@@ -575,7 +616,7 @@ export async function scribeBatch(
   say('Шаг 1/4: закон батча, название, три акта…')
   const spineRaw = await chat(
     zai,
-    SYSTEM_PROMPT,
+    systemPrompt(),
     `BATCH ${slug} «${theme}». ENGINE LAW: ${engine}\n\nPlan the batch spine. The theme rides the engine's axis and stays there. Return EXACTLY, nothing else:\nTITLE: <2-5 words, no quotes inside>\nTHESIS: <one paragraph, 90-140 words: the batch's ONE law, physical and testable in-frame, how it is delivered across the 24 frames, and how the three acts escalate it — no narrated morality, the law lives in fabric and silhouette>\nACT I: <act name, 2-5 words>\nACT II: <act name>\nACT III: <act name>`,
     log
   )
@@ -602,14 +643,14 @@ export async function scribeBatch(
     const positions = chunk.map((s) => `P${String(s.position).padStart(2, '0')}`).join(', ')
     say(`Шаг 2/4: пишу слоты ${positions} (чанк ${ci + 1}/${chunks.length})…`)
     const user = `${batchLawBlock}\n\nSLOTS (write ALL of them, in order):\n\n${chunk.map((s) => slotFrame(s, ctx)).join('\n\n')}`
-    const raw = await chat(zai, SYSTEM_PROMPT, user, log)
+    const raw = await chat(zai, systemPrompt(), user, log)
     const parsed = parseSlots(raw)
     let missing = chunk.filter((s) => !parsed.has(s.position) || !(parsed.get(s.position)?.pos ?? '').trim())
     if (missing.length > 0) {
       say(`  · чанк ${ci + 1}: пропущены ${missing.map((s) => s.position).join(', ')} — повтор`)
       const retry = await chat(
         zai,
-        SYSTEM_PROMPT,
+        systemPrompt(),
         `${user}\n\nREMINDER: output EVERY slot above in the exact format. Do not skip any.`,
         log
       )
@@ -666,7 +707,7 @@ export async function scribeBatch(
     const repairSlots = contract.slots.filter((s) => failed.has(s.position))
     say(`  · ремонт слотов: ${[...failed].sort((a, b) => a - b).join(', ')}`)
     const repairUser = `${batchLawBlock}\n\nREWRITE THESE SLOTS — they failed the machine gates. Keep what worked, fix what is flagged. Same exact format.\n\n${repairSlots.map((s) => slotFrame(s, ctx)).join('\n\n')}\n\nGATE FAILURES TO FIX:\n${hardFails.flatMap((r) => r.findings.map((f) => `- [${r.gate}] ${f}`)).slice(0, 24).join('\n')}`
-    const raw = await chat(zai, SYSTEM_PROMPT, repairUser, log)
+    const raw = await chat(zai, systemPrompt(), repairUser, log)
     for (const [n, o] of parseSlots(raw)) {
       if (o.pos.trim()) outputs.set(n, o)
     }

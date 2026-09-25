@@ -261,13 +261,13 @@ async function main() {
     // статa доставки (рекомендация Claude №2, external.review 2026-09-23;
     // v0.2.0 — вердикт T4-05: 13 → 18 каналов)
     const dstats = inv.find((s) => s.id === 'delivery-stats')
-    check('стата доставки в инвентаре (18 каналов, v0.2.1: candidate-статусы)', dstats?.count === 18 && dstats?.version === '0.2.1')
+    check('стата доставки в инвентаре (18 каналов, v0.3.0: rehab-добор по вердикту автора)', dstats?.count === 18 && dstats?.version === '0.3.0')
     {
       const { getRatingRecipes, getRatingTechniques, getDeliveryStats } = await import('../src/lib/t4/specs')
       const rt = getRatingTechniques()
       const rr = getRatingRecipes()
       const ds = getDeliveryStats()
-      check('каналы доставки v0.2.1: wet-sheer+подача 5 доставлено, cameltoe 0/15, OC R+ 0/9, площадка-оракул 45/45',
+      check('каналы доставки v0.3.0: wet-sheer+подача 5 доставлено, cameltoe 0/15, OC R+ 0/9 (retired), площадка-оракул 45/45',
         ds?.channels.find((c) => c.id === 'wet-sheer-delivery')?.delivered === 5 &&
         ds?.channels.find((c) => c.id === 'cameltoe')?.delivered === 0 &&
         ds?.channels.find((c) => c.id === 'oc-rplus')?.delivered === 0 &&
@@ -429,6 +429,23 @@ async function main() {
       check(
         'grep-gate: src/lib/t4 не помнит чисел треда (П-2)',
         scanSource(path.join(process.cwd(), 'src', 'lib', 't4')).length === 0
+      )
+    }
+
+    // Залп 3 «Ученик и мир»: rehab-добор, факты мира, golden corpus
+    {
+      const { getFacts, getGoldenCorpus } = await import('../src/lib/t4/specs')
+      const facts = getFacts()
+      check('facts.json: платформа как элемент модели (П-7)', Boolean(facts?.platform && Array.isArray(facts.proven_facts) && facts.proven_facts.length >= 3))
+      const corpus = getGoldenCorpus()
+      check('golden corpus: T4-04 запечатан (>=20 записей PH-текстов с вердиктами)', (corpus?.entries.length ?? 0) >= 20)
+      const chPolicy = getPolicy().channels as { rehab_channels?: string[]; rehab_quota_per_batch?: number }
+      const rehab = chPolicy.rehab_channels ?? []
+      const targets = c1.slots.filter((s) => s.targetChannel)
+      check(
+        `rehab-добор: ${chPolicy.rehab_quota_per_batch} R+ слота несут targetChannel из policy`,
+        targets.length === (chPolicy.rehab_quota_per_batch ?? 0) &&
+          targets.every((s) => rehab.includes(String(s.targetChannel)))
       )
     }
 

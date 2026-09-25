@@ -409,6 +409,41 @@ export function getPools(): PoolsSpec | null {
   return load<PoolsSpec>('pools.json')
 }
 
+export interface FactsSpec {
+  id: string
+  version: string
+  platform: Record<string, unknown>
+  economics: Record<string, unknown>
+  proven_facts: { id: string; fact: string; n?: number }[]
+  ph_behavior: string[]
+}
+
+/** Факты мира (Залп 3 «Мир»): платформа/экономика/доказанное — элемент модели. */
+export function getFacts(): FactsSpec | null {
+  return load<FactsSpec>('facts.json')
+}
+
+export interface GoldenCorpusEntry {
+  slot: string
+  claim: string
+  delivered: string
+  author_note: string
+  ph_text: string
+}
+
+export interface GoldenCorpusSpec {
+  id: string
+  version: string
+  source_batch: string
+  entries: GoldenCorpusEntry[]
+}
+
+/** Golden corpus (Залп 3 «Ученик»): пары «что PH реально отправил → что увидел
+ *  автор» — писец учится на отрендеренной реальности, а не на самооценке. */
+export function getGoldenCorpus(): GoldenCorpusSpec | null {
+  return load<GoldenCorpusSpec>('golden-corpus.json')
+}
+
 export function allCarrierIds(spec: CarrierSpec): Carrier[] {
   return Object.values(spec.classes).flat()
 }

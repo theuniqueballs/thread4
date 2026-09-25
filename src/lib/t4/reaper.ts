@@ -45,7 +45,14 @@ export function buildReaperDraft(): ReaperDraft {
 
   /* --- каналы доставки: правила смерти/жизни vs данные --- */
   const ds = getDeliveryStats()
+  /* каналы, отставленные вердиктом автора (channel.retired), жнец не трогает */
+  const retiredChannels = new Set(
+    events
+      .filter((e) => e.type === 'channel.retired')
+      .map((e) => String(e.data?.channel ?? ''))
+  )
   for (const c of ds?.channels ?? []) {
+    if (retiredChannels.has(c.id)) continue
     const n = Number(c.attempts ?? 0)
     const ok = Number(c.delivered ?? 0)
     if (c.status === 'dead' && !(n >= 15 && ok === 0)) {

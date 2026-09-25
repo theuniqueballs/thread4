@@ -1,7 +1,7 @@
 {
   "id": "policy",
   "name": "Политика треда — единственное место решений-настроек",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "born": "2026-09-26",
   "born_from": "Залп 2 «Рефлекс» чертежа T4.2 (принцип П-2: код не знает чисел треда). Ранее закон жил константой LAWS в compiler.ts — теперь компилятор, гейты и selftest читают отсюда.",
   "law": {
@@ -25,7 +25,12 @@
     "leadMax": 3,
     "closerCapPct": 40,
     "registerCapPct": 50,
-    "signalMin": { "PG-13": 2, "R": 1, "R+": 2, "X": 2 },
+    "signalMin": {
+      "PG-13": 2,
+      "R": 1,
+      "R+": 2,
+      "X": 2
+    },
     "abPairsMin": 2,
     "abPairsMax": 3
   },
@@ -33,7 +38,16 @@
     "dead_not_assigned": true,
     "oc_rplus_downshift_when_dead": "если канал oc-rplus dead (0/9) и не пиннут автором — OC-слоты получают R вместо R+: бюджет 3 R+ больше не хоронится заранее (аудит I-2)",
     "candidate_quota_per_batch": 2,
-    "rehab_only_by_author_pin": true
+    "rehab_only_by_author_pin": "реабилитация dead-каналов вне rehab-списка — только author_pin",
+    "rehab_channels": [
+      "wet-sheer-flat",
+      "underlayer",
+      "static-cling",
+      "tape-only",
+      "dry-sheer"
+    ],
+    "rehab_quota_per_batch": 2,
+    "rehab_note": "добор до n=15 по вердикту автора 2026-09-26 («надо добрать, чтобы было сильно разнообразней»); компилятор вешает targetChannel на R+ мейны"
   },
   "engines": {
     "rotation_by": "debut",
@@ -53,7 +67,10 @@
   },
   "author_pin": {
     "allowed": true,
-    "format": ["oc-rplus", "engine:<key>"],
+    "format": [
+      "oc-rplus",
+      "engine:<key>"
+    ],
     "stats_flag": "pinned",
     "event": "author.pinned",
     "note": "прицельный выстрел вопреки статистике; назначения помечаются событием author.pinned и не смешиваются с естественной статой (защита рефлекса от прицела)"
