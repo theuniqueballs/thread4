@@ -1074,6 +1074,7 @@ function VlmFirstPassPanel() {
   const [journal, setJournal] = useState<JournalEntry[]>([])
   const [summaryNote, setSummaryNote] = useState<string | null>(null)
   const [dragOver, setDragOver] = useState(false)
+  const [setupHint, setSetupHint] = useState<string | null>(null)
   const runIdRef = useRef(0)
   const batches = useApi<{ items: { slug: string; title: string }[] }>('/api/t4/batches')
   const contract = useApi<ContractPayload>(slug ? `/api/t4/contracts/${slug}` : null)
@@ -1184,9 +1185,18 @@ function VlmFirstPassPanel() {
         )
       } catch (e) {
         if (runIdRef.current !== myRun) return
+        const msg = e instanceof Error ? e.message : 'VLM не ответил'
         setQueue((q) =>
-          q.map((x) => (x.id === item.id ? { ...x, status: 'error', error: e instanceof Error ? e.message : 'VLM не ответил' } : x))
+          q.map((x) => (x.id === item.id ? { ...x, status: 'error', error: msg } : x))
         )
+        // конфиг VLM отсутствует на машине — гасим всю очередь сразу,
+        // а не жжём по ошибке на каждый кадр (локальный запуск без Z.ai-конфига)
+        if (/Configuration file not found|z-ai-config/i.test(msg)) {
+          setSetupHint(
+            'VLM не поднят на этой машине: нет файла .z-ai-config (ключ Z.ai). Куча, авто-писец и VLM-прогоны оживут, как только ключ появится — всё остальное (гейты, приёмник, сдача) работает без него.'
+          )
+          return
+        }
       }
     }
     setRunning(false)
@@ -1310,6 +1320,12 @@ function VlmFirstPassPanel() {
           </select>
         </div>
 
+        {setupHint ? (
+          <div className="rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2.5 text-xs leading-relaxed text-amber-200">
+            {setupHint}
+          </div>
+        ) : null}
+
         {error ? (
           <div className="rounded-md border border-rose-500/40 bg-rose-500/10 px-3 py-2 text-xs text-rose-200">
             {error}
@@ -1321,7 +1337,7 @@ function VlmFirstPassPanel() {
             <div className="flex flex-wrap items-center gap-2">
               <Button
                 onClick={runQueue}
-                disabled={running || queue.every((q) => q.status !== 'pending' && q.status !== 'error')}
+                disabled={running || Boolean(setupHint) || queue.every((q) => q.status !== 'pending' && q.status !== 'error')}
                 className="bg-amber-500 text-zinc-950 hover:bg-amber-400 disabled:opacity-40"
               >
                 {running
