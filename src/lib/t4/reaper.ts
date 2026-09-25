@@ -46,7 +46,7 @@ export function buildReaperDraft(): ReaperDraft {
   /* --- каналы доставки: правила смерти/жизни vs данные --- */
   const ds = getDeliveryStats()
   for (const c of ds?.channels ?? []) {
-    const n = Number(c.claimed ?? 0)
+    const n = Number(c.attempts ?? 0)
     const ok = Number(c.delivered ?? 0)
     if (c.status === 'dead' && !(n >= 15 && ok === 0)) {
       items.push({
