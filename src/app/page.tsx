@@ -1153,53 +1153,60 @@ function VlmFirstPassPanel() {
     setRunning(true)
     setError(null)
     setFlagNote(null)
-    const pending = queue.filter((q) => q.status === 'pending' || q.status === 'error')
-    for (const item of pending) {
-      if (runIdRef.current !== myRun) return
-      setQueue((q) => q.map((x) => (x.id === item.id ? { ...x, status: 'running', error: undefined } : x)))
-      try {
-        const res = await postJson<{ ok: boolean; blocked?: boolean; message?: string; error?: string; card?: BlindCard }>(
-          '/api/t4/feedback',
-          { imageBase64: item.dataUrl, mimeType: 'image/jpeg', slug: slug.trim(), position: item.position, blind: true }
-        )
+    try {
+      const pending = queue.filter((q) => q.status === 'pending' || q.status === 'error')
+      for (const item of pending) {
         if (runIdRef.current !== myRun) return
-        if (res.blocked) {
-          // X-кадр: фильтр провайдера — слот неверифицируем машиной (мета-закон)
+        setQueue((q) => q.map((x) => (x.id === item.id ? { ...x, status: 'running', error: undefined } : x)))
+        try {
+          const res = await postJson<{ ok: boolean; blocked?: boolean; message?: string; error?: string; card?: BlindCard }>(
+            '/api/t4/feedback',
+            { imageBase64: item.dataUrl, mimeType: 'image/jpeg', slug: slug.trim(), position: item.position, blind: true }
+          )
+          if (runIdRef.current !== myRun) return
+          if (res.blocked) {
+            // X-кадр: фильтр провайдера — слот неверифицируем машиной (мета-закон)
+            setQueue((q) =>
+              q.map((x) => (x.id === item.id ? { ...x, status: 'blocked', flag: x.flag || 'skipped', autoFlagged: true, error: res.message } : x))
+            )
+            continue
+          }
+          const card = res.card
+          if (!card) {
+            setQueue((q) => q.map((x) => (x.id === item.id ? { ...x, status: 'error', error: res.error ?? 'пустая карточка' } : x)))
+            continue
+          }
+          const claim = slots.find((s) => `P${String(s.position).padStart(2, '0')}` === item.position)?.rating ?? ''
           setQueue((q) =>
-            q.map((x) => (x.id === item.id ? { ...x, status: 'blocked', flag: x.flag || 'skipped', autoFlagged: true, error: res.message } : x))
+            q.map((x) => {
+              if (x.id !== item.id) return x
+              const flag = x.flag || autoFlagFor(card, claim)
+              return { ...x, status: 'done', card, flag, autoFlagged: Boolean(flag) }
+            })
           )
-          continue
-        }
-        const card = res.card
-        if (!card) {
-          setQueue((q) => q.map((x) => (x.id === item.id ? { ...x, status: 'error', error: res.error ?? 'пустая карточка' } : x)))
-          continue
-        }
-        const claim = slots.find((s) => `P${String(s.position).padStart(2, '0')}` === item.position)?.rating ?? ''
-        setQueue((q) =>
-          q.map((x) => {
-            if (x.id !== item.id) return x
-            const flag = x.flag || autoFlagFor(card, claim)
-            return { ...x, status: 'done', card, flag, autoFlagged: Boolean(flag) }
-          })
-        )
-      } catch (e) {
-        if (runIdRef.current !== myRun) return
-        const msg = e instanceof Error ? e.message : 'VLM не ответил'
-        setQueue((q) =>
-          q.map((x) => (x.id === item.id ? { ...x, status: 'error', error: msg } : x))
-        )
-        // конфиг VLM отсутствует на машине — гасим всю очередь сразу,
-        // а не жжём по ошибке на каждый кадр (локальный запуск без Z.ai-конфига)
-        if (/Configuration file not found|z-ai-config/i.test(msg)) {
-          setSetupHint(
-            'VLM не поднят на этой машине: нет файла .z-ai-config (ключ Z.ai). Куча, авто-писец и VLM-прогоны оживут, как только ключ появится — всё остальное (гейты, приёмник, сдача) работает без него.'
+        } catch (e) {
+          if (runIdRef.current !== myRun) return
+          const msg = e instanceof Error ? e.message : 'VLM не ответил'
+          // VLM не настроен (нет .z-ai-config): гасим всю очередь сразу —
+          // иначе жжём по ошибке на каждый кадр (локальный запуск без ключа)
+          const setup =
+            (e instanceof ApiError && asRecord(e.payload).setupRequired === true) ||
+            /Configuration file not found|z-ai-config/i.test(msg)
+          if (setup) {
+            setQueue((q) => q.map((x) => (x.id === item.id ? { ...x, status: 'error', error: 'VLM не настроен' } : x)))
+            setSetupHint(
+              'VLM не поднят на этой машине: нет файла .z-ai-config (ключ Z.ai). Куча, авто-писец и VLM-прогоны оживут, как только ключ появится — всё остальное (гейты, приёмник, сдача) работает без него.'
+            )
+            return
+          }
+          setQueue((q) =>
+            q.map((x) => (x.id === item.id ? { ...x, status: 'error', error: msg } : x))
           )
-          return
         }
       }
+    } finally {
+      if (runIdRef.current === myRun) setRunning(false)
     }
-    setRunning(false)
   }
 
   /** Вшить всё прошедшее VLM в приёмник (приказ автора 2026-09-24):

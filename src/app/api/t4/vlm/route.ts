@@ -62,6 +62,12 @@ export async function POST(req: Request) {
     if (isProviderBlocked(msg)) {
       return NextResponse.json({ ok: false, blocked: true, error: msg.slice(0, 300) })
     }
+    if (/Configuration file not found|z-ai-config/i.test(msg)) {
+      return NextResponse.json(
+        { ok: false, error: 'VLM не настроен: нет .z-ai-config (ключ Z.ai) на этой машине', setupRequired: true },
+        { status: 503 }
+      )
+    }
     return NextResponse.json({ ok: false, error: msg.slice(0, 300) }, { status: 500 })
   }
 }

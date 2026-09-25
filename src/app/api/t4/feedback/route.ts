@@ -120,6 +120,14 @@ export async function POST(req: Request) {
     if (isProviderBlocked(msg)) {
       return NextResponse.json({ ok: false, blocked: true, message: 'Контент-фильтр провайдера (400/1301)' })
     }
+    // VLM не настроен на этой машине (нет .z-ai-config) — структурированный
+    // 503: UI гасит очередь и показывает setup-баннер, а не N одинаковых 500
+    if (/Configuration file not found|z-ai-config/i.test(msg)) {
+      return NextResponse.json(
+        { ok: false, error: 'VLM не настроен: нет .z-ai-config (ключ Z.ai) на этой машине', setupRequired: true },
+        { status: 503 }
+      )
+    }
     return NextResponse.json({ error: msg.slice(0, 300) }, { status: 500 })
   }
 }

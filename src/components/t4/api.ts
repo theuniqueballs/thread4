@@ -153,10 +153,12 @@ export interface DeliverResponse {
 
 export class ApiError extends Error {
   status: number
+  payload: Record<string, unknown> | null
 
-  constructor(message: string, status: number) {
+  constructor(message: string, status: number, payload: Record<string, unknown> | null = null) {
     super(message)
     this.status = status
+    this.payload = payload
   }
 }
 
@@ -176,7 +178,19 @@ export async function postJson<T>(path: string, body: unknown): Promise<T> {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   })
-  if (!res.ok) throw new ApiError(`HTTP ${res.status}`, res.status)
+  if (!res.ok) {
+    // тело ошибки пробрасываем наверх: UI имеет право знать ПОЧЕМУ (а не только код)
+    let payload: Record<string, unknown> | null = null
+    let msg = `HTTP ${res.status}`
+    try {
+      const j = (await res.json()) as Record<string, unknown>
+      payload = j
+      if (typeof j.error === 'string' && j.error.trim() !== '') msg = j.error
+    } catch {
+      /* тело не JSON — остаёмся с кодом */
+    }
+    throw new ApiError(msg, res.status, payload)
+  }
   return (await res.json()) as T
 }
 
