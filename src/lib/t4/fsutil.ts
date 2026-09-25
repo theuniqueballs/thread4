@@ -3,6 +3,7 @@
  * Single source of truth for all paths. Everything lives under thread4/.
  */
 import fs from 'node:fs'
+import os from 'node:os'
 import path from 'node:path'
 
 import { scheduleSnapshot } from './persist'
@@ -11,6 +12,10 @@ export const T4_ROOT = path.join(process.cwd(), 'thread4')
 export const SPECS_DIR = path.join(T4_ROOT, 'specs')
 export const EVENTS_DIR = path.join(T4_ROOT, 'events')
 export const EVENT_LOG = path.join(EVENTS_DIR, 'log.jsonl')
+/** Хеш-цепь летописи (Залп 1 «Правда»): append-only индекс поверх log.jsonl. */
+export const CHAIN_LOG = path.join(EVENTS_DIR, 'chain.jsonl')
+/** Ключ командира: мутирующие POST-ы летописи. Вне репо, в git не попадает. */
+export const COMMANDER_KEY = path.join(os.homedir(), '.t4', 'commander.key')
 export const BATCHES_DIR = path.join(T4_ROOT, 'batches')
 export const CONTRACTS_DIR = path.join(T4_ROOT, 'contracts')
 export const DOCS_DIR = T4_ROOT
@@ -49,9 +54,28 @@ export function readJson<T>(p: string): T | null {
 
 export function writeText(p: string, content: string): void {
   fs.mkdirSync(path.dirname(p), { recursive: true })
-  fs.writeFileSync(p, content, 'utf-8')
+  /* Залп 1 «Правда»: атомарная запись (tmp+rename) — обрыв питания не оставляет
+     битый JSON, который readJson молча превратит в null. Fallback — прямой write,
+     если rename не прошёл (блокировка антивирусом и т.п.), лучше целая запись,
+     чем упавшая. */
+  const tmp = `${p}.tmp-${process.pid}-${Date.now()}`
+  try {
+    fs.writeFileSync(tmp, content, 'utf-8')
+    fs.renameSync(tmp, p)
+  } catch {
+    try { fs.rmSync(tmp, { force: true }) } catch { /* переживаем */ }
+    fs.writeFileSync(p, content, 'utf-8')
+  }
   /* durability: каждая запись состояния — кандидат на git-снапшот */
   scheduleSnapshot(`write:${path.relative(process.cwd(), p)}`)
+}
+
+/** Ключ командира: строка из ~/.t4/commander.key или null, если ключа нет. */
+export function readCommanderKey(): string | null {
+  const raw = readText(COMMANDER_KEY)
+  if (raw == null) return null
+  const key = raw.trim()
+  return key.length >= 16 ? key : null
 }
 
 export function writeJson(p: string, data: unknown): void {

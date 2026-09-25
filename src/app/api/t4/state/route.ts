@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server'
 
-import { foldState, nextBatchNumber, readEvents } from '@/lib/t4/events'
+import { foldState, nextBatchNumber, readEvents, verifyChain } from '@/lib/t4/events'
 import { specInventory } from '@/lib/t4/specs'
 import { GATES_TOTAL } from '@/lib/t4/gates'
-import { listFiles, BATCHES_DIR } from '@/lib/t4/fsutil'
+import { listFiles, BATCHES_DIR, readCommanderKey } from '@/lib/t4/fsutil'
 
 export const dynamic = 'force-dynamic'
 
@@ -39,5 +39,14 @@ export async function GET() {
       palettes: palettes?.count ?? 0,
     },
     openDebts: state.openDebts,
+    /* Залп 1 «Правда» — здоровье стекла (полный таб «Стекло» — Залп 3) */
+    glass: {
+      commanderKey: readCommanderKey() != null,
+      chain: (() => {
+        const v = verifyChain()
+        return { ok: v.ok, events: v.events, storedLinks: v.storedLinks, head: v.head?.slice(0, 10) ?? null, problems: v.problems }
+      })(),
+      atomicWrites: true,
+    },
   })
 }

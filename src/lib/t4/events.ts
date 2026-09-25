@@ -8,7 +8,7 @@
 import fs from 'node:fs'
 import crypto from 'node:crypto'
 
-import { ensureDirs, EVENT_LOG } from './fsutil'
+import { ensureDirs, EVENT_LOG, CHAIN_LOG, readText, writeText } from './fsutil'
 import { scheduleSnapshot } from './persist'
 
 export interface T4Event {
@@ -36,14 +36,29 @@ export const EVENT_TYPES = [
   'oc.appeared',
   'external.review',
   'debt.paid',
+  'author.pinned',
   'note',
 ] as const
+
+/** Рана при рождении (инцидент 2026-09-26): событие с U+FFFD не допускается
+ *  в летопись — битая кодировка фиксируется на входе, а не в истории. */
+function assertBornClean(summary: string): void {
+  if (summary.includes('\uFFFD')) {
+    throw new Error(
+      'event born wounded: U+FFFD в summary — командный интерфейс передал кириллицу мимо UTF-8; событие отвергнуто'
+    )
+  }
+  if (summary.length > 4000) {
+    throw new Error('event born wounded: summary > 4000 символов')
+  }
+}
 
 export function appendEvent(
   type: string,
   summary: string,
   data?: Record<string, unknown>
 ): T4Event {
+  assertBornClean(summary)
   ensureDirs()
   const evt: T4Event = {
     id: crypto.randomUUID().slice(0, 8),
@@ -52,7 +67,9 @@ export function appendEvent(
     summary,
     ...(data ? { data } : {}),
   }
-  fs.appendFileSync(EVENT_LOG, JSON.stringify(evt) + '\n', 'utf-8')
+  const rawLine = JSON.stringify(evt)
+  fs.appendFileSync(EVENT_LOG, rawLine + '\n', 'utf-8')
+  extendChain(rawLine, evt.id)
   /* durability: событие записано — состояние меняется, фиксируем в git */
   scheduleSnapshot(`event:${type}`)
   return evt
@@ -77,6 +94,170 @@ export function readEvents(): T4Event[] {
     }
   }
   return out
+}
+
+/* ------------------------------------------------------------------ */
+/* Хеш-цепь летописи (Залп 1 «Правда»)                                 */
+/*                                                                     */
+/* log.jsonl — истина; chain.jsonl — append-only индекс:               */
+/*   { seq, id, hash }, hash = sha256(prevHash + '|' + rawLine).       */
+/* Ручная правка старой строки ломает ВСЮ последующую цепь — громко.   */
+/* Цепь только удлиняется; rebase (bootstrap) — объявленная операция,  */
+/* легальна после vault-восстановления.                                */
+/* ------------------------------------------------------------------ */
+
+const GENESIS = 'GENESIS'
+
+function normLine(l: string): string {
+  return l.replace(/[\r\n]+$/, '')
+}
+
+function chainHash(prev: string, rawLine: string): string {
+  return crypto.createHash('sha256').update(`${prev}|${normLine(rawLine)}`, 'utf-8').digest('hex')
+}
+
+export interface ChainLink {
+  seq: number
+  id: string
+  hash: string
+}
+
+export function readChain(): ChainLink[] {
+  const raw = readText(CHAIN_LOG)
+  if (raw == null) return []
+  const out: ChainLink[] = []
+  for (const line of raw.split('\n')) {
+    const t = line.trim()
+    if (!t) continue
+    try {
+      const p = JSON.parse(t) as ChainLink
+      if (typeof p.seq === 'number' && typeof p.hash === 'string') out.push(p)
+    } catch {
+      // битая строка цепи — сама по себе сигнал; verifyChain её увидит
+    }
+  }
+  return out
+}
+
+/** Вычислить эталонную цепь поверх текущего log.jsonl (без записи). */
+function computeChainOverLog(): { links: ChainLink[]; rawLines: string[] } {
+  let raw = ''
+  try {
+    raw = fs.readFileSync(EVENT_LOG, 'utf-8')
+  } catch {
+    return { links: [], rawLines: [] }
+  }
+  const rawLines = raw.split('\n').map(normLine).filter((l) => l.length > 0)
+  const links: ChainLink[] = []
+  let prev = GENESIS
+  for (let i = 0; i < rawLines.length; i++) {
+    const hash = chainHash(prev, rawLines[i])
+    let id = '?'
+    try {
+      id = (JSON.parse(rawLines[i]) as { id?: string }).id ?? '?'
+    } catch {
+      // не-parse строка остаётся в цепи как сырое звено — tamper-detector
+    }
+    links.push({ seq: i + 1, id, hash })
+    prev = hash
+  }
+  return { links, rawLines }
+}
+
+/** Rebase: построить chain.jsonl с нуля поверх текущего лога.
+ *  Легальна только как объявленная операция (vault-восстановление, bootstrap). */
+export function bootstrapChain(): { links: number; head: string } {
+  const { links } = computeChainOverLog()
+  writeText(CHAIN_LOG, links.map((l) => JSON.stringify(l)).join('\n') + '\n')
+  return { links: links.length, head: links[links.length - 1]?.hash ?? '' }
+}
+
+/** Продлить цепь новым звеном. Хвост цепи обязан совпадать с логом;
+ *  расхождение = тампер-тревога, запись события отвергается. */
+function extendChain(rawLine: string, id: string): void {
+  const stored = readChain()
+  const { links } = computeChainOverLog() // включает только что дописанное событие
+  if (stored.length === 0) {
+    // цепи ещё нет (первый запуск после Залпа 1) — строим целиком
+    writeText(CHAIN_LOG, links.map((l) => JSON.stringify(l)).join('\n') + '\n')
+    return
+  }
+  // хвост stored обязан быть префиксом computed
+  for (let i = 0; i < stored.length; i++) {
+    if (!links[i] || stored[i].hash !== links[i].hash) {
+      throw new Error(
+        `chain tamper detected at seq ${i + 1}: летопись правлена руками после записи цепи — событие отвергнуто (см. bun thread4/cli.ts verify)`
+      )
+    }
+  }
+  if (stored.length !== links.length - 1) {
+    // дыра между цепью и логом (крах между двумя append) — достраиваем хвост честно
+    const tail = links.slice(stored.length)
+    fs.appendFileSync(
+      CHAIN_LOG,
+      tail.map((l) => JSON.stringify(l)).join('\n') + '\n',
+      'utf-8'
+    )
+    return
+  }
+  const last = links[links.length - 1]
+  fs.appendFileSync(CHAIN_LOG, JSON.stringify({ seq: last.seq, id, hash: last.hash }) + '\n', 'utf-8')
+}
+
+export interface ChainVerdict {
+  events: number
+  storedLinks: number
+  ok: boolean
+  head: string | null
+  problems: string[]
+}
+
+/** Проверка целостности: эталон (log) vs хранимая цепь. */
+export function verifyChain(): ChainVerdict {
+  const { links } = computeChainOverLog()
+  const stored = readChain()
+  const problems: string[] = []
+  if (stored.length === 0) problems.push('цепь отсутствует — запусти: bun thread4/cli.ts chain')
+  const n = Math.min(stored.length, links.length)
+  for (let i = 0; i < n; i++) {
+    if (stored[i].hash !== links[i].hash) {
+      problems.push(`расхождение на seq ${i + 1} (id ${stored[i].id}): событие правлено после записи`)
+      break
+    }
+  }
+  if (stored.length > links.length) problems.push('цепь длиннее лога — звенья из ниоткуда')
+  if (stored.length < links.length && problems.length === 0)
+    problems.push(`хвост цепи короче лога на ${links.length - stored.length} (лечится: bun thread4/cli.ts verify --heal)`)
+  return {
+    events: links.length,
+    storedLinks: stored.length,
+    ok: problems.length === 0,
+    head: links[links.length - 1]?.hash ?? null,
+    problems,
+  }
+}
+
+/** Достроить хвост цепи, ЕСЛИ хранимый префикс совпадает с эталоном. */
+export function healChainTail(): { healed: number; ok: boolean; problems: string[] } {
+  const stored = readChain()
+  const { links } = computeChainOverLog()
+  for (let i = 0; i < stored.length; i++) {
+    if (!links[i] || stored[i].hash !== links[i].hash) {
+      return {
+        healed: 0,
+        ok: false,
+        problems: [`расхождение на seq ${i + 1} — heal невозможен, летопись правлена (или это tamper)`],
+      }
+    }
+  }
+  if (stored.length >= links.length) return { healed: 0, ok: true, problems: [] }
+  const tail = links.slice(stored.length)
+  fs.appendFileSync(
+    CHAIN_LOG,
+    tail.map((l) => JSON.stringify(l)).join('\n') + '\n',
+    'utf-8'
+  )
+  return { healed: tail.length, ok: true, problems: [] }
 }
 
 /* ------------------------------------------------------------------ */
@@ -153,12 +334,18 @@ export function foldState(events: T4Event[]): T4DerivedState {
     .sort((a, b) => (a.deliveredAt! < b.deliveredAt! ? -1 : 1))
   const windowSlugs = delivered.slice(-3).map((b) => b.slug)
 
+  /* Залп 1: batch.void гасит долги — закрытый слот не может числиться
+     открытым вопросом (призрачный долг T4-06, найден 2026-09-26). */
+  const openDebtsClean = openDebts.filter(
+    (x) => !voidedSlugs.some((slug) => x.includes(slug))
+  )
+
   return {
     batches: [...batches.values()].sort((a, b) => a.slug.localeCompare(b.slug)),
     windowSlugs,
     ocAppearances,
     voidedSlugs,
-    openDebts,
+    openDebts: openDebtsClean,
     lastEventAt,
   }
 }

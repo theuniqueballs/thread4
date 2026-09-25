@@ -22,10 +22,11 @@ import {
   SPECS_DIR,
   ensureDirs,
   listFiles,
+  readCommanderKey,
   readText,
   writeText,
 } from '@/lib/t4/fsutil'
-import { appendEvent, readEvents, type T4Event } from '@/lib/t4/events'
+import { appendEvent, bootstrapChain, readEvents, type T4Event } from '@/lib/t4/events'
 import { snapshotNow } from '@/lib/t4/persist'
 
 export const dynamic = 'force-dynamic'
@@ -98,6 +99,21 @@ function parseLog(text: string): T4Event[] {
 }
 
 export async function POST(request: Request) {
+  /* восстановление переписывает диск — только с ключом командира */
+  const key = readCommanderKey()
+  if (key == null) {
+    return NextResponse.json(
+      { error: 'commander-key не создан — восстановление залочено', setupRequired: true },
+      { status: 503 }
+    )
+  }
+  if ((request.headers.get('x-commander-key') ?? '') !== key) {
+    return NextResponse.json(
+      { error: 'чужой или пустой commander-key — восстановление запрещено' },
+      { status: 403 }
+    )
+  }
+
   let body: { files?: Record<string, string>; savedAt?: string }
   try {
     body = (await request.json()) as typeof body
@@ -143,6 +159,9 @@ export async function POST(request: Request) {
       )
       writeText(EVENT_LOG, merged.map((e) => JSON.stringify(e)).join('\n') + '\n')
       mergedEvents = histEvents.length
+      /* лог переписан (rebase) — хеш-цепь перебазируется объявленно,
+         иначе verify орал бы на каждую перезаписанную строку */
+      bootstrapChain()
     }
   }
 

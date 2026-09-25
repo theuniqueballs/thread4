@@ -15,7 +15,7 @@ import { compileBatch, contractMarkdown } from '../src/lib/t4/compiler'
 import { runGates, parseBatch } from '../src/lib/t4/gates'
 import { deliverBatch } from '../src/lib/t4/deliver'
 import { scribeBatch } from '../src/lib/t4/scribe'
-import { appendEvent, foldState, readEvents } from '../src/lib/t4/events'
+import { appendEvent, bootstrapChain, foldState, healChainTail, readEvents, verifyChain } from '../src/lib/t4/events'
 import { specInventory } from '../src/lib/t4/specs'
 
 const cmd = process.argv[2] ?? ''
@@ -176,6 +176,28 @@ async function main() {
     return
   }
 
+  if (cmd === 'chain') {
+    /* Залп 1 «Правда»: rebase хеш-цепи поверх текущего лога (объявленная операция) */
+    const r = bootstrapChain()
+    console.log(`chain: ${r.links} звеньев построено, head ${r.head.slice(0, 10)} — проверка: bun thread4/cli.ts verify`)
+    return
+  }
+
+  if (cmd === 'verify') {
+    let v = verifyChain()
+    if (process.argv[3] === '--heal' && !v.ok && v.storedLinks < v.events) {
+      const h = healChainTail()
+      console.log(`verify --heal: достроено ${h.healed} звеньев${h.ok ? '' : ` — ${h.problems.join('; ')}`}`)
+      v = verifyChain()
+    }
+    for (const p of v.problems) console.log(`  ! ${p}`)
+    console.log(
+      `verify: ${v.events} событий, ${v.storedLinks} звеньев цепи, head ${v.head?.slice(0, 10) ?? '—'} — ${v.ok ? 'ЦЕЛА' : 'СЛОМАНА'}`
+    )
+    process.exit(v.ok ? 0 : 1)
+    return
+  }
+
   if (cmd === 'selftest') {
     let ok = 0
     let fail = 0
@@ -312,11 +334,34 @@ async function main() {
     check('parseBatch: thesis grabbed', parsed.slots[0].thesis.includes('test thesis'))
     check('parseBatch: genre OC распознан', parsed.slots[0].genre === 'OC')
 
+    // Залп 1 «Правда»: хеш-цепь, атомарность записи, guard рождения
+    {
+      let v = verifyChain()
+      if (v.storedLinks === 0) {
+        bootstrapChain()
+        v = verifyChain()
+      } else if (!v.ok && v.storedLinks < v.events && v.problems.every((p) => p.startsWith('хвост'))) {
+        healChainTail()
+        v = verifyChain()
+      }
+      check('хеш-цепь летописи цела (log ↔ chain.jsonl)', v.ok)
+      const fsMod = await import('node:fs')
+      const { writeText, readText } = await import('../src/lib/t4/fsutil')
+      const tmpPath = `thread4/.selftest-atomic-${Date.now()}.tmp`
+      writeText(tmpPath, 'atomic-roundtrip')
+      const round = readText(tmpPath) === 'atomic-roundtrip'
+      try { fsMod.rmSync(tmpPath, { force: true }) } catch { /* переживаем */ }
+      check('атомарная запись: tmp+rename roundtrip', round)
+      let guardThrew = false
+      try { appendEvent('note', 'wounded \uFFFD wound') } catch { guardThrew = true }
+      check('guard рождения: U+FFFD в summary отвергается до записи', guardThrew)
+    }
+
     console.log(`\nselftest: ${ok} pass, ${fail} fail`)
     process.exit(fail === 0 ? 0 : 1)
   }
 
-  console.log('commands: seed | compile "theme" | recompile T4-NN "theme" | scribe T4-NN | check T4-NN | gates T4-NN | deliver T4-NN | state | selftest')
+  console.log('commands: seed | compile "theme" | recompile T4-NN "theme" | scribe T4-NN | check T4-NN | gates T4-NN | deliver T4-NN | void T4-NN "reason" | state | chain | verify [--heal] | selftest')
 }
 
 main().catch((e) => {

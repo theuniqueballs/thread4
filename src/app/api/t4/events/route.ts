@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 
 import { appendEvent, EVENT_TYPES, readEvents } from '@/lib/t4/events'
+import { readCommanderKey } from '@/lib/t4/fsutil'
 
 export const dynamic = 'force-dynamic'
 
@@ -13,6 +14,27 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
+  /* Залп 1 «Правда»: запись в летопись — только с ключом командира.
+     Без этого любой процесс на машине мог форжить хоть era.born. */
+  const key = readCommanderKey()
+  if (key == null) {
+    return NextResponse.json(
+      {
+        error: 'commander-key не создан — летопись залочена',
+        setupRequired: true,
+        hint: 'создай ~/.t4/commander.key (32+ случайных символа) и передавай его в заголовке x-commander-key',
+      },
+      { status: 503 }
+    )
+  }
+  const provided = req.headers.get('x-commander-key') ?? ''
+  if (provided !== key) {
+    return NextResponse.json(
+      { error: 'чужой или пустой commander-key — запись в летопись запрещена' },
+      { status: 403 }
+    )
+  }
+
   let body: { type?: string; summary?: string; data?: Record<string, unknown> }
   try {
     body = await req.json()
@@ -30,6 +52,11 @@ export async function POST(req: Request) {
       { status: 400 }
     )
   }
-  const evt = appendEvent(type, summary, body.data)
-  return NextResponse.json({ ok: true, event: evt })
+  try {
+    const evt = appendEvent(type, summary, body.data)
+    return NextResponse.json({ ok: true, event: evt })
+  } catch (e) {
+    /* рана при рождении (кодировка/размер) — отказ, а не битая история */
+    return NextResponse.json({ error: e instanceof Error ? e.message : 'append failed' }, { status: 422 })
+  }
 }
