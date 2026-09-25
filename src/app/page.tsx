@@ -61,6 +61,7 @@ import {
 } from '@/components/t4/bits'
 import { MarkdownView } from '@/components/t4/markdown'
 import { SpecView } from '@/components/t4/spec-renderers'
+import { TIER_RANK } from '@/lib/t4/verdicts'
 import {
   cacheCurrentState,
   deleteSnapshot,
@@ -991,7 +992,7 @@ function writeJournal(slug: string, entries: JournalEntry[]) {
   window.dispatchEvent(new CustomEvent('t4-receiver-updated', { detail: { slug } }))
 }
 
-const TIER_ORDER_MAP: Record<string, number> = { 'PG-13': 0, R: 1, 'R+': 2, X: 3 }
+const TIER_ORDER_MAP: Record<string, number> = TIER_RANK
 
 function tierDeltaIcon(a: string, b: string): string {
   const va = TIER_ORDER_MAP[a]
@@ -1056,7 +1057,7 @@ interface QueueItem {
 function autoFlagFor(card: BlindCard, claim: string): VlmFlag | '' {
   const driftCount = Array.isArray(card.mutation_drift) ? card.mutation_drift.length : 0
   if (driftCount > 0) return 'mutation'
-  const order: Record<string, number> = { 'PG-13': 0, PG13: 0, R: 1, 'R+': 2, X: 3 }
+  const order: Record<string, number> = TIER_RANK
   const hintKey = (card.rating_hint ?? '').trim().replace('RPLUS', 'R+')
   const hint = order[hintKey]
   const cl = order[claim]
