@@ -56,3 +56,6 @@ server.log
 # sandbox-specific (recovery workspace, platform skills)
 /github-recovery/
 /skills/
+
+# suitcases live in download/ but stay out of git (blob limits)
+/download/*.zip
