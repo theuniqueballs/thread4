@@ -131,9 +131,9 @@ function StateTab() {
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
             <StatCard label="Батчи" value={asStr(counts.batches) || '0'} />
             <StatCard label="События" value={asStr(counts.events) || '0'} />
-            <StatCard label="Носители" value={asStr(counts.carriers) || '280'} hint="14 классов × 4 механизма" />
-            <StatCard label="Позы" value={asStr(counts.poses) || '240'} hint="standing-default в отставке" />
-            <StatCard label="Палитры" value={asStr(counts.palettes) || '105'} />
+            <StatCard label="Носители" value={asStr(counts.carriers) || '—'} hint="спека не читается — ДЕЙСТВУЙ" />
+            <StatCard label="Позы" value={asStr(counts.poses) || '—'} hint="спека не читается — ДЕЙСТВУЙ" />
+            <StatCard label="Палитры" value={asStr(counts.palettes) || '—'} hint="спека не читается — ДЕЙСТВУЙ" />
           </div>
         )}
       </Panel>
@@ -657,7 +657,7 @@ function QuickVerdict({ slug }: { slug: string }) {
       await postJson('/api/t4/events', {
         type: 'render.verdict',
         summary: `${slug}: ${vLabel}${issues.length > 0 ? ` · ${issues.join(', ')}` : ''}${text.trim() ? ` — ${text.trim().slice(0, 90)}` : ''}`,
-        data: { slug, verdict, tags: issues, prose },
+        data: { slug, verdict, tags: issues, prose, source: 'author-batch' },
       })
       setNote('Вердикт записан в лог — он кормит правки закона и вкус.')
       setVerdict(null)
@@ -2406,7 +2406,7 @@ export default function Home() {
             </div>
             <div className="flex items-center gap-2">
               <span className="size-2 animate-pulse rounded-full bg-emerald-500" />
-              <span className="hidden text-[11px] text-zinc-500 sm:inline">закон 24 · 10 движков · авто-писец готов</span>
+              <span className="hidden text-[11px] text-zinc-500 sm:inline">append-only летопись · хеш-цепь · стеклянная пушка</span>
             </div>
           </div>
           <ScrollArea className="whitespace-nowrap pb-px">
@@ -2447,7 +2447,7 @@ export default function Home() {
       <footer className="mt-auto border-t border-zinc-800/80 bg-zinc-950 pb-[env(safe-area-inset-bottom)]">
         <div className="mx-auto flex w-full max-w-7xl flex-wrap items-center justify-between gap-2 px-4 py-4 text-[11px] text-zinc-600 sm:px-6">
           <span>THREAD 4 · закон 24 слотов · Super Z × Автор</span>
-          <span className="font-mono">19 гейтов · салиенс + noun-lock + коллизия · приёмник батча · сейф</span>
+          <span className="font-mono">гейты — см. Состояние · салиенс + noun-lock + коллизия · приёмник батча · сейф</span>
         </div>
       </footer>
     </div>
