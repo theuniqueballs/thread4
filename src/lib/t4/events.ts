@@ -310,6 +310,7 @@ export function foldState(events: T4Event[]): T4DerivedState {
   const ocAppearances: Record<string, number> = {}
   const voidedSlugs: string[] = []
   const openDebts: string[] = []
+  const debtIds = new Map<string, string>() // debtId → text (policy.debts, Залп 2)
   let lastEventAt: string | null = null
 
   for (const e of events) {
@@ -345,11 +346,19 @@ export function foldState(events: T4Event[]): T4DerivedState {
     }
     if (e.type === 'note' && typeof d.debt === 'string') {
       openDebts.push(d.debt as string)
+      if (typeof d.debtId === 'string') debtIds.set(d.debtId as string, d.debt as string)
     }
-    // долг погашен: гасим первый долг, содержащий строку из data.debt
-    if (e.type === 'debt.paid' && typeof d.debt === 'string') {
-      const idx = openDebts.findIndex((x) => x.includes(d.debt as string))
-      if (idx >= 0) openDebts.splice(idx, 1)
+    if (e.type === 'debt.paid') {
+      /* Залп 2 (policy.debts): долг с debtId гасится ТОЧНО по id;
+         прозаический долг — fallback по подстроке (урок призрачного
+         долга T4-06: истина, записанная прозой, гасится неточно) */
+      if (typeof d.debtId === 'string') {
+        const idx = openDebts.indexOf(debtIds.get(d.debtId as string) ?? '\u0000missing')
+        if (idx >= 0) openDebts.splice(idx, 1)
+      } else if (typeof d.debt === 'string') {
+        const idx = openDebts.findIndex((x) => x.includes(d.debt as string))
+        if (idx >= 0) openDebts.splice(idx, 1)
+      }
     }
   }
 

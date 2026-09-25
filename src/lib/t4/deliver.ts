@@ -8,6 +8,8 @@ import path from 'node:path'
 import { BATCHES_DIR, CONTRACTS_DIR, readJson, readText, writeJson, writeText } from './fsutil'
 import { appendEvent, readEvents } from './events'
 import { parseBatch, runGates, type GatesResult } from './gates'
+import { LAWS } from './compiler'
+import { getRatingRecipes } from './specs'
 import { snapshotNow } from './persist'
 
 export interface DeliverResult {
@@ -88,8 +90,13 @@ export function deliverBatch(slug: string): DeliverResult | null {
     wl.push(
       `- Сдача: прогон #${result.runIndex}, hard PASS${result.firstRunClean ? ' · FIRST RUN CLEAN' : ''} (sha10 ${result.sha10}). Движок: ${contract?.engine ?? '—'}.`
     )
+    // Залп 2: спред и число слотов читаются из контракта/политики — шаблон
+    // больше не застывшая строка с чужими числами (аудит MD-1)
+    const spreadText = (contract?.spread ?? [])
+      .map((s) => `${s.rating}×${s.count}`)
+      .join(' · ')
     wl.push(
-      `- Структура: 3 OC + 21 мейн (спред R+×12 · R×7 · X×2), расовый каст на мейнах, регистры третями.`
+      `- Структура: ${contract?.slots.length ?? LAWS.slotsTotal} слот(ов) — ${spreadText || 'спред из контракта'}; расовый каст на мейнах, регистры третями.`
     )
     if (exploratory.length > 0) {
       wl.push(
@@ -103,9 +110,10 @@ export function deliverBatch(slug: string): DeliverResult | null {
         wl.push(`- Квитанция warn [${w.gate}]: ${w.findings.slice(0, 4).join(' · ')}`)
       }
     }
-    // актуальный пакет законов на момент сдачи (шаблон больше не заморожен
-    // на вердикте T4-02 — аудит RC-5: одна истина, не застывший текст)
-    wl.push('- Законы в силе: 24 слота (3 OC + 21 мейн) · жанр в шапках · R+-рецепт v1.4.0 (hard-claim, bare-under позитивом, framing-тег, LOW/MID позы) · noun-lock + подслой-лок · salience-chain 9 звеньев · character-collision.')
+    // актуальный пакет законов на момент сдачи — числа из политики,
+    // версия рецепта из спеки (Залп 2: ни одного застывшего числа)
+    const recipeVersion = getRatingRecipes()?.version ?? '—'
+    wl.push(`- Законы в силе: ${LAWS.slotsTotal} слота (${LAWS.ocSlots} OC + ${LAWS.mainsTotal} мейн) · жанр в шапках · R+-рецепт v${recipeVersion} (hard-claim, bare-under позитивом, framing-тег, LOW/MID позы) · noun-lock + подслой-лок · salience-chain · character-collision.`)
     text = `${text.trimEnd()}\n\n${wl.join('\n')}\n`
     writeText(path.join(BATCHES_DIR, `${slug}.md`), text)
   }

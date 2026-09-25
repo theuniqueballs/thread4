@@ -19,6 +19,7 @@ import ZAI from 'z-ai-web-dev-sdk'
 import { BATCHES_DIR, CONTRACTS_DIR, readJson, writeText } from './fsutil'
 import { appendEvent, foldState, readEvents } from './events'
 import { runGates, type GateReceipt, type GatesResult } from './gates'
+import { TIER_RANK } from './verdicts'
 import { type BatchContract, type SlotPlan } from './compiler'
 import {
   getBans,
@@ -264,7 +265,7 @@ function closerHint(closer: string): string {
 }
 
 function higherTierSignals(tier: string, recipes: Record<string, TierRecipe>): string[] {
-  const order: Record<string, number> = { 'PG-13': 0, R: 1, 'R+': 2, X: 3 }
+  const order: Record<string, number> = TIER_RANK
   const mine = order[tier] ?? 0
   const out: string[] = []
   for (const [key, rec] of Object.entries(recipes)) {

@@ -16,7 +16,11 @@ import { runGates, parseBatch } from '../src/lib/t4/gates'
 import { deliverBatch } from '../src/lib/t4/deliver'
 import { scribeBatch } from '../src/lib/t4/scribe'
 import { appendEvent, bootstrapChain, foldState, healChainTail, readEvents, verifyChain } from '../src/lib/t4/events'
-import { specInventory } from '../src/lib/t4/specs'
+import { getDeliveryStats, getPolicy, specInventory } from '../src/lib/t4/specs'
+import { buildReaperDraft } from '../src/lib/t4/reaper'
+import { scanSource } from '../src/lib/t4/hygiene'
+import { writeText } from '../src/lib/t4/fsutil'
+import path from 'node:path'
 
 const cmd = process.argv[2] ?? ''
 
@@ -75,17 +79,26 @@ async function main() {
   }
 
   if (cmd === 'compile') {
-    const theme = process.argv[3]
+    /* Залп 2: --pin oc-rplus,engine:heldhour — прицел автора вопреки статистике */
+    const rawArgs = process.argv.slice(3)
+    const pinIdx = rawArgs.indexOf('--pin')
+    const authorPin =
+      pinIdx >= 0
+        ? String(rawArgs[pinIdx + 1] ?? '')
+            .split(',')
+            .map((s) => s.trim())
+            .filter(Boolean)
+        : undefined
+    const args = pinIdx >= 0 ? rawArgs.filter((_, i) => i !== pinIdx && i !== pinIdx + 1) : rawArgs
+    const theme = args[0]
     if (!theme) {
-      console.error('usage: compile "тема" [engine] [oc1,oc2,oc3]')
+      console.error('usage: compile "тема" [engine] [oc1,oc2,oc3] [--pin oc-rplus,engine:key]')
       process.exit(1)
     }
-    const engine = process.argv[4] && !process.argv[4].includes(',') ? process.argv[4] : undefined
-    const ocArg = process.argv[4] && process.argv[4].includes(',')
-      ? process.argv[4]
-      : process.argv[5]
+    const engine = args[1] && !args[1].includes(',') ? args[1] : undefined
+    const ocArg = args[1] && args[1].includes(',') ? args[1] : args[2]
     const ocOrders = ocArg ? ocArg.split(',').map((s) => s.trim()).filter(Boolean) : undefined
-    const contract = compileBatch(theme, { engine, ocOrders })
+    const contract = compileBatch(theme, { engine, ocOrders, authorPin })
     console.log(contractMarkdown(contract))
     return
   }
@@ -198,6 +211,32 @@ async function main() {
     return
   }
 
+  if (cmd === 'reaper') {
+    /* Залп 2 «Рефлекс»: жнец собирает ДРАФТ-отставки по каналам, движкам и OC.
+       Ни одного события, ни одного удаления — доклад автору, выстрел за ним (§10). */
+    const draft = buildReaperDraft()
+    const file = `thread4/reaper-draft-${new Date().toISOString().slice(0, 10)}.md`
+    writeText(file, draft.report + '\n')
+    console.log(`reaper: ${draft.items.length} претендент(ов) — драфт записан в ${file}`)
+    for (const it of draft.items) console.log(`  [${it.kind}] ${it.id} — ${it.status}`)
+    console.log('выстрел за автором (§10): по каждому пункту — дебют, подтверждение или отставка')
+    return
+  }
+
+  if (cmd === 'grep-gate') {
+    /* П-2: код не знает чисел треда — сканер ловит возврат хардкода */
+    const violations = scanSource(path.join(process.cwd(), 'src', 'lib', 't4'))
+    if (violations.length === 0) {
+      console.log('grep-gate: чисто — код не помнит чисел треда (П-2)')
+      process.exit(0)
+      return
+    }
+    for (const v of violations) console.log(`  ! ${v.file}:${v.line} [${v.rule}] ${v.text}`)
+    console.log(`grep-gate: ${violations.length} нарушений — код опять помнит`)
+    process.exit(1)
+    return
+  }
+
   if (cmd === 'selftest') {
     let ok = 0
     let fail = 0
@@ -265,17 +304,37 @@ async function main() {
     const c1 = compileBatch('selftest-тема', { seed: 42, exquisite: 1, exploratory: 0, ocOrders: ['Sue', 'Miyu', 'Yui'], dryRun: true })
     const c2 = compileBatch('selftest-тема', { seed: 42, exquisite: 1, exploratory: 0, ocOrders: ['Sue', 'Miyu', 'Yui'], dryRun: true })
     check('compile deterministic (same seed → same slots)', JSON.stringify(c1.slots) === JSON.stringify(c2.slots))
-    check('24 slots (закон T4-02: 21 мейн + 3 OC)', c1.slots.length === 24)
-    check('3 OC first', c1.slots.slice(0, 3).every((s) => s.kind === 'OC'))
+    /* Залп 2 «Рефлекс»: selftest сверяет компилятор с ПОЛИТИКОЙ, а не с
+       зашитыми числами — сознательный рост закона не ломает тест (критерий) */
+    const law = getPolicy().law
+    const mainsR = law.mainsTotal - law.rplusMains - law.xSlots
+    check(`slots == policy.law (${law.slotsTotal})`, c1.slots.length === law.slotsTotal)
+    check(`OC first ×${law.ocSlots}`, c1.slots.slice(0, law.ocSlots).every((s) => s.kind === 'OC'))
     const mainsSpread = Object.fromEntries(
       c1.slots.filter((s) => s.kind !== 'OC').map((s) => [s.rating, 0])
     )
     for (const s of c1.slots) {
       if (s.kind !== 'OC') mainsSpread[s.rating] = (mainsSpread[s.rating] ?? 0) + 1
     }
-    check('mains spread R7/R+12/X2 (21 мейн)', mainsSpread['R'] === 7 && mainsSpread['R+'] === 12 && mainsSpread['X'] === 2)
+    check(
+      `mains spread из policy (R${mainsR}/R+${law.rplusMains}/X${law.xSlots})`,
+      mainsSpread['R'] === mainsR && mainsSpread['R+'] === law.rplusMains && mainsSpread['X'] === law.xSlots
+    )
     const allSpread = Object.fromEntries(c1.spread.map((s) => [s.rating, s.count]))
-    check('all-slot spread R7/R+15/X2 (24)', allSpread['R'] === 7 && allSpread['R+'] === 15 && allSpread['X'] === 2)
+    /* поведение-рефлекс (policy.channels): oc-rplus dead (0/9) → OC-слоты R,
+       бюджет R+ не хоронится заранее; реабилитация — только author_pin */
+    const ocRplusDead = getDeliveryStats()?.channels.find((c) => c.id === 'oc-rplus')?.status === 'dead'
+    const expectedOcRating = ocRplusDead ? 'R' : 'R+'
+    check(
+      `OC-дауншифт: OC-слоты ${expectedOcRating} при oc-rplus ${ocRplusDead ? 'dead' : 'live'} (рефлекс)`,
+      c1.slots.slice(0, law.ocSlots).every((s) => s.rating === expectedOcRating)
+    )
+    const expectedAllRplus = law.rplusMains + (ocRplusDead ? 0 : law.ocSlots)
+    const expectedAllR = mainsR + (ocRplusDead ? law.ocSlots : 0)
+    check(
+      `all-slot spread из policy (R${expectedAllR}/R+${expectedAllRplus}/X${law.xSlots})`,
+      allSpread['R'] === expectedAllR && allSpread['R+'] === expectedAllRplus && allSpread['X'] === law.xSlots
+    )
     check('24 distinct poses', new Set(c1.slots.map((s) => s.pose)).size === 24)
     check('24 distinct palettes', new Set(c1.slots.map((s) => s.palette)).size === 24)
     const rplus = c1.slots.filter((s) => s.rating === 'R+' || s.rating === 'X')
@@ -363,11 +422,21 @@ async function main() {
       check('guard рождения: render.verdict без source отвергается (Issue #1 Кенни)', noSrcThrew)
     }
 
+    // Залп 2 «Рефлекс»: жнец и гигиенист
+    {
+      const draft = buildReaperDraft()
+      check('reaper: драфт-отставки строится и несёт отчёт', draft.report.length > 100)
+      check(
+        'grep-gate: src/lib/t4 не помнит чисел треда (П-2)',
+        scanSource(path.join(process.cwd(), 'src', 'lib', 't4')).length === 0
+      )
+    }
+
     console.log(`\nselftest: ${ok} pass, ${fail} fail`)
     process.exit(fail === 0 ? 0 : 1)
   }
 
-  console.log('commands: seed | compile "theme" | recompile T4-NN "theme" | scribe T4-NN | check T4-NN | gates T4-NN | deliver T4-NN | void T4-NN "reason" | state | chain | verify [--heal] | selftest')
+  console.log('commands: seed | compile "theme" [engine] [oc1,oc2,oc3] [--pin x,y] | recompile T4-NN "theme" | scribe T4-NN | check T4-NN | gates T4-NN | deliver T4-NN | void T4-NN "reason" | state | chain | verify [--heal] | reaper | grep-gate | selftest')
 }
 
 main().catch((e) => {

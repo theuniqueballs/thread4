@@ -13,6 +13,7 @@ export async function POST(req: Request) {
     engine?: string
     exquisite?: number
     exploratory?: number
+    authorPin?: string[]
   }
   try {
     body = await req.json()
@@ -40,6 +41,10 @@ export async function POST(req: Request) {
       engine: typeof body.engine === 'string' && body.engine.trim() ? body.engine.trim() : undefined,
       exquisite: typeof body.exquisite === 'number' ? body.exquisite : undefined,
       exploratory: typeof body.exploratory === 'number' ? body.exploratory : undefined,
+      // прицел автора (Залп 2, policy.author_pin): назначения вопреки статистике
+      authorPin: Array.isArray(body.authorPin)
+        ? body.authorPin.map(String).map((s) => s.trim()).filter(Boolean)
+        : undefined,
     })
     return NextResponse.json({
       slug: contract.slug,

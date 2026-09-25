@@ -1,0 +1,64 @@
+{
+  "id": "policy",
+  "name": "Политика треда — единственное место решений-настроек",
+  "version": "1.0.0",
+  "born": "2026-09-26",
+  "born_from": "Залп 2 «Рефлекс» чертежа T4.2 (принцип П-2: код не знает чисел треда). Ранее закон жил константой LAWS в compiler.ts — теперь компилятор, гейты и selftest читают отсюда.",
+  "law": {
+    "slotsTotal": 24,
+    "ocSlots": 3,
+    "mainsTotal": 21,
+    "nicheCount": 7,
+    "rplusMains": 12,
+    "exquisiteDefault": 1,
+    "xSlots": 2,
+    "core4Groups": 4,
+    "wCapPct": 45,
+    "sheerPerPrompt": 2,
+    "sheerFrameCapPct": 40,
+    "poseDistinct": 24,
+    "paletteDistinct": 24,
+    "racialDefault": 10,
+    "posTarget": 300,
+    "posHard": 400,
+    "hedgeBudget": 2,
+    "leadMax": 3,
+    "closerCapPct": 40,
+    "registerCapPct": 50,
+    "signalMin": { "PG-13": 2, "R": 1, "R+": 2, "X": 2 },
+    "abPairsMin": 2,
+    "abPairsMax": 3
+  },
+  "channels": {
+    "dead_not_assigned": true,
+    "oc_rplus_downshift_when_dead": "если канал oc-rplus dead (0/9) и не пиннут автором — OC-слоты получают R вместо R+: бюджет 3 R+ больше не хоронится заранее (аудит I-2)",
+    "candidate_quota_per_batch": 2,
+    "rehab_only_by_author_pin": true
+  },
+  "engines": {
+    "rotation_by": "debut",
+    "no_debut_no_assign": "движок без сданного батча не попадает в авто-ротацию (heldhour/glamour-tax/bespoke ждут приказа или author_pin engine:<key>)",
+    "debut_only_by_explicit_order": true
+  },
+  "ab": {
+    "one_variable": true,
+    "one_variable_mean": "пара A/B отличается ровно одной заменой носителя в стеке (diff по id ≤ 2); компилятор предпочитает такие пары, гейт ab-single-variable ворнит на нарушение"
+  },
+  "reaper": {
+    "grace_batches": 2,
+    "unused_batches_to_draft": 4,
+    "channel_dead_rule": "n>=15 и delivered=0 → dead",
+    "channel_live_rule": "n>=3 и delivered>0 → live",
+    "note": "эра проксируется сданными батчами; reaper пишет ДРАФТ-отставки, выстрел всегда за автором (§10)"
+  },
+  "author_pin": {
+    "allowed": true,
+    "format": ["oc-rplus", "engine:<key>"],
+    "stats_flag": "pinned",
+    "event": "author.pinned",
+    "note": "прицельный выстрел вопреки статистике; назначения помечаются событием author.pinned и не смешиваются с естественной статой (защита рефлекса от прицела)"
+  },
+  "debts": {
+    "id_convention": "note с data.debtId; debt.paid гасит по debtId точно, прозой — по подстроке (урок призрачного долга T4-06)"
+  }
+}

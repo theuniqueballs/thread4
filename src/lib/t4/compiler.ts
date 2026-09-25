@@ -28,6 +28,7 @@ import {
   getEngines,
   getOCCanon,
   getPalettes,
+  getPolicy,
   getPoses,
   getRaces,
   getRatingRecipes,
@@ -100,6 +101,8 @@ export interface SlotPlan {
   exploratory?: string
   /** A/B-пара (§10-поправка): один канал доставки (LEAD-зона), разная подача */
   ab?: { pair: string; half: 'A' | 'B'; withSlot: number; lead: string }
+  /** author_pin (Залп 2): назначение вопреки статистике — помечено прицелом */
+  pinned?: string[]
 }
 
 export interface BatchContract {
@@ -116,6 +119,8 @@ export interface BatchContract {
   racialCount: number
   /** A/B-пары (§10-поправка): 2-3 пары R+-слотов — один канал, разная подача */
   abPairs: { pair: string; a: number; b: number; lead: string }[]
+  /** author_pin (Залп 2): каналы, назначенные вопреки статистике — прицел автора */
+  authorPin?: string[]
   carrierStats: {
     wSharePct: number
     sheerRplusPct: number
@@ -145,6 +150,10 @@ export interface CompileOptions {
   seed?: number
   slug?: string // recompile override (T4-NN) — recompiles an existing slug under the current law
   dryRun?: boolean // no events, no files — for selftests
+  /** Прицел автора (Залп 2, policy.author_pin): каналы, назначаемые ВОПРЕКИ
+   *  статистике — 'oc-rplus', 'engine:<key>'. Помечаются событием author.pinned
+   *  и флагом pinned — данные рефлекса не смешиваются с прицелом. */
+  authorPin?: string[]
 }
 
 /* ------------------------------------------------------------------ */
@@ -204,36 +213,11 @@ function lruPick<T extends { id: string }>(
 }
 
 /* ------------------------------------------------------------------ */
-/* Constants (shared with gates — the contract prints these very values)*/
+/* Constants (Залп 2 «Рефлекс»: числа треда живут в specs/policy.json — */
+/* П-2 чертежа T4.2: код не знает чисел. Отсутствие политики = краш).   */
 /* ------------------------------------------------------------------ */
 
-export const LAWS = {
-  /** Закон батча (вердикт T4-02, 2026-09-20): 21 мейн + 3 OC = 24 промпта. */
-  slotsTotal: 24,
-  ocSlots: 3,
-  mainsTotal: 21,
-  nicheCount: 7,
-  rplusMains: 12, // 12 R+ мейнов (вкл. EXQUISITE); спред мейнов R+×12 · R×7 · X×2 = 21
-  exquisiteDefault: 1,
-  xSlots: 2,
-  core4Groups: 4,
-  wCapPct: 45,
-  sheerPerPrompt: 2,
-  sheerFrameCapPct: 40,
-  poseDistinct: 24,
-  paletteDistinct: 24,
-  racialDefault: 10,
-  posTarget: 300,
-  posHard: 400,
-  hedgeBudget: 2,
-  leadMax: 3,
-  closerCapPct: 40,
-  registerCapPct: 50,
-  signalMin: { 'PG-13': 2, R: 1, 'R+': 2, X: 2 } as Record<string, number>,
-  /** A/B-дисциплина (§10-поправка): 2-3 пары на батч — системно, не случайно */
-  abPairsMin: 2,
-  abPairsMax: 3,
-} as const
+export const LAWS = getPolicy().law
 
 const LEAD_ZONES = [
   'hands', 'throat', 'collarbone', 'breasts', 'waist', 'hips', 'seat',
@@ -283,7 +267,10 @@ export function compileBatch(theme: string, options: CompileOptions = {}): Batch
 
   const usage = foldWindowUsage(state.windowSlugs)
 
-  /* engine: explicit override, else least-recently-used among usable */
+  /* engine: explicit override (сознательный дебют), else least-recently-used
+     среди ДЕБЮТИРОВАВШИХ (Залп 2 «Рефлекс», policy.engines: ротация по дебютам
+     — сданным батчам, не компайлам; недебютировавшие в авто-пул не попадают,
+     их дебют = explicit engine или author_pin engine:<key>) */
   const engineEntries = Object.entries(engines.engines).filter(
     ([, e]) => e.status !== 'retired'
   )
@@ -292,9 +279,19 @@ export function compileBatch(theme: string, options: CompileOptions = {}): Batch
       .filter((e: T4Event) => e.type === 'batch.compiled')
       .map((e) => String(e.data?.engine ?? ''))
   )
+  const deliveredEngines = new Set<string>()
+  for (const b of state.batches.filter((x) => x.deliveredAt)) {
+    const c = readJson<{ engine?: string }>(path.join(CONTRACTS_DIR, `${b.slug}.json`))
+    if (c?.engine) deliveredEngines.add(c.engine)
+  }
+  const pinEngines = (options.authorPin ?? [])
+    .filter((p) => p.startsWith('engine:'))
+    .map((p) => p.slice('engine:'.length))
+  const debutPool = engineEntries.filter(([k]) => deliveredEngines.has(k))
   const engineKey =
     options.engine ??
-    (engineEntries.find(([k]) => !usedEngines.has(k)) ?? engineEntries[0])[0]
+    pinEngines.find((k) => engines.engines[k]) ??
+    (debutPool.find(([k]) => !usedEngines.has(k)) ?? debutPool[0] ?? engineEntries[0])[0]
   const engine = engines.engines[engineKey] ?? Object.values(engines.engines)[0]
 
   /* OC rotation: author orders first, then longest-rested actives */
@@ -455,6 +452,16 @@ export function compileBatch(theme: string, options: CompileOptions = {}): Batch
   let closerIdx = 0
   let witnessIdx = 0
 
+  /* Залп 2 «Рефлекс» (policy.channels): компилятор слушает стату смертей.
+     oc-rplus dead (0/9) и не пиннут → OC-слоты получают R: бюджет 3 R+
+     больше не хоронится заранее (аудит I-2). Реабилитация канала — только
+     прицел автора (authorPin 'oc-rplus'), и тогда OC снова R+. */
+  const ocRplusChannel = getDeliveryStats()?.channels.find((c) => c.id === 'oc-rplus')
+  const ocRplusPinned = options.authorPin?.includes('oc-rplus') ?? false
+  const ocRating: 'R+' | 'R' =
+    ocRplusChannel?.status === 'dead' && !ocRplusPinned ? 'R' : 'R+'
+  const ocPinnedChannels = (options.authorPin ?? []).filter((c) => !c.startsWith('engine:'))
+
   for (let pos = 1; pos <= LAWS.slotsTotal; pos++) {
     const lead = leads[leadIdx % leads.length].id
     leadIdx += 1
@@ -477,21 +484,22 @@ export function compileBatch(theme: string, options: CompileOptions = {}): Batch
 
     if (pos <= 3) {
       const ocName = ocNames[pos - 1]
-      const carriers4 = assignCore4('R+', pos)
-      const ocPose = pickPose('R+')
+      const ocCarriers = ocRating === 'R+' ? assignCore4('R+', pos) : assignTierCarriers('R')
+      const ocPose = pickPose(ocRating)
       slots.push({
         position: pos,
         kind: 'OC',
         oc: ocName,
         ocTheme: options.ocThemes?.[ocName]?.trim() || undefined,
-        rating: 'R+',
+        rating: ocRating,
+        ...(ocRplusPinned ? { pinned: ['oc-rplus'] } : {}),
         pose: ocPose.id,
         poseName: ocPose.name,
         poseRisk: ocPose.risk,
         palette: palette.id,
         paletteName: palette.name,
         kinetics: [kPool[kIdx++ % kPool.length]?.id].filter(Boolean) as string[],
-        carriers: carriers4,
+        carriers: ocCarriers,
         lead,
         register: ocName === 'Sue' ? 'milf' : register,
         closer,
@@ -560,7 +568,18 @@ export function compileBatch(theme: string, options: CompileOptions = {}): Batch
         )
         if (free.length >= 2) {
           const a = free[0]
-          const b = free[1]
+          /* A/B одной переменной (policy.ab, аудит I-4): пара отличается
+             ровно одной заменой носителя — предпочитаем b с минимальным
+             diff стека по id; гейт ab-single-variable добивает нарушение */
+          const stackDiff = (x: SlotPlan, y: SlotPlan): number => {
+            const xi = new Set(x.carriers.map((c) => c.id))
+            const yi = new Set(y.carriers.map((c) => c.id))
+            let d = 0
+            for (const id of xi) if (!yi.has(id)) d++
+            for (const id of yi) if (!xi.has(id)) d++
+            return d
+          }
+          const b = free.slice(1).sort((x, y) => stackDiff(a, x) - stackDiff(a, y))[0]
           const name = pairNames[abPairs.length]
           abPairs.push({ pair: name, a: a.position, b: b.position, lead })
           used.add(a.position)
@@ -624,6 +643,7 @@ export function compileBatch(theme: string, options: CompileOptions = {}): Batch
     ocRotation: ocNames.map((n) => ({ name: n, served: served(n) })),
     racialCount: slots.filter((s) => s.race).length,
     abPairs,
+    ...(options.authorPin?.length ? { authorPin: options.authorPin } : {}),
     carrierStats: {
       wSharePct: wShare,
       sheerRplusPct: sheerPct,
@@ -671,6 +691,13 @@ export function compileBatch(theme: string, options: CompileOptions = {}): Batch
       `${slug} «${theme}» — контракт ${slugOverride ? 'ПЕРЕкомпилирован (закон 24 слотов) · ' : ''}скомпилирован (движок ${engineKey}, мейны ${mainsSpreadText(contract)})`,
       { slug, theme, engine: engineKey, seed, recompile: Boolean(slugOverride) }
     )
+    if (options.authorPin?.length) {
+      appendEvent(
+        'author.pinned',
+        `${slug}: прицел автора — [${options.authorPin.join(', ')}] назначены вопреки статистике, помечены pinned (защита рефлекса: прицел не смешивается с данными)`,
+        { slug, channels: options.authorPin, pinned: true }
+      )
+    }
     // oc.appeared НЕ пишется при сборке: рекурсивные перекомпиляции засоряли
     // бы ротацию. Ростер финален только при сдаче — deliverBatch записывает.
   }

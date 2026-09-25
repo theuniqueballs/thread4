@@ -10,10 +10,9 @@ import path from 'node:path'
 
 import { appendEvent, readEvents } from '@/lib/t4/events'
 import { CONTRACTS_DIR, readJson } from '@/lib/t4/fsutil'
+import { TIER_RANK as TIERS } from '@/lib/t4/verdicts'
 
 export const dynamic = 'force-dynamic'
-
-const TIERS: Record<string, number> = { 'PG-13': 0, PG13: 0, R: 1, 'R+': 2, RPLUS: 2, X: 3 }
 
 export interface BatchVerdictSlotInput {
   position: string // P01..P24

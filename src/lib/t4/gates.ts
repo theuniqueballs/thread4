@@ -13,6 +13,7 @@ import { BATCHES_DIR, CONTRACTS_DIR, readJson, readText } from './fsutil'
 import { appendEvent, foldState, readEvents } from './events'
 import { getBans, getCarriers, getOCCanon, getRaces, getRatingRecipes, getRatingTechniques, type TechniqueEntry } from './specs'
 import { LAWS } from './compiler'
+import { TIER_RANK as TIER_ORDER } from './verdicts'
 
 export type GateLevel = 'hard' | 'warn' | 'advisory'
 export type Verdict = 'PASS' | 'FAIL' | 'WARN' | 'REPORT'
@@ -34,8 +35,9 @@ export interface GatesResult {
   at: string
 }
 
-/** Всего гейтов в прогоне (state-панель читает отсюда — одна истина). */
-export const GATES_TOTAL = 19
+/** Всего гейтов в прогоне (state-панель читает отсюда — одна истина).
+ *  Залп 2: +1 warn (ab-single-variable, policy.ab) → 20. */
+export const GATES_TOTAL = 20
 
 /* ------------------------------------------------------------------ */
 /* Batch file parsing                                                  */
@@ -119,7 +121,7 @@ export function parseBatch(slug: string, text: string): ParsedBatch {
 /* Helpers                                                             */
 /* ------------------------------------------------------------------ */
 
-const TIER_ORDER: Record<string, number> = { 'PG-13': 0, PG13: 0, R: 1, 'R+': 2, RPLUS: 2, X: 3, XXX: 4 }
+/* TIER_ORDER импортируется из ./verdicts — единая копия порядка тиров (Залп 2) */
 
 function tierOf(meta: string): string {
   const u = meta.toUpperCase()
@@ -523,11 +525,14 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
       }
     }
     for (const s of batch.slots.filter((x) => x.position <= 3)) {
-      // Ana канонизирована 2026-09-23 (oc-canon v1.7.2) — список имён гейта
-      // читает канон, а не историю своего застывания (аудит RC-5)
-      const nameMatch = /\b(Sue|Miyu|Yui|Sol|Noa|Doe|Lua|Nix|Vae|Ash|Mab|Lyn|Rue|Zia|Rin|Una|Ana|Vera)\b/.exec(
-        s.header + ' ' + s.canon
-      )
+      // Залп 2 (аудит RC-2/MD-1): список имён OC гейт читает из oc-canon.json,
+      // а не из застывшего regex'а в коде — канонизация (Ana, следующая) не
+      // рассинхронизирует гейт
+      const ocNames = Object.keys(getOCCanon()?.ocs ?? {}).map((n) => n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+      const nameMatch =
+        ocNames.length > 0
+          ? new RegExp(`\\b(${ocNames.join('|')})\\b`).exec(s.header + ' ' + s.canon)
+          : null
       if (!nameMatch) {
         f.push(`P${s.position}: OC не опознан в шапке`)
         continue
@@ -1059,6 +1064,38 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
       }
     }
     warn('character-collision', f)
+  }
+
+  /* ---------------- 9b. ab-single-variable (warn, Залп 2 «Рефлекс») -------- */
+  {
+    const f: string[] = []
+    const contract = readJson<{
+      abPairs?: { pair: string; a: number; b: number; lead: string }[]
+      slots?: { position: number; carriers?: { id: string }[] }[]
+    }>(path.join(CONTRACTS_DIR, `${batch.slug}.json`))
+    const pairs = contract?.abPairs ?? []
+    if (pairs.length === 0) {
+      f.push('контракт без A/B-пар — дисциплина §10 не атрибутируема')
+    }
+    for (const p of pairs) {
+      const sa = contract?.slots?.find((s) => s.position === p.a)
+      const sb = contract?.slots?.find((s) => s.position === p.b)
+      if (!sa || !sb) {
+        f.push(`пара ${p.pair}: слоты не читаются из контракта`)
+        continue
+      }
+      const xi = new Set((sa.carriers ?? []).map((c) => c.id))
+      const yi = new Set((sb.carriers ?? []).map((c) => c.id))
+      let d = 0
+      for (const id of xi) if (!yi.has(id)) d++
+      for (const id of yi) if (!xi.has(id)) d++
+      if (d > 2) {
+        f.push(
+          `пара ${p.pair} (${p.lead}): ${d} отличий стека — больше одной замены носителя (policy.ab.one_variable, аудит I-4)`
+        )
+      }
+    }
+    warn('ab-single-variable', f)
   }
 
   /* ---------------- 9. simcheck (warn) ---------------- */

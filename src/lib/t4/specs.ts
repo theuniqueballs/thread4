@@ -317,8 +317,59 @@ const cache = new Map<string, unknown>()
 function load<T>(file: string): T | null {
   if (cache.has(file)) return cache.get(file) as T | null
   const data = readJson<T>(path.join(SPECS_DIR, file))
-  cache.set(file, data)
+  /* Залп 2: null не кэшируется — единичный сбой чтения больше не портит
+     спеку на весь жизнь процесса (аудит: кэш кэшировал и null) */
+  if (data !== null) cache.set(file, data)
   return data
+}
+
+export interface PolicySpec {
+  id: string
+  name: string
+  version: string
+  born: string
+  born_from: string
+  law: {
+    slotsTotal: number
+    ocSlots: number
+    mainsTotal: number
+    nicheCount: number
+    rplusMains: number
+    exquisiteDefault: number
+    xSlots: number
+    core4Groups: number
+    wCapPct: number
+    sheerPerPrompt: number
+    sheerFrameCapPct: number
+    poseDistinct: number
+    paletteDistinct: number
+    racialDefault: number
+    posTarget: number
+    posHard: number
+    hedgeBudget: number
+    leadMax: number
+    closerCapPct: number
+    registerCapPct: number
+    signalMin: Record<string, number>
+    abPairsMin: number
+    abPairsMax: number
+  }
+  channels: Record<string, unknown>
+  engines: Record<string, unknown>
+  ab: Record<string, unknown>
+  reaper: Record<string, unknown>
+  author_pin: Record<string, unknown>
+  debts: Record<string, unknown>
+}
+
+/** Политика треда (Залп 2 «Рефлекс») — числа треда живут в policy.json,
+ *  не в коде (принцип П-2 чертежа T4.2). Отсутствие = громкий краш. */
+export function getPolicy(): PolicySpec {
+  const p = load<PolicySpec>('policy.json')
+  if (!p || !p.law) {
+    throw new Error('policy.json отсутствует или бит — компилятор без политики не работает (П-2: код не знает чисел). ДЕЙСТВУЙ: восстанови thread4/policy.json')
+  }
+  return p
 }
 
 export function getCarriers(): CarrierSpec | null {
