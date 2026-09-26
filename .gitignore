@@ -59,3 +59,8 @@ server.log
 
 # suitcases live in download/ but stay out of git (blob limits)
 /download/*.zip
+
+# Issue #6 (Кенни, 2026-09-26): бинарный балласт вне гита — гит = механизм, чемодан = результаты.
+# Рендеры живут на диске и в чемодане (CHEMODAN_THREAD_4.1b/renders), не в bundle.
+upload/
+chemodan/
