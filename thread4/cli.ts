@@ -261,17 +261,17 @@ async function main() {
     // статa доставки (рекомендация Claude №2, external.review 2026-09-23;
     // v0.2.0 — вердикт T4-05: 13 → 18 каналов)
     const dstats = inv.find((s) => s.id === 'delivery-stats')
-    check('стата доставки в инвентаре (18 каналов, v0.3.0: rehab-добор по вердикту автора)', dstats?.count === 18 && dstats?.version === '0.3.0')
+    check('стата доставки в инвентаре (18 каналов, v0.4.0: T4-09 вердикт, rehab-кровь)', dstats?.count === 18 && dstats?.version === '0.4.0')
     {
       const { getRatingRecipes, getRatingTechniques, getDeliveryStats } = await import('../src/lib/t4/specs')
       const rt = getRatingTechniques()
       const rr = getRatingRecipes()
       const ds = getDeliveryStats()
-      check('каналы доставки v0.3.0: wet-sheer+подача 5 доставлено, cameltoe 0/15, OC R+ 0/9 (retired), площадка-оракул 45/45',
+      check('каналы доставки v0.4.0: wet-sheer+подача 5 доставлено, cameltoe 0/15, OC R+ 0/9 (retired), площадка-оракул 69/69',
         ds?.channels.find((c) => c.id === 'wet-sheer-delivery')?.delivered === 5 &&
         ds?.channels.find((c) => c.id === 'cameltoe')?.delivered === 0 &&
         ds?.channels.find((c) => c.id === 'oc-rplus')?.delivered === 0 &&
-        ds?.channels.find((c) => c.id === 'platform-tier-oracle')?.delivered === 45)
+        ds?.channels.find((c) => c.id === 'platform-tier-oracle')?.delivered === 69)
       check('maturity law: n<3 каналы — candidate, не live (внешний вердикт №3)',
         ['threadbare-sheer', 'named-underlayer-display', 'breast-environment-contact'].every(
           (id) => ds?.channels.find((c) => c.id === id)?.status === 'candidate'
