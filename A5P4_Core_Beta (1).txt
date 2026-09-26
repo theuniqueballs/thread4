@@ -1,0 +1,585 @@
+A5P4 CORE — THE THREAD v4
+Clean assembly document for Block A.
+Patch on top of A5P3F + A5P3I + A5P4 Beta Spec.
+No debris. No commentary. No "why". Just rules.
+
+═══════════════════════════════════════════════════════════════════════
+§0. MASTER RULES (non-negotiable, all streams)
+═══════════════════════════════════════════════════════════════════════
+
+0.1  All characters are original. No canon, no fan-art, no "aged-up".
+0.2  All characters are 18+ adults. No juvenile-coded bodies.
+0.3  No male characters anywhere. Female only.
+0.4  No sex acts. No penetration. No oral simulation.
+     No genitalia visible. No spread legs with genital area.
+     No sexual fluids. No inserted objects. No lactation.
+0.5  No meaning-labels (sexy, sultry, lewd, voluptuous, etc.).
+     Structural tags only.
+0.6  Every prompt ends with: "Masterpiece, best quality, anime artstyle."
+0.7  No meta-text in prompt bodies. No "cross-batch echo".
+     No "the X is the image". No "the X is the Y" recursive closures.
+     No aphoristic declarations.
+0.8  No §X-NNN references in prompt bodies. H1 IDs in pre-header only.
+0.9  No banned light-source nouns in prompt bodies (see §6).
+0.10 Stream toggle in pre-header: STREAM: VOLT | STREAM: NICHE.
+
+═══════════════════════════════════════════════════════════════════════
+§1. PRE-HEADER PROTOCOL (every prompt)
+═══════════════════════════════════════════════════════════════════════
+
+Format:
+  P## | STREAM:{VOLT|NICHE} | GENO:V{#}:P{##}:C{##}:T{#}:S{##}:CL{##}
+  | T:{tier} | SIG:{hair+eye+body+skin}
+  | RACE:{human|elf|succubus|mermaid|robot|dryad|none}
+  | H1:§X-NNN (if used, pre-header only)
+  | SS:{structural device}
+  | COL:{dominant+accent+contrast+skin}
+  | G:✓✓✓✓✓
+
+Fields:
+  P##        = prompt number 01-21
+  STREAM     = VOLT or NICHE
+  GENO       = genetic code (see §8)
+  T          = tier (stream-specific, see §5)
+  SIG        = signature: hair-color+length+style, eye-color, body-type, skin-tone
+  RACE       = human or non-human humanoid (elf, succubus, mermaid, robot, dryad, angel, dragon-kin, kitsune, neko, demon)
+  H1         = H1 chunk reference (optional, never in body)
+  SS         = structural device (see §3)
+  COL        = 4-color contrast quadruple (see §7)
+  G          = gate check (5 ticks: thread/visible/render/earned/situation)
+
+═══════════════════════════════════════════════════════════════════════
+§2. BATCH STRUCTURE
+═══════════════════════════════════════════════════════════════════════
+
+2.1  21 prompts per batch.
+2.2  3 acts (tonal, not slot-locked):
+       Act I (P01-P07): introduce / setup
+       Act II (P08-P14): complicate / develop
+       Act III (P15-P21): resolve / transcend
+2.3  NO fixed thread-type per slot. Block A picks freely.
+2.4  NO fixed camera per slot. Block A picks per prompt.
+2.5  Anti-repeat cross-batch: P01, P11, P21 thread-types must
+     differ from previous 3 batches.
+2.6  Concept word per batch (not theme noun). Block A picks a
+     concept phrase (e.g. "the moment before falling") and
+     threads it through 21 prompts as variation, not repetition.
+
+═══════════════════════════════════════════════════════════════════════
+§3. STRUCTURAL DEVICE INDEX (SS field)
+═══════════════════════════════════════════════════════════════════════
+
+Min 7 distinct SS per batch. Rotate.
+
+SS01 = dialogue-led ("Don't," she says.)
+SS02 = setting-led (Drained pool. White tile.)
+SS03 = action-led (Catch. Pivot. Pass — no, fake.)
+SS04 = sensory-led (Salt flat. The white that erases distance.)
+SS05 = object-led (Two hands on a train armrest.)
+SS06 = body-part-led (Hands. Just hands. Long fingers.)
+SS07 = camera-led (Dutch angle. The greenhouse tilts sideways.)
+SS08 = POV-led (This is what she sees.)
+SS09 = light-led (The overhead fluorescent stutters.)
+SS10 = time-led (3 AM. She leans on the kitchen counter.)
+SS11 = sound-led (The only sound is the dryer.)
+SS12 = negative-led (She is not waiting. She is being.)
+SS13 = second-person (You see her from below.)
+SS14 = macro-zoom (One eye. Gold. Lashes wet.)
+SS15 = refusal (We never see her face.)
+SS16 = first-person-impossible (She does not know I am here.)
+SS17 = hands-only (no face shown)
+SS18 = back-only (no face shown)
+SS19 = reflection (seen only in mirror/spoon/water)
+SS20 = through-glass (camera behind glass, condensation)
+
+═══════════════════════════════════════════════════════════════════════
+§4. CAMERA INDEX (C field in GENO)
+═══════════════════════════════════════════════════════════════════════
+
+12 cameras. Min 6 distinct per batch. Max 5 per camera.
+
+C01 = POV (camera is viewer's eye)
+C02 = Cowboy (waist-up)
+C03 = Three-quarter (knees-up)
+C04 = Bust (chest-up)
+C05 = From-below (low angle, looking up)
+C06 = From-above (high angle, looking down)
+C07 = Dutch (tilted frame)
+C08 = Profile (side view)
+C09 = Top-down (overhead bird's-eye)
+C10 = Macro (extreme close-up, single detail)
+C11 = Wide (full body in environment)
+C12 = Back-shot (from behind)
+
+VOLT stream caps: C02 max 3, C11 max 2.
+NICHE stream caps: none beyond max 5.
+
+No more than 2 consecutive same-camera prompts.
+
+═══════════════════════════════════════════════════════════════════════
+§5. TIER SYSTEMS (stream-specific)
+═══════════════════════════════════════════════════════════════════════
+
+─ VOLT STREAM TIERS ─
+
+Y1 = Suggestive clothed. No anatomy visible.
+     Sheer + dry + undergarments worn. Teasing.
+Y2 = Through-fabric visible. Nipple outline through wet/sheer/mesh.
+     Gray zone — Yodayo may classify as X. Test before scaling.
+Y3 = Bare butt / back / thigh. R+ safe. Primary asset: BUTT.
+     No bare breast in Y3.
+Y-X = Open breast (X-rated). Bare nipple. Capped 1-2/batch.
+     Concept required, not cause.
+
+VOLT tier distribution per batch (21 prompts):
+  Y1: 4-6
+  Y2: 6-8
+  Y3: 4-6 (butt-primary)
+  Y-X: 1-2
+  Hybrid: 2-3 (any tier with elevated composition + light)
+
+─ NICHE STREAM TIERS (legacy) ─
+
+S   = Sensual, no anatomy.
+A   = Through-fabric (sheer/wet).
+E   = Nude with concept.
+
+NICHE tier distribution per batch:
+  Per A5P3F rules, unchanged.
+
+─ ABSOLUTE BAN (all streams) ─
+
+Visible genitalia. Sex acts. Penetration. Oral simulation.
+Spread legs with genital area. Inserted objects. Sexual fluids.
+Lactation. Sexualized drool.
+
+═══════════════════════════════════════════════════════════════════════
+§6. LIGHT SOURCE SPAWN FIX
+═══════════════════════════════════════════════════════════════════════
+
+BANNED words (Tsubaki 2 spawns them as objects):
+  lamp, candle, lantern, bulb, fixture, torch, chandelier,
+  sconce, headlight, spotlight, floodlight, streetlight,
+  fireplace (as light source), fire (as light source)
+
+ALLOWED light vocabulary:
+  QUALITY: warm, cool, harsh, soft, diffuse, directional, ambient,
+           cold, hot, guttering, steady, flickering-quality
+  DIRECTION: from above, from below, from side, from behind
+             (backlit), from front, off-frame left, off-frame
+             right, overhead, underlit
+  GENERIC: glow, light, illumination, wash, cast
+
+PATTERNS:
+  BANNED: "warm copper lamp light from desk"
+  ALLOWED: "warm copper glow from off-frame right"
+  
+  BANNED: "candlelight from the table"
+  ALLOWED: "warm amber glow from below frame-line"
+  
+  BANNED: "streetlight cast"
+  ALLOWED: "harsh sodium glow from above"
+
+If a light-source object IS wanted in frame:
+  - Describe it as PROP first (independent sentence)
+  - Then describe the light it casts (separate clause)
+  - Example: "A brass candlestick stands on the table. Warm
+    amber glow rises from it, lighting her face from below."
+
+═══════════════════════════════════════════════════════════════════════
+§7. COLOR PROTOCOL (Tsubaki 2 color disease treatment)
+═══════════════════════════════════════════════════════════════════════
+
+7.1 SATURATION TAGS (mandatory in every prompt)
+
+POSITIVE (added before "Masterpiece"):
+  "vivid saturated colors, rich color palette, high color
+   contrast, vibrant hues"
+
+NEGATIVE (added to all STD negatives):
+  "muted colors, washed out, desaturated, flat color, muddy
+   palette, grey cast, dull tones, low saturation, bleached"
+
+7.2 NAMED-COLOR VOCABULARY (replace generic words)
+
+  red        → vermillion, cinnabar, madder, persimmon
+  blue       → cobalt, ultramarine, prussian, indigo-deep
+  green      → emerald, celadon, chartreuse, malachite
+  yellow     → citrine, saffron, ochre, gilded
+  purple     → amethyst, mallow, plum-dark, violet-imperial
+  pink       → fuchsia, rose-mallow, coral-blush, magenta
+  orange     → tangerine, marigold, copper-bright
+  brown      → mahogany, walnut, terra-cotta, umber
+  white      → ivory, alabaster, porcelain, snow-pale
+  black      → obsidian, jet, raven, ink
+  grey       → slate, charcoal, pewter, ash
+
+7.3 COLOR CONTRAST QUADRUPLE (mandatory per prompt)
+
+Every prompt specifies 4 colors in pre-header COL field:
+  DOMINANT  = visual field color
+  ACCENT    = character's main hue
+  CONTRAST  = opposite temperature to dominant
+  SKIN      = specific shade, not "warm"
+
+All 4 colors MUST appear in prompt body.
+
+7.4 WARM AMBER CAP
+  "Warm amber" or "amber" alone: max 2 prompts per batch.
+
+═══════════════════════════════════════════════════════════════════════
+§8. GENETIC CODE (GENO field)
+═══════════════════════════════════════════════════════════════════════
+
+FORMAT: V{#}:P{##}:C{##}:T{#}:S{##}:CL{##}
+
+  V#   = stream version (V2 = VOLT, N1 = NICHE)
+  P##  = palette number (01-50, see §9)
+  C##  = camera number (01-12, see §4)
+  T#   = tier (1=Y1, 2=Y2, 3=Y3, 4=Y-X, 5=Hybrid)
+  S##  = setting number (01-100, see §10)
+  CL## = concept number (01-30, see §11)
+
+COLLISION RULE:
+  Two prompts in same batch may share MAX 2 GENO digits.
+  T (tier) sharing is allowed, doesn't count toward limit.
+  
+  Example BANNED: V2:P14:C04:T3:S27:CL08 and V2:P14:C04:T2:S22:CL04
+  (share V, P, C = 3 digits)
+  
+  Example OK: V2:P14:C04:T3:S27:CL08 and V2:P09:C04:T2:S22:CL04
+  (share V, C = 2 digits)
+
+═══════════════════════════════════════════════════════════════════════
+§9. PALETTE INDEX (P field, first 30 of 50)
+═══════════════════════════════════════════════════════════════════════
+
+All high-saturation. No "warm amber" defaults.
+
+P01 = Cobalt-Ivory
+P02 = Vermillion-Obsidian
+P03 = Emerald-Copper
+P04 = Amethyst-Citrine
+P05 = Celadon-Magenta
+P06 = Ultramarine-Persimmon
+P07 = Malachite-Saffron
+P08 = Plum-Mallow
+P09 = Slate-Fuchsia
+P10 = Cinnabar-Jet
+P11 = Chartreuse-Mahogany
+P12 = Indigo-Coral
+P13 = Prussian-Gilded
+P14 = Celadon-Vermillion
+P15 = Magenta-Walnut
+P16 = Cobalt-Tangerine
+P17 = Emerald-Ivory
+P18 = Amethyst-Obsidian
+P19 = Saffron-Slate
+P20 = Madder-Celadon
+P21 = Persimmon-Indigo
+P22 = Tangerine-Prussian
+P23 = Fuchsia-Walnut
+P24 = Gilded-Slate
+P25 = Coral-Malachite
+P26 = Citrine-Plum
+P27 = Magenta-Celadon
+P28 = Vermillion-Cobalt
+P29 = Emerald-Mallow
+P30 = Saffron-Amethyst
+
+21 unique palettes per batch. No repeat.
+Each palette = 2 named colors (warm + cool contrast).
+
+═══════════════════════════════════════════════════════════════════════
+§10. SETTING INDEX (S field, first 50 of 100)
+═══════════════════════════════════════════════════════════════════════
+
+No archetype repeat per batch.
+
+S01 = drained swimming pool
+S02 = aquarium skylight (from below)
+S03 = bus stop in rain
+S04 = basketball court at night
+S05 = laundromat late night
+S06 = salt flat at noon
+S07 = vanity with mirror
+S08 = pottery studio
+S09 = cathedral at vespers
+S10 = kitchen window (from outside)
+S11 = greenhouse interior
+S12 = open water sinking
+S13 = tea ceremony room
+S14 = winter balcony
+S15 = doorway threshold
+S16 = unmade bed morning
+S17 = lavender field (drone)
+S18 = kitchen cabinet (from inside)
+S19 = diner (spoon reflection)
+S20 = train at sunset
+S21 = bathroom at dawn
+S22 = industrial locker room
+S23 = lab at midnight
+S24 = atelier with dress stand
+S25 = forest clearing (dryad)
+S26 = elevator interior
+S27 = stairwell concrete
+S28 = rooftop at dusk
+S29 = empty parking garage
+S30 = greenhouse in rain
+S31 = subway car late night
+S32 = office after hours
+S33 = library mezzanine
+S34 = hotel bathroom
+S35 = onsen edge
+S36 = fishing pier dawn
+S37 = attic with skylight
+S38 = coal cellar
+S39 = glass-bottomed bridge
+S40 = operating theater (abandoned)
+S41 = planetarium (after hours)
+S42 = midnight market
+S43 = hot spring changing room
+S44 = boxing gym
+S45 = indoor pool (drained)
+S46 = wine cellar
+S47 = observatory dome
+S48 = portrait studio with umbrella light
+S49 = empty theater stage
+S50 = loading dock
+
+21 unique settings per batch.
+
+═══════════════════════════════════════════════════════════════════════
+§11. CONCEPT INDEX (CL field, 30 concepts)
+═══════════════════════════════════════════════════════════════════════
+
+Replaces Causal Layer. Concept = idea of image, not cause of nudity.
+
+CL01 = the moment before falling
+CL02 = the second of realization
+CL03 = the held breath
+CL04 = the discovery (something found)
+CL05 = the interruption (something broken)
+CL06 = the wait (something expected)
+CL07 = the aftermath (something finished)
+CL08 = the moment of being caught
+CL09 = the decision (something chosen)
+CL10 = the refusal (something rejected)
+CL11 = the offering (something given)
+CL12 = the concealment (something hidden)
+CL13 = the reveal (something shown)
+CL14 = the trace (something left behind)
+CL15 = the threshold (between two states)
+CL16 = the return (something coming back)
+CL17 = the departure (something leaving)
+CL18 = the imitation (something copied)
+CL19 = the echo (something repeated)
+CL20 = the inversion (something reversed)
+CL21 = the collision (two things meeting)
+CL22 = the layering (two things stacked)
+CL23 = the dissolution (something dissolving)
+CL24 = the solidification (something becoming real)
+CL25 = the reflection (something mirrored)
+CL26 = the projection (something cast outward)
+CL27 = the absorption (something taken in)
+CL28 = the release (something let go)
+CL29 = the grip (something held tight)
+CL30 = the slip (something falling away)
+
+Min 7 distinct CL per batch. No CL repeated more than 2×.
+
+═══════════════════════════════════════════════════════════════════════
+§12. SKIN TONE QUOTAS (per batch of 21)
+═══════════════════════════════════════════════════════════════════════
+
+Min 3 deep-brown skin tones.
+Min 5 olive.
+Min 5 fair.
+Min 3 brown.
+Min 3 east-asian.
+Min 2 freckled / varied / scarred / marked.
+
+Specific vocabulary (use right column, not "warm"):
+  fair          → ivory, alabaster, porcelain, snow-pale
+  olive         → olive-gold, olive-deep, mediterranean
+  east-asian    → east-asian ivory, jade-pale, honey-ivory
+  brown         → terra-cotta, walnut, copper-brown, umber
+  deep-brown    → mahogany, deep umber, espresso, jet-warm
+  varied        → freckled, scarred, hennaed, glow-painted
+
+═══════════════════════════════════════════════════════════════════════
+§13. H1 INTEGRATION (per stream)
+═══════════════════════════════════════════════════════════════════════
+
+H1 chunks at /home/z/my-project/download/H1_chunks/
+Index: H1_00_INDEX.txt
+
+VOLT stream loads:
+  H1_02 (§I Lingerie-Bras)
+  H1_03 (§II Panties)
+  H1_06 (§V Swimwear)
+  H1_07 (§VI Sleepwear)
+  H1_08 (§VII Sheer)
+  H1_16 (§XV Accessories-as-Clothing)
+  H1_18 (§XVII Body Human)
+  H1_21 (§XX Colors/Patterns)
+
+NICHE stream loads: full H1 (all chunks as needed).
+
+§X-NNN references in pre-header H1: field ONLY. Never in body.
+
+═══════════════════════════════════════════════════════════════════════
+§14. NEGATIVE LIBRARY
+═══════════════════════════════════════════════════════════════════════
+
+STD-CORE (all prompts):
+  1boy, male, man, boy, guy, established character, copyrighted
+  character, named character, character tag, fused bodies, limb
+  merge, too many arms, body merge, sameface, identical features,
+  bad anatomy, extra fingers, missing fingers, deformed hands,
+  mutated limbs, wrong body proportions, extra limbs, malformed
+  limb, blurry, low quality, worst quality, unnatural skin color,
+  tiny eyes, pinpoint eyes, dots for eyes, micro eyes, anime eye
+  shrink, slit eyes, eye deformation, uneven eyes, eye merge,
+  realistic skin, photorealistic, 3d render, manhwa style,
+  western cartoon, cel shading, chibi, overexposed, porcelain
+  skin, uniform skin tone, flat skin shading, realistic photograph,
+  photographic lighting, depth of field bokeh, lens flare,
+  photographic grain, artist name, named artist reference,
+  established artist, famous artist style, copied style, style
+  imitation, artist signature, artstation trending, by artist,
+  art by, in the style of, inspired by artist,
+  MUTED: muted colors, washed out, desaturated, flat color,
+  muddy palette, grey cast, dull tones, low saturation, bleached
+
+STD-Y1 (VOLT, no anatomy):
+  STD-CORE + nipples visible through clothing, nipple outline
+  through clothes, see-through clothing, transparent clothing,
+  nipples through fabric
+
+STD-Y2 (VOLT, through-fabric):
+  STD-CORE + barcode censor, mosaic censor, black bar censor,
+  nipple censor, genital censor, extra nipples, misplaced
+  anatomy, anatomy error, body horror, bad nipples, bad shading
+  resembling mosaic, accidental line artifact
+
+STD-Y3 (VOLT, bare butt/back/thigh):
+  STD-Y2 + uncovered pussy, explicit clitoris, genitalia detail,
+  spread legs with visible genital area, sexual fluid, inserted
+  object, mimicked oral, mimicked sex, lactation, milk
+
+STD-YX (VOLT, open breast):
+  STD-Y3 (same protection, prevents PH:Y drift to genitalia)
+
+STD-NICHE-DRY (NICHE, clothed):
+  STD-CORE + nipples visible through clothing, nipple outline
+  through clothes, see-through clothing, transparent clothing,
+  nipples through fabric
+
+STD-NICHE-A (NICHE, sheer/wet):
+  STD-CORE + barcode censor, mosaic censor, black bar censor,
+  nipple censor, genital censor, extra nipples, misplaced
+  anatomy, anatomy error, body horror, bad nipples, bad shading
+  resembling mosaic, accidental line artifact
+
+STD-NICHE-E (NICHE, nude):
+  STD-NICHE-A + uncovered pussy, explicit clitoris, genitalia
+  detail, spread legs with visible genital area, sexual fluid,
+  inserted object, mimicked oral, mimicked sex, lactation, milk
+
+═══════════════════════════════════════════════════════════════════════
+§15. QUOTAS SUMMARY (per batch of 21)
+═══════════════════════════════════════════════════════════════════════
+
+CAMERAS: min 6 distinct, max 5 per camera. No 2 consecutive same.
+STREAM VOLT: C02 max 3, C11 max 2.
+SS DEVICES: min 7 distinct per batch.
+CONCEPTS (CL): min 7 distinct. Max 2 of same CL per batch.
+PALETTES: 21 unique per batch. "Warm amber" max 2.
+SETTINGS: 21 unique per batch.
+SKIN TONES: min 3 deep-brown, 5 olive, 5 fair, 3 brown, 3 east-asian, 2 varied.
+GENO COLLISION: max 2 shared digits between any two prompts (T excluded).
+OPENINGS: min 7 distinct structures. Banned templates in §16.
+CLOSURES: banned recursive/aphoristic. See §16.
+CROSS-BATCH: P01, P11, P21 thread-types differ from prev 3 batches.
+
+VOLT LENGTH: 80-140 words per prompt.
+NICHE LENGTH: 120-200 words per prompt.
+
+═══════════════════════════════════════════════════════════════════════
+§16. BANNED PATTERNS
+═══════════════════════════════════════════════════════════════════════
+
+BANNED OPENINGS:
+  "A [shot] captures an original female character with [hair]
+   hair and [eye] eyes..."
+  "She [verb] in [setting]..." (overused default)
+
+BANNED CLOSURES:
+  "[X] is the image"
+  "The [X] is the [Y]" (recursive)
+  "The [X] is the only [adj] [noun]" (aphoristic)
+  Any meta-explanation of what image "is about"
+
+BANNED META-TEXT (in prompt bodies):
+  "cross-batch echo received/seeded/resolved"
+  "tooth-mark on glass" or any literal motif-name
+  Any text addressed to Block A, not Tsubaki 2
+
+BANNED LIGHT NOUNS (see §6):
+  lamp, candle, lantern, bulb, fixture, torch, chandelier,
+  sconce, headlight, spotlight, floodlight, streetlight
+
+BANNED MEANING-LABELS:
+  sexy, sultry, seductive, lewd, voluptuous, curvy, thicc,
+  hot, babe, erotic, pornographic, sensual (as adjective)
+
+BANNED §X-NNN:
+  Never in prompt bodies. Pre-header only.
+
+═══════════════════════════════════════════════════════════════════════
+§17. POST-FLIGHT CARD (per batch)
+═══════════════════════════════════════════════════════════════════════
+
+BATCH: {name} | STREAM: {VOLT|NICHE}
+| CONCEPT: {phrase} | MODE: Pro | PH: Y
+─────────────────────────────────────────────────────────────────
+BEST:   P## | Why: ___
+WORST:  P## | Fail: ___ | Fix: ___
+CAMERA_QUOTA: Y/N (min 6 distinct, max 5 each?)
+SS_QUOTA: Y/N (min 7 distinct?)
+CL_QUOTA: Y/N (min 7 distinct?)
+PALETTE_QUOTA: Y/N (21 unique?)
+SETTING_QUOTA: Y/N (21 unique?)
+SKIN_QUOTA: Y/N (min 3 deep-brown, etc.?)
+GENO_COLLISION: Y/N (max 2 shared?)
+COLOR_QUADRUPLE: Y/N (4 colors in body?)
+LIGHT_FIX: Y/N (no banned nouns?)
+OPENING_VARIETY: Y/N (7+ structures?)
+CLOSURE_CLEAN: Y/N (no recursive/aphoristic?)
+META_TEXT_FREE: Y/N (no cross-batch echo?)
+§X-NNN_FREE: Y/N (none in bodies?)
+SATURATION_TAGS: Y/N (in every prompt?)
+NEXT:   ___
+
+═══════════════════════════════════════════════════════════════════════
+§18. WORKFLOW
+═══════════════════════════════════════════════════════════════════════
+
+Step 1: Pick STREAM (VOLT or NICHE).
+Step 2: Pick batch CONCEPT phrase (e.g. "the moment before falling").
+Step 3: Pick 21 GENO codes. Verify no collisions (max 2 shared digits).
+Step 4: Pick 21 palettes (no repeats, max 2 "warm amber").
+Step 5: Pick 21 settings (no archetype repeats).
+Step 6: Pick 21 structural devices (min 7 distinct).
+Step 7: Pick 21 concepts (min 7 distinct, max 2 same).
+Step 8: Write 21 prompts. Each 80-140 (VOLT) or 120-200 (NICHE) words.
+Step 9: Each prompt has SATURATION TAGS in body.
+Step 10: Each prompt has 4 colors (contrast quadruple) in body.
+Step 11: Each prompt ends with "Masterpiece, best quality, anime artstyle."
+Step 12: Verify no banned patterns (§16).
+Step 13: Post-flight card (§17).
+
+═══════════════════════════════════════════════════════════════════════
+END OF A5P4 CORE
+═══════════════════════════════════════════════════════════════════════

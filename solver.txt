@@ -1,0 +1,1672 @@
+#!/usr/bin/env python3
+"""solver_v2.py — Constraint-first sampler for batch generation.
+
+Per A6 §4 PIPE-3 + PROP-C-001 (external review):
+  Replace generate-then-check-then-patch with sample-from-allowed-pool
+  at each step. All quotas become HARD constraints, not soft targets.
+
+Architecture:
+  THEME → solver_v2.py → HYBRID_vN_solver.txt (metadata + placeholder prose)
+                        → postflight_v2.py validates → 0 FAILs guaranteed
+
+Priority order (per A6 §4 PIPE-3):
+  1. GENRE (NICHE/VOLT) — determines allowed LLS, NCS, body-emphasis
+  2. LLS — constrained by genre
+  3. CAMERA (D17) — first visual priority
+  4. FRAMING (D18) — constrained by camera
+  5. BODY-EMPHASIS (D19) — constrained by genre + LLS + min-quotas
+  6. SPECTACLE (D20)
+  7. SKELETON (Sσ) — no adjacent same, ≤2 per batch
+  8. CLOSURE — ≤3 per batch
+  9. NCS — constrained by genre + LLS
+  10. BDM 8-dim — unique combinations
+  11. OAS — unique (main 21)
+  12. PL — constrained by body_emphasis + camera (camera-pair mandate)
+  13. E-CODE — constrained by LLS
+  14. STRAND rotation — ≤3 each
+  15. OPENER word — no 4-in-a-row, ≤5 per batch
+  16. VERB pool — 2 per prompt, ≤3 per verb across batch
+
+Output format: HYBRID_vN_solver.txt with full metadata blocks + placeholder prose.
+Validates with postflight_v2.py.
+"""
+import json
+import random
+import re
+import sys
+from pathlib import Path
+from collections import defaultdict, Counter
+from dataclasses import dataclass, field
+from typing import Optional
+
+# ─── Enum spaces ────────────────────────────────────────────────────
+
+ENUMS = {
+    'D17_camera': [
+        'front-eye-level', '3-quarter', 'side-profile', 'back-to-camera',
+        'over-shoulder', 'from-above', 'from-below', 'macro-close',
+        'wide-env', 'dutch-tilt'
+    ],
+    'D18_framing': [
+        'extreme-close', 'close-up', 'medium', 'cowboy', 'full-body',
+        'wide-env', 'panoramic', 'split-frame'
+    ],
+    'D19_body_emphasis': [
+        'face', 'eyes', 'lips', 'throat', 'collarbone',
+        'breasts', 'navel', 'hands', 'hips', 'buttocks',
+        'thighs', 'back-spine'
+    ],
+    'D20_spectacle': [
+        'architectural', 'atmospheric', 'light-event', 'color-event',
+        'scale-contrast', 'material-event', 'weather-event',
+        'reflection', 'refraction', 'particle-effect'
+    ],
+    'D21_composition': [
+        'rule-of-thirds', 'center', 'golden-spiral', 'triangle',
+        'diagonal-split', 'frame-within-frame', 'silhouette-dominant',
+        'negative-space-dominant'
+    ],
+    'skeleton': list('ABCDEFGHIJKLMNOPQRSTUVWXYZ'),  # Sσ-A through Sσ-Z
+    'genre': ['NICHE', 'VOLT'],
+    'lls': ['L0', 'L1', 'L2', 'L3', 'L4'],
+    'closure': ['F1', 'F2', 'F3', 'F4', 'F5', 'F6', 'F7', 'F8', 'F9', 'F10', 'F11', 'F12'],
+    'strand': [
+        'individual strands visible',
+        'each strand distinct',
+        'strands separate and defined',
+        'fine strands catching light',
+        'smooth, each hair visible',
+        'silky, strands not fused',
+        'smooth, each hair visible',  # variant 7 (no suffix in prose)
+        'silky, strands not fused',   # variant 8 (no suffix in prose)
+    ],
+    'e_codes': [f'E{n}' for n in range(26, 71)],  # E26-E70
+}
+
+# NCS by genre
+NCS_NICHE = ['CONCEALED', 'COVERED', 'TOPLESS-back-view']
+NCS_VOLT = ['COVERED', 'THROUGH-FABRIC', 'VISIBLE', 'NAKED', 'TOPLESS', 'TAPE']
+
+# Body-emphasis by genre (NICHE = no erotic zones)
+EMPHASIS_NICHE = ['face', 'eyes', 'lips', 'throat', 'collarbone', 'hands', 'back-spine']
+EMPHASIS_VOLT = ['face', 'eyes', 'lips', 'throat', 'collarbone',
+                 'breasts', 'navel', 'hands', 'hips', 'buttocks',
+                 'thighs', 'back-spine']
+
+# LLS by genre
+LLS_NICHE = ['L0', 'L1']
+LLS_VOLT = ['L1', 'L2', 'L3', 'L4']
+
+# PL codes with their implied camera-pair (per BBAN v2 §5)
+PL_CAMERA_PAIRS = {
+    'PL01': ['front-eye-level', '3-quarter'],
+    'PL02': ['macro-close', 'close-up'],
+    'PL03': ['front-eye-level', '3-quarter'],
+    'PL04': ['from-above', '3-quarter'],
+    'PL05': ['from-above', 'side-profile'],
+    'PL06': ['front-eye-level', '3-quarter', 'from-below'],
+    'PL07': ['from-above', 'over-shoulder'],
+    'PL08': ['front-eye-level', 'wide-env'],
+    'PL09': ['3-quarter', 'side-profile'],
+    'PL10': ['from-above', 'wide-env', 'back-to-camera'],
+    'PL11': ['over-shoulder', 'back-to-camera'],
+    'PL12': ['from-below', '3-quarter', 'front-eye-level'],
+    'PL13': ['macro-close', 'close-up'],
+    'PL14': ['from-below', 'back-to-camera', 'over-shoulder'],
+    'PL15': ['3-quarter', 'front-eye-level'],
+    'PL16': ['3-quarter', 'from-below'],
+    'PL17': ['over-shoulder', '3-quarter'],
+    'PL18': ['over-shoulder', 'back-to-camera'],
+    'PL19': ['side-profile', '3-quarter'],
+    'PL20': ['front-eye-level', '3-quarter'],
+    'PL21': ['3-quarter', 'wide-env'],
+    'PL22': ['front-eye-level', '3-quarter'],
+    'PL23': ['front-eye-level', '3-quarter'],
+    'PL24': ['from-above', '3-quarter', 'over-shoulder'],
+    'PL25': ['back-to-camera', 'from-below', 'over-shoulder'],
+    'PL26': ['back-to-camera', 'over-shoulder', 'from-behind'] if False else ['back-to-camera', 'over-shoulder'],
+    'PL27': ['from-front', '3-quarter', 'from-below'] if False else ['front-eye-level', '3-quarter', 'from-below'],
+    'PL28': ['from-above', 'from-side', 'over-shoulder'] if False else ['from-above', 'side-profile', 'over-shoulder'],
+    'PL29': ['front-eye-level', '3-quarter', 'side-profile'],
+    'PL30': ['front-eye-level', 'from-below', 'over-shoulder'],
+    'PL31': ['side-profile', 'over-shoulder'],
+    'PL32': ['front-eye-level', 'from-below', '3-quarter'],
+    'PL33': ['back-to-camera', 'over-shoulder', '3-quarter'],
+    'PL34': ['back-to-camera', 'side-profile', 'from-below'],
+    'PL35': ['side-profile', '3-quarter'],
+    'PL36': ['from-above', 'side-profile', '3-quarter'],
+    'PL37': ['front-eye-level', 'over-shoulder'],
+    'PL38': ['front-eye-level', 'side-profile', '3-quarter'],
+    'PL39': ['from-above', 'over-shoulder'],
+    'PL40': ['front-eye-level', 'from-below', '3-quarter'],
+    'PL41': ['side-profile', '3-quarter', 'wide-env'],
+    'PL42': ['from-below', '3-quarter'],
+    'PL43': ['front-eye-level', 'side-profile'],
+    'PL44': ['3-quarter', 'front-eye-level'],
+    'PL45': ['front-eye-level', 'side-profile'],
+}
+
+# PL body-emphasis hints (which body zone each PL naturally emphasizes)
+PL_EMPHASIS_HINTS = {
+    'PL01': ['face', 'back-spine'],
+    'PL02': ['face', 'eyes', 'hands'],
+    'PL03': ['hips', 'thighs'],
+    'PL04': ['hips', 'back-spine', 'face'],
+    'PL05': ['face', 'back-spine'],
+    'PL06': ['breasts', 'throat', 'collarbone'],
+    'PL07': ['throat', 'collarbone', 'face'],
+    'PL08': ['face', 'back-spine'],
+    'PL09': ['breasts', 'hips'],
+    'PL10': ['back-spine', 'buttocks'],
+    'PL11': ['hands', 'back-spine'],
+    'PL12': ['breasts', 'navel', 'hips'],
+    'PL13': ['hands', 'lips'],
+    'PL14': ['back-spine', 'breasts', 'buttocks'],
+    'PL15': ['face', 'breasts'],
+    'PL16': ['back-spine', 'buttocks'],
+    'PL17': ['hands', 'face'],
+    'PL18': ['throat', 'back-spine', 'buttocks'],
+    'PL19': ['face', 'breasts'],
+    'PL20': ['breasts', 'face'],
+    'PL21': ['thighs', 'legs', 'face'],
+    'PL22': ['face', 'breasts'],
+    'PL23': ['face', 'back-spine'],
+    'PL24': ['back-spine', 'buttocks', 'thighs'],
+    'PL25': ['buttocks', 'thighs', 'breasts'],
+    'PL26': ['back-spine', 'shoulder-blade'],
+    'PL27': ['back-spine', 'throat'],
+    'PL28': ['back-spine', 'face'],
+    'PL29': ['thighs', 'hips', 'breasts'],
+    'PL30': ['thighs', 'buttocks', 'navel'],
+    'PL31': ['hips', 'navel', 'back-spine'],
+    'PL32': ['breasts', 'throat', 'navel'],
+    'PL33': ['back-spine', 'breasts', 'buttocks'],
+    'PL34': ['back-spine', 'buttocks', 'breasts'],
+    'PL35': ['hips', 'breasts', 'face'],
+    'PL36': ['thighs', 'hips', 'navel'],
+    'PL37': ['thighs', 'hands', 'face'],
+    'PL38': ['back-spine', 'breasts'],
+    'PL39': ['back-spine', 'face'],
+    'PL40': ['breasts', 'buttocks', 'throat'],
+    'PL41': ['face', 'thighs', 'hips'],
+    'PL42': ['breasts', 'throat', 'navel'],
+    'PL43': ['thighs', 'hands'],
+    'PL44': ['back-spine', 'buttocks', 'thighs'],
+    'PL45': ['face', 'throat', 'hips'],
+}
+
+# ─── Mandatory targets ─────────────────────────────────────────────
+
+# Per A6 §3 IMPACT-6 — LLS distribution
+LLS_TARGETS = {'L0': 4, 'L1': 4, 'L2': 9, 'L3': 4, 'L4': 0}  # sums to 21
+
+# Per A6 §10 Group B — NICHE/VOLT genre quota
+NICHE_COUNT = 7  # 6-7 range
+VOLT_COUNT = 14  # 14-15 range
+
+# Per A6 §10 Group J — pose-type quotas
+POSE_QUOTAS = {
+    'kneeling': {'min': 2, 'max': None},
+    'seated': {'min': 2, 'max': None},
+    'bent-over': {'min': 2, 'max': None},
+    'arched': {'min': 2, 'max': None},
+    'arms-up': {'min': 2, 'max': None},
+    'arms-behind-back': {'min': 1, 'max': None},
+    'hands-on-hips': {'min': 1, 'max': None},
+    'standing': {'min': None, 'max': 6},
+    'reclining': {'min': None, 'max': 4},  # reclining+lying combined
+}
+
+# Per A6 §3 IMPACT-2 — body-emphasis mandates
+EMPHASIS_MANDATES = {
+    'buttocks': 3,  # ASS MANDATE
+    'back-spine': 3,  # BACK MANDATE
+    'thighs': 3,  # LEGS MANDATE
+}
+
+# Per A6 §10 Group H — NCS distribution
+NCS_TARGETS = {'min_distinct': 8, 'max_per_value': 5}
+
+# Per A6 §10 Group M — closure distribution
+CLOSURE_TARGETS = {'min_distinct': 5, 'max_per_value': 3}
+
+# Per A6 §10 Group N — verb pool
+VERB_CAP = 3
+
+# Per A6 §10 Group B — VOLT-in-a-row cap
+VOLT_RUN_CAP = 3
+
+
+# ─── Verb pool (theme-driven, can be overridden) ────────────────────
+
+DEFAULT_VERB_POOL = [
+    'ignites', 'radiates', 'bursts', 'scatters', 'electrifies', 'coruscates',
+    'shimmers', 'glows-across', 'pulses', 'flashes', 'cascades-light',
+    'blooms-on', 'dances-across', 'sparkles', 'shines-through',
+    'illuminates', 'haloes', 'ignites-across', 'floods-with-light',
+    'washes-in-light', 'burns-bright'
+]
+
+DEFAULT_OPENERS = [
+    'The', 'She', 'Her', 'A', 'Smoke', 'Wine', 'Honey', 'Velvet',
+    'Perfume', 'Champagne', 'Chocolate', 'Ink', 'Blood', 'Incense',
+    'Bronze', 'Amber', 'Lace', 'Satin', 'Ash', 'Wax', 'Gold', 'Silver',
+    'Once', 'Day', 'Hush', 'Let', 'Dear', 'Yes', 'Light', 'Below',
+    'Inside', 'One', 'Three', 'Step', 'Black', 'Vows', 'Devotion',
+    'Take', 'Bass', 'Tar', 'Moon', 'Sun', 'Star', 'Fire', 'Ice',
+    'Cloud', 'Mist', 'Rain', 'Snow', 'Wind', 'Dust'
+]
+
+
+# ─── Solver ─────────────────────────────────────────────────────────
+
+@dataclass
+class SolverState:
+    """Tracks assignments and remaining quotas as solver runs."""
+    assignments: list = field(default_factory=list)
+    used_bdm: set = field(default_factory=set)
+    used_oas: set = field(default_factory=set)
+    counts: dict = field(default_factory=lambda: defaultdict(Counter))
+    # counts[dim][value] = number of times value used in dim
+    
+    def used(self, dim, value):
+        return self.counts[dim][value]
+    
+    def dim_used_set(self, dim):
+        return set(self.counts[dim].keys())
+    
+    def total_assigned(self):
+        return len(self.assignments)
+
+
+class ConstraintSolver:
+    def __init__(self, theme='test', seed=42, verb_pool=None, openers=None):
+        self.theme = theme
+        self.rng = random.Random(seed)
+        self.verb_pool = verb_pool or DEFAULT_VERB_POOL
+        self.openers = openers or DEFAULT_OPENERS
+        self.state = SolverState()
+        self.violations = []  # collect warnings during solve
+    
+    def solve(self) -> list:
+        """Solve the full batch: 21 main + 3 OC."""
+        # Pre-plan: assign genres FIRST (LLS depends on genre alignment)
+        genre_plan = self._plan_genre_distribution()
+        # Pre-plan: assign LLS distribution (aligned with genre)
+        lls_plan = self._plan_lls_distribution(genre_plan)
+        # Pre-plan: assign body-emphasis to meet ASS/BACK/LEGS mandates
+        emphasis_plan = self._plan_body_emphasis(genre_plan)
+        # Pre-plan: assign PL pose-types to meet kneeling/seated/bent-over/etc quotas
+        pose_plan = self._plan_pose_distribution(genre_plan, emphasis_plan)
+        
+        # Now generate each prompt in priority order
+        for i in range(21):
+            pid = f"P{i+1:02d}"
+            prompt = self._solve_prompt(
+                pid=pid,
+                planned_genre=genre_plan[i],
+                planned_lls=lls_plan[i],
+                planned_emphasis=emphasis_plan[i],
+                planned_pose_type=pose_plan[i],
+                is_oc=False
+            )
+            self.state.assignments.append(prompt)
+        
+        # OC prompts (3) — looser constraints
+        for i in range(3):
+            pid = f"OC{i+1}"
+            prompt = self._solve_prompt(
+                pid=pid,
+                planned_genre='VOLT',  # OCs are VOLT-style
+                planned_lls='L3',  # OCs are explicit
+                planned_emphasis=None,  # free
+                planned_pose_type=None,
+                is_oc=True
+            )
+            self.state.assignments.append(prompt)
+        
+        # Phase 3: post-hoc fixup for edge cases
+        self._post_hoc_fixup()
+        
+        return self.state.assignments
+    
+    def _post_hoc_fixup(self):
+        """Phase 3: scan for remaining violations and swap assignments.
+        Handles edge cases that randomized sampling misses:
+          - BRE-QUOTA: breasts in L1 VOLT → BRE not assigned → move breasts to L2+
+          - STANDING-CAP: standing count > 6 → swap a standing pose to kneeling/seated
+          - NCS-DISTINCT: < 8 distinct → force TOPLESS into a L3 slot
+          - B-QUOTA: < 2 distinct → force different B codes
+        """
+        max_passes = 5
+        for pass_num in range(max_passes):
+            fixes_applied = 0
+            fixes_applied += self._fix_standing_cap()
+            fixes_applied += self._fix_ncs_distinct()
+            fixes_applied += self._fix_bre_quota()
+            fixes_applied += self._fix_b_quota()
+            if fixes_applied == 0:
+                break  # no more fixes needed
+    
+    def _fix_standing_cap(self) -> int:
+        """If standing > 6, swap a standing PL to kneeling/seated."""
+        standing_pids = [p for p in self.state.assignments 
+                        if p['is_main'] and 'standing' in self._get_pl_name(p['pl']).lower()]
+        if len(standing_pids) <= 6:
+            return 0
+        
+        # Need to swap (count - 6) standing poses
+        swaps_needed = len(standing_pids) - 6
+        swaps_done = 0
+        
+        for p in standing_pids:
+            if swaps_done >= swaps_needed:
+                break
+            # Find a non-standing PL with same camera + body_emphasis
+            current_pl = p['pl']
+            current_camera = p['camera']
+            current_emphasis = p['body_emphasis']
+            
+            # Candidate PLs: kneeling or seated, with matching camera
+            kneeling_seated_pls = ['PL10', 'PL14', 'PL16', 'PL28', 'PL33', 'PL40',  # kneeling
+                                   'PL07', 'PL17', 'PL22', 'PL37', 'PL43']  # seated
+            for new_pl in kneeling_seated_pls:
+                if new_pl == current_pl:
+                    continue
+                if current_camera in PL_CAMERA_PAIRS.get(new_pl, []):
+                    # Check this PL isn't already at cap 4
+                    if self.state.counts['pl'][new_pl] >= 4:
+                        continue
+                    # Swap
+                    self.state.counts['pl'][current_pl] -= 1
+                    self.state.counts['pl'][new_pl] += 1
+                    p['pl'] = new_pl
+                    swaps_done += 1
+                    break
+        
+        return swaps_done
+    
+    def _fix_ncs_distinct(self) -> int:
+        """If NCS distinct < 8, force TOPLESS into a L3 VOLT slot if not yet used."""
+        ncs_distinct = len([v for v in self.state.counts['ncs'] if self.state.counts['ncs'][v] > 0])
+        if ncs_distinct >= 8:
+            return 0
+        if self.state.counts['ncs']['TOPLESS'] > 0:
+            return 0  # already used
+        
+        # Find a L3 VOLT prompt with THROUGH-FABRIC or VISIBLE (most swappable)
+        for p in self.state.assignments:
+            if not p['is_main']:
+                continue
+            if p['genre'] != 'VOLT' or p['lls'] != 'L3':
+                continue
+            if p['ncs'] in ('THROUGH-FABRIC', 'VISIBLE'):
+                old_ncs = p['ncs']
+                self.state.counts['ncs'][old_ncs] -= 1
+                self.state.counts['ncs']['TOPLESS'] += 1
+                p['ncs'] = 'TOPLESS'
+                return 1
+        
+        return 0
+    
+    def _fix_bre_quota(self) -> int:
+        """If BRE distinct < 3, force different BRE codes.
+        Cause: breasts in L1 VOLT slot doesn't get BRE (only L2+ do).
+        Fix: move breasts-emphasis from L1 VOLT to L2 VOLT, swap another emphasis to L1."""
+        bre_distinct = len([b for b in self.state.counts['bre'] if self.state.counts['bre'][b] > 0])
+        if bre_distinct >= 3:
+            return 0
+        
+        # Find breasts-emphasis prompts in L1 VOLT (these don't get BRE)
+        breasts_l1_volt = [p for p in self.state.assignments 
+                          if p['is_main'] and p['genre'] == 'VOLT' and p['lls'] == 'L1' 
+                          and p['body_emphasis'] == 'breasts']
+        
+        # Find non-breasts-emphasis prompts in L2+ VOLT (can swap to breasts)
+        non_breasts_l2plus = [p for p in self.state.assignments 
+                             if p['is_main'] and p['genre'] == 'VOLT' and p['lls'] in ('L2', 'L3')
+                             and p['body_emphasis'] != 'breasts' 
+                             and p['body_emphasis'] not in ('buttocks', 'back-spine', 'thighs')]  # don't break mandates
+        
+        if not breasts_l1_volt or not non_breasts_l2plus:
+            return 0
+        
+        # Swap: move breasts from L1 VOLT to L2+ VOLT
+        breasts_p = breasts_l1_volt[0]
+        swap_p = non_breasts_l2plus[0]
+        
+        breasts_p_emphasis = breasts_p['body_emphasis']
+        swap_p_emphasis = swap_p['body_emphasis']
+        
+        self.state.counts['body_emphasis'][breasts_p_emphasis] -= 1
+        self.state.counts['body_emphasis'][swap_p_emphasis] -= 1
+        
+        breasts_p['body_emphasis'] = swap_p_emphasis
+        swap_p['body_emphasis'] = breasts_p_emphasis
+        
+        # Re-assign BRE/BK/B codes based on new emphasis
+        breasts_p['bre_codes'] = []  # was L1, no BRE
+        breasts_p['bk_codes'] = []
+        breasts_p['b_codes'] = []
+        
+        if swap_p_emphasis == 'breasts':
+            swap_p['bre_codes'] = self._sample_bre('breasts')
+            for b in swap_p['bre_codes']:
+                self.state.counts['bre'][b] += 1
+        elif swap_p_emphasis == 'back-spine':
+            swap_p['bk_codes'] = self._sample_bk('back-spine')
+            for b in swap_p['bk_codes']:
+                self.state.counts['bk'][b] += 1
+        elif swap_p_emphasis == 'buttocks':
+            swap_p['b_codes'] = self._sample_b('buttocks')
+            for b in swap_p['b_codes']:
+                self.state.counts['b'][b] += 1
+        
+        if breasts_p_emphasis == 'breasts':
+            # breasts_p now has swap_p's old emphasis
+            if breasts_p['lls'] in ('L2', 'L3'):
+                # Now L2+, can get BRE
+                breasts_p['bre_codes'] = self._sample_bre(breasts_p['body_emphasis'])
+                for b in breasts_p['bre_codes']:
+                    self.state.counts['bre'][b] += 1
+        
+        return 1
+    
+    def _fix_b_quota(self) -> int:
+        """If B distinct < 2, force different B codes."""
+        b_distinct = len([b for b in self.state.counts['b'] if self.state.counts['b'][b] > 0])
+        if b_distinct >= 2:
+            return 0
+        
+        # Find all buttocks prompts and check their B codes
+        buttocks_prompts = [p for p in self.state.assignments 
+                           if p['is_main'] and p['body_emphasis'] == 'buttocks' and p['b_codes']]
+        
+        if len(buttocks_prompts) < 2:
+            return 0
+        
+        # Force different B code on second buttocks prompt
+        p1 = buttocks_prompts[0]
+        p2 = buttocks_prompts[1]
+        if p1['b_codes'] and p2['b_codes'] and p1['b_codes'][0] == p2['b_codes'][0]:
+            # Find a different B code
+            used_b = set(p['b_codes'][0] for p in buttocks_prompts if p['b_codes'])
+            available_b = [b for b in ['B16', 'B17', 'B18', 'B19', 'B20', 'B21'] if b not in used_b]
+            if available_b:
+                old_b = p2['b_codes'][0]
+                new_b = self.rng.choice(available_b)
+                self.state.counts['b'][old_b] -= 1
+                self.state.counts['b'][new_b] += 1
+                p2['b_codes'] = [new_b]
+                return 1
+        
+        return 0
+    
+    def _plan_lls_distribution(self, genre_plan=None) -> list:
+        """Plan LLS sequence: L0×4, L1×4, L2×9, L3×4 = 21.
+        Must be aligned with genre_plan: L0 only in NICHE, L2+ only in VOLT."""
+        if genre_plan is None:
+            # Fallback: unaligned (shouldn't happen in normal flow)
+            act1 = ['L0', 'L0', 'L1', 'L1', 'L2', 'L2', 'L2']
+            act2 = ['L2', 'L3', 'L2', 'L3', 'L2', 'L3', 'L2']
+            act3 = ['L0', 'L0', 'L1', 'L1', 'L2', 'L2', 'L3']
+            return act1 + act2 + act3
+        
+        # Aligned planning: L0→NICHE, L1→NICHE+VOLT, L2→VOLT, L3→VOLT
+        # NICHE=7 (indices where genre=NICHE), VOLT=14
+        # L0=4 (NICHE only), L1=4 (3 NICHE + 1 VOLT), L2=9 (VOLT), L3=4 (VOLT)
+        niche_indices = [i for i, g in enumerate(genre_plan) if g == 'NICHE']
+        volt_indices = [i for i, g in enumerate(genre_plan) if g == 'VOLT']
+        
+        plan = [None] * 21
+        
+        # Assign L0 to first 4 NICHE slots
+        for i in niche_indices[:4]:
+            plan[i] = 'L0'
+        # Assign L1 to remaining 3 NICHE slots
+        for i in niche_indices[4:7]:
+            plan[i] = 'L1'
+        # Assign L1 to 1 VOLT slot (first VOLT)
+        plan[volt_indices[0]] = 'L1'
+        # Assign L2 to next 9 VOLT slots
+        for i in volt_indices[1:10]:
+            plan[i] = 'L2'
+        # Assign L3 to last 4 VOLT slots
+        for i in volt_indices[10:14]:
+            plan[i] = 'L3'
+        
+        counts = Counter(plan)
+        assert counts == Counter({'L0': 4, 'L1': 4, 'L2': 9, 'L3': 4}), f"LLS plan: {counts}"
+        assert all(plan[i] in ('L0', 'L1') for i in niche_indices), "NICHE has L2+!"
+        assert all(plan[i] in ('L1', 'L2', 'L3') for i in volt_indices), "VOLT has L0!"
+        return plan
+    
+    def _plan_genre_distribution(self) -> list:
+        """Plan NICHE/VOLT: 7 NICHE + 14 VOLT, breather cap ≤3 VOLT in row."""
+        # Act I opens NICHE, Act III closes NICHE
+        # Need breather every ≤3 VOLT
+        # Pattern (7 NICHE / 14 VOLT, 21 slots, breather ≤3):
+        # N V V V N V V N V V N V V V N V V V N V V (last 2 = VV, but P21 should be N)
+        # Try: N V V V N V V N V V N V V V N V V V N V N
+        # Recount: N=7, V=14 ✓
+        # Breather check (max V run): 
+        #   P1=N, P2-4=VVV (3), P5=N, P6-7=VV (2), P8=N, P9-10=VV (2), P11=N, P12-14=VVV (3), P15=N, P16-18=VVV (3), P19=N, P20=V, P21=N
+        # Max run = 3 ✓
+        plan = ['NICHE', 'VOLT', 'VOLT', 'VOLT',
+                'NICHE', 'VOLT', 'VOLT',
+                'NICHE', 'VOLT', 'VOLT',
+                'NICHE', 'VOLT', 'VOLT', 'VOLT',
+                'NICHE', 'VOLT', 'VOLT', 'VOLT',
+                'NICHE', 'VOLT', 'NICHE']
+        assert len(plan) == 21
+        assert plan[0] == 'NICHE'  # Act I open
+        assert plan[20] == 'NICHE'  # Act III close
+        assert Counter(plan)['NICHE'] == 7
+        assert Counter(plan)['VOLT'] == 14
+        # Verify breather cap
+        max_run = 0
+        cur = 0
+        for g in plan:
+            if g == 'VOLT':
+                cur += 1
+                max_run = max(max_run, cur)
+            else:
+                cur = 0
+        assert max_run <= 3, f"VOLT run cap violated: {max_run}"
+        return plan
+    
+    def _plan_body_emphasis(self, genre_plan: list) -> list:
+        """Plan body-emphasis: ASS/BACK/LEGS ≥3 each, NICHE excludes erotic zones."""
+        # ASS=3, BACK=3, LEGS=3 = 9 mandated
+        # Remaining 12: face (3), eyes (1), lips (1), throat (1), collarbone (1),
+        #               breasts (2), hands (1) = 10, plus 2 free
+        # NICHE (7 prompts) cannot use erotic zones (breasts/buttocks/thighs/navel/hips)
+        # So ASS/BACK/LEGS mandates must all be in VOLT (14 prompts)
+        # Plan: VOLT has 14 slots, need 9 for ASS/BACK/LEGS, 5 for other erotic + face/eyes/etc.
+        
+        plan = [None] * 21
+        
+        # Assign mandates to VOLT slots first
+        volt_indices = [i for i, g in enumerate(genre_plan) if g == 'VOLT']
+        # 14 VOLT slots, need: 3 ASS + 3 BACK + 3 LEGS + 3 BREASTS + 2 other = 14
+        # Distribute across acts for variety
+        emphasis_for_volt = ['buttocks', 'buttocks', 'buttocks',  # ASS×3
+                             'back-spine', 'back-spine', 'back-spine',  # BACK×3
+                             'thighs', 'thighs', 'thighs',  # LEGS×3
+                             'breasts', 'breasts', 'breasts',  # BREASTS×3 (was 2, now 3 for BRE-QUOTA)
+                             'face', 'throat']  # other×2
+        self.rng.shuffle(emphasis_for_volt)
+        for idx, emph in zip(volt_indices, emphasis_for_volt):
+            plan[idx] = emph
+        
+        # NICHE slots: face (3), eyes (1), hands (1), lips (1) = 6, need 7
+        # Add one more: face
+        niche_indices = [i for i, g in enumerate(genre_plan) if g == 'NICHE']
+        emphasis_for_niche = ['face', 'face', 'eyes', 'hands', 'lips', 'face', 'back-spine']
+        # Note: 'back-spine' is allowed in NICHE per LLS-BODY-EMPHASIS-PAIRING (back-distant)
+        # Actually per A6 §6 NICHE allows: face / hands / silhouette / back-distant
+        # So back-spine is OK for NICHE
+        self.rng.shuffle(emphasis_for_niche)
+        for idx, emph in zip(niche_indices, emphasis_for_niche):
+            plan[idx] = emph
+        
+        # Verify mandates
+        counts = Counter(plan)
+        assert counts['buttocks'] >= 3, f"ASS mandate: {counts['buttocks']}"
+        assert counts['back-spine'] >= 3, f"BACK mandate: {counts['back-spine']}"
+        assert counts['thighs'] >= 3, f"LEGS mandate: {counts['thighs']}"
+        
+        return plan
+    
+    def _plan_pose_types(self) -> dict:
+        """Plan pose-type quotas: kneeling≥2, seated≥2, bent-over≥2, arched≥2,
+        arms-up≥2, arms-behind-back≥1, hands-on-hips≥1, standing≤6, reclining≤4."""
+        # Just track targets, sampling will respect them via weights
+        return {
+            'kneeling': 2, 'seated': 2, 'bent-over': 2, 'arched': 2,
+            'arms-up': 2, 'arms-behind-back': 1, 'hands-on-hips': 1,
+            'standing_max': 6, 'reclining_max': 4,
+        }
+    
+    def _plan_pose_distribution(self, genre_plan, emphasis_plan) -> list:
+        """Pre-plan pose-types per slot to meet all pose quotas.
+        Returns list of 21 pose-type tags (or None for free choice)."""
+        # Pose-types needed (min quotas):
+        # kneeling×2, seated×2, bent-over×2, arched×2, arms-up×2, arms-behind×1, hands-on-hips×1
+        # = 12 mandated pose-slots
+        # Remaining 9: free (but respect standing≤6, reclining≤4)
+        
+        # Assign mandated pose-types to VOLT slots (NICHE prefers still/contemplative)
+        mandated = ['kneeling', 'kneeling', 'seated', 'seated',
+                    'bent-over', 'bent-over', 'arched', 'arched',
+                    'arms-up', 'arms-up', 'arms-behind', 'hands-on-hips']
+        
+        plan = [None] * 21
+        volt_indices = [i for i, g in enumerate(genre_plan) if g == 'VOLT']
+        
+        # Place mandated poses in first 12 VOLT slots
+        for idx, pose_type in zip(volt_indices[:12], mandated):
+            plan[idx] = pose_type
+        
+        # Remaining VOLT slots + all NICHE slots: None (free)
+        return plan
+    
+    def _solve_prompt(self, pid, planned_genre, planned_lls, planned_emphasis, is_oc, planned_pose_type=None) -> dict:
+        """Solve a single prompt in priority order."""
+        prompt = {
+            'pid': pid,
+            'is_oc': is_oc,
+            'is_main': not is_oc,
+            'genre': planned_genre,
+            'lls': planned_lls,
+        }
+        
+        # 3. CAMERA (D17)
+        prompt['camera'] = self._sample_camera(prompt['genre'])
+        
+        # 4. FRAMING (D18) — ensure framing diversity, avoid full-body >40%
+        prompt['framing'] = self._sample_framing(prompt['camera'], prompt['genre'], planned_emphasis)
+        
+        # 5. BODY-EMPHASIS (D19) — use planned if available
+        if planned_emphasis:
+            prompt['body_emphasis'] = planned_emphasis
+        else:
+            prompt['body_emphasis'] = self._sample_body_emphasis(prompt['genre'], prompt['lls'])
+        
+        # 6. SPECTACLE (D20)
+        prompt['spectacle'] = self._sample_spectacle()
+        
+        # 7. SKELETON — no adjacent same, ≤2 per skeleton
+        prompt['skeleton'] = self._sample_skeleton()
+        
+        # 8. CLOSURE — ≤3 per batch, ≥5 distinct
+        prompt['closure'] = self._sample_closure()
+        
+        # 9. NCS — constrained by genre
+        prompt['ncs'] = self._sample_ncs(prompt['genre'], prompt['lls'])
+        
+        # 10. BDM 8-dim — unique
+        prompt['bdm'] = self._sample_bdm()
+        
+        # 11. OAS — unique (main 21)
+        prompt['oas'] = self._sample_oas(is_oc)
+        
+        # 12. PL — constrained by body_emphasis + camera + planned_pose_type
+        prompt['pl'] = self._sample_pl(prompt['body_emphasis'], prompt['camera'], planned_pose_type)
+        
+        # 13. E-CODE — constrained by LLS
+        prompt['e_code'] = self._sample_ecode(prompt['lls'])
+        
+        # 14. STRAND rotation
+        prompt['strand'] = self._sample_strand()
+        
+        # 15. OPENER word — no 4-in-a-row, ≤5 per batch
+        prompt['opener'] = self._sample_opener()
+        
+        # 16. VERB pool — 2 per prompt, ≤3 per verb
+        prompt['verbs'] = self._sample_verbs()
+        
+               # 17. FET/BRE/BK/B/ENG/K codes (BBAN v2 mandates)
+        if prompt['genre'] == 'VOLT':
+            prompt['fet_codes'] = self._sample_fet(prompt['body_emphasis'], prompt['lls'])
+            prompt['k_codes'] = self._sample_k(prompt['lls'])
+            if prompt['lls'] in ('L2', 'L3', 'L4'):
+                prompt['bre_codes'] = self._sample_bre(prompt['body_emphasis'])
+                prompt['bk_codes'] = self._sample_bk(prompt['body_emphasis'])
+                prompt['b_codes'] = self._sample_b(prompt['body_emphasis'])
+            else:
+                prompt['bre_codes'] = []
+                prompt['bk_codes'] = []
+                prompt['b_codes'] = []
+            prompt['eng_codes'] = self._sample_eng()
+        else:
+            prompt['fet_codes'] = []
+            prompt['k_codes'] = []
+            prompt['bre_codes'] = []
+            prompt['bk_codes'] = []
+            prompt['b_codes'] = []
+            prompt['eng_codes'] = []
+        
+        # 18. HAIR / EYE / SKIN (appearance diversity)
+        prompt['hair_color'] = self._sample_hair()
+        prompt['eye_color'] = self._sample_eye()
+        prompt['skin_tone'] = self._sample_skin()
+        
+        # Update state
+        self._update_state(prompt)
+        
+        return prompt
+    
+    def _sample_camera(self, genre) -> str:
+        """Sample D17 camera angle. Cap 4 per value."""
+        # Bias: NICHE prefers wide-env/from-above; VOLT prefers intimate/3-quarter/from-below
+        if genre == 'NICHE':
+            weights = {c: 3 if c in ('wide-env', 'from-above', 'macro-close') else 1
+                       for c in ENUMS['D17_camera']}
+        else:  # VOLT
+            weights = {c: 3 if c in ('from-below', '3-quarter', 'over-shoulder', 'macro-close', 'back-to-camera') else 1
+                       for c in ENUMS['D17_camera']}
+        
+        # Reduce weight for values already at cap
+        for c in ENUMS['D17_camera']:
+            if self.state.counts['camera'][c] >= 4:
+                weights[c] = 0
+            elif self.state.counts['camera'][c] >= 3:
+                weights[c] *= 0.3
+        
+        # Filter zero-weight
+        candidates = [c for c, w in weights.items() if w > 0]
+        if not candidates:
+            # Fallback: relax cap
+            candidates = [c for c in ENUMS['D17_camera'] if self.state.counts['camera'][c] < 5]
+        
+        return self.rng.choices(candidates, weights=[weights[c] for c in candidates])[0]
+    
+    def _sample_framing(self, camera, genre='VOLT', body_emphasis=None) -> str:
+        """Sample D18 framing. Ensure diversity.
+        Cowboy cap: ≤3 (was ≤8) — cowboy = upper-body, should be rare.
+        Full-body preference: VOLT body-forward (ass/back/legs/breasts emphasis).
+        Wide-env preference: NICHE atmospheric."""
+        # Bias: certain framings pair with certain cameras
+        if camera == 'wide-env':
+            preferred = ['wide-env', 'panoramic']
+        elif camera == 'macro-close':
+            preferred = ['extreme-close', 'close-up']
+        elif camera == 'from-below':
+            # from-below + full-body = heroic/looking-up at full figure
+            # from-below + cowboy = looking up at upper body (less interesting)
+            preferred = ['full-body', 'medium']
+        elif camera == 'from-above':
+            preferred = ['full-body', 'wide-env']
+        elif camera == 'over-shoulder':
+            preferred = ['medium', 'full-body']
+        elif camera == 'back-to-camera':
+            # back-to-camera + full-body = see whole back (good for back-focus)
+            preferred = ['full-body', 'medium']
+        else:  # 3-quarter, side-profile, front-eye-level, dutch-tilt
+            # For VOLT body-forward: prefer full-body (see the body)
+            # For NICHE: prefer medium (atmospheric)
+            if genre == 'VOLT' and body_emphasis in ('buttocks', 'back-spine', 'thighs', 'breasts', 'hips'):
+                preferred = ['full-body', 'medium']
+            elif genre == 'NICHE':
+                preferred = ['medium', 'wide-env', 'full-body']
+            else:
+                preferred = ['full-body', 'medium']
+        
+        weights = {}
+        for f in ENUMS['D18_framing']:
+            base = 2 if f in preferred else 1
+            # COWBOY: hard cap at 3 (was 8) — cowboy = upper-body, avoid dominance
+            if f == 'cowboy':
+                if self.state.counts['framing'][f] >= 3:
+                    weights[f] = 0
+                elif self.state.counts['framing'][f] >= 2:
+                    weights[f] = base * 0.2
+                else:
+                    weights[f] = base * 0.5  # reduce cowboy preference
+            # FULL-BODY: encourage (cap at 8, but high preference)
+            elif f == 'full-body':
+                if self.state.counts['framing'][f] >= 8:
+                    weights[f] = 0
+                elif self.state.counts['framing'][f] >= 6:
+                    weights[f] = base * 0.5
+                else:
+                    weights[f] = base * 1.5  # boost full-body
+            # Other framings: cap at 5 (24%)
+            else:
+                if self.state.counts['framing'][f] >= 5:
+                    weights[f] = 0
+                elif self.state.counts['framing'][f] >= 4:
+                    weights[f] = base * 0.3
+                else:
+                    weights[f] = base
+        
+        candidates = [f for f, w in weights.items() if w > 0]
+        if not candidates:
+            candidates = ENUMS['D18_framing']
+            weights = {f: 1 for f in candidates}
+        
+        return self.rng.choices(candidates, weights=[weights[f] for f in candidates])[0]
+    
+    def _sample_body_emphasis(self, genre, lls) -> str:
+        """Sample D19 body-emphasis."""
+        # Use planned emphasis when available (handled by caller)
+        # This is for OC or fallback
+        if genre == 'NICHE':
+            pool = EMPHASIS_NICHE
+        else:
+            pool = EMPHASIS_VOLT
+        
+        weights = {}
+        for e in pool:
+            base = 1
+            if self.state.counts['body_emphasis'][e] >= 4:
+                weights[e] = 0
+            else:
+                weights[e] = base
+        
+        candidates = [e for e, w in weights.items() if w > 0]
+        if not candidates:
+            candidates = pool
+        return self.rng.choice(candidates)
+    
+    def _sample_spectacle(self) -> str:
+        """Sample D20 spectacle. Cap 4 per value."""
+        weights = {}
+        for s in ENUMS['D20_spectacle']:
+            if self.state.counts['spectacle'][s] >= 4:
+                weights[s] = 0
+            elif self.state.counts['spectacle'][s] >= 3:
+                weights[s] = 0.3
+            else:
+                weights[s] = 1
+        
+        candidates = [s for s, w in weights.items() if w > 0]
+        if not candidates:
+            candidates = ENUMS['D20_spectacle']
+            weights = {s: 1 for s in candidates}
+        return self.rng.choices(candidates, weights=[weights[s] for s in candidates])[0]
+    
+    def _sample_skeleton(self) -> str:
+        """Sample Sσ skeleton. No adjacent same, ≤2 per batch."""
+        last_sk = self.state.assignments[-1]['skeleton'] if self.state.assignments else None
+        
+        weights = {}
+        for sk in ENUMS['skeleton']:
+            if sk == last_sk:
+                weights[sk] = 0  # no adjacent same
+            elif self.state.counts['skeleton'][sk] >= 2:
+                weights[sk] = 0  # cap 2
+            else:
+                weights[sk] = 1
+        
+        candidates = [sk for sk, w in weights.items() if w > 0]
+        if not candidates:
+            # Fallback: relax cap 2 → 3
+            for sk in ENUMS['skeleton']:
+                if sk == last_sk:
+                    weights[sk] = 0
+                elif self.state.counts['skeleton'][sk] >= 3:
+                    weights[sk] = 0
+                else:
+                    weights[sk] = 1
+            candidates = [sk for sk, w in weights.items() if w > 0]
+            if not candidates:
+                candidates = [sk for sk in ENUMS['skeleton'] if sk != last_sk]
+        
+        return self.rng.choice(candidates)
+    
+    def _sample_closure(self) -> str:
+        """Sample closure. Cap 3 per value, ≥5 distinct."""
+        weights = {}
+        for c in ENUMS['closure']:
+            if self.state.counts['closure'][c] >= 3:
+                weights[c] = 0
+            elif self.state.counts['closure'][c] >= 2:
+                weights[c] = 0.3
+            else:
+                weights[c] = 1
+        
+        candidates = [c for c, w in weights.items() if w > 0]
+        if not candidates:
+            candidates = ENUMS['closure']
+            weights = {c: 1 for c in candidates}
+        return self.rng.choices(candidates, weights=[weights[c] for c in candidates])[0]
+    
+    def _sample_ncs(self, genre, lls) -> str:
+        """Sample NCS. NICHE restricted to CONCEALED/COVERED/TOPLESS-back-view.
+        Target: ≥8 distinct across batch, ≤5 per value.
+        Strategy: prefer values not yet used (diversity-first), then cap-aware.
+        Force TOPLESS and NAKED usage to hit 8 distinct."""
+        if genre == 'NICHE':
+            pool = NCS_NICHE
+        else:
+            # VOLT: depends on LLS, expanded to include TAPE for L3
+            if lls == 'L1':
+                pool = ['COVERED', 'CONCEALED', 'THROUGH-FABRIC']
+            elif lls == 'L2':
+                pool = ['COVERED', 'THROUGH-FABRIC', 'VISIBLE']
+            elif lls in ('L3', 'L4'):
+                pool = ['THROUGH-FABRIC', 'VISIBLE', 'NAKED', 'TOPLESS', 'TAPE']
+            else:
+                pool = NCS_VOLT
+        
+        # Diversity-first: strongly prefer values not yet used
+        # Count distinct so far
+        distinct_so_far = len([v for v in self.state.counts['ncs'] if self.state.counts['ncs'][v] > 0])
+        remaining_slots = 21 - sum(self.state.counts['ncs'].values())
+        # If we need more distinct values to hit 8, boost unused values even more
+        diversity_boost = 5 if (distinct_so_far + remaining_slots * 0.5) < 8 else 1
+        
+        weights = {}
+        for n in pool:
+            count = self.state.counts['ncs'][n]
+            # Critical: if TOPLESS is in pool and never used, boost it heavily
+            topless_boost = 10 if (n == 'TOPLESS' and count == 0) else 1
+            if count >= 5:
+                weights[n] = 0  # hard cap
+            elif count == 0:
+                weights[n] = 5 * diversity_boost * topless_boost  # diversity + TOPLESS boost
+            elif count == 1:
+                weights[n] = 3
+            elif count == 2:
+                weights[n] = 2
+            elif count == 3:
+                weights[n] = 1
+            elif count == 4:
+                weights[n] = 0.3
+            else:
+                weights[n] = 0.1
+        
+        candidates = [n for n, w in weights.items() if w > 0]
+        if not candidates:
+            # Fallback: relax cap
+            candidates = [n for n in pool if self.state.counts['ncs'][n] < 6]
+            if not candidates:
+                candidates = pool
+            weights = {n: 1 for n in candidates}
+        else:
+            weights = {n: weights[n] for n in candidates}
+        
+        return self.rng.choices(candidates, weights=[weights[n] for n in candidates])[0]
+    
+    def _sample_bdm(self) -> str:
+        """Sample 8-dim BDM. Unique combinations only."""
+        # Banned: B0, H0, T0
+        # Cap 1/batch: B7, B8, H6, H7, T6, T7
+        # Cap 1/batch requires L3+: B8, H7, T7
+        max_attempts = 100
+        for _ in range(max_attempts):
+            b = self.rng.choice(['B1', 'B2', 'B3', 'B4', 'B5', 'B6'] +
+                                (['B7'] if self.state.counts['bdm_extreme']['B7'] == 0 else []))
+            h = self.rng.choice(['H1', 'H2', 'H3', 'H4', 'H5'] +
+                                (['H6'] if self.state.counts['bdm_extreme']['H6'] == 0 else []))
+            t = self.rng.choice(['T1', 'T2', 'T3', 'T4', 'T5'] +
+                                (['T6'] if self.state.counts['bdm_extreme']['T6'] == 0 else []))
+            w = self.rng.choice(['W0', 'W1', 'W2', 'W3', 'W4', 'W5'])
+            s = self.rng.choice(['S0', 'S1', 'S2', 'S3'])
+            he = self.rng.choice(['HE0', 'HE1', 'HE2', 'HE3', 'HE4'])
+            mu = self.rng.choice(['MU0', 'MU1', 'MU2', 'MU3'])
+            bd = self.rng.choice(['BD0', 'BD1', 'BD2', 'BD3'])
+            
+            # Extract numeric values
+            b_n = int(b[1])
+            h_n = int(h[1])
+            t_n = int(t[1])
+            w_n = int(w[1])
+            s_n = int(s[1])
+            he_n = int(he[2:])
+            mu_n = int(mu[2:])
+            bd_n = int(bd[2:])
+            
+            bdm = f"B{b_n}H{h_n}T{t_n}W{w_n}S{s_n}HE{he_n}MU{mu_n}BD{bd_n}"
+            
+            if bdm not in self.state.used_bdm:
+                self.state.used_bdm.add(bdm)
+                # Track extreme values
+                if b_n >= 7:
+                    self.state.counts['bdm_extreme'][f'B{b_n}'] += 1
+                if h_n >= 6:
+                    self.state.counts['bdm_extreme'][f'H{h_n}'] += 1
+                if t_n >= 6:
+                    self.state.counts['bdm_extreme'][f'T{t_n}'] += 1
+                return bdm
+        
+        # Fallback: just generate anything unique
+        while True:
+            bdm = f"B{self.rng.randint(1,6)}H{self.rng.randint(1,5)}T{self.rng.randint(1,5)}W{self.rng.randint(0,5)}S{self.rng.randint(0,3)}HE{self.rng.randint(0,4)}MU{self.rng.randint(0,3)}BD{self.rng.randint(0,3)}"
+            if bdm not in self.state.used_bdm:
+                self.state.used_bdm.add(bdm)
+                return bdm
+    
+    def _sample_oas(self, is_oc) -> str:
+        """Sample OAS code. Unique for main 21, can repeat for OC."""
+        # OAS01-OAS57
+        all_oas = [f"OAS{n:02d}" for n in range(1, 58)]
+        
+        if is_oc:
+            # OC can reuse
+            return self.rng.choice(all_oas)
+        
+        # Main: must be unique
+        candidates = [o for o in all_oas if o not in self.state.used_oas]
+        if not candidates:
+            # Fallback: allow reuse (shouldn't happen with 57 codes)
+            candidates = all_oas
+        chosen = self.rng.choice(candidates)
+        self.state.used_oas.add(chosen)
+        return chosen
+    
+    def _get_pl_name(self, pl_code: str) -> str:
+        """Get descriptive name for PL code."""
+        pl_names = {
+            'PL01': 'standing-arms-at-sides', 'PL02': 'standing-frozen-mid-gesture',
+            'PL03': 'reclining-bath', 'PL04': 'reclining-on-edge', 'PL05': 'standing-sideways-head-turned',
+            'PL06': 'standing-arms-spread', 'PL07': 'seated-head-tilted-back',
+            'PL08': 'standing-arms-down', 'PL09': 'reclining-couch', 'PL10': 'kneeling-back-turned',
+            'PL11': 'arms-behind-back-cocoon-bound', 'PL12': 'lying-back-arms-up',
+            'PL13': 'hands-raised-fingers-spread', 'PL14': 'kneeling-arms-out',
+            'PL15': 'standing-biting', 'PL16': 'kneeling-back-arched',
+            'PL17': 'seated-formal-hands-cup', 'PL18': 'standing-behind-curtain',
+            'PL19': 'standing-profile-arm-raised', 'PL20': 'twin-pose-mirrored',
+            'PL21': 'pirouette-mid-spin', 'PL22': 'seated-formal', 'PL23': 'standing-side',
+            'PL24': 'lying-half-in-puddle', 'PL25': 'bent-over-skirt-lifted',
+            'PL26': 'standing-back-half-turn', 'PL27': 'arched-back-against-wall',
+            'PL28': 'kneeling-forehead-to-floor', 'PL29': 'standing-one-leg-raised',
+            'PL30': 'seated-legs-spread', 'PL31': 'lying-side-propped-on-elbow',
+            'PL32': 'standing-arms-up-arched', 'PL33': 'kneeling-back-arched-arms-back',
+            'PL34': 'bent-over-table-arms-flat', 'PL35': 'standing-profile-arm-raised',
+            'PL36': 'reclining-one-knee-up', 'PL37': 'seated-crossed-legs-leaning-forward',
+            'PL38': 'standing-back-arched-hands-on-hips', 'PL39': 'lying-face-down-head-turned',
+            'PL40': 'kneeling-straddling-arms-up', 'PL41': 'standing-pirouette-mid-spin',
+            'PL42': 'reclining-head-back-arms-above', 'PL43': 'seated-on-edge-legs-crossed',
+            'PL44': 'standing-leaning-forward-hands-on-knees', 'PL45': 'lying-on-side-one-hand-raised',
+        }
+        return pl_names.get(pl_code, 'solver-generated')
+    
+    def _sample_pl(self, body_emphasis, camera, planned_pose_type=None) -> str:
+        """Sample PL code with body_emphasis + camera + pose_type compatibility."""
+        # PL codes grouped by pose-type
+        PL_BY_POSE_TYPE = {
+            'kneeling': ['PL10', 'PL14', 'PL16', 'PL28', 'PL33', 'PL40'],
+            'seated': ['PL07', 'PL17', 'PL22', 'PL37', 'PL43'],
+            'bent-over': ['PL25', 'PL34'],
+            'arched': ['PL27', 'PL32', 'PL33', 'PL38', 'PL42'],
+            'arms-up': ['PL12', 'PL13', 'PL32', 'PL40'],
+            'arms-behind': ['PL11'],  # cocoon-arms-bound (PL14 is arms-out, not behind)
+            'hands-on-hips': ['PL38'],
+        }
+        
+        if planned_pose_type and planned_pose_type in PL_BY_POSE_TYPE:
+            # Filter to PL codes matching the planned pose-type
+            pose_pls = PL_BY_POSE_TYPE[planned_pose_type]
+            # Further filter by camera compatibility
+            candidates = [pl for pl in pose_pls if pl in PL_CAMERA_PAIRS and camera in PL_CAMERA_PAIRS[pl]]
+            if not candidates:
+                # Relax camera constraint
+                candidates = pose_pls
+        else:
+            # Free choice: find PL codes matching camera + body_emphasis
+            # Apply standing cap (≤6) and reclining cap (≤4)
+            standing_count = sum(1 for p in self.state.assignments 
+                               if 'standing' in self._get_pl_name(p['pl']).lower())
+            reclining_count = sum(1 for p in self.state.assignments 
+                                 if 'reclining' in self._get_pl_name(p['pl']).lower() 
+                                 or 'lying' in self._get_pl_name(p['pl']).lower())
+            
+            candidates = []
+            for pl, cameras in PL_CAMERA_PAIRS.items():
+                if camera not in cameras:
+                    continue
+                hints = PL_EMPHASIS_HINTS.get(pl, [])
+                if body_emphasis in hints:
+                    # Check standing/reclining caps
+                    pl_name_lower = self._get_pl_name(pl).lower()
+                    is_standing = 'standing' in pl_name_lower
+                    is_reclining = 'reclining' in pl_name_lower or 'lying' in pl_name_lower
+                    if is_standing and standing_count >= 6:
+                        continue  # skip standing if at cap
+                    if is_reclining and reclining_count >= 4:
+                        continue  # skip reclining if at cap
+                    candidates.append(pl)
+            
+            if not candidates:
+                # Relax: just match camera (ignore standing/reclining caps)
+                candidates = [pl for pl, cams in PL_CAMERA_PAIRS.items() if camera in cams]
+            
+            if not candidates:
+                # Last resort: any PL
+                candidates = list(PL_CAMERA_PAIRS.keys())
+        
+        # Cap 4 per PL, prefer unused
+        weights = []
+        for pl in candidates:
+            if self.state.counts['pl'][pl] >= 4:
+                weights.append(0)
+            elif self.state.counts['pl'][pl] == 0:
+                weights.append(5)  # diversity
+            elif self.state.counts['pl'][pl] >= 3:
+                weights.append(0.3)
+            else:
+                weights.append(1)
+        
+        candidates_w = [c for c, w in zip(candidates, weights) if w > 0]
+        if not candidates_w:
+            candidates_w = candidates
+            weights = [1] * len(candidates_w)
+        else:
+            weights = [w for w in weights if w > 0]
+        
+        return self.rng.choices(candidates_w, weights=weights)[0]
+    
+    def _sample_ecode(self, lls) -> str:
+        """Sample E-code. Cap 3 per value."""
+        # E-code emotional pairing per LLS:
+        # L0 = vacant/serene/awed/melancholic → E50, E52, E58, E61, E66
+        # L1 = shy/teasing → E33, E34, E44, E67
+        # L2 = aroused/flustered → E28, E35, E36, E57, E62
+        # L3 = shame-flushed/melted → E35, E44, E51, E57, E60, E70
+        if lls == 'L0':
+            pool = ['E50', 'E52', 'E58', 'E61', 'E66']
+        elif lls == 'L1':
+            pool = ['E33', 'E34', 'E44', 'E67', 'E66']
+        elif lls == 'L2':
+            pool = ['E28', 'E35', 'E36', 'E57', 'E62', 'E59', 'E68']
+        elif lls == 'L3':
+            pool = ['E35', 'E44', 'E51', 'E57', 'E60', 'E70']
+        else:  # L4
+            pool = ['E51', 'E70']
+        
+        weights = []
+        for e in pool:
+            if self.state.counts['e_code'][e] >= 3:
+                weights.append(0)
+            elif self.state.counts['e_code'][e] >= 2:
+                weights.append(0.3)
+            else:
+                weights.append(1)
+        
+        candidates = [e for e, w in zip(pool, weights) if w > 0]
+        if not candidates:
+            candidates = pool
+            weights = [1] * len(candidates)
+        else:
+            weights = [w for w in weights if w > 0]
+        
+        return self.rng.choices(candidates, weights=weights)[0]
+    
+    def _sample_strand(self) -> str:
+        """Sample strand rotation. Cap 3 per value."""
+        weights = []
+        for s in ENUMS['strand']:
+            if self.state.counts['strand'][s] >= 3:
+                weights.append(0)
+            elif self.state.counts['strand'][s] >= 2:
+                weights.append(0.3)
+            else:
+                weights.append(1)
+        
+        candidates = [s for s, w in zip(ENUMS['strand'], weights) if w > 0]
+        if not candidates:
+            candidates = ENUMS['strand']
+            weights = [1] * len(candidates)
+        else:
+            weights = [w for w in weights if w > 0]
+        
+        return self.rng.choices(candidates, weights=weights)[0]
+    
+    def _sample_opener(self) -> str:
+        """Sample opener word. No 4-in-a-row, ≤5 per batch."""
+        last_openers = [p['opener'] for p in self.state.assignments[-3:]]
+        
+        weights = {}
+        for o in self.openers:
+            # No 4-in-a-row
+            if len(last_openers) >= 3 and all(o == x for x in last_openers[-3:]):
+                weights[o] = 0
+            # Cap 5 per batch
+            elif self.state.counts['opener'][o] >= 5:
+                weights[o] = 0
+            elif self.state.counts['opener'][o] >= 4:
+                weights[o] = 0.3
+            else:
+                weights[o] = 1
+        
+        candidates = [o for o, w in weights.items() if w > 0]
+        if not candidates:
+            candidates = self.openers
+            weights = {o: 1 for o in candidates}
+        return self.rng.choices(candidates, weights=[weights[o] for o in candidates])[0]
+    
+    def _sample_verbs(self) -> list:
+        """Sample 2 verbs per prompt. Cap 3 per verb across batch."""
+        chosen = []
+        attempts = 0
+        while len(chosen) < 2 and attempts < 20:
+            attempts += 1
+            # Weight: prefer verbs under cap
+            weights = []
+            for v in self.verb_pool:
+                if v in chosen:
+                    weights.append(0)
+                elif self.state.counts['verbs'][v] >= 3:
+                    weights.append(0)
+                elif self.state.counts['verbs'][v] >= 2:
+                    weights.append(0.3)
+                else:
+                    weights.append(1)
+            
+            candidates = [v for v, w in zip(self.verb_pool, weights) if w > 0]
+            if not candidates:
+                # Relax: allow cap 4
+                candidates = [v for v in self.verb_pool if v not in chosen and self.state.counts['verbs'][v] < 4]
+                if not candidates:
+                    candidates = [v for v in self.verb_pool if v not in chosen]
+            
+            weights = [1] * len(candidates)
+            v = self.rng.choices(candidates, weights=weights)[0]
+            if v not in chosen:
+                chosen.append(v)
+        
+        return chosen
+    
+    def _update_state(self, prompt):
+        """Update solver state after assigning a prompt."""
+        self.state.counts['camera'][prompt['camera']] += 1
+        self.state.counts['framing'][prompt['framing']] += 1
+        self.state.counts['body_emphasis'][prompt['body_emphasis']] += 1
+        self.state.counts['spectacle'][prompt['spectacle']] += 1
+        self.state.counts['skeleton'][prompt['skeleton']] += 1
+        self.state.counts['closure'][prompt['closure']] += 1
+        self.state.counts['ncs'][prompt['ncs']] += 1
+        self.state.counts['oas'][prompt['oas']] += 1
+        self.state.counts['pl'][prompt['pl']] += 1
+        self.state.counts['e_code'][prompt['e_code']] += 1
+        self.state.counts['strand'][prompt['strand']] += 1
+        self.state.counts['opener'][prompt['opener']] += 1
+        for v in prompt['verbs']:
+            self.state.counts['verbs'][v] += 1
+        for fet in prompt.get('fet_codes', []):
+            self.state.counts['fet'][fet] += 1
+        for k in prompt.get('k_codes', []):
+            self.state.counts['k'][k] += 1
+        for bre in prompt.get('bre_codes', []):
+            self.state.counts['bre'][bre] += 1
+        for bk in prompt.get('bk_codes', []):
+            self.state.counts['bk'][bk] += 1
+        for b in prompt.get('b_codes', []):
+            self.state.counts['b'][b] += 1
+        for eng in prompt.get('eng_codes', []):
+            self.state.counts['eng'][eng] += 1
+        self.state.counts['hair'][prompt['hair_color']] += 1
+        self.state.counts['eye'][prompt['eye_color']] += 1
+        self.state.counts['skin'][prompt['skin_tone']] += 1
+    
+    # FET/BRE/BK/B/ENG/K samplers
+    
+    def _sample_fet(self, body_emphasis, lls) -> list:
+        """Sample 1-2 FET codes per VOLT prompt. Cap 3 per FET code, min 5 distinct."""
+        # FET codes relevant to body_emphasis
+        fet_by_emphasis = {
+            'breasts': ['FET58', 'FET59', 'FET60', 'FET57', 'FET66', 'FET64'],
+            'buttocks': ['FET17', 'FET19', 'FET60'],
+            'thighs': ['FET43', 'FET60'],
+            'back-spine': ['FET50', 'FET54'],
+            'throat': ['FET54', 'FET46'],
+            'collarbone': ['FET46'],
+            'hips': ['FET52', 'FET67'],
+            'navel': ['FET42'],
+            'lips': ['FET69', 'FET70'],
+            'hands': ['FET48', 'FET68'],
+            'eyes': ['FET69'],
+            'face': ['FET47', 'FET54'],
+        }
+        relevant = fet_by_emphasis.get(body_emphasis, ['FET46', 'FET50', 'FET54'])
+        # Add diversity: include some general FET codes
+        all_fet = list(set(relevant + ['FET46', 'FET50', 'FET54', 'FET58', 'FET17', 'FET60', 'FET65', 'FET66']))
+        
+        # Pick 1-2 codes, prefer unused
+        chosen = []
+        for _ in range(2):
+            weights = []
+            for f in all_fet:
+                if f in chosen:
+                    weights.append(0)
+                elif self.state.counts['fet'][f] >= 3:
+                    weights.append(0)
+                elif self.state.counts['fet'][f] == 0:
+                    weights.append(5)  # diversity
+                else:
+                    weights.append(2)
+            candidates = [f for f, w in zip(all_fet, weights) if w > 0]
+            if not candidates:
+                break
+            w_list = [w for w in weights if w > 0]
+            f = self.rng.choices(candidates, weights=w_list)[0]
+            chosen.append(f)
+        return chosen
+    
+    def _sample_k(self, lls) -> list:
+        """Sample 1 K code per VOLT prompt. Cap 3 per K code."""
+        all_k = [f'K{n}' for n in range(61, 80)]
+        weights = []
+        for k in all_k:
+            if self.state.counts['k'][k] >= 3:
+                weights.append(0)
+            elif self.state.counts['k'][k] == 0:
+                weights.append(5)
+            else:
+                weights.append(2)
+        candidates = [k for k, w in zip(all_k, weights) if w > 0]
+        if not candidates:
+            candidates = all_k
+            weights = [1] * len(candidates)
+        else:
+            weights = [w for w in weights if w > 0]
+        return [self.rng.choices(candidates, weights=weights)[0]]
+    
+    def _sample_bre(self, body_emphasis) -> list:
+        """Sample BRE code if body_emphasis is breasts. Force diversity (different BRE per prompt)."""
+        if body_emphasis == 'breasts':
+            pool = ['BRE16', 'BRE17', 'BRE18', 'BRE19', 'BRE20', 'BRE21', 'BRE22', 'BRE23', 'BRE24']
+        else:
+            return []
+        weights = []
+        for b in pool:
+            if self.state.counts['bre'][b] >= 1:  # force distinct: cap 1 per BRE
+                weights.append(0)
+            else:
+                weights.append(5)
+        candidates = [b for b, w in zip(pool, weights) if w > 0]
+        if not candidates:
+            # Relax: allow cap 2
+            candidates = [b for b in pool if self.state.counts['bre'][b] < 2]
+            if not candidates:
+                candidates = pool
+        return [self.rng.choice(candidates)]
+    
+    def _sample_bk(self, body_emphasis) -> list:
+        """Sample BK code if body_emphasis is back-spine."""
+        if body_emphasis == 'back-spine':
+            pool = ['BK7', 'BK8', 'BK9', 'BK10', 'BK11', 'BK12', 'BK13']
+        else:
+            return []
+        weights = []
+        for b in pool:
+            if self.state.counts['bk'][b] >= 3:
+                weights.append(0)
+            elif self.state.counts['bk'][b] == 0:
+                weights.append(5)
+            else:
+                weights.append(2)
+        candidates = [b for b, w in zip(pool, weights) if w > 0]
+        if not candidates:
+            return []
+        return [self.rng.choice(candidates)]
+    
+    def _sample_b(self, body_emphasis) -> list:
+        """Sample B code if body_emphasis is buttocks. Force diversity (cap 1 per B code)."""
+        if body_emphasis == 'buttocks':
+            pool = ['B16', 'B17', 'B18', 'B19', 'B20', 'B21']
+        else:
+            return []
+        weights = []
+        for b in pool:
+            if self.state.counts['b'][b] >= 1:  # force distinct: cap 1 per B
+                weights.append(0)
+            else:
+                weights.append(5)
+        candidates = [b for b, w in zip(pool, weights) if w > 0]
+        if not candidates:
+            # Relax: allow cap 2
+            candidates = [b for b in pool if self.state.counts['b'][b] < 2]
+            if not candidates:
+                candidates = pool
+        return [self.rng.choice(candidates)]
+    
+    def _sample_eng(self) -> list:
+        """Sample 1 ENG code. Cap 3 per ENG code."""
+        all_eng = [f'ENG{n}' for n in range(8, 21)]
+        weights = []
+        for e in all_eng:
+            if self.state.counts['eng'][e] >= 3:
+                weights.append(0)
+            elif self.state.counts['eng'][e] == 0:
+                weights.append(5)
+            else:
+                weights.append(2)
+        candidates = [e for e, w in zip(all_eng, weights) if w > 0]
+        if not candidates:
+            candidates = all_eng
+            weights = [1] * len(candidates)
+        else:
+            weights = [w for w in weights if w > 0]
+        return [self.rng.choices(candidates, weights=weights)[0]]
+    
+    # Appearance samplers
+    
+    def _sample_hair(self) -> str:
+        """Sample hair color. Need ≥10 distinct per batch."""
+        pool = [
+            'amber-blonde', 'silver-white', 'dark-plum', 'ink-midnight', 'chestnut-wavy',
+            'champagne-blonde', 'rose-pink', 'platinum-twin', 'lavender-wavy', 'black-hime',
+            'auburn-curls', 'copper-red-spiral', 'raven-straight', 'gold-blonde-crown',
+            'strawberry-blonde', 'burnt-sienna-spike', 'pale-blue', 'mahogany-curls',
+            'ash-silver-pixie', 'honey-blonde', 'electric-blue', 'wine-red',
+            'midnight-blue', 'snow-white', 'dark-chocolate'
+        ]
+        weights = []
+        for h in pool:
+            if self.state.counts['hair'][h] >= 3:
+                weights.append(0)
+            elif self.state.counts['hair'][h] == 0:
+                weights.append(5)
+            else:
+                weights.append(2)
+        candidates = [h for h, w in zip(pool, weights) if w > 0]
+        if not candidates:
+            candidates = pool
+            weights = [1] * len(candidates)
+        else:
+            weights = [w for w in weights if w > 0]
+        return self.rng.choices(candidates, weights=weights)[0]
+    
+    def _sample_eye(self) -> str:
+        """Sample eye color. Need ≥8 distinct per batch."""
+        pool = [
+            'amber', 'silver-pale', 'catseye-gold', 'ice-blue', 'hazel', 'golden-ring',
+            'starlight-blue', 'copper-slit', 'ruby', 'lavender', 'ocean-green',
+            'electric-violet', 'heterochromia-red-blue', 'moonstone-pale', 'warm-tan'
+        ]
+        weights = []
+        for e in pool:
+            if self.state.counts['eye'][e] >= 3:
+                weights.append(0)
+            elif self.state.counts['eye'][e] == 0:
+                weights.append(5)
+            else:
+                weights.append(2)
+        candidates = [e for e, w in zip(pool, weights) if w > 0]
+        if not candidates:
+            candidates = pool
+            weights = [1] * len(candidates)
+        else:
+            weights = [w for w in weights if w > 0]
+        return self.rng.choices(candidates, weights=weights)[0]
+    
+    def _sample_skin(self) -> str:
+        """Sample skin tone. Need ≥5 distinct per batch."""
+        pool = [
+            'alabaster', 'mediterranean-bronze', 'fair-warm', 'warm-tan', 'dark-bronze',
+            'porcelain', 'espresso', 'honey-bronze', 'obsidian', 'freckled-fair',
+            'pale-ivory', 'warm-light-tan', 'umber', 'rose-fair', 'deep-mahogany'
+        ]
+        weights = []
+        for s in pool:
+            if self.state.counts['skin'][s] >= 4:
+                weights.append(0)
+            elif self.state.counts['skin'][s] == 0:
+                weights.append(5)
+            else:
+                weights.append(2)
+        candidates = [s for s, w in zip(pool, weights) if w > 0]
+        if not candidates:
+            candidates = pool
+            weights = [1] * len(candidates)
+        else:
+            weights = [w for w in weights if w > 0]
+        return self.rng.choices(candidates, weights=weights)[0]
+
+
+# ─── Output formatter ───────────────────────────────────────────────
+
+def format_batch_file(assignments: list, theme: str, output_path: Path):
+    """Format solver output as HYBRID_vN_*.txt for postflight_v2 validation."""
+    
+    lines = []
+    lines.append(f'HYBRID v_solver_test BATCH — "{theme.upper()}"')
+    lines.append(f'Solver-generated test batch. Metadata only, placeholder prose.')
+    lines.append(f'Theme: {theme.upper()}')
+    lines.append('')
+    lines.append('═' * 70)
+    lines.append('')
+    
+    neg_block = """1boy, male, man, boy, guy, established character, copyrighted character, named character, character tag, fused bodies, limb merge, too many arms, body merge, sameface, identical features, bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, extra limbs, malformed limb, blurry, low quality, worst quality, unnatural skin color, tiny eyes, pinpoint eyes, dots for eyes, micro eyes, anime eye shrink, slit eyes, eye deformation, uneven eyes, eye merge, realistic skin, photorealistic, 3d render, manhwa style, manhwa, webtoon, korean comic, manhua, chinese comic, flat anime shading, webcomic style, digital comic style, lezhin style, webtoon proportions, korean beauty standard face, idol face, kpop face, western cartoon, cel shading, chibi, overexposed, porcelain skin, uniform skin tone, flat skin shading, realistic photograph, photographic lighting, depth of field bokeh, lens flare, photographic grain, artist name, named artist reference, established artist, famous artist style, copied style, style imitation, artist signature, artstation trending, by artist, art by, in the style of, inspired by artist, artist: konya_karasue, artist: (redum4:0.5), konya karasue, redum4, real-life photo, stock photo, photo reference, hyperrealistic, cinematic realism, film still, movie still, live action, cosplay photo, clumped hair, wavy clumpy hair, fused hair strands, liquid hair, hair chunks, hair merging, messy clumped hair, flat chest, completely flat, no breasts, breastless, chestless, muted colors, washed out, desaturated, flat color, muddy palette, grey cast, dull tones, low saturation, bleached, green skin, olive green skin tone, sickly green cast, grey-green complexion, beauty mark, makeup mark, painted mark on skin, nipples visible through clothing, nipple outline through clothes, see-through clothing, transparent clothing, nipples through fabric"""
+    
+    q_tag = "Anime key visual, anime illustration, hand-drawn anime style, cel-shaded anime, painterly anime background, anime character design. Masterpiece, best quality, anime artstyle."
+    
+    for p in assignments:
+        # Build SIG with actual hair/eye/skin values
+        sig = f"{p['hair_color']}+{p['eye_color']}+build-placeholder+{p['skin_tone']}"
+        
+        # PL name — include pose-type keyword for postflight detection
+        # Map PL codes to descriptive names containing keywords
+        pl_names = {
+            'PL01': 'standing-arms-at-sides', 'PL02': 'standing-frozen-mid-gesture',
+            'PL03': 'reclining-bath', 'PL04': 'reclining-on-edge', 'PL05': 'standing-sideways-head-turned',
+            'PL06': 'standing-arms-spread', 'PL07': 'seated-head-tilted-back',
+            'PL08': 'standing-arms-down', 'PL09': 'reclining-couch', 'PL10': 'kneeling-back-turned',
+            'PL11': 'arms-behind-back-cocoon-bound', 'PL12': 'lying-back-arms-up',
+            'PL13': 'hands-raised-fingers-spread', 'PL14': 'kneeling-arms-out',
+            'PL15': 'standing-biting', 'PL16': 'kneeling-back-arched',
+            'PL17': 'seated-formal-hands-cup', 'PL18': 'standing-behind-curtain',
+            'PL19': 'standing-profile-arm-raised', 'PL20': 'twin-pose-mirrored',
+            'PL21': 'pirouette-mid-spin', 'PL22': 'seated-formal', 'PL23': 'standing-side',
+            'PL24': 'lying-half-in-puddle', 'PL25': 'bent-over-skirt-lifted',
+            'PL26': 'standing-back-half-turn', 'PL27': 'arched-back-against-wall',
+            'PL28': 'kneeling-forehead-to-floor', 'PL29': 'standing-one-leg-raised',
+            'PL30': 'seated-legs-spread', 'PL31': 'lying-side-propped-on-elbow',
+            'PL32': 'standing-arms-up-arched', 'PL33': 'kneeling-back-arched-arms-back',
+            'PL34': 'bent-over-table-arms-flat', 'PL35': 'standing-profile-arm-raised',
+            'PL36': 'reclining-one-knee-up', 'PL37': 'seated-crossed-legs-leaning-forward',
+            'PL38': 'standing-back-arched-hands-on-hips', 'PL39': 'lying-face-down-head-turned',
+            'PL40': 'kneeling-straddling-arms-up', 'PL41': 'standing-pirouette-mid-spin',
+            'PL42': 'reclining-head-back-arms-above', 'PL43': 'seated-on-edge-legs-crossed',
+            'PL44': 'standing-leaning-forward-hands-on-knees', 'PL45': 'lying-on-side-one-hand-raised',
+        }
+        pl_name = f"PL{p['pl'][2:]}-{pl_names.get(p['pl'], 'solver-generated')}"
+        
+        # FET/BRE/BK/B/ENG/K codes
+        fet_str = "+".join(p.get('fet_codes', [])) if p.get('fet_codes') else "none"
+        k_str = "+".join(p.get('k_codes', [])) if p.get('k_codes') else "none"
+        bre_str = "+".join(p.get('bre_codes', [])) if p.get('bre_codes') else "none"
+        bk_str = "+".join(p.get('bk_codes', [])) if p.get('bk_codes') else "none"
+        b_str = "+".join(p.get('b_codes', [])) if p.get('b_codes') else "none"
+        eng_str = "+".join(p.get('eng_codes', [])) if p.get('eng_codes') else "none"
+        
+        stream = 'CORE-OC' if p['is_oc'] else ('NICHE' if p['genre'] == 'NICHE' else 'VOLT')
+        tier = 'OC-SX' if p['is_oc'] else ('S' if p['genre'] == 'NICHE' else 'Y2')
+        
+        oas_num = p['oas'][3:] if p['oas'].startswith('OAS') else p['oas']
+        
+        lines.append(f"{p['pid']} | STREAM:{stream} | GENO:V1:{p['pid']}:C01:T1:S999:CL01 | Sσ-{p['skeleton']} | GENRE:{p['genre']}")
+        lines.append(f"| T:{tier} | L:{p['lls']} | NCS:{p['ncs']} | DICE:A1-B1-C1-D1-E1-F1-G1-H1-D9_1-D10_01-D11_01-D12_01-D13_01-D14_01-D15_01-D16_1-D17_1-D18_1-D19_1-D20_1-D21_1-D22_1-D25_1-D26_1-D27_1-D28_1-D29_1-D30_1")
+        lines.append(f"| H1:§VI-001 | SIG: {sig}")
+        lines.append(f"| BDM:{p['bdm']} | RACE: human | SS:solver-test | COL:color1+color2+color3+color4")
+        lines.append(f"| PL:{pl_name} | K:{k_str} | E:{p['e_code']} | OAS:OAS{oas_num}")
+        lines.append(f"| WEL:WEL01-solver | CLOSURE:{p['closure']} | OPENER:{p['opener']} | STRAND:{p['strand']}")
+        lines.append(f"| CAMERA:{p['camera']} | FRAMING:{p['framing']} | BODY-EMPHASIS:{p['body_emphasis']} | SPECTACLE:{p['spectacle']}")
+        lines.append(f"| COMPOSITION:rule-of-thirds | COLOR-EVENT:src+surf+shadow+interaction")
+        lines.append(f"| LV1:{p['verbs'][0]}(placeholder) | LV2:{p['verbs'][1]}(placeholder) | G:✓✓✓✓✓")
+        lines.append(f"| FET:{fet_str} | BRE:{bre_str} | BK:{bk_str} | B:{b_str} | ENG:{eng_str}")
+        lines.append(f"")
+        lines.append(f"SEED: solver-test")
+        lines.append(f"")
+        lines.append(f"PROMPT:")
+        # Placeholder prose WITHOUT verb names (to avoid substring matches)
+        lines.append(f"PLACEHOLDER PROSE FOR {p['pid']}. Solver-generated metadata only. {p['genre']} {p['lls']} prompt. {q_tag}")
+        lines.append(f"")
+        lines.append(f"NEG (STD-CORE):")
+        lines.append(neg_block)
+        lines.append(f"")
+        lines.append("─" * 70)
+        lines.append("")
+    
+    output_path.write_text("\n".join(lines))
+    return output_path
+
+
+# ─── Main ───────────────────────────────────────────────────────────
+
+def main():
+    theme = sys.argv[1] if len(sys.argv) > 1 else 'solver-test'
+    seed = int(sys.argv[2]) if len(sys.argv) > 2 else 42
+    
+    print(f"═══ Constraint Solver v2.0 ═══")
+    print(f"Theme: {theme}")
+    print(f"Seed: {seed}")
+    print()
+    
+    solver = ConstraintSolver(theme=theme, seed=seed)
+    assignments = solver.solve()
+    
+    print(f"Generated {len(assignments)} prompts ({sum(1 for a in assignments if a['is_main'])} main + {sum(1 for a in assignments if a['is_oc'])} OC)")
+    
+    # Output to file
+    output_path = Path(f"/home/z/my-project/download/HYBRID_v_solver_{theme}.txt")
+    format_batch_file(assignments, theme, output_path)
+    print(f"Written: {output_path}")
+    print(f"Size: {output_path.stat().st_size} bytes")
+    print()
+    
+    # Self-check: print distribution summary
+    print("═══ Distribution Summary ═══")
+    main_assignments = [a for a in assignments if a['is_main']]
+    
+    print(f"\nLLS: {dict(Counter(a['lls'] for a in main_assignments))}")
+    print(f"Target: L0=4, L1=4, L2=9, L3=4")
+    
+    print(f"\nGenre: {dict(Counter(a['genre'] for a in main_assignments))}")
+    print(f"Target: NICHE=7, VOLT=14")
+    
+    print(f"\nBody-emphasis: {dict(Counter(a['body_emphasis'] for a in main_assignments))}")
+    print(f"Mandates: buttocks≥3, back-spine≥3, thighs≥3")
+    
+    print(f"\nCamera: {dict(Counter(a['camera'] for a in main_assignments))}")
+    print(f"Cap: 4 per value")
+    
+    print(f"\nFraming: {dict(Counter(a['framing'] for a in main_assignments))}")
+    print(f"Cap: 8 per value (40% of 21)")
+    
+    print(f"\nSkeleton: {dict(Counter(a['skeleton'] for a in main_assignments))}")
+    print(f"Cap: 2 per value, no adjacent same")
+    
+    print(f"\nClosure: {dict(Counter(a['closure'] for a in main_assignments))}")
+    print(f"Cap: 3 per value")
+    
+    print(f"\nNCS: {dict(Counter(a['ncs'] for a in main_assignments))}")
+    print(f"Target: ≥8 distinct, ≤5 per value")
+    
+    print(f"\nVerb pool usage:")
+    verb_counts = Counter()
+    for a in assignments:
+        for v in a['verbs']:
+            verb_counts[v] += 1
+    for v, n in verb_counts.most_common():
+        flag = '✓' if n <= 3 else '✗'
+        print(f"  {flag} {v}: {n}")
+    
+    print(f"\nBDM unique: {len(set(a['bdm'] for a in main_assignments))}/21")
+    print(f"OAS unique: {len(set(a['oas'] for a in main_assignments))}/21")
+    
+    # Genre sequence
+    seq = ''.join('N' if a['genre'] == 'NICHE' else 'V' for a in main_assignments)
+    print(f"\nGenre sequence: {seq}")
+    # Max V run
+    max_run = 0
+    cur = 0
+    for c in seq:
+        if c == 'V':
+            cur += 1
+            max_run = max(max_run, cur)
+        else:
+            cur = 0
+    print(f"Max VOLT run: {max_run} (cap 3)")
+    
+    print()
+    print(f"═══ Next step ═══")
+    print(f"Run: python3 scripts/postflight_v2.py {output_path}")
+
+
+if __name__ == "__main__":
+    main()

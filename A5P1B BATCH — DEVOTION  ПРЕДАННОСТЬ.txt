@@ -1,0 +1,342 @@
+A5P1B BATCH — "DEVOTION" / ПРЕДАННОСТЬ
+
+ECHO MOTIFS:
+  1. KNEELING — devotion folds the body; every kneel is a different
+     surrender: to craft, to love, to exhaustion, to the ground
+     (P2, P6, P14, P20)
+  2. FIRE IN HAND — she holds what burns and doesn't let go;
+     devotion is keeping what hurts you because it matters
+     (P5, P9, P13, P19)
+  3. MARK LEFT — devotion leaves traces: ink on skin, paint on
+     clothes, soot on arms, ash on fingers
+     (P3, P8, P12, P17)
+
+
+═══════════════════════════════════════════════════════════════════════
+P1
+═══════════════════════════════════════════════════════════════════════
+Thread: church + bee swarm — the church is devoted to God, the bees are devoted to their queen; both built cathedrals of wax and stone; devotion has many congregations
+Anchor: bees on church pews and altar
+Compose: leading lines (pew rows) + texture contrast | horizontal
+Light: diffused through stained glass soft warm | Palette: amber honey + grey stone
+Gate: Thread?✓ /Visible?✓ /Render?✓ — PASS
+
+1girl, amber hair, honey-gold eyes, cowboy shot, standing in an old church where bees have built honeycomb on the pews, bees crawling on the altar, honey dripping from the pulpit, sidelight from stained glass, skin warm in colored light cool in stone shadow, tonal variation on skin, devotion built two cathedrals here, masterpiece, best quality, anime artstyle
+
+Negative: bright smile, background male, bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, 1boy, male, man, boy, unnatural skin color, hidden hands, rough sketch, sketch lines, small iris, narrow eyes, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, flat shading, cel shading, chibi, super deformed, simple shading, cartoonish, flat colors, overexposed, washed out, color noise, watercolor, pencil lines, impressionist, loose brushstrokes, porcelain skin, uniform skin tone, flat skin shading, mirror reflection, surface reflection
+
+
+═══════════════════════════════════════════════════════════════════════
+P2
+═══════════════════════════════════════════════════════════════════════
+Thread: forge + her body — she works the forge until her skin carries the soot; devotion to craft marks the body; the anvil is her altar
+Anchor: soot on her arms and face, hammer in hand
+Compose: texture contrast (soot/skin/fire) + color isolation | diagonal (hammer)
+Light: single source from forge below hard warm | Palette: forge orange + soot black + steel grey
+Gate: Thread?✓ /Visible?✓ /Render?✓ — PASS
+
+1girl, dark auburn hair, grey eyes, soot on her forearms and cheek, cowboy shot, standing at a forge, hammer in one hand, orange forge glow on her face, skin warm at forge light cool in shadow behind, tonal variation on skin, forge, night, devotion marks what it touches, masterpiece, best quality, anime artstyle
+
+Negative: bright smile, oversaturated warm, background male, deformed fingers, finger merge, wrong finger count, bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, 1boy, male, man, boy, unnatural skin color, hidden hands, rough sketch, sketch lines, small iris, narrow eyes, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, flat shading, cel shading, chibi, super deformed, simple shading, cartoonish, flat colors, overexposed, washed out, color noise, watercolor, pencil lines, impressionist, loose brushstrokes, porcelain skin, uniform skin tone, flat skin shading, mirror reflection, surface reflection
+
+
+═══════════════════════════════════════════════════════════════════════
+P3 — YURI
+═══════════════════════════════════════════════════════════════════════
+Thread: tattoo needle + her skin — one marks the other permanently; devotion made visible under skin; ink is the vow
+Anchor: tattoo needle on her shoulder, fresh ink visible
+Compose: texture contrast (ink/skin) + rule of thirds | diagonal (needle line)
+Light: single lamp from above soft warm | Palette: ink black + warm skin + lamp amber
+Gate: Thread?✓ /Visible?✓ /Render?✓ — PASS
+
+2girls, first girl copper hair eyes closed shoulder bare, second girl dark teal hair focused hands steady, cowboy shot, one tattooing a design on the other's shoulder, fresh ink dark on warm skin, the needle hums, single lamp overhead, skin warm under lamp cool at edges, tonal variation on skin, ink is the vow, masterpiece, best quality, anime artstyle
+
+Negative: fused bodies, limb merge, too many arms, body merge, deformed fingers, finger merge, wrong finger count, bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, extra limbs, blurry, low quality, worst quality, 1boy, male, man, boy, unnatural skin color, hidden hands, rough sketch, sketch lines, small iris, narrow eyes, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, flat shading, cel shading, chibi, super deformed, simple shading, cartoonish, flat colors, overexposed, washed out, color noise, watercolor, pencil lines, impressionist, loose brushstrokes, porcelain skin, uniform skin tone, flat skin shading, mirror reflection, surface reflection
+
+
+═══════════════════════════════════════════════════════════════════════
+P4
+═══════════════════════════════════════════════════════════════════════
+Thread: tightrope + wind — she walks the wire because stopping is worse than falling; devotion to the line is devotion to surviving it
+Anchor: tightrope under her feet, wind pulling her hair
+Compose: leading lines (rope) + void | horizontal (rope line)
+Light: overcast diffused cool | Palette: silver grey + pale rose + wind white
+Gate: Thread?✓ /Visible?✓ /Render?✓ — PASS
+
+1girl, silver-white hair, pale rose eyes, cowboy shot, walking a tightrope between two buildings, wind pulling her hair sideways, arms out for balance, overcast diffused light, skin cool in overcast light warm at edges, tonal variation on skin, between buildings, wind, she walks because stopping is worse, masterpiece, best quality, anime artstyle
+
+Negative: bright smile, oversaturated warm, bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, 1boy, male, man, boy, unnatural skin color, hidden hands, rough sketch, sketch lines, small iris, narrow eyes, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, flat shading, cel shading, chibi, super deformed, simple shading, cartoonish, flat colors, overexposed, washed out, color noise, watercolor, pencil lines, impressionist, loose brushstrokes, porcelain skin, uniform skin tone, flat skin shading, mirror reflection, surface reflection
+
+
+═══════════════════════════════════════════════════════════════════════
+P5
+═══════════════════════════════════════════════════════════════════════
+Thread: candle + holding the flame — the candle burns down to her fingers and she doesn't let go; devotion is staying past the pain
+Anchor: candle burned to her fingers, wax on her hand
+Compose: color isolation (flame on dark) + texture contrast | vertical (candle)
+Light: single source from candle below warm | Palette: candle gold + dark + wax white
+Gate: Thread?✓ /Visible?✓ /Render?✓ — PASS
+
+1girl, dark plum hair, dark eyes, bust shot, holding a candle burned down to her fingers, wax on her hand, she doesn't let go, single candle light from below, skin warm at candle side cool in shadow, tonal variation on skin, dark room, devotion stays past the burn, masterpiece, best quality, anime artstyle
+
+Negative: bright smile, oversaturated warm, deformed fingers, finger merge, wrong finger count, bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, 1boy, male, man, boy, unnatural skin color, hidden hands, rough sketch, sketch lines, small iris, narrow eyes, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, flat shading, cel shading, chibi, super deformed, simple shading, cartoonish, flat colors, overexposed, washed out, color noise, watercolor, pencil lines, impressionist, loose brushstrokes, porcelain skin, uniform skin tone, flat skin shading, mirror reflection, surface reflection
+
+
+═══════════════════════════════════════════════════════════════════════
+P6 — ANTI-PRETTY
+═══════════════════════════════════════════════════════════════════════
+Thread: hospital floor + kneeling — she knelt and hasn't gotten up; devotion to staying is the only devotion left; the floor is her altar
+Anchor: her on the hospital floor, gripping the bed rail
+Compose: void + leading lines (bed rail) | horizontal (floor)
+Light: overhead fluorescent cold hard | Palette: sickly green-white + dark + skin pale
+Gate: Thread?✓ /Visible?✓ /Render?✓ — PASS
+
+1girl, unwashed hair, hollow eyes, cowboy shot, kneeling on a hospital floor both hands on the bed rail, fluorescent overhead light, skin pale in cold light shadowed under eyes, tonal variation on skin, hospital room, night, she knelt and hasn't risen, devotion to staying, masterpiece, best quality, anime artstyle
+
+Negative: bright smile, oversaturated warm, cheerful, background male, bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, 1boy, male, man, boy, unnatural skin color, hidden hands, rough sketch, sketch lines, small iris, narrow eyes, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, flat shading, cel shading, chibi, super deformed, simple shading, cartoonish, flat colors, overexposed, washed out, color noise, watercolor, pencil lines, impressionist, loose brushstrokes, porcelain skin, uniform skin tone, flat skin shading, mirror reflection, surface reflection
+
+
+═══════════════════════════════════════════════════════════════════════
+P7
+═══════════════════════════════════════════════════════════════════════
+Thread: observatory + staying all night — the telescope sees stars, she sees one; devotion is looking until the answer comes
+Anchor: her eye at the telescope, star maps on the walls
+Compose: leading lines (telescope tube) + frame within frame (eyepiece) | diagonal
+Light: single source from desk lamp soft warm | Palette: midnight blue + brass gold + lamp amber
+Gate: Thread?✓ /Visible?✓ /Render?✓ — PASS
+
+1girl, midnight blue hair, brass-colored eyes, cowboy shot, at a large telescope in an observatory, eye at the eyepiece, star maps pinned to the dome wall, desk lamp beside her, skin warm at lamp side cool in dome shadow, tonal variation on skin, observatory, deep night, she watches until the stars answer, masterpiece, best quality, anime artstyle
+
+Negative: bright smile, background male, bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, 1boy, male, man, boy, unnatural skin color, hidden hands, rough sketch, sketch lines, small iris, narrow eyes, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, flat shading, cel shading, chibi, super deformed, simple shading, cartoonish, flat colors, overexposed, washed out, color noise, watercolor, pencil lines, impressionist, loose brushstrokes, porcelain skin, uniform skin tone, flat skin shading, mirror reflection, surface reflection
+
+
+═══════════════════════════════════════════════════════════════════════
+P8 — YURI
+═══════════════════════════════════════════════════════════════════════
+Thread: battlefield + carrying — she carries her off the field; devotion is weight you choose; the ground is mud and she doesn't put her down
+Anchor: one carrying the other, both visible, mud on clothes
+Compose: symmetry (two figures) + texture contrast | triangle (two bodies)
+Light: overcast diffused cold | Palette: mud brown + blood red + grey sky
+Gate: Thread?✓ /Visible?✓ /Render?✓ — PASS
+
+2girls, first girl olive-green hair strong arms carrying, second girl dark hair arm around her neck, cowboy shot, one carrying the other across a muddy field, mud on both their clothes, overcast cold light, skin cool in overcast warm where bodies press together, tonal variation on skin, open field, rain, she doesn't put her down, masterpiece, best quality, anime artstyle
+
+Negative: fused bodies, limb merge, too many arms, body merge, bright smile, bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, extra limbs, blurry, low quality, worst quality, 1boy, male, man, boy, unnatural skin color, hidden hands, rough sketch, sketch lines, small iris, narrow eyes, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, flat shading, cel shading, chibi, super deformed, simple shading, cartoonish, flat colors, overexposed, washed out, color noise, watercolor, pencil lines, impressionist, loose brushstrokes, porcelain skin, uniform skin tone, flat skin shading, mirror reflection, surface reflection
+
+
+═══════════════════════════════════════════════════════════════════════
+P9
+═══════════════════════════════════════════════════════════════════════
+Thread: coal + bare hands — she sorts hot coals with bare hands for the forge; devotion doesn't flinch; her palms know the temperature by faith
+Anchor: coal in her bare hands, red glow between fingers
+Compose: color isolation (red coal on dark) + texture contrast | diagonal (hands)
+Light: from below coal glow hard warm | Palette: coal red + ash grey + warm skin
+Gate: Thread?✓ /Visible?✓ /Render?✓ — PASS
+
+1girl, ash-blonde hair, dark determined eyes, bust shot, holding red-hot coals in bare hands, coal glow between her fingers, she doesn't flinch, light from coal below, skin warm at palms cool at shoulders, tonal variation on skin, forge area, devotion knows the burn and stays, masterpiece, best quality, anime artstyle
+
+Negative: bright smile, deformed fingers, finger merge, wrong finger count, bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, 1boy, male, man, boy, unnatural skin color, hidden hands, rough sketch, sketch lines, small iris, narrow eyes, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, flat shading, cel shading, chibi, super deformed, simple shading, cartoonish, flat colors, overexposed, washed out, color noise, watercolor, pencil lines, impressionist, loose brushstrokes, porcelain skin, uniform skin tone, flat skin shading, mirror reflection, surface reflection
+
+
+═══════════════════════════════════════════════════════════════════════
+P10 — COMPOSITION-FIRST
+═══════════════════════════════════════════════════════════════════════
+Thread: salt flat + reflection — the salt flat reflects the sky perfectly; she walks on the sky; devotion to the illusion is devotion to the horizon
+Anchor: salt flat surface reflecting sky, her feet on the "sky"
+Compose: symmetry (sky above + reflection below) + leading lines (horizon) | horizontal divide
+Light: overhead diffused hard bright | Palette: white salt + sky blue + warm horizon
+Gate: Thread?✓ /Visible?✓ /Render?✓ — PASS
+
+1girl, sky-blue hair, white dress, cowboy shot, walking on a salt flat that reflects the sky perfectly, her feet on the reflection, overhead bright light, skin bright on top cool shadow beneath chin, tonal variation on skin, salt flat, midday, she walks on sky, devotion to the line, masterpiece, best quality, anime artstyle
+
+Negative: bright smile, cold palette, harsh shadows, bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, 1boy, male, man, boy, unnatural skin color, hidden hands, rough sketch, sketch lines, small iris, narrow eyes, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, flat shading, cel shading, chibi, super deformed, simple shading, cartoonish, flat colors, overexposed, washed out, color noise, watercolor, pencil lines, impressionist, loose brushstrokes, porcelain skin, uniform skin tone, flat skin shading, mirror reflection, surface reflection
+
+
+═══════════════════════════════════════════════════════════════════════
+P11
+═══════════════════════════════════════════════════════════════════════
+Thread: violin + bleeding fingers — she plays until her fingers bleed and the strings turn red; devotion plays past the pain; the music is worth the blood
+Anchor: red stains on violin strings, fingers on the fingerboard
+Compose: leading lines (violin neck) + color isolation | diagonal (violin)
+Light: stage spotlight from above hard warm | Palette: stage warm + blood red + dark
+Gate: Thread?✓ /Visible?✓ /Render?✓ — PASS
+
+1girl, chestnut hair, closed eyes, bust shot, playing violin, red stains on the strings from her fingers, stage spotlight from above, skin warm in spotlight cool in shadow below chin, tonal variation on skin, concert stage, she plays past the pain, masterpiece, best quality, anime artstyle
+
+Negative: bright smile, background male, deformed fingers, finger merge, wrong finger count, bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, 1boy, male, man, boy, unnatural skin color, hidden hands, rough sketch, sketch lines, small iris, narrow eyes, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, flat shading, cel shading, chibi, super deformed, simple shading, cartoonish, flat colors, overexposed, washed out, color noise, watercolor, pencil lines, impressionist, loose brushstrokes, porcelain skin, uniform skin tone, flat skin shading, mirror reflection, surface reflection
+
+
+═══════════════════════════════════════════════════════════════════════
+P12 — YURI
+═══════════════════════════════════════════════════════════════════════
+Thread: storm + shelter — one stands in the rain arms spread, the other holds an umbrella over her; devotion is standing in someone's storm
+Anchor: umbrella over the first girl while second stands in rain
+Compose: symmetry + color isolation | triangle (umbrella + two heads)
+Light: overcast diffused cool | Palette: storm grey + umbrella red + rain blue
+Gate: Thread?✓ /Visible?✓ /Render?✓ — PASS
+
+2girls, first girl dark indigo hair arms spread in rain, second girl coral-red hair holding umbrella over her, cowboy shot, one stands in the rain with arms open, the other holds the umbrella over her and gets soaked, overcast cool light, skin cool in rain warm under umbrella edge, tonal variation on skin, street, rain, devotion stands in your storm, masterpiece, best quality, anime artstyle
+
+Negative: fused bodies, limb merge, too many arms, body merge, bright smile, bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, extra limbs, blurry, low quality, worst quality, 1boy, male, man, boy, unnatural skin color, hidden hands, rough sketch, sketch lines, small iris, narrow eyes, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, flat shading, cel shading, chibi, super deformed, simple shading, cartoonish, flat colors, overexposed, washed out, color noise, watercolor, pencil lines, impressionist, loose brushstrokes, porcelain skin, uniform skin tone, flat skin shading, mirror reflection, surface reflection
+
+
+═══════════════════════════════════════════════════════════════════════
+P13
+═══════════════════════════════════════════════════════════════════════
+Thread: lighthouse + the keeper — she stays when the storm hits; the light must not die; devotion is maintaining what keeps others safe
+Anchor: lighthouse beam behind her, storm wind
+Compose: leading lines (lighthouse beam) + void | vertical (lighthouse)
+Light: backlit from lighthouse beam hard | Palette: storm teal + beam gold + dark
+Gate: Thread?✓ /Visible?✓ /Render?✓ — PASS
+
+1girl, teal-green hair, sea-grey eyes, cowboy shot, standing at the top of a lighthouse in a storm, beam behind her, wind and spray, backlit hard, skin warm at beam edge cool in storm shadow, tonal variation on skin, lighthouse, storm, the light must not die, masterpiece, best quality, anime artstyle
+
+Negative: bright smile, cold palette, bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, 1boy, male, man, boy, unnatural skin color, hidden hands, rough sketch, sketch lines, small iris, narrow eyes, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, flat shading, cel shading, chibi, super deformed, simple shading, cartoonish, flat colors, overexposed, washed out, color noise, watercolor, pencil lines, impressionist, loose brushstrokes, porcelain skin, uniform skin tone, flat skin shading, mirror reflection, surface reflection
+
+
+═══════════════════════════════════════════════════════════════════════
+P14
+═══════════════════════════════════════════════════════════════════════
+Thread: garden + kneeling in soil — she tends what feeds her; soil under her nails, knees in the earth; devotion is getting dirty for what grows
+Anchor: soil on her knees and hands, garden rows
+Compose: leading lines (garden rows) + texture contrast | horizontal (rows)
+Light: sidelight from left soft warm | Palette: earth brown + leaf green + warm skin
+Gate: Thread?✓ /Visible?✓ /Render?✓ — PASS
+
+1girl, leaf-green hair, brown eyes, cowboy shot, kneeling in garden soil, hands in the dirt, soil under her fingernails, on her knees, sidelight from left, skin warm on left cool in shadow on right, tonal variation on skin, garden, afternoon, devotion is getting dirty, masterpiece, best quality, anime artstyle
+
+Negative: bright smile, background male, bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, 1boy, male, man, boy, unnatural skin color, hidden hands, rough sketch, sketch lines, small iris, narrow eyes, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, flat shading, cel shading, chibi, super deformed, simple shading, cartoonish, flat colors, overexposed, washed out, color noise, watercolor, pencil lines, impressionist, loose brushstrokes, porcelain skin, uniform skin tone, flat skin shading, mirror reflection, surface reflection
+
+
+═══════════════════════════════════════════════════════════════════════
+P15
+═══════════════════════════════════════════════════════════════════════
+Thread: ice + bare feet — she walks on frozen ground barefoot; devotion to the path is stronger than devotion to comfort
+Anchor: bare feet on ice, breath visible
+Compose: leading lines (frozen path) + texture contrast | horizontal (ice surface)
+Light: overcast diffused cold | Palette: ice white + cold blue + breath mist
+Gate: Thread?✓ /Visible?✓ /Render?✓ — PASS
+
+1girl, ice-white hair, pale blue eyes, cowboy shot, walking barefoot on a frozen path, breath visible in cold air, overcast diffused cold light, skin cold pale on top shadowed below, tonal variation on skin, frozen path, winter, the path matters more than the cold, masterpiece, best quality, anime artstyle
+
+Negative: bright smile, oversaturated warm, cold palette, harsh shadows, bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, 1boy, male, man, boy, unnatural skin color, hidden hands, rough sketch, sketch lines, small iris, narrow eyes, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, flat shading, cel shading, chibi, super deformed, simple shading, cartoonish, flat colors, overexposed, washed out, color noise, watercolor, pencil lines, impressionist, loose brushstrokes, porcelain skin, uniform skin tone, flat skin shading, mirror reflection, surface reflection
+
+
+═══════════════════════════════════════════════════════════════════════
+P16 — YURI
+═══════════════════════════════════════════════════════════════════════
+Thread: anchor + chain — one is the anchor, one is the ship; the chain holds them together; devotion is staying tied through the storm
+Anchor: chain between their hands, anchor on the ground
+Compose: leading lines (chain) + texture contrast | V-shape (chain + two bodies)
+Light: sidelight from right warm golden | Palette: rust orange + sea teal + chain iron
+Gate: Thread?✓ /Visible?✓ /Render?✓ — PASS
+
+2girls, first girl rust-orange hair holding one end of a chain, second girl sea-teal hair holding the other end, cowboy shot, both holding a chain between them, an anchor on the ground at one end, sidelight from right, skin warm on right cool in shadow on left, tonal variation on skin, dock, golden hour, the chain holds through the storm, masterpiece, best quality, anime artstyle
+
+Negative: fused bodies, limb merge, too many arms, body merge, bright smile, bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, extra limbs, blurry, low quality, worst quality, 1boy, male, man, boy, unnatural skin color, hidden hands, rough sketch, sketch lines, small iris, narrow eyes, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, flat shading, cel shading, chibi, super deformed, simple shading, cartoonish, flat colors, overexposed, washed out, color noise, watercolor, pencil lines, impressionist, loose brushstrokes, porcelain skin, uniform skin tone, flat skin shading, mirror reflection, surface reflection
+
+
+═══════════════════════════════════════════════════════════════════════
+P17
+═══════════════════════════════════════════════════════════════════════
+Thread: painter + paint on skin — she paints until the paint is on her more than the canvas; devotion to the work covers you in it
+Anchor: paint on her arms and face, brush in hand, canvas beside her
+Compose: texture contrast (paint/skin/canvas) + color isolation | diagonal (arm with brush)
+Light: studio window diffused soft warm | Palette: cadmium yellow + paint multi + warm skin
+Gate: Thread?✓ /Visible?✓ /Render?✓ — PASS
+
+1girl, cadmium-yellow hair, paint-stained arms and cheek, cowboy shot, standing at an easel with brush in hand, paint on her skin more than the canvas, studio window light diffused, skin warm in window light cool in studio shadow, tonal variation on skin, art studio, afternoon, devotion covers you in its color, masterpiece, best quality, anime artstyle
+
+Negative: bright smile, background male, bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, 1boy, male, man, boy, unnatural skin color, hidden hands, rough sketch, sketch lines, small iris, narrow eyes, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, flat shading, cel shading, chibi, super deformed, simple shading, cartoonish, flat colors, overexposed, washed out, color noise, watercolor, pencil lines, impressionist, loose brushstrokes, porcelain skin, uniform skin tone, flat skin shading, mirror reflection, surface reflection
+
+
+═══════════════════════════════════════════════════════════════════════
+P18
+═══════════════════════════════════════════════════════════════════════
+Thread: mountain + summit — she climbed and the summit is small and cold and she stands there anyway; devotion is reaching the top and not knowing why
+Anchor: summit flag, wind, her at the peak
+Compose: void + color isolation | triangle (her figure at peak)
+Light: overcast diffused cold bright | Palette: stone grey + wind white + flag red
+Gate: Thread?✓ /Visible?✓ /Render?✓ — PASS
+
+1girl, stone-grey hair, wind-burnt cheeks, cowboy shot, standing at a mountain summit, small flag beside her, wind pulling her hair, overcast bright cold light, skin wind-burnt warm on cheeks cool in shadow, tonal variation on skin, mountain peak, overcast, she arrived and the top is cold and small, masterpiece, best quality, anime artstyle
+
+Negative: bright smile, oversaturated warm, cold palette, bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, 1boy, male, man, boy, unnatural skin color, hidden hands, rough sketch, sketch lines, small iris, narrow eyes, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, flat shading, cel shading, chibi, super deformed, simple shading, cartoonish, flat colors, overexposed, washed out, color noise, watercolor, pencil lines, impressionist, loose brushstrokes, porcelain skin, uniform skin tone, flat skin shading, mirror reflection, surface reflection
+
+
+═══════════════════════════════════════════════════════════════════════
+P19
+═══════════════════════════════════════════════════════════════════════
+Thread: campfire + burning letter — she holds a letter in the fire and reads it as it burns; devotion is letting go while watching every word disappear
+Anchor: letter in flames, her face lit by fire
+Compose: color isolation (fire on dark) + texture contrast | vertical (letter burning)
+Light: single source from campfire below hard warm | Palette: fire orange + night black + paper white
+Gate: Thread?✓ /Visible?✓ /Render?✓ — PASS
+
+1girl, warm copper hair, firelit face, bust shot, holding a letter into a campfire, the paper burning as she reads it, campfire light from below, skin warm at firelight cool in night shadow, tonal variation on skin, forest campfire, night, she reads it as it burns, masterpiece, best quality, anime artstyle
+
+Negative: bright smile, oversaturated warm, background male, bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, 1boy, male, man, boy, unnatural skin color, hidden hands, rough sketch, sketch lines, small iris, narrow eyes, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, flat shading, cel shading, chibi, super deformed, simple shading, cartoonish, flat colors, overexposed, washed out, color noise, watercolor, pencil lines, impressionist, loose brushstrokes, porcelain skin, uniform skin tone, flat skin shading, mirror reflection, surface reflection
+
+
+═══════════════════════════════════════════════════════════════════════
+P20 — FERAL
+═══════════════════════════════════════════════════════════════════════
+Thread: earth + her body — she kneels and the earth accepts her; devotion to the ground is the oldest devotion; she belongs to what she kneels on
+Anchor: her knees and hands in soil, earth on bare skin
+Compose: texture contrast (earth/skin) + void | horizontal (ground line)
+Light: overcast diffused natural | Palette: raw umber + moss green + bare skin
+Gate: Thread?✓ /Visible?✓ /Render?✓ — PASS
+
+1girl, wild umber hair, fierce bare feet, cowboy shot, kneeling on bare earth, soil on her knees and palms, earth on her bare skin, overcast natural light, skin warm where light hits cool in earth shadow, tonal variation on skin, open ground, the oldest devotion is to the earth, masterpiece, best quality, anime artstyle
+
+Negative: bright smile, cheerful, flat chest, no nipples, barcode censor, mosaic censor, bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, 1boy, male, man, boy, unnatural skin color, hidden hands, rough sketch, sketch lines, small iris, narrow eyes, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, flat shading, cel shading, chibi, super deformed, simple shading, cartoonish, flat colors, overexposed, washed out, color noise, watercolor, pencil lines, impressionist, loose brushstrokes, porcelain skin, uniform skin tone, flat skin shading, mirror reflection, surface reflection
+
+
+═══════════════════════════════════════════════════════════════════════
+P21 — YURI
+═══════════════════════════════════════════════════════════════════════
+Thread: midnight + keeping watch — one sleeps, one watches; devotion is staying awake so she doesn't have to; the dark is hers to hold
+Anchor: one awake watching, one sleeping against her
+Compose: symmetry + void | horizontal (two figures)
+Light: single source moonlight diffused cool | Palette: moonlight silver + dark + warm breath
+Gate: Thread?✓ /Visible?✓ /Render?✓ — PASS
+
+2girls, first girl silver hair awake watchful eyes, second girl dark hair sleeping head on her shoulder, cowboy shot, one awake watching the dark, one sleeping against her, moonlight diffused cool, skin cool in moonlight warm where they touch, tonal variation on skin, campsite, night, she holds the dark so she can rest, masterpiece, best quality, anime artstyle
+
+Negative: fused bodies, limb merge, too many arms, body merge, bright smile, bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, extra limbs, blurry, low quality, worst quality, 1boy, male, man, boy, unnatural skin color, hidden hands, rough sketch, sketch lines, small iris, narrow eyes, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, flat shading, cel shading, chibi, super deformed, simple shading, cartoonish, flat colors, overexposed, washed out, color noise, watercolor, pencil lines, impressionist, loose brushstrokes, porcelain skin, uniform skin tone, flat skin shading, mirror reflection, surface reflection
+
+
+═══════════════════════════════════════════════════════════════════════
+BATCH DASHBOARD
+═══════════════════════════════════════════════════════════════════════
+
+P#  Camera     Thread                                  Setting       Hair              Palette
+──────────────────────────────────────────────────────────────────────────────────────────
+P1  cowboy     church+bees                             Architecture   Amber              amber+honey+stone
+P2  cowboy     forge+soot on body                      Domestic       Dark Auburn        forge orange+soot
+P3  cowboy     tattoo+ink as vow (yuri)                Domestic       Copper/Teal        ink black+lamp amber
+P4  cowboy     tightrope+wind                          Height         Silver-White       silver+rose+wind
+P5  bust       candle+burned to fingers                Domestic       Dark Plum          candle gold+wax
+P6  cowboy     hospital+kneeling (anti-pretty)         Domestic       Unwashed           green-white+dark
+P7  cowboy     observatory+all night                   Architecture   Midnight Blue      blue+brass gold
+P8  cowboy     battlefield+carrying (yuri)             Nature         Olive-Green/Dark   mud+blood+grey
+P9  bust       coal+bare hands                         Domestic       Ash-Blonde         coal red+ash grey
+P10 cowboy     salt flat+walking on sky (comp-first)   Nature         Sky-Blue           white salt+sky
+P11 bust       violin+bleeding fingers                 Performance    Chestnut           stage warm+blood
+P12 cowboy     storm+umbrella over her (yuri)          Public         Indigo/Coral       storm grey+red
+P13 cowboy     lighthouse+keeper                       Height         Teal-Green         storm teal+beam gold
+P14 cowboy     garden+kneeling in soil                 Nature         Leaf-Green         earth brown+green
+P15 cowboy     ice+bare feet                           Nature         Ice-White          ice white+blue
+P16 cowboy     anchor+chain between them (yuri)        Water          Rust-Orange/Teal   rust+sea+iron
+P17 cowboy     painter+paint on skin                   Domestic       Cadmium-Yellow     cadmium+multi
+P18 cowboy     mountain+summit                         Height         Stone-Grey         stone+wind+flag
+P19 bust       campfire+burning letter                  Nature         Warm Copper        fire orange+night
+P20 cowboy     earth+body in soil (feral)              Nature         Wild Umber         umber+moss
+P21 cowboy     midnight+keeping watch (yuri)           Nature         Silver/Dark        moonlight silver
+
+SETTINGS: Nature×6, Architecture×2, Height×3, Domestic×4,
+          Public×1, Water×1, Performance×1 (7 categories)
+CAMERAS: cowboy×16, bust×5
+YURI: 5/21 (P3, P8, P12, P16, P21)
+SPECIAL MODES: anti-pretty (P6), composition-first (P10), feral (P20)
+PALETTES: 21 unique (0 adjacent duplicates)

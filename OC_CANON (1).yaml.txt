@@ -1,0 +1,160 @@
+# OC_CANON.yaml — THREAD 3.0
+# Single source of truth for OC appearance. Every OC prompt must match
+# EXACTLY. Rae and Iya excluded — added accidentally, never used
+# (per author decision). Re-add here if reactivated.
+#
+# anti_shield fields go in the NEGATIVE prompt whenever this OC appears,
+# to stop PixAI/PH from drifting the character toward a wrong-but-similar
+# variant (wrong hair color, wrong ear position, wrong eye color, etc.)
+
+version: "1.0.0"
+
+oc_canon:
+
+  - id: sue
+    name: "Sue"
+    hair: "platinum-white hair in twin ponytails"
+    eyes: "soft purple right eye (left eye covered by eyepatch)"
+    skin: "pale ivory"
+    body_type: "slender"
+    signature_marks:
+      - "square white medical eyepatch over the left eye"
+      - "neck tattoo"
+    emotional_register: "distant"
+    anti_shield:
+      - "both eyes visible, no eyepatch, brown eyes, blue eyes, warm skin tone"
+
+  - id: miyu
+    name: "Miyu"
+    hair: "long straight black hair, hime cut, blunt bangs, long sidelocks"
+    eyes: "heterochromia — left eye red, right eye blue"
+    skin: "warm light tan"
+    body_type: "slim, elegant"
+    signature_marks:
+      - "sharp triangular anime fangs"
+    special_feature_note: "the ONLY OC with heterochromia_red_blue — cap_per_batch:1 applies to the OTHER OCs, not to Miyu's own canon batches"
+    anti_shield:
+      - "single eye color, matching eyes, brown eyes, blunt fangs, round human teeth"
+
+  - id: yui
+    name: "Yui"
+    hair: "yellowish-blonde hair with pink gradient at the tips, low messy ponytail, large elegant bow, decorative hairpins"
+    eyes: "golden eyes with lighter ring-shaped pupils"
+    skin: "fair skin, warm undertone"
+    body_type: "medium to full chest, soft feminine build"
+    signature_marks:
+      - "sharp triangular anime fangs"
+      - "beauty mark under the left eye"
+    anti_shield:
+      - "violet hair, purple hair, silver hair, black hair, slender build, athletic build"
+
+  - id: sol
+    name: "Sol"
+    hair: "long silver-white thick layered hair, messy side bangs partially covering one eye"
+    eyes: "bright amber slit pupils"
+    skin: "dark bronze"
+    body_type: "full chest, soft feminine build"
+    signature_marks:
+      - "large drooping fox ears hanging beside the head (never perked upright)"
+      - "large gold hoop earrings on the fox ears"
+      - "small gemstone earrings on the fox ears"
+      - "golden tail"
+    anti_shield:
+      - "perked fox ears, upright fox ears, human ears, gold slit pupils, warm tan skin, athletic build, platinum hair, silver hair without white base"
+
+  - id: noa
+    name: "Noa"
+    hair: "long deep copper-red hair in a loose side braid, stray strands at the temples"
+    eyes: "sharp emerald-green eyes with golden flecks"
+    skin: "fair, freckled, sandstone undertone"
+    body_type: "athletic, toned"
+    signature_marks:
+      - "small burn scar on the right wrist"
+    anti_shield:
+      - "slender build, unfreckled skin, plain green eyes without gold flecks"
+
+  - id: doe
+    name: "Doe"
+    hair: "shoulder-length wavy lavender hair, side-swept bangs"
+    eyes: "expressive golden-yellow eyes (not glowing), light purple eyeliner"
+    skin: "unspecified — follow batch skin rotation, keep consistent within a batch"
+    body_type: "thick, toned thighs"
+    signature_marks:
+      - "round glasses"
+      - "band-aid on the bridge of the nose"
+      - "single small hoop earring in the left ear (asymmetric)"
+      - "small soft purple scales on the cheeks"
+      - "small deer-like antler-shaped horns, smooth, not branched, not curved backward"
+    anti_shield:
+      - "glowing eyes, curved backward horns, branched antlers, no glasses, symmetric earrings"
+
+  - id: lua
+    name: "Lua"
+    hair: "very long straight obsidian-black hair with a faint purple sheen, side-swept bangs"
+    eyes: "pale icy grey almond eyes, half-lidded"
+    skin: "fair cream, light freckles"
+    body_type: "slender, womanly"
+    signature_marks:
+      - "curved ram-like horns"
+      - "thin serpentine tail"
+      - "small beauty mark on the right cheek"
+    anti_shield:
+      - "straight antler horns, legged tail, wide-eyed expression, dark eyes"
+
+  - id: nix
+    name: "Nix"
+    hair: "short platinum french bob, wispy bangs, tapered nape"
+    eyes: "sharp ice-blue eyes"
+    skin: "mediterranean bronze (not olive)"
+    body_type: "slim, athletic, mature body, small breasts (explicit)"
+    signature_marks:
+      - "sharp angular features"
+    anti_shield:
+      - "olive skin, large breasts, soft rounded features, long hair"
+
+  - id: vae
+    name: "Vae"
+    hair: "very long black hair with a single white streak, side-swept bangs"
+    eyes: "striking red eyes (single color — not heterochromia, that is Miyu's signature)"
+    skin: "obsidian"
+    body_type: "tall, curvy, hourglass, large bare breasts, wide hips"
+    signature_marks:
+      - "curved ram-like horns"
+      - "long serpentine tail"
+      - "ceremonial torn white robe, chest exposed (canonical default garment)"
+      - "X-shaped tape over each nipple (canonical default — NCS state defaults to TAPE unless the prompt explicitly calls for a different NCS value)"
+    anti_shield:
+      - "heterochromia, mismatched eyes, small breasts, covered chest, straight horns"
+
+  - id: ash
+    name: "Ash"
+    hair: "very long ivory-white hair (not platinum, not silver — ivory)"
+    eyes: "eyes rarely seen — covered by a thin white veil (canonical)"
+    skin: "snow-pale"
+    body_type: "slender"
+    signature_marks:
+      - "thin white veil covering the eyes"
+      - "simple white cotton monastic garments"
+      - "crown of thorns over the veil (optional per-prompt)"
+    anti_shield:
+      - "platinum hair, silver hair, visible bare eyes, colorful garments"
+
+inactive_reserve:
+    - id: rae
+      note: "added accidentally, not currently used — bio retained for reference only"
+      hair: "strawberry-blonde pixie cut"
+      eyes: "moonstone-pale eyes"
+      skin: "fair, freckled, cool undertone"
+      body_type: "slender, small-breasted, delicate frame"
+      signature_marks: ["small star-shaped scar on the left collarbone"]
+    - id: iya
+      note: "added accidentally, not currently used — bio retained for reference only"
+      hair: "dark-blonde wavy hair, low messy ponytail"
+      eyes: "storm-grey eyes"
+      skin: "rich ebony, warm undertone"
+      body_type: "athletic, full-figured, strong frame"
+      signature_marks: ["rain-drop tattoo on the right wrist"]
+
+# ── SELECTION RULE ────────────────────────────────────────────────────
+# Per session: author selects 3 of the 10 active OCs by vibe/theme fit.
+# No forced rotation schedule — author's call each time.

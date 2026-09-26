@@ -1,0 +1,1503 @@
+A5P2 — THE THREAD v7 (Beta)
+Prompt engineering for Tsubaki 2 (MMDIT 2.6A) on Pixai.Art
+
+═══════════════════════════════════════════════════════════════════════
+QUICKREF (1 page — use this during generation)
+═══════════════════════════════════════════════════════════════════════
+
+TAG ORDER (weight ↓):
+  [1] 1girl / 2girls
+  [2] hair color + length
+  [3] eye color
+  [4] gaze direction
+  [5] anime artstyle
+  [6-10] camera + pose + body language + silhouette gesture
+  [11-22] thread anchor + environment + light + skin response + atmosphere
+  [23-29] material pair + anatomy/clothing state + lingerie/legs +
+          condiment + natural skin gradient
+  [30] narrative line (max 1, if visually anchored)
+  [31-35] masterpiece, best quality, anime artstyle
+
+  Solo: 25-35 tags. Yuri: 30-40 tags.
+
+SKIN: response tag IMMEDIATELY after light direction.
+  Use LIGHT-SKIN PAIR from Section III (12 options).
+  + "natural skin gradient" in [23-29]
+
+ANIME: "anime artstyle" TWICE — [5] AND [31-35]
+
+POSE: use POSE LIBRARY (Section IV). Default = dynamic.
+  Safe hands relaxed — only face-covering still banned.
+
+CAMERA: 12 options. Cowboy ≤8 (was 10). Other ≥5. No 3+ consecutive.
+
+YURI: 5-7 prompts, own thread, max 2 contact points.
+
+TIERS: min 6 Tier2+, min 1 Tier3 per batch
+
+TEMPERATURE: min 4 COOL, min 4 HOT, rest WARM per batch
+
+ECHO: 2-3 motifs, each recurrence changes 2+ params
+
+NEGATIVES: T3(cond) → T3B(risk) → T1(anatomy) → T2(style)
+  Mood derived from Palette.
+
+GATE: Thread? / Visible? / Render(≤1 break)? / Earned?
+
+NUDITY BUDGET: max 5/21 anatomical exposure. Max 2 tags per prompt.
+  Graduated Reveal: Act I = Tier S → Act II = Tier A → Act III = Tier E
+
+EROTIC DETAIL: 1-2 per erotic prompt (nipples, lingerie, stockings, etc.)
+
+BODY LANGUAGE: figure type + body adjective in [6-10] when thread-
+  appropriate. Not every prompt. When used: specific, structural.
+
+WOW SYSTEMS: deploy at least 3 per batch from Section I-C.
+
+SURFACE TRACE: max 1 per batch (handprint/fingerprint type).
+  Other traces (water line, salt crust, ice trace) unlimited.
+
+═══════════════════════════════════════════════════════════════════════
+CHANGES FROM A5P1E
+═══════════════════════════════════════════════════════════════════════
+
+  ARCHITECTURE ALIGNMENT (Tsubaki 2 — MMDIT 2.6A):
+
+  1.  MODEL AWARENESS — Tsubaki 2 uses Multi-Modal DiT 2.6A,
+      NOT the same architecture as v1. Key differences:
+      - Transformer attention processes all tokens in parallel
+        (tag order matters less than with SD, but still matters
+        for Prompt Helper rewrites)
+      - Natural language + tags mixed style works BETTER than
+        pure Danbooru tags
+      - Prompt Helper v2 auto-rewrites; our system produces the
+        INPUT that gets enhanced, not the final render instruction
+      - 4 generation modes: Lite/Standard/Pro/Ultra — our prompts
+        should work at Standard minimum, shine at Pro/Ultra
+      - 25+ one-click styles available — our prompts should be
+        style-agnostic (work with or without style overlay)
+      - LoRA incompatible — we cannot rely on LoRA corrections
+
+  2.  TAG ORDER UPDATE — [2] now supports hair color + length
+      as a single compound tag. Tsubaki 2 handles compound
+      descriptors better than v1. "long black hair" as one tag
+      is fine. Don't split into "black hair, long hair" — that
+      wastes a slot. Use the freed slot for something productive.
+
+  SURFACE TRACE REVISION:
+
+  3.  SURFACE TRACE DOWNGRADE — handprint/fingerprint-type traces
+      removed from standard condiment rotation. Max 1 per batch.
+      Reason: they render as strange artifacts, not as intended.
+      The idea was better than the execution. Other trace types
+      (water line, salt crust, ice trace, dew, condensation)
+      remain — they render well because they're environmental,
+      not body-on-body.
+
+  WOW SYSTEMS (12 new techniques):
+
+  4.  COLOR BREEDING — palette elements physically mix on surfaces.
+      Red light + wet skin = blood-warm highlights. Blue shadow
+      + blonde hair = green-tinted strands. The mixing IS the
+      "wow." Tags: "red light on wet skin", "blue shadow tinting
+      blonde hair green", "orange reflecting off bare shoulder"
+      Tsubaki 2's dynamic light diffusion makes this sing.
+
+  5.  POSE CONTRADICTION — body says one thing, face says another.
+      Arms crossed (closed) + looking at viewer (open). Body
+      turned away + face toward camera (refusal to leave).
+      The contradiction IS the image. Deploy when emotional
+      complexity needed. Not every prompt — 2-3 per batch.
+
+  6.  WEIGHT SHIFT — character's weight visibly not centered.
+      Leaning on one hip, mid-step, weight on railing, caught
+      between positions. Makes the image feel like a frame from
+      animation, not a posed photo. Tsubaki 2 handles natural
+      movement well — use it.
+
+  7.  TEXTURE INFECTION — one texture "infects" an adjacent surface.
+      Rain on fabric makes fabric look like water. Candlelight
+      on skin makes skin look like wax. Fog on hair makes hair
+      look like smoke. The boundary between textures dissolves.
+      Tags: "fabric looking wet as water", "skin golden like
+      candlelight", "hair dissolving into fog"
+
+  8.  NEGATIVE SPACE THEFT — the void steals color from the subject.
+      Her hair color bleeds into the empty space behind her.
+      Her silhouette leaves a color afterimage in the void.
+      The emptiness isn't empty — it's where she was.
+      Tags: "hair color bleeding into void", "color afterimage
+      in negative space", "silhouette leaving warm trace"
+
+  9.  ENVIRONMENTAL FRAMING — the world frames her without frames.
+      Tree branches forming an arch. Doorway she's not walking
+      through. Window behind her that she's not looking at.
+      Architecture that implies containment without walls.
+      Tags: "branches arching overhead", "doorway behind not
+      entered", "window frame without glass"
+
+  10. FABRIC PHYSICS — clothing does what physics demands, not
+      what modesty wants. Wind pulling dress taut. Gravity
+      dragging wet shirt down. Water weight opening collar.
+      The body doesn't choose — the world chooses.
+      Tags: "wind pulling dress against body", "wet shirt pulled
+      down by water weight", "gravity opening collar"
+      Replaces Surface Trace as the primary "wow" mechanic for
+      erotic prompts. The fabric IS the narrative.
+
+  11. CHROMATIC SHADOW — shadows are not grey/black. They are the
+      complement of the light. Orange light = blue shadows.
+      Green light = magenta shadows. Red light = cyan shadows.
+      Every shadow has a color identity, not just darkness.
+      Tags: "blue shadows in orange light", "magenta shadow
+      under green lamp", "cyan shadows from red stage light"
+      Tsubaki 2's shadow blending makes this a natural fit.
+
+  12. GESTURE RESONANCE — her gesture echoes in the environment.
+      Hand raised → branches raised. Arms open → curtains open.
+      Head tilted → tower tilted. The world mirrors her body.
+      Tags: "hand raised branches raised", "arms open curtains
+      parted", "body tilted world tilted"
+
+  13. DEPTH LAYER BREACH — the background enters the foreground.
+      A distant mountain appears beside her shoulder. Cloud
+      level at her waist. Stars at her feet. Scale collapsed
+      into a single plane. The depth breaks.
+      Tags: "mountain beside shoulder", "clouds at waist level",
+      "stars beneath feet"
+
+  14. FOCAL SINGULARITY — everything in the image converges on
+      ONE point. All leading lines. All gazes. All light.
+      That point is usually: her eyes, her hand, or the thread
+      anchor. The image has a gravitational center.
+      Tags: "all lines converging on her hand", "light drawn to
+      her eyes", "environment oriented toward anchor point"
+
+  15. AFTERIMAGE — she was doing something before the frame and
+      the image shows the ghost of it. Hair still swinging from
+      a turn. Fabric still settling from a motion. Steam still
+      rising from where she was. The frame caught the deceleration.
+      Tags: "hair still mid-swing", "fabric settling from
+      motion", "steam from where she was standing"
+
+  16. LIMINAL BREACH — she exists at the boundary between two
+      states/spaces. Half in doorway, half out. Half in water,
+      half out. Half in light, half in shadow. The boundary
+      runs through her body. She IS the threshold.
+      Tags: "half in doorway half out", "body split by light
+      boundary", "half in water half above"
+
+  POSE SYSTEM OVERHAUL:
+
+  17. POSE LIBRARY — replaces "safe hands" default with a
+      structured vocabulary of 20+ poses. Hands are no longer
+      default-safe. Instead: pick from the library, or justify
+      a custom pose with thread reasoning. The library provides
+      RENDER-TESTED poses that Tsubaki 2 handles well.
+      See Section IV for full library.
+
+  18. DYNAMIC POSE DEFAULT — the default pose is no longer
+      "standing, hands at sides." The default is DYNAMIC.
+      At minimum: one weight shift, one gesture, one body angle
+      that isn't straight-on. Static poses require justification
+      (the thread demands stillness). If the thread doesn't need
+      stillness → she moves.
+
+  CHARACTER APPEARANCE REFINEMENT:
+
+  19. BODY LANGUAGE SYSTEM — figure type + body adjective tags
+      for [6-10] when thread-appropriate. Not every prompt.
+      When used: specific, structural, descriptive. Never
+      meaning-labels.
+
+      FIGURE TYPES (structural — describe shape, not judgment):
+        slender frame — narrow shoulders, slim limbs
+        athletic build — defined shoulders, toned limbs
+        soft figure — gentle curves, rounded shoulders
+        tall frame — elongated proportions, long limbs
+        petite build — compact proportions, small frame
+        willowy figure — tall and slender, flowing lines
+
+      BODY ADJECTIVES (structural — describe quality, not meaning):
+        smooth skin — even texture, no blemish emphasis
+        soft curves — gentle transitions between body areas
+        defined collarbone — visible bone structure at neck
+        narrow waist — proportion descriptor
+        long legs — proportion descriptor
+        full lips — facial detail
+        delicate hands — hand rendering guide
+        toned stomach — visible abdominal definition
+
+      RULES:
+      - Max 1 figure type + 1 body adjective per prompt
+      - Only when thread or erotic tier justifies attention to body
+      - Never in [1-5]. Goes in [6-10] with pose.
+      - If the prompt doesn't need body specification → omit it
+      - "voluptuous", "curvy", "thicc" still banned (meaning-labels)
+
+  20. FACE RENDERING GUIDE — Tsubaki 2 renders faces with
+      "exquisite fine-grained detail" — but can drift toward
+      abstraction if not guided. New tags in [6-10]:
+        defined features — prevents abstraction drift
+        soft expression — gentle face rendering
+        sharp gaze — intense eye rendering
+        subtle smile — prevents exaggerated expressions
+        parted lips — mouth detail (also serves erotic tier)
+        flushed cheeks — color in face (also serves context)
+
+  21. HAIR AS BODY — hair is no longer just [2] color. When
+      the thread or erotic tier calls for it, add hair behavior
+      in [11-22]:
+        hair flowing across bare shoulder
+        wet hair clinging to neck
+        hair caught in wind across face
+        hair draped over chest
+        loose strands on collarbone
+      Hair is the most reliable "clothing" the body has.
+      Use it as fabric, as veil, as narrative element.
+
+  CAMERA EXPANSION:
+
+  22. CAMERA LIBRARY — expanded from 5 to 12 options:
+      Standard (carryover):
+        close-up — face + thread anchor only
+        bust — chest up, face dominant
+        waist — upper body, hands visible
+        cowboy — full body above knee
+        three-quarter — 3/4 angle, dynamic
+      NEW:
+        from below — low angle, power/revelation
+        from above — high angle, vulnerability/overview
+        over-shoulder — looking past her at the scene
+        dutch angle — tilted, unease/tension
+        profile — side view, silhouette focus
+        extreme close-up — eye/lip/hand detail only
+        full figure — whole body, environment dominant
+      HARD CAPS UPDATED:
+        Cowboy ≤8 (was 10)
+        Other (non-bust, non-cowboy) ≥5
+        No 3+ consecutive same camera
+        At least 4 different cameras per batch
+
+  EROTIC EXPANSION:
+
+  23. EROTIC DETAIL SYSTEM — Tier A and Tier E prompts now
+      include 1-2 EROTIC DETAIL tags in [23-29]. These are
+      specific, structural tags that tell the model exactly
+      what to render on the body and clothing:
+
+      NIPPLES (now valid Tier A):
+        nipples visible — direct, structural
+        nipples visible through fabric — sheer + anatomy
+        nipple outline through cloth — subtler version
+        erect nipples through thin fabric — state + cause
+
+      LINGERIE VOCABULARY (Tier S or A):
+        black lace bra — specific, not "lingerie"
+        white cotton panties — specific, not "underwear"
+        sheer bodysuit — both fabric state and garment
+        thigh-high stockings — leg detail + clothing
+        garter belt — specific accessory
+        lace trim on bra — detail on detail
+        silk camisole — fabric + garment
+        mesh top — sheerness as garment
+        side-tie panties — the tie IS the invitation
+        strapless bra — the absence of straps tells a story
+        sports bra — function over form, contrast potential
+        fishnet stockings — texture + leg
+
+      LEG DETAIL (Tier S or A):
+        thigh-high stockings — the line across the thigh IS
+          the eroticism (where fabric meets skin)
+        stockings with garter — connection point as focal
+        bare legs — when the absence of stockings is the point
+        knees visible below hem — partial reveal
+        ankle straps on heels — the wrap as constraint
+
+      RULES:
+      - 1-2 erotic detail tags per Tier A or E prompt
+      - Can count as one of the max 2 anatomical tags if
+        they describe anatomy (nipples visible). Otherwise
+        they're clothing detail (separate budget).
+      - Lingerie/stockings can appear in Tier S prompts
+        as clothing detail without using Nudity Budget.
+      - "Lingerie" alone = meaning-label. Always specify
+        the actual garment. "Black lace bra" not "lingerie."
+
+  24. NUDE REFINED — "nude" as a tag now requires a QUALIFIER
+      in the same prompt explaining WHY she's nude:
+        "nude, after bath" (cause = water)
+        "nude, ritual surface for sigils" (cause = thread)
+        "nude, clothing dissolved into water" (cause = transformation)
+      "nude" alone with no cause = decorative. Fix it.
+
+  25. EROTIC TIER A EXPANSION — Tier A now explicitly includes:
+        bare breasts, nipples visible, topless, nude + qualifier,
+        exposed midriff, bare shoulder and chest, sheer fabric
+        on skin, nipples visible through fabric, nipple outline
+      All still max 2 per prompt. Still in [23-29]. Still
+      need context tag. Still pass Erotic Thread Test.
+
+  LIGHT DIVERSIFICATION:
+
+  26. LIGHT-SKIN PAIR SYSTEM — replaces the 3 skin response
+      tags with 12 specific light-skin combinations. Each
+      pair tells the model how light LANDS on skin, not just
+      "warm here cool there." The palette still wins.
+
+      Direct sun:     "sun-warm skin, cool shadow under jaw"
+      Golden hour:    "amber glow on skin, violet shadow beneath"
+      Overcast:       "skin cool in overcast, warm at edges"
+      Moonlight:      "skin blue-silver in moonlight, warm at pulse points"
+      Candlelight:    "skin gold in candlelight, shadow pooling warm"
+      Neon:           "neon-tinted skin, shadow in complementary color"
+      Backlit:        "skin luminous at edges, dark core silhouette"
+      Stage spot:     "skin white-hot in spotlight, ink-black shadow"
+      Dawn mist:      "skin pale in mist, flush at cheeks and fingers"
+      Rain-filtered:  "skin grey-soft in rain, warm where water beads"
+      Fireplace:      "skin ember-warm on one side, cool shadow on other"
+      Underwater:     "skin blue-green in water, pale above surface"
+
+      RULES:
+      - Pick 1 pair per prompt. Position: immediately after
+        light direction in [11-22].
+      - The palette dictates which pair works. Don't put
+        "neon-tinted skin" in Candle Wax palette.
+      - "natural skin gradient" still goes in [23-29].
+
+  27. CHROMATIC SHADOW MANDATE — shadows must have a color
+      identity. No grey/black shadows unless the palette is
+      specifically desaturated (Hospital Ghost, Ice Breath).
+      In all other palettes: shadows are the complement of the
+      dominant light. See Wow System #11 (Chromatic Shadow).
+
+  28. PALETTE EXPANSION — 6 new palettes added:
+      Neon Veins — neon pink + deep violet + dark
+        → skin: neon-tinted, shadow in complementary green
+      Wine Cellar — burgundy + candle amber + stone cool
+        → skin: wine-flushed in warmth, stone-cool in shadow
+      Dust Bloom — dusty rose + sage green + cream
+        → skin: rose-warm in light, sage-cool in shadow
+      Obsidian Tide — black water + silver crest + deep teal
+        → skin: silver highlights on dark water, teal shadow
+      Amber Ladder — amber gold + ladder shadow + warm white
+        → skin: amber-warm throughout, shadow still warm
+      Frost Glass — frost white + glass blue + bare skin tone
+        → skin: frost-pale, skin-warm only at pulse points
+
+  TSUBAKI 2 OPTIMIZATION:
+
+  29. COMPOUND TAGS — Tsubaki 2 handles compound descriptors
+      better than v1. Use them. Free up slots.
+      "long black hair" (1 tag, not 2)
+      "low-angle cowboy shot" (1 tag, not 2)
+      "wet clinging white shirt" (1 tag, not 3)
+      Don't overdo it — 2-3 elements max per compound.
+
+  30. NATURAL LANGUAGE BRIDGE — in [30] narrative position,
+      Tsubaki 2 responds well to short natural language phrases
+      rather than single abstract words. Instead of "defiance",
+      try "she dares you to look away." Instead of "surrender",
+      try "the water took what she wouldn't give."
+      The Prompt Helper may expand these. That's fine.
+
+  31. PROMPT DENSITY RELAXED — the old rule was "max 1 tag per
+      semantic unit." Tsubaki 2 can handle slightly more density
+      because the Prompt Helper rewrites for clarity. New rule:
+      max 1 tag per semantic unit for [1-22]. [23-29] can have
+      up to 2 tags per unit if they serve different purposes
+      (e.g., "black lace bra" = clothing + erotic detail in 1).
+
+  32. GENERATION MODE AWARENESS — our prompts should work at
+      Standard but SHINE at Pro/Ultra. This means:
+      - More detail tags survive into Ultra without noise
+      - Complex light descriptions benefit from higher render
+      - Erotic detail tags need Pro+ for best results
+      - If generating at Lite, strip condiments and narrative
+
+  33. STYLE AGNOSTIC — our prompts must not assume a specific
+      one-click style. The 25+ style overlays will transform
+      the output. Our prompts provide the SUBJECT + COMPOSITION
+      + LIGHT + THREAD. The style overlay provides the aesthetic.
+      Don't fight the style — let it work with your structure.
+
+  34. HAND POSE RELAXED — safe hand list demoted from rule to
+      guideline. Hands near face still risky (Tsubaki 2
+      deforms fingers near face). But: hands doing specific
+      things (thread-justified) are now ENCOURAGED, not just
+      tolerated. The pose library handles this.
+      Still banned: hands covering face, touching eyes.
+      Now allowed (with compensation): hands on own body
+      (thread-justified), hands reaching toward thread element,
+      hands holding/gesturing as part of pose.
+
+═══════════════════════════════════════════════════════════════════════
+0. WORKFLOW RULE
+═══════════════════════════════════════════════════════════════════════
+
+  Before generating ANY batch, READ the latest Core document.
+
+  After each batch generation, list all files produced in this session.
+
+  After reviewing generated images, fill POST-FLIGHT CARD (Section X).
+
+═══════════════════════════════════════════════════════════════════════
+I. CREATIVE ENGINE
+═══════════════════════════════════════════════════════════════════════
+
+SURREALIST SYNTHESIS
+  Combine two unrelated elements into one image.
+  The combination must have a THREAD — a hidden connection
+  that makes the pairing feel "meaningfully strange" not random.
+
+THREAD TEST
+  "Why are these two things together?"
+  No reason → generally avoid.
+  Metaphor/resonance/emotional logic → keep.
+
+THREAD DUALITY — concept vs anchor
+  Every thread must have BOTH:
+    Concept = the metaphor, the "why"
+    Anchor = the physical element that makes it visible
+
+  Concept only → find the visible element.
+  Anchor only → find the metaphor.
+  Test: "Does removing the anchor destroy the metaphor?"
+  If no → anchor is decorative, not integrated. Fix.
+
+THREAD TYPES
+  Medium match — impossible element shares properties with host
+    (steam → fish: both flow)
+  Emotional logic — environment reflects her inner state
+    (city glitching → her world is breaking)
+  Category collision — two domains share one boundary
+    (circuit board / city: both are networks)
+  Scale inversion — small becomes vast or vast becomes intimate
+    (galaxy in a teacup: both are deep)
+  Paradox of expectation — situation should diminish but reveals
+    (rain should ruin but she owns it)
+  Subject inversion — she IS the impossible element; the world is
+    normal; the thread is her wrongness in it
+  Temporal collision — two states of the same thing visible
+    simultaneously; the boundary between them is the anchor
+  Severed thread — the connection is visibly broken; two elements
+    that should relate but don't; the gap IS the anchor
+
+THREAD LADDER
+  Tier 1 — basic (medium match, emotional logic)
+  Tier 2 — complex (paradox, inversion, temporal, severed,
+    category collision where the collision transforms both elements)
+  Tier 3 — meta (thread comments on the act of threading itself;
+    the image is about connection/disconnection as much as content)
+
+  Batch rule: min 6 Tier 2+ per batch. Min 1 Tier 3.
+
+TIER 3 VISUAL DICTIONARY
+  Example 1: "The unfinished portrait"
+    Concept: art about its own incompleteness
+    Anchor: girl with paintbrush, canvas shows faceless portrait
+    Tags: holding paintbrush, canvas on easel, unfinished portrait,
+          faceless painting on canvas
+    Tier: 3 (meta: art about art)
+
+  Example 2: "Frame refusal"
+    Concept: character aware of the frame boundary
+    Anchor: she looks toward the edge of frame, where reality blurs
+    Tags: looking toward frame edge, edge distortion, blurred border
+    Tier: 3 (meta: character vs medium)
+
+  Example 3: "The thread that connects nothing"
+    Concept: two elements linked by a visible line that leads nowhere
+    Anchor: string/rope between her hand and empty space
+    Tags: holding string, string leading to empty space, nothing at
+          the other end
+    Tier: 3 (meta: connection about disconnection)
+
+THREAD TEMPERATURE
+  COOL — thread close to reality. Quiet strangeness.
+  WARM — thread gently breaks expectation. Soft surreal.
+  HOT — thread aggressively surreal. Hard strangeness.
+  Batch balance: min 4 COOL, min 4 HOT, rest WARM.
+  Act I = COOL dominant / Act II = HOT dominant / Act III = mixed.
+
+EMOTIONAL ANCHOR
+  Every image answers: "What does she feel about this?"
+  Her expression, posture, or gaze completes the metaphor.
+  Eye contact taxonomy (add to [4]):
+    looking at viewer → confrontation, challenge, intimacy
+    looking past viewer → detachment, seeing beyond
+    eyes down → focus, surrender, hiding
+    eyes closed → internal world, pain, acceptance
+    looking at [thread element] → she connects to the thread
+    half-lidded → she controls what you see (erotic default)
+  Pick one. It matters more than any "expression" tag.
+
+GAZE × THREAD MATRIX
+  Subject inversion → looking at viewer (she knows she's wrong)
+  Temporal collision → eyes down (she sees both times at the seam)
+  Emotional logic → looking past viewer (she's in her state)
+  Paradox of expectation → eyes closed (she doesn't flinch)
+  Severed thread → looking at [severed element] (she sees the gap)
+  Medium match → looking at [thread element] (she watches the link)
+  Erotic: Revelation → half-lidded (she controls what you see)
+  Erotic: Concealment → eyes down (she won't help you look)
+  Erotic: Evidence → looking past viewer (she knows, you don't)
+  Erotic: Invitation → looking at viewer (she dares you to look)
+
+═══════════════════════════════════════════════════════════════════════
+I-B. EROTIC GRAMMAR
+═══════════════════════════════════════════════════════════════════════
+
+PHILOSOPHY
+  The best ecchi has no erotic contact. It has tension.
+  Tension lives in the gap between what's shown and what's implied,
+  between what she allows and what you imagine.
+  A shoulder revealed by a slipping strap is more powerful than
+  a bare shoulder with no story. The REVEAL is the eroticism.
+  The body is available. The question is whether the image earns it.
+
+  This system does not mandate eroticism. It does not forbid it.
+  It opens the possibility — and demands that the possibility
+  be earned. Every exposed inch of skin is a narrative decision.
+  Every clothing state is a verb. If you can't answer "why is
+  this visible?" then it shouldn't be.
+
+  The body is not decoration. The body is a surface that events
+  write themselves onto. A mark on the wrist tells a story.
+  A wet dress tells a story. An open collar tells a story.
+  The story IS the eroticism.
+
+  A5P2 ADDITION: If you're going to do erotica, do it WELL.
+  Nipples are not dirty — they're anatomy. Black lace is not
+  shameful — it's craftsmanship. Thigh-high stockings are not
+  pornographic — they're a line across the thigh that says
+  "here is where fabric ends and skin begins." That line is
+  the most erotic centimeter in any image. Use it.
+
+THREE TIERS
+
+  TIER S — SENSUAL (indirect, through material/gesture/context)
+    Body through material: wet fabric on skin, strap on shoulder,
+      dress slipping, bare back, collarbone shadow, open collar
+    Gaze as eroticism: looking at viewer through lashes,
+      half-lidded eyes, looking past viewer while body faces camera
+    Gesture as eroticism: hand at own collar, fingers on own neck,
+      arms crossed pulling fabric tight
+    Context as eroticism: dressing room, morning light + sheet,
+      rain-soaked clothing, steam on skin
+    Clothing State (indirect): fabric clinging after rain, shirt
+      pulled taut by wind, hem caught on something, strap sliding
+    Lingerie as Tier S: visible through open shirt, strap
+      peeking from fallen collar, lace edge beneath hem
+    Leg detail as Tier S: thigh-high stocking line, bare knee
+      below bunched hem, garter strap visible at thigh
+    No direct anatomical exposure. Everything is mediated.
+
+  TIER A — ANATOMICAL (direct description, with rules)
+    Primary erotic anatomy described directly through tags:
+      bare breasts, nipples visible, topless, nude + qualifier,
+      exposed midriff, bare shoulder and chest, sheer fabric
+      on skin, nipples visible through fabric, nipple outline
+    Erotic Detail tags (1-2 per Tier A prompt):
+      nipple-specific: nipples visible, nipples visible through
+        fabric, nipple outline through cloth
+      lingerie: black lace bra, sheer bodysuit, silk camisole,
+        mesh top, side-tie panties, strapless bra
+      leg: thigh-high stockings, stockings with garter,
+        bare legs, knees visible below hem
+    RULES FOR TIER A:
+      1. Max 2 anatomical tags per prompt. Lingerie/leg tags
+         are clothing detail, NOT anatomical — they don't count
+         against this limit unless they describe anatomy
+         (e.g., "nipples visible through fabric" = 1 anatomical).
+      2. Tags go in [23-29] detail section. NEVER in [1-5].
+      3. Must be alongside a context tag (WHERE, WHY exposed).
+      4. Must pass Erotic Thread Test.
+      5. Counts as 1 complexity trigger.
+    MEANING-LABEL vs STRUCTURAL-EROTIC:
+      ✓ "bare breasts" — structural, describes what's visible
+      ✓ "topless" — structural, describes clothing state
+      ✓ "nude, after bath" — structural + qualifier
+      ✓ "nipples visible through wet fabric" — structural + cause
+      ✓ "black lace bra" — structural, describes garment
+      ✓ "thigh-high stockings" — structural, describes clothing
+      ✗ "sexy" — meaning-label, banned
+      ✗ "seductive" — meaning-label, banned
+      ✗ "lewd" — meaning-label, banned
+      ✗ "slutty" — meaning-label, banned
+      ✗ "erotic" — meaning-label, banned
+      ✗ "lingerie" — meaning-label, specify the garment instead
+      ✗ "voluptuous/curvy/thicc" — meaning-labels for body type
+
+  TIER E — EROTIC THREAD (eroticism IS the thread)
+    When the erotic element passes the Erotic Thread Test and
+    the concept CANNOT survive without it. This is the strongest
+    case. The image is ABOUT the exposure, the reveal, the state
+    of being seen — and removing the eroticism kills the concept.
+
+    RULES FOR TIER E:
+      1. Must pass Erotic Thread Test with "No" answer.
+      2. Thread type must be one of the Erotic Thread Types.
+      3. Still subject to Nudity Budget and Graduated Reveal.
+      4. Face still visible. Character Present Rule still applies.
+      5. The eroticism is the CONCEPT, not decoration.
+      6. Include 1-2 erotic detail tags in [23-29].
+
+EROTIC THREAD TYPES
+  Revelation — visibility IS the event.
+    Tags: open shirt, skin exposed to [light element],
+      [thread element] on bare skin
+
+  Concealment — the ALMOST is the event.
+    Tags: sheer fabric, wet clothing on skin, fabric barely
+      covering, visible through [material]
+
+  Transformation — the change IS the thread.
+    Tags: clothing dissolving, fabric becoming [element],
+      dress turning to [thread material]
+
+  Invitation — gaze/gesture implies access.
+    Tags: looking at viewer, hand pulling [fabric],
+      [clothing state] while looking at viewer
+
+  Evidence — marks/traces from before the frame.
+    Tags: strap mark on shoulder, water line on skin,
+      [trace element] on bare skin
+
+EROTIC THREAD TEST
+  Ask: "If she were fully clothed, would the concept survive?"
+    Yes → eroticism supports. Keep subordinate.
+    No → eroticism IS the thread. Tier E territory.
+
+THE SURFACE TRACE (Revised — Beta Build)
+  Skin as forensic surface. The principle remains: a mark on
+  skin is more erotic than the act that made it.
+
+  REVISION: Handprint/fingerprint-type traces render poorly
+  on Tsubaki 2. They look like artifacts, not intentional marks.
+  NEW RULE: max 1 handprint-type trace per batch.
+  Other environmental traces are unlimited — they render well.
+
+  Environmental trace vocabulary (PREFERRED):
+    water line on skin           salt crust on skin
+    dew on bare arm              ice trace on bare shoulder
+    condensation on skin         sand on bare feet
+    mud on ankle                 frost on fabric edge
+    steam writing on shoulder    rain drops on bare back
+    chalk on knee                flour on wrist
+    paint spray on shoulder      ash on bare forearm
+
+  Handprint-type trace vocabulary (MAX 1 PER BATCH):
+    warm handprint fading on skin  wet handprint on back
+    finger marks on hip            palm print on lower back
+
+  Other trace vocabulary (moderate use):
+    strap mark on shoulder         lipstick on collarbone
+    rope mark on wrist             chain mark on collarbone
+    fabric impression on hip       fresh mark on neck
+
+CLOTHING STATE VOCABULARY
+  The STATE tells the story, not the body part.
+    slipping — gravity or motion is pulling it off
+    fallen — it's already off one area
+    open — unbuttoned/unzipped, revealing
+    pulled aside — deliberately moved, the gesture is the event
+    wet clinging — transparency from water/sweat
+    unbuttoned — the process is complete, the result visible
+    bunched — gathered at waist or above, deliberately out of way
+    removed — on the floor/nearby, the absence is the story
+    sheer — visible through, the fabric hasn't surrendered
+    inside-out — haste, wrongness, transformation
+
+  Combine clothing state + cause for narrative:
+    "shirt slipping from wet shoulder" (cause = water)
+    "dress fallen open in wind" (cause = environment)
+    "unbuttoned after ritual" (cause = ceremony)
+    "pulled aside to show the seal" (cause = thread)
+
+═══════════════════════════════════════════════════════════════════════
+I-C. WOW SYSTEMS
+═══════════════════════════════════════════════════════════════════════
+
+Deploy at least 3 per batch. Each produces a "holy shit" moment.
+Pick the ones that serve the thread. Don't stack 3 in one prompt.
+
+1.  COLOR BREEDING
+    Palette elements physically mix on surfaces.
+    Tags: "red light on wet skin", "blue shadow tinting blonde
+    hair green", "orange reflecting off bare shoulder"
+    Works best: Pro/Ultra mode, strong palette prompts.
+
+2.  POSE CONTRADICTION
+    Body says one thing, face says another.
+    Arms crossed (closed) + looking at viewer (open).
+    Body turned away + face toward camera.
+    Deploy: 2-3 per batch, emotional complexity prompts.
+
+3.  WEIGHT SHIFT
+    Character's weight visibly not centered.
+    Leaning, mid-step, caught between positions.
+    Tags: "leaning on one hip", "weight on railing", "mid-step"
+    Deploy: whenever static pose feels dead.
+
+4.  TEXTURE INFECTION
+    One texture "infects" adjacent surface.
+    Tags: "fabric looking wet as water", "skin golden like
+    candlelight", "hair dissolving into fog"
+    Deploy: texture contrast prompts, material pair prompts.
+
+5.  NEGATIVE SPACE THEFT
+    Void steals color from the subject.
+    Tags: "hair color bleeding into void", "color afterimage
+    in negative space", "silhouette leaving warm trace"
+    Deploy: void-heavy compositions, dark palette prompts.
+
+6.  ENVIRONMENTAL FRAMING
+    The world frames her without frames.
+    Tags: "branches arching overhead", "doorway behind not
+    entered", "window frame without glass"
+    Deploy: nature/architecture settings, COOL prompts.
+
+7.  FABRIC PHYSICS
+    Clothing does what physics demands, not what modesty wants.
+    Tags: "wind pulling dress against body", "wet shirt pulled
+    down by water weight", "gravity opening collar"
+    Deploy: erotic prompts (replaces Surface Trace as primary
+    "wow" mechanic for Tier A/E). The fabric IS the narrative.
+
+8.  CHROMATIC SHADOW
+    Shadows are not grey. They are the complement of the light.
+    Tags: "blue shadows in orange light", "magenta shadow
+    under green lamp", "cyan shadows from red stage light"
+    Deploy: every prompt with strong directional light.
+    This should be NEAR-DEFAULT. Grey shadows = wasted potential.
+
+9.  GESTURE RESONANCE
+    Her gesture echoes in the environment.
+    Tags: "hand raised branches raised", "arms open curtains
+    parted", "body tilted world tilted"
+    Deploy: emotional logic threads, WARM temperature.
+
+10. DEPTH LAYER BREACH
+    Background enters foreground. Scale collapses.
+    Tags: "mountain beside shoulder", "clouds at waist level",
+    "stars beneath feet"
+    Deploy: scale inversion threads, HOT temperature.
+
+11. FOCAL SINGULARITY
+    Everything converges on ONE point.
+    Tags: "all lines converging on her hand", "light drawn to
+    her eyes", "environment oriented toward anchor point"
+    Deploy: composition-first prompts, strong focal hierarchy.
+
+12. AFTERIMAGE
+    She was doing something before the frame. The ghost remains.
+    Tags: "hair still mid-swing", "fabric settling from motion",
+    "steam from where she was standing"
+    Deploy: temporal collision threads, dynamic poses.
+
+13. LIMINAL BREACH
+    She exists at the boundary between two states/spaces.
+    Tags: "half in doorway half out", "body split by light
+    boundary", "half in water half above"
+    Deploy: threshold/concealment threads, Act II prompts.
+
+═══════════════════════════════════════════════════════════════════════
+II. COMPOSITION
+═══════════════════════════════════════════════════════════════════════
+
+Pick 1-2 per prompt. State which ones in the pre-header.
+
+RULE OF THIRDS — key element at intersection, not center.
+LEADING LINES — lines guide eye to subject or surprise.
+SYMMETRY / BALANCE — symmetry = calm; asymmetry = tension.
+GEOMETRIC ANCHOR — triangle / circle / diagonal / V-shape.
+FRAME WITHIN FRAME — window, doorway, gap. Avoid mirrors.
+COLOR ISOLATION — ONE saturated in desaturated world, or vice versa.
+TEXTURE CONTRAST — two textures meeting. The meeting point IS the event.
+VOID — empty space pressurizes the subject.
+SPATIAL PLAN — max 2 planes: dominant + secondary (≤20%).
+
+SILHOUETTE READABILITY
+  Every image must work as a silhouette.
+  One dominant silhouette gesture per prompt, coded in [6-10].
+  If silhouette is ambiguous → composition is ambiguous. Fix it.
+
+FRAMING AS EROTIC ARCHITECTURE
+  The frame creates erotic tension through what it conceals.
+  NOT close-ups of body parts. Instead:
+    - Leading lines ending at concealed points
+    - Fabric directing the eye toward what's covered
+    - The crop as erotic statement
+    - Void pressurizing the exposed element
+    - The stocking line as compositional event
+    - Lingerie strap as leading line
+
+FOCAL HIERARCHY
+  PRIMARY FOCUS — face OR visible thread anchor.
+  SUPPORTING FOCUS — gesture, light, material, erotic detail.
+  EVERYTHING ELSE — serves the above. No third interest.
+
+═══════════════════════════════════════════════════════════════════════
+III. LIGHT AND COLOR
+═══════════════════════════════════════════════════════════════════════
+
+Light is mood. One direction per prompt. One quality per prompt.
+
+LIGHT DIRECTIONS:
+  Backlit → silhouette, mystery, revelation
+  Overhead → judgment, exposure, divine
+  Below → unease, power, unnatural
+  Side → drama, duality, depth
+  Diffused → softness, dream, memory
+  Single source → focus, isolation, theater
+  From above-behind → angel/halo effect, hair glow
+  Split (two sides) → duality, choice, conflict
+  Rim → edge definition, separation from background
+
+LIGHT QUALITY: Hard (drama) or Soft (intimacy). Pick one.
+
+LIGHT-SKIN PAIR SYSTEM (12 options):
+  Direct sun:     "sun-warm skin, cool shadow under jaw"
+  Golden hour:    "amber glow on skin, violet shadow beneath"
+  Overcast:       "skin cool in overcast, warm at edges"
+  Moonlight:      "skin blue-silver in moonlight, warm at pulse points"
+  Candlelight:    "skin gold in candlelight, shadow pooling warm"
+  Neon:           "neon-tinted skin, shadow in complementary color"
+  Backlit:        "skin luminous at edges, dark core silhouette"
+  Stage spot:     "skin white-hot in spotlight, ink-black shadow"
+  Dawn mist:      "skin pale in mist, flush at cheeks and fingers"
+  Rain-filtered:  "skin grey-soft in rain, warm where water beads"
+  Fireplace:      "skin ember-warm on one side, cool shadow on other"
+  Underwater:     "skin blue-green in water, pale above surface"
+
+  Position: immediately after light direction in [11-22].
+  "natural skin gradient" still goes in [23-29].
+
+PALETTE INFECTS SKIN
+  Forge Ember → sweat-sheened skin, warm glow on exposed areas
+  Hospital Ghost → bloodless pallor, visible cool veins
+  Storm Surge → rain-wet sheen, cool undertone
+  Feral Earth → earth-toned, dirt-smeared, raw
+  Midnight Brass → lamp-warm highlights on skin, deep cool shadows
+  Blood Stage → flushed warm in stage light, shadow under eyes
+  Ice Breath → goosebumps visible, cool pallor, blue at edges
+  Salt Sky → sun-warmed where exposed, cool in shadow
+  Candle Wax → golden undertone, warm pools of light on skin
+  Mud Field → gritty, stained, wet-cold highlights
+  Tattoo Ink → warm skin against ink-cool elements
+  Rain Street → wet highlights, cool flat areas
+  Lighthouse → beam-warm where it hits, deep teal shadows
+  Observatory → paper-white highlights, brass-warm on skin
+  Garden Soil → earth-warm, sun-touched where exposed
+  Neon Veins → neon-tinted skin, shadow in complementary green
+  Wine Cellar → wine-flushed in warmth, stone-cool in shadow
+  Dust Bloom → rose-warm in light, sage-cool in shadow
+  Obsidian Tide → silver highlights on dark water, teal shadow
+  Amber Ladder → amber-warm throughout, shadow still warm
+  Frost Glass → frost-pale, skin-warm only at pulse points
+
+  The palette wins. Match light-skin pair to palette.
+
+PALETTE PRESET LIBRARY (21 palettes):
+  Forge Ember — orange + soot + steel
+  Hospital Ghost — green-white + dark + pale
+  Storm Surge — teal + beam gold + dark
+  Feral Earth — raw umber + moss + bare skin
+  Midnight Brass — midnight blue + brass + lamp amber
+  Blood Stage — stage warm + blood red + dark
+  Ice Breath — ice white + cold blue + mist
+  Salt Sky — white salt + sky blue + warm horizon
+  Candle Wax — candle gold + dark + wax white
+  Mud Field — mud brown + blood red + grey sky
+  Tattoo Ink — ink black + warm skin + lamp amber
+  Rain Street — storm grey + umbrella red + rain blue
+  Lighthouse — storm teal + beam gold + dark
+  Observatory — midnight blue + brass + star chart paper white
+  Garden Soil — earth brown + leaf green + warm skin
+  Neon Veins — neon pink + deep violet + dark
+  Wine Cellar — burgundy + candle amber + stone cool
+  Dust Bloom — dusty rose + sage green + cream
+  Obsidian Tide — black water + silver crest + deep teal
+  Amber Ladder — amber gold + ladder shadow + warm white
+  Frost Glass — frost white + glass blue + bare skin tone
+
+  No adjacent duplicates. Aim for 7+ distinct per batch.
+
+PALETTE-HAIR BINDING (prevents monochrome cast — A5P2 rule):
+  Every palette dictates a hair/eye color pair for the primary character.
+  NEVER use the same hair/eye across all prompts in a batch.
+  Match hair to the palette's dominant color, eyes to its secondary.
+  Established bindings:
+    Frost Glass    → long white hair, pale blue eyes
+    Candle Wax     → long golden hair, amber eyes
+    Dust Bloom     → long dusty pink hair, sage green eyes
+    Wine Cellar    → long burgundy hair, dark red eyes
+    Amber Ladder   → long copper hair, hazel eyes
+    Midnight Brass → long silver hair, deep blue eyes
+    Observatory    → long white hair, pale blue eyes
+    Forge Ember    → long red hair, orange eyes
+    Hospital Ghost → long pale green hair, grey eyes
+    Storm Surge    → long teal hair, gold eyes
+    Feral Earth    → long brown hair, green eyes
+    Blood Stage    → long crimson hair, yellow eyes
+    Ice Breath     → long ice blue hair, silver eyes
+    Salt Sky       → long sandy blonde hair, sky blue eyes
+    Mud Field      → long dark brown hair, amber eyes
+    Tattoo Ink     → long black hair, warm brown eyes
+    Rain Street    → long grey hair, blue eyes
+    Lighthouse     → long blonde hair, green eyes
+    Garden Soil    → long auburn hair, brown eyes
+    Neon Veins     → long pink hair, violet eyes
+    Obsidian Tide  → long black hair, teal eyes
+  If a palette appears multiple times in a batch, the same binding applies
+  (creates visual continuity within that palette's arc).
+  Yuri: primary girl uses palette binding, second girl stays auburn/amber
+  for contrast (or another fixed contrasting pair per batch theme).
+
+PALETTE AS CHARACTER ARC
+  Act I = cool/distant (Ice Breath, Salt Sky, Frost Glass, Hospital Ghost)
+  Act II = fire/conflict (Blood Stage, Forge Ember, Mud Field, Neon Veins)
+  Act III = warmth/transcendence (Candle Wax, Observatory, Lighthouse,
+    Amber Ladder, Wine Cellar)
+
+MOOD → PALETTE BINDING (for T3 negatives)
+  Dark: Hospital Ghost, Ice Breath, Storm Surge, Mud Field,
+    Rain Street, Obsidian Tide, Neon Veins
+    → T3 adds: bright smile, oversaturated warm
+  Warm: Forge Ember, Salt Sky, Candle Wax, Garden Soil,
+    Blood Stage, Amber Ladder, Wine Cellar, Dust Bloom
+    → T3 adds: cold palette, harsh shadows
+  Neutral: Midnight Brass, Tattoo Ink, Observatory,
+    Lighthouse, Feral Earth, Frost Glass
+
+MATERIAL GRAMMAR
+  skin + soot    silk + rust     glass + breath   paper + ash
+  water + iron   wax + bloodless skin   salt + windburn
+  coal + bare palm   ink + bare shoulder   ice + bare sole
+  fabric + earth   metal + sweat   wood + candlelight
+  lace + skin     stockings + thigh   sheer + wet
+
+ANTI-CONDIMENT LIST
+  Visual drift: ethereal, dreamlike, glowing, mist, shimmering,
+    otherworldly, luminous, radiant, hazy, mystical
+  Motion drift: jiggling, bouncing, heaving
+  Body-type drift: voluptuous, curvy, thicc
+  Expression drift: ahegao (describe specific elements instead)
+  All need hard anchor if used.
+
+═══════════════════════════════════════════════════════════════════════
+IV. POSE LIBRARY
+═══════════════════════════════════════════════════════════════════════
+
+Replaces "safe hands" default. Pick from library or justify custom.
+
+STANDING POSES:
+  leaning on railing, one hip cocked — weight shift, casual power
+  arms crossed, weight on one leg — closed but present
+  hand on hip, turned 3/4 — classic, dynamic
+  one hand in hair, other at side — relaxed, accessible
+  reaching toward [thread element] — thread-justified gesture
+  back to camera, head turned — invitation or refusal
+  arms raised stretching — vulnerable, exposure of midriff
+  hand on own neck, other at side — sensual default
+  one hand pulling fabric aside — erotic invitation
+  standing on one foot, other on toe — balance, lightness
+
+SEATED POSES:
+  legs crossed, leaning back — composed, controlled
+  knees drawn up, arms on knees — vulnerable, contained
+  perched on edge, leaning forward — anticipation, attention
+  straddling bench/object — powerful, open
+  sitting on heels, hands on thighs — formal, ritual
+  one knee up, other extended — dynamic, asymmetric
+
+FLOOR/GROUND POSES:
+  kneeling, hands on thighs — submission or ritual
+  lying on side, propped on elbow — reclining, intimate
+  sitting cross-legged, hands in lap — meditative, grounded
+  on one knee, reaching — action, mid-motion
+
+YURI POSES (per pair, within 2 contact points):
+  facing each other, close but not touching — tension
+  one standing, one seated — height dynamic
+  one reaching, one receiving — gesture exchange
+  back to back, looking opposite — severed or parallel
+  one hand on other's shoulder — contact point 1
+  one hand on other's wrist — contact point 2
+
+POSE × EROTIC TIER GUIDE:
+  Tier S: any pose. Body language + clothing state carries eroticism.
+  Tier A: poses that EXPOSE the anatomy tag naturally.
+    "arms raised stretching" → exposes midriff naturally
+    "hand pulling fabric aside" → justifies reveal
+    "one hand on own collar" → draws eye to chest area
+  Tier E: the pose IS the concept. The body position is the thread.
+    "kneeling, hands on thighs" + ritual exposure = submission IS concept
+    "standing on shore, emerging" + wet open shirt = water IS the agent
+
+HAND RULES (revised):
+  ✗ STILL BANNED: hands covering face, touching eyes
+  ✗ STILL RISKY: hands near face (chin, cheek) — compensate if used
+  ✓ NOW ENCOURAGED: hands on own body (thread-justified)
+  ✓ NOW ENCOURAGED: hands reaching toward thread element
+  ✓ NOW ENCOURAGED: hands doing specific thread actions
+  If thread doesn't require specific hand → pick from library.
+
+═══════════════════════════════════════════════════════════════════════
+V. PROMPT STRUCTURE
+═══════════════════════════════════════════════════════════════════════
+
+TAG ORDER (first tokens = highest weight)
+
+  [1]     1girl / 2girls
+  [2]     hair color + length (compound ok)
+  [3]     eye color
+  [4]     gaze direction
+  [5]     anime artstyle
+  [6-10]  CAMERA + POSE + BODY LANGUAGE — shot type, pose from
+          library, silhouette gesture, figure type (if needed),
+          body adjective (if needed), face rendering guide
+  [11-22] COMPOSITIONAL ENGINE — thread anchor, environment,
+          light direction, LIGHT-SKIN PAIR, atmosphere
+  [23-29] DETAIL — material pair, anatomy/clothing state (Tier A/E),
+          EROTIC DETAIL (1-2 if Tier A/E), lingerie/leg detail,
+          atmosphere condiment (max 1), natural skin gradient
+  [30]    NARRATIVE LINE — max 1. Natural language phrase preferred.
+  [31-35] QUALITY + STYLE — masterpiece, best quality, anime artstyle
+
+  Solo: 25-35 tags. Yuri: 30-40 tags.
+
+  ANATOMY TAG POSITION: [23-29]. NEVER in [1-5].
+
+PROMPT SKELETONS
+
+  TIER S (Sensual):
+  1girl, {hair}, {eyes}, {gaze}, anime artstyle, {camera},
+  {pose + silhouette}, {body language if needed}, {thread anchor},
+  {environment}, {light direction}, {light-skin pair}, {material pair},
+  {clothing state or condiment}, {lingerie/leg if appropriate},
+  natural skin gradient, {narrative phrase}, masterpiece, best quality,
+  anime artstyle
+
+  TIER A (Anatomical):
+  1girl, {hair}, {eyes}, {gaze}, anime artstyle, {camera},
+  {pose + silhouette}, {body language if needed}, {thread anchor},
+  {environment}, {light direction}, {light-skin pair}, {material pair},
+  {anatomy tag}, {erotic detail 1}, {erotic detail 2 or condiment},
+  natural skin gradient, {narrative phrase}, masterpiece, best quality,
+  anime artstyle
+
+  TIER E (Erotic Thread):
+  1girl, {hair}, {eyes}, {gaze}, anime artstyle, {camera},
+  {pose + silhouette}, {body language if needed}, {meta + erotic type},
+  {environment}, {light direction}, {light-skin pair}, {material pair},
+  {anatomy tag}, {erotic detail 1}, {erotic detail 2},
+  {clothing state as verb}, natural skin gradient, {narrative phrase},
+  masterpiece, best quality, anime artstyle
+
+PROMPT DENSITY
+  [1-22]: max 1 tag per semantic unit.
+  [23-29]: up to 2 tags per unit if serving different purposes.
+
+SLOP REDUCTION
+  One meaning = one tag. Remove tags that don't affect render.
+  Narrative [30]: if model ignores it → remove.
+  Anatomy: "bare breasts" AND "topless" → pick one.
+
+NARRATIVE TAG RULE
+  [30] supports tone. Not visual instruction. Max 1. Last before quality.
+  PREFER natural language phrases over single abstract words.
+  Tsubaki 2 + Prompt Helper handles phrases well.
+
+ANCHOR ANIME (doubled)
+  "anime artstyle" at [5] and [31-35]. Prevents style drift.
+
+SPECIFICITY RULE
+  "mysterious" → "face half-lit from below, eyes in shadow"
+  "erotic" → name the specific visible element (Erotic Grammar)
+  "nude" → structural, allowed + qualifier (WHY nude?)
+  "sexy" → meaning-label, banned
+
+ATMOSPHERE CONDIMENT LIST (max 1 for [23-29])
+  Standard:
+    dust motes in light beam    steam from breath in cold
+    rain on glass               salt crust on skin
+    oil sheen on water          static lifting hair
+    ash on eyelashes            wax drips on wood
+    mud splatter on hem         hair stuck to cheek
+    sweat on collarbone         frost on fabric edge
+    sawdust in air              iron filings on palm
+    chalk dust on knuckles      flour on wrist
+    paint spray on shoulder     sand in hair
+    embers rising               condensation on skin
+  Environmental traces (Surface Trace — preferred):
+    water line on skin          salt crust on skin
+    dew on bare arm             ice trace on bare shoulder
+    condensation on skin        sand on bare feet
+    mud on ankle                frost on fabric edge
+    steam writing on shoulder   rain drops on bare back
+    chalk on knee               flour on wrist
+  Handprint-type traces (MAX 1 PER BATCH):
+    warm handprint fading       wet handprint on back
+    finger marks on hip         palm print on lower back
+  Other traces (moderate use):
+    strap mark on shoulder      lipstick on collarbone
+    rope mark on wrist          chain mark on collarbone
+
+═══════════════════════════════════════════════════════════════════════
+VI. CONSTRAINTS — SEVERITY PYRAMID
+═══════════════════════════════════════════════════════════════════════
+
+🔴 ABSOLUTE (never — render breaks / artifact / ban)
+  ✗ Square brackets in prompts
+  ✗ Extreme head tilt / extreme upshot
+  ✗ Face at frame edge
+  ✗ Hands covering face, touching eyes
+  ✗ More than 2 figures
+  ✗ 3+ compositional planes
+  ✗ Wrongness that distorts anatomy
+  ✗ No visible face in frame
+
+🟠 STRONG (avoid — thread unreadable / concept dead)
+  ✗ Full body distant shot (unless thread demands)
+  ✗ Concepts invisible without reading the prompt
+  ✗ "X becomes Y" without both X and Y visible
+  ✗ Galaxy/cosmos as primary surprise
+  ✗ Repeating thread concepts without transformation
+  ✗ Shadow play as compositional subject
+  ✗ Ambiguous silhouette
+  ✗ Decorative eroticism — use Erotic Thread Test
+
+🟡 GUIDELINE (control — style drift, but render alive)
+  ✗ Mirrors and reflections on surfaces
+  ✗ Realistic/photorealistic/3D style
+  ✗ Meaning-labels (sexy/sultry/seductive/lewd)
+  ✗ More than 2 clothing layers
+  ✗ Male spawning
+
+🟢 BUDGET (compensate — 1 break, rest safe)
+  See Error Budget below.
+
+ERROR BUDGET
+  Per prompt, break ONE thing. Keep everything else safe.
+
+  COMPLEXITY TRIGGERS (each = 1 break):
+    - hands doing something specific (not library)
+    - unusual camera (dutch, from below, from above, profile)
+    - two light sources in one prompt
+    - yuri with physical contact
+    - thread element on body (not beside it)
+    - subject inversion or temporal collision
+    - severed thread
+    - explicit anatomical exposure
+  Max 1 trigger per prompt.
+
+  Compensation pairs:
+    Complex pose → simple face, safe camera, simple clothes
+    Complex light → simple pose, safe geometry, simple thread
+    Complex thread → safe camera, safe hands, simple palette
+    Complex camera → simple everything else
+    Anatomical exposure → safe camera, safe hands, simple thread
+    Erotic detail x2 → safe camera, simple thread (detail IS complexity)
+
+CAMERA LIBRARY (12 options):
+  close-up — face + thread anchor only
+  bust — chest up, face dominant
+  waist — upper body, hands visible
+  cowboy — full body above knee
+  three-quarter — 3/4 angle, dynamic
+  from below — low angle, power/revelation
+  from above — high angle, vulnerability/overview
+  over-shoulder — looking past her at scene
+  dutch angle — tilted, unease/tension
+  profile — side view, silhouette focus
+  extreme close-up — eye/lip/hand detail only
+  full figure — whole body, environment dominant
+
+  Match camera to thread:
+    Thread on body → bust / close-up / extreme close-up
+    Thread in environment → cowboy / full figure / from below
+    Thread in medium → bust / cowboy / three-quarter
+    Erotic reveal → from below (revelation) / bust (intimacy)
+    Power dynamic → from below (her power) / from above (vulnerability)
+
+CHARACTER PRESENT RULE
+  Every prompt = visible face. No exceptions.
+
+═══════════════════════════════════════════════════════════════════════
+VII. NEGATIVE PROMPTS
+═══════════════════════════════════════════════════════════════════════
+
+NEGATIVE ECONOMY: Every tag must fix an observable problem.
+
+ASSEMBLER ALGORITHM:
+  START → T3 (conditional, FIRST):
+    IF solo → +background male, 1boy, male, man, boy, guy
+    IF yuri → +fused bodies, limb merge, too many arms, body merge,
+              sameface, identical features
+    IF palette ∈ {dark set} → +bright smile, oversaturated warm
+    IF palette ∈ {warm set} → +cold palette, harsh shadows
+    IF close-up → +distant
+    IF void-heavy → +cluttered, busy
+
+  → T3B (risk-based):
+    IF hands visible → +deformed fingers, finger merge,
+       wrong finger count
+    IF body fragment shot → +face visible, extra limbs
+    IF yuri + close proximity → +fused bodies, limb merge,
+       too many arms, body merge
+    IF transparency/sheer → +flat chest, no nipples,
+       barcode censor, mosaic censor
+    IF glass/water → +mirror reflection, surface reflection
+    IF explicit anatomical exposure → +barcode censor, mosaic censor,
+       black bar censor, nipple censor, genital censor, extra nipples,
+       misplaced anatomy, anatomy error, body horror, bad nipples
+    IF Surface Trace (marks on skin) → +tattoo, scar, bruise
+       (unless thread requires these specifically)
+    IF lingerie/stockings → +flat chest, no nipples (if sheer)
+
+  → T1 (anatomy, always):
+    bad anatomy, extra fingers, missing fingers, deformed hands,
+    mutated limbs, wrong body proportions, fused bodies, extra limbs,
+    blurry, low quality, worst quality, 1boy, male, man, boy,
+    unnatural skin color, hidden hands, rough sketch, sketch lines,
+    small iris, narrow eyes
+
+  → T2 (style, always, LAST):
+    realistic skin, photorealistic, 3d render, manhwa style,
+    western cartoon, cel shading, chibi, overexposed, porcelain skin,
+    uniform skin tone, flat skin shading
+
+═══════════════════════════════════════════════════════════════════════
+VIII. PRE-HEADER FORMAT
+═══════════════════════════════════════════════════════════════════════
+
+LITE (default — for generation):
+  T:{type} | A:{anchor} | {camera} | L:{light} | P:{palette}
+  F:{primary}+{supporting} | E:{gaze} | EG:{S/A/E} | Nu:{Y/N}
+  B:{break? Y/N} | W:{wow system} | G:{✓✓✓✓}
+
+  EG = Erotic Grammar tier
+  Nu = Nudity present
+  W = Wow system deployed (abbreviated: CB/PC/WS/TI/NST/EF/FP/
+     CS/GR/DLB/FS/AI/LB for the 13 systems)
+  G = Gate: Thread/Visible/Render/Earned
+
+═══════════════════════════════════════════════════════════════════════
+IX. PRODUCTION APPENDIX — BATCH RULES
+═══════════════════════════════════════════════════════════════════════
+
+Batch = 21 prompts.
+
+EMOTIONAL ARC (3 acts)
+  Act I (P1-P7): Entry. COOL dominant. Tier S only.
+  Act II (P8-P14): Escalation. HOT dominant. Tier A appears.
+  Act III (P15-P21): Resolution/Catharsis. Mixed temp. Tier E earned.
+
+THE GRADUATED REVEAL
+  Act I = tension, anticipation, suggestion (Tier S)
+  Act II = partial revelation, thread undresses her (Tier A)
+  Act III = earned climax — reveal IS resolution (Tier E)
+  If batch isn't erotic → ignore. It's opt-in.
+
+NUDITY BUDGET
+  Max 5/21 anatomical exposure (Tier A or E).
+  Max 2 anatomical tags per exposed prompt.
+  Erotic detail (lingerie/stockings) = clothing, not anatomy.
+  Count resets per batch.
+
+CAMERA HARD CAPS
+  Cowboy ≤8 (was 10).
+  Bust ≥3.
+  Other (non-bust, non-cowboy) ≥5.
+  No 3+ consecutive same camera.
+  At least 4 different cameras per batch.
+
+DIVERSITY
+  Max 2 domestic interiors.
+  Min 5 outdoor/exterior.
+  Settings span 5+ categories.
+  Min 1 Transit. Min 2 Performance.
+
+THREAD LADDER
+  Min 6 Tier 2+. Min 1 Tier 3.
+
+TEMPERATURE
+  Min 4 COOL, min 4 HOT, rest WARM.
+
+YURI (5-7 prompts)
+  Max 2 contact points. Own thread.
+
+SPECIAL MODES (1-2 per batch each)
+  Anti-pretty, Composition-first, Feral, Vulnerability
+
+WOW DEPLOYMENT
+  Min 3 wow systems per batch. Each appears in 1-3 prompts.
+  Don't stack multiple in one prompt.
+  Chromatic Shadow is near-default — deploy unless palette
+  specifically demands grey shadows.
+
+VISUAL ECHOES
+  2-3 recurring motifs. Echo transformer: 2+ param changes.
+
+BATCH OPENER RULE
+  P1 = Tier 1, safe camera, strong palette, Tier S only.
+
+P21 RULE
+  P21 = strongest thread. Tier 2+ mandatory.
+
+EYE CONTACT AS PLOT DEVICE
+  Act I: looking at [thread element]
+  Act II: eyes down / looking past
+  Act III: looking at viewer / eyes closed
+
+COMPRESSION MODE
+  1 prompt at 15 tags max. Compare with full version.
+
+═══════════════════════════════════════════════════════════════════════
+X. POST-FLIGHT CARD
+═══════════════════════════════════════════════════════════════════════
+
+BATCH: ___ | THEME: ___ | DATE: ___
+─────────────────────────────────────
+BEST:   P#___ | Thread: [type] | Why: [1 sentence]
+WORST:  P#___ | Fail: [Render/Visibility/Concept/Earned] | Fix: [1 sentence]
+DRIFT:  [ ] realistic [ ] extra char [ ] wrong color [ ] male spawn
+        [ ] censor artifacts [ ] anatomy error
+        Culprit tag: ___
+ARCHIVE: P#___ | Problem: ___ | Fix hypothesis: ___
+WOW:    Which wow systems landed? ___ | Which flopped? ___
+NEXT:   [what to change in next batch]
+
+═══════════════════════════════════════════════════════════════════════
+X-B. BATCH AUTOPSY
+═══════════════════════════════════════════════════════════════════════
+
+CAMERA DOMINANT: ___ (if cowboy > 7 → over-reliant)
+CAMERA VARIETY: ___ different cameras used (target ≥ 4)
+THREAD TYPE REPEAT: ___ appeared ___ times (if > 4 → pattern)
+PALETTE OVERUSE: ___ appeared ___ times (if > 3 → need variety)
+EROTIC TIER: S:___ A:___ E:___
+EROTIC IMPACT: Best = P#___ Worst = P#___
+WOW SYSTEMS: deployed ___ / 13, landed ___ (which ones worked)
+SURFACE TRACE: ___ prompts (handprint type: ___ / 1 max)
+HANDPRINT COUNT: ___ (if > 1 → over limit)
+POSE VARIETY: ___ distinct poses (target ≥ 10)
+PATTERN BREAK: prompts __ through __ feel samey → next must [change ___]
+
+═══════════════════════════════════════════════════════════════════════
+APPENDIX: QUICK-FIX TABLE
+═══════════════════════════════════════════════════════════════════════
+
+  Problem                       Fix
+  ─────────────────────────────────────────────────────────────
+  Thread visible but weak        Add color isolation or texture contrast
+  Face drifts realistic          Add: anime eyes, stylized face, defined features
+  Body too abstract/flat         Add body language: figure type + adjective
+  Too much background            Zoom in (cowboy → bust)
+  Character floats               Add leading lines or geometric anchor
+  Emotion doesn't read           Change gaze or posture from pose library
+  Skin too flat                  Check light-skin pair + natural skin gradient
+  Skin too dramatic              Add "natural skin gradient" in [23-29]
+  Male spawn                     Full male protocol in T3 negatives
+  Yuri fusion                    sameface + fused bodies in T3
+  Pose too static                Pick dynamic pose from library
+  Hands deformed near face       Move hands below chin
+  Shadows too grey               Add chromatic shadow tag
+  Censor bar on anatomy          Add censor prevention to T3B
+  Anatomy error                  Check: is exposure the ONLY trigger?
+  Surface Trace not rendering    Use environmental trace, not handprint type
+  Handprint looks weird          It does. Use environmental trace instead.
+  Decorative eroticism           Run Erotic Thread Test. If fails → remove.
+  Nudity Budget exceeded         Convert some Tier A to Tier S.
+  Graduated Reveal violated      Move Tier A/E to later act.
+  Pose all same                  Use different library entries. Min 10 per batch.
+  Camera all cowboy              Use 4+ cameras. Cowboy ≤ 8.
+  Erotic detail missing          Add 1-2 per Tier A/E prompt (nipples, lingerie)
+  Lingerie tag too vague         Specify: "black lace bra" not "lingerie"
+  Nude without reason            Add qualifier: "nude, [cause]"
+  Wow systems not deployed       Pick 3+ from Section I-C per batch.
+
+═══════════════════════════════════════════════════════════════════════
+XI. TRAJECTORY ANALYSIS
+═══════════════════════════════════════════════════════════════════════
+
+CURRENT STATE (A5P2 Beta):
+  The system now speaks Tsubaki 2's language. MMDIT 2.6A
+  architecture means: compound tags work, natural language
+  bridges work, the Prompt Helper rewrites for us, and we
+  should leverage the model's strengths (dynamic light,
+  chromatic shadow, multi-modal understanding) rather than
+  fighting against its nature.
+
+  The erotic system has matured from "is eroticism allowed?"
+  to "if eroticism, then DETAIL." Nipples are valid anatomy.
+  Lingerie is valid clothing. Stockings are valid composition.
+  The body is no longer something we're embarrassed to describe
+  — it's something we describe PRECISELY because we respect it.
+
+  The pose system has moved from "hands at sides (safe)" to
+  "pick from a library of dynamic poses." Static requires
+  justification. Movement is default.
+
+  13 Wow Systems provide the "holy shit" moments that make
+  batches memorable. Chromatic Shadow should be near-default.
+  Fabric Physics replaces Surface Trace as the primary erotic
+  "wow." Color Breeding leverages Tsubaki 2's light diffusion.
+
+NEAR-TERM (next 2-3 batches):
+  - We'll discover which Wow Systems Tsubaki 2 renders best.
+    Prediction: Chromatic Shadow and Fabric Physics will be
+    the strongest. Color Breeding will work at Pro/Ultra.
+    Negative Space Theft may need palette-specific testing.
+  - The pose library will expand as we discover what Tsubaki 2
+    renders naturally vs what requires compensation.
+  - Erotic Detail tags will need testing: which lingerie/stocking
+    tags does the model understand? "Black lace bra" may render
+    perfectly while "side-tie panties" confuses it.
+  - The camera expansion will be the most immediately visible
+    change. From below and dutch angle will dramatically alter
+    the batch feel. Profile and over-shoulder will create
+    compositional variety we haven't had.
+
+MEDIUM-TERM (A5P2 stable → A5P3):
+  - The Wow Systems will either prove themselves or get cut.
+    13 is ambitious. Expect 7-8 to survive, 2-3 to be revised,
+    and 2 to be replaced entirely.
+  - The body language system may need more figure types and
+    adjectives. "Slender frame" and "soft figure" may not
+    capture enough nuance. We may need: "narrow shoulders",
+    "wide hips", "long torso" — structural proportions.
+  - The camera library may need sub-varieties: "from below,
+    close" vs "from below, distant." The 12 options may not
+    be granular enough.
+  - Light-skin pairs may need seasonal/weather variants.
+    "Direct sun" in summer vs winter reads very differently.
+  - The lingerie vocabulary will grow as we test which items
+    Tsubaki 2 renders well. Some items may become "staples"
+    (reliable render) and others "experimental" (hit or miss).
+
+LONG-TERM (A5P3+):
+  - The system's identity is crystallizing: "Earned beauty
+    in every dimension." Every element — surreal, erotic,
+    compositional, chromatic — must earn its place. Nothing
+    is default. Everything is a choice.
+  - The Wow Systems may eventually become the system's
+    signature. When someone sees a batch and says "that's
+    THE THREAD output," they'll be recognizing chromatic
+    shadows, fabric physics, and color breeding — not just
+    "good anime art."
+  - Risk: the system may become over-engineered. 13 Wow
+    Systems + 21 palettes + 12 cameras + 20 poses + erotic
+    detail vocabulary + body language + light-skin pairs =
+    massive combinatorial space. The QuickRef exists for a
+    reason. The full document is a reference, not a checklist.
+  - The ultimate aspiration: every image is simultaneously
+    beautiful, meaningful, and surprising. Thread provides
+    meaning. Wow provides surprise. The body provides beauty.
+    None of these are optional. All three together are rare.
+
+  "Before there were hands, there was water. Before there
+  was light, there was shadow. And shadow had a color."
+    — P21, SLOW WATER batch (retroactive)

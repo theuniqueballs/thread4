@@ -1,0 +1,365 @@
+A5P4B BETA — CORE PATCH
+Patch on top of A5P4A_Beta_Patch. Implements user feedback from HYBRID v1.
+Goal: push creative/beauty/memorability vector. Stop stagnating.
+
+═══════════════════════════════════════════════════════════════════════
+§0. WHAT THIS PATCH ADDS
+═══════════════════════════════════════════════════════════════════════
+
+5 MAJOR SYSTEMS:
+  TP  = Tonal Pacing (slow/fast rhythm in batch)
+  VIS = Visual Identity Signatures (memorable detail per character)
+  MOT = Motif Library (cross-batch symbols)
+  PAN = Pantheon (recurrent cast of archetypes)
+  MEM = Memorability Score (1-5 per prompt)
+
+15 MINOR ADDITIONS:
+  - Sound-led-extended (3 variants)
+  - Smell-led-extended (3 variants)
+  - Memory-fragment prompts
+  - Dream-logic variants
+  - Poetic-form-extended (haiku, limerick, prose-poem)
+  - Color-theory-extended (complementary, analogous, triadic)
+  - Single-object-focus variants
+  - Negative-space-as-subject variants
+  - Architecture-as-character
+  - Weather-as-character
+  - Textile-as-character
+  - Light-as-narrator
+  - Silence-as-action-extended
+  - Gesture-as-plot variants
+  - Threshold-as-resolution variants
+
+═══════════════════════════════════════════════════════════════════════
+§1. TONAL PACING (TP)
+═══════════════════════════════════════════════════════════════════════
+
+A batch is not 21 prompts at the same intensity. Pacing creates
+memorability through contrast.
+
+TP1 = SLOW OPEN
+    P01-P03 are atmospheric, soft, low-tension. Sets mood.
+    Allows P04+ to hit harder by contrast.
+
+TP2 = RISING HOOK
+    P04-P06 escalate tension. First peak at P06 (midpoint of act I).
+
+TP3 = COMPRESSION BURST
+    P07-P09 are short, sharp, high-density. Three punchy images.
+
+TP4 = DEEP BREATH
+    P10 is the longest, slowest, most atmospheric prompt.
+    Counterpoint to compression burst.
+
+TP5 = DESCENT RHYTHM
+    P11-P13 build tension through accumulation, not intensity.
+
+TP6 = DARK NIGHT
+    P14 is the lowest, heaviest, slowest prompt. Maximum atmosphere.
+
+TP7 = REVELATION CASCADE
+    P15-P17 are bright, sharp, fast. Three reveals.
+
+TP8 = CLIMAX STACK
+    P18-P20 are the highest-tension prompts in the batch.
+
+TP9 = ECHO CLOSE
+    P21 echoes P01 in mood/structure but resolves the concept.
+
+TP usage:
+  - Each prompt's pre-header TP field declares its pacing role
+  - Block A must use all 9 TP codes per batch
+  - TP determines prompt length (TP3/TP7 = short, TP4/TP6 = long)
+  - TP determines ETM ceiling (TP4/TP6 = low ETM, TP8 = high ETM)
+
+═══════════════════════════════════════════════════════════════════════
+§2. VISUAL IDENTITY SIGNATURES (VIS)
+═══════════════════════════════════════════════════════════════════════
+
+Hair + eye color is weak memorability. Real memorability =
+a specific recurring DETAIL that ties to character.
+
+VIS Library (30 signatures, each is a specific recurring detail):
+
+VIS01 = single feather woven into hair
+VIS02 = brass key on leather cord at throat
+VIS03 = mismatched earrings (one stud, one hoop)
+VIS04 = scar through left eyebrow
+VIS05 = ink stain on right middle finger
+VIS06 = single white streak in dark hair
+VIS07 = silver cuff on left wrist only
+VIS08 = moth-shaped beauty mark below right eye
+VIS09 = chipped front tooth visible when smiling
+VIS10 = white ribbon tied around upper arm
+VIS11 = tattoo of small bird on inner wrist
+VIS12 = calluses on fingertips (instrument player)
+VIS13 = slightly pointed left ear
+VIS14 = freckle cluster on left collarbone
+VIS15 = bite scar on lower lip
+VIS16 = silver ring on thumb only
+VIS17 = small tattoo behind right ear
+VIS18 = always holding a single flower (varies)
+VIS19 = wire-rimmed glasses, slightly crooked
+VIS20 = henna patterns on left hand only
+VIS21 = scar across palm (sword grip)
+VIS22 = black thread tied around index finger
+VIS23 = single pearl glued to cheek
+VIS24 = constellation freckles across nose
+VIS25 = white streak in eyebrow
+VIS26 = small bell on choker
+VIS27 = permanent blush across nose
+VIS28 = beauty mark at corner of mouth
+VIS29 = bite mark on shoulder
+VIS30 = asymmetrical haircut (longer on one side)
+
+VIS usage:
+  - Every prompt declares VIS code in pre-header
+  - VIS detail appears in prompt body
+  - Same character (same hair/eye/body) carries same VIS across batches
+  - Different characters can share VIS if intentional motif
+
+═══════════════════════════════════════════════════════════════════════
+§3. MOTIF LIBRARY (MOT) — cross-batch symbols
+═══════════════════════════════════════════════════════════════════════
+
+Motifs are objects/symbols that recur across batches. They create
+the feeling of a shared universe without meta-text.
+
+MOT01 = THE FOLDED LETTER
+    A folded letter appears in some prompts. Never opened on-camera.
+    Implies connection between scenes.
+
+MOT02 = THE BRASS KEY
+    A specific brass key appears in multiple batches. Different
+    contexts (on cord, in hand, on table, in lock).
+
+MOT03 = THE WHITE FEATHER
+    A single white feather drifts in some scenes. Different
+    meanings (loss, freedom, omen).
+
+MOT04 = THE CHIPPED CUP
+    A specific chipped ceramic cup appears in domestic scenes.
+    Implies same household across batches.
+
+MOT05 = THE DROPPED SHOE
+    One shoe lying on floor/ground. Implies hasty departure.
+
+MOT06 = THE DEAD FLOWER
+    A specific dried flower in a vase. Same flower type across
+    batches, different rooms.
+
+MOT07 = THE OPEN BOOK FACE-DOWN
+    A book left open face-down. Implies interrupted reading.
+
+MOT08 = THE UNSENT LETTER
+    Envelope with broken wax seal, never sent.
+
+MOT09 = THE BURNED MEAL
+    A pot on stove with burned food. Same pot across batches.
+
+MOT10 = THE CRACKED MIRROR
+    A mirror with single crack. Different rooms, same crack pattern.
+
+MOT usage:
+  - 2-3 MOT items appear per batch
+  - MOT appears in prompt body as environmental detail, not focal
+  - Never named as "motif" — just present
+  - Cross-batch recognition is the point
+
+═══════════════════════════════════════════════════════════════════════
+§4. PANTHEON (PAN) — recurrent cast
+═══════════════════════════════════════════════════════════════════════
+
+A pantheon of 12 recurring characters. Each has fixed identity
+but appears in different settings/scenarios across batches.
+Builds audience recognition.
+
+PAN01 = THE LIBRARIAN
+  Hair: jet-black bob. Eyes: amber. Body: slender. Skin: honey-ivory.
+  VIS: VIS19 (wire-rimmed glasses, slightly crooked).
+  Default setting: S33 library, S46 wine cellar, S37 attic.
+  Character: she who knows where the answers are not.
+
+PAN02 = THE COURIER
+  Hair: auburn wavy medium. Eyes: hazel. Body: athletic. Skin: warm tan.
+  VIS: VIS07 (silver cuff on left wrist only).
+  Default setting: S20 train, S31 subway, S03 bus stop.
+  Character: she who is always between.
+
+PAN03 = THE BATHER
+  Hair: silver straight very-long. Eyes: violet. Body: slender. Skin: alabaster.
+  VIS: VIS14 (freckle cluster on left collarbone).
+  Default setting: S12 water, S34 hotel bath, S35 onsen.
+  Character: she who returns to water.
+
+PAN04 = THE SLEEPER
+  Hair: chestnut wavy long. Eyes: green. Body: soft. Skin: ivory.
+  VIS: VIS24 (constellation freckles across nose).
+  Default setting: S16 bed, S05 laundromat, S07 vanity.
+  Character: she who is always almost waking.
+
+PAN05 = THE DANCER
+  Hair: dark-plum wavy medium. Eyes: gold. Body: tall curvy. Skin: golden-brown.
+  VIS: VIS26 (small bell on choker).
+  Default setting: S49 theater, S42 market, S11 greenhouse.
+  Character: she who moves first.
+
+PAN06 = THE ALCHEMIST
+  Hair: copper curly short. Eyes: amber. Body: petite. Skin: terra-cotta.
+  VIS: VIS05 (ink stain on right middle finger).
+  Default setting: S23 lab, S40 operating theater, S38 cellar.
+  Character: she who mixes what should not mix.
+
+PAN07 = THE WARRIOR
+  Hair: black cropped curly. Eyes: dark-brown. Body: athletic muscular. Skin: espresso.
+  VIS: VIS21 (scar across palm).
+  Default setting: S44 gym, S29 parking garage, S45 pool.
+  Character: she who fights what cannot be fought.
+
+PAN08 = THE WARDEN
+  Hair: obsidian straight very-long. Eyes: silver. Body: tall. Skin: mediterranean bronze.
+  VIS: VIS02 (brass key on leather cord at throat).
+  Default setting: S46 cellar, S38 coal cellar, S09 cathedral.
+  Character: she who keeps what is locked.
+
+PAN09 = THE ORACLE
+  Hair: ivory-white wavy long. Eyes: heterochromia gold-violet. Body: petite. Skin: porcelain.
+  VIS: VIS08 (moth-shaped beauty mark below right eye).
+  Default setting: S47 observatory, S41 planetarium, S33 library.
+  Character: she who sees what is not yet.
+
+PAN10 = THE TRAVELER
+  Hair: honey-blonde braided long. Eyes: green. Body: athletic. Skin: sunkissed amber.
+  VIS: VIS11 (tattoo of small bird on inner wrist).
+  Default setting: S20 train, S17 field, S36 pier.
+  Character: she who is always leaving.
+
+PAN11 = THE SPECTER
+  Hair: black wavy very-long. Eyes: dark-red. Body: tall curvy. Skin: jet-warm.
+  VIS: VIS06 (single white streak in dark hair).
+  Default setting: S09 cathedral, S42 midnight market, S45 drained pool.
+  Character: she who is already gone.
+
+PAN12 = THE CHILD-WHO-IS-NOT
+  Hair: rose-pink bob. Eyes: green. Body: petite. Skin: ivory.
+  VIS: VIS23 (single pearl glued to cheek).
+  Default setting: S37 attic, S16 bed, S15 doorway.
+  Character: she who is not what she seems.
+
+PAN usage:
+  - Min 5 PAN characters per batch (forces pantheon presence)
+  - Same PAN may appear 1-2× in same batch (different settings)
+  - PAN declared in pre-header PAN field
+  - PAN identity (hair/eye/body/skin/VIS) is FIXED across all batches
+  - Setting/scenario/tier may change
+
+═══════════════════════════════════════════════════════════════════════
+§5. MEMORABILITY SCORE (MEM)
+═══════════════════════════════════════════════════════════════════════
+
+Every prompt gets subjective MEM score 1-5 at design time.
+
+MEM1 = forgettable. Generic. Could be any character.
+MEM2 = slightly memorable. One detail sticks.
+MEM3 = memorable. Multiple details stick.
+MEM4 = highly memorable. Strong visual identity.
+MEM5 = iconic. Cannot be mistaken for any other character.
+
+MEM criteria:
+  - VIS signature present and specific?
+  - AXI archetype (if VOLT) or PAN pantheon (if NICHE) used?
+  - Concept (CL/CTP) makes image memorable beyond body?
+  - Composition (CW) is non-default?
+  - Motif (MOT) present?
+  - Setting unusual for character type?
+
+MEM quota per batch:
+  MEM1: 0 (no forgettable prompts allowed)
+  MEM2: max 4
+  MEM3: min 8
+  MEM4: min 6
+  MEM5: min 3 (forces iconic moments)
+
+MEM declared in pre-header MEM field.
+
+═══════════════════════════════════════════════════════════════════════
+§6. MINOR ADDITIONS — SS index extended
+═══════════════════════════════════════════════════════════════════════
+
+Extends A5P4 §3 SS index with 15 more devices (SS40-SS54):
+
+SS40 = sound-rain (the rain says what she cannot)
+SS41 = sound-silence (the silence is louder than the rain)
+SS42 = smell-petrichor (the smell of rain on stone)
+SS43 = smell-incense (the smell of prayer)
+SS44 = memory-fragment (she remembers only one thing)
+SS45 = dream-logic-breathe (the walls breathe, she does not notice)
+SS46 = dream-logic-soft (the floor is soft, she does not sink)
+SS47 = poetic-haiku (3-line prompt, 5-7-5 syllables feel)
+SS48 = poetic-prose (one long sentence, no period until end)
+SS49 = color-complementary (two opposite colors, hard contrast)
+SS50 = color-analogous (three adjacent colors, soft harmony)
+SS51 = color-triadic (three equidistant colors, dynamic tension)
+SS52 = object-protagonist (one object drives the entire image)
+SS53 = architecture-character (the building has personality)
+SS54 = weather-character (the weather is the antagonist)
+
+SS total now: 54 devices. Min 7 distinct per batch.
+
+═══════════════════════════════════════════════════════════════════════
+§7. UPDATED PRE-HEADER PROTOCOL
+═══════════════════════════════════════════════════════════════════════
+
+Format:
+  P## | STREAM:{VOLT|NICHE} | GENO:V2:P##:C##:T#:S##:CL##
+  | T:{tier} | SIG:{...} | RACE:{...} | SS:{...}
+  | COL:{...} | AR:{AR##} | CW:{CW##} | CT:{CT# or none}
+  | SEL:{SEL# or none} | NTS:{chapter-name}
+  | VIS:{VIS##} | MOT:{MOT## or none} | PAN:{PAN## or none}
+  | TP:{TP#} | MEM:{#}
+  | G:✓✓✓✓✓
+
+New fields:
+  VIS = visual identity signature (VIS01-VIS30, MANDATORY)
+  MOT = motif (MOT01-MOT10, optional)
+  PAN = pantheon character (PAN01-PAN12, optional)
+  TP  = tonal pacing (TP1-TP9, MANDATORY)
+  MEM = memorability score 1-5 (MANDATORY)
+
+═══════════════════════════════════════════════════════════════════════
+§8. UPDATED QUOTAS (per batch of 21)
+═══════════════════════════════════════════════════════════════════════
+
+VIS: every prompt has VIS code (MANDATORY)
+TP: all 9 TP codes used per batch
+PAN: min 5 per batch (NICHE stream)
+MOT: 2-3 MOT items per batch
+MEM: 0 MEM1, max 4 MEM2, min 8 MEM3, min 6 MEM4, min 3 MEM5
+
+CTP: min 2 per batch (unchanged)
+SEL: 2-4 per batch (unchanged)
+ARI (NICHE only): 3-5 distinct per batch
+CWS: 5-7 distinct per batch
+
+═══════════════════════════════════════════════════════════════════════
+§9. SUMMARY OF CHANGES FROM A5P4A
+═══════════════════════════════════════════════════════════════════════
+
+ADDED:
+  + TP tonal pacing (9 pacing codes, rhythm in batch)
+  + VIS visual identity signatures (30 memorable details)
+  + MOT motif library (10 cross-batch symbols)
+  + PAN pantheon (12 recurring characters with fixed identity)
+  + MEM memorability score (1-5, quota enforced)
+  + 15 new SS devices (SS40-SS54)
+
+UNCHANGED:
+  = CTP concept transcendence (10 codes)
+  = SEL surreal erotic library (15 codes)
+  = NTS narrative thread system
+  = ARI art reference index (30 codes)
+  = CWS composition workshop (22 codes)
+
+═══════════════════════════════════════════════════════════════════════
+END OF A5P4B BETA PATCH
+═══════════════════════════════════════════════════════════════════════

@@ -1,0 +1,299 @@
+PROMPT FOR ASSISTANT BLOCKS — A5P3 THE THREAD DIVERSITY CRISIS
+═══════════════════════════════════════════════════════════════════════
+
+This is a request for analytical assistance. You are one of several
+specialized AI blocks consulted in parallel. Your response will be
+cross-analyzed with responses from other blocks. Be specific,
+concrete, and opinionated. Do not give generic advice. If you
+disagree with the framing of a problem, say so and reframe it.
+
+═══════════════════════════════════════════════════════════════════════
+CONTEXT — WHAT IS A5P3 THE THREAD
+═══════════════════════════════════════════════════════════════════════
+
+A5P3 THE THREAD is a prompt-engineering system for generating anime
+art on Pixai.Art using Tsubaki 2 (MMDIT 2.6A) model. The system
+produces batches of 21 prompts per theme. Each prompt follows a
+strict 35-slot tag order, deploys "wow systems" (signature visual
+techniques), uses 21 color palettes with hair-eye bindings, includes
+erotic tiers (S/A/E) with nudity budget, and runs through a 10-step
+GLM workflow with audit checklist.
+
+The system has evolved through versions:
+- A5P2A → A5P2B → A5P2C (targeted fixes)
+- A5P3 (current — added Weather Layer, Time of Day, Subthemes,
+  Archetypes, Cross-Batch Echo, Composition Arc)
+
+4 batches have been generated on Tsubaki 2 Pro + Prompt Helper ON:
+- REMNANT (water/temple/ritual)
+- EX NIHILO (emergence/void)
+- DEFINED BY ONE OBSESSION (craft/fixation)
+- MARGINALIA (existence on the margins)
+
+USER FEEDBACK SUMMARY:
+"The pictures are pretty good. But we have very little variety,
+even considering that every time we come up with a new theme.
+There is a feeling of repetition and style drift. I'm unhappy all
+the time. It's very beautiful — but I don't know what to do."
+
+═══════════════════════════════════════════════════════════════════════
+PROBLEM 1 — POSE & GAZE & CAMERA MONOTONY
+═══════════════════════════════════════════════════════════════════════
+
+OBSERVATION:
+~80% of generated images show the character looking either left or
+right, NOT at viewer. Cowboy shots are overrepresented. Even with
+diverse settings and palettes, the silhouettes feel samey.
+
+CURRENT RULES:
+- 12 camera options (cowboy ≤8/batch, bust ≥3, other ≥10 total,
+  min 6 distinct, no 3+ consecutive)
+- 6 gaze directions (looking at viewer / past viewer / eyes down /
+  eyes closed / looking at thread element / half-lidded)
+- 20+ pose library entries (standing/seated/floor/yuri)
+- Static Pose Audit: max 4 standing, min 7 non-standing
+- Weight Center tags (anti-floating)
+- Silhouette Vector (diagonal/S-curve/vertical/C-curve/twisted)
+
+USER ASKS FOR:
+"A huge, colossally huge number of poses — left-directed, right-
+directed, looking at middle, gaze from above to below, different
+body orientations, conditional body parts — so that it never
+repeats, or repeats in minimum amount."
+
+QUESTIONS FOR YOU:
+1. Why is the system producing 80% left/right gaze despite having
+   6 gaze options? Is the Gaze × Thread Matrix (which assigns gaze
+   based on thread type) the culprit? Most thread types map to
+   "looking past viewer" or "looking at thread element" — both are
+   averted gaze.
+2. How to expand pose vocabulary from 20 to 100+ without losing
+   structural clarity? Should poses become compound tags? Should
+   there be a "pose generator formula" rather than a fixed library?
+3. Should camera caps be revised? Cowboy ≤8 is still high. Should
+   we add per-batch gaze quotas (e.g., min 5 "looking at viewer")?
+4. The user mentions "body parts" as a variety axis. Should we
+   introduce "focal body part" as a parameter (hand / shoulder /
+   back / foot / neck / hip)? How would this integrate with the
+   35-slot tag order?
+5. Is the problem really about POSE LIBRARY SIZE, or about
+   COMBINATORIAL EXPLOITATION? 20 poses × 12 cameras × 6 gazes =
+   1440 combinations per prompt. Why does output look samey?
+
+═══════════════════════════════════════════════════════════════════════
+PROBLEM 2 — PALETTE NARROWNESS
+═══════════════════════════════════════════════════════════════════════
+
+OBSERVATION:
+21 palettes with hair-eye bindings. User reports seeing "the same
+green-haired girl" repeatedly — Hospital Ghost palette → pale green
+hair, grey eyes — appears in multiple batches because its mood
+(haunted, archival, marginal) fits many themes. Palette rotation
+isn't sufficient.
+
+CURRENT RULES:
+- 21 palettes (Forge Ember, Hospital Ghost, Storm Surge, Feral Earth,
+  Midnight Brass, Blood Stage, Ice Breath, Salt Sky, Candle Wax,
+  Mud Field, Tattoo Ink, Rain Street, Lighthouse, Observatory,
+  Garden Soil, Neon Veins, Wine Cellar, Dust Bloom, Obsidian Tide,
+  Amber Ladder, Frost Glass)
+- Palette-Hair Binding (each palette dictates 1 hair/eye pair)
+- Palette as Character Arc (Act I cool, Act II fire, Act III warm)
+- No adjacent duplicates, aim for 7+ distinct per batch
+- Palette Echo (repetition requires 2+ changed params)
+
+USER ASKS FOR:
+"A huge number of palettes, so large that in 2-3 batches it will be
+impossible to capture the number. Or — if we keep the count — make
+palette selection so diverse that the same girl doesn't appear
+repeatedly."
+
+QUESTIONS FOR YOU:
+1. Should we expand from 21 to 60+ palettes? What new palettes
+   would meaningfully differ from existing ones (not just renamed
+   variations)?
+2. Should we DECOUPLE hair/eye from palette? Currently each palette
+   has ONE binding — this means 21 palettes = 21 character looks.
+   If we allow 3-4 hair/eye variants per palette, we get 60-84
+   looks. Trade-off: visual continuity within palette vs. variety.
+3. Should we introduce "palette family" system — e.g., 5 variants
+   of "warm-dark" palette (Wine Cellar, Blood Stage, Forge Ember,
+   Candle Wax, Amber Ladder) that can substitute for each other?
+4. The user mentions "the environment is changing, but this palette
+   does not change." Is the problem the PALETTE COUNT or the
+   PALETTE-HAIR BINDING making characters recognizable across
+   batches?
+5. Could we introduce HAIR/EYE LIBRARY independent of palette?
+   30 hair colors × 20 eye colors = 600 combinations. Palette
+   informs mood, hair-eye informs identity. Decouple.
+
+═══════════════════════════════════════════════════════════════════════
+PROBLEM 3 — WOW SYSTEM EXHAUSTION
+═══════════════════════════════════════════════════════════════════════
+
+OBSERVATION:
+13 wow systems (Chromatic Shadow, Fabric Physics, Weight Shift,
+Environmental Framing, Pose Contradiction, Texture Infection,
+Negative Space Theft, Color Breeding, Gesture Resonance, Depth
+Layer Breach, Focal Singularity, Afterimage, Liminal Breach).
+After 4 batches, user reports the same wow effects recurring.
+"Every patch depends on what we come up with. We have very big
+problems with diversity."
+
+CURRENT RULES:
+- 13 wow systems, tiered A/B/C by render reliability
+- 2 fundamental (Chromatic Shadow, Weight Shift) — near-default
+- Min 3 deployed per batch, rotation 1-3 each, no stacking
+- Wow Rotation Tracker in Post-Flight
+
+USER ASKS FOR:
+"Improve the number of wow effects — many times more. We have a
+very bad system of diversity."
+
+QUESTIONS FOR YOU:
+1. Should we expand from 13 to 30-40 wow systems? Propose 10-15
+   NEW wow systems that are renderable on Tsubaki 2 Pro + PH:Y and
+   meaningfully differ from existing 13. For each: name, concept,
+   tag, deployment condition, render risk.
+2. Should we introduce WOW COMBINATIONS — sanctioned pairs of wow
+   systems that reinforce each other? (E.g., Fabric Physics +
+   Color Breeding = "wet fabric absorbing colored light.")
+   Currently we ban stacking. Maybe controlled stacking is better
+   than rigid ban.
+3. Is the problem WOW COUNT or WOW ROTATION ENFORCEMENT? We have
+   rotation rules but they may not be enforced strictly enough.
+   Should we add hard caps: "no wow system may appear in more than
+   3 prompts across 2 consecutive batches"?
+4. Should we introduce "wow family" system — group wows by
+   mechanism (light-based / texture-based / spatial / temporal /
+   gestural) and enforce cross-family rotation?
+5. The user mentions "every patch depends on what we come up with."
+   Is this a CREATIVITY PROBLEM (system needs more imagination) or
+   a STRUCTURAL PROBLEM (system doesn't enforce existing variety
+   rules)? Be honest.
+
+═══════════════════════════════════════════════════════════════════════
+PROBLEM 4 — PROMPT HELPER ARTIST POLLUTION
+═══════════════════════════════════════════════════════════════════════
+
+OBSERVATION:
+Prompt Helper v2 sometimes inserts artist names ("artist: [name]")
+into prompts. This causes Tsubaki 2 to mimic that artist's style,
+which can clash with the intended aesthetic and sometimes spoil
+the image. The "original character" tag handles character
+substitution but NOT artist substitution.
+
+CURRENT RULES:
+- "original character" tag in [1] (solved character pollution)
+- No current artist-shield mechanism
+- T2 style block: "realistic skin, photorealistic, 3d render,
+  manhwa style, western cartoon, cel shading, chibi, overexposed,
+  porcelain skin, uniform skin tone, flat skin shading, realistic
+  photograph, real skin texture, photographic lighting, depth of
+  field bokeh, lens flare, photographic grain"
+
+USER ASKS FOR:
+"Maybe also come up with something original. If it doesn't work,
+we'll need to do something about it because sometimes it just
+spoils the pictures."
+
+QUESTIONS FOR YOU:
+1. What is the canonical negative-prompt block for suppressing
+   artist-style contamination on Tsubaki 2 / MMDIT 2.6A?
+   Should we list specific common artist names (like we listed
+   character names before C4 cleanup), or use category tags like
+   "established artist style, copied style, named artist reference"?
+2. Should we introduce a POSITIVE "independent style" tag — a
+   declaration that the prompt's style is self-defined, not
+   artist-derived? What would this tag be? Where in tag order?
+3. Is there a way to instruct Prompt Helper v2 NOT to insert
+   artist references? (Pixai-specific knowledge — does PH have
+   a "no artist" mode or toggle?)
+4. Could the problem be that our prompts are too TAG-DENSE,
+   causing PH to "fill gaps" with artist names? Would sparser
+   prompts reduce PH intervention?
+5. Should we add a POST-FLIGHT audit field for "artist pollution"
+   — track which prompts got artist tags inserted, then add
+   those specific artist names to T2 negatives for next batch?
+
+═══════════════════════════════════════════════════════════════════════
+REQUESTED RESPONSE FORMAT
+═══════════════════════════════════════════════════════════════════════
+
+For each of the 4 problems, provide:
+
+A. DIAGNOSIS — root cause analysis (1-2 paragraphs). Is the
+   problem what user thinks it is, or is there a deeper cause?
+
+B. CONCRETE PROPOSALS — 3-5 specific, implementable solutions.
+   For each:
+   - What to add/change/remove in the system
+   - Where in the document (section reference if applicable)
+   - Trade-off (what we gain, what we lose)
+   - Render risk on Tsubaki 2 Pro + PH:Y
+
+C. PRIORITY — which 1-2 of your proposals are highest-leverage?
+   Why?
+
+D. DISAGREEMENTS — where do you disagree with the user's framing
+   of the problem? Where do you disagree with the current system's
+   approach?
+
+E. OPEN QUESTIONS — what should the main architect (Block A)
+   investigate further before deciding?
+
+═══════════════════════════════════════════════════════════════════════
+CONSTRAINTS ON YOUR RESPONSE
+═══════════════════════════════════════════════════════════════════════
+
+1. NO MALE CHARACTERS — system rule. Don't propose anything that
+   requires male presence.
+
+2. NO ANTI-PATTERNS — don't propose:
+   - Static ban-lists of tags (we have enough)
+   - Meaning-labels (sexy, sultry, etc. — banned)
+   - Removing existing structures without replacement
+   - Generic "be more creative" advice
+
+3. TSUBAKI 2 SPECIFIC — all proposals must be renderable on
+   Tsubaki 2 MMDIT 2.6A. If you don't know the model, focus on
+   structural solutions that work on any diffusion model.
+
+4. EARNED BEAUTY PHILOSOPHY — system requires every element to
+   be earned (thread/visible/render/earned/situation). Don't
+   propose decorative elements.
+
+5. SCALE — user wants LARGER vocabularies, not smaller rules.
+   Propose expansion (more palettes, more poses, more wows) over
+   restriction (tighter caps). But expansion must be sustainable.
+
+6. HONESTY — if you think the user's diagnosis is wrong, say so.
+   If you think the system is over-engineered, say so. If you
+   think a problem is unsolvable on Tsubaki 2, say so. The main
+   architect needs honesty, not validation.
+
+═══════════════════════════════════════════════════════════════════════
+WHAT THE MAIN ARCHITECT WILL DO WITH YOUR RESPONSE
+═══════════════════════════════════════════════════════════════════════
+
+Block A (main architect) will:
+1. Cross-analyze all block responses
+2. Identify consensus (multiple blocks proposing same solution)
+3. Identify conflicts (blocks disagreeing on diagnosis or fix)
+4. Identify unique high-value proposals (one block seeing what
+   others missed)
+5. Synthesize into A5P3A patch (targeted diversity fixes)
+6. NOT implement everything — will select 30-50% of proposals
+   based on consensus, leverage, and render safety
+
+Your response will be evaluated on:
+- Diagnostic accuracy (did you find the real root cause?)
+- Specificity (concrete proposals, not abstract advice)
+- Tsubaki 2 awareness (do you understand the model's behavior?)
+- Honesty (did you challenge assumptions?)
+- Synthesis potential (does your proposal integrate with existing
+  system, or require rebuilding?)
+
+═══════════════════════════════════════════════════════════════════════
+END OF PROMPT FOR ASSISTANT BLOCKS
+═══════════════════════════════════════════════════════════════════════

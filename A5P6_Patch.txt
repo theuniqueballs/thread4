@@ -1,0 +1,430 @@
+A5P6 — DICE RANDOMIZATION + PH-LESS CONSTRUCTION + QUALITY-LAST + OC SEPARATION
+Patch on top of A5P5. Fixes "nothing changed under the wrapper" problem.
+Reworks prompt structure to NEVER repeat. Removes PH dependency.
+
+═══════════════════════════════════════════════════════════════════════
+§0. PROBLEMS IDENTIFIED
+═══════════════════════════════════════════════════════════════════════
+
+PROBLEM 1: STRUCTURAL MONOTONY
+  Symptom: v7 had different codes in pre-header but bodies followed same
+           skeleton: "Anime key visual. [Camera]. [Setting]. 1girl...
+             She [pose]. [Hair]. [Body]. [Clothing]. The [concept] is [X].
+             [Light]. [Closure]."
+  Cause: No structural randomization. Codes changed, skeleton didn't.
+  Fix: §3 DICE system — 8 dice, ~26M combinations, mandatory per prompt.
+
+PROBLEM 2: QUALITY TAGS FIRST (wrong for Tsubaki 2)
+  Symptom: First 10-15 tokens were camera+setting, not character.
+  Cause: I followed standard danbooru convention (quality first).
+         User observed Tsubaki 2 prioritizes FIRST 10-15 tokens — those
+         should be CHARACTER-DESCRIPTIVE.
+  Fix: §2 Quality-last protocol. Character block first.
+
+PROBLEM 3: PH DEPENDENCY
+  Symptom: PH (Prompt Helper) rewrites prompts, gives bugs, distorts
+           canon (e.g. Vae skin/eyes/hair).
+  Cause: Prompts too prose-heavy, requiring PH interpretation.
+  Fix: §4 PH-less construction. Explicit descriptors, tag-clear core.
+
+PROBLEM 4: OC IN MAIN BATCH
+  Symptom: Vae was placed in v7 P18 main batch.
+  Cause: I mixed OC into 21-prompt batch.
+  Fix: §5 OC separation rule. 21 batch = NO OC. OC = separate file.
+
+PROBLEM 5: REPETITION ACROSS BATCHES
+  Symptom: Same poses, settings, body types, closures recur.
+  Cause: No structural exhaustion tracking.
+  Fix: §6 Cross-batch DICE tracking. Skeleton combos never repeat.
+
+═══════════════════════════════════════════════════════════════════════
+§1. OC SEPARATION RULE (PROBLEM 4)
+═══════════════════════════════════════════════════════════════════════
+
+HARD RULE: Core OC prompts NEVER appear in the 21-prompt main batch.
+
+  Main batch (HYBRID vN) = 21 prompts, ALL non-OC characters.
+  OC prompts (Core_OC_Themed_Prompts_vN) = separate file, 3+ prompts.
+
+  EXCEPTION: Only if user explicitly says "21+3" or "include OC in batch".
+  Default: OC separate.
+
+  This prevents OC canon contamination of batch characters and gives
+  OC prompts dedicated focus.
+
+═══════════════════════════════════════════════════════════════════════
+§2. QUALITY-LAST PROTOCOL (PROBLEM 2)
+═══════════════════════════════════════════════════════════════════════
+
+2.1 PRINCIPLE
+
+Tsubaki 2 prioritizes the FIRST 10-15 tokens of a prompt. Those tokens
+must be CHARACTER-DESCRIPTIVE (who she is, what she looks like), not
+quality-meta or camera-setting.
+
+Quality tags ("Masterpiece, best quality, anime artstyle") go at END.
+
+2.2 NEW PROMPT BLOCK STRUCTURE
+
+Every prompt = 3 blocks, in order:
+
+  ── BLOCK 1: CHARACTER (first 10-15 tokens, tag-flow) ──
+  1girl, [hair descriptor], [eye descriptor], [body type], [skin],
+  [expression], [clothing state], [pose verb], [setting key noun]
+
+  Example:
+  "1girl, very long black hair single white streak, red eyes
+  confrontational, tall curvy womanly build large bare breasts, obsidian
+  skin flushed, post-peak bliss, torn ceremonial robe open at chest
+  X-tape on bare nipples, back arched on operating table, abandoned
+  operating theater,"
+
+  ── BLOCK 2: ATMOSPHERE (middle, prose with explicit descriptors) ──
+  [Setting detail]. [Action/pose detail]. [Clothing detail explicit].
+  [Body detail explicit]. [Light detail explicit].
+  [Concept integration per DICE-D].
+
+  ── BLOCK 3: QUALITY (end) ──
+  Vivid saturated colors, rich color palette, high color contrast.
+  Anime key visual, anime illustration, hand-drawn anime style,
+  cel-shaded anime, painterly anime background, anime character design.
+  Masterpiece, best quality, anime artstyle.
+
+2.3 BANNED FROM BLOCK 1 (start of prompt)
+
+  "Anime key visual." (was at start — moved to Block 3)
+  "Masterpiece, best quality" (was at end — stays at end)
+  Camera codes ("Wide.", "Bust framing.") — moved to Block 2
+  Setting descriptions ("The abandoned operating theater.") — setting
+    KEY NOUN only in Block 1, full description in Block 2
+
+2.4 BLOCK 1 LENGTH RULE
+
+Block 1 = 10-15 tokens (comma-separated descriptors).
+Block 2 = 80-150 words (VOLT) / 120-200 words (NICHE).
+Block 3 = fixed ~30 words (quality tags).
+
+═══════════════════════════════════════════════════════════════════════
+§3. DICE RANDOMIZATION SYSTEM (PROBLEM 1 + 5)
+═══════════════════════════════════════════════════════════════════════
+
+3.1 PURPOSE
+
+Every prompt rolls 8 dice. Each die has 6-12 variants. ~26M combinations.
+Ensures NO TWO PROMPTS EVER share the same structure — within batch
+and across batches.
+
+3.2 THE 8 DICE
+
+── DICE A: OPENING STRUCTURE (10 variants) ──
+A1  character-first        — "1girl, [hair], [eyes]..."
+A2  pose-first             — "[Pose verb], [body state]..."
+A3  setting-key-first      — "[Setting noun]. [Character]..."
+A4  action-first           — "Mid-[verb], [body]..."
+A5  object-first           — "[Object] on [surface]. [Character]..."
+A6  sensory-first          — "[Sound/smell/texture]. [Character]..."
+A7  body-part-first        — "[Body part descriptor]. [Body type]..."
+A8  time-first             — "[Time of day]. [Weather]. [Character]..."
+A9  breath-first           — "[Breath state]. [Character]..."
+A10 absence-first          — "[Thing] is gone. [Character]..."
+
+── DICE B: BODY DESCRIPTION ORDER (8 variants) ──
+B1  hair→eyes→body→skin→marks
+B2  body→skin→hair→eyes→marks
+B3  skin→marks→hair→eyes→body
+B4  eyes→hair→marks→body→skin
+B5  marks→body→skin→eyes→hair
+B6  hair→skin→body→eyes→marks
+B7  body→marks→eyes→hair→skin
+B8  skin→hair→eyes→body→marks
+
+── DICE C: CLOTHING DESCRIPTION STYLE (8 variants) ──
+C1  garment-first          — "She wears [garment]..."
+C2  state-first            — "[Garment-state], [garment]..."
+C3  reveal-first           — "[Garment] [reveals/conceals] [body part]..."
+C4  fabric-first           — "[Fabric] [garment], [state]..."
+C5  absence-first          — "[Body part] bare, [garment] [state]..."
+C6  action-clothing        — "[Action] reveals [garment] [state]..."
+C7  tactile-first          — "[Fabric] against [skin], [state]..."
+C8  layer-first            — "[Layer 1] over [Layer 2], [state]..."
+
+── DICE D: CONCEPT INTEGRATION (6 variants) ──
+D1  concept-as-noun        — "The [theme] is [X]..."
+D2  concept-as-action      — "She [verbs] the [theme]..."
+D3  concept-as-absence     — "The [theme] is not here..."
+D4  concept-as-transform   — "The [theme] has [changed] her..."
+D5  concept-as-question    — "Is the [theme] [X]?"
+D6  concept-implied        — (woven throughout, no explicit sentence)
+
+── DICE E: LIGHT DESCRIPTION STYLE (8 variants) ──
+E1  source-direction       — "[Color] glow from [off-frame location]..."
+E2  effect-on-skin         — "[Color] edge on [body part]..."
+E3  shadow-contrast        — "[Color] glow vs [color] shadow..."
+E4  atmospheric-wash       — "[Color] wash across [space]..."
+E5  light-as-action        — "[Color] light [verb]s [body part]..."
+E6  light-absence          — "[Body part] in [shadow color]..."
+E7  dual-light             — "[Color] from [dir 1], [color] from [dir 2]..."
+E8  light-caustic          — "[Color] light [pattern] on [body part]..."
+
+── DICE F: CLOSURE STYLE (12 variants) ──
+F1  stillness              — "She does not move."
+F2  incomplete-action      — "She has not yet [verb]ed."
+F3  object-detail          — "The [object] is [state]."
+F4  sensory-detail         — "The [sense] [verb]s."
+F5  time-stretch           — "The [time-unit] [verb]s."
+F6  body-detail            — "Her [body part] is [state]."
+F7  absence-detail         — "The [thing] is gone."
+F8  weather-detail         — "The [weather] [verb]s."
+F9  question               — "Will she [verb]?"
+F10 command                — "Do not [verb]."
+F11 single-word            — "[Word]."
+F12 dialogue-fragment      — "'...'"
+
+── DICE G: SETTING DESCRIPTION ORDER (6 variants) ──
+G1  location→time→weather
+G2  weather→location→time
+G3  time→weather→location
+G4  location→weather→time
+G5  sensory→location→time
+G6  location→sensory→weather
+
+── DICE H: POSE DESCRIPTION STYLE (8 variants) ──
+H1  static-pose            — "She [pose]s."
+H2  kinetic-pose           — "Mid-[verb], she [pose]s."
+H3  implied-pose           — "Her [body part] [state] implies [pose]."
+H4  camera-pose            — "From [angle], she [pose]s."
+H5  pressure-pose          — "[Force] on [body part], she [pose]s."
+H6  balance-pose           — "Weight on [body part], she [pose]s."
+H7  breath-pose            — "[Breath state], she [pose]s."
+H8  gaze-pose              — "Eyes [direction], she [pose]s."
+
+3.3 DICE ROLL NOTATION
+
+Each prompt declares DICE roll in pre-header:
+  DICE:A3-B7-C2-D1-E5-F8-G2-H4
+
+3.4 DICE RULES
+
+  1. Every prompt rolls all 8 dice.
+  2. No two prompts in same batch share the same 8-dice combo.
+  3. No prompt in batch N shares 8-dice combo with any prompt in
+     batches N-1, N-2, N-3, N-4, N-5 (5-batch window).
+  4. Each die value used min 2× per batch (forces variety, prevents
+     one-value dominance).
+  5. Each die value max 4× per batch (prevents overuse).
+  6. Cross-batch: track all DICE rolls in cross_batch_log.md.
+
+3.5 DICE-DRIVEN WRITING
+
+When writing a prompt, roll DICE first, then write body following the
+rolled structure. This forces actual structural variety, not just
+code-variety.
+
+═══════════════════════════════════════════════════════════════════════
+§4. PH-LESS CONSTRUCTION (PROBLEM 3)
+═══════════════════════════════════════════════════════════════════════
+
+4.1 PRINCIPLE
+
+PH (Prompt Helper) was rewriting prompts because they were too prose-
+heavy and required interpretation. Without PH, prompts must be SELF-
+SUFFICIENT — Tsubaki 2 renders correctly from raw prompt.
+
+4.2 PH-LESS RULES
+
+  RULE 1: EXPLICIT DESCRIPTORS
+    Use Tsubaki-known tags directly. Not poetic interpretation.
+    WRONG: "her hair spills like liquid night"
+    RIGHT: "very long black hair, straight, individual strands visible"
+
+  RULE 2: TAG-FLOW CORE
+    Block 1 (character) = comma-separated tags, not prose.
+    Block 2 (atmosphere) = prose BUT with explicit descriptors embedded.
+    Block 3 (quality) = tags.
+
+  RULE 3: NO AMBIGUITY
+    Every body part, clothing item, pose, light source must be explicitly
+    described. PH was filling gaps; without PH, no gaps allowed.
+
+  RULE 4: CONCRETE OVER ABSTRACT
+    WRONG: "the primal is the storm"
+    RIGHT: "storm-wind pushing her hair, rain on her skin, lightning
+            flash freezing the moment"
+    (Concept still present, but rendered as concrete visual details
+    that Tsubaki can draw, not abstract noun-phrases.)
+
+  RULE 5: ANCHOR TAGS
+    Every prompt must contain these Tsubaki-anchor tags somewhere:
+    - 1girl (Block 1)
+    - [hair color] hair (Block 1)
+    - [eye color] eyes (Block 1)
+    - [skin color] skin (Block 1)
+    - [clothing item] (Block 1 or 2)
+    - [pose verb] (Block 1 or 2)
+    - [setting noun] (Block 1 or 2)
+    - looking at viewer / looking away / gaze [direction] (Block 2)
+
+4.3 PH-LESS ANTI-PATTERNS (banned)
+
+  - Vague emotional appeals ("the loneliness of the space")
+  - Abstract concept sentences without visual anchor
+  - Implicit actions ("she seems to be waiting")
+  - Ambiguous body positions ("she is positioned somehow")
+  - Poetic substitutions ("crown of night" for hair)
+
+4.4 PH-LESS ALLOWED
+
+  - Atmospheric prose (with explicit descriptors embedded)
+  - Concept sentences (DICE-D, but with concrete imagery)
+  - Metaphor (if grounded in visual detail)
+  - Emotional tone (if expressed through body/expression, not abstract noun)
+
+═══════════════════════════════════════════════════════════════════════
+§5. CROSS-BATCH DICE TRACKING (PROBLEM 5)
+═══════════════════════════════════════════════════════════════════════
+
+5.1 DICE LOG FILE
+
+/home/z/my-project/download/cross_batch_log.md (existing) extended:
+  - DICE rolls section: all 8-dice combos per prompt per batch
+  - 5-batch window: any combo used in last 5 batches is BLOCKED
+
+5.2 DICE EXHAUSTION ALERT
+
+  If a DICE combo (any 4+ dice matching) appears 2× in 5-batch window:
+  auto-ban for next 3 batches.
+
+5.3 DICE NOVELTY SCORE
+
+  dice_novelty = (new 8-dice combos in batch / 21) × 100%
+  Min 90% novelty per batch (was 60% for general components — DICE
+  stricter because structural repetition is the core problem).
+
+═══════════════════════════════════════════════════════════════════════
+§6. UPDATED PRE-HEADER (A5P6)
+═══════════════════════════════════════════════════════════════════════
+
+Add DICE field to every prompt pre-header:
+
+  P## | STREAM:VOLT | GENO:...
+  | T:... | NCS:... | L:...
+  | DICE:A#-B#-C#-D#-E#-F#-G#-H#         ← NEW (A5P6)
+  | CONTEXT-NEG:...
+  | SIG:... | BDM:... | RACE:...
+  | SS:... | COL:...
+  | PL:... | K:... | E:... | ETM:... | ENG:... | FE:... | FET:...
+  | AXI:... | BPF:... | PWR:... | VUL:...
+  | LE:... | FE-TECH:... | STE:...
+  | BRE:... | T-CODE:... | OAS:... | WEL:...
+  | VIS:... | MOT:... | TP:... | MEM:...
+  | NTS:...
+  | G:✓✓✓✓✓
+
+═══════════════════════════════════════════════════════════════════════
+§7. UPDATED PRE-FLIGHT (A5P6)
+═══════════════════════════════════════════════════════════════════════
+
+Add to A5P5 §15 pre-flight:
+
+  □ DICE rolled for all 21 prompts, no 8-dice combo repeat in batch
+  □ DICE no combo repeat in 5-batch window (check cross_batch_log)
+  □ Each DICE die value used 2-4× per batch
+  □ Block 1 (character) = 10-15 tokens, tag-flow, no quality/camera
+  □ Block 3 (quality) at END of every prompt
+  □ "Anime key visual" NOT at start (moved to Block 3)
+  □ PH-less: every body part/clothing/pose/light explicitly described
+  □ No OC in main batch (unless user requested 21+3)
+  □ DICE novelty score ≥90%
+
+═══════════════════════════════════════════════════════════════════════
+§8. UPDATED POST-FLIGHT (A5P6)
+═══════════════════════════════════════════════════════════════════════
+
+Add to post-flight greps:
+
+  □ DICE field present in every pre-header (21/21)
+  □ No 8-dice combo repeated in batch
+  □ Block 1 starts with "1girl" (not "Anime key visual" or camera)
+  □ Block 3 ends every prompt (quality tags at end)
+  □ "Anime key visual" count in bodies ≤0 at START, =21 at END
+  □ PH-less: no vague appeals (manual check)
+  □ No OC names in batch (unless 21+3 mode)
+
+═══════════════════════════════════════════════════════════════════════
+§9. EXAMPLE: OLD vs NEW PROMPT
+═══════════════════════════════════════════════════════════════════════
+
+── OLD (v7 style, PH-dependent, quality-first, monotone skeleton) ──
+
+  "Anime key visual. Wide. The storm coast. The lightning freezes
+   everything. 1girl, young woman, female, feminine. She stands at the
+   cliff edge, back arched, chest offered to the storm, body displayed.
+   Curved ram-like horns grow from her temples... Her very long black
+   hair, reaching past her waist, falls in distinct strands... Her RED
+   eyes meet the viewer directly... Vivid saturated colors... Masterpiece,
+   best quality, anime artstyle."
+
+  Problems:
+  - Starts with "Anime key visual" (quality-meta, not character)
+  - "Wide. The storm coast." (camera+setting before character)
+  - Same skeleton as every other prompt
+  - Relies on PH to interpret prose
+
+── NEW (A5P6, PH-less, quality-last, DICE-driven) ──
+  DICE roll: A1-B2-C5-D4-E2-F3-G6-H2
+
+  "1girl, very long black hair single white streak visible in the black,
+   red eyes confrontational, tall curvy womanly build large bare breasts,
+   obsidian skin flushed, post-peak bliss, torn ceremonial robe open at
+   chest X-tape on bare nipples, mid-arch back offered to storm, storm
+   coast cliff edge,
+   The lightning has transformed her. Rain on her obsidian skin, each
+   drop tracing the curve of her bare breasts. Wind pushing her hair
+   back, individual strands visible, smooth and straight. Her ceremonial
+   white robe torn from collar to hem, ritualistically rent, fallen open
+   at her chest — large breasts fully bare, black tape X-shapes taut
+   against her flushed dark nipples. Curved ram-like horns catching the
+   lightning-flash. Serpentine tail curling around her ankle. Amethyst
+   edge on her collarbones from the off-frame lightning. Obsidian shadow
+   swallowing her back. The storm has made her. The tape is sharp.
+   Vivid saturated colors, rich color palette, high color contrast.
+   Anime key visual, anime illustration, hand-drawn anime style,
+   cel-shaded anime, painterly anime background, anime character design.
+   Masterpiece, best quality, anime artstyle."
+
+  Improvements:
+  - Block 1 = character tags (1girl + hair + eyes + body + skin +
+    expression + clothing + pose + setting key)
+  - Block 2 = atmosphere with explicit descriptors, DICE-driven structure
+    (A1 character-first, B2 body order, C5 absence-first clothing,
+    D4 concept-as-transform, E2 effect-on-skin light, F3 object-detail
+    closure, G6 location-sensory-weather, H2 kinetic-pose)
+  - Block 3 = quality at end
+  - PH not needed — all visual details explicit
+
+═══════════════════════════════════════════════════════════════════════
+§10. SUMMARY OF CHANGES FROM A5P5
+═══════════════════════════════════════════════════════════════════════
+
+ADDED:
+  + OC separation rule (§1) — 21 batch = no OC
+  + Quality-last protocol (§2) — character Block 1 first, quality Block 3 end
+  + DICE randomization system (§3) — 8 dice, ~26M combos, mandatory
+  + PH-less construction (§4) — explicit descriptors, tag-flow core
+  + Cross-batch DICE tracking (§5) — 5-batch window, 90% novelty
+  + DICE field in pre-header (§6)
+  + Pre-flight + post-flight additions (§7, §8)
+
+REMOVED:
+  - "Anime key visual." at start of prompt (moved to Block 3 end)
+  - Camera/setting as first tokens (moved to Block 1 setting-key + Block 2)
+  - PH dependency (prompts now self-sufficient)
+
+UNCHANGED:
+  = All A5P4/A5P4A/B/C systems
+  = All A5P5 systems (LLS/OAS/BDM/CBRE/WEL)
+  = All BBAN_Beta + 1D + 1E + 1F + 1G + 1H + 1I + 1J rules
+
+═══════════════════════════════════════════════════════════════════════
+END OF A5P6 PATCH
+═══════════════════════════════════════════════════════════════════════

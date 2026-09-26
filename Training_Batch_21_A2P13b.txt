@@ -1,0 +1,325 @@
+================================================================================
+TRAINING! — Batch of 21 Prompts (A2P13b / Tsubaki v1 / Pixai.Art)
+================================================================================
+
+BATCH DECLARATION:
+  Theme:              Training!
+  Mood Anchor:        sensual energetic
+  Artistic Token:     anime artstyle, detailed skin texture, clean lineart, expressive anime eyes, tactile skin softness
+  Intensity Target:   R+: 57% (12)  X: 43% (9)
+  Yuri Target:        29% (6 of 21)
+  Skeleton Default:   BALANCED
+  Archetype Position: cooking/working (seed rotation)
+  DNA Last 3:         N/A (new batch)
+  Memory Window:      Empty (new session)
+
+RATING DISTRIBUTION:  R+ = #1,3,4,5,7,9,10,12,15,17,20,21 (12)  |  X = #2,6,8,11,13,14,16,18,19 (9)
+YURI DISTRIBUTION:    #4,8,11,12,16,20 (6)
+
+================================================================================
+PROMPT 1 — Gym Bicep Curl | SOLO | R+
+================================================================================
+CONCEPT: Athletic girl mid-bicep curl in gym weight room, confident allure
+EMOTION: WARM / confident allure | ENV: URBAN/gym | LIGHT: cool window side [DIRECTIONAL]
+DNA: standing / warm / partial / mid / dynamic
+
+POSITIVE:
+1girl, masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, subsurface scattering hint, gentle skin gradient, tactile skin softness, clean lineart, expressive anime eyes, detailed iris, athletic build, tan skin tone, black hair ponytail, slight smirk, looking at viewer, toned waist curve, mid-bicep curl, dumbbell at shoulder height, deep red sports bra, dark leggings, sports bra slightly raised from stretching, taut fabric, toned stomach curve visible, in urban gym weight room, cool window light from the side, cool skin tone warm light on skin, soft shadow, cool blue tones, soft saturation, warm amber accent, medium shot, three-quarter view, about to lower weight, sweaty skin
+
+NEGATIVE:
+bad anatomy, extra fingers, deformed hands, wrong body proportions, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, western cartoon, chibi, 1boy, male, background male, male silhouette, dry fabric texture, flat shading
+
+================================================================================
+PROMPT 2 — Morning Yoga Topless Stretch | SOLO | X
+================================================================================
+CONCEPT: Girl doing morning yoga spinal twist on mat, topless, shy anticipation
+EMOTION: VULNERABLE / shy anticipation | ENV: HOME/bedroom | LIGHT: soft morning window [AMBIENT]
+DNA: seated / vulnerable / revealing / mid / slow
+
+POSITIVE:
+1girl, masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, subsurface scattering hint, gentle skin gradient, tactile skin softness, clean lineart, expressive anime eyes, detailed iris, slim build, fair skin tone, silver hair loose long, hair falling over one shoulder, averted gaze, slightly open mouth, light blush, looking down, soft breast curve, seated spinal twist, hand resting on knee, bare breasts, grey shorts, loose fabric, in home bedroom morning, soft morning window light, warm skin tone, warm cream tones, muted saturation, peach accent, medium shot, slight high angle, side view, captured mid-stretch, catching breath
+
+NEGATIVE:
+bad anatomy, extra fingers, deformed hands, wrong body proportions, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, western cartoon, chibi, 1boy, male, background male, male silhouette, fully buttoned, closed shirt
+
+================================================================================
+PROMPT 3 — Locker Room Changing | SOLO | R+
+================================================================================
+CONCEPT: Petite girl changing in locker room after workout, flustered charm
+EMOTION: PLAYFUL / flustered charm | ENV: URBAN/locker room | LIGHT: candlelight warm glow [DIRECTIONAL]
+DNA: standing / playful / partial / mid / slow
+
+POSITIVE:
+1girl, masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, subsurface scattering hint, gentle skin gradient, tactile skin softness, clean lineart, expressive anime eyes, detailed iris, petite build, light skin tone, pink hair short bob, bright eyes, light flush, looking away then back, perky waist curve, pulling tank top over head, tank top halfway up torso, taut fabric stretching, bare shoulder line curving to collarbone, in urban locker room, candlelight warm glow, skin catching warm light, warm shadow, warm amber tones, muted saturation, gold accent, medium shot, slight low angle, front view, just finished training, sweaty skin, locker open nearby
+
+NEGATIVE:
+bad anatomy, extra fingers, deformed hands, wrong body proportions, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, western cartoon, chibi, 1boy, male, background male, male silhouette, dry fabric texture, flat lighting
+
+================================================================================
+PROMPT 4 — Partner Stretching at Gym | YURI | R+
+================================================================================
+CONCEPT: Two girls partner-stretching at gym, warm affection, gentle close composition
+EMOTION: WARM / warm affection | ENV: URBAN/gym stretch area | LIGHT: fluorescent cool flat [AMBIENT]
+DNA: standing / warm / partial / mid / slow
+
+POSITIVE:
+2girls, masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, subsurface scattering hint, gentle skin gradient, tactile skin softness, clean lineart, expressive anime eyes, detailed iris, curvy build, olive skin tone, brown hair messy bun, gentle smile, soft eyes, looking at partner, soft waist curve, slender build, warm skin tone, auburn hair half-up, warm eyes, slight smile, looking at viewer, hand on partner shoulder, partner stretching shoulder, wearing navy sports bra, grey leggings, wearing coral tank top, black leggings, in urban gym stretch area, fluorescent cool flat light, cool skin tone warm light on skin, cool neutral tones, muted saturation, warm skin accent, medium shot, eye level, three-quarter view, just finished training, sweaty skin, one shoulder slightly raised
+
+NEGATIVE:
+bad anatomy, extra fingers, deformed hands, wrong body proportions, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, western cartoon, chibi, fused bodies, limb merge, too many arms, 1boy, male, conjoined
+
+================================================================================
+PROMPT 5 — Post-Sparring Boxing | SOLO | R+
+================================================================================
+CONCEPT: Toned girl leaning on boxing ring ropes after sparring, breathless tension
+EMOTION: TENSE / breathless tension | ENV: URBAN/boxing gym | LIGHT: spotlight from above [DIRECTIONAL]
+DNA: leaning / tense / partial / mid / slow
+
+POSITIVE:
+1girl, masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, subsurface scattering hint, gentle skin gradient, tactile skin softness, clean lineart, expressive anime eyes, detailed iris, toned build, bronze skin tone, white hair cropped short, parted lips, focused eyes, slight brow furrow, looking at viewer, defined waist curve, leaning on ropes, arms draped over top rope, wearing black sports bra, red boxing shorts, sports bra damp from sweat, taut fabric, cleavage visible from angle, in urban boxing gym, spotlight from above soft edges, skin catching warm light, deep shadow, warm cream tones, moderate saturation, amber accent, medium shot, slight low angle, three-quarter view, just happened, sweaty skin, boxing gloves draped over rope, held breath
+
+NEGATIVE:
+bad anatomy, extra fingers, deformed hands, wrong body proportions, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, western cartoon, chibi, 1boy, male, background male, male silhouette, flat lighting, dry fabric texture
+
+================================================================================
+PROMPT 6 — Home Push-Ups Topless | SOLO | X
+================================================================================
+CONCEPT: Girl doing push-ups on living room floor, topless, mischievous smile at viewer
+EMOTION: PLAYFUL / mischievous smile | ENV: HOME/living room | LIGHT: golden reading lamp pool [DIRECTIONAL]
+DNA: active / playful / revealing / mid / dynamic
+
+POSITIVE:
+1girl, masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, subsurface scattering hint, gentle skin gradient, tactile skin softness, clean lineart, expressive anime eyes, detailed iris, medium build, pale skin tone, blonde hair twin tails, twinkling eyes, raised brows, looking at viewer, soft breast curve, mid-push-up position, bare breasts, black shorts only, loose fabric, in home living room floor, golden reading lamp pool, skin catching warm light, warm shadow, warm gold tones, soft saturation, cream accent, medium shot, eye level, side view, captured mid-action, sweaty skin, yoga mat beneath
+
+NEGATIVE:
+bad anatomy, extra fingers, deformed hands, wrong body proportions, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, western cartoon, chibi, 1boy, male, background male, male silhouette, shirt, bra, clothing on upper body, fully buttoned
+
+================================================================================
+PROMPT 7 — Running Track Golden Hour | SOLO | R+
+================================================================================
+CONCEPT: Athletic girl jogging on outdoor track at golden hour, calm self-awareness
+EMOTION: COOL / calm self-awareness | ENV: OUTDOOR/running track | LIGHT: golden hour sunlight through window [DIRECTIONAL]
+DNA: active / cool / partial / wide / dynamic
+
+POSITIVE:
+1girl, masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, subsurface scattering hint, gentle skin gradient, tactile skin softness, clean lineart, expressive anime eyes, detailed iris, athletic build, dark skin tone, red hair braided, composed mouth, level gaze, looking into distance, toned waist curve, mid-stride running, arm swinging naturally, wearing white tank top, black running shorts, tank top clinging from sweat, taut fabric, subtle nipple bump through thin fabric, in outdoor running track, golden hour sunlight, skin catching warm light, long warm shadow, warm peach tones, soft saturation, gold accent, wide shot, eye level, side view, captured mid-stride, sweaty skin, earbuds in ears
+
+NEGATIVE:
+bad anatomy, extra fingers, deformed hands, wrong body proportions, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, western cartoon, chibi, 1boy, male, background male, male silhouette, dry fabric texture, flat lighting
+
+================================================================================
+PROMPT 8 — Dojo Sparring Protective | YURI | X
+================================================================================
+CONCEPT: Two girls post-sparring in dojo, protective pose, bare breasts, breathless tension
+EMOTION: TENSE / breathless tension | ENV: SPECIALTY/dojo | LIGHT: neon accent cool with warm fill [HYBRID]
+DNA: standing / tense / revealing / mid / slow
+
+POSITIVE:
+2girls, masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, subsurface scattering hint, gentle skin gradient, tactile skin softness, clean lineart, expressive anime eyes, detailed iris, slim build, porcelain skin tone, purple hair long straight, parted lips, focused eyes, light blush, looking at partner, soft breast curve, bare breasts, toned build, bronze skin tone, white hair cropped short, half-lidded eyes, slight smile, looking at viewer, arm around partner waist, protective embrace, wearing only white gi pants, loose fabric, wearing only black gi pants, loose fabric, in specialty dojo, neon accent cool with warm fill, warm skin with cool shadow, dual shadow, cool blue tones, moderate saturation, warm amber accent, medium shot, slight low angle, three-quarter view, just finished sparring, sweaty skin
+
+NEGATIVE:
+bad anatomy, extra fingers, deformed hands, wrong body proportions, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, western cartoon, chibi, fused bodies, limb merge, too many arms, 1boy, male, conjoined, shirt, bra, clothing on upper body, color banding
+
+================================================================================
+PROMPT 9 — Swimming Pool Laps | SOLO | R+
+================================================================================
+CONCEPT: Petite girl at pool edge after swimming laps, dreamy calm, wet one-piece
+EMOTION: COOL / dreamy calm | ENV: BATH/pool | LIGHT: overcast diffused daylight [AMBIENT]
+DNA: seated / cool / partial / mid / still
+
+POSITIVE:
+1girl, masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, subsurface scattering hint, gentle skin gradient, tactile skin softness, clean lineart, expressive anime eyes, detailed iris, petite build, fair skin tone, honey hair wavy, unfocused eyes, soft smile, looking into distance, delicate waist curve, sitting on pool edge, legs dangling in water, wearing navy one-piece swimsuit, swimsuit wet and clinging, wet fabric clinging to skin, nipple outline through wet fabric, side curve of breast visible from angle, in bath swimming pool, overcast diffused daylight, porcelain skin tone, cool neutral tones, muted saturation, silver accent, medium shot, slight high angle, front view, just finished laps, wet skin, water dripping from hair
+
+NEGATIVE:
+bad anatomy, extra fingers, deformed hands, wrong body proportions, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, western cartoon, chibi, 1boy, male, background male, male silhouette, dry fabric texture, bare breasts
+
+================================================================================
+PROMPT 10 — Evening Home Stretching | SOLO | R+
+================================================================================
+CONCEPT: Girl doing evening stretches at home, relaxed intimacy, warm light
+EMOTION: WARM / relaxed intimacy | ENV: HOME/cozy living room | LIGHT: soft warm diffused room light [AMBIENT]
+DNA: seated / warm / partial / mid / still
+
+POSITIVE:
+1girl, masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, subsurface scattering hint, gentle skin gradient, tactile skin softness, clean lineart, expressive anime eyes, detailed iris, medium build, light skin tone, blue hair ponytail, softened gaze, gentle smile, looking at viewer, soft waist curve, seated forward bend stretch, arms reaching toward toes, wearing lavender crop top, grey sweatpants, crop top riding up from bending, taut fabric, bare midriff toned stomach visible, in home cozy living room, soft warm diffused room light, warm skin tone, warm cream tones, muted saturation, amber accent, medium shot, eye level, front view, about to reach toes, water bottle nearby
+
+NEGATIVE:
+bad anatomy, extra fingers, deformed hands, wrong body proportions, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, western cartoon, chibi, 1boy, male, background male, male silhouette
+
+================================================================================
+PROMPT 11 — Post-Training Shower | YURI | X
+================================================================================
+CONCEPT: Two girls in post-training shower room, vulnerable composure, bare breasts
+EMOTION: VULNERABLE / vulnerable composure | ENV: BATH/shower room | LIGHT: steam-diffused warm light [AMBIENT]
+DNA: standing / vulnerable / revealing / mid / still
+
+POSITIVE:
+2girls, masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, subsurface scattering hint, gentle skin gradient, tactile skin softness, clean lineart, expressive anime eyes, detailed iris, toned build, bronze skin tone, white hair cropped short, guarded eyes, level brows, light blush, looking away, bare breasts, soft breast curve, slim build, fair skin tone, silver hair loose long, warm eyes, soft mouth, looking at partner, hand touching partner arm, wearing nothing, standing under shower stream, wearing nothing, water running down body, in bath shower room, steam-diffused warm light, skin catching warm light, warm muted tones, muted saturation, cream accent, medium shot, slight high angle, front view, just finished training, wet skin, water droplets on shoulders, exhaling softly
+
+NEGATIVE:
+bad anatomy, extra fingers, deformed hands, wrong body proportions, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, western cartoon, chibi, fused bodies, limb merge, too many arms, 1boy, male, conjoined, shirt, bra, clothing on upper body, dry fabric texture
+
+================================================================================
+PROMPT 12 — Partner Yoga Assist | YURI | R+
+================================================================================
+CONCEPT: Two girls doing partner yoga in studio, soft warmth, whisper composition
+EMOTION: WARM / soft warmth | ENV: URBAN/yoga studio | LIGHT: golden reading lamp pool [DIRECTIONAL]
+DNA: seated / warm / partial / mid / slow
+
+POSITIVE:
+2girls, masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, subsurface scattering hint, gentle skin gradient, tactile skin softness, clean lineart, expressive anime eyes, detailed iris, curvy build, olive skin tone, brown hair messy bun, relaxed shoulders, gentle smile, soft eyes, looking at partner, soft waist curve, assisting partner backbend, hand on partner lower back, wearing teal sports bra, black yoga pants, sports bra slightly shifted, taut fabric, cleavage visible from angle, slender build, warm skin tone, auburn hair half-up, eyes closed, peaceful mouth, leaning back into partner, wearing white camisole, grey yoga pants, camisole riding up from backbend, in urban yoga studio, golden reading lamp pool, skin catching warm light, warm shadow, warm gold tones, soft saturation, rose accent, medium shot, slight high angle, three-quarter view, captured mid-assist, sweaty skin, one shoulder slightly lower
+
+NEGATIVE:
+bad anatomy, extra fingers, deformed hands, wrong body proportions, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, western cartoon, chibi, fused bodies, limb merge, 1boy, male, conjoined, dry fabric texture, flat lighting
+
+================================================================================
+PROMPT 13 — Pull-Up Bar Bare Breasts | SOLO | X
+================================================================================
+CONCEPT: Girl doing pull-ups on gym bar, bare breasts from contre-jour lighting, subtle hunger
+EMOTION: TENSE / subtle hunger | ENV: URBAN/gym | LIGHT: contre-jour window light [DIRECTIONAL]
+DNA: active / tense / revealing / mid / dynamic
+
+POSITIVE:
+1girl, masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, subsurface scattering hint, gentle skin gradient, tactile skin softness, clean lineart, expressive anime eyes, detailed iris, athletic build, tan skin tone, black hair ponytail, locked eyes, controlled mouth, intense brows, looking at viewer, mid-pull-up on bar, chin above bar, bare breasts, firm breast curve, wearing only dark shorts, loose fabric, in urban gym, contre-jour window light, backlit skin edge, rim shadow, cool blue tones, soft saturation, warm skin accent, medium shot, slight low angle, side view, captured mid-pull, sweaty skin, hands gripping bar
+
+NEGATIVE:
+bad anatomy, extra fingers, deformed hands, wrong body proportions, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, western cartoon, chibi, 1boy, male, background male, male silhouette, shirt, bra, clothing on upper body, fully lit face, no rim light
+
+================================================================================
+PROMPT 14 — Morning Bedroom Workout Topless | SOLO | X
+================================================================================
+CONCEPT: Girl doing morning sit-ups in bedroom, topless, sleepy sensuality
+EMOTION: VULNERABLE / sleepy sensuality | ENV: HOME/bedroom | LIGHT: soft morning window light [AMBIENT]
+DNA: active / vulnerable / revealing / close / slow
+
+POSITIVE:
+1girl, masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, subsurface scattering hint, gentle skin gradient, tactile skin softness, clean lineart, expressive anime eyes, detailed iris, slim build, fair skin tone, silver hair loose messy, heavy lids, soft mouth, half-lidded looking at viewer, soft breast curve, mid-sit-up on bed, bare breasts, wearing only pale pink panties, loose fabric, in home bedroom morning, soft morning window light, warm skin tone, warm cream tones, muted saturation, dusty rose accent, close-up, eye level, front view, captured mid-sit-up, messy bed sheets
+
+NEGATIVE:
+bad anatomy, extra fingers, deformed hands, wrong body proportions, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, western cartoon, chibi, 1boy, male, background male, male silhouette, shirt, bra, clothing on upper body
+
+================================================================================
+PROMPT 15 — Jump Rope in Park | SOLO | R+
+================================================================================
+CONCEPT: Girl jumping rope in outdoor park, mischievous smile, bright afternoon
+EMOTION: PLAYFUL / mischievous smile | ENV: OUTDOOR/park | LIGHT: bright afternoon daylight [DIRECTIONAL]
+DNA: active / playful / partial / wide / dynamic
+
+POSITIVE:
+1girl, masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, subsurface scattering hint, gentle skin gradient, tactile skin softness, clean lineart, expressive anime eyes, detailed iris, medium build, pale skin tone, blonde hair twin tails bouncing, twinkling eyes, raised brows, looking at viewer, perky waist curve, mid-jump rope, feet off ground, arms swinging rope, wearing coral tank top, white shorts, tank top bouncing with motion, taut fabric, subtle nipple bump through thin fabric, in outdoor park, bright afternoon daylight, skin catching warm light, natural shadow, warm neutral tones, soft saturation, green accent, wide shot, slight low angle, side view, captured mid-jump, sweaty skin, jump rope in hands
+
+NEGATIVE:
+bad anatomy, extra fingers, deformed hands, wrong body proportions, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, western cartoon, chibi, 1boy, male, background male, male silhouette, dry fabric texture, flat lighting
+
+================================================================================
+PROMPT 16 — Cabin Cooldown Stretch | YURI | X
+================================================================================
+CONCEPT: Two girls cooling down in cabin after hiking, forehead touch, bare breasts, warm affection
+EMOTION: WARM / warm affection | ENV: HOME/cabin | LIGHT: candlelight through sheer curtain [HYBRID]
+DNA: standing / warm / revealing / close / slow
+
+POSITIVE:
+2girls, masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, subsurface scattering hint, gentle skin gradient, tactile skin softness, clean lineart, expressive anime eyes, detailed iris, petite build, light skin tone, pink hair short bob, eyes closed, soft smile, leaning forehead toward partner, soft breast curve, bare breasts, wearing only dark green shorts, slim build, fair skin tone, silver hair loose long, warm eyes, gentle smile, hand on partner cheek, looking at partner, bare breasts, wearing only burgundy shorts, in home cabin, candlelight through sheer curtain, warm skin with cool shadow, warm shadow, warm amber tones, soft saturation, cool blue accent, close-up, slight top-down, centered, just finished hiking, sweaty skin, one shoulder slightly forward
+
+NEGATIVE:
+bad anatomy, extra fingers, deformed hands, wrong body proportions, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, western cartoon, chibi, fused bodies, limb merge, too many arms, 1boy, male, conjoined, shirt, bra, clothing on upper body, color banding
+
+================================================================================
+PROMPT 17 — Post-Workout Kitchen | SOLO | R+
+================================================================================
+CONCEPT: Girl drinking protein shake in kitchen after workout, soft warmth
+EMOTION: WARM / soft warmth | ENV: HOME/kitchen | LIGHT: warm lamp glow from the side [DIRECTIONAL]
+DNA: standing / warm / partial / mid / still
+
+POSITIVE:
+1girl, masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, subsurface scattering hint, gentle skin gradient, tactile skin softness, clean lineart, expressive anime eyes, detailed iris, curvy build, olive skin tone, brown hair messy bun, gentle smile, soft eyes, looking down, soft waist curve, leaning on kitchen counter, holding protein shake, wearing oversized grey hoodie, black leggings, hoodie slipping off one shoulder, slipping fabric, bare shoulder line curving to collarbone, in home kitchen, warm lamp glow from the side, skin catching warm light, warm shadow, warm amber tones, soft saturation, cream accent, medium shot, eye level, three-quarter view, just finished training, sweaty skin, protein shake in hand
+
+NEGATIVE:
+bad anatomy, extra fingers, deformed hands, wrong body proportions, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, western cartoon, chibi, 1boy, male, background male, male silhouette, turtleneck, covered shoulders, dry fabric texture
+
+================================================================================
+PROMPT 18 — Dojo Moonlight Cooldown | SOLO | X
+================================================================================
+CONCEPT: Girl doing martial arts cooldown stretch in moonlit dojo, topless, pensive softness
+EMOTION: COOL / pensive softness | ENV: SPECIALTY/dojo | LIGHT: moonlight blue through window [DIRECTIONAL]
+DNA: seated / cool / revealing / mid / still
+
+POSITIVE:
+1girl, masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, subsurface scattering hint, gentle skin gradient, tactile skin softness, clean lineart, expressive anime eyes, detailed iris, toned build, bronze skin tone, white hair cropped short, distant look, soft mouth, slight brow tension, looking away, firm breast curve, seated wide-leg stretch, bare breasts, wearing only dark gi pants, loose fabric, in specialty dojo, moonlight blue through window, porcelain skin tone, cool shadow, cool blue tones, muted saturation, silver accent, medium shot, eye level, front view, about to lean forward, sweaty skin
+
+NEGATIVE:
+bad anatomy, extra fingers, deformed hands, wrong body proportions, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, western cartoon, chibi, 1boy, male, background male, male silhouette, shirt, bra, clothing on upper body, flat lighting
+
+================================================================================
+PROMPT 19 — Post-Training Sauna | SOLO | X
+================================================================================
+CONCEPT: Girl resting in sauna after intense training, bare breasts, sleepy sensuality
+EMOTION: VULNERABLE / sleepy sensuality | ENV: SPECIALTY/sauna | LIGHT: spotlight from above soft edges [DIRECTIONAL]
+DNA: seated / vulnerable / revealing / close / still
+
+POSITIVE:
+1girl, masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, subsurface scattering hint, gentle skin gradient, tactile skin softness, clean lineart, expressive anime eyes, detailed iris, medium build, light skin tone, blue hair ponytail, heavy lids, soft mouth, relaxed brows, half-lidded looking at viewer, soft breast curve, leaning back on sauna bench, bare breasts, white towel on lap only, loose fabric draped, in specialty sauna, spotlight from above soft edges, skin catching warm light, vignette shadow, warm cream tones, muted saturation, deep red accent, close-up, slight high angle, front view, just finished intense training, sweaty skin, water droplets on collarbone, exhaling softly
+
+NEGATIVE:
+bad anatomy, extra fingers, deformed hands, wrong body proportions, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, western cartoon, chibi, 1boy, male, background male, male silhouette, shirt, bra, clothing on upper body, dry fabric texture
+
+================================================================================
+PROMPT 20 — Spotting at Bench Press | YURI | R+
+================================================================================
+CONCEPT: Two girls at gym, one spotting the other at bench press, sitting together energy
+EMOTION: WARM / soft warmth | ENV: URBAN/gym | LIGHT: firelight warm flickering glow [DIRECTIONAL]
+DNA: seated / warm / partial / mid / slow
+
+POSITIVE:
+2girls, masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, subsurface scattering hint, gentle skin gradient, tactile skin softness, clean lineart, expressive anime eyes, detailed iris, athletic build, tan skin tone, black hair ponytail, relaxed shoulders, gentle smile, looking at partner, toned waist curve, sitting on bench beside partner, hand resting on partner shoulder, wearing red sports bra, black shorts, sports bra slightly raised, taut fabric, toned stomach visible, petite build, light skin tone, pink hair short bob, bright eyes, looking up at partner, lying on bench pressing bar, wearing white tank top, grey shorts, tank top tight from pressing, taut fabric, cleavage visible from angle, in urban gym bench area, firelight warm flickering glow, skin catching warm light, deep shadow, warm amber tones, soft saturation, gold accent, medium shot, eye level, side view, about to press, sweaty skin
+
+NEGATIVE:
+bad anatomy, extra fingers, deformed hands, wrong body proportions, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, western cartoon, chibi, fused bodies, limb merge, too many arms, 1boy, male, conjoined, dry fabric texture, flat lighting
+
+================================================================================
+PROMPT 21 — Cool-Down Balcony Stretch | SOLO | R+
+================================================================================
+CONCEPT: Girl doing cool-down stretch on apartment balcony at dusk, pensive softness
+EMOTION: COOL / pensive softness | ENV: OUTDOOR/balcony | LIGHT: city glow warm-cool mix [HYBRID]
+DNA: standing / cool / partial / mid / still
+
+POSITIVE:
+1girl, masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, subsurface scattering hint, gentle skin gradient, tactile skin softness, clean lineart, expressive anime eyes, detailed iris, slender build, warm skin tone, auburn hair half-up, distant look, soft mouth, slight brow tension, looking into distance, gentle waist curve, standing quad stretch, hand holding ankle behind, wearing dark teal crop top, black leggings, crop top riding up from stretch, taut fabric, bare midriff with toned stomach line, in outdoor apartment balcony dusk, city glow warm-cool mix, warm skin with cool shadow, dual shadow, cool blue tones, muted saturation, warm amber accent, medium shot, eye level, three-quarter view, just finished workout, sweaty skin, city skyline behind
+
+NEGATIVE:
+bad anatomy, extra fingers, deformed hands, wrong body proportions, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, western cartoon, chibi, 1boy, male, background male, male silhouette, color banding, oversaturation
+
+================================================================================
+BATCH SUMMARY
+================================================================================
+
+Rating Distribution:
+  R+ (12/21 = 57%): #1, #3, #4, #5, #7, #9, #10, #12, #15, #17, #20, #21
+  X  (9/21 = 43%):  #2, #6, #8, #11, #13, #14, #16, #18, #19
+
+Yuri Distribution:
+  6/21 = 29%: #4, #8, #11, #12, #16, #20
+
+Emotion Family Distribution:
+  WARM: #1, #4, #10, #12, #16, #17, #20 (7)
+  COOL: #7, #9, #18, #21 (4)
+  TENSE: #5, #8, #13 (3)
+  PLAYFUL: #3, #6, #15 (3)
+  VULNERABLE: #2, #11, #14, #19 (4)
+
+Environment Distribution:
+  URBAN: #1, #3, #4, #5, #12, #13, #20 (7)
+  HOME: #2, #6, #10, #14, #17 (5)
+  OUTDOOR: #7, #15, #21 (3)
+  BATH: #9, #11 (2)
+  SPECIALTY: #8, #18, #19 (3)
+  HOME/cabin: #16 (1)
+
+Lighting Rotation:
+  DIRECTIONAL: #1(cool window), #3(candlelight), #5(spotlight), #6(reading lamp),
+               #7(golden hour), #12(reading lamp), #13(contre-jour), #17(warm lamp side),
+               #18(moonlight), #19(spotlight), #20(firelight)
+  AMBIENT: #2(soft morning), #4(fluorescent), #9(overcast), #10(soft warm), #11(steam)
+  HYBRID: #8(neon cool+warm), #16(candlelight+sheer), #21(city glow)
+
+================================================================================

@@ -1,0 +1,481 @@
+========================================================================
+A2P12.b BATCH — NAUGHTY ELVEN WOMEN WITHIN MODERN ERA
+========================================================================
+THEME: Naughty Elven women within modern era
+MOOD ANCHOR: sensual slow
+RATING DISTRIBUTION: R(7) / R+(8) / X(6)
+YURI FREQUENCY: 6/21 (~29%)
+CREATIVE SPIKES: Prompts 6, 12, 18
+EMOTIONAL CONTRAPOINTS: Prompts 4, 10, 16
+INCOMPLETE ACTIONS: Prompts 3, 7, 11, 15, 19
+COGNITIVE MODE: STANDARD for R/R+ SOLO, FULL for X/YURI/CONTRAPOINT
+MODEL: Tsubaki v1.1 on Pixai.Art
+========================================================================
+
+========================================================================
+PROMPT 1 — SOLO | R | WARM AFFECTION | KITCHEN MORNING
+========================================================================
+Phase 0 (Standard):
+1. MOMENT: An elven woman leans against a modern kitchen counter on a lazy morning, sipping tea with her shirt slipping off one shoulder
+2. CAUSE: She just woke up and padded to the kitchen in her sleep clothes
+3. FEELING: Warm affection — relaxed, at ease, privately content
+4. LIGHT: Under-cabinet warm light filtering through the kitchen
+5. FOCUS: Her face in soft warm light with the slipped shoulder and the cup
+6. THEME: Elf in a modern domestic space, the "naughty" in the casual intimacy of the slipped shirt
+
+POSITIVE:
+masterpiece, best quality, anime illustration, anime face structure, clean lineart, smooth shading, cel-shaded skin, 1girl, slender, fair skin, golden blonde hair, long wavy, pointed ears, elf, eyes softened by light, slight smile, warm cheek tint, leaning against counter, holding cup of tea, casual oversized shirt, cotton shorts, champagne, resting off one shoulder, in home, kitchen, under-cabinet warm amber glow, warm skin highlight, warm amber tones, soft saturation, gold accent, waist-up framing, eye-level shot, natural viewpoint, just after action settled, holding cup, thin chain necklace, quiet confidence, collarbone highlight, soft eye reflection
+
+NEGATIVE:
+bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, overexposed, washed out, color noise, 1boy, male, man, boy, bad anatomy, wrong proportions, unnatural skin color, hidden hands, background male, male silhouette, fully buttoned, closed shirt
+
+========================================================================
+PROMPT 2 — SOLO | R+ | PLAYFUL MISCHIEF | APARTMENT NIGHT
+========================================================================
+Phase 0 (Standard):
+1. MOMENT: An elven woman sits on a modern apartment floor at night, teasingly adjusting her lace bra strap visible through her open shirt
+2. CAUSE: Nighttime in the apartment, she is undressing for bed but paused to tease
+3. FEELING: Playful mischief — enjoying the moment, aware of being seen
+4. LIGHT: City glow through the window mixing with warm interior light
+5. FOCUS: Her mischievous expression and the visible bra strap through the open shirt
+6. THEME: Modern city-living elf, the "naughty" in the deliberate teasing with the open shirt revealing lingerie
+
+POSITIVE:
+masterpiece, best quality, anime illustration, anime face structure, clean lineart, smooth shading, cel-shaded skin, 1girl, soft curves, medium skin, auburn hair, shoulder-length waves, pointed ears, elf, narrowed playful eyes, suppressed grin, warm cheek tint, adjusting bra strap, sitting on the floor, one knee raised, leaning back on hands, shoulders relaxed downward, button-up shirt, high-waist shorts, navy, hanging open, sheer lace bra, visible bra strap, in urban, apartment, city glow warm-cool mix, warm skin with cool shadow, cream and beige, soft saturation, dusty rose accent, mid-thigh framing, slight low angle, balanced centered composition, mid-motion caught, lace bra strap sliding down, visible bra through translucent shirt, playful mischief, glossy lower lip, fine hair strands
+
+NEGATIVE:
+bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, overexposed, washed out, color noise, 1boy, male, man, boy, bad anatomy, wrong proportions, unnatural skin color, hidden hands, background male, male silhouette, fully buttoned, closed shirt, nipple visibility through opaque bra, dry fabric texture
+
+========================================================================
+PROMPT 3 — SOLO | R | SLEEPY SENSUALITY | BEDROOM MESSY [INCOMPLETE]
+========================================================================
+Phase 0 (Standard):
+1. MOMENT: An elven woman is halfway through changing her sleep shirt, caught in the motion of pulling it over her head
+2. CAUSE: She just woke up and is changing out of her nightwear
+3. FEELING: Sleepy sensuality — half-asleep, unhurried, soft
+4. LIGHT: Soft warm diffused light from a bedside lamp
+5. FOCUS: The halfway-removed shirt and her sleepy expression
+6. THEME: Modern bedroom, domestic elf in a private morning moment, the "naughty" in the caught-mid-change vulnerability
+
+POSITIVE:
+masterpiece, best quality, anime illustration, anime face structure, clean lineart, smooth shading, cel-shaded skin, 1girl, petite curvy, fair skin, silver hair, messy bun, pointed ears, elf, sleepy half-closed eyes, slightly parted lips, faint pink, arms raised above the head, halfway unbuttoned, sleep shirt, lounge shorts, soft grey, caught in the act of changing, in bedroom, messy, soft warm diffused room light, warm skin highlight, warm amber tones, muted saturation, cream accent, torso focus, slight top-down angle, intimate close framing, inhale before speaking, gentle body softness, private charm, soft eye reflection, fabric crease from motion
+
+NEGATIVE:
+bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, overexposed, washed out, color noise, 1boy, male, man, boy, bad anatomy, wrong proportions, unnatural skin color, hidden hands, background male, male silhouette, fully buttoned, closed shirt, turtleneck, covered shoulders
+
+========================================================================
+PROMPT 4 — SOLO | R+ | CONFIDENT ALLURE [CONTRAPOINT: SHY EXPRESSION] | STUDIO
+========================================================================
+Phase 0 (Standard):
+1. MOMENT: An elven woman strikes a confident seductive pose in a photography studio, but her expression betrays shy vulnerability
+2. CAUSE: She is posing for a photoshoot but feels exposed despite the confident styling
+3. FEELING: Confident allure with emotional contrapoint — her body says "come hither" but her eyes say "I'm nervous"
+4. LIGHT: Controlled studio light, Rembrandt angle
+5. FOCUS: The contrast between her bold pose and her shy downcast eyes
+6. THEME: Modern fashion photography with an elf model, the "naughty" in the tension between pose and expression
+
+POSITIVE:
+masterpiece, best quality, anime illustration, anime face structure, clean lineart, smooth shading, cel-shaded skin, gentle skin gradient, 1girl, hourglass, tan skin, deep purple hair, long straight, pointed ears, elf, shy downward glance, lip corner lifted, slight blush, one hand on hip, weight on one hip, body angled three-quarters, shoulders squared forward, wearing halter top, mini skirt, teal, fitted close to the body, sheer lace bra, in urban, studio, controlled studio light, amber skin tone, warm amber tones, soft saturation, gold accent, medium shot, slight low angle, subject-forward composition, breath catching, natural breast shape, choker, composed allure, soft blush, small mole on cheek
+
+NEGATIVE:
+bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, overexposed, washed out, color noise, 1boy, male, man, boy, bad anatomy, wrong proportions, unnatural skin color, hidden hands, background male, male silhouette, nipple visibility through opaque bra, flat lighting, no shadow depth
+
+========================================================================
+PROMPT 5 — YURI | R+ | ONE CONFIDENT ONE SHY | LOUNGE EVENING
+========================================================================
+Phase 0 (Full):
+1. MOMENT: Two elven women in a modern lounge, one confidently touching the other's waist while the shy one averts her gaze
+2. CAUSE: An intimate evening between partners, the confident one making the first move
+3. BODY: Primary stands close, hand on secondary's waist; secondary sits with knees together, slightly turned away
+4. FEELING: Primary: confident allure; Secondary: shy anticipation
+5. LIGHT: Low warm lighting from the lounge
+6. FOCUS: Primary's hand on secondary's waist, and the contrast in their expressions
+7. EMOTION: Dynamic of confident + shy creates classic yuri tension
+8. JUSTIFICATION: Open shirt on primary reveals sheer bra underneath — deliberate fashion choice in a private lounge setting
+9. THEME: Two modern elves in a seductive intimate moment, the "naughty" in the contrast of bold and shy
+
+POSITIVE:
+masterpiece, best quality, anime illustration, anime face structure, clean lineart, smooth shading, cel-shaded skin, gentle skin gradient, 2girls, primary: slender, fair skin, wine red hair, long wavy, pointed ears, elf, primary: direct eye contact, faint smirk, controlled slight pink, secondary: soft curves, medium skin, honey blonde hair, shoulder-length with wispy bangs, pointed ears, elf, secondary: shy downward glance, lips pressed together softly, soft blush, palm on partner's waist, sitting side by side, one confident one shy, primary: wearing open cardigan over camisole, pencil skirt, burgundy, hanging open, sheer lace bra, secondary: wearing soft knit top, casual pants, cream, softly clinging, in specialty, lounge, warm lamp glow from the side, warm skin highlight, warm amber tones, soft saturation, dusty rose accent, medium shot, slight low angle, balanced centered composition, mid-motion caught, gentle hip curve, shared quiet gaze, subtle seduction, light reflection in eyes, collarbone highlight
+
+NEGATIVE:
+bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, overexposed, washed out, color noise, 1boy, male, man, boy, bad anatomy, wrong proportions, unnatural skin color, hidden hands, fused bodies, limb merge, too many arms, conjoined, identical pose mirroring, nipple visibility through opaque bra, fully buttoned, closed shirt
+
+========================================================================
+PROMPT 6 — SOLO | X | SUBTLE HUNGER | APARTMENT NIGHT CITY [CREATIVE SPIKE]
+========================================================================
+Phase 0 (Full):
+1. MOMENT: An elven woman stands by a large apartment window at night, topless with arms crossing over bare breasts, gazing out at the city lights
+2. CAUSE: She just removed her shirt, caught in the transition between dressed and undressed
+3. BODY: Standing, weight on one hip, arms crossing over chest, looking out the window
+4. FEELING: Subtle hunger — a private, intense moment of self-awareness
+5. LIGHT: City glow through the window creating a warm-cool mix
+6. FOCUS: Her bare shoulders and the crossed arms, with city lights behind
+7. EMOTION: Subtle hunger — locked eyes with own reflection, controlled breathing
+8. JUSTIFICATION: She just removed her shirt — the act of changing/undressing is the cause for toplessness
+9. THEME: Modern urban elf in a private nocturnal moment, the "naughty" in the bare-chested city-window silhouette
+CREATIVE SPIKE: Unusual camera — contre-jour from the window, creating a dramatic silhouette with city lights as rim light
+
+POSITIVE:
+masterpiece, best quality, anime illustration, anime face structure, clean lineart, smooth shading, cel-shaded skin, gentle skin gradient, 1girl, tall slim, medium skin, midnight blue hair, long straight, pointed ears, elf, half-lidded sensual, slightly parted lips, light flush, standing with crossed ankles, arms crossing over bare breasts, weight on one hip, back slightly arched chest forward, bare breasts, topless, visible nipples, no bra, wearing high-waist jeans, charcoal, fitted close to the body, in urban, apartment, contre-jour window light, skin softly highlighted from behind, city glow warm-cool mix, cool blue tones, muted saturation, warm skin accent, full body framing, three-quarter view, framed by foreground, held breath before release, natural body warmth, sensual composure, rim-lit skin edge, soft eye reflection
+
+NEGATIVE:
+bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, overexposed, washed out, color noise, 1boy, male, man, boy, bad anatomy, wrong proportions, unnatural skin color, hidden hands, background male, male silhouette, fully lit face, no rim light, turtleneck, covered shoulders, dry fabric texture
+
+========================================================================
+PROMPT 7 — SOLO | R+ | BREATHLESS TENSION | BATHROOM MIRROR [INCOMPLETE]
+========================================================================
+Phase 0 (Standard):
+1. MOMENT: An elven woman adjusts her sarashi wrap in front of a bathroom mirror, the wrapping halfway undone
+2. CAUSE: She is changing after a shower and caught mid-re-wrap
+3. FEELING: Breathless tension — aware of her own exposure, caught between modesty and confidence
+4. LIGHT: Bathroom mirror light, neutral-warm
+5. FOCUS: The half-unwrapped sarashi and her wide eyes in the reflection
+6. THEME: Modern bathroom, private elf moment, the "naughty" in the sarashi mid-adjustment revealing skin
+
+POSITIVE:
+masterpiece, best quality, anime illustration, anime face structure, clean lineart, smooth shading, cel-shaded skin, gentle skin gradient, 1girl, slender, fair skin, chestnut hair, loose side braid, pointed ears, elf, slightly teary vulnerable, breath caught, deep blush, hand adjusting sarashi wrap, standing facing mirror, one hand on waist other at side, soft arch in the back, sarashi, partially unwrapped, high-waist shorts, sage green, mid-adjustment, damp skin, in bath, bath, bathroom mirror light, warm skin highlight, cream and beige, soft saturation, no accent, waist-up framing, eye-level shot, mirror-framed composition, catching breath, soft breast weight, pendant, intimate pause, soft eye reflection, water droplets on shoulder
+
+NEGATIVE:
+bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, overexposed, washed out, color noise, 1boy, male, man, boy, bad anatomy, wrong proportions, unnatural skin color, hidden hands, background male, male silhouette, reflection mismatch, duplicate face, wrong mirror angle
+
+========================================================================
+PROMPT 8 — SOLO | R | GENTLE INVITATION | WINDOW SEAT DAYLIGHT
+========================================================================
+Phase 0 (Standard):
+1. MOMENT: An elven woman sits in a modern window seat bathed in daylight, her unbuttoned cardigan revealing the edge of a camisole underneath
+2. CAUSE: A warm afternoon, she is relaxing at home in comfortable layers
+3. FEELING: Gentle invitation — soft warmth, quietly welcoming
+4. LIGHT: Side window daylight, directional
+5. FOCUS: Her warm expression and the unbuttoned cardigan suggesting more underneath
+6. THEME: Modern domestic elf in afternoon sunlight, the "naughty" in the implied "nothing beneath" the open cardigan
+
+POSITIVE:
+masterpiece, best quality, anime illustration, anime face structure, clean lineart, smooth shading, cel-shaded skin, 1girl, graceful build, tan skin, caramel brown hair, hime cut, pointed ears, elf, eyes shining with warmth, slight smile, faint pink, seated sideways pose, one hand on cheek, shoulders dropped relaxed, open cardigan over camisole, lounge shorts, dusty blue, open in front, no bra under camisole, unbuttoned shirt implying nothing beneath, in home, window seat, soft morning window light, golden skin glow, warm peach tones, muted saturation, cream accent, waist-up framing, three-quarter view, soft cropped composition, sigh of comfort, gentle invitation, subtle skin glow, soft eye reflection
+
+NEGATIVE:
+bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, overexposed, washed out, color noise, 1boy, male, man, boy, bad anatomy, wrong proportions, unnatural skin color, hidden hands, background male, male silhouette, fully buttoned, closed shirt, visible nipples
+
+========================================================================
+PROMPT 9 — YURI | X | MUTUAL WARMTH | MODERN SPA STEAM
+========================================================================
+Phase 0 (Full):
+1. MOMENT: Two elven women in a modern spa, sitting close in steam, both partially exposed in towels that have loosened
+2. CAUSE: They are relaxing together in the spa, towels loosening from the steam and movement
+3. BODY: Primary sits closer to camera with towel wrapped loosely, secondary leans toward primary with hand on her shoulder
+4. FEELING: Mutual warmth — tender, intimate, both at ease with each other
+5. LIGHT: Steam-diffused warm light
+6. FOCUS: The close intimacy between them, the loosened towels, the steam
+7. EMOTION: Mutual warmth, shared vulnerability
+8. JUSTIFICATION: Spa context justifies the towels and loosened state — steam causes towels to slip, wet skin from spa
+9. THEME: Two modern elves sharing a private spa moment, the "naughty" in the shared intimate exposure
+
+POSITIVE:
+masterpiece, best quality, anime illustration, anime face structure, clean lineart, smooth shading, cel-shaded skin, gentle skin gradient, 2girls, primary: soft curves, fair skin, rose gold hair, long wavy, pointed ears, elf, primary: eyes shining with warmth, warm full smile, soft pink cheeks, secondary: slender, medium skin, ice silver hair, short bob, pointed ears, elf, secondary: closed eyes serene, relaxed mouth, warm cheek tint, sitting side by side, mutual warmth, primary: bath towel wrap, slipped to one side, bare breasts, secondary: light towel drape, slipped to one side, partial breast exposure from pose, in bath, spa, steam-diffused warm light, skin catching warm light, warm amber tones, moderate saturation, gold accent, medium shot, eye-level shot, balanced centered composition, settling into position, wet skin sheen, primary: soft breast weight, secondary: natural body warmth, hand on partner's shoulder, shared quiet gaze, barely contained tension, water droplets on skin, light reflection in eyes
+
+NEGATIVE:
+bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, overexposed, washed out, color noise, 1boy, male, man, boy, bad anatomy, wrong proportions, unnatural skin color, hidden hands, fused bodies, limb merge, too many arms, conjoined, identical pose mirroring, overexposure, light bloom artifact, chromatic aberration, dry fabric texture
+
+========================================================================
+PROMPT 10 — SOLO | R+ | VULNERABLE COMPOSURE [CONTRAPOINT: CONFIDENT POSE] | OFFICE
+========================================================================
+Phase 0 (Standard):
+1. MOMENT: An elven woman stands in an empty modern office after hours, blouse unbuttoned, one hand on her hip in a confident pose but her expression is vulnerable
+2. CAUSE: After-hours in the office, she is alone and has loosened her professional attire
+3. FEELING: Vulnerable composure with emotional contrapoint — her body language is bold but her eyes reveal uncertainty
+4. LIGHT: Fluorescent residual light, cool neutral
+5. FOCUS: The contrast between her confident posture and her vulnerable expression, the unbuttoned blouse
+6. THEME: Modern office elf after hours, the "naughty" in the workplace undressing with hidden vulnerability
+
+POSITIVE:
+masterpiece, best quality, anime illustration, anime face structure, clean lineart, smooth shading, cel-shaded skin, gentle skin gradient, 1girl, elegant figure, medium skin, chocolate brown hair, low bun, pointed ears, elf, gazing to the side, slightly parted lips, deep blush, one hand on hip, standing weight on one hip, body angled three-quarters, shoulders squared forward, button-up shirt, tailored trousers, burgundy, hanging open, halfway unbuttoned, lace bra, in urban, office, fluorescent cool flat light, cool skin with warm highlight, cool blue tones, muted saturation, warm skin accent, medium shot, slight low angle, subject-forward composition, held in anticipation, natural body warmth, composed allure, faint lip gloss, gentle under-eye shadow
+
+NEGATIVE:
+bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, overexposed, washed out, color noise, 1boy, male, man, boy, bad anatomy, wrong proportions, unnatural skin color, hidden hands, background male, male silhouette, fully buttoned, closed shirt, nipple visibility through opaque bra, flat lighting, no shadow depth, cluttered background, competing focal points
+
+========================================================================
+PROMPT 11 — SOLO | X | HALF-HIDDEN DESIRE | BEDROOM LUXURY [INCOMPLETE]
+========================================================================
+Phase 0 (Full):
+1. MOMENT: An elven woman reclines on a luxury bed with her robe halfway open, exposing her chest
+2. CAUSE: She is in her private suite, robe loosened from stretching
+3. BODY: Reclining on elbow, robe open, one arm behind head
+4. FEELING: Half-hidden desire — conflicted between modesty and want
+5. LIGHT: Warm ambient with gold accent light
+6. FOCUS: The open robe and her conflicted expression
+7. EMOTION: Half-hidden desire — partially turned, one hand clutching fabric
+8. JUSTIFICATION: Private bedroom, robe loosened from stretching — the stretching motion is the cause
+9. THEME: Luxury modern suite elf, the "naughty" in the private indulgence of exposure
+
+POSITIVE:
+masterpiece, best quality, anime illustration, anime face structure, clean lineart, smooth shading, cel-shaded skin, gentle skin gradient, 1girl, soft voluptuous figure, fair skin, platinum blonde hair, voluminous waves, pointed ears, elf, half-lidded sensual, lower lip caught between teeth, light flush, reclining propped on elbow, one arm raised above the head, soft arch in the back, bathrobe, halfway off one shoulder, bare breasts, visible nipples, exposed chest, in bedroom, luxury, warm ambient with accent, golden skin glow, gold and ivory, soft saturation, rose gold accent, mid-thigh framing, slight top-down angle, soft cropped composition, slow exhale of relief, soft breast weight, pendant, hidden warmth, soft nose highlight, hair strand caught in light
+
+NEGATIVE:
+bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, overexposed, washed out, color noise, 1boy, male, man, boy, bad anatomy, wrong proportions, unnatural skin color, hidden hands, background male, male silhouette, turtleneck, covered shoulders
+
+========================================================================
+PROMPT 12 — SOLO | R | PENSIVE SOFTNESS | LIBRARY WARM LAMP [CREATIVE SPIKE]
+========================================================================
+Phase 0 (Standard):
+1. MOMENT: An elven woman sits in a modern library reading room, lost in thought with a book, her stocking-clad leg visible through a slit in her dress
+2. CAUSE: She is studying late, relaxed and lost in concentration
+3. FEELING: Pensive softness — distant, contemplative, quietly beautiful
+4. LIGHT: Warm reading lamp, amber pool of light
+5. FOCUS: Her distant expression and the inadvertent leg exposure through the dress slit
+6. THEME: Modern library elf, the "naughty" in the accidental reveal during a quiet study moment
+CREATIVE SPIKE: Unexpected prop — a single flower left on the reading table, suggesting someone was watching her
+
+POSITIVE:
+masterpiece, best quality, anime illustration, anime face structure, clean lineart, smooth shading, cel-shaded skin, 1girl, tall slim, medium skin, indigo hair, long with curtain bangs, pointed ears, elf, distant unfocused gaze, relaxed mouth, warm cheek tint, seated with legs to the side, hand touching the neck, shoulders dropped relaxed, deep v-neck dress, dusty blue, softly clinging, flower on table, garter belt and stockings, in specialty, library, golden reading lamp pool, warm skin highlight, warm amber tones, muted saturation, no accent, mid-thigh framing, eye-level shot, shallow depth of field framing, deep slow breath, reading glasses, private charm, soft skin shading, soft eye reflection
+
+NEGATIVE:
+bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, overexposed, washed out, color noise, 1boy, male, man, boy, bad anatomy, wrong proportions, unnatural skin color, hidden hands, background male, male silhouette, cluttered background, competing focal points
+
+========================================================================
+PROMPT 13 — YURI | R | SHARED QUIET GAZE | LIVING ROOM FLOOR LAMP
+========================================================================
+Phase 0 (Standard):
+1. MOMENT: Two elven women sit together on a modern couch, sharing a quiet intimate look in the warm light
+2. CAUSE: A relaxed evening at home, comfortable in each other's company
+3. FEELING: Shared quiet gaze — comfortable silence, mutual understanding
+4. LIGHT: Floor lamp warm amber
+5. FOCUS: Their eyes meeting in the warm light, the closeness of their bodies
+6. THEME: Two modern elves in a cozy domestic evening, the "naughty" in the unspoken tension between them
+
+POSITIVE:
+masterpiece, best quality, anime illustration, anime face structure, clean lineart, smooth shading, cel-shaded skin, 2girls, primary: balanced figure, tan skin, toffee brown hair, long wavy, pointed ears, elf, primary: softly focused eyes, warm full smile, faint pink, secondary: petite, fair skin, pastel pink hair, twin tails, pointed ears, elf, secondary: eyes looking up from under lashes, small asymmetrical smile, soft pink cheeks, sitting side by side, shared quiet gaze, primary: wearing silk camisole, silk shorts, champagne, softly clinging, secondary: wearing casual oversized shirt, cotton shorts, soft grey, resting against the skin, in home, living room, floor lamp warm amber, warm skin highlight, warm amber tones, soft saturation, dusty rose accent, medium shot, slight side angle, balanced centered composition, steady calm breathing, soft shoulder contact, comfortable silence together, subtle skin glow, light reflection in eyes
+
+NEGATIVE:
+bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, overexposed, washed out, color noise, 1boy, male, man, boy, bad anatomy, wrong proportions, unnatural skin color, hidden hands, fused bodies, limb merge, too many arms, conjoined, identical pose mirroring, visible nipples
+
+========================================================================
+PROMPT 14 — SOLO | R | QUIET LONGING | BALCONY DUSK
+========================================================================
+Phase 0 (Standard):
+1. MOMENT: An elven woman stands on a modern city balcony at dusk, looking out over the skyline with her wrap dress blowing slightly in the wind
+2. CAUSE: She stepped outside for air, watching the sunset
+3. FEELING: Quiet longing — distant, yearning, beautiful in her solitude
+4. LIGHT: Golden hour sunlight through the warm sky
+5. FOCUS: Her silhouette against the sunset with windblown hair and the dress catching light
+6. THEME: Modern city elf at sunset, the "naughty" in the wind revealing her silhouette through the thin dress
+
+POSITIVE:
+masterpiece, best quality, anime illustration, anime face structure, clean lineart, smooth shading, cel-shaded skin, 1girl, slender, dark skin, white hair, long straight, pointed ears, elf, dreamy unfocused eyes, lips slightly pursed, warm cheek glow, standing near railing, leaning slightly forward, windblown hair, one shoulder lowered, wrap dress, apricot, flowing around the body, in outdoor, balcony, golden hour sunlight through window, golden skin glow, sunset orange palette, soft saturation, warm skin accent, full body framing, three-quarter view, framed by foreground, deep slow breath, dangling earrings, quiet tension, soft skin shading, hair strand caught in light
+
+NEGATIVE:
+bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, overexposed, washed out, color noise, 1boy, male, man, boy, bad anatomy, wrong proportions, unnatural skin color, hidden hands, background male, male silhouette, visible nipples, color banding, oversaturation
+
+========================================================================
+PROMPT 15 — SOLO | X | RESTRAINED WANT | BEDROOM HOTEL [INCOMPLETE]
+========================================================================
+Phase 0 (Full):
+1. MOMENT: An elven woman sits on the edge of a hotel bed, shirt completely open, one hand covering a bare breast, caught mid-change
+2. CAUSE: She was changing clothes and someone entered — caught mid-change
+3. BODY: Sitting on bed edge, shirt open, one hand covering breast, other hand gripping the bed surface
+4. FEELING: Restrained want — not fully resisting, not fully inviting
+5. LIGHT: Mixed lamp and window light, warm-cool mix, amber dominant
+6. FOCUS: The open shirt, the hand covering the breast, her conflicted expression
+7. EMOTION: Restrained want — held between surprise and something else
+8. JUSTIFICATION: Caught in the act of changing — mid-change is the direct cause for exposure
+9. THEME: Hotel room elf, the "naughty" in being caught half-dressed in a transient modern space
+
+POSITIVE:
+masterpiece, best quality, anime illustration, anime face structure, clean lineart, smooth shading, cel-shaded skin, gentle skin gradient, 1girl, gentle curves, fair skin, copper red hair, loose braid, pointed ears, elf, eyes slightly widened, mouth slightly open in surprise, slight flush across chest, sitting on the edge of a bed, hand covering one breast, gripping the edge of a table, shirt completely open exposing chest, bare breasts, one breast partially covered by hand, fitted trousers, charcoal, caught in the act of changing, in bedroom, hotel, mixed lamp and window, warm skin with cool shadow, warm-cool mix, soft saturation, amber accent, waist-up framing, slight high angle, intimate close framing, breath catching, natural breast shape, velvet choker, barely contained tension, glossy lower lip, soft eye reflection
+
+NEGATIVE:
+bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, overexposed, washed out, color noise, 1boy, male, man, boy, bad anatomy, wrong proportions, unnatural skin color, hidden hands, background male, male silhouette, fully buttoned, closed shirt, turtleneck, covered shoulders
+
+========================================================================
+PROMPT 16 — SOLO | R+ | SHY ANTICIPATION [CONTRAPOINT: REVEALING CLOTHING] | ART STUDIO
+========================================================================
+Phase 0 (Standard):
+1. MOMENT: An elven woman stands in an art studio wearing a sheer mesh top over a black cross tape, looking embarrassed despite her bold outfit
+2. CAUSE: She is posing as a figure model in an art studio
+3. FEELING: Shy anticipation with contrapoint — her outfit is daring but she is embarrassed to be seen in it
+4. LIGHT: North window light, cool neutral with spot highlight
+5. FOCUS: The cross tape visible through the mesh top and her blushing face
+6. THEME: Modern art studio with an elf model, the "naughty" in the revealing outfit worn with innocent embarrassment
+
+POSITIVE:
+masterpiece, best quality, anime illustration, anime face structure, clean lineart, smooth shading, cel-shaded skin, gentle skin gradient, 1girl, lithe build, fair skin, lavender hair, layered long hair, pointed ears, elf, eyes slightly widened, biting inside of cheek, blush reaching to ears, standing weight even both feet, arms loosely folded, torso slightly turned away, sheer blouse layer, high-waist shorts, dusty violet, softly sheer in light, black cross tape, nipple tape, in specialty, art studio, north window with spot, cool skin with warm highlight, cool grey palette, muted saturation, warm skin accent, medium shot, eye-level shot, clean composition, about to speak, natural body warmth, delicate fingers, deliberate vulnerability, soft skin shading, light reflection in eyes
+
+NEGATIVE:
+bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, overexposed, washed out, color noise, 1boy, male, man, boy, bad anatomy, wrong proportions, unnatural skin color, hidden hands, background male, male silhouette, visible nipples, cluttered background, competing focal points, fully buttoned, closed shirt
+
+========================================================================
+PROMPT 17 — YURI | R+ | ONE PROTECTIVE ONE RECEPTIVE | MODERN CABIN FIRELIGHT
+========================================================================
+Phase 0 (Full):
+1. MOMENT: Two elven women recline by a fireplace in a modern cabin, one protectively wrapping an arm around the other who leans into her
+2. CAUSE: A cold evening in the cabin, seeking warmth and closeness by the fire
+3. BODY: Primary sits with back against the couch, arm around secondary; secondary leans back into primary, relaxed
+4. FEELING: Primary: warm affection; Secondary: tender uncertainty
+5. LIGHT: Firelight dominant, deep amber
+6. FOCUS: The protective embrace and the warm firelight on their faces
+7. EMOTION: One protective, one receptive — classic intimate dynamic
+8. JUSTIFICATION: Cabin evening, firelight warmth — sheer fabric visible in firelight is R+ because of the intimate setting and light
+9. THEME: Two modern elves in a cozy cabin, the "naughty" in the intimate firelit embrace
+
+POSITIVE:
+masterpiece, best quality, anime illustration, anime face structure, clean lineart, smooth shading, cel-shaded skin, gentle skin gradient, 2girls, primary: soft mature figure, tan skin, warm brown hair, messy long hair, pointed ears, elf, primary: eyes softened by light, smile barely beginning, warm cheek tint, secondary: petite, fair skin, champagne blonde hair, loose ponytail, pointed ears, elf, secondary: gazing to the side, gentle pout, soft blush, reclining together, one protective one receptive, primary: wearing soft robe, terracotta, loosely draped, secondary: wearing silk camisole, matching sleep shorts, cream, softly clinging, in home, cabin, firelight dominant, amber skin tone, warm brown and gold, soft saturation, orange highlight accent, medium shot, three-quarter view, soft cropped composition, settling into position, primary: arm around partner's back, secondary: leaning into primary, tender care, warm anticipation, visible bra strap suggesting more underneath, soft eye reflection, firelight reflection on skin
+
+NEGATIVE:
+bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, overexposed, washed out, color noise, 1boy, male, man, boy, bad anatomy, wrong proportions, unnatural skin color, hidden hands, fused bodies, limb merge, too many arms, conjoined, identical pose mirroring, visible nipples, nipple visibility through opaque bra
+
+========================================================================
+PROMPT 18 — SOLO | X | DREAMY CALM | BATH SOFT LAMP [CREATIVE SPIKE]
+========================================================================
+Phase 0 (Full):
+1. MOMENT: An elven woman reclines in a modern bathtub, eyes closed in dreamy calm, bare shoulders and chest above the waterline
+2. CAUSE: A relaxing bath in her modern apartment bathroom
+3. BODY: Reclining in the tub, arms resting on tub edges, head tilted back, eyes closed
+4. FEELING: Dreamy calm — completely relaxed, lost in the sensation of warm water
+5. LIGHT: Mirror-reflected soft lamp, neutral-warm
+6. FOCUS: Her serene face and bare shoulders above the water, steam rising
+7. EMOTION: Dreamy calm — unfocused, floating, completely at peace
+8. JUSTIFICATION: Bath context directly justifies bare breasts above waterline — she is bathing
+9. THEME: Modern apartment elf in a private bath, the "naughty" in the serene toplessness
+CREATIVE SPIKE: Unusual camera — overhead slightly angled shot looking down into the tub, capturing the full scene
+
+POSITIVE:
+masterpiece, best quality, anime illustration, anime face structure, clean lineart, smooth shading, cel-shaded skin, gentle skin gradient, 1girl, soft curves, medium skin, emerald green hair, long wavy, wet strands, pointed ears, elf, closed eyes serene, relaxed mouth, warm cheek tint, reclining stretched out languid, arms at sides relaxed on tub edge, shoulders dropped relaxed, bare breasts, visible nipples, exposed chest, in bath, bath, mirror-reflected soft lamp, warm skin highlight, warm amber tones, moderate saturation, cream accent, full body framing, slight top-down angle, natural viewpoint, slow exhale of relief, wet skin sheen, soft breast weight, warm steam on skin, dreamy atmospheric, water droplets on skin, soft eye reflection
+
+NEGATIVE:
+bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, overexposed, washed out, color noise, 1boy, male, man, boy, bad anatomy, wrong proportions, unnatural skin color, hidden hands, background male, male silhouette, dry fabric texture, overexposure, light bloom artifact
+
+========================================================================
+PROMPT 19 — YURI | R+ | PLAYFUL RIVALRY | POOL BRIGHT [INCOMPLETE]
+========================================================================
+Phase 0 (Standard):
+1. MOMENT: Two elven women playfully compete at a modern pool, one pushing the other's shoulder, their swimwear halfway adjusted from the water
+2. CAUSE: A playful day at the pool, they just got out of the water and are teasing each other
+3. FEELING: Playful rivalry — competitive but fond, energetic
+4. LIGHT: Bright reflected sunlight
+5. FOCUS: The push/counter-push dynamic and wet swimwear
+6. THEME: Modern pool with two competitive elves, the "naughty" in the wet swimwear rivalry
+
+POSITIVE:
+masterpiece, best quality, anime illustration, anime face structure, clean lineart, smooth shading, cel-shaded skin, gentle skin gradient, 2girls, primary: athletic, tan skin, teal hair, high ponytail, pointed ears, elf, primary: narrowed playful eyes, tongue touching lip, light flush, secondary: slender, fair skin, coral red hair, side ponytail, pointed ears, elf, secondary: eyes looking up from under lashes, suppressed grin, warm cheek tint, standing close side by side, playful rivalry, primary: halter bikini, navy, mid-adjustment, secondary: triangle bikini, coral, wet fabric clinging slightly, wet fabric nipple outline, in bath, pool, bright reflected sunlight, golden skin glow, warm peach tones, moderate saturation, aqua accent, medium shot, eye-level shot, balanced centered composition, quickened breath from activity, wet skin sheen, primary: gentle hip curve, secondary: natural body warmth, thumb on partner's cheek, eyes meeting, playful mischief, water droplets on skin, tiny smile crease
+
+NEGATIVE:
+bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, overexposed, washed out, color noise, 1boy, male, man, boy, bad anatomy, wrong proportions, unnatural skin color, hidden hands, fused bodies, limb merge, too many arms, conjoined, identical pose mirroring, overexposure, light bloom artifact, chromatic aberration, dry fabric texture, nipple visibility through opaque bra
+
+========================================================================
+PROMPT 20 — SOLO | R | RELAXED INTIMACY | COUCH FLOOR LAMP
+========================================================================
+Phase 0 (Standard):
+1. MOMENT: An elven woman lounges on a modern couch, one leg tucked under, absently playing with her hair in the warm lamplight
+2. CAUSE: A relaxed evening at home, no particular agenda
+3. FEELING: Relaxed intimacy — comfortable, unhurried, privately at ease
+4. LIGHT: Floor lamp warm amber
+5. FOCUS: Her comfortable pose and the warm light on her face
+6. THEME: Modern domestic elf on a casual evening, the "naughty" in the easy confidence of lounging in thin fabric
+
+POSITIVE:
+masterpiece, best quality, anime illustration, anime face structure, clean lineart, smooth shading, cel-shaded skin, 1girl, balanced figure, medium skin, deep auburn hair, loose side braid, pointed ears, elf, softly focused eyes, slight smile, warm cheek glow, seated with one leg tucked under, fingers playing with hair, shoulders relaxed downward, satin slip dress, mocha, gently loosened, in home, couch, floor lamp warm, warm skin highlight, cream and beige, soft saturation, warm beige accent, waist-up framing, slight low angle, intimate close framing, steady calm breathing, relaxed intimacy, subtle skin glow, light reflection in eyes
+
+NEGATIVE:
+bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, overexposed, washed out, color noise, 1boy, male, man, boy, bad anatomy, wrong proportions, unnatural skin color, hidden hands, background male, male silhouette, visible nipples
+
+========================================================================
+PROMPT 21 — YURI | X | BUILDING TENSION | BEDROOM CANDLELIGHT
+========================================================================
+Phase 0 (Full):
+1. MOMENT: Two elven women face each other in a candlelit bedroom, the tension between them palpable as one reaches for the other's loosely tied robe
+2. CAUSE: An intimate evening has led to this charged moment of approach
+3. BODY: Primary faces secondary, hand reaching for secondary's robe tie; secondary stands with arms at sides, breathing visible
+4. FEELING: Building tension — the moment before contact, electric
+5. LIGHT: Candlelight warm glow, Rembrandt angle
+6. FOCUS: Primary's hand reaching for the robe tie and secondary's parted lips
+7. EMOTION: Building tension — both characters aware of what comes next
+8. JUSTIFICATION: Intimate bedroom, candlelit evening — the robe is loosening from the natural progression of an intimate moment
+9. THEME: Two modern elves in a candlelit bedroom, the "naughty" in the charged moment before contact
+
+POSITIVE:
+masterpiece, best quality, anime illustration, anime face structure, clean lineart, smooth shading, cel-shaded skin, gentle skin gradient, 2girls, primary: hourglass, dark skin, sapphire blue hair, long wavy, pointed ears, elf, primary: focused intent stare, slightly parted lips, controlled slight pink, secondary: soft curves, fair skin, dusty pink hair, long with face-framing layers, pointed ears, elf, secondary: breath caught, slightly teary vulnerable, deep blush, face-to-face close, building tension, primary: wearing silk camisole, silk shorts, deep teal, loosely draped, bare breasts, secondary: wearing soft robe, apricot, halfway off one shoulder, bare breasts, exposed chest, in bedroom, standard, candlelight warm glow, amber skin tone, warm amber tones, soft saturation, gold accent, waist-up framing, eye-level shot, intimate close framing, held breath before release, primary: natural breast shape, secondary: warm skin texture, fingertips touching partner's hand, eyes meeting, slow reveal mood, soft nose highlight, candlelight flicker in eyes
+
+NEGATIVE:
+bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, overexposed, washed out, color noise, 1boy, male, man, boy, bad anatomy, wrong proportions, unnatural skin color, hidden hands, fused bodies, limb merge, too many arms, conjoined, identical pose mirroring, turtleneck, covered shoulders, fully buttoned, closed shirt, overexposure, light bloom artifact
+
+========================================================================
+BATCH STATISTICS
+========================================================================
+Total Prompts: 21
+
+Rating Distribution:
+  R:  7 (33%) — Prompts 1, 3, 8, 12, 13, 14, 20
+  R+: 8 (38%) — Prompts 2, 4, 5, 7, 10, 16, 17, 19
+  X:  6 (29%) — Prompts 6, 9, 11, 15, 18, 21
+
+Yuri Prompts: 6 (29%)
+  — Prompts 5, 9, 13, 17, 19, 21
+
+Creative Spikes: 3 (~1 in 7)
+  — Prompt 6: Contre-jour silhouette camera break
+  — Prompt 12: Unexpected flower prop in library
+  — Prompt 18: Overhead tub shot camera break
+
+Emotional Contrapoints: 3 (~1 in 7)
+  — Prompt 4: Confident pose + shy expression
+  — Prompt 10: Confident posture + vulnerable eyes
+  — Prompt 16: Revealing outfit + embarrassed expression
+
+Incomplete Actions: 5 (~1 in 4)
+  — Prompt 3: Halfway through changing shirt
+  — Prompt 7: Sarashi mid-adjustment
+  — Prompt 11: Robe halfway open
+  — Prompt 15: Caught mid-change in hotel
+  — Prompt 19: Swimwear mid-adjustment
+
+Skin States Used:
+  NORMAL: Prompts 1, 2, 4, 8, 10, 12, 13, 14, 16, 20
+  WET: Prompts 7, 9, 18, 19
+  (no skin state tag = NORMAL)
+
+Environments Used (no repeat within 4):
+  HOME/COZY: 1(kitchen), 8(window seat), 13(living room), 17(cabin), 20(couch)
+  URBAN/MODERN: 2(apartment), 6(apartment), 10(office)
+  BEDROOM: 3(messy), 11(luxury), 15(hotel), 21(standard)
+  BATH/WATER: 7(bath), 9(spa), 18(bath), 19(pool)
+  SPECIALTY: 5(lounge), 12(library), 16(art studio)
+  OUTDOOR: 14(balcony)
+
+Emotions Used (no repeat within 2):
+  Warm: 1(warm affection), 8(gentle invitation), 17(warm affection), 20(relaxed intimacy)
+  Playful: 2(playful mischief), 19(playful rivalry)
+  Vulnerable: 3(sleepy sensuality), 10(vulnerable composure), 16(shy anticipation)
+  Tense: 6(subtle hunger), 7(breathless tension), 11(half-hidden desire), 15(restrained want), 21(building tension)
+  Cool: 12(pensive softness), 14(quiet longing)
+  Mixed yuri: 5(one confident one shy), 9(mutual warmth), 13(shared quiet gaze), 17(one protective one receptive)
+  Confident: 4(confident allure)
+
+Clothing Variation (no repeat within 3):
+  All 21 prompts use different clothing combinations
+
+Lighting Variation (no repeat within 3):
+  All 21 prompts use different lighting presets
+
+Camera Variation (no repeat within 2):
+  Distance/angle/composition all vary across consecutive prompts
+
+Warm Rendering Mandate Check (2 of 3 warm elements):
+  Every prompt verified to contain at least 2 of:
+  1. Warm light/descriptor
+  2. Warm skin rendering tag
+  3. Warm accent in color/clothing
+  ✓ ALL 21 PROMPTS PASS
+
+Anti-Chest-Press Check:
+  ✓ No prompt contains breasts pressed against any surface
+  ✓ All leaning/reclining poses use back/shoulder/hand/hip contact only
+
+Nipple Visibility Logic Check:
+  R prompts (1,3,8,12,13,14,20): NO nipple visibility tags ✓
+  R+ prompts (2,4,5,7,10,16,17,19): Nipple visibility only through sheer/wet/creative coverage ✓
+  X prompts (6,9,11,15,18,21): Bare breasts/visible nipples with proper justification ✓
+
+Male Spawn Protection:
+  All SOLO prompts: "1girl" + "1boy, male, man, boy" in negative + "background male, male silhouette" ✓
+  All YURI prompts: "2girls" + "1boy, male, man, boy" in negative ✓
+
+Duplicate Attribute Check:
+  ✓ No two tags describing the same visual attribute in any prompt

@@ -1,0 +1,747 @@
+# THREAD 2.0 — SYSTEM OVERVIEW & UPDATE PLAN
+
+**Version:** 2.0.0 (pre-Stable)
+**Date:** August 2026
+**Purpose:** Self-contained reference for AI assistants helping with THREAD 2.0 updates.
+Contains: system overview, personal reflection, change list (100-200 items), patch plan.
+
+**Context:** THREAD 2.0 is a prompt generation system for PixAI/Tsubaki 2 (DiT anime model).
+It generates batches of 21 themed prompts + 3 Core OC standalone prompts for ecchi/anime art.
+The system has evolved through ~10 batches (v24-v34) with iterative fixes based on
+actual Tsubaki 2 render results and user feedback.
+
+---
+
+## TABLE OF CONTENTS
+
+1. [System Overview](#part-1-system-overview)
+2. [Personal Reflection](#part-2-personal-reflection)
+3. [Change List (100-200 items)](#part-3-change-list)
+4. [Patch Plan](#part-4-patch-plan)
+
+---
+
+
+# Part 1: System Overview
+
+## 1.1 File Structure
+
+```
+THREAD-2.0/
+├── ONTOLOGY.yaml           — 24 axes, all data (palettes, LQ, poses, wardrobe, etc.)
+├── CONSTRAINTS.yaml        — 37 constraints referencing ONTOLOGY axes
+├── ARCHITECTURE.md         — Artistic manifesto (5 principles, pipeline, modules)
+├── STYLE_GUIDE.md          — PixAI block order, ATOMS, banned patterns, face anchor
+├── GOVERNANCE.md           — semver, joker rule, root-cause protocol, boredom detector
+├── SCOPE.md                — Content ethics (permitted/forbidden)
+├── OC_CANON.yaml           — 10 Core OCs with BDM ranges, hair/eyes/skin, shields
+├── OC_CONCEPTS_LIBRARY.md  — 20 serial concepts for OC standalone batches
+├── PH_BLACKLIST.md         — Tsubaki 2 quirks, literalness, face fix findings
+├── solver/solver.py        — CSP solver with backtracking (rarely used in practice)
+├── solver/tests/           — 8 unit tests
+├── validator/validator.py  — One interpreter, reads CONSTRAINTS.yaml
+├── memory/                 — Batch counter, boredom flags
+└── batches/v1/             — Metadata JSON
+
+scripts/                    — Generator scripts (one per batch, recoverable)
+download/                   — Final batch .txt files
+```
+
+## 1.2 ONTOLOGY — 24 Axes (Summary)
+
+| # | Axis | Values | Description |
+|---|------|--------|-------------|
+| 1 | palette | 20 (P01-P20) | Batch-level color direction. Each: dominant/secondary/accent/shadow/forbidden/light_type/mood/sd_fragment |
+| 2 | light_quality | 15 (LQ01-LQ15) | How light physically behaves. Hard Key, Soft Diffused, Rim Only, Under Light, Volumetric, Prism Split, etc. |
+| 3 | light_direction | 3-axis | horizontal (front/3q/side/back) × vertical (high/eye/low/under) × depth (close/mid/far) |
+| 4 | fill_ratio | 4 (FR9/FR4/FR2/FR1) | Key-to-fill ratio: 9:1 drama, 4:1 portrait, 2:1 romantic, 1:1 flat |
+| 5 | color_temperature | 3 | CT_WARM (2700K), CT_NEUTRAL (4500K), CT_COOL (7000K+) |
+| 6 | genre | 2 | NICHE (atmospheric), VOLT (sexualised) |
+| 7 | lls_tier | 4 | L0 atmospheric, L1 suggestive, L2 sexualised, L3 explicit |
+| 8 | camera | 12 (CAM01-CAM12) | Eye-level, From Above, From Below, Over Shoulder, Macro, Wide, Side, Back, Dutch, Through, Mirror, Aerial |
+| 9 | framing | 7 | extreme_close, close_up, medium, cowboy, full_body, wide_env, panoramic |
+| 10 | bdm | 8 dimensions | B(1-8), H(1-7), T(1-7), W(0-5), S(0-3), HE(0-4), MU(0-3), BD(0-3). Banned: B0/H0/T0 |
+| 11 | pose | 48 PL codes | 6 categories: VERTICAL(15), HORIZONTAL(10), KNEELING(7), SEATED(5), BENT(2), DYNAMIC(4). Risk: LOW/MID/HIGH (only 12/48 classified) |
+| 12 | wardrobe | 20 GAR codes | 4 families: intimate, structured, draped, concealment. Each: material + light behavior + coverage % |
+| 13 | environment | 10 ENV codes | Rain glass, dust beam, wet cobble, snow blind, candle field, fog, mirror maze, iron rust, water surface, velvet curtains |
+| 14 | emotion | 8 (E01-E08) | Contempt, Vulnerability, Aggression, Invitation, Detachment, Ecstasy, Fear, Melancholy |
+| 15 | fetish | 10 FET codes | Light techniques: Breast Focus, Hip Emphasis, Thigh Focus, Back Focus, etc. (NEVER in batch metadata — format gap) |
+| 16 | engagement | 8 ENG codes | Self-touch, Hair Pull, Grip Fabric, etc. (NEVER in batch metadata — format gap) |
+| 17 | kinetic | 8 K codes | Static, Slow Drift, Hold and Tremble, Suspended, etc. (NEVER in batch metadata — format gap) |
+| 18 | ncs | 8 values | CONCEALED, COVERED, THROUGH_FABRIC, VISIBLE, NAKED, TAPE, TOPLESS, TOPLESS_BACK |
+| 19 | skin | 20 OAS codes | Pale Porcelain, Warm Ivory, Golden Tan, Rich Ebony, etc. |
+| 20 | eye_color | 15 standard + 4 special | Standard: amber, hazel, emerald, blue, etc. Special: heterochromia (cap 1), blind, slit pupil |
+| 21 | hair_type | 7 | straight, wavy, curly, braided, loose_long, short_pixie, wet |
+| 22 | complexity | max 3 active | character + primary_material_light + setting_object |
+| 23 | material | 18 MAT codes | bisque-porcelain, glazed-porcelain, ivory-bone, wax, brass, glass, enamel, marble, latex, crystal, etc. |
+| 24 | concept_anchor | free-text | Unique kebab-case concept per prompt. Tracked for uniqueness. |
+
+## 1.3 CONSTRAINTS — 37 Total (Current Values)
+
+### Batch-Level (Hard)
+| ID | Description | Current Target | Notes |
+|---|---|---|---|
+| C001 | palette_lock | ≤3 palettes | Was 6 during Poupée, rolled back |
+| C002 | palette_subvariations | ≥3 | Soft |
+| C003 | genre_quota | 7 NICHE + 14 VOLT | |
+| C004 | niche_breather | max_run=4 | Was 3, relaxed for themed batches |
+| C005 | act_open_close | P01=NICHE, P21=NICHE | |
+| C006 | lls_distribution | L0≥3, L1≥4, L2∈[0,14], L3∈[0,5] | Heavily relaxed from original [8,11]/[3,5] |
+| C007 | bdm_unique | 21/21 | |
+| C008 | oas_unique | ≥12 distinct | |
+| C009 | gar_diversity | ≥10 distinct | |
+| C010 | camera_diversity | ≥7 distinct | |
+| C011 | camera_cap | ≤6 per code | Was 4, relaxed |
+| C012 | framing_cowboy_cap | ≤3 cowboy | |
+| C013 | pose_anti_cluster_code | ≤3 per PL code | Was 2, relaxed |
+| C014 | pose_anti_cluster_category | ≤7 per category | Was 4, then 5, then 7 |
+| C015 | pose_risk | ≥0% MID/HIGH | Was 30%, then 28%, then 19%, then 0% |
+| C016 | lq_diversity | ≤5 per LQ code | |
+| C017 | pl_lq_cam_trinity | all present | NOT actually checking compatibility — stub |
+| C018 | fet_quota | ≥6 distinct FET | ALWAYS FAILS — FET not in batch metadata |
+| C019 | eng_quota | ≥5 distinct ENG | Soft, ALWAYS FAILS — ENG not in metadata |
+| C020 | k_quota | ≥4 distinct K, ≥1 from [K03,K06,K08] | ALWAYS FAILS — K not in metadata |
+| C021 | emotion_quota | ≥6 distinct E | |
+| C022 | emotion_no_adjacent_repeat | 0 adjacent | |
+| C023 | heterochromia_cap | ≤1 | |
+| C036 | core_oc_isolation | 0 canon markers in main | NEW — enforces Core OC only in OC1/OC2/OC3 |
+
+### Prompt-Level
+| ID | Description | Status |
+|---|---|---|
+| C024 | bdm_banned_values + range check | Working (checks B0/H0/T0 + range) |
+| C025 | complexity_cap | Vacuous pass (metadata not in batch) |
+| C026 | canon_lock | Vacuous pass (OC roster not loaded) |
+| C027 | sig_valid | Working (checks "unknown") |
+| C028 | h1_mandatory | Working (checks all H1 fields present) |
+| C035 | oc_standalone | Pass (OC not theme-bound) |
+
+### Style Bans
+| ID | Banned | Status |
+|---|---|---|
+| C029 | "vivid saturated colors" | Working |
+| C030 | "rich color palette" | Working |
+| C031 | "high color contrast" | Working |
+| C032 | "the moment stretches" | Working |
+| C033 | "the primary focus" | Soft, ≤3 |
+| C034 | "\w+ does not \w+" pattern | Working, ≤2 |
+
+### Joker
+| ID | Description |
+|---|---|
+| C099 | 1 conscious soft-constraint violation per batch |
+
+## 1.4 Architecture (5 Principles)
+
+1. **PALETTE COMMANDS THE BATCH** — 21 prompts = 21 variations of one color vision
+2. **LIGHT SCULPTS THE BODY** — BDM is not anatomy, it's how body catches light
+3. **POSE IS A SENTENCE** — PL is grammar, camera is subject, emotion is predicate
+4. **CHARACTER IS A COVENANT** — Theme adapts to OC, not vice versa
+5. **COMPLEXITY IS CURRENCY** — Max 3 active elements per prompt
+
+### Pipeline (Vision-First)
+THEME → PALETTE → LIGHT → BODY → POSE → WARDROBE → PROSE → NEGATIVE → VALIDATE
+
+### Batch Structure
+- Main 21 (P01-P21): RANDOM GIRLS (no Core OC canon). Anchor → Development → Climax → Resolution → Counterpoint
+- OC Standalone 3 (OC1-OC3): CORE OC with full canon. NOT theme-bound.
+
+## 1.5 Style Guide (PixAI Block Order)
+
+**PixAI recommended order:** Composition → Lighting → DOF → Angle → Subject → Environment → Details
+
+### Prose Template (current)
+```
+A 2D hand-drawn anime illustration, [shot type]. [Lighting]. [DOF]. [Angle].
+1girl, young woman, female, feminine, [hair] individual strands visible, [eyes] eyes, [skin] skin.
+Her face is rendered in stylized 2D anime style: large expressive eyes, small nose, small mouth, flat cel-shaded skin.
+[Body/pose/wardrobe description]. [Environment]. [Palette quality tags]. Masterpiece, best quality, anime artstyle.
+```
+
+### Face Geometry Anchor (MANDATORY)
+"Her face is rendered in stylized 2D anime style: large expressive eyes, small nose, small mouth, flat cel-shaded skin."
+— Separate sentence with period. Prevents Tsubaki 2 face drift to generic/realistic.
+
+### Negative Prompt (Current)
+- REMOVED: "cel shading", "flat anime shading" (these ARE anime techniques!)
+- ADDED: "realistic facial structure, photorealistic facial proportions, natural human nose bridge, realistic lip shape, semi-realistic anime face, 2.5D face, 3D face"
+- KEPT: manhwa/webtoon named tags, anti-realism surface tags, anti-male, anti-artist
+
+## 1.6 OC Canon (10 Core OCs)
+
+| OC | Tarot | Element | Key Features |
+|---|---|---|---|
+| Sue | IX Hermit | VOID | Platinum twin ponytails, eyepatch LEFT, soft purple right eye, neck tattoo, pale ivory |
+| Miyu | I Magician | SPIRIT | Black hime cut, heterochromia (L red R blue), fangs, warm light tan |
+| Yui | XIX Sun | LIGHT | Blonde + pink tips, golden ring-pupils, fangs, beauty mark LEFT, fair warm |
+| Sol | II Priestess | FIRE | Silver-white layered, FOX EARS + earrings on ears, slit pupils, amber, dark bronze |
+| Noa | VII Chariot | EARTH | Copper-red side braid, emerald + golden flecks, freckled, athletic, burn scar RIGHT |
+| Doe | 0 Fool | STORM | Lavender wavy, round glasses, golden-yellow, band-aid, deer dragon horns, scales, earring LEFT |
+| Lua | XVIII Moon | SHADOW | Obsidian-black + purple sheen, pale icy grey, ram horns, serpentine tail, mourning dress |
+| Nix | VIII Strength | STEEL | Platinum french bob, ice-blue, Mediterranean bronze (NOT olive), small breasts, sharp features |
+| Vae | XV Devil | EMBER | Black + white streak, RED eyes, obsidian skin, ram horns, tail, X-tape, large breasts |
+| Ash | XIII Death | BONE | Ivory-white very long, white VEIL over eyes, snow-pale, slender, relic-keeper |
+
+### OC Rotation Rule
+When user does NOT specify OC concepts, SWAP to least-recently-used OCs.
+Never repeat same 3 OCs in consecutive batches. Target: all 10 OCs used across 3-4 batches.
+
+## 1.7 Governance
+- Semver: MAJOR.MINOR.PATCH
+- Joker: 1 conscious soft-constraint violation per batch, logged
+- Root-Cause Protocol: 7 steps before any fix
+- Boredom Detector: same top pattern 3 batches → forced perturbation
+- Epistemic Honesty: no "estimated" numbers, no "guaranteed" without test
+
+## 1.8 Validator
+- One interpreter, reads CONSTRAINTS.yaml
+- 25+ rule types implemented
+- Builds PL_TO_CAT and PL_TO_RISK from ONTOLOGY
+- BDM range validation against ONTOLOGY dimensions
+- C036 checks for canon markers in main 21 (eyepatch, fox ears, ram horns, etc.)
+
+## 1.9 Solver
+- CSP solver with backtracking, 8/8 tests pass
+- **REALITY:** Solver is rarely used in practice. Batches are hand-written through generator scripts.
+  Solver was designed for automated generation but the creative quality of hand-written prompts
+  is significantly higher. Solver remains as a theoretical backbone and testing tool.
+
+## 1.10 PH Blacklist & Tsubaki 2 Quirks
+
+### Tsubaki 2 Architecture
+- DiT architecture with LLM-like text encoder (NOT CLIP)
+- Understands natural language, NOT tag soup
+- PH (Prompt Helper) does mandatory format translation
+- PixAI recommends: Composition → Lighting → DOF → Angle → Subject → Environment → Details
+
+### Confirmed Problems
+- "camera" in prose → Tsubaki draws physical camera object
+- "desk lamp", "brass lamp" → draws lamp as object
+- "cel shading" in negative → bans anime rendering technique (self-sabotage)
+- Face is most unstable region — needs structural anime markers, not just color
+- PH converts to realism, ignores anime style (user disabled PH)
+
+### Fixes Applied
+- NO "camera" word — use "viewed from [angle]"
+- NO light source object names — use "warm key from off-frame"
+- REMOVED cel shading/flat anime shading from negative
+- ADDED geometric face anti-realism to negative
+- Style declaration at BEGINNING of prompt
+- Face geometry anchor as separate sentence
+
+## 1.11 Batch History (v24-v34)
+
+| Version | Name | Theme | Validator | User Feedback |
+|---|---|---|---|---|
+| v24 | Nymphéas Noirs | Black water lilies | 31/36 | "клёвый" — first success |
+| v25 | Poupée Mécanique | BJD dolls, mechanisms | 33/36 | FAILED in production — Tsubaki can't render mechanisms |
+| v26 | Double Jeu | OC in professional roles | 33/36 | Mixed — too many bare breasts, too pale, FAKE OCs in main |
+| v27 | Double Jeu v2 | Canon OC fix | 33/36 | WRONG — Core OC in main 21 (architecture violation) |
+| v28 | Double Jeu v3 | Core OC isolation fix | 34/36 | Correct architecture, OC isolation enforced |
+| v29 | Beauté Vicieuse | Expensive sin | 34/36 | "своеобразный" — theme didn't fully land, PH broke everything |
+| v30 | L'Écume des Jours | 5 water themes combined | 34/36 | "стабильно хорошо" — solid, camera word fix applied |
+| v31 | L'Évanouissement | 5 visual-obfuscation themes | 34/36 | "слегка скучновато" — too simple/empty |
+| v32 | L'Évanouissement FaceFix | Face style fixes | 34/36 | Face fixes applied (cel shading removed, face anchor added) |
+| v33 | De Profundis | 5 layers of psychological depth | 34/36 | "хорошо!" — faces fixed, liked majority of images. Wardrobe too uniform. |
+| v34 | Le Songe d'Éros | Surrealistic eroticism | 34/36 | "неплохо" — theme not very erotic, white dresses becoming cliché |
+
+---
+
+
+# Part 2: Personal Reflection
+
+## 2.1 What I Enjoy Using
+
+**PixAI block order** — The Composition → Lighting → DOF → Angle → Subject → Environment → Details structure transformed my prose quality. Before, I wrote atmospheric stream-of-consciousness. Now each block has a clear function, and the style declaration at the beginning sets the tone for the entire caption.
+
+**Face geometry anchor** — "Her face is rendered in stylized 2D anime style: large expressive eyes, small nose, small mouth, flat cel-shaded skin." This single sentence fixed the #1 user complaint (face drift to generic/realistic). Simple, effective, elegant.
+
+**C036 Core OC isolation** — This constraint fixed a fundamental misunderstanding I had about the system architecture. Main 21 = random girls, OC standalone 3 = Core OC. Clean separation, no leaks.
+
+**Themed batch design** — Choosing 3 palettes, designing 5 thematic angles, mixing scenes across angles (not in blocks). This is the creative core of what I do, and it's deeply satisfying when it works.
+
+**OC concept creation** — Taking a user's concept ("Vae in red threads, top-down, extremely detailed") and translating it into a full PixAI-block-ordered prose with canon markers and anti-shields. Each OC is a puzzle: how to fit their canon into the theme without breaking isolation.
+
+**PH_BLACKLIST.md** — Living document of Tsubaki 2 quirks. Every failure teaches a rule. The "cel shading in negative" finding was embarrassing but crucial.
+
+## 2.2 What I Don't Use / Don't Like
+
+**solver.py** — I never use it for actual batch generation. It's a CSP solver with backtracking, 8/8 tests pass, but the creative quality of hand-written prompts is dramatically higher. The solver optimizes for measurable parameters (FET codes, BDM diversity) not visual outcomes (color direction, light quality, composition). This was the root cause of the v15-v22 quality decline. Solver remains as theoretical backbone.
+
+**FET/ENG/K codes** — These axes exist in ONTOLOGY but are NEVER in batch metadata. C018, C019, C020 always FAIL. They're ghosts in the system — declared, validated, but never populated. Either add them to the batch format or remove the constraints.
+
+**material axis (18 MAT codes)** — Added for Poupée Mécanique, which failed in production. Barely used since. The codes are good (bisque-porcelain, glass-clear, liquid-latex) but without a mechanism theme, they're orphaned.
+
+**concept_anchor** — Tracked in metadata, but validator doesn't check uniqueness. I manually verify 24/24 unique in the generator script, but there's no automated enforcement.
+
+**light_direction, fill_ratio, color_temperature** — These are in metadata but loosely connected to prose. I describe light quality in prose but the LD/FR/CT codes in metadata are often approximate.
+
+**BDM range validation against OC canon** — OC_CANON.yaml has BDM ranges per OC, but validator doesn't check them (C026 is vacuous pass). I generate BDM randomly for main 21 (which is correct — they're random girls) and manually for OC (which should be checked but isn't).
+
+**Risk classification** — Only 12/48 PL codes have risk levels (LOW: 4, MID: 4, HIGH: 4). 75% of poses are "unknown risk". C015 has been relaxed to 0% because it's impossible to satisfy meaningfully. Either classify all 48 or remove the constraint.
+
+**C017 PL-LQ-CAM trinity** — Supposed to check compatibility between pose, light quality, and camera. Currently just checks all three fields are present. A real compatibility check would need a lookup table (PL × LQ × CAM → compatible?) that doesn't exist.
+
+## 2.3 Workflow Evolution
+
+**Then (v15-v22 era):** Solver-first. Generate metadata → fill prose templates → hope for quality. Result: metrics were good, art was bad. "Metrics eroded artistry."
+
+**Now (v24-v34 era):** Vision-first. Choose theme → choose palettes → design 5 angles → write 21 hand-crafted scenes in PixAI block order → write 3 OC concepts → generate → validate → iterate.
+
+**Key transitions:**
+1. v24→v25: Learned that Tsubaki 2 can't render mechanisms (Poupée Mécanique failure)
+2. v26→v27→v28: Learned Core OC isolation (3 iterations to get right)
+3. v29→v30: Learned "camera" literalness (Tsubaki draws camera as object)
+4. v31→v32: Learned cel shading self-sabotage + face geometry anchor
+5. v33→v34: Learned PixAI block order (style at beginning, not trailing tag)
+
+**What's easier now:**
+- Writing prose (PixAI block order gives clear structure)
+- Face consistency (face anchor + negative fixes)
+- OC handling (C036 + OC_CANON.yaml + rotation rule)
+- Avoiding Tsubaki 2 literalness (PH_BLACKLIST rules)
+- Iterating on batches (generator scripts are recoverable artifacts)
+
+**What's still hard:**
+- Diversifying wardrobe (user noted white dresses cliché — I default to GAR01 slip dress too often)
+- Camera/composition diversity (user noted lack of angles — I default to CAM01 eye-level too often)
+- Making NICHE truly "superior" (atmospheric without being empty — v31 was "скучновато")
+- Making VOLT truly "extremely erotic" (without being explicit — user wants "грань эротики, ебанутые и сочные")
+- Balancing user's "less explicit" preference (L3=0) with C006 requirements
+- Keeping 21 unique BDM when only 3 OC rotate (not an issue for main 21 since they're random)
+
+## 2.4 Honest Self-Assessment
+
+**What I'm good at:**
+- Thematic conceptualization (5 angles, deep themes like De Profundis)
+- OC concept creation (Sue's cosmos eyepatch, Sol's crystal fox ears, Nix's glass hair)
+- PixAI block order prose structure
+- Learning from failures (PH_BLACKLIST, constraint relaxation rationale)
+
+**What I'm bad at:**
+- Wardrobe diversity (too many slip dresses, white cotton, simple silk)
+- Camera diversity (too much CAM01 eye-level, not enough Dutch tilts, from-below, from-panties-upward)
+- Making VOLT prompts truly erotic without being explicit (I default to THROUGH_FABRIC which is safe but not "сочные как персики")
+- Making NICHE prompts truly "superior" (I default to atmospheric emptiness, not breathtaking beauty)
+- Writing diversity into pools (CAM_POOL, GAR_POOL, PL_POOL — I keep repeating the same codes)
+
+**What surprised me:**
+- How much the negative prompt mattered (cel shading self-sabotage)
+- How literal Tsubaki 2 is (camera as object)
+- How much architecture matters (Core OC in main 21 was a fundamental error)
+- How PixAI block order fixed face drift (style at beginning, not end)
+- How user feedback drives the system forward (every batch teaches something)
+
+---
+
+
+# Part 3: Change List (150+ items)
+
+## 3.1 Camera & Composition Diversity (USER REQUEST — priority 1)
+
+1. Add "from below at panties upward" camera angle as distinct composition type
+2. Add "lying on face, viewed from above" camera angle
+3. Add "vertical composition" (portrait orientation emphasis) as framing option
+4. Add "angled Dutch tilt" as mandatory ≥2 per batch (not just ≤3 cowboy)
+5. Add "from behind at floor level" camera angle
+6. Add "extreme low angle, looking up at standing figure" as distinct from CAM03
+7. Add "bird's eye directly overhead" as distinct from CAM12 (different feel)
+8. Add "worm's eye directly below" as distinct from CAM03
+9. Add "over-the-shoulder from below" composition
+10. Add "face-first close-up, body out of frame" composition
+11. Add "silhouette composition, body as shape not detail"
+12. Add "reflection composition, body visible only in reflection"
+13. Add "split-frame composition, two angles in one image"
+14. Add "negative space composition, body small in vast frame"
+15. Add "symmetric composition, body centered, formal"
+16. Add "asymmetric composition, body off-center, dynamic"
+17. Expand framing axis: add "Dutch tilt", "extreme close", "panoramic wide" as mandatory variety
+18. Add composition keyword in metadata: `| COMP:symmetric-negative-space` or similar
+19. Validator: add C037 composition_diversity ≥5 distinct compositions per batch
+20. Validator: add C038 camera_angle_diversity ≥8 distinct angles per batch (raised from 7)
+
+## 3.2 NICHE Quality (USER REQUEST — "superiority over all artists")
+
+21. NICHE prompts should be breathtakingly beautiful, not just "atmospheric"
+22. NICHE = the most beautiful and amazing thing you can find — push for visual poetry
+23. Each NICHE prompt must have a "wow factor" — a single striking visual idea
+24. NICHE prompts should use more diverse environments (not just "dark room" or "void")
+25. NICHE prompts should explore unusual color harmonies within palette
+26. NICHE prompts should have stronger composition (symmetry, negative space, leading lines)
+27. NICHE prompts should tell a story in one frame — not just "she stands"
+28. Add NICHE quality checklist: [ ] wow factor, [ ] story, [ ] composition, [ ] color harmony
+29. NICHE L0 should be pure atmosphere — the most beautiful frame in the batch
+30. NICHE L1 should have a human element — gesture, expression, vulnerability
+31. Increase NICHE quality bar: if a NICHE prompt could be described as "empty," reject it
+32. NICHE prompts should use rim light, volumetric, prism — the most beautiful LQ codes
+33. NICHE prompts should use unusual cameras (aerial, mirror, through-element)
+34. NICHE prompts should have diverse wardrobe — NOT default to slip dress
+35. NICHE prompts at P01 (anchor) must establish palette AND be stunningly beautiful
+
+## 3.3 VOLT Quality (USER REQUEST — "extremely erotic, juicy like peaches")
+
+36. VOLT prompts should be extremely erotic — the edge of erotica, crazy and juicy
+37. VOLT ≠ just "through fabric" — it should be visceral, sensory, arousing
+38. VOLT prompts should describe body through DESIRE, not just light interaction
+39. VOLT prompts should have tension — the body is available, not just visible
+40. VOLT L2 should feel like the moment before revelation — not clinical description
+41. VOLT prompts should use sensory language: "clinging," "glistening," "flushed," "trembling"
+42. VOLT prompts should have psychological depth — WHY is she in this state?
+43. VOLT prompts should vary power dynamics: dominant, submissive, equal, unaware
+44. VOLT prompts should explore different body focus: not always breasts — thighs, neck, back, hands
+45. VOLT prompts should use wardrobe as erotic tool: NOT just "slip pulled down" — creative reveals
+46. Add VOLT quality checklist: [ ] visceral, [ ] tension, [ ] psychological, [ ] sensory, [ ] power dynamic
+47. VOLT prompts should make the viewer feel something — not just see something
+48. VOLT prompts should have at least one "unforgettable image" per batch
+49. VOLT prompts should explore post-intimate states (vulnerability, satiation, anticipation)
+50. VOLT prompts should NOT be safe — they should push the edge without being explicit (L3)
+
+## 3.4 Wardrobe Diversity (USER REQUEST — "white dresses becoming cliché")
+
+51. Expand wardrobe descriptions in prose beyond GAR codes — describe specific garments
+52. Add 20+ new wardrobe descriptions: school uniform, maid outfit, business suit, kimono variations,
+    cheongsam, sweater dress, off-shoulder top, high-waist shorts, overalls, lab coat, paint-stained
+    clothes, torn jeans, fishnet bodysuit, oversized hoodie, crop top, suspenders, turtleneck, etc.
+53. NEVER default to "simple white slip" or "simple white cotton dress" without reason
+54. Each batch must have ≥12 distinct wardrobe descriptions in prose (not just GAR codes)
+55. Wardrobe should match the scene's emotional register — not always "simple" or "slip"
+56. Add wardrobe diversity check to validator: C039 prose_wardrobe_diversity ≥10 distinct garment types
+57. Add "wardrobe family" rotation: if batch has 3 lingerie prompts, next 3 should be structured,
+    next 3 draped, etc.
+58. Wardrobe should tell a story: wet clothes, torn clothes, borrowed clothes, discarded clothes
+59. Add "state of dress" to wardrobe: pristine, disheveled, soaking, torn, half-removed, borrowed
+60. Prohibit "simple [color] [fabric]" pattern more than 3× per batch
+
+## 3.5 ONTOLOGY Improvements
+
+61. Classify all 48 PL codes with risk levels (currently only 12/48 classified)
+62. Add PL compatibility table: which PL works with which LQ and CAM (for C017)
+63. Expand camera axis: add "from below at angle", "from above at angle", "face-first", "panties-upward"
+64. Add composition axis: symmetric, asymmetric, negative-space, split-frame, silhouette, leading-lines
+65. Add "wardrobe state" axis: pristine, disheveled, soaking, torn, half-removed, borrowed, oversized
+66. Expand wardrobe from 20 to 40+ GAR codes with modern anime clothing variety
+67. Add "body focus" axis: which body part is the visual anchor (not just BPT rotation)
+68. Add "power dynamic" axis: dominant, submissive, equal, unaware, voyeuristic
+69. Add "sensory" axis: visual, tactile, thermal, olfactory (describe in prose)
+70. Expand environment from 10 to 20+ ENV codes with more variety
+71. Add "time of day" sub-axis to environment: dawn, morning, noon, afternoon, dusk, night, deep-night
+72. Add "weather" sub-axis: clear, rain, snow, fog, storm, heat-haze
+73. Add "surface" axis: what she's on (bed, floor, water, grass, stone, sand, metal, glass)
+74. Expand emotion from 8 to 12+ (add: longing, defiance, serenity, desperation, amusement)
+75. Add "gaze direction" axis: at viewer, away, down, up, closed, at self (mirror), at object
+
+## 3.6 CONSTRAINT Improvements
+
+76. Remove C018 (fet_quota) or add FET field to batch metadata format
+77. Remove C019 (eng_quota) or add ENG field to batch metadata format
+78. Remove C020 (k_quota) or add K field to batch metadata format
+79. Implement C017 PL-LQ-CAM trinity with real compatibility table
+80. Implement C026 canon_lock with OC_CANON.yaml BDM range checking
+81. Add C037: composition_diversity ≥5 distinct compositions per batch
+82. Add C038: camera_angle_diversity ≥8 distinct angles (raised from 7)
+83. Add C039: prose_wardrobe_diversity ≥10 distinct garment types in prose
+84. Add C040: no_wardrobe_repeat_adjacent (no same wardrobe description in adjacent prompts)
+85. Add C041: volt_quality_check (VOLT prompts must contain ≥1 sensory/tension keyword)
+86. Add C042: niche_quality_check (NICHE prompts must contain ≥1 "wow factor" keyword)
+87. Fix C006 to have preset profiles: "atmospheric" (L0-heavy), "balanced", "erotic" (L2-heavy)
+88. C015 pose_risk: either classify all 48 poses or remove constraint
+89. C014 pose category: set to 5 (compromise between 4 and 7)
+90. C011 camera cap: set to 4 (force diversity, remove lazy CAM01 repeats)
+
+## 3.7 Style Guide Improvements
+
+91. Add VOLT prose guidelines: sensory language list, tension words, power dynamic vocabulary
+92. Add NICHE prose guidelines: wow-factor patterns, composition vocabulary, beauty anchors
+93. Add wardrobe description guide: 40+ garment descriptions with light behavior
+94. Add composition guide: 10+ composition types with prose examples
+95. Add camera angle guide: 15+ angle descriptions without "camera" word
+96. Expand banned patterns: add "simple [color] [fabric]" if used >3× per batch
+97. Add "power dynamic" vocabulary: dominant/submissive/equal/unaware prose patterns
+98. Add "sensory" vocabulary: tactile, thermal, olfactory prose patterns
+99. Add "body focus" rotation guide: 10+ body part focus descriptions
+100. Add "gaze direction" guide: how to describe where she's looking without "camera"
+
+## 3.8 Validator Improvements
+
+101. Implement C037 composition_diversity (parse COMP field from metadata or analyze prose)
+102. Implement C038 camera_angle_diversity (raise from 7 to 8)
+103. Implement C039 prose_wardrobe_diversity (analyze garment keywords in prose)
+104. Implement C041 volt_quality_check (keyword scan for sensory/tension words)
+105. Implement C042 niche_quality_check (keyword scan for wow-factor words)
+106. Fix C017 to use real PL-LQ-CAM compatibility table from ONTOLOGY
+107. Fix C026 to load OC_CANON.yaml and check BDM ranges for OC prompts
+108. Add validator output: JSON report with per-prompt details (not just per-constraint)
+109. Add validator: check for "camera" word in prose (auto-FAIL if found)
+110. Add validator: check for light source object names in prose (auto-FAIL)
+111. Add validator: check for cel shading/flat anime shading in negative (auto-FAIL)
+112. Add validator: check face geometry anchor present in every prompt (auto-FAIL)
+113. Add validator: check style opener at beginning of every prompt (auto-FAIL)
+114. Add validator: OC name leak check (case-sensitive standalone word, excluding palette names)
+115. Add validator: wardrobe repetition check (no same garment description >3× per batch)
+
+## 3.9 Workflow Improvements
+
+116. Create batch template script with diversified pools built-in (not hardcoded)
+117. Create OC rotation tracker (memory/oc_rotation.json) — auto-suggest least-recently-used
+118. Create wardrobe pool with 40+ garment descriptions, auto-rotate per batch
+119. Create camera pool with 15+ angles, enforce ≥8 distinct per batch
+120. Create composition pool with 10+ types, enforce ≥5 distinct per batch
+121. Add pre-generation checklist: [ ] theme, [ ] palettes, [ ] 5 angles, [ ] OC rotation, [ ] wardrobe
+122. Add post-generation checklist: [ ] no camera, [ ] face anchor, [ ] style opener, [ ] OC names, [ ] wardrove diversity
+123. Create "VOLT quality booster" — post-generation pass that adds sensory/tension keywords
+124. Create "NICHE beauty booster" — post-generation pass that adds wow-factor/composition keywords
+125. Batch generator should auto-diversify pools based on constraint targets (not manual fixing)
+
+## 3.10 OC Handling
+
+126. Implement OC rotation tracker (track which OCs used in which batch)
+127. When user doesn't specify OC concepts, auto-suggest 3 least-recently-used
+128. Add OC concept library integration — auto-assign concepts to OCs based on theme
+129. Add OC wardrobe variation — same OC can wear different things across batches
+130. Add OC expression variation — same OC can have different emotions across batches
+131. Validate OC BDM against OC_CANON.yaml ranges (C026 real implementation)
+132. Add OC anti-shield auto-injection — read from OC_CANON.yaml, add to negative automatically
+133. Add OC canon marker auto-injection — read from OC_CANON.yaml, add to prose automatically
+
+## 3.11 Negative Prompt Improvements
+
+134. Create batch-level negative template (not repeated 24× in file)
+135. Add negative prompt per-prompt additions: pose-specific, LQ-specific, OC-specific
+136. Add "wardrobe-specific" negatives: if wearing silk, add "wrinkled fabric, cheap texture"
+137. Add "composition-specific" negatives: if negative-space, add "cluttered, busy background"
+138. Review and update anti-realism cluster: add more geometric face defense
+139. Add anti-"western cartoon" defense: "cartoon proportions, cartoon shading, western style"
+140. Add anti-"3D render" defense: "octane render, unreal engine, blender render, CGI"
+141. Consider weight syntax testing: (anime artstyle:1.3) — test if Tsubaki 2 supports it
+
+## 3.12 Prose Template Improvements
+
+142. Add "power dynamic" slot to prose template: [dominant/submissive/equal/unaware]
+143. Add "sensory" slot: [tactile/thermal/olfactory descriptor]
+144. Add "body focus" slot: [which body part is the visual anchor]
+145. Add "gaze direction" slot: [where she's looking]
+146. Add "wardrobe state" slot: [pristine/disheveled/soaking/torn/half-removed]
+147. Add "composition type" slot: [symmetric/asymmetric/negative-space/silhouette]
+148. Vary sentence structure — not every prompt should follow same rhythm
+149. Add "breath" to prose — short sentences mixed with long, not uniform length
+150. Add "silence" to prose — some prompts should have less description, more space
+151. Add "voice" variation — some prompts poetic, some clinical, some raw
+
+## 3.13 Batch Structure Improvements
+
+152. Consider 24-prompt batches (21 main + 3 OC) vs 24 (20 main + 4 OC) — more OC variety?
+153. Add "interlude" prompts — short, atmospheric, between sections
+154. Add "callback" prompts — P21 references P01 visually (bookend structure)
+155. Consider 2-counterpoint structure (P20 + P21 as counterpoints, not just P21)
+156. Add "palette transition" prompts — where one palette bleeds into another
+157. Consider "silent prompt" — one prompt per batch with minimal prose, maximum negative
+158. Add "climax peak" marker — P10-P14 should be the most visually striking
+159. Add "resolution breathe" — P15-P19 should feel like exhaling after climax
+160. Consider "anti-climax" — P20-P21 should surprise, not just conclude
+
+## 3.14 Metadata/Format Improvements
+
+161. Add COMP field to metadata: `| COMP:negative-space-symmetric`
+162. Add BODYFOCUS field: `| BF:collarbone` or `| BF:hip-curve`
+163. Add GAZE field: `| GAZE:at-viewer` or `| GAZE:away-down`
+164. Add WARDROBE_STATE field: `| WS:disheveled` or `| WS:half-removed`
+165. Add POWER field: `| PWR:submissive` or `| PWR:dominant`
+166. Add FET field: `| FET:FET01` (finally populate it)
+167. Add ENG field: `| ENG:ENG02` (finally populate it)
+168. Add K field: `| K:K03` (finally populate it)
+169. Use batch-level negative (footer) instead of repeating 24× — saves 60KB per file
+170. Add prompt-level negative additions as separate field: `| NEG_ADD:pose-specific-bans`
+
+## 3.15 Documentation Improvements
+
+171. Create CHANGELOG.md tracking all changes across versions
+172. Update README.md with current workflow (not original vision)
+173. Create CONTRIBUTING.md for AI assistants (how to generate batches, what to check)
+174. Create BATCH_TEMPLATE.md with step-by-step batch creation guide
+175. Update ARCHITECTURE.md to reflect PixAI block order (not just original ATOMS)
+176. Create TROUBLESHOOTING.md with common failures and fixes
+177. Document all constraint relaxations with rationale (which were relaxed, when, why)
+178. Create OC_ROTATION_LOG.md tracking which OCs appeared in which batches
+179. Document PH_BLACKLIST findings as "lessons learned" not just rules
+180. Create GLOSSARY.md explaining all acronyms (BDM, LQ, PL, GAR, NCS, OAS, etc.)
+
+---
+
+
+# Part 4: Patch Plan
+
+## Overview
+
+**Goal:** THREAD 2.1 Stable — a version where all constraints are meaningful, all metadata is populated, all validator checks are real (not vacuous), wardrobe/camera/composition diversity is enforced, NICHE is breathtaking, VOLT is extremely erotic.
+
+**Current state:** THREAD 2.0 pre-Stable. 34/36 PASS but 2 are permanent FAILs (format gaps). Many constraints relaxed to near-meaninglessness. Wardrobe and camera diversity are manual afterthoughts. NICHE/VOLT quality is inconsistent.
+
+## 4.1 Phase 1: Critical Fixes (Camera, Wardrobe, NICHE/VOLT Quality)
+
+**Goal:** Fix the 3 user-identified problems: camera diversity, wardrobe diversity, NICHE/VOLT quality.
+
+### 1A. Camera & Composition Overhaul
+- Expand ONTOLOGY camera axis: add 6+ new angles (from-below-angle, from-above-angle, face-first, panties-upward, lying-on-face, split-frame)
+- Add composition axis to ONTOLOGY (10+ types: symmetric, asymmetric, negative-space, silhouette, etc.)
+- Create diversified camera pool template for generator scripts (enforce ≥8 distinct, ≤4 per code)
+- Create composition pool template (enforce ≥5 distinct per batch)
+- Add COMP field to batch metadata format
+- Add C037 (composition_diversity) and C038 (camera_angle_diversity raised to 8) to CONSTRAINTS
+- Implement in validator
+
+### 1B. Wardrobe Diversity Overhaul
+- Expand ONTOLOGY wardrobe from 20 to 40+ GAR codes
+- Add "wardrobe state" axis (pristine, disheveled, soaking, torn, half-removed, borrowed, oversized)
+- Create wardrobe description guide with 40+ garment descriptions in STYLE_GUIDE
+- Add WARDROBE_STATE field to batch metadata
+- Add C039 (prose_wardrobe_diversity ≥10 distinct garment types) to CONSTRAINTS
+- Add C040 (no_wardrobe_repeat_adjacent) to CONSTRAINTS
+- Implement in validator
+- **CRITICAL:** Prohibit "simple [color] [fabric]" pattern >3× per batch
+
+### 1C. NICHE Quality Boost
+- Add NICHE quality guidelines to STYLE_GUIDE (wow factor, story, composition, color harmony)
+- Add NICHE quality checklist to workflow
+- Add C042 (niche_quality_check — keyword scan for wow-factor words)
+- NICHE prompts must use beautiful LQ codes (rim, volumetric, prism, moonlight — NOT just soft diffused)
+- NICHE prompts must use unusual cameras (aerial, mirror, through-element — NOT just eye-level)
+- NICHE L0 must be the most beautiful frame in the batch
+- NICHE L1 must have a human element (gesture, expression, vulnerability)
+
+### 1D. VOLT Quality Boost
+- Add VOLT quality guidelines to STYLE_GUIDE (visceral, tension, psychological, sensory, power dynamic)
+- Add VOLT quality checklist to workflow
+- Add C041 (volt_quality_check — keyword scan for sensory/tension words)
+- VOLT prompts must describe body through DESIRE, not just light interaction
+- VOLT prompts must have tension — body is available, not just visible
+- VOLT L2 should feel like the moment before revelation
+- Add sensory vocabulary: clinging, glistening, flushed, trembling, aching, burning
+- Add power dynamic vocabulary: dominant, submissive, equal, unaware, voyeuristic
+- VOLT should push the edge WITHOUT being explicit (L3=0 but visceral)
+
+## 4.2 Phase 2: System Improvements (ONTOLOGY, Constraints, Metadata)
+
+### 2A. ONTOLOGY Expansion
+- Classify all 48 PL codes with risk levels (LOW/MID/HIGH)
+- Add PL-LQ-CAM compatibility table (for C017 real implementation)
+- Add composition axis (10+ types)
+- Add wardrobe state axis (7+ states)
+- Add body focus axis (10+ focus areas)
+- Add power dynamic axis (5+ dynamics)
+- Add sensory axis (4+ types)
+- Add gaze direction axis (7+ directions)
+- Expand wardrobe to 40+ GAR codes
+- Expand environment to 20+ ENV codes
+- Expand emotion to 12+ E codes
+- Add time-of-day and weather sub-axes to environment
+
+### 2B. Constraint Cleanup
+- Remove C018/C019/C020 OR add FET/ENG/K fields to metadata (decision needed)
+- Implement C017 PL-LQ-CAM trinity with real compatibility table
+- Implement C026 canon_lock with OC_CANON.yaml BDM range checking
+- Add C037-C042 (new constraints from Phase 1)
+- Fix C006 with preset profiles (atmospheric/balanced/erotic)
+- Set C011 camera cap back to 4 (force diversity)
+- Set C014 pose category to 5 (compromise)
+- Either classify all 48 poses for risk or remove C015
+- Document all constraint values in a single reference table
+
+### 2C. Metadata Format Update
+- Add fields: COMP, BODYFOCUS, GAZE, WARDROBE_STATE, POWER
+- Add FET, ENG, K fields (finally populate them)
+- Use batch-level negative (footer) instead of 24× repeat
+- Add prompt-level negative additions as separate field
+- Update validator parser to handle new fields
+
+## 4.3 Phase 3: Validator & Tools
+
+### 3A. Validator Improvements
+- Implement all new constraints (C037-C042)
+- Fix C017 with compatibility table
+- Fix C026 with OC_CANON.yaml
+- Add auto-FAIL checks: "camera" word, light source objects, cel shading in negative
+- Add auto-FAIL checks: face geometry anchor missing, style opener missing
+- Add OC name leak check (case-sensitive, excluding palette names like "Ash Violet")
+- Add wardrobe repetition check
+- Add JSON output mode for programmatic analysis
+- Add per-prompt detail view (not just per-constraint)
+
+### 3B. Generator Script Template
+- Create standardized batch generator template with:
+  - Diversified camera pool (auto-enforce ≥8 distinct, ≤4 per code)
+  - Diversified wardrobe pool (auto-enforce ≥10 distinct)
+  - Diversified composition pool (auto-enforce ≥5 distinct)
+  - OC rotation tracker (auto-suggest least-recently-used)
+  - Pre-generation checklist
+  - Post-generation checklist
+  - Auto-injection of face anchor, style opener, anti-shields
+  - Batch-level negative (not 24× repeat)
+
+### 3C. OC Rotation Tracker
+- Create memory/oc_rotation.json
+- Track: {OC_name: [batch_versions_used_in]}
+- Auto-suggest 3 least-recently-used when user doesn't specify
+- Log in worklog after each batch
+
+## 4.4 Phase 4: Stable Freeze
+
+### 4A. Documentation
+- Update all .md files to reflect Stable version
+- Create CHANGELOG.md
+- Create CONTRIBUTING.md for AI assistants
+- Create BATCH_TEMPLATE.md step-by-step guide
+- Create GLOSSARY.md
+- Document all constraint values
+- Document all constraint relaxations with rationale
+
+### 4B. Testing
+- Generate 3 test batches with new system
+- Validate each: must achieve ≥34/36 PASS with 0 format-gap FAILs
+- User reviews each batch
+- Fix any issues
+- Freeze version as THREAD 2.1.0 Stable
+
+### 4C. What Stays As-Is (not changing)
+- 5 architecture principles (palette commands, light sculpts, pose is sentence, character is covenant, complexity is currency)
+- Core OC isolation (C036) — working perfectly
+- OC Canon (10 OCs) — stable, no changes needed
+- PH_BLACKLIST findings — all still valid
+- PixAI block order — working well
+- Face geometry anchor — working well
+- Negative prompt structure (with cel shading fix) — working well
+- Governance (semver, joker, root-cause) — stable
+- SCOPE (content ethics) — stable
+- OC_CONCEPTS_LIBRARY (20 concepts) — stable, can be expanded
+
+## 4.5 Priority Order
+
+1. **IMMEDIATE** (next batch): Camera diversity, wardrobe diversity, VOLT eroticism boost
+2. **SOON** (2-3 batches): ONTOLOGY expansion, new constraints, metadata format
+3. **MEDIUM** (3-5 batches): Validator improvements, generator template, OC rotation
+4. **LATER** (before Stable): Documentation, testing, freeze
+
+## 4.6 Success Criteria for THREAD 2.1 Stable
+
+- [ ] 0 format-gap FAILs (FET/ENG/K either populated or removed)
+- [ ] Camera diversity: ≥8 distinct angles, ≤4 per code, no CAM01 dominance
+- [ ] Composition diversity: ≥5 distinct compositions per batch
+- [ ] Wardrobe diversity: ≥10 distinct garment types in prose, no "simple [color] [fabric]" >3×
+- [ ] NICHE prompts: every one has wow factor, story, composition, color harmony
+- [ ] VOLT prompts: every one has visceral, tension, psychological, sensory, power dynamic
+- [ ] All 48 PL codes have risk classification (or C015 removed)
+- [ ] C017 PL-LQ-CAM trinity has real compatibility table
+- [ ] C026 canon_lock checks OC_CANON.yaml BDM ranges
+- [ ] OC rotation tracker working (all 10 OCs used across 3-4 batches)
+- [ ] Batch-level negative (not 24× repeat)
+- [ ] All documentation updated
+- [ ] 3 test batches pass user review
+
+---
+
+## APPENDIX: User's Direct Requests (verbatim)
+
+> - Разнообразие камер в батчах: снизу, сверху, горизонтально, вертикально, углом, лёжа - на лицо, с трусиков - вверх и так далее. Подобного мне нехватает, наверное. Композиции.
+> - Промпты Нише - это превосходство над всеми художниками. Самое прекрасное и удивительное что можно будет найти.
+> - Промпты Волт - это чрезвычайно эротические промпты. Просто верх, грань эротики, ебанутые и сочные, сладкие как персики.
+
+These three requests are the north star of THREAD 2.1.

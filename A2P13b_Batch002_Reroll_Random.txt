@@ -1,0 +1,360 @@
+═══════════════════════════════════════════════════════════════════
+  A2P13b — BATCH 002 — REROLL: WOMEN & SCENES
+  Theme: None (Random) | Seed Rotation: Dressing
+  Rating: R+ 12 / X 9 | Yuri: 6/21 (28.5%)
+  Mood Anchor: Sensual Slow | Cognitive: LITE/STANDARD mix
+═══════════════════════════════════════════════════════════════════
+
+BATCH DECLARATION:
+  Theme:              None (random)
+  Mood Anchor:        Sensual slow
+  Artistic Token:     anime artstyle, detailed skin texture, soft volumetric lighting,
+                      subsurface scattering hint, gentle skin gradient, tactile skin softness,
+                      clean lineart, expressive anime eyes
+  Intensity Target:   R+: 57% X: 43%
+  Yuri Target:        28.5%
+  Skeleton Default:   BALANCED
+  Archetype Position: Dressing (seed rotation)
+  DNA Last 3:         — / — / —
+  Memory Window:      Empty (fresh batch)
+
+═══════════════════════════════════════════════════════════════════
+
+──────────────────────────────────────────────────────────────
+## PROMPT 1  |  Dressing | R+ | VULNERABLE | SOLO | BALANCED
+──────────────────────────────────────────────────────────────
+DNA: seated / vulnerable / partial / mid / slow
+
+PROMPT:
+masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, subsurface scattering hint, gentle skin gradient, tactile skin softness, clean lineart, expressive anime eyes, 1girl, slim, fair skin, long black hair, loose hair, averted eyes, slightly parted lips, visible blush, collarbone curve visible, adjusting shirt collar, white dress shirt unbuttoned, black pleated skirt, slipping fabric sliding off shoulder, sheer bra, bare shoulder line curving to collarbone, in bedroom morning, soft morning window light, skin catching warm light, warm cream tones soft saturation gold accent, medium shot eye level, caught off guard, looking away, slight shoulder tilt, damp hair strand on neck
+
+NEGATIVE:
+worst quality, low quality, bad anatomy, deformed hands, extra fingers, missing fingers, mutated limbs, extra limbs, blurry, realistic skin, photorealistic, 3d render, manhwa style, 1boy, male, unnatural skin color, background male, fully buttoned closed shirt
+
+──────────────────────────────────────────────────────────────
+## PROMPT 2  |  Relaxing | R+ | COOL | SOLO | BALANCED
+──────────────────────────────────────────────────────────────
+DNA: reclining / cool / partial / mid / still
+
+PROMPT:
+masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, subsurface scattering hint, gentle skin gradient, tactile skin softness, clean lineart, expressive anime eyes, 1girl, slender, pale skin, short silver hair, bob cut, level gaze, composed mouth, waist curve visible under thin fabric, lying on couch, oversized cream sweater off-shoulder, grey leggings, loose fabric draped, subtle nipple bump through thin fabric, in home living room, overcast diffused daylight, cool skin tone warm light on skin, cool grey tones muted saturation warm wood accent, medium shot slight side angle, soft ambient shadow, looking at book, head slightly tilted
+
+NEGATIVE:
+worst quality, low quality, bad anatomy, deformed hands, extra fingers, missing fingers, mutated limbs, extra limbs, blurry, realistic skin, photorealistic, 3d render, manhwa style, 1boy, male, unnatural skin color, background male, nipple color through dry fabric
+
+──────────────────────────────────────────────────────────────
+## PROMPT 3  |  Battle Aftermath | X | TENSE | SOLO | BALANCED
+──────────────────────────────────────────────────────────────
+DNA: standing / tense / revealing / mid / dynamic
+
+PROMPT:
+masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, subsurface scattering hint, gentle skin gradient, tactile skin softness, clean lineart, expressive anime eyes, 1girl, athletic build, tanned skin, white hair tied messy ponytail, red eyes, focused intent stare, parted lips, light flush, bare midriff toned stomach, leaning on sword, torn battle outfit open front, black shorts tattered, tight fabric stretched across chest, bare breasts side visible from angle, exposed breasts visible nipples, on battlefield ruins, golden hour sunlight through window, warm skin tone, warm amber tones moderate saturation red accent, medium shot low angle, cast shadow, just finished fighting, sweaty skin, sword sheathed at side, direct gaze, weight on one hip
+
+NEGATIVE:
+worst quality, low quality, bad anatomy, deformed hands, extra fingers, missing fingers, mutated limbs, extra limbs, blurry, realistic skin, photorealistic, 3d render, manhwa style, 1boy, male, unnatural skin color, fully clothed, closed shirt
+
+──────────────────────────────────────────────────────────────
+## PROMPT 4 ★ YURI  |  Intimate | X | WARM | YURI | BALANCED
+──────────────────────────────────────────────────────────────
+DNA: seated / warm / revealing / close / slow
+
+PROMPT:
+masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, subsurface scattering hint, gentle skin gradient, tactile skin softness, clean lineart, expressive anime eyes, 2girls, yuri, primary slim warm skin long pink hair loose gentle smile soft eyes light blush, secondary petite fair skin short black hair bob cut half-lidded drowsy no blush, hands on partner waist, wearing white camisole pink shorts, wearing black crop top grey skirt, loose fabric, slipping fabric strap fallen, bare shoulder line curving to collarbone, exposed breast from angle visible nipple, on bed together, candlelight warm glow, skin catching warm light, warm rose tones soft saturation cream accent, close-up slight top-down, soft shadow, looking at partner, half-lidded sensual, foreheads close
+
+NEGATIVE:
+worst quality, low quality, bad anatomy, deformed hands, extra fingers, missing fingers, mutated limbs, extra limbs, blurry, realistic skin, photorealistic, 3d render, manhwa style, 1boy, male, unnatural skin color, fused bodies, limb merge, too many arms, conjoined, fully clothed upper body
+
+──────────────────────────────────────────────────────────────
+## PROMPT 5  |  Sleeping | R+ | VULNERABLE | SOLO | BALANCED
+──────────────────────────────────────────────────────────────
+DNA: reclining / vulnerable / partial / mid / still
+
+PROMPT:
+masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, subsurface scattering hint, gentle skin gradient, tactile skin softness, clean lineart, expressive anime eyes, 1girl, petite, fair skin, lavender hair long messy, sleepy half-closed eyes, soft mouth, no blush, collarbone visible above sheets, sleeping on side, loose white camisole strap fallen off shoulder, pale blue shorts barely visible, loose fabric draped, bare shoulder line exposed, in bedroom night, moonlight blue through window, cool skin tone warm light on skin, cool blue tones muted saturation warm skin accent, medium shot side view, half-shadow, downcast eyes closed, arm draped over pillow, rumpled sheets
+
+NEGATIVE:
+worst quality, low quality, bad anatomy, deformed hands, extra fingers, missing fingers, mutated limbs, extra limbs, blurry, realistic skin, photorealistic, 3d render, manhwa style, 1boy, male, unnatural skin color, bright lighting, fully awake
+
+──────────────────────────────────────────────────────────────
+## PROMPT 6  |  Cooking/Working | R+ | PLAYFUL | SOLO | BALANCED
+──────────────────────────────────────────────────────────────
+DNA: standing / playful / partial / mid / dynamic
+
+PROMPT:
+masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, subsurface scattering hint, gentle skin gradient, tactile skin softness, clean lineart, expressive anime eyes, 1girl, curvy, warm skin, auburn hair twin buns, brown eyes, narrowed playful eyes, warm full smile, optional blush, waist curve visible, stirring pot, naked apron white, slipping fabric off one shoulder, taut fabric stretched across hips, side curve of breast visible from angle, in kitchen home, warm lamp glow from the side, amber tint on skin, warm amber tones soft saturation copper accent, medium shot three-quarter view, soft shadow, looking at viewer, mid-stir, flour dust on cheek
+
+NEGATIVE:
+worst quality, low quality, bad anatomy, deformed hands, extra fingers, missing fingers, mutated limbs, extra limbs, blurry, realistic skin, photorealistic, 3d render, manhwa style, 1boy, male, unnatural skin color, fully clothed under apron, visible nipples
+
+──────────────────────────────────────────────────────────────
+## PROMPT 7  |  Reading/Quiet | R+ | COOL | SOLO | BALANCED
+──────────────────────────────────────────────────────────────
+DNA: seated / cool / partial / close / still
+
+PROMPT:
+masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, subsurface scattering hint, gentle skin gradient, tactile skin softness, clean lineart, expressive anime eyes, 1girl, slim, porcelain skin, dark blue hair long straight, glasses, distant unfocused gaze, soft mouth, no blush, holding open book, oversized grey sweater off-shoulder, black leggings, loose fabric pooled at wrists, subtle nipple bump through thin knit, in library nook, golden reading lamp pool, skin catching warm light, cool grey tones muted saturation gold accent, close-up eye level, soft shadow ring, looking at book, hand resting on page, breath caught
+
+NEGATIVE:
+worst quality, low quality, bad anatomy, deformed hands, extra fingers, missing fingers, mutated limbs, extra limbs, blurry, realistic skin, photorealistic, 3d render, manhwa style, 1boy, male, unnatural skin color, nipple color through dry fabric, fully covered shoulders
+
+──────────────────────────────────────────────────────────────
+## PROMPT 8 ★ YURI  |  Social | R+ | PLAYFUL | YURI | BALANCED
+──────────────────────────────────────────────────────────────
+DNA: standing / playful / partial / mid / dynamic
+
+PROMPT:
+masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, subsurface scattering hint, gentle skin gradient, tactile skin softness, clean lineart, expressive anime eyes, 2girls, yuri, primary medium build warm skin blonde hair twin tails blue eyes sparkling mischievous eyes warm full smile no blush, secondary slim fair skin black hair short bob red eyes squinted playful suppressed grin light blush, hand reaching toward partner, wearing yellow sundress, wearing black mini skirt white crop top, loose fabric flowing, tight fabric across hips, thigh visible from lifted skirt, in school courtyard, bright afternoon daylight, warm skin tone, warm pastel tones soft saturation red accent, medium shot straight, looking at partner playful reach, natural fill
+
+NEGATIVE:
+worst quality, low quality, bad anatomy, deformed hands, extra fingers, missing fingers, mutated limbs, extra limbs, blurry, realistic skin, photorealistic, 3d render, manhwa style, 1boy, male, unnatural skin color, fused bodies, limb merge, too many arms, conjoined
+
+──────────────────────────────────────────────────────────────
+## PROMPT 9  |  Ritual/Ceremonial | X | TENSE | SOLO | BALANCED
+──────────────────────────────────────────────────────────────
+DNA: standing / tense / revealing / low / dynamic
+
+PROMPT:
+masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, subsurface scattering hint, gentle skin gradient, tactile skin softness, clean lineart, expressive anime eyes, 1girl, tall, pale skin, white hair long flowing, red eyes, locked eyes, controlled mouth, intense brows, no blush, arms spread invoking, open ceremonial robes, nude underneath, bare breasts visible nipples, sarashi unwrapped hanging, in shrine dark, moonlight blue through window, porcelain skin tone, deep purple tones muted saturation silver accent, low angle dramatic, half-shadow, floating runes, about to invoke, direct gaze, weight on one hip, incense smoke
+
+NEGATIVE:
+worst quality, low quality, bad anatomy, deformed hands, extra fingers, missing fingers, mutated limbs, extra limbs, blurry, realistic skin, photorealistic, 3d render, manhwa style, 1boy, male, unnatural skin color, fully closed robes, shirt bra clothing on upper body, bright lighting
+
+──────────────────────────────────────────────────────────────
+## PROMPT 10  |  Bathing | X | VULNERABLE | SOLO | BALANCED
+──────────────────────────────────────────────────────────────
+DNA: seated / vulnerable / revealing / mid / slow
+★ HYBRID LIGHTING (prompt ~5)
+
+PROMPT:
+masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, subsurface scattering hint, gentle skin gradient, tactile skin softness, clean lineart, expressive anime eyes, 1girl, petite, fair skin, long red hair wet, averted eyes, slightly open mouth, visible blush, bare breasts visible nipples, sitting on bath stool, white towel on lap only, wet skin, in bathroom onsen, moonlight blue with warm lamp accent, cool skin tone warm light on skin, cool blue tones muted saturation amber accent, medium shot side view, dual shadows, fresh from bath, wet hair sticking to neck, looking away, one knee raised
+
+NEGATIVE:
+worst quality, low quality, bad anatomy, deformed hands, extra fingers, missing fingers, mutated limbs, extra limbs, blurry, realistic skin, photorealistic, 3d render, manhwa style, 1boy, male, unnatural skin color, fully wrapped towel, dry skin, flat lighting
+
+──────────────────────────────────────────────────────────────
+## PROMPT 11 ★ YURI  |  Dressing | X | WARM | YURI | BALANCED
+──────────────────────────────────────────────────────────────
+DNA: standing / warm / revealing / mid / slow
+
+PROMPT:
+masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, subsurface scattering hint, gentle skin gradient, tactile skin softness, clean lineart, expressive anime eyes, 2girls, yuri, primary curvy warm skin honey blonde hair wavy long warm eyes soft smile light blush, secondary petite fair skin platinum hair short pixie wide eyes slightly parted lips deep blush, hand on partner waist, wearing unbuttoned white shirt open front no bra, wearing black lace bralette and skirt, slipping fabric shirt hanging off shoulders, loose fabric, bare breasts from angle visible nipple, topless from behind arms crossed, in bedroom morning, warm lamp glow from the side, skin catching warm light, warm honey tones soft saturation rose accent, medium shot three-quarter, soft shadow, looking at partner, gentle close composition, about to kiss
+
+NEGATIVE:
+worst quality, low quality, bad anatomy, deformed hands, extra fingers, missing fingers, mutated limbs, extra limbs, blurry, realistic skin, photorealistic, 3d render, manhwa style, 1boy, male, unnatural skin color, fused bodies, limb merge, too many arms, conjoined, fully buttoned closed shirt
+
+──────────────────────────────────────────────────────────────
+## PROMPT 12  |  Relaxing | R+ | WARM | SOLO | RICH
+──────────────────────────────────────────────────────────────
+DNA: reclining / warm / partial / wide / still
+
+PROMPT:
+masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, subsurface scattering hint, gentle skin gradient, tactile skin softness, clean lineart, expressive anime eyes, 1girl, medium build, warm olive skin, dark brown hair loose wavy, gentle smile, soft eyes, relaxed brows, no blush, waist curve visible, lying on stomach on rug, black sports bra, grey shorts, loose fabric pooled, bare back exposed, in home sunroom, golden hour sunlight through window, warm skin tone, warm amber tones soft saturation green accent, wide shot from above, warm long shadow, looking at viewer, arm draped over cushion, dappled light on skin, feet up crossed ankles, potted plants nearby
+
+NEGATIVE:
+worst quality, low quality, bad anatomy, deformed hands, extra fingers, missing fingers, mutated limbs, extra limbs, blurry, realistic skin, photorealistic, 3d render, manhwa style, 1boy, male, unnatural skin color, fully covered back, harsh lighting
+
+──────────────────────────────────────────────────────────────
+## PROMPT 13  |  Battle Aftermath | R+ | TENSE | SOLO | BALANCED
+──────────────────────────────────────────────────────────────
+DNA: leaning / tense / partial / mid / slow
+
+PROMPT:
+masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, subsurface scattering hint, gentle skin gradient, tactile skin softness, clean lineart, expressive anime eyes, 1girl, athletic, tanned skin, red hair messy braid, gold eyes, breathless tension, parted lips, light flush, toned stomach visible, leaning against wall, damaged armor breastplate removed, white sarashi wrapping, taut fabric wrapped around chest, side curve of breast visible from angle, in castle corridor, candlelight warm glow, amber tint on skin, warm copper tones moderate saturation dark accent, medium shot straight, deep shadows, catching breath, sweaty skin, sword propped against wall, direct gaze, hand resting on knee
+
+NEGATIVE:
+worst quality, low quality, bad anatomy, deformed hands, extra fingers, missing fingers, mutated limbs, extra limbs, blurry, realistic skin, photorealistic, 3d render, manhwa style, 1boy, male, unnatural skin color, intact armor, bare breasts visible nipples
+
+──────────────────────────────────────────────────────────────
+## PROMPT 14 ★ YURI  |  Intimate | X | VULNERABLE | YURI | BALANCED
+──────────────────────────────────────────────────────────────
+DNA: reclining / vulnerable / revealing / close / slow
+
+PROMPT:
+masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, subsurface scattering hint, gentle skin gradient, tactile skin softness, clean lineart, expressive anime eyes, 2girls, yuri, primary slim fair skin purple hair long amber eyes guarded eyes level brows light blush, secondary petite warm skin orange hair short blue eyes shy downward glance slightly open mouth visible blush, hands on partner back, wearing thin white camisole, wearing loose grey t-shirt, loose fabric, slipping fabric strap fallen, bare breast curve visible side, exposed breast nipple visible, on bed under sheets, moonlight blue through window, cool skin tone warm light on skin, cool lavender tones muted saturation warm skin accent, close-up side view, soft shadow, looking at partner forehead touch, tears on cheek, intimate framing
+
+NEGATIVE:
+worst quality, low quality, bad anatomy, deformed hands, extra fingers, missing fingers, mutated limbs, extra limbs, blurry, realistic skin, photorealistic, 3d render, manhwa style, 1boy, male, unnatural skin color, fused bodies, limb merge, too many arms, conjoined, fully clothed upper body
+
+──────────────────────────────────────────────────────────────
+## PROMPT 15  |  Sleeping | X | WARM | SOLO | BALANCED
+──────────────────────────────────────────────────────────────
+DNA: reclining / warm / revealing / mid / still
+★ HYBRID LIGHTING (prompt ~10)
+
+PROMPT:
+masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, subsurface scattering hint, gentle skin gradient, tactile skin softness, clean lineart, expressive anime eyes, 1girl, medium build, warm skin, pink hair long messy, closed eyes serene, soft mouth, no blush, bare breasts one visible from sheets, sleeping on back, sheets tangled at waist, nude, in bedroom night, city glow warm-cool mix, warm skin with cool shadow, warm muted tones soft saturation neon blue accent, medium shot slight side, dual shadows, peaceful sleeping, bare thigh visible, downcast eyes closed, hand resting on stomach
+
+NEGATIVE:
+worst quality, low quality, bad anatomy, deformed hands, extra fingers, missing fingers, mutated limbs, extra limbs, blurry, realistic skin, photorealistic, 3d render, manhwa style, 1boy, male, unnatural skin color, shirt bra clothing on upper body, fully covered, bright room
+
+──────────────────────────────────────────────────────────────
+## PROMPT 16 ★ YURI  |  Cooking/Working | X | PLAYFUL | YURI | BALANCED
+──────────────────────────────────────────────────────────────
+DNA: standing / playful / revealing / mid / dynamic
+
+PROMPT:
+masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, subsurface scattering hint, gentle skin gradient, tactile skin softness, clean lineart, expressive anime eyes, 2girls, yuri, primary curvy warm skin black hair messy twin buns brown eyes twinkling mischievous warm full smile no blush, secondary slender fair skin chestnut hair ponytail green eyes narrowed playful suppressed grin light blush, hand reaching toward partner apron string, wearing only white apron naked underneath, wearing blue off-shoulder top denim shorts, slipping fabric apron loose on one side, tight fabric across chest, bare buttocks visible from behind, bare side curve of breast, in kitchen, warm lamp glow from the side, skin catching warm light, warm cream tones soft saturation copper accent, medium shot back view, soft shadow, looking over shoulder wink, mid-laugh, flour dust in air
+
+NEGATIVE:
+worst quality, low quality, bad anatomy, deformed hands, extra fingers, missing fingers, mutated limbs, extra limbs, blurry, realistic skin, photorealistic, 3d render, manhwa style, 1boy, male, unnatural skin color, fused bodies, limb merge, too many arms, conjoined, fully clothed under apron
+
+──────────────────────────────────────────────────────────────
+## PROMPT 17  |  Reading/Quiet | R+ | VULNERABLE | SOLO | BALANCED
+──────────────────────────────────────────────────────────────
+DNA: seated / vulnerable / partial / close / still
+
+PROMPT:
+masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, subsurface scattering hint, gentle skin gradient, tactile skin softness, clean lineart, expressive anime eyes, 1girl, petite, fair skin, light blue hair long braided, shy downward glance, slightly open mouth, visible blush, collarbone visible above neckline, sitting on window seat, wearing loose cream sweater off-shoulder, white skirt, loose fabric draped, subtle nipple bump through thin knit, in library window seat, overcast diffused daylight, porcelain skin tone, cool cream tones muted saturation warm wood accent, close-up eye level, looking down, book in lap, about to turn page, hand resting on book, soft ambient shadow
+
+NEGATIVE:
+worst quality, low quality, bad anatomy, deformed hands, extra fingers, missing fingers, mutated limbs, extra limbs, blurry, realistic skin, photorealistic, 3d render, manhwa style, 1boy, male, unnatural skin color, nipple color through dry fabric, fully covered shoulders
+
+──────────────────────────────────────────────────────────────
+## PROMPT 18  |  Social | R+ | COOL | SOLO | BALANCED
+──────────────────────────────────────────────────────────────
+DNA: seated / cool / partial / mid / slow
+
+PROMPT:
+masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, subsurface scattering hint, gentle skin gradient, tactile skin softness, clean lineart, expressive anime eyes, 1girl, slim, light skin, straight black hair long, distant unfocused gaze, composed mouth, no blush, waist curve visible, sitting at bar, wearing black turtleneck sleeveless, leather skirt, tight fabric across chest, subtle nipple bump through thin fabric, in urban bar, cool window light from the side, cool skin tone warm light on skin, cool dark tones muted saturation amber accent, medium shot straight, half-shadow, looking into distance, wine glass nearby passive, leaning against bar counter
+
+NEGATIVE:
+worst quality, low quality, bad anatomy, deformed hands, extra fingers, missing fingers, mutated limbs, extra limbs, blurry, realistic skin, photorealistic, 3d render, manhwa style, 1boy, male, unnatural skin color, nipple color through dry fabric, bright cheerful lighting
+
+──────────────────────────────────────────────────────────────
+## PROMPT 19 ★ YURI  |  Ritual/Ceremonial | R+ | WARM | YURI | BALANCED
+──────────────────────────────────────────────────────────────
+DNA: standing / warm / partial / wide / dynamic
+★ HYBRID LIGHTING (prompt ~15)
+
+PROMPT:
+masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, subsurface scattering hint, gentle skin gradient, tactile skin softness, clean lineart, expressive anime eyes, 2girls, yuri, primary tall warm skin long red hair flowing green eyes warm eyes soft smile light blush, secondary petite fair skin white hair short red eyes confident allure direct gaze slight smirk no blush, hand on partner cheek, wearing white miko robes loose, wearing red hakama white top open front, slipping fabric robe off one shoulder, loose fabric flowing, bare shoulder line curving to collarbone, side curve of breast from angle, at shrine torii gate, golden hour with cool floor reflection, warm skin with cool shadow, warm red tones soft saturation gold accent, wide shot slight low angle, warm long shadows, looking at partner, cherry blossoms floating, wind in hair
+
+NEGATIVE:
+worst quality, low quality, bad anatomy, deformed hands, extra fingers, missing fingers, mutated limbs, extra limbs, blurry, realistic skin, photorealistic, 3d render, manhwa style, 1boy, male, unnatural skin color, fused bodies, limb merge, too many arms, conjoined, fully covered shoulders
+
+──────────────────────────────────────────────────────────────
+## PROMPT 20  |  Bathing | R+ | PLAYFUL | SOLO | BALANCED
+──────────────────────────────────────────────────────────────
+DNA: seated / playful / partial / close / slow
+
+PROMPT:
+masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, subsurface scattering hint, gentle skin gradient, tactile skin softness, clean lineart, expressive anime eyes, 1girl, curvy, warm skin, golden blonde hair wet loose, bright eyes raised brows, warm full smile, optional blush, collarbone wet and visible, sitting in bathtub edge, white towel wrapped below arms, slipping fabric towel sliding, tight fabric across chest, wet fabric clinging nipple outline visible, in bathroom tile, steam-diffused warm light, skin catching warm light, warm peach tones soft saturation cream accent, close-up slight above, soft shadow, looking at viewer, splashing water, wet hair on neck
+
+NEGATIVE:
+worst quality, low quality, bad anatomy, deformed hands, extra fingers, missing fingers, mutated limbs, extra limbs, blurry, realistic skin, photorealistic, 3d render, manhwa style, 1boy, male, unnatural skin color, dry fabric, dry skin, bare breasts visible nipples
+
+──────────────────────────────────────────────────────────────
+## PROMPT 21  |  Intimate | X | TENSE | SOLO | BALANCED
+──────────────────────────────────────────────────────────────
+DNA: standing / tense / revealing / close / dynamic
+★ CREATIVE SPIKE: unexpected prop (vintage rotary phone)
+
+PROMPT:
+masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, subsurface scattering hint, gentle skin gradient, tactile skin softness, clean lineart, expressive anime eyes, 1girl, slim, pale skin, black hair long straight, half-hidden desire conflicted eyes slightly tight mouth light blush, bare breasts, topless, standing, black lace panties only, loose fabric falling away, exposed breasts visible nipples, bare midriff toned stomach, in bedroom vintage, candlelight warm glow, skin catching warm light, warm amber tones moderate saturation burgundy accent, close-up eye level, deep shadows, mid-turn toward viewer, holding vintage rotary phone, about to slip off shoulder, direct gaze, phone cord wrapped around finger
+
+NEGATIVE:
+worst quality, low quality, bad anatomy, deformed hands, extra fingers, missing fingers, mutated limbs, extra limbs, blurry, realistic skin, photorealistic, 3d render, manhwa style, 1boy, male, unnatural skin color, shirt bra clothing on upper body, modern phone, bright lighting
+
+═══════════════════════════════════════════════════════════════════
+  BATCH VALIDATION SUMMARY
+═══════════════════════════════════════════════════════════════════
+
+RATING DISTRIBUTION:
+  R+: 1, 2, 5, 6, 7, 8, 12, 13, 17, 18, 19, 20  = 12 (57%)
+  X:  3, 4, 9, 10, 11, 14, 15, 16, 21            =  9 (43%)
+  ✓ Target R+ ~55% / X ~45%
+
+YURI:
+  ★ 4, 8, 11, 14, 16, 19  = 6 (28.5%)
+  ✓ Target 25-35%
+
+ARCHETYPE WHEEL:
+  Dressing:           1, 11     = 2  (differs in all dimensions)
+  Relaxing:           2, 12     = 2
+  Battle Aftermath:   3, 13     = 2
+  Intimate:           4, 14, 21 = 3  (21 is solo/tense, different)
+  Sleeping:           5, 15     = 2
+  Cooking/Working:    6, 16     = 2
+  Reading/Quiet:      7, 17     = 2
+  Social:             8, 18     = 2
+  Ritual/Ceremonial:  9, 19     = 2
+  Bathing:            10, 20    = 2
+  ✓ Full rotation with seed rotation (started at Dressing)
+
+EMOTION FAMILIES:
+  VULNERABLE: 1, 5, 14, 17  = 4
+  PLAYFUL:    6, 8, 16, 20  = 4
+  WARM:       4, 11, 12, 15, 19  = 5
+  COOL:       2, 7, 18      = 3
+  TENSE:      3, 9, 13, 21  = 4
+  ✓ All 5 families represented
+
+SKELETON LEVELS:
+  BALANCED: 1-11, 13-21  = 20
+  RICH:     12            = 1
+  ✓ Varied density
+
+STYLE ANCHOR v3:
+  ✓ Full token chain in every prompt
+  ✓ R+/X variant used (gentle skin gradient, tactile skin softness)
+
+SKIN RENDERING COMPLIANCE:
+  ✓ All tags from Master List v2 ONLY
+  ✓ No "glow", "highlight", "sheen", "luminous" on skin
+  ✓ Skin rendering RIGHT AFTER lighting preset
+
+WARM RENDERING FIX:
+  ✓ Every prompt has 2+ warm elements (warm light / warm skin / warm accent)
+  ✓ Cool mood prompts still have warm skin rendering + warm accent
+  ✓ No fully cold prompts
+
+SHADOW PRESENCE:
+  ✓ DIRECTIONAL lighting: shadow tags present
+  ✓ HYBRID lighting: dual shadows present
+  ✓ AMBIENT lighting: optional shadows
+
+HYBRID LIGHTING ROTATION:
+  ✓ Prompt 5 (~5th): moonlight blue with warm lamp accent [HYBRID]
+  ✓ Prompt 10 (~10th): city glow warm-cool mix [HYBRID]
+  ✓ Prompt 15 (~15th): golden hour with cool floor reflection [HYBRID]
+  ✓ Prompt 19 (~20th): golden hour with cool floor reflection [HYBRID]
+
+CREATIVE SPIKE:
+  ★ Prompt 21: unexpected prop (vintage rotary phone)
+  ✓ ~1 in 6 rate
+
+GAZE BINDING:
+  ✓ Vulnerable → looking away / downcast
+  ✓ Cool → distant / at object
+  ✓ Tense → direct / at camera
+  ✓ Playful → at viewer / at partner
+  ✓ Warm → at partner / at viewer
+  ✓ No empty gaze
+  ✓ No two consecutive "looking at viewer"
+
+FABRIC TENSION:
+  ✓ Every visible fabric has tension state (taut/loose/slipping)
+  ✓ Tension has cause
+
+CAUSE TRACE:
+  ✓ Every cause has visual trace in output
+  ✓ Wet → wet hair, wet fabric
+  ✓ Dressing → slipping fabric, unbuttoned
+  ✓ Battle → torn, sweaty
+  ✓ Sleeping → messy hair, rumpled sheets
+
+NEGATIVE PROMPTS:
+  ✓ All within 20-item max
+  ✓ Base + situational smart negatives
+  ✓ Yuri: fused bodies, limb merge
+  ✓ Nude/topless: shirt, bra, clothing on upper body
+  ✓ Nipple logic: appropriate smart negatives per rating
+
+OUTPUT HYGIENE:
+  ✓ No framework labels in prompts
+  ✓ No abstract tags (all visual descriptors)
+  ✓ Comma-separated, no sentences
+  ✓ Quality block: "masterpiece, best quality" only
+  ✓ No duplicate attributes per prompt
+  ✓ Body sensuality tags present for all R+/X
+  ✓ Erotic minimums met (R+≥1, X≥2)

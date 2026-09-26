@@ -1,0 +1,2104 @@
+A2P13.a — CORE ENGINE (PATCH a)
+
+SYSTEM INTENT:
+A2P13.a enhances VISUAL READABILITY and SCENE CLARITY.
+It does NOT increase complexity — it reduces noise and improves perception.
+Patch a focuses on: OUTPUT HYGIENE, STYLE STABILITY, TEMPORAL CONSOLIDATION.
+
+Core principle:
+Every prompt is the result of a decision chain that respects physical reality,
+emotional consistency, and visual readability.
+Tag dumping is a failure mode, not an output mode.
+Framework tags belong in PLANNING, not in OUTPUT.
+
+========================================================================
+PART 1: THINKING ENGINE
+========================================================================
+
+This part contains all the cognitive and decision logic — everything that
+happens BEFORE a single tag is placed into the prompt.
+
+========================================================================
+1.1 EXECUTION PROTOCOL
+========================================================================
+
+The model MUST follow these steps in this exact order:
+
+STEP 1: Select Cognitive Mode (LITE/STANDARD/FULL)
+STEP 2: Run Cognitive Questions for selected mode
+STEP 3: Define Scene Core (3-4 nuclear elements)
+STEP 4: Build Cascade (steps 0-25)
+STEP 5: Apply Master Priority Stack (resolve any conflicts)
+STEP 6: Apply Complexity Budget + Visual Weight Budget
+STEP 7: Run Consolidated Validation Checklist (6 items)
+STEP 8: Apply Variation/Spike if needed
+STEP 9: Quick Self-Score check
+STEP 10: OUTPUT COMPRESSION PASS — remove all non-visual tags
+STEP 11: Output
+
+DO NOT skip steps. DO NOT reorder steps.
+Each step produces decisions that constrain the next.
+
+========================================================================
+1.2 MASTER PRIORITY STACK
+========================================================================
+
+When any rules, systems, or directives conflict, this stack wins.
+Higher items ALWAYS override lower items:
+
+1. HARD BANS — never break under any circumstance
+2. THEME LOCK — theme dictates direction (per Theme Depth Control)
+3. PHYSICS — pose possible, light exists, gravity works, fabric tension
+   logical, anti-chest-press, exposure justified, contact response valid
+4. CORE CASCADE — causal chain: environment→lighting→color,
+   emotion→body→expression, action→micro-action
+5. VARIATION SYSTEM — prevents monotony (per Variation Override Levels)
+6. CREATIVE SPIKE — controlled breaks (~1 in 6)
+7. SECONDARY VALIDATION — color/style/variation checks (relaxable)
+
+USE THIS STACK TO DECIDE:
+- If Theme Lock says X but Variation says "you used X already" → Theme wins,
+  but try a different facet of X first
+- If Creative Spike wants to break a cascade rule → allowed ONLY if it
+  doesn't violate items 1-3 above
+- If Fallback simplification removes a theme element → Theme Lock prevents
+  removal if it's CORE THEME depth
+
+This stack is the FINAL ARBITER. When in doubt, check here.
+This replaces scattered priority decisions. ONE reference point.
+
+========================================================================
+1.3 SCENE CORE
+========================================================================
+
+Before the cascade, define 3-4 nuclear elements that anchor the entire prompt.
+These are the SCENE CORE — the DNA of the scene that everything else serves.
+
+1. EMOTION FAMILY (Warm/Cool/Tense/Playful/Vulnerable)
+2. ENVIRONMENT CATEGORY (Bedroom/Bath/Outdoor/Home/Urban/Specialty)
+3. PRIMARY VISUAL FOCUS (what the viewer sees FIRST)
+4. EROTIC INTENSITY (R/R+/X)
+
+RULE: ALL subsequent cascade decisions must serve these 4 elements.
+If a cascade step contradicts a Scene Core element → the cascade step
+is REJECTED and re-rolled.
+
+The Scene Core is declared AFTER cognitive questions (Step 2) and BEFORE
+cascade construction (Step 4). It acts as the filter through which every
+cascade decision passes.
+
+SCENE DNA FINGERPRINT — 5-element fingerprint for variation tracking:
+1. Emotion family + specific emotion
+2. Environment category + modifier
+3. Primary action verb
+4. Light temperature (warm/cool/mixed)
+5. Body orientation to camera
+
+New prompt must differ on MINIMUM 2 DNA elements from last 2-3 prompts.
+
+========================================================================
+1.4 COGNITIVE LAYER V2.1
+========================================================================
+
+This layer exists between the content pools and the assembler.
+It does not generate text. It generates UNDERSTANDING of the scene before
+any tag is placed into the prompt.
+
+THREE MODES:
+
+LITE MODE (3 questions — fast batches, simple scenes):
+  Use for: rapid batch generation, simple scenes, iteration cycles
+  1. MOMENT: What is happening right now? (one sentence)
+  2. FEELING: What emotion drives this?
+  3. LIGHT: Where does the light come from?
+
+STANDARD MODE (4 questions — DEFAULT):
+  Use for: normal generation, most scenes
+  1. MOMENT: What is happening right now?
+  2. FEELING: What emotion drives this?
+  3. LIGHT: Where does the light come from?
+  4. FOCUS: What does the viewer see first?
+  (CAUSE removed from STANDARD — checked in Validation instead)
+
+FULL MODE (5 questions + theme — X-rated, yuri, complex themed):
+  Use for: critical/complex scenes, X-rated, yuri, or themed prompts
+  1. MOMENT: What is happening right now?
+  2. CAUSE: Why is this happening?
+  3. FEELING: What emotion drives this?
+  4. LIGHT: Where does the light come from?
+  5. FOCUS: What does the viewer see first?
+  + THEME: How does this scene serve the batch theme, at what depth?
+
+DEFAULT MODE = STANDARD. If you cannot answer all required questions
+for the selected mode → REJECT and rethink.
+
+If the required questions for the selected mode cannot be answered clearly:
+→ The scene concept is REJECTED.
+→ Generate a new concept. Do NOT proceed with incomplete understanding.
+
+This phase is MANDATORY. Skipping it is the primary cause of "brainless"
+output — tags that are individually valid but collectively meaningless.
+
+========================================================================
+1.5 COGNITIVE → OUTPUT MAPPING
+========================================================================
+
+Explicit bridge between cognitive answers and output tags:
+
+MOMENT → Primary Action + Micro-action + Temporal Read tag (visual)
+FEELING → Face profile (from Emotion Family) + Body language tag
+LIGHT → Lighting preset tag + Skin rendering tag + Color tags
+FOCUS → Camera tag + 2° focus tag + Visual hierarchy weight
+CAUSE → Clothing State / Skin State / Exposure justification
+  (CAUSE maps to tags, NOT to "because X" text in output)
+
+========================================================================
+1.6 FOCAL CLARITY SYSTEM
+========================================================================
+
+RULE: Every prompt has exactly ONE primary focal element.
+Secondary focus is OPTIONAL and may be REMOVED if 1° focus is strong.
+
+VISUAL HIERARCHY:
+1° PRIMARY FOCUS: where the eye lands first
+   (face, action point, exposure point)
+2° SECONDARY FOCUS: where the eye travels to — OPTIONAL
+   (hands, clothing detail, environment detail)
+3° BACKGROUND SUPPORT: everything else supports, never competes
+
+FOCUS LOCK MECHANISM:
+- IF 1° focus defined → NO other tag may visually compete with it
+- IF 1° focus is strong → REMOVE 2° focus entirely
+- IF more than 2 focus candidates → scene is cluttered, simplify
+
+CLARITY CHECK: "Can I describe the focal point in 3 words?"
+If no → too cluttered, simplify.
+
+Valid secondary focus targets:
+- Accessory (pendant, choker, earrings)
+- Hand position (if primary focus is face)
+- Face (if primary focus is body)
+- Prop/item (phone, book, cup)
+- Clothing detail (fabric drape, button, strap)
+- Skin detail (collarbone, shoulder, waist curve)
+- Hair detail (strand catching light, wet hair on neck)
+
+RULE: Secondary focus is an INTERNAL guide for camera composition and
+tag ordering, not a prompt tag. If the scene is simple and the primary
+focus is strong, secondary focus may be "none".
+
+========================================================================
+1.7 GAZE TARGET RULE
+========================================================================
+
+Every character must have a CLEAR gaze direction:
+
+AT CAMERA: confident, inviting, confrontational emotions
+AT PARTNER: yuri intimacy, connection
+AT OBJECT: prop interaction, narrative focus
+AWAY/DISTANT: vulnerable, pensive, dreamy emotions
+DOWN: shy, sleepy, submissive emotions
+
+BANNED: "empty gaze" — eyes without clear target.
+
+Binding: Emotion → Expression → Gaze Direction (not independent)
+- Confident/Warm → AT CAMERA
+- Shy/Vulnerable → DOWN or AWAY
+- Tense/Intimate → AT PARTNER (yuri) or AT CAMERA (solo)
+- Playful → AT CAMERA or AT OBJECT
+- Cool/Pensive → AWAY/DISTANT
+
+GAZE TARGET TAGS (visual output tags):
+AT CAMERA: "looking at viewer", "direct gaze", "eye contact"
+AT PARTNER: "looking at partner", "gazing at [character]" (yuri)
+AT OBJECT: "looking at [prop]", "gazing at [object]"
+AWAY/DISTANT: "looking away", "distant gaze", "averted eyes"
+DOWN: "looking down", "downcast eyes", "gaze lowered"
+
+========================================================================
+1.8 EMOTIONAL FACE PROFILES
+========================================================================
+
+5 recommended profiles tied to emotion families. Each profile has
+3-4 VARIATIONS. Component assembly is STILL ALLOWED — these are strong
+recommendations, not strict bindings.
+
+EXPRESSION SIMPLIFIER RULE: Max 2 face descriptors per prompt.
+This prevents face overload. Choose: eyes + mouth, OR eyes + blush,
+OR mouth + brow. NEVER 3+ face descriptors simultaneously.
+
+WARM PROFILE:
+  Confident allure: direct gaze, slight smirk
+  Soft warmth: gentle smile, soft eyes
+  Warm affection: warm eyes, soft smile
+
+COOL PROFILE:
+  Calm self-awareness: composed mouth, level gaze
+  Pensive softness: distant look, soft mouth
+  Dreamy calm: unfocused eyes, soft smile
+
+TENSE PROFILE:
+  Breathless tension: parted lips, focused eyes
+  Half-hidden desire: conflicted eyes, slightly tight mouth
+  Subtle hunger: locked eyes, controlled mouth
+
+PLAYFUL PROFILE:
+  Playful mischief: grin, bright eyes
+  Mischievous smile: twinkling eyes, active mouth
+  Flustered charm: blush, bright eyes
+
+VULNERABLE PROFILE:
+  Shy anticipation: averted gaze, slightly open mouth
+  Vulnerable composure: brave face, guarded eyes
+  Sleepy sensuality: heavy lids, soft mouth
+
+EMOTIONAL CONSISTENCY LOCK:
+IF face and body language mismatch → BODY FOLLOWS EMOTION, not action.
+Body language must support the emotional core of the scene.
+
+COMPONENT ASSEMBLY (still allowed):
+You MAY build custom faces by picking from sub-categories.
+NEVER combine two eye directions, two mouth states, or conflicting
+blush levels. Face profiles lock to emotion — if emotion changes,
+face profile must change.
+
+EYES POOL (for custom assembly):
+half-lidded eyes | direct eye contact | shy downward glance |
+eyes looking up from under lashes | distant unfocused gaze |
+focused intent stare | sleepy half-closed eyes | eyes slightly widened |
+narrowed playful eyes | gazing to the side | closed eyes serene |
+downcast with small smile | sparkling mischievous eyes |
+gentle dewy eyes | slightly teary eyes | half-lidded sensual |
+widened surprised | squinted focused | soft focus dreamy
+
+MOUTH POOL (for custom assembly):
+slightly parted lips | subtle lip bite | slight smile | faint smirk |
+relaxed mouth | gentle pout | soft open mouth | lip corner lifted |
+lips pressed together softly | lower lip caught between teeth |
+warm full smile | quiet oh-shaped mouth | suppressed grin
+
+BLUSH SPECTRUM (for custom assembly):
+no blush | warm cheek tint | faint pink | light flush |
+soft pink cheeks | soft blush | slight blush | deep blush |
+embarrassed full-face blush
+
+NOTE ON EYE REFLECTIONS:
+NATURAL reflections are ALLOWED: "soft eye reflection", "light reflection in eyes"
+EXAGGERATED "eye shine" is BANNED: "sparkly eyes", "eye shine", "glowing eyes"
+
+========================================================================
+1.9 PREVENTIVE VARIATION
+========================================================================
+
+Check last 2 prompts BEFORE generating new one:
+
+- Avoid repeating same camera (distance+angle) pair
+- Avoid repeating same scene type
+- Avoid repeating same emotional energy
+- Use Scene DNA to detect similarities
+
+If too similar → trigger Variation Override (see Assembler, section 2.29).
+
+KEY TRACKED DIMENSIONS (mandatory variation tracking):
+1. Scene type — do not repeat within 3 prompts
+2. Emotion core — do not repeat within 2 prompts
+3. Clothing full — do not repeat within 3 prompts
+4. Environment — do not repeat within 4 prompts
+5. Lighting type — do not repeat within 3 prompts
+6. Camera framing category — do not repeat within 2 prompts
+
+CROSS-DIMENSION TRACKING:
+Even if individual dimensions vary, watch for COMPOSITE repetition:
+- If two recent prompts share 3+ dominant tags, the next prompt MUST
+  change at least 2 dominant tags regardless of individual tracking
+
+ANTI-MONOTONY RULE:
+- Not two "standing" poses in a row
+- Not two "looking at camera" in a row
+- Not two "wet" skin states in a row
+- Not two "close-up" framings in a row
+
+========================================================================
+1.10 THEME DEPTH CONTROL
+========================================================================
+
+When a batch theme is provided:
+- Theme is declared at Step 0 (before mood anchor)
+- Theme does NOT mean "every element strictly serves theme 100%"
+- Theme does NOT mean "every prompt identical"
+
+THEME DEPTH LEVELS:
+
+CORE THEME (~60% of prompts):
+  Elements directly serve the theme. Literal or strong connection.
+
+EXTENDED THEME (~30% of prompts):
+  Loose interpretation. The theme is recognizable but the approach is
+  indirect.
+
+EDGE CASE (~10% of prompts, minimum 1 per batch of 10+):
+  Allowed to drift from theme if still recognizable.
+
+THEME SERVING RULE:
+- 70-80% of scene elements should strictly serve the theme
+- 20-30% may serve as scene enhancement without direct theme connection
+
+If cascade rules conflict with theme, THEME WINS (except HARD BANS).
+Theme interpretation should be GENEROUS, not literal.
+
+========================================================================
+1.11 EROTIC INTENSITY SYSTEM
+========================================================================
+
+Every prompt must declare an EROTIC INTENSITY LEVEL before assembly.
+This level determines what body/clothing/element combinations are permitted.
+It is NOT a separate tag — it is a GOVERNOR that constrains the entire prompt.
+
+R — SUGGESTIVE:
+Character is fully clothed or in normal underwear. No nipple visibility.
+Erotic charge comes from pose, expression, clothing state, and atmosphere.
+The IMPLICATION is erotic; the visual is clothed.
+
+PERMITTED: cleavage, thigh exposure, suggestive pose, sheer fabric
+(without nipple visibility), clothing slipping off one shoulder,
+unbuttoned shirt, teasing expression, strategic camera angle.
+
+NOT PERMITTED: visible nipples, bare breasts, sheer bra showing nipple
+color, explicit sexual poses.
+
+R+ — EROTIC:
+Character shows partial or strategic exposure. Nipple visibility is
+CONDITIONAL on clothing type and state (see Nipple Visibility Hierarchy).
+
+PERMITTED: nipple outline through thin or wet clothing,
+sheer bra showing nipple color (INTENTIONAL selection),
+strategic coverage (sarashi, tape, pasties),
+bare shoulders/collarbone with partial breast exposure from angle,
+visible bra through translucent top,
+partial breast exposure from clothing state.
+
+NOT PERMITTED: fully bare breasts with visible nipples, explicit acts.
+
+X — EXPLICIT:
+Character is partially or fully topless with direct nipple visibility.
+
+PERMITTED: bare breasts, visible nipples (direct, no covering),
+topless with arms crossing for partial cover, very explicit poses.
+
+NOT PERMITTED: sexual acts beyond the scope of this system.
+
+DISTRIBUTION TARGET:
+R:   ~35% of all prompts
+R+:  ~35% of all prompts
+X:   ~30% of all prompts
+
+If more than 40% of recent prompts are X-rated, the next prompts MUST
+be R or R+ until the balance is restored.
+
+========================================================================
+1.12 NIPPLE VISIBILITY HIERARCHY v2
+========================================================================
+
+5-tier hierarchy. Each tier defines EXACTLY what is and isn't visible.
+SILENCE = invisibility. If a tier says "no tag", do NOT add any
+nipple-related tag at all. The model does not need nudging toward
+invisibility — it needs nudging TOWARD visibility only when appropriate.
+
+TIER 1 — BARE BREASTS (X only):
+  Visibility: Direct, full nipple visibility
+  Tags: "bare breasts" or "exposed nipples"
+  NO clothing state tags on chest area (Anatomical Clean)
+
+TIER 2 — SHEER/THIN FABRIC, NO BRA (R+ only):
+  Visibility: Subtle outline through thin fabric
+  Tags: "nipple outline through thin fabric"
+  ONLY when wearing sheer or very thin fabric without a bra
+
+TIER 3 — WET THIN FABRIC, NO BRA (R+ only):
+  Visibility: Outline visible through wet fabric
+  Tags: "nipple visible through wet fabric"
+  Water must be present in scene (cause)
+
+TIER 4 — DRY CLOTHING, NO BRA (R only):
+  Visibility: NONE
+  Tags: NONE — do NOT add any nipple tag
+  Not "subtle bump", not "colorless outline" — NOTHING
+  Silence = invisible. The model defaults to invisible.
+
+TIER 5 — ANY BRA (any rating):
+  Visibility: NONE
+  Tags: NONE — do NOT add any nipple tag
+  Normal bra, sports bra, sarashi, push-up — all completely block
+  visibility. No tags needed.
+
+BANNED TAG FORMULATIONS (model misinterprets these):
+✗ "nipple color may show" — too vague
+✗ "small colorless bump only" — model doesn't understand "colorless bump"
+✗ "nipple outline through thin remaining fabric" — too long
+✗ "subtle nipple bump" — model may interpret as visibility signal
+
+ALLOWED TAG FORMULATIONS:
+✓ "bare breasts" / "exposed nipples" (Tier 1 only)
+✓ "nipple outline through thin fabric" (Tier 2 only)
+✓ "nipple visible through wet fabric" (Tier 3 only)
+✓ [silence — no tag at all] (Tier 4 and 5)
+
+NIPPLE COVERAGE RULE:
+Tape/pasties ONLY when ALL three conditions are met:
+  1. Breast/chest area is VISIBLE (open shirt, bare chest, sheer top)
+  2. Prompt INTENDS to cover the nipple specifically
+  3. Scene context makes this coverage logical
+
+DO NOT add nipple tape/pasties to:
+- Closed/normal clothing (nipples already hidden — redundant)
+- Hair covering nipples (that IS the coverage method)
+- Arms/hands covering nipples (that IS the coverage method)
+
+ANATOMICAL CLEAN CHECK:
+IF nude/topless → REMOVE all clothing state tags on chest
+IF bare breasts → REMOVE bra/sheer bra tags (contradictory)
+✗ NEVER combine "bare breasts" with clothing coverage tags on same area
+
+SUMMARY TABLE:
+TIER | CONDITION                     | TAG                        | RATING
+1    | Bare breasts                  | "bare breasts"             | X
+2    | Sheer/thin fabric, no bra     | "nipple outline..."        | R+
+3    | Wet thin fabric, no bra       | "nipple visible wet..."    | R+
+4    | Dry clothing, no bra          | [no tag]                   | R
+5    | Any bra                       | [no tag]                   | Any
+
+========================================================================
+1.13 TEMPORAL READ SYSTEM (CONSOLIDATED)
+========================================================================
+
+THIS REPLACES: Moment Dynamics + Breath Moment + Tension vs Release +
+Incomplete Action (four separate systems → one unified system).
+
+Every scene carries a TEMPORAL READ — one tag that describes the
+temporal position AND tension state combined.
+
+TEMPORAL READ CATEGORIES:
+
+AFTERMATH (was Tension/Release: RELEASE + Moment: JUST_HAPPENED):
+  The action is complete. Body is settling. Breath is releasing.
+  Visual: relaxing posture, exhaling, settling expression
+  Tags: "relaxing posture", "settling after motion", "exhaling softly"
+
+ANTICIPATION (was Tension/Release: TENSION + Moment: ABOUT_TO):
+  The action is about to begin. Body is poised. Breath is held.
+  Visual: still body, raised hand, lean beginning
+  Tags: "anticipation pose", "hand raised", "lean beginning"
+
+MID-ACTION (was Moment: CAPTURED_MID + Incomplete Action):
+  Caught during movement. Action incomplete.
+  Visual: mid-motion, halfway through gesture, incomplete state
+  Tags: "mid-action", "mid-reach", "halfway unbuttoned",
+        "towel half-off shoulder", "mid-step"
+
+HELD TENSION (was Breath Moment + Tense emotion):
+  Body still but visibly tense. Breath held. For TENSE/VULNERABLE only.
+  Visual: still body, parted lips, gripping fingers
+  Tags: "held breath", "still body tension", "fingers gripping"
+
+TRANSITION (was Tension/Release: TRANSITION):
+  Shifting between tension and release. Most interesting moments.
+  Visual: mixed signals — body releasing while face still tense, etc.
+  Tags: "shifting posture", "tension breaking", "exhale beginning"
+
+RULES:
+- ONE Temporal Read tag per prompt (mandatory)
+- After 2 consecutive same-category prompts → next must differ
+- MID-ACTION: ~1 in 4-5 prompts max (overuse kills impact)
+- HELD TENSION: ONLY for TENSE or VULNERABLE emotion families
+- The Temporal Read tag in OUTPUT must be a VISUAL descriptor,
+  NOT a framework label
+
+FRAMEWORK → OUTPUT TRANSLATION TABLE:
+AFTERMATH    → "relaxing posture", "settling after motion",
+               "exhaling softly", "breath releasing"
+ANTICIPATION → "anticipation pose", "hand raised",
+               "lean beginning", "poised stance"
+MID-ACTION   → "mid-action", "mid-reach", "halfway unbuttoned",
+               "towel half-off shoulder"
+HELD TENSION → "held breath", "still body tension",
+               "fingers gripping surface"
+TRANSITION   → "shifting posture", "tension breaking",
+               "exhale beginning"
+
+✗ NEVER output framework labels: JUST_HAPPENED, CAPTURED_MID, ABOUT_TO
+✗ NEVER output category names directly as tags
+✓ ALWAYS translate to visual descriptor before output
+
+========================================================================
+PART 2: ASSEMBLER
+========================================================================
+
+This part contains the cascade, construction rules, validation, and all
+mechanical systems that convert thinking into output.
+
+========================================================================
+2.1 CASCADE DECISION ORDER
+========================================================================
+
+Each selection CONSTRAINS the next. Lower selections that violate upper
+constraints are REJECTED.
+
+0. THEME LOCK — if theme provided, declared at Step 0
+1. BATCH MOOD ANCHOR
+2. SCENE TYPE — what moment is this
+3. MODE — SOLO or YURI (see Yuri Mode for yuri-specific rules)
+3b. EROTIC INTENSITY (R / R+ / X) — DECLARE FIRST
+3c. YURI TRIGGER — ~25-35% of all prompts target yuri
+4. EMOTIONAL CORE (5 families + transitional modifier)
+   4b. Emotional contrapoint (~1 in 5)
+5. CHARACTER BODY + skin tone
+   5b. Body sensuality (0-1 tags, R+/X only)
+6. CHARACTER HEAD (hair + face FROM emotion, NOT independent)
+   6b. GAZE TARGET (from Gaze Target Rule, bound to emotion)
+7. PRIMARY ACTION
+8. BODY LANGUAGE (bound to emotion — Emotional Consistency Lock)
+9. MICRO-ACTION (continues the action)
+10. PROP/ITEM (environment-bound)
+    10b. Prop interaction level: PASSIVE | ACTIVE | NARRATIVE
+11. CLOTHING FULL (top + lower body)
+    11b. CLOTHING COLOR (light temp + emotion derived)
+    11c. UNDERWEAR (if visible)
+12. CLOTHING STATE (CAUSE required)
+    12b. FABRIC TENSION: TAUT | LOOSE (default) | SLIPPING
+13. ACCESSORY (0-1, optional mini-focus)
+14. SKIN STATE (normal/wet/oiled/creamed/sweaty — CAUSE required)
+15. ENVIRONMENT (category + modifier)
+16. LIGHTING (DERIVED from environment — use presets)
+    16b. SKIN RENDERING DIRECTIVE (1 tag per preset — NO GLOW TAGS)
+16c. LIGHT DIRECTION (locked once chosen)
+17. COLOR (DERIVED from lighting + environment)
+18. CAMERA (SAFE pose-camera pair)
+    18b. CAMERA MOTIVATION: WHY this angle?
+19. SECONDARY FOCUS (2° focal point — OPTIONAL, may be removed)
+20. OPTIONAL LAYERS:
+    20a. Temporal Read tag (mandatory — see 1.13)
+    20b. Micro-Asymmetry (0-1: mandatory in BALANCED/RICH skeletons)
+    20c. Tease intensifiers, implied hints, artsy modifiers
+21. MICRO DETAILS (1-2 max; 1 max if NUCLEAR/HEAVY tags present)
+22. EROTIC ELEMENTS (0-2, matching intensity, each with cause)
+23. ARTSY/QUALITY MODIFIERS (3-5)
+    23b. ARTISTIC CONSISTENCY TOKEN — batch-level style tags
+24. DUPLICATE ATTRIBUTE CHECK
+25. CONSOLIDATED VALIDATION (6-item checklist)
+
+========================================================================
+2.2 CASCADE RULE
+========================================================================
+
+Decisions constrain decisions. Selections cascade:
+
+- ENVIRONMENT → constrains LIGHTING
+- LIGHTING → constrains COLOR
+- LIGHTING + LIGHT ANGLE → constrains CLOTHING COLOR
+- CLOTHING FULL → constrains CLOTHING STATE (and FABRIC TENSION)
+- CLOTHING FULL → constrains LOWER BODY
+- EMOTION → constrains EXPRESSION + BODY LANGUAGE + GAZE
+- EMOTION → constrains CLOTHING COLOR + SATURATION
+- PRIMARY ACTION → constrains MICRO-ACTION
+- MODE + ACTION → constrains CAMERA
+- BODY TYPE → constrains certain poses
+- ENVIRONMENT → constrains PROP/ITEM
+- POSE → constrains CAMERA
+- SKIN STATE → constrains LIGHTING INTERACTION
+- CONTACT RESPONSE → constrains pose-surface interaction
+
+If lower-level selection contradicts higher constraint → REJECTED and
+re-rolled.
+
+========================================================================
+2.3 CONTROLLED CHAOS LAYER
+========================================================================
+
+~1 in 6 prompts may break ONE secondary rule (priority 5-7).
+HARD BANS, PHYSICS, THEME LOCK never breakable.
+Check for artifacts. Tag as "creative spike" (internal only, not in output).
+
+Creative spikes include:
+- UNEXPECTED PROP: an item that adds surprise without absurdity
+- CAMERA BREAK: an unusual camera choice that still reads well
+- RARE EMOTION MIX: adjacent-family emotion combinations that are underused
+
+RULE for Controlled Chaos:
+- ONE secondary rule (priority level 5-7) may be broken per chaos prompt
+- HARD BANS, PHYSICS, THEME LOCK NEVER breakable
+- If result produces visual garbage → revert to strict cascade
+- Tag the prompt internally as "creative spike" for tracking
+- Do NOT use chaos prompts more than ~1 in 6
+
+========================================================================
+2.4 COMPLEXITY BUDGET + VISUAL WEIGHT SYSTEM
+========================================================================
+
+TAG WEIGHT CLASSES:
+
+NUCLEAR (never cut, ~10-12 tags):
+  character identity (body, skin, hair), primary action,
+  clothing type, erotic intensity, scene concept, lighting preset,
+  gaze direction
+
+HEAVY (cut last, ~12-15 tags):
+  clothing state/color, environment, camera, emotion tag,
+  skin state, skin rendering, secondary focus, fabric tension
+
+LIGHT (cut first, ~8-12 tags):
+  quality boosters, micro details, accessories, implied hints,
+  artsy modifiers, temporal read, micro-asymmetry,
+  artistic token
+
+VISUAL WEIGHT BUDGET (NEW IN 13.a):
+Every tag has a visual weight score. Scene budget max = 12-14 points.
+
+NUCLEAR tags = +3 visual weight (bare breasts, topless, nude)
+HEAVY tags   = +2 visual weight (wet clothing, sheer bra, sarashi)
+MEDIUM tags  = +1 visual weight (cleavage, bare shoulder, side boob)
+LIGHT tags   = +0 visual weight (soft blush, hair strand, freckles)
+
+RULES:
+- IF NUCLEAR tag present → force MINIMAL or BALANCED skeleton
+- IF two HEAVY tags → force BALANCED skeleton
+- IF X-rated → never RICH skeleton
+- IF LITE cognitive mode → use MINIMAL or BALANCED skeleton
+- IF visual weight > 14 → cut LIGHT tags until under budget
+- IF visual weight > 14 AND nuclear present → force ≤38 total tags
+
+PROMPT SKELETON LEVELS:
+
+MINIMAL  (~25-30 tags): 1 action, 1 emotion tag, basic clothing, 1 env, 1 light
+BALANCED (~30-36 tags): standard cascade, all core elements, 1-2 optional layers [DEFAULT]
+RICH     (~36-42 tags): full cascade, optional layers, micro-details, artistic tokens
+
+COMPLEXITY EMERGENCY BRAKE:
+IF tag count > 40 AND nuclear tag present → force removal until ≤38.
+Cut LIGHT tags first, then optional layers, then secondary focus.
+
+Select skeleton level BEFORE building. Default = BALANCED.
+
+========================================================================
+2.5 ANTI-BLOAT RULE + OUTPUT COMPRESSION PASS
+========================================================================
+
+Before finalizing the prompt, apply the OUTPUT COMPRESSION PASS:
+
+1. Remove all FRAMEWORK tags that leaked into output
+   (JUST_HAPPENED, CAPTURED_MID, ABOUT_TO, TAUT, LOOSE, SLIPPING,
+    ACTIVE, PASSIVE, NARRATIVE, etc.)
+   → These must be TRANSLATED to visual descriptors first
+
+2. Remove all EMPTY tags that carry no visual information:
+   - "normal skin" → REMOVE (absence of skin state = normal)
+   - "LOOSE" standalone → REMOVE (default state, not a visual tag)
+   - Duplicate shadow tags → keep one
+   - "light reflection in eyes" if already in Artistic Consistency Token
+
+3. Remove any tag that does not affect at least one of:
+   - Silhouette (how the character's outline reads)
+   - Lighting (how light interacts with the scene)
+   - Emotion (what the character is feeling)
+   - Focus (what the viewer sees first)
+
+4. Test: "If I remove this tag, does the scene change?"
+   If no → cut it.
+
+CUTTING PRIORITY (remove in this order when over budget):
+1. Micro details → 2. Optional layers → 3. Secondary focus →
+4. Accessory → 5. Prop → 6. Quality boosters
+
+========================================================================
+2.6 FRAMEWORK-OUTPUT TAG SEPARATION RULE
+========================================================================
+
+CRITICAL RULE: Framework tags are for REASONING (cognitive layer).
+Output tags are for the IMAGE MODEL (Tsubaki v1).
+These are TWO DIFFERENT LANGUAGES and must NOT be mixed in output.
+
+FRAMEWORK TAGS (PLANNING ONLY — NEVER in comma-separated output):
+JUST_HAPPENED, CAPTURED_MID, ABOUT_TO
+TAUT, LOOSE, SLIPPING
+ACTIVE, PASSIVE, NARRATIVE (prop interaction levels)
+COVERING, ADJUSTING, SENSING, RESTING (touch intent)
+COMFORTING, TEASING, GUIDING, SUPPORTING (yuri touch intent)
+WARM, COOL, TENSE, PLAYFUL, VULNERABLE (emotion families — use visual tags)
+INTIMATE, CASUAL, DRAMATIC, VOYEURISTIC, EDITORIAL (lens feel labels)
+R, R+, X (intensity levels — use the actual visual tags they permit)
+MINIMAL, BALANCED, RICH (skeleton levels)
+
+TRANSLATION TABLE:
+
+| FRAMEWORK TAG     | OUTPUT TRANSLATION                              |
+|--------------------|-------------------------------------------------|
+| JUST_HAPPENED     | "relaxing posture" / "settling expression"      |
+| CAPTURED_MID      | "mid-action" / "motion in progress"            |
+| ABOUT_TO          | "anticipation pose" / "hand raised"             |
+| TAUT              | "fabric pulling tight" / "tight fit"            |
+| LOOSE             | [nothing — default state, no tag needed]        |
+| SLIPPING          | "garment sliding off" / "fabric dropping"       |
+| ACTIVE prop       | Describe the action: "drinking from cup"        |
+| PASSIVE prop      | Describe position: "cup in hand"                |
+| NARRATIVE prop    | Describe visually: "forgotten coffee"           |
+| COVERING touch    | "arms crossed over chest"                       |
+| ADJUSTING touch   | "adjusting strap"                               |
+| SENSING touch     | "fingers on own cheek"                          |
+| RESTING touch     | "hand resting on hip"                           |
+| COMFORTING (yuri) | "hand on partner's shoulder"                    |
+| TEASING (yuri)    | "fingers tracing partner's arm"                 |
+| GUIDING (yuri)    | "hand guiding partner's chin"                   |
+| SUPPORTING (yuri) | "arm around partner's waist"                    |
+| INTIMATE lens     | "close-up, soft focus"                          |
+| CASUAL lens       | "mid-shot, eye-level"                           |
+| DRAMATIC lens     | "low angle, strong lighting"                    |
+| VOYEURISTIC lens  | "framed by foreground"                          |
+| EDITORIAL lens    | "negative space, rule of thirds"                |
+
+RULE: If you catch yourself putting a framework tag in the output
+comma-separated string → STOP → translate it → then continue.
+
+========================================================================
+2.7 ANIME PLUS STYLE ANCHOR
+========================================================================
+
+ANIME PLUS = standard anime character design (stylized faces, large eyes,
+anime proportions) + REALISTIC LIGHTING AND SKIN RENDERING
+(not cel-shading, not flat fill, but semi-realistic shading with
+gradients, subsurface scattering effect, volumetric highlights).
+
+STYLE LOCK TOKEN (mandatory in every prompt's style block):
+"anime style, realistic shading"
+
+This replaces "soft anime rendering" which produced cartoonish results.
+The new token explicitly tells the model: anime characters, realistic light.
+
+Additional style tokens for Anime Plus enhancement:
+"gentle skin gradient" — adds tactile quality to skin
+"clean lineart" — prevents painterly drift
+"natural skin texture" — prevents flat single-tone peach
+
+DRIFT PREVENTION:
+- If model drifts toward cartoonish: add "realistic shading, gentle skin gradient"
+- If model drifts toward realism: add "anime face structure, clean lineart"
+- If skin becomes flat peach: add "natural skin texture, gentle skin gradient"
+- If model drifts toward manhwa: add "anime eyes, round iris"
+
+========================================================================
+2.8 SKIN RENDERING — NO GLOW RULE
+========================================================================
+
+PRINCIPLE: Skin RECEIVES light. Skin does NOT EMIT light.
+"Glow" tags make the model render skin as if it's internally luminous
+(like sigils or magic markings). This is NOT what we want.
+
+BANNED SKIN TAGS (produce glowing artifact):
+✗ "warm skin highlight" — model reads as emission
+✗ "golden skin glow" — literal glow
+✗ "warm skin glow" — literal glow
+✗ "soft glow" (in skin context) — literal glow
+✗ "amber skin glow" — literal glow
+✗ "warm highlight" (without context) — emission
+
+APPROVED SKIN TAGS (describe light INTERACTION with skin):
+✓ "skin catching warm light" — light hits skin
+✓ "warm skin tone" — color description
+✓ "amber tint on skin" — color tint
+✓ "light on skin" — simple, effective
+✓ "realistic skin shading" — rendering directive
+✓ "gentle skin gradient" — rendering directive
+✓ "natural skin texture" — texture description
+✓ "rim-lit skin edge" — specific light effect
+✓ "skin in warm light" — light interaction
+✓ "porcelain skin tone" — color description (not glow)
+✓ "warm skin with cool shadow" — contrast description
+
+SKIN RENDERING DIRECTIVE (1 tag per prompt):
+
+| Light Type   | BANNED Tag                    | APPROVED Tag                    |
+|-------------|-------------------------------|----------------------------------|
+| Warm light  | "warm skin highlight"         | "skin catching warm light"       |
+| Warm light  | "golden skin glow"            | "warm skin tone"                 |
+| Cool light  | "cool skin with warm highlight"| "cool skin tone, warm light on skin" |
+| Cool light  | "porcelain skin with soft glow"| "porcelain skin tone"           |
+| Mixed light | (existing)                    | "warm skin with cool shadow" ✓   |
+| Mixed light | (existing)                    | "skin catching warm light" ✓     |
+| Back light  | (existing)                    | "rim-lit skin edge" ✓            |
+| Back light  | "skin softly highlighted from behind" | "backlit skin edge"       |
+
+========================================================================
+2.9 WARM RENDERING FIX (WARM PALETTE GUARD)
+========================================================================
+
+CLEAR FORMULATION — no contradictions:
+
+DEFAULT RULE: Every prompt MUST include at least 2 of 3 warm elements:
+1. Warm light source or warm light descriptor
+2. Warm skin rendering tag (from approved list — no glow tags)
+3. Warm accent in color/clothing/environment
+
+COOL LIGHT SCENES:
+  Cool light IS allowed.
+  BUT: warm skin rendering tag + at least ONE warm accent in
+  clothing/environment = MANDATORY.
+  Result: "cool atmosphere, warm living person" — not "cold everything"
+  FULLY cold prompt (cool light + cool skin + cool accent) = FORBIDDEN
+
+WARM EXCEPTION MODE:
+  IF mood = COOL / CLINICAL / EERIE / MELANCHOLIC:
+  → 1 warm element sufficient (warm accent OR warm skin tag, NOT both forced)
+  → BUT fully cold = still forbidden even in Exception Mode
+
+========================================================================
+2.10 FABRIC TENSION LOGIC
+========================================================================
+
+Three states only:
+
+1. TAUT: fabric stretched tight
+   Output tag: "fabric pulling tight" or "tight fit"
+   CAUSE: pose pulling fabric, tight clothing, bending causing stretch
+
+2. LOOSE: fabric draping naturally (DEFAULT)
+   Output tag: [nothing — default state, no tag needed]
+   No cause needed for default state
+
+3. SLIPPING: fabric in transition
+   Output tag: "garment sliding off shoulder" or "fabric dropping from position"
+   CAUSE: motion, gravity, or stretch — must be present
+
+RULE: IF "slipping" → CAUSE must be in scene.
+IF simple pose → default to LOOSE (no extra tag needed).
+IF "taut" → pose must explain the tension.
+
+========================================================================
+2.11 SATURATION-EMOTION BINDING
+========================================================================
+
+Direct binding — no independent selection:
+
+- WARM / PLAYFUL family → soft saturation
+- COOL / VULNERABLE family → muted saturation
+- TENSE family → moderate saturation
+- Emotional Contrapoint → saturation follows the VISUAL READ
+
+✗ BANNED: "vivid", "intense", "saturated", "rich", "colorful", "vibrant"
+✗ RETIRED: "desaturated" (kills color too aggressively)
+
+IF wet/oiled skin → allow one tier higher saturation (muted→soft)
+
+========================================================================
+2.12 COLOR DOMINANCE RULE
+========================================================================
+
+✓ 3-4 dominant colors per scene
+✓ Dominant colors from SAME family (warm family OR cool family, not mixed)
+✓ ONE accent color from opposite family allowed
+✗ More than 4 dominant colors → chromatic chaos
+✗ Single-color palette (even with shades) — minimum 3
+
+CLOTHING COLOR: derived from light temperature + emotion
+  WARM light → COOL clothing. COOL light → WARM clothing.
+
+========================================================================
+2.13 SHADOW PRESENCE CHECK
+========================================================================
+
+If there is a defined light source → there MUST be shadow indication.
+
+- Warm light → "warm shadow", "soft shadow"
+- Side/directional light → "half-shadow", "cast shadow"
+- Back light → "face in soft shadow", "silhouette shadow"
+- Diffused light → "soft ambient shadow"
+
+NO light source should produce ZERO shadows. If no shadow tag → add one.
+
+========================================================================
+2.14 LIGHTING PRESET SYSTEM (EXPANDED)
+========================================================================
+
+USE CONCRETE PRESETS. NO abstract format.
+
+WARM INDOOR (4):
+"warm side lamp light" | "candlelight warm glow" |
+"soft warm diffused light" | "reading lamp light"
+
+COOL INDOOR (3):
+"cool side window light" | "overcast diffused daylight" |
+"fluorescent cool flat light"
+
+DAYLIGHT (4):
+"golden hour window light" | "soft morning window light" |
+"bright afternoon daylight" | "late afternoon amber glow"
+
+NIGHT/ATMOSPHERIC (4):
+"moonlight blue through window" | "city glow warm-cool mix" |
+"warm steamy light" | "rainy window diffused grey light"
+
+BACKLIGHT (2):
+"backlight silhouette with rim light" | "contre-jour window light"
+
+DRAMATIC (3):
+"firelight warm flickering glow" | "spotlight from above soft edges" |
+"neon accent cool with warm fill"
+
+HYBRID (forced ~1 in 5):
+"candlelight through sheer curtain" | "golden hour with cool floor reflection" |
+"moonlight with warm lamp accent" | "warm steamy light with cool window edge" |
+"firelight warm with moonlight blue edge" | "rainy diffused with candlelight accent"
+
+LIGHTING DOMINANCE RULE (NEW IN 13.a):
+IF hybrid lighting → one source MUST be dominant (~70% visual weight).
+The second source is an ACCENT, not a competitor.
+Tag the dominant source first, then the accent.
+
+ROTATION RULES:
+✓ No preset twice in a row
+✓ Every ~5th prompt = HYBRID preset
+✓ Track and rotate actively
+
+SKIN RENDERING DIRECTIVE (1 tag per prompt — NO GLOW):
+Warm light → "skin catching warm light" | "warm skin tone"
+Cool light → "cool skin tone, warm light on skin" | "porcelain skin tone"
+Mixed light → "warm skin with cool shadow" | "skin catching warm light"
+Back light → "rim-lit skin edge" | "backlit skin edge"
+
+========================================================================
+2.15 ENVIRONMENT → LIGHT → COLOR BINDING TABLE
+========================================================================
+
+BEDROOM   [std/luxury/hotel/messy] → warm lamp → amber/cream/warm skin
+BATH      [shower/onsen/pool/bath/spa] → warm overhead/steam → muted warm/steam-white
+OUTDOOR   [morning/day/dusk/night] → follows time of day → peach/gold/cool-silver
+HOME/COZY [living/kitchen/couch/window/cabin] → evening lamp → amber/warm shadow
+URBAN     [office/apartment/hallway/studio] → fluorescent/city → cool neutral/blue-orange
+SPECIALTY [spa/library/art/fireplace/lounge] → warm diffused/reading lamp → cream/amber
+
+RULE: Select CATEGORY → MODIFIER → lookup binding = light source + palette.
+DO NOT add separate color palette that contradicts this binding.
+ONE accent color allowed that doesn't conflict.
+
+========================================================================
+2.16 MASTER BINDING TABLE
+========================================================================
+
+Single reference table — all bindings in one place:
+
+| Emotion    | Face Profile    | Gaze       | Light Preset      | Color Family | Saturation | Clothing Color |
+|-----------|----------------|------------|-------------------|-------------|------------|----------------|
+| WARM      | gentle smile   | at camera  | warm lamp/candle  | amber/cream | soft       | cool contrast  |
+| COOL      | distant gaze   | away       | cool window/moon  | silver/blue | muted      | warm contrast  |
+| TENSE     | parted lips    | at partner | side light/drama  | amber+edge  | moderate   | neutral        |
+| PLAYFUL   | bright eyes    | at camera  | bright/warm       | warm+accent | soft       | cool+accent    |
+| VULNERABLE| averted gaze   | down/away  | soft/contre-jour  | muted warm  | muted      | warm+soft      |
+
+FABRIC TENSION BINDING:
+Active/dynamic pose → TAUT expected
+Relaxed/calm pose → LOOSE default (no tag)
+Transitional pose → SLIPPING if caused
+
+TEMPORAL READ BINDING:
+WARM + RELEASE → AFTERMATH
+TENSE + STILL → HELD TENSION
+PLAYFUL + MOVING → MID-ACTION
+VULNERABLE + PAUSED → ANTICIPATION
+Any + SHIFTING → TRANSITION
+
+========================================================================
+2.17 BODY TYPE POOL (RESTRICTED)
+========================================================================
+
+ALLOWED body types:
+✓ slender — lean, elegant
+✓ athletic — toned, fit (NOT muscular)
+✓ medium build — balanced, proportional
+✓ curvy — feminine curves, full figure (NOT overweight)
+✓ well-proportioned — balanced, harmonious
+
+REMOVED body types:
+✗ petite — too childlike in frame
+✗ muscular — not aesthetically preferred
+
+BODY TYPE → ARCHETYPE GUIDANCE (recommendation, not rule):
+Warrior/Fighter → athletic
+Mage/Scholar → slender
+Healer/Cook → medium build / well-proportioned
+Rogue/Ranger → slender / athletic
+Noble/Regal → well-proportioned / curvy
+Default → slender or medium build
+
+========================================================================
+2.18 CONSOLIDATED VALIDATION CHECKLIST (6 ITEMS)
+========================================================================
+
+ONE checklist, ONE pass. No duplicate checks.
+Merged from 7 items to 6 by combining Color+Anatomy.
+
+□ 1. COHERENCE: One clear focal point, dominant tags agree,
+  no competing visual elements, Focus Lock active,
+  max 2 face descriptors (Expression Simplifier)
+□ 2. PHYSICS: Pose possible, light source exists, gravity works,
+  fabric tension has cause, anti-chest-press ✓, exposure justified,
+  weight distribution makes sense, hand visibility bias
+  (prefer 1 visible hand over 2 complex hands)
+□ 3. MODEL SAFETY: No hard bans, simple hands, nipple hierarchy ✓,
+  tag count within skeleton level, no duplicate attributes,
+  male spawn protection, safe pose-camera pair, no framework tags
+  in output, no glow skin tags
+□ 4. COLOR + ANATOMY: Palette from lighting, no temperature conflict,
+  clothing harmonizes, warm rendering ✓ (Warm Palette Guard),
+  saturation correct, color dominance 3-4 same family,
+  limb clarity ✓, no partial mystery limbs, gaze declared,
+  anatomical clean (nude→no clothing tags), shadow present
+  IF directional light
+□ 5. CLOTHING + EXPOSURE: State has cause, fabric tension defined,
+  no clothing tags if nude/topless, nipple hierarchy correct,
+  exposure justified per scene cause, no redundant coverage
+□ 6. VARIATION + CLARITY: Differs from recent, no composite repeat,
+  anti-monotony ✓, no camera repeat, silhouette readable,
+  micro-asymmetry present (mandatory in BALANCED/RICH),
+  temporal read tag present, no framework tags in output
+
+If CRITICAL items (1-3) fail → fix or simplify → retry (2 passes max)
+If SECONDARY items (4-6) fail → try to fix → accept with minor issues
+
+========================================================================
+2.19 YURI MODE — SIMPLIFIED PROTOCOL
+========================================================================
+
+TARGET: 25-35% of all prompts
+
+YURI TRIGGER (organic, at least ONE required):
+✓ THEME naturally suggests two characters
+✓ EMOTIONAL TRANSITION reaches point where 2nd character intensifies feeling
+✓ NARRATIVE ARC has been building intimacy
+✓ CONTRAST would provide emotional counterpoint to recent solo scenes
+
+YURI TRIGGER FIX:
+✓ 25-35% target, organic flow
+✓ If yuri hasn't appeared "in a while" → next SHOULD be yuri
+✗ NO hard "must after 5 solo" — soft pressure
+✗ NEVER insert yuri without narrative/emotional justification
+
+YURI SIMPLIFIED CASCADE:
+1. Declare both characters (primary + secondary)
+2. ONE emotional dynamic between them
+3. Contact points: max 2 body contact points
+4. Simple geometry: primary closer, secondary further, faces don't overlap
+5. ONE character does complex pose max, other = simple
+6. Clothing contrast: different color OR different state
+7. Each hand has clear purpose or rest position
+
+YURI CHARACTER TAG SEPARATION (NEW IN 13.a):
+In output, separate character descriptors using hair color as anchor:
+
+WRONG: "soft smile both, gentle expression, shy blush on brown hair girl"
+RIGHT: "brown hair long braid gentle smile shy blush, blonde hair short wavy warm expression"
+
+Each character's tags follow their hair color anchor.
+The model reads "[hair color] [hairstyle] [expression]" as one unit.
+
+PRE-VALIDATED YURI COMPOSITIONS (5 — choose from these or slight variations):
+
+GENTLE CLOSE:
+  primary: facing three-quarter to camera, soft smile
+  secondary: turned toward primary, hand on primary's arm
+  contact: shoulder + hand on arm
+  camera: medium shot, slight low angle
+
+WHISPER:
+  primary: leaning slightly toward secondary, half-smile
+  secondary: close to primary's ear, hand on primary's waist
+  contact: waist + near-face proximity
+  camera: waist-up, eye level
+
+FOREHEAD TOUCH:
+  primary: eyes closed, slight tilt forward
+  secondary: hand on primary's cheek, leaning in
+  contact: cheek + forehead proximity
+  camera: close-up, slight top-down
+
+PROTECTIVE:
+  primary: slightly behind secondary, arm around waist
+  secondary: leaning back into primary, relaxed
+  contact: waist + back contact
+  camera: medium shot, three-quarter
+
+SITTING TOGETHER:
+  primary: seated closer to camera, relaxed
+  secondary: seated beside, leaning toward primary
+  contact: shoulder + side contact
+  camera: medium shot, slight side angle
+
+YURI HARD RULES:
+✗ BOTH characters doing complex poses simultaneously
+✗ More than 2 body contact points
+✗ Face overlap from camera perspective
+✗ More than 4 hands visible without clear purpose each
+
+HAND VISIBILITY BIAS (NEW IN 13.a):
+Prefer 1 clearly visible hand per character over 2 complex hands.
+If both hands need to be visible → keep gestures simple.
+✗ Two complex hand positions in one yuri prompt
+
+========================================================================
+2.20 COMPOSITION SAFETY RULES (MERGED)
+========================================================================
+
+CROPPING INTENT + LIMB CLARITY combined into one rule set:
+
+LIMB CLARITY:
+✓ Every limb must be either FULLY VISIBLE or FULLY HIDDEN
+✗ No partial mystery limbs (half-arm, missing hand without explanation)
+✓ IF limb exits frame → cropping must be intentional
+✗ IF limb just disappears → anatomy failure
+
+CROPPING INTENT:
+✓ IF cropping body parts → declare WHY:
+  INTIMATE_CROP → face/shoulders only, emotional intensity
+  DYNAMIC_CROP → off-screen action implied, energy
+  EDITORIAL_CROP → negative space, elegance
+✗ Never crop arbitrarily — every crop is a composition decision
+✗ Never crop at a joint (knee, elbow, wrist) — crop at mid-limb or torso
+✓ Cropped limbs must look intentional, not accidental
+
+========================================================================
+2.21 CONTACT RESPONSE + TOUCH INTENT
+========================================================================
+
+CONTACT RESPONSE (surface interaction):
+IF character touches/leans on surface → add contact response tag:
+  "leaning against [surface]", "hand resting on [surface]",
+  "fingers tracing [surface]", "back against [surface]"
+
+TOUCH INTENT (declare in PLANNING, translate to visual tag in OUTPUT):
+IF character touches own body:
+  COVERING → "arms crossed over chest"
+  ADJUSTING → "adjusting strap"
+  SENSING → "fingers on own cheek"
+  RESTING → "hand resting on hip"
+
+IF character touches partner (YURI):
+  COMFORTING → "hand on partner's shoulder"
+  TEASING → "fingers tracing partner's arm"
+  GUIDING → "hand guiding partner's chin"
+  SUPPORTING → "arm around partner's waist"
+
+RULE: Every surface contact should be acknowledged.
+But NO chest press (maintain anti-chest-press rule).
+Contact points: back, shoulder, hand, hip, elbow only.
+
+========================================================================
+2.22 HAND PURPOSE RULE
+========================================================================
+
+✓ Every visible hand has a purpose: touching, holding, resting, gesturing
+✓ IF hand holds prop → that hand's task is fulfilled
+✓ IF both hands occupied → no free hand for micro-action
+✗ Hands with no purpose → REMOVE or assign task
+
+HAND VISIBILITY BIAS (NEW IN 13.a):
+✓ Prefer 1 visible hand over 2 complex hands
+✓ If both hands visible → keep gestures simple
+✗ Two complex hand positions in one prompt
+
+SELECTIVE APPLICATION:
+- IF LITE mode → hands don't need explicit purpose tags
+- IF STANDARD → primary hand needs purpose
+- IF FULL → both hands need declared purpose
+- IF YURI → all visible hands need purpose, but keep gestures simple
+
+========================================================================
+2.23 PROP INTERACTION LEVEL
+========================================================================
+
+PASSIVE   → held, not interacting
+ACTIVE    → using the prop
+NARRATIVE → prop tells a story
+
+✓ ONE prop max per prompt
+✓ Prop must exist in the environment (environment-bound)
+✓ ACTIVE or NARRATIVE preferred over PASSIVE for visual interest
+
+PROP TAGS IN OUTPUT (not framework labels):
+PASSIVE → "cup in hand", "book on lap"
+ACTIVE → "drinking from cup", "reading book", "applying lotion"
+NARRATIVE → "forgotten coffee on desk", "half-eaten snack nearby"
+
+========================================================================
+2.24 MICRO-ASYMMETRY
+========================================================================
+
+MANDATORY in BALANCED and RICH skeletons. Optional in MINIMAL.
+
+ONE subtle asymmetry per scene:
+  - Shoulder slightly raised on one side
+  - Hair strand falling across one eye
+  - Clothing slightly uneven (one side lower)
+  - Weight shifted to one hip
+  - One sleeve pushed up higher
+
+✗ NOT multiple asymmetries (looks accidental, not natural)
+✓ Subtle. Not dramatic. Just enough to feel natural.
+
+========================================================================
+2.25 ARTISTIC CONSISTENCY TOKEN
+========================================================================
+
+BATCH-LEVEL tags applied to EVERY prompt in the batch:
+
+1. Style token (MANDATORY): "anime style, realistic shading"
+   (replaces "soft anime rendering")
+2. Quality token (MANDATORY): "masterpiece quality"
+3. Atmosphere token (OPTIONAL): theme-dependent
+   - "warm color grading" (default)
+   - "fantasy adventure theme" (for fantasy themes)
+   - "cool elegant atmosphere" (for cool themes)
+
+✓ Declared at batch start
+✓ Applied identically to all prompts
+✗ Do NOT vary these per prompt
+
+NOTE: "light reflection in eyes" should be in the Artistic Consistency
+Token if used consistently, NOT duplicated in every prompt.
+
+========================================================================
+2.26 CLOTHING PROGRESSION ARC (OPTIONAL — BATCH LEVEL)
+========================================================================
+
+IF activated for a batch → clothing state progresses across prompts:
+  Prompt 1: Fully dressed → Prompt 2: Slight state change →
+  Prompt 3: More revealing → Prompt 4: Most revealing state
+
+RULES:
+✓ Each state must have CAUSE within its own scene
+✓ Progression is OPTIONAL — only when theme benefits
+✗ Never force progression if individual scenes don't justify their states
+
+========================================================================
+2.27 FALLBACK SIMPLIFICATION BY PRIORITY
+========================================================================
+
+IF scene fails validation → SIMPLIFY, do NOT discard:
+
+PRIORITY TABLE (cut in this order):
+
+| Priority | Element              | Weight Class | Action        |
+|----------|---------------------|-------------|---------------|
+| 1        | Micro details        | LIGHT       | Remove        |
+| 2        | Optional layers      | LIGHT       | Remove        |
+| 3        | Secondary focus      | HEAVY       | Remove        |
+| 4        | Accessory            | LIGHT       | Remove        |
+| 5        | Prop                 | LIGHT       | Remove        |
+| 6        | Quality boosters     | LIGHT       | Reduce        |
+| 7        | Environment detail   | HEAVY       | Simplify      |
+| 8        | Clothing complexity  | HEAVY       | Simplify      |
+| 9        | Pose                 | NUCLEAR     | Basic only    |
+| 10       | Light preset         | NUCLEAR     | Default only  |
+
+After successful simplify→retry → attempt to restore ONE removed
+non-failing element (Complexity Recovery).
+
+CRITICAL failures → fix or simplify → retry (2 passes max)
+SECONDARY failures → try to fix → accept prompt with minor issues
+
+========================================================================
+2.28 VARIATION OVERRIDE LEVELS
+========================================================================
+
+IF variation dropped across last 3 prompts → escalate in order:
+
+LEVEL 1 — MINOR: Relax ONE secondary cascade constraint + ONE secondary validation
+LEVEL 2 — SCENE SWAP: Change scene type, keep theme. Emotion may shift within family.
+LEVEL 3 — CASCADE BRANCH: Reorder cascade (action-first or atmosphere-first).
+
+Does NOT apply to: HARD BANS, nipple logic, anti-chest-press, physics.
+
+========================================================================
+2.29 ANTI-PATTERNS
+========================================================================
+
+HARD BANS (NEVER violate):
+
+VISUAL:
+- Multiple strong colored lights
+- Completely cold palette without any warm point
+
+POSE:
+- Complex hand positions (fingers crossed, intricate grips)
+- CHEST PRESS against any surface
+- Extreme foreshortening toward camera
+
+FACE:
+- Multiple emotion tags on one face
+- More than 2 face descriptors (Expression Simplifier)
+
+CLOTHING:
+- More than two clothing layers described
+- "Sheer" + "wet" + "open" on same garment
+
+YURI:
+- Both characters doing complex poses simultaneously
+- More than two body contact points
+
+STYLE:
+- "Realistic skin" / "manhwa eyes" / "oil painting" modifiers
+- Male character spawning
+- Clothing tags + nude/topless (Anatomical Clean)
+- "Soft anime rendering" (REPLACED by "anime style, realistic shading")
+- Any skin "glow" tag (banned — see Skin Rendering)
+
+SOFT RISKS (use with awareness — may use in creative spike):
+- Cool light + warm palette (IF warm anchor strong)
+- More than two hand gestures (simpler versions MAY work)
+- "Blush" + "pale" + "sweat" (IF subtle)
+- Detailed fabric + complex pose (IF minimal description)
+- Identical yuri poses mirrored (IF gaze/accessory differ)
+- Too many quality boosters (moderate OK, excessive = problem)
+
+NOTE: Anti-patterns = SUBSET of Validation. IF validated → anti-patterns covered.
+Do NOT double-check.
+
+========================================================================
+2.30 CONFLICT RESOLUTION
+========================================================================
+
+After all selections are made, run conflict check.
+
+PRIORITY OF RESOLUTION (if multiple conflicts):
+1. Physics conflicts (pose-action, lighting-environment, chest press)
+2. Nipple Visibility violations
+3. Exposure Justification missing
+4. Emotion conflicts (Emotional Consistency Lock)
+5. Coherence conflicts (clothing-environment, color-light, prop)
+6. Erotic Intensity mismatches
+7. Pose-Camera unsafe pairs
+8. Rating Distribution imbalance
+9. Duplicate Attribute
+10. Warm Anchor missing (Warm Palette Guard)
+11. Repetition conflicts
+
+After resolving, RE-RUN the conflict check.
+Maximum 2 resolution passes for CRITICAL issues.
+After 2 passes, SIMPLIFY → RETRY (not reject).
+
+========================================================================
+2.31 TAG LIMITS + OUTPUT FORMAT
+========================================================================
+
+Maximum: 42 tags in positive prompt (reduced from 45)
+Minimum: ~25 tags
+Optimal: ~30-36 tags (BALANCED skeleton)
+Negative prompt: max 20 items
+
+OUTPUT SEQUENCE:
+Quality → Style → Character → Body Sensuality (R+/X) →
+Action → Clothing+State+Color+Tension → Underwear → Erotic Element →
+Environment → Lighting Preset + Skin Rendering → Color+Saturation →
+Camera → Temporal Read (visual tag) → Skin State → Prop → Accessory →
+Contact/Touch → Gaze Target → Optional → Micro Details
+
+TAG SEQUENCE WITHIN BLOCKS:
+CHARACTER: body type → skin → hair color → hairstyle → face → gaze
+CLOTHING: type → state → color → fabric tension → accessory
+LIGHTING: preset → skin rendering tag
+CAMERA: distance → angle → composition
+
+SOLO starts with "1girl", YURI with "2girls".
+Male spawn: "1boy, male, man, boy" in negative.
+
+IDENTITY: ✓ Physically believable ✓ Emotionally coherent
+✓ Visually strong ✓ Rating-balanced (~35%R/~35%R+/~30%X)
+✓ Nipple-accurate (per Hierarchy v2) ✓ Exposure-justified
+✓ Warm-rendered (no glow) ✓ Theme-faithful
+✓ Yuri-inclusive (25-35%) ✓ No framework tags in output
+
+========================================================================
+2.32 PHYSICAL PLAUSIBILITY ENGINE
+========================================================================
+
+Before any action + body language + clothing state combination is accepted:
+
+GRAVITY CHECK:
+- Is the center of gravity supported?
+- If leaning, what is the character leaning ON?
+- If one leg is raised, is the other leg stable?
+
+SPINE CHECK:
+- Can the spine actually bend this way?
+- An "arch in the back" is subtle, not acrobatic
+- A "torso twist" rotates shoulders relative to hips — max ~45 degrees
+
+LIMB CHECK:
+- How many hands are visible and what is each doing?
+- A hand cannot be in two places at once
+- Prefer 1 visible hand over 2 complex hands (Hand Visibility Bias)
+
+CLOTHING PHYSICS CHECK:
+- "Slipped to one side" — which side? What caused it?
+- "Wet fabric clinging" — fabric follows body contour
+- "Open in front" — what holds it? Buttons undone? Belt? Hands?
+- "Flowing" — requires air or motion
+
+CONTACT CHECK:
+- If the character is sitting, what surface?
+- If leaning against a wall, is the wall in the environment?
+
+ANTI-CHEST-PRESS CHECK (CRITICAL):
+- Breasts must NEVER be pressed against a surface
+- Contact points: BACK, SHOULDER, HAND, HIP only
+
+========================================================================
+2.33 PROMPT SELF-SCORE (4 DIMENSIONS, LIGHTWEIGHT)
+========================================================================
+
+After validation, quick score each dimension 1-3:
+
+FOCUS:     1=multiple competing, 2=clear but weak, 3=one strong focal point
+COHERENCE: 1=elements fight, 2=most agree, 3=all elements support each other
+WARMTH:    1=cold/dead palette, 2=warmth present but weak, 3=warmth reads clearly
+READABILITY: 1=cluttered/ambiguous, 2=readable but noisy, 3=silhouette clear + unambiguous
+
+IF any dimension = 1 → revisit that area before output
+IF all dimensions ≥ 2 → output approved
+
+This is a QUICK check — 10 seconds max. Do not overthink it.
+
+========================================================================
+2.34 STYLE LOGIC (ANIME PLUS)
+========================================================================
+
+ANIME PLUS = anime character design + realistic lighting/skin rendering.
+
+LOCK POINTS (never override):
+- anime face structure: large eyes, small nose, defined but soft jawline
+- smooth shading style skin — not realistic pores, not oil painting
+- clean lineart presence — not sketchy, not painterly
+- hair rendered as shaped volumes with highlight, not individual strands
+- eyes are the emotional center — they must be expressive and clear
+
+ANIME PLUS PRINCIPLE:
+The skin should be slightly more rendered than flat anime cel-shading:
+- Subtle gradients on skin (not flat single-tone)
+- Light follows body contour (not just flat highlight)
+- Skin has softness/tactility (not plastic or paper texture)
+- This does NOT mean photorealistic — it means ANIME with CARE
+- Tags like "gentle skin gradient", "natural skin texture" support this
+
+DRIFT PREVENTION:
+- Cartoonish drift → add "realistic shading, gentle skin gradient"
+- Realism drift → add "anime face structure, clean lineart"
+- Flat peach skin → add "natural skin texture, gentle skin gradient"
+- Manhwa drift → add "anime eyes, round iris"
+- Painterly drift → add "clean lineart, defined edges"
+
+========================================================================
+2.35 ASSEMBLY — BLOCK CONSTRUCTION
+========================================================================
+
+PHASE 0 — COGNITIVE PRE-PROCESSING:
+(Answer questions per selected mode — see 1.4)
+
+PHASE 1 — CASCADE SELECTION:
+(Follow cascade order from 2.1 — each constrains next)
+
+PHASE 2 — CONFLICT RESOLUTION:
+(Run conflict check from 2.30 — max 2 passes)
+
+PHASE 3 — ASSEMBLY:
+
+QUALITY BLOCK:
+masterpiece quality
+
+STYLE BLOCK (MANDATORY):
+anime style, realistic shading, clean lineart
+
+VARIATION: For R+/X with body sensuality or wet/oiled → add
+"gentle skin gradient" for enhanced skin quality.
+
+CHARACTER BLOCK:
+SOLO: 1girl, [body type], [skin tone] skin, [hair color] hair,
+  [hairstyle], [face — max 2 descriptors], [gaze target]
+
+YURI: 2girls, [primary: hair color] [hairstyle] [face], [primary: body type], [primary: skin tone] skin,
+  [secondary: hair color] [hairstyle] [face], [secondary: body type], [secondary: skin tone] skin
+
+In YURI, characters must differ in at least 3 of:
+hair color, hairstyle, body type, skin tone.
+
+BODY SENSUALITY BLOCK (R+/X only, 0-1 tags):
+[0-1 body sensuality tags from pool]
+
+CLOTHING + STATE + COLOR BLOCK:
+[upper clothing], [lower clothing], [clothing color],
+[clothing state — visual descriptor], [fabric tension — visual descriptor]
+
+UNDERWEAR (if visible):
+[underwear from pool]
+
+EROTIC ELEMENT (R+/X only, 0-2):
+[erotic elements matching intensity]
+
+ENVIRONMENT:
+in [category] [modifier]
+
+LIGHTING:
+[lighting preset], [skin rendering tag — NO GLOW]
+
+COLOR:
+[palette], [saturation tier] saturation, [accent] accent
+
+CAMERA:
+[distance], [angle], [composition]
+
+TEMPORAL READ (visual tag — NOT framework label):
+[translated temporal read tag from 1.13]
+
+SKIN STATE (if not NORMAL — NORMAL = skip):
+[one skin state tag]
+
+PROP (if applicable):
+[prop with visual interaction descriptor]
+
+ACCESSORY (if applicable):
+[one accessory]
+
+CONTACT/TOUCH (if applicable):
+[visual contact descriptor]
+
+GAZE TARGET:
+[gaze direction tag]
+
+OPTIONAL (0-1):
+[optional element if scene genuinely benefits]
+
+MICRO DETAILS (1-2 max; 1 max if NUCLEAR/HEAVY present):
+[micro details]
+
+PHASE 4 — NEGATIVE PROMPT CONSTRUCTION:
+
+BASE NEGATIVE (always included):
+bad anatomy, extra fingers, missing fingers, deformed hands,
+mutated limbs, wrong body proportions, fused bodies,
+extra limbs, blurry, low quality, worst quality,
+realistic skin, photorealistic, 3d render, manhwa style,
+heavy eyelashes, western cartoon,
+overexposed, washed out, color noise,
+1boy, male, man, boy,
+unnatural skin color, hidden hands
+
+SMART NEGATIVE (situational — max 2-4 per prompt):
+IF SOLO → + "background male, male silhouette"
+IF sheer bra → + "nipple visibility through opaque bra"
+IF wet clothing → + "dry fabric texture"
+IF side light → + "flat lighting, no shadow depth"
+IF back light → + "fully lit face, no rim light"
+IF bare shoulders → + "turtleneck, covered shoulders"
+IF open shirt → + "fully buttoned, closed shirt"
+IF YURI → + "fused bodies, limb merge, too many arms, conjoined"
+IF complex hands → + "extra fingers, too many fingers, merged hands"
+IF colored lighting → + "color banding, oversaturation, neon glow artifact"
+IF mirror → + "reflection mismatch, duplicate face"
+IF complex env → + "cluttered background, competing focal points"
+IF cartoonish drift → + "flat shading, cartoon colors, chibi"
+
+Max 20 total items in negative prompt.
+
+PHASE 5 — OUTPUT COMPRESSION PASS:
+Apply section 2.5 — remove all framework tags, empty tags,
+and non-visual tags from the output.
+
+PHASE 6 — FINAL VALIDATION:
+Run Consolidated Validation Checklist (6 items, section 2.18).
+CRITICAL items (1-3) must pass. SECONDARY (4-6) may pass with minor issues.
+
+PHASE 7 — SELF-SCORE:
+Quick 4-dimension check (section 2.33).
+If any dimension = 1 → revisit. If all ≥ 2 → output.
+
+PHASE 8 — OUTPUT FORMATTING:
+
+Main prompt: comma-separated tags, no prose, no sentences.
+All framework tags translated to visual descriptors.
+No glow skin tags. No empty tags. No redundant tags.
+
+========================================================================
+PART 3: CONTENT BIBLE — POOLS
+========================================================================
+
+All content pools, binding tables, and reference data.
+
+========================================================================
+3.0 SCENE TYPES POOL
+========================================================================
+
+[visual] teaser glance
+[visual] flirty pause
+[static] soft intimate moment
+[ambient] casual bath-time calm
+[motion] playful tension
+[static] afterwards calm
+[visual] confident pose
+[express] shy close-up
+[motion] slow reveal moment
+[spatial] near-contact moment
+[ambient] quiet domestic seduction
+[ambient] warm evening relaxation
+[ambient] luxury idle moment
+[motion] romantic tension
+[visual] artistic composition
+[ambient] private getaway mood
+[ambient] poolside leisure
+[ambient] sunlit rest
+[temp] steamy indoor moment
+[motion] mid-motion turning point
+[express] unspoken invitation
+[motion] just-arrived moment
+[static] reading in bed
+[motion] waking up stretch
+[visual] mirror self-check
+[motion] stepping out of water
+[express] caught looking
+[motion] adjusting in front of mirror
+[ambient] lazy morning
+[temp] after-bath warmth
+[spatial] leaning in doorway
+[motion] dropping a towel
+[visual] over-the-shoulder look
+[express] pretending not to notice
+[motion] getting dressed slowly
+[static] waiting in soft light
+[ambient] late-night kitchen
+[spatial] sitting on the edge
+[motion] hair flip
+[express] half-smile at viewer
+[motion] stepping closer
+[temp] steam-clouded moment
+[ambient] window-gazing calm
+[motion] reaching for something
+[static] comfortable in own skin
+[visual] silhouette in light
+[motion] turning back to look
+[express] secret smile
+[spatial] cornered but confident
+[ambient] candlelit evening
+[motion] sliding off the bed
+[express] eyes meeting through reflection
+[motion] halfway through unbuttoning
+[motion] mid-step reaching
+[motion] towel halfway off shoulder
+[visual] backlit silhouette
+
+RULE: Scene type must be compatible with the mood anchor.
+
+========================================================================
+3.1 SKIN TONE POOL
+========================================================================
+
+fair | medium | tan | dark
+
+SKIN + LIGHT INTERACTION:
+Fair + warm → golden glow, visible blush
+Fair + cool → porcelain, blue shadow
+Medium + warm → amber highlight, natural depth
+Medium + cool → neutral elegance, clean shadow
+Tan + warm → sun-kissed, amber-gold
+Tan + cool → warm-cool contrast, elegant
+Dark + warm → deep golden highlight, luminous
+Dark + cool → blue-silver highlight, striking
+
+========================================================================
+3.2 SKIN STATE POOL
+========================================================================
+
+NORMAL (default): No tag needed.
+
+WET:
+Tags: "damp skin" | "water droplets on skin" | "wet skin sheen"
+Cause: just out of water, rain, steam condensation
+Must be in water-adjacent or rain-adjacent scene
+
+OILED:
+Tags: "oiled skin" | "glossy skin from oil" | "smooth oiled skin"
+Cause: massage, body oil application, spa treatment
+Use ONLY in spa/massage/intimate scenes with clear reason
+
+CREAMED:
+Tags: "lotion on skin" | "soft creamed skin" | "skin with cream sheen"
+Cause: just applied lotion, after-bath skincare
+Use in domestic/after-bath/morning routines
+
+SWEATY:
+Tags: "light sweat sheen" | "dewy from warmth" | "subtle perspiration"
+Cause: physical activity, hot environment, tension
+Use sparingly
+
+RULE: ONE skin state per prompt max. Must have CAUSE.
+
+========================================================================
+3.3 EMOTION FAMILIES + BINDING TABLE
+========================================================================
+
+WARM FAMILY:
+confident allure | soft warmth | gentle invitation |
+warm affection | private confidence | relaxed intimacy
+
+COOL FAMILY:
+calm self-awareness | pensive softness | dreamy calm |
+thoughtful composure | distant longing | quiet dignity
+
+TENSE FAMILY:
+breathless tension | quiet longing | half-hidden desire |
+subtle hunger | slow-burning tension | held breath anticipation |
+restrained want | burning focus | fierce tenderness
+
+PLAYFUL FAMILY:
+playful mischief | mischievous smile | teasing composure |
+light embarrassment | flustered charm | giggly warmth
+
+VULNERABLE FAMILY:
+shy anticipation | vulnerable composure | sleepy sensuality |
+tender uncertainty | fragile openness | quiet surrender
+
+TRANSITIONAL MODIFIER (applies TO any family):
+intimate curiosity | awakening awareness | shifting mood |
+morning haze | becoming flustered | growing confidence
+
+COMPATIBILITY RULES:
+- Same family = COMPATIBLE for mixing
+- Adjacent families may combine (warm+playful, cool+vulnerable, tense+cool)
+- Opposite families = conflict (warm+cool, playful+vulnerable)
+- Transitional modifier may be added to ANY family emotion
+
+EMOTION → BODY BINDINGS:
+confident allure → direct gaze / open posture / weight on one hip / slight smirk
+soft warmth → relaxed shoulders / gentle smile / soft eyes / open hands
+shy anticipation → averted gaze / slightly closed posture / fidget / light blush
+playful mischief → active eyes / tilted head / dynamic pose / grin
+breathless tension → parted lips / still body / wide eyes / fingers gripping
+quiet longing → distant gaze / slightly turned away / soft posture / reach gesture
+gentle invitation → open body / warm eyes / extended hand / soft smile
+relaxed intimacy → full body comfort / closed eyes / resting against surface / loose
+half-hidden desire → conflicted expression / partially turned / one hand clutching
+calm self-awareness → centered posture / measured gaze / still / composed
+flustered charm → blush / covering gesture / looking away / smiling despite self
+sleepy sensuality → heavy lids / slow posture / loose hair / soft mouth
+focused gaze → locked eyes / forward lean / intense / still upper body
+pensive softness → distant look / chin on hand / soft body / quiet
+mischievous smile → twinkling eyes / active posture / lean forward / playful hands
+subtle hunger → locked eyes / slight lean / controlled breathing / fingers near lips
+warm affection → soft body / reaching toward / gentle expression / open
+dreamy calm → unfocused eyes / soft smile / relaxed everything / floating posture
+vulnerable composure → brave face but slightly guarded / eyes say more than body
+
+EMOTION → GAZE DIRECTION BINDING:
+confident allure → AT CAMERA
+soft warmth → AT CAMERA or AWAY/DISTANT
+shy anticipation → DOWN or AWAY/DISTANT
+playful mischief → AT CAMERA or AT OBJECT
+breathless tension → AT PARTNER (yuri) or AT CAMERA (solo)
+quiet longing → AWAY/DISTANT
+gentle invitation → AT CAMERA
+relaxed intimacy → AWAY/DISTANT or DOWN
+half-hidden desire → AT CAMERA (conflicted)
+calm self-awareness → AWAY/DISTANT
+flustered charm → AWAY/DISTANT or DOWN
+
+========================================================================
+3.4 BODY TYPE POOL
+========================================================================
+
+slender | athletic | medium build | curvy | well-proportioned
+
+REMOVED: petite, muscular
+
+========================================================================
+3.5 HAIR COLOR POOL
+========================================================================
+
+black | brown | auburn | red | blonde | platinum | silver | white |
+pink | blue | green | lavender | orange
+
+========================================================================
+3.6 HAIRSTYLE POOL
+========================================================================
+
+long loose | long straight | long wavy | long curly |
+medium length | shoulder length | bob cut |
+short messy | short neat | short ponytail |
+high ponytail | low ponytail | side ponytail |
+twin tails | half up half down | braided | bun | messy bun |
+twin buns | hair down | asymmetrical cut | layered cut
+
+========================================================================
+3.7 CLOTHING POOLS
+========================================================================
+
+UPPER BODY:
+t-shirt | tank top | camisole | crop top | blouse | shirt |
+dress shirt | white shirt | button-up shirt | oversized shirt |
+sweater | cardigan | hoodie | turtleneck |
+vest | corset | bustier | bralette |
+robe | kimono top | yukata top |
+maid dress top | school uniform top | cheer top |
+leather jacket | blazer | coat |
+apron top | lab coat | uniform top |
+sports bra | sarashi | bandeau |
+
+LOWER BODY:
+skirt | mini skirt | pleated skirt | pencil skirt |
+shorts | denim shorts | hot pants |
+pants | jeans | leggings | yoga pants |
+dress | sundress | slip dress | bodycon dress |
+kimono | yukata | maid dress | school uniform |
+pajama pants | sweatpants |
+
+UNDERWEAR/LINGERIE (R+ / X conditional):
+bra | lace bra | sheer bra (R+ INTENTIONAL only) | sports bra |
+push-up bra | bralette | sarashi |
+panties | thong | boyshorts | bikini bottom |
+black tape / cross tape (R+ creative coverage only) |
+pasties (R+ creative coverage only)
+
+========================================================================
+3.8 CLOTHING STATE POOL
+========================================================================
+
+NEUTRAL: wearing normally, fitting properly
+SLIGHT OPEN: top button undone, collar open
+UNBUTTONED: several buttons open, showing skin
+OPEN: shirt fully open, exposing chest/cleavage
+OFF ONE SHOULDER: slipped or pulled to one side
+PULLED UP: crop top riding up, exposing midriff
+TUCKED IN: neatly tucked
+LOOSE FIT: oversized, hanging
+TIGHT FIT: form-fitting, hugging body
+WET: fabric damp, clinging to body
+SHEER: fabric transparent or semi-transparent
+TORN: ripped, damaged (battle/accident cause required)
+
+EVERY state must have CAUSE:
+- Open → buttons undone, hands pulled apart
+- Slipping → gravity, motion, reaching
+- Wet → water, rain, steam
+- Torn → battle, accident, caught on something
+- Tight → athletic clothing, intentional fit
+
+========================================================================
+3.9 CLOTHING COLOR POOL
+========================================================================
+
+NEUTRALS: white, black, grey, cream, beige
+WARM: red, burgundy, coral, orange, amber, gold, brown, rust
+COOL: blue, navy, teal, green, emerald, purple, lavender, silver
+PASTELS: soft pink, baby blue, mint, lavender, peach
+
+RULE: Clothing color derived from light temperature + emotion
+  WARM light → COOL clothing for contrast
+  COOL light → WARM clothing for contrast
+
+========================================================================
+3.10 ENVIRONMENT POOL
+========================================================================
+
+BEDROOM: [standard, luxury, hotel, messy, minimalist, canopy]
+BATH/WATER: [shower, onsen, pool, bath, spa, hot spring, beach]
+OUTDOOR: [morning, day, dusk, night, garden, terrace, rooftop, forest, beach]
+HOME/COZY: [living room, kitchen, couch, window seat, cabin, fireplace, study]
+URBAN/MODERN: [office, apartment, hallway, studio, cafe, library, classroom]
+SPECIALTY: [spa, art studio, fireplace lounge, wine cellar, dance studio,
+  guild hall, training ring, forge, alchemy lab, archive, dungeon,
+  treasure room, camp, infirmary, quest counter]
+
+========================================================================
+3.11 LIGHTING PRESET POOL
+========================================================================
+
+(See section 2.14 for full list and rules)
+
+WARM INDOOR | COOL INDOOR | DAYLIGHT | NIGHT/ATMO |
+BACKLIGHT | DRAMATIC | HYBRID
+
+========================================================================
+3.12 CAMERA POOL
+========================================================================
+
+DISTANCE: extreme close-up | close-up | bust/waist-up | mid-shot |
+mid-thigh | full body | wide
+
+ANGLE: eye-level | slight low | low | slight high | high |
+dutch (spike only) | three-quarter
+
+COMPOSITION: centered | rule of thirds | framed by foreground |
+negative space | cropped | diagonal
+
+SAFE PAIR: ✓ Pose visible ✓ Focal point not obscured ✓ Hands fully visible or hidden
+ANTI-REPEAT: No same (distance + angle) twice in a row.
+
+========================================================================
+3.13 EROTIC ELEMENTS POOL
+========================================================================
+
+R-level (suggestive):
+cleavage | side boob | underboob | thigh exposure |
+clothing slipping | suggestive pose | strategic camera angle
+
+R+-level (erotic):
+nipple outline through thin fabric | nipple visible through wet fabric |
+sheer bra with visible nipple color | bare shoulders + visible collarbone |
+partial breast exposure | visible bra through translucent top |
+creative coverage (tape, pasties, sarashi)
+
+X-level (explicit):
+bare breasts | visible nipples | topless |
+
+RULE: Elements must match declared Erotic Intensity level.
+Each element must have CAUSE within the scene.
+
+========================================================================
+3.14 BODY SENSUALITY POOL (R+/X only, 0-1 tags)
+========================================================================
+
+"soft curves" | "defined waist" | "full hips" |
+"supple skin" | "toned stomach" | "elegant collarbone"
+
+RULE: ONLY for R+ and X scenes. R scenes get ZERO body sensuality tags.
+
+========================================================================
+3.15 ACCESSORY POOL
+========================================================================
+
+JEWELRY: necklace | pendant | choker | earrings | bracelet | anklet
+HAIR: hair clip | hair ribbon | hair pin | flower in hair
+OTHER: glasses | scarf | belt | garter | thigh strap | arm warmers
+
+RULE: 0-1 per prompt. Optional mini-focus element.
+
+========================================================================
+3.16 MICRO DETAILS POOL
+========================================================================
+
+"light reflection in eyes" | "soft eye reflection" |
+"small mole on cheek" | "freckles across nose" |
+"hair strand across face" | "slight dimple" |
+"visible collarbone line" | "fingertip detail"
+
+RULE: 1-2 max. 1 max if NUCLEAR/HEAVY tags present.
+If "light reflection in eyes" is in Artistic Consistency Token →
+don't duplicate here.
+
+========================================================================
+3.17 TOUCH / CONTACT POOL
+========================================================================
+
+SURFACE CONTACT:
+"leaning against [surface]" | "hand resting on [surface]" |
+"sitting on [surface]" | "arm draped over [surface]" |
+"back against [surface]" | "fingers tracing [surface]"
+
+SELF-TOUCH:
+"arms crossed over chest" | "adjusting strap" |
+"fingers on own cheek" | "hand resting on hip" |
+"hand on own shoulder" | "touching own neck"
+
+YURI TOUCH:
+"hand on partner's shoulder" | "fingers tracing partner's arm" |
+"hand guiding partner's chin" | "arm around partner's waist" |
+"forehead against partner's" | "hand on partner's cheek"
+
+========================================================================
+3.18 PROP POOL
+========================================================================
+
+DOMESTIC: cup, mug, book, phone, tablet, headphones, snack
+BATH: towel, soap, sponge, bath brush, shower head
+OUTDOOR: umbrella, bag, camera, water bottle
+FANTASY: sword, staff, spellbook, potion, shield, bow, quiver
+OFFICE: pen, folder, laptop, coffee cup
+SPECIALTY: tool, instrument, alchemy flask, scroll, map, bandage
+
+RULE: ONE prop max. Must exist in environment.
+ACTIVE or NARRATIVE preferred over PASSIVE.
+
+========================================================================
+3.19 TEMPORAL READ POOL (VISUAL TAGS ONLY)
+========================================================================
+
+AFTERMATH:
+"relaxing posture" | "settling after motion" | "exhaling softly" |
+"breath releasing" | "calm after action"
+
+ANTICIPATION:
+"anticipation pose" | "hand raised" | "lean beginning" |
+"poised stance" | "about to move"
+
+MID-ACTION:
+"mid-action" | "mid-reach" | "halfway unbuttoned" |
+"towel half-off shoulder" | "mid-step" | "mid-turn"
+
+HELD TENSION:
+"held breath" | "still body tension" | "fingers gripping surface" |
+"body frozen mid-moment" | "tense stillness"
+
+TRANSITION:
+"shifting posture" | "tension breaking" | "exhale beginning" |
+"posture softening" | "relaxing into position"
+
+========================================================================
+3.20 MICRO-ASYMMETRY POOL
+========================================================================
+
+"slight shoulder tilt" | "head slightly tilted" |
+"one shoulder slightly raised" | "weight on one hip" |
+"hair strand across one eye" | "one sleeve higher" |
+"clothing slightly uneven" | "asymmetric drape"
+
+RULE: ONE per prompt. Mandatory in BALANCED/RICH skeletons.
+
+========================================================================
+3.21 BATCH MOOD ANCHOR POOL
+========================================================================
+
+warm intimate | cool elegant | playful energetic | quiet contemplative |
+sensual slow | confident bold | soft romantic | steamy heated |
+dreamy atmospheric | casual domestic
+
+RULE: All prompts in a batch share the mood anchor.
+The next batch MUST use a different mood anchor.
+
+========================================================================
+3.22 SMART NEGATIVE TABLE
+========================================================================
+
+(See section 2.35, Phase 4 for full table)
+
+CONDITIONAL ADDITIONS:
+IF SOLO → + "background male, male silhouette"
+IF sheer bra → + "nipple visibility through opaque bra"
+IF wet clothing → + "dry fabric texture"
+IF side light → + "flat lighting, no shadow depth"
+IF back light → + "fully lit face, no rim light"
+IF bare shoulders → + "turtleneck, covered shoulders"
+IF open shirt → + "fully buttoned, closed shirt"
+IF YURI → + "fused bodies, limb merge, too many arms, conjoined"
+IF complex hands → + "extra fingers, too many fingers, merged hands"
+IF colored lighting → + "color banding, oversaturation, neon glow artifact"
+IF mirror → + "reflection mismatch, duplicate face"
+IF complex env → + "cluttered background, competing focal points"
+IF cartoonish drift → + "flat shading, cartoon colors, chibi"
+
+========================================================================
+3.23 REMOVED / RETIRED TAGS
+========================================================================
+
+✗ "highly detailed" (bloat, no visual gain)
+✗ "eye shine" (exaggerated)
+✗ "desaturated" (kills color too aggressively — use "muted")
+✗ "beauty mark" (use "small mole on cheek")
+✗ Fabric Behavior pool (replaced by Fabric Tension Logic)
+✗ 24 skin tones (reduced to 4)
+✗ Stability tags in positive
+✗ "soft anime rendering" (REPLACED by "anime style, realistic shading")
+✗ All skin "glow" tags (REPLACED — see Skin Rendering section)
+✗ "normal skin" (empty tag — absence of skin state = normal)
+✗ "LOOSE" as standalone output tag (default state, not visual)
+✗ Framework labels in output (JUST_HAPPENED, CAPTURED_MID, etc.)

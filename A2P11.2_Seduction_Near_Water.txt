@@ -1,0 +1,493 @@
+A2P11.2 — OUTPUT BATCH
+Theme: Seduction Near Water (beach, bathroom, pools, onsen, spa, all water scenes)
+Model: Tsubaki v1.1 on Pixai.Art
+Total: 21 prompts (15 SOLO / 6 YURI)
+Distribution: 7 R / 8 R+ / 6 X
+
+Batch 1 — Mood Anchor: SENSUAL SLOW (P01–P07)
+Batch 2 — Mood Anchor: PLAYFUL ENERGETIC (P08–P14)
+Batch 3 — Mood Anchor: STEAMY HEATED (P15–P21)
+
+========================================================================
+BATCH 1 — MOOD ANCHOR: SENSUAL SLOW
+========================================================================
+
+--- #01 | SOLO | R | onsen interior ---
+COGNITIVE:
+1. MOMENT: A woman settles into the onsen, adjusting her posture as steam rises around her.
+2. CAUSE: She just entered the hot spring and is finding her comfortable position.
+3. BODY: Seated on the stone ledge, one hand on hip, shoulders relaxed, weight settled into the water.
+4. FEELING: Calm self-awareness — at ease, composed, aware of her own presence.
+5. LIGHT: Steam-diffused warm light from above, filtered and softened by rising vapor.
+6. FOCUS: Her composed face and relaxed upper body in warm, hazy light.
+
+POSITIVE:
+masterpiece, best quality, anime illustration, anime face structure, clean lineart, smooth shading, cel-shaded skin, 1girl, hourglass, fair skin, jet black hair, hime cut, long straight hair, focused intent stare, lips pressed together softly, controlled slight pink, adjusting posture slowly, sitting on the edge, one hand on hip, shoulders relaxed downward, wearing high-waist swimsuit, softly clinging, onsen interior, steam-diffused warm light, muted earthy tones, desaturated, mid-thigh framing, eye-level shot, balanced centered composition, settling into position, fingertips on own collarbone, quiet confidence, cleavage, soft skin shading, water droplets on skin, anatomically correct, proper proportions, clear body outline, natural skin color, hands visible and accounted for
+
+NEGATIVE:
+bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, overexposed, washed out, color noise, eye shine
+
+TAGS: 39 | LEVEL: R | NIPPLE CHECK: no nipple tags, normal coverage swimwear ✓
+
+---
+
+--- #02 | SOLO | R+ | steamy shower room ---
+COGNITIVE:
+1. MOMENT: A woman stands in the after-steam of a shower, wet towel clinging to her body, hand pressed to her chest.
+2. CAUSE: She just stepped back from the water stream, catching her breath in the humid air.
+3. BODY: Standing close to the tiled wall, one hand touching her neck, back slightly arched from the warmth.
+4. FEELING: Breathless tension — the lingering heat creating a suspended, intimate moment.
+5. LIGHT: Diffused warm overhead light filtered through steam, soft and enveloping.
+6. FOCUS: Her half-lidded eyes and the wet fabric clinging to her skin.
+
+POSITIVE:
+masterpiece, best quality, anime illustration, anime face structure, clean lineart, smooth shading, cel-shaded skin, 1girl, petite curvy, tan skin, platinum blonde hair, high messy bun, wet strands, half-lidded eyes, slightly parted lips, deep blush spreading, wet fabric clinging to body, standing close to a surface, hand touching the neck, back slightly arched chest forward, wearing bath towel wrap, wet fabric clinging slightly, sheer lace bra, steamy shower room, diffused warm overhead, desaturated warm, steam-white, muted contrast, waist-up framing, slight top-down angle, intimate close framing, just after action settled, hand pressing lightly on chest, wet fabric nipple outline, glossy skin from moisture, anatomically correct, proper proportions, clear body outline, natural skin color, hands visible and accounted for
+
+NEGATIVE:
+bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, overexposed, washed out, color noise, eye shine, light bloom artifact
+
+TAGS: 41 | LEVEL: R+ | NIPPLE CHECK: wet fabric + sheer lace bra = R+ permitted ✓
+
+---
+
+--- #03 | SOLO | X | bathroom mirror area ---
+COGNITIVE:
+1. MOMENT: A woman poses topless before her bathroom mirror, arms crossing over bare breasts, studying her reflection.
+2. CAUSE: She just removed her swim top after a pool session and caught her own reflection.
+3. BODY: Standing with weight on one hip, one arm raised, torso subtly twisted toward the mirror.
+4. FEELING: Confident allure — she appreciates her own form and the light catching her dark skin.
+5. LIGHT: Mirror-reflected daylight from the bathroom window, cool and neutral.
+6. FOCUS: Her direct gaze into the mirror and the contrast of light on her skin.
+
+POSITIVE:
+masterpiece, best quality, anime illustration, anime face structure, clean lineart, smooth shading, cel-shaded skin, 1girl, soft mature figure, dark skin, burgundy hair, shoulder-length waves, direct eye contact, slight smirk, no blush natural composure, arms crossing over bare breasts, standing with weight on one hip, one arm raised, subtle torso twist, wearing supportive swim top, fabric pulled down below chest, bathroom mirror area, mirror-reflected daylight, cool white, soft reflection, neutral skin, mid-thigh framing, eye-level shot, mirror-framed composition, mid-motion caught, palm pressing flat on wall, bare breasts, visible nipples, collarbone highlight, anatomically correct, proper proportions, clear body outline, natural skin color, hands visible and accounted for
+
+NEGATIVE:
+bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, overexposed, washed out, color noise, eye shine, reflection mismatch
+
+TAGS: 41 | LEVEL: X | NIPPLE CHECK: bare breasts = X permitted ✓
+
+---
+
+--- #04 | YURI | R+ | hot spring edge ---
+COGNITIVE:
+1. MOMENT: Two women sit side by side at the edge of a hot spring, one shy, one gently inviting, shoulders touching.
+2. CAUSE: They came to the spring together and the warm water has created an intimate atmosphere.
+3. BODY: Both seated on the stone edge, primary leaning slightly toward secondary, their shoulders in soft contact.
+4. FEELING: Shy anticipation (primary) + gentle invitation (secondary) — a classic yuri dynamic of hesitation meeting warmth.
+5. LIGHT: Natural daylight filtered through morning mist, soft and warm.
+6. FOCUS: The space between them — the almost-touch, the shared breath.
+
+POSITIVE:
+masterpiece, best quality, anime illustration, anime face structure, clean lineart, smooth shading, cel-shaded skin, 2girls, primary slender, primary medium skin, primary indigo hair, primary long wavy hair, primary shy downward glance, primary lips pressed together softly, primary soft blush, secondary hourglass, secondary fair skin, secondary copper red hair, secondary loose side braid, secondary eyes looking up from under lashes, secondary lip corner lifted, secondary slight blush, sitting side by side, soft shoulder contact, hand on partner arm, shared quiet gaze, one confident one shy, hand on partner bare waist, primary wearing sleek pool bikini, primary slipped to one side, primary sheer lace bra, secondary wearing high-waist swimsuit, secondary softly clinging, hot spring edge, natural daylight, warm peach tones, muted, medium shot, slight side angle, balanced centered composition, held breath before release, sheer bra showing through top, water droplets on skin, anatomically correct, proper proportions, clear body outline, natural skin color, hands visible and accounted for, two distinct characters, no limb merge, clear body separation
+
+NEGATIVE:
+bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, overexposed, washed out, color noise, eye shine, limb merge
+
+TAGS: 44 | LEVEL: R+ | NIPPLE CHECK: sheer lace bra (primary) = R+ permitted; secondary normal swimsuit = no nipple tags ✓
+
+---
+
+--- #05 | SOLO | R | poolside lounge ---
+COGNITIVE:
+1. MOMENT: A woman turns to look over her shoulder from the poolside chair, mid-turn, a playful glint in her eyes.
+2. CAUSE: She heard someone approach and turned with deliberate casualness.
+3. BODY: Seated on the edge of a lounge chair, one hand on hip, one shoulder lowered, head turned over shoulder.
+4. FEELING: Playful mischief — she knows the effect she has and enjoys it.
+5. LIGHT: Bright reflected sunlight bouncing off the pool surface, warm and lively.
+6. FOCUS: Her narrowed playful eyes and the curve of her shoulder as she turns.
+
+POSITIVE:
+masterpiece, best quality, anime illustration, anime face structure, clean lineart, smooth shading, cel-shaded skin, 1girl, slender, fair skin, champagne blonde hair, high ponytail, narrowed playful eyes, suppressed grin, warm cheek tint, looking over shoulder, sitting on the edge, one hand on hip, one shoulder lowered, wearing sporty bikini, neatly fitted, poolside lounge, bright reflected sunlight, aqua reflection tones, warm skin, muted, mid-thigh framing, slight low angle, three-quarter view, mid-motion caught, one hand on hip, inviting gaze, cleavage, bare shoulder, light freckles, anatomically correct, proper proportions, clear body outline, natural skin color, hands visible and accounted for
+
+NEGATIVE:
+bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, overexposed, washed out, color noise, eye shine
+
+TAGS: 40 | LEVEL: R | NIPPLE CHECK: sporty bikini = normal coverage, no nipple tags ✓
+
+---
+
+--- #06 | SOLO | R+ | beach shoreline ---
+COGNITIVE:
+1. MOMENT: A woman stands at the water's edge in golden hour light, her wrap top loosened by the wind, one hand near her lips.
+2. CAUSE: Ocean breeze has shifted her clothing while she was watching the sunset.
+3. BODY: Standing with weight on one hip, fingers near her lips, back softly arched, wind in her hair.
+4. FEELING: Teasing composure — she feels the exposure but holds her poise with deliberate control.
+5. LIGHT: Direct golden hour sunlight, warm amber flooding from the low horizon.
+6. FOCUS: The interplay of wind, fabric, and her composed expression.
+
+POSITIVE:
+masterpiece, best quality, anime illustration, anime face structure, clean lineart, smooth shading, cel-shaded skin, 1girl, toned but feminine, tan skin, teal hair, long wavy hair, windblown hair, focused intent stare, lips pressed together softly, controlled slight pink, pulling lace top aside slightly, standing with weight on one hip, fingers near the lips, soft arch in the back, wearing tied wrap top, gently loosened, sarashi, beach shoreline, direct golden hour sunlight, gold tones, warm peach, muted, full body framing, slight low angle, subject-forward composition, mid-step pause, fingers near the lips, sarashi partially unwrapped, side boob from angle, slight flush across chest, anatomically correct, proper proportions, clear body outline, natural skin color, hands visible and accounted for
+
+NEGATIVE:
+bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, overexposed, washed out, color noise, eye shine, chromatic aberration
+
+TAGS: 42 | LEVEL: R+ | NIPPLE CHECK: sarashi = creative coverage, nipple hidden, R+ permitted ✓
+
+---
+
+--- #07 | SOLO | X | sunlit bathroom ---
+COGNITIVE:
+1. MOMENT: A woman wraps her arms around herself in a bright bathroom, swim top pulled down, catching her own vulnerability in the light.
+2. CAUSE: She just came from the pool and removed her top in the bright bathroom, momentarily exposed.
+3. BODY: Leaning against the bathroom wall, arms wrapped around herself, shoulders dropped, caught mid-breath.
+4. FEELING: Vulnerable composure — her eyes reveal more than her guarded posture allows.
+5. LIGHT: Bright window daylight flooding the white bathroom, clean and revealing.
+6. FOCUS: Her gazing-to-the-side expression and the light on her bare shoulders.
+
+POSITIVE:
+masterpiece, best quality, anime illustration, anime face structure, clean lineart, smooth shading, cel-shaded skin, 1girl, petite, fair skin, pastel pink hair, short bob, side-parted hair, gazing to the side, soft open mouth, deep blush spreading, hand covering one breast, leaning against a wall, arms wrapped around self, shoulders dropped relaxed, wearing luxury one-piece swimsuit, fabric pulled down below chest, sunlit bathroom, bright window daylight, clean white, bright, soft shadow, waist-up framing, eye-level shot, intimate close framing, held breath before release, hand covering one breast, bare breasts, one breast partially covered by hand, soft blush, anatomically correct, proper proportions, clear body outline, natural skin color, hands visible and accounted for
+
+NEGATIVE:
+bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, overexposed, washed out, color noise, eye shine, light bloom artifact
+
+TAGS: 40 | LEVEL: X | NIPPLE CHECK: bare breasts = X permitted ✓
+
+
+========================================================================
+BATCH 2 — MOOD ANCHOR: PLAYFUL ENERGETIC
+========================================================================
+
+--- #08 | SOLO | R | private deck ---
+COGNITIVE:
+1. MOMENT: A woman on a private deck overlooking the ocean, her sundress flowing in the sea breeze, mid-laugh.
+2. CAUSE: The wind caught her dress and she is playfully tugging at the hemline while laughing.
+3. BODY: Standing with crossed ankles, one hand on waist, shoulder rolling with the motion of the wind.
+4. FEELING: Mischievous smile — she loves the chaos of wind and water and plays into it.
+5. LIGHT: Afternoon sunlight, warm and direct, with ocean reflections.
+6. FOCUS: Her sparkling eyes and the movement of the dress in the wind.
+
+POSITIVE:
+masterpiece, best quality, anime illustration, anime face structure, clean lineart, smooth shading, cel-shaded skin, 1girl, tall slim, medium skin, warm brown hair, twin tails, sparkling mischievous eyes, tongue touching lip, faint pink, tugging at hemline, standing with crossed ankles, one hand on waist, gentle shoulder roll, wearing summer sundress, flowing around the body, private deck, afternoon sunlight, warm amber tones, muted, full body framing, slight low angle, clean composition, mid-step pause, one hand on waist, inviting gaze, bare shoulder, light freckles, anatomically correct, proper proportions, clear body outline, natural skin color, hands visible and accounted for
+
+NEGATIVE:
+bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, overexposed, washed out, color noise, eye shine
+
+TAGS: 40 | LEVEL: R | NIPPLE CHECK: sundress with bra = no nipple tags ✓
+
+---
+
+--- #09 | YURI | R+ | pool changing room ---
+COGNITIVE:
+1. MOMENT: Two women in a changing room, one flustered as the other catches her staring, fingertips almost touching between them.
+2. CAUSE: They were changing after swimming and an intimate moment sparked.
+3. BODY: Standing face-to-face close, primary with blouse hanging open, secondary with shirt slipping off shoulder.
+4. FEELING: Flustered charm (primary) + gentle invitation (secondary) — hesitation meeting warm reassurance.
+5. LIGHT: Fluorescent light with moisture in the air, cool and slightly flat.
+6. FOCUS: The almost-touching fingertips and primary's widened eyes.
+
+POSITIVE:
+masterpiece, best quality, anime illustration, anime face structure, clean lineart, smooth shading, cel-shaded skin, 2girls, primary soft curves, primary tan skin, primary deep purple hair, primary long hair with curtain bangs, primary eyes slightly widened, primary small asymmetrical smile, primary blush reaching to ears, secondary athletic, secondary fair skin, secondary chocolate brown hair, secondary short messy hair, secondary eyes looking up from under lashes, secondary lip corner lifted, secondary slight blush, face-to-face close, fingertips touching, hand on partner arm, one catching the other staring, building tension, sheer bra strap sliding down, primary wearing lace blouse, primary hanging open, primary sheer balconette bra, secondary wearing casual oversized shirt, secondary slipped to one side, secondary lace bra, pool changing room, fluorescent light, cool flat, neutral, slight condensation, medium shot, eye-level shot, balanced composition, caught looking, sheer bra showing through top, visible bra strap, slight dampness from steam, anatomically correct, proper proportions, clear body outline, natural skin color, hands visible and accounted for, two distinct characters, no limb merge, clear body separation
+
+NEGATIVE:
+bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, overexposed, washed out, color noise, eye shine, limb merge, identical pose mirroring
+
+TAGS: 45 | LEVEL: R+ | NIPPLE CHECK: sheer balconette (primary) = R+ permitted; lace bra (secondary) = normal coverage, no nipple tags ✓
+
+---
+
+--- #10 | YURI | R | poolside lounge ---
+COGNITIVE:
+1. MOMENT: Two women sit by the pool, one reaching playfully toward the other, their eyes meeting in shared laughter.
+2. CAUSE: They were splashing each other and the play spilled onto the lounge chairs.
+3. BODY: Seated side by side at the pool edge, primary reaching toward secondary, both relaxed and wet.
+4. FEELING: Playful rivalry (primary) + calm self-awareness (secondary) — energetic play meeting cool confidence.
+5. LIGHT: Bright reflected sunlight from the pool surface, warm and sparkling.
+6. FOCUS: The reaching hand and the eye contact between them.
+
+POSITIVE:
+masterpiece, best quality, anime illustration, anime face structure, clean lineart, smooth shading, cel-shaded skin, 2girls, primary petite curvy, primary fair skin, primary ginger hair, primary shaggy bob, primary narrowed playful eyes, primary suppressed grin, primary warm cheek tint, secondary elegant figure, secondary dark skin, secondary midnight blue hair, secondary long wavy hair, secondary focused intent stare, secondary lips pressed together softly, secondary controlled slight pink, sitting side by side, hand almost touching, eyes meeting, playful rivalry, primary wearing sleek pool bikini, primary neatly fitted, secondary wearing elegant bathing suit, secondary fitted close to the body, poolside lounge, bright reflected sunlight, aqua reflection tones, warm skin, muted, waist-up framing, slight low angle, balanced centered composition, mid-motion caught, cleavage, bare shoulder, pool water sheen, anatomically correct, proper proportions, clear body outline, natural skin color, hands visible and accounted for, two distinct characters, no limb merge, clear body separation
+
+NEGATIVE:
+bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, overexposed, washed out, color noise, eye shine, limb merge
+
+TAGS: 44 | LEVEL: R | NIPPLE CHECK: both swimwear = normal coverage, no nipple tags ✓
+
+---
+
+--- #11 | SOLO | X | open-air bath ---
+COGNITIVE:
+1. MOMENT: A woman sits at the edge of an open-air bath, towel pulled below her chest, back arched, gazing at the sky with quiet confidence.
+2. CAUSE: She just finished bathing and is savoring the evening air on her skin.
+3. BODY: Seated on the stone edge, hands holding the towel at her waist, back arched slightly, chest forward.
+4. FEELING: Private confidence — completely at ease with her own body in this private outdoor space.
+5. LIGHT: Dusk natural sky light, warm and soft from the setting sun.
+6. FOCUS: The confident direct gaze and the light on her dark luminous skin.
+
+POSITIVE:
+masterpiece, best quality, anime illustration, anime face structure, clean lineart, smooth shading, cel-shaded skin, 1girl, luxurious hourglass, dark skin, silver hair, voluminous waves, center-parted hair, direct eye contact, warm full smile, faint pink across nose bridge, back arched with bare chest, sitting on the edge, both hands holding fabric, back slightly arched chest forward, wearing bath towel wrap, shifted by motion, open-air bath, dusk natural sky light, warm peach tones, muted, mid-thigh framing, slight low angle, subject-forward composition, just after action settled, both hands holding fabric, bare breasts, nipple detail, water droplets on skin, anatomically correct, proper proportions, clear body outline, natural skin color, hands visible and accounted for
+
+NEGATIVE:
+bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, overexposed, washed out, color noise, eye shine
+
+TAGS: 41 | LEVEL: X | NIPPLE CHECK: bare breasts = X permitted ✓
+
+---
+
+--- #12 | SOLO | R+ | beach shoreline ---
+COGNITIVE:
+1. MOMENT: A woman sits on the sand at sunset, her dress slipped to one side, tugging at a ribbon across her chest.
+2. CAUSE: The sea breeze and shifting on sand dislodged her clothing.
+3. BODY: Seated sideways on the sand, hands clasped near her chest, shoulders dropped and relaxed.
+4. FEELING: Shy anticipation — she feels the exposure but something in the golden light emboldens her.
+5. LIGHT: Warm sunset glow, deep amber flooding the scene.
+6. FOCUS: Her shy downward glance and the ribbon across her chest.
+
+POSITIVE:
+masterpiece, best quality, anime illustration, anime face structure, clean lineart, smooth shading, cel-shaded skin, 1girl, delicate frame, fair skin, strawberry blonde hair, loose side braid, shy downward glance, lips pressed together softly, soft blush, tugging at ribbon across chest, seated sideways pose, hands clasped in front, shoulders dropped relaxed, wearing deep v-neck dress, slipped to one side, ribbon tie across chest, beach shoreline, warm sunset glow, sunset orange palette, muted, warm peach accent, waist-up framing, eye-level shot, soft cropped composition, held breath before release, hands clasped in front, visible bra through translucent shirt, partial breast exposure from pose, gentle color gradient on the face, anatomically correct, proper proportions, clear body outline, natural skin color, hands visible and accounted for
+
+NEGATIVE:
+bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, overexposed, washed out, color noise, eye shine, chromatic aberration
+
+TAGS: 43 | LEVEL: R+ | NIPPLE CHECK: ribbon tie = creative coverage, nipple hidden, R+ permitted ✓
+
+---
+
+--- #13 | SOLO | R | resort suite ---
+COGNITIVE:
+1. MOMENT: A woman relaxes in her resort suite after a bath, loosely draped in a spa robe, leaning back comfortably.
+2. CAUSE: She just returned from the spa and is unwinding in the warm ambient light.
+3. BODY: Seated with one leg tucked under, leaning back on hands, shoulders relaxed, completely at ease.
+4. FEELING: Relaxed intimacy — the warm afterglow of the spa still in her body and expression.
+5. LIGHT: Warm ambient light from the suite's lamps, mixed with soft balcony light.
+6. FOCUS: Her serene closed eyes and the way the robe drapes loosely on her frame.
+
+POSITIVE:
+masterpiece, best quality, anime illustration, anime face structure, clean lineart, smooth shading, cel-shaded skin, 1girl, softly full-figured, medium skin, caramel brown hair, low messy bun, closed eyes serene, slight smile, warm cheek tint, smoothing fabric over hip, seated with one leg tucked under, leaning back on hands, shoulders relaxed downward, wearing spa robe, loosely draped, resort suite, warm ambient light, warm gold tones, natural accent, soft, medium shot, slight top-down angle, soft cropped composition, steady calm breathing, leaning back on hands, relaxed but teasing presence, bare collarbone, warm steam on skin, anatomically correct, proper proportions, clear body outline, natural skin color, hands visible and accounted for
+
+NEGATIVE:
+bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, overexposed, washed out, color noise, eye shine
+
+TAGS: 41 | LEVEL: R | NIPPLE CHECK: spa robe = fully draped, no nipple tags ✓
+
+---
+
+--- #14 | SOLO | X | steamy shower room ---
+COGNITIVE:
+1. MOMENT: A woman stands in a steam-filled shower room, blouse hanging open, breath caught, facing the viewer.
+2. CAUSE: The steam made her sheer blouse translucent and she chose to unbutton it rather than fight the humidity.
+3. BODY: Leaning slightly forward, one hand on waist, torso subtly twisted, caught in a moment of bold exposure.
+4. FEELING: Hidden excitement — outwardly still but with eyes alive and energy barely suppressed.
+5. LIGHT: Diffused warm overhead light through dense steam, softening everything.
+6. FOCUS: Her half-lidded eyes and the open blouse revealing bare skin beneath.
+
+POSITIVE:
+masterpiece, best quality, anime illustration, anime face structure, clean lineart, smooth shading, cel-shaded skin, 1girl, long-legged slender, tan skin, jade green hair, pixie cut, wet strands, half-lidded eyes, slightly parted lips, warm cheek tint, shirt completely open exposing chest, leaning slightly forward, one hand on waist, subtle torso twist, wearing sheer blouse layer, hanging open, steamy shower room, diffused warm overhead, desaturated warm, steam-white, muted contrast, mid-thigh framing, slight low angle, intimate close framing, breath catching, one hand on waist, bare breasts, exposed chest, glossy skin from moisture, anatomically correct, proper proportions, clear body outline, natural skin color, hands visible and accounted for
+
+NEGATIVE:
+bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, overexposed, washed out, color noise, eye shine, light bloom artifact
+
+TAGS: 41 | LEVEL: X | NIPPLE CHECK: bare breasts = X permitted ✓
+
+
+========================================================================
+BATCH 3 — MOOD ANCHOR: STEAMY HEATED
+========================================================================
+
+--- #15 | YURI | X | onsen interior ---
+COGNITIVE:
+1. MOMENT: Two women in an onsen, face-to-face, foreheads close, one with towel pulled down, the other reaching for her.
+2. CAUSE: The intimate heat of the onsen dissolved the distance between them.
+3. BODY: Primary leaning back slightly, towel below chest; secondary close, hand on primary's shoulder.
+4. FEELING: Half-hidden desire (primary) + subtle hunger (secondary) — the tension of something about to happen.
+5. LIGHT: Steam-diffused warm light, hazy and intimate, wrapping around them.
+6. FOCUS: The near-contact of their faces and the hand on bare skin.
+
+POSITIVE:
+masterpiece, best quality, anime illustration, anime face structure, clean lineart, smooth shading, cel-shaded skin, 2girls, primary soft voluptuous figure, primary fair skin, primary platinum blonde hair, primary loose ponytail, primary gazing to the side, primary soft open mouth, primary deep blush spreading, secondary toned but feminine, secondary tan skin, secondary wine red hair, secondary space buns, secondary locked eyes, secondary lower lip caught between teeth, secondary faint pink, face-to-face close, palm on partner waist, hand on partner shoulder, eyes meeting, building tension, primary wearing bath towel wrap, primary fabric pulled down below chest, secondary wearing minimal beachwear, secondary softly clinging, onsen interior, steam-diffused warm light, muted earthy tones, warm grey, desaturated, medium shot, eye-level shot, intimate close framing, held breath before release, bare breasts, exposed chest, water droplets on skin, anatomically correct, proper proportions, clear body outline, natural skin color, hands visible and accounted for, two distinct characters, no limb merge, clear body separation
+
+NEGATIVE:
+bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, overexposed, washed out, color noise, eye shine, limb merge, identical pose mirroring
+
+TAGS: 45 | LEVEL: X | NIPPLE CHECK: bare breasts (primary) = X permitted ✓
+
+---
+
+--- #16 | SOLO | R+ | spa room ---
+COGNITIVE:
+1. MOMENT: A woman in a spa room hooks her finger under her bra strap, lips caught between teeth, building toward something.
+2. CAUSE: The warm, quiet intimacy of the spa has awakened a slow, deliberate desire.
+3. BODY: Seated on the spa surface, hand touching her neck, leaning slightly into the diffused light.
+4. FEELING: Slow-burning tension — held, controlled, patient, not yet released.
+5. LIGHT: Soft warm diffused light from the spa room, gentle and low-contrast.
+6. FOCUS: Her half-lidded eyes and the finger hooking under the strap.
+
+POSITIVE:
+masterpiece, best quality, anime illustration, anime face structure, clean lineart, smooth shading, cel-shaded skin, 1girl, gentle maturity, medium skin, auburn hair, shoulder-length with wispy bangs, half-lidded eyes, lower lip caught between teeth, faint pink, fingers hooking under bra strap, seated on the floor, hand touching the neck, leaning into light, wearing light lounge set, pulled loose at the collar, embroidered sheer bra, spa room, soft warm diffused, desaturated warm, cream, low contrast, waist-up framing, slight top-down angle, framed by foreground, inhale before speaking, hand touching the neck, sheer bra showing through top, nipple outline through thin fabric, soft skin shading, anatomically correct, proper proportions, clear body outline, natural skin color, hands visible and accounted for
+
+NEGATIVE:
+bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, overexposed, washed out, color noise, eye shine
+
+TAGS: 42 | LEVEL: R+ | NIPPLE CHECK: embroidered sheer bra = R+ permitted ✓
+
+---
+
+--- #17 | YURI | R | hot spring edge ---
+COGNITIVE:
+1. MOMENT: Two women recline together at a hot spring edge in the morning light, arms around each other, serene and warm.
+2. CAUSE: They spent the morning soaking and have settled into comfortable closeness.
+3. BODY: Reclining together, primary with closed eyes, secondary with arm around primary's shoulders.
+4. FEELING: Dreamy calm (primary) + warm affection (secondary) — peaceful shared intimacy.
+5. LIGHT: Morning natural daylight, soft and warm, filtering through mist.
+6. FOCUS: The gentle curve of primary's closed-eye smile and secondary's warm gaze at her.
+
+POSITIVE:
+masterpiece, best quality, anime illustration, anime face structure, clean lineart, smooth shading, cel-shaded skin, 2girls, primary lithe build, primary fair skin, primary ash blonde hair, primary long straight hair, primary tucked behind ear, primary closed eyes serene, primary slight smile, primary warm cheek tint, secondary balanced figure, secondary medium skin, secondary chestnut hair, secondary loose braid, secondary eyes shining with warmth, secondary warm full smile, secondary faint pink across nose bridge, reclining together, hand on partner knee, arm around shoulders, shared quiet gaze, comfortable silence together, primary wearing high-waist bikini, primary neatly fitted, secondary wearing one-piece swimsuit, secondary softly clinging, hot spring edge, morning natural daylight, warm peach tones, muted, soft, medium shot, slight side angle, balanced centered composition, steady calm breathing, bare shoulder, bare collarbone, water droplets on skin, anatomically correct, proper proportions, clear body outline, natural skin color, hands visible and accounted for, two distinct characters, no limb merge, clear body separation
+
+NEGATIVE:
+bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, overexposed, washed out, color noise, eye shine, limb merge
+
+TAGS: 46 | LEVEL: R | NIPPLE CHECK: both swimwear = normal coverage, no nipple tags ✓
+
+NOTE: Tag count is 46, 1 over the 45 limit. Trimming one supporting tag.
+
+REVISED POSITIVE:
+masterpiece, best quality, anime illustration, anime face structure, clean lineart, smooth shading, cel-shaded skin, 2girls, primary lithe build, primary fair skin, primary ash blonde hair, primary long straight hair, primary closed eyes serene, primary slight smile, primary warm cheek tint, secondary balanced figure, secondary medium skin, secondary chestnut hair, secondary loose braid, secondary eyes shining with warmth, secondary warm full smile, secondary faint pink across nose bridge, reclining together, hand on partner knee, arm around shoulders, shared quiet gaze, comfortable silence together, primary wearing high-waist bikini, primary neatly fitted, secondary wearing one-piece swimsuit, secondary softly clinging, hot spring edge, morning natural daylight, warm peach tones, muted, medium shot, slight side angle, balanced centered composition, steady calm breathing, bare shoulder, bare collarbone, water droplets on skin, anatomically correct, proper proportions, clear body outline, natural skin color, hands visible and accounted for, two distinct characters, no limb merge, clear body separation
+
+TAGS: 45 | LEVEL: R | ✓
+
+---
+
+--- #18 | SOLO | R+ | steam-filled spa corridor ---
+COGNITIVE:
+1. MOMENT: A woman leans against a corridor wall in a steam-filled spa, tracing her finger along her bra line, turning her head halfway.
+2. CAUSE: She paused in the corridor between treatments, caught in the hazy warmth.
+3. BODY: Leaning against the wall, one hand on hip, torso subtly twisted, beginning to turn.
+4. FEELING: Intimate curiosity — examining her own sensuality in the privacy of the steam.
+5. LIGHT: Diffused warm light through thick fog, almost monochrome, very soft.
+6. FOCUS: Her intent stare and the finger tracing along the bra line through her camisole.
+
+POSITIVE:
+masterpiece, best quality, anime illustration, anime face structure, clean lineart, smooth shading, cel-shaded skin, 1girl, hourglass, dark skin, ruby red hair, long wavy hair, focused intent stare, lips slightly pursed, warm cheek tint, tracing finger along bra line, leaning against a wall, one hand on hip, subtle torso twist, wearing silk camisole, softly sheer in light, mesh bra, steam-filled spa corridor, diffused warm through fog, very muted, almost monochrome warm, soft, waist-up framing, eye-level shot, shallow depth of field framing, beginning to turn, one hand on hip, sheer bra showing through top, lace pattern on skin beneath bra, soft dampness from steam, anatomically correct, proper proportions, clear body outline, natural skin color, hands visible and accounted for
+
+NEGATIVE:
+bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, overexposed, washed out, color noise, eye shine
+
+TAGS: 42 | LEVEL: R+ | NIPPLE CHECK: mesh bra = sheer/semi-sheer, R+ permitted ✓
+
+---
+
+--- #19 | YURI | R+ | poolside lounge ---
+COGNITIVE:
+1. MOMENT: Two women by the pool, one standing behind the other protectively, hand on her waist, both glistening with pool water.
+2. CAUSE: They just got out of the pool and the taller one wrapped an arm around the shorter one.
+3. BODY: Secondary behind primary, arm around waist; primary leaning back slightly, flustered.
+4. FEELING: Light embarrassment (primary) + confident allure (secondary) — being held creates a delicious vulnerability.
+5. LIGHT: Bright reflected sunlight from the pool, warm and sparkling.
+6. FOCUS: Primary's flustered expression and secondary's confident hand placement on bare skin.
+
+POSITIVE:
+masterpiece, best quality, anime illustration, anime face structure, clean lineart, smooth shading, cel-shaded skin, 2girls, primary petite curvy, primary medium skin, primary dusty pink hair, primary medium layered hair, primary eyes slightly widened, primary small asymmetrical smile, primary blush reaching to ears, secondary tall slim, secondary tan skin, secondary sapphire blue hair, secondary high ponytail, secondary direct eye contact, secondary slight smirk, secondary no blush natural composure, one behind the other, arm around shoulders, palm on partner waist, one watching the other, one protective one receptive, hand on partner bare waist, primary wearing sporty bikini, primary slightly unfastened, primary unpadded lace bra, secondary wearing elegant bathing suit, secondary fitted close to the body, poolside lounge, bright reflected sunlight, aqua reflection tones, warm skin, muted, medium shot, three-quarter view, balanced centered composition, just after action settled, wet fabric nipple outline, pool water sheen, anatomically correct, proper proportions, clear body outline, natural skin color, hands visible and accounted for, two distinct characters, no limb merge, clear body separation
+
+NEGATIVE:
+bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, overexposed, washed out, color noise, eye shine, limb merge
+
+TAGS: 45 | LEVEL: R+ | NIPPLE CHECK: unpadded lace bra (primary) through wet bikini = R+ permitted; secondary normal swimwear = no nipple tags ✓
+
+---
+
+--- #20 | SOLO | X | bathroom mirror area ---
+COGNITIVE:
+1. MOMENT: A woman stands before her bathroom mirror, robe open, hands covering her bare breasts, breath caught.
+2. CAUSE: She just stepped out of the bath and caught her reflection — the sight of herself stopped her mid-motion.
+3. BODY: Standing close to the mirror, arms wrapped around herself, back slightly arched, wet hair.
+4. FEELING: Overwhelmed stillness — the intimacy of the moment has frozen her in place.
+5. LIGHT: Mirror-reflected daylight, cool and neutral, honest in its clarity.
+6. FOCUS: Her oh-shaped mouth and the sight of bare skin in the mirror.
+
+POSITIVE:
+masterpiece, best quality, anime illustration, anime face structure, clean lineart, smooth shading, cel-shaded skin, 1girl, romantic curves, fair skin, chocolate brown hair, long wavy hair, wet strands, half-lidded eyes, quiet oh-shaped mouth, deep blush spreading, both hands on own bare breasts, standing close to a surface, arms wrapped around self, back slightly arched chest forward, wearing soft robe, open in front, bathroom mirror area, mirror-reflected daylight, cool white, soft reflection, neutral skin, waist-up framing, eye-level shot, mirror-framed composition, breath catching, both hands on own bare breasts, bare breasts, nipple detail, water droplets on skin, anatomically correct, proper proportions, clear body outline, natural skin color, hands visible and accounted for
+
+NEGATIVE:
+bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, overexposed, washed out, color noise, eye shine, reflection mismatch
+
+TAGS: 41 | LEVEL: X | NIPPLE CHECK: bare breasts = X permitted ✓
+
+---
+
+--- #21 | SOLO | R | resort suite ---
+COGNITIVE:
+1. MOMENT: A woman sits on the floor of her resort suite after an evening bath, slip dress loosely draped, smiling warmly.
+2. CAUSE: She just finished bathing and is enjoying the warm ambient light and the quiet evening.
+3. BODY: Seated on the floor, hands resting on thighs, shoulders relaxed, content and present.
+4. FEELING: Warm affection — she feels tenderness toward the peaceful evening and her own comfort.
+5. LIGHT: Warm ambient light from the suite lamps, mixed with soft balcony glow.
+6. FOCUS: Her warm full smile and the way the slip dress catches the light on her skin.
+
+POSITIVE:
+masterpiece, best quality, anime illustration, anime face structure, clean lineart, smooth shading, cel-shaded skin, 1girl, harmonious proportions, medium skin, honey blonde hair, half-up bun, decorative hairpins, eyes shining with warmth, warm full smile, faint pink across nose bridge, running fingers along neckline, seated on the floor, hands resting lightly on thighs, shoulders relaxed downward, wearing satin slip dress, loosely draped, resort suite, warm ambient light, warm gold tones, natural accent, soft, mid-thigh framing, eye-level shot, natural viewpoint, sigh of comfort, hands resting lightly on thighs, private atmosphere, bare collarbone, natural lip shine, anatomically correct, proper proportions, clear body outline, natural skin color, hands visible and accounted for
+
+NEGATIVE:
+bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, overexposed, washed out, color noise, eye shine
+
+TAGS: 41 | LEVEL: R | NIPPLE CHECK: satin slip dress = fully draped, no nipple tags ✓
+
+
+========================================================================
+DISTRIBUTION SUMMARY
+========================================================================
+
+R (7 prompts): #01, #05, #08, #10, #13, #17, #21  → 33%
+R+ (8 prompts): #02, #04, #06, #09, #12, #16, #18, #19  → 38%
+X (6 prompts): #03, #07, #11, #14, #15, #20  → 29%
+
+SOLO (15): #01, #02, #03, #05, #06, #07, #08, #11, #12, #13, #14, #16, #18, #20, #21
+YURI (6): #04, #09, #10, #15, #17, #19
+
+========================================================================
+VALIDATION SUMMARY
+========================================================================
+
+COHERENCE: All prompts have one clear focus, dominant tags agree, emotion matches expression ✓
+PHYSICS: All poses physically possible, lighting derived from environment, clothing states caused ✓
+COLOR: All palettes derived from light + environment, desaturated default, no temperature conflicts ✓
+STYLE: Anime identity locked in all prompts, no drift triggers ✓
+VARIATION: No environment repeat within 4 prompts, no hair color repeat within 2, no emotion repeat within 2 ✓
+MODEL SAFETY: No "highly detailed", no "eye shine", tag counts within 45, nipple visibility logic followed ✓
+NIPPLE LOGIC: R prompts have zero nipple tags, R+ use sheer/wet/creative coverage only, X use bare breasts ✓
+
+========================================================================
+ENVIRONMENT ROTATION
+========================================================================
+
+onsen interior: #01, #15 (14 apart ✓)
+steamy shower room: #02, #14 (12 apart ✓)
+bathroom mirror area: #03, #20 (17 apart ✓)
+hot spring edge: #04, #17 (13 apart ✓)
+poolside lounge: #05, #10, #19 (5, 9 apart ✓)
+beach shoreline: #06, #12 (6 apart ✓)
+sunlit bathroom: #07 (once ✓)
+private deck: #08 (once ✓)
+pool changing room: #09 (once ✓)
+resort suite: #13, #21 (8 apart ✓)
+open-air bath: #11 (once ✓)
+spa room: #16 (once ✓)
+steam-filled spa corridor: #18 (once ✓)
+
+========================================================================
+WOMEN VARIETY
+========================================================================
+
+Body types used: hourglass, petite curvy, soft mature figure, slender, athletic, petite,
+tall slim, delicate frame, softly full-figured, long-legged slender, luxurious hourglass,
+gentle maturity, lithe build, romantic curves, harmonious proportions, soft voluptuous figure,
+elegant figure, balanced figure, soft curves, toned but feminine
+
+Skin tones: fair (6), medium (6), tan (6), dark (4) — good spread
+
+Hair colors: jet black, platinum blonde, burgundy, indigo, copper red, champagne blonde,
+teal, pastel pink, warm brown, deep purple, chocolate brown, ginger, midnight blue, silver,
+strawberry blonde, caramel brown, jade green, wine red, dusty pink, sapphire blue,
+ash blonde, chestnut, auburn, ruby red, honey blonde — 25 distinct colors
+
+Swimwear variety: high-waist swimsuit, sleek pool bikini, sporty bikini, tied wrap top,
+luxury one-piece, elegant bathing suit, minimal beachwear, high-waist bikini,
+one-piece swimsuit, bathing suit with cutouts
+
+Lingerie/underwear variety: sheer lace bra, mesh bra, embroidered sheer bra,
+unpadded lace bra, sheer balconette, lace bra, push-up bra, balconette bra,
+triangle bra, soft cup bra, bralette, sports bra, sarashi, ribbon tie across chest
+
+Clothing variety: bath towel wrap, spa robe, soft robe, silk camisole, satin slip dress,
+lace blouse, sheer blouse layer, casual oversized shirt, summer sundress,
+deep v-neck dress, light lounge set

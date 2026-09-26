@@ -1,0 +1,576 @@
+================================================================================
+A2P13d BATCH OUTPUT — Witches Lewd Bitches
+================================================================================
+
+BATCH DECLARATION:
+  Theme:              Witches Lewd Bitches
+  Mood Anchor:        Dark playful seduction
+  Artistic Token:     anime artstyle, detailed skin texture, soft volumetric lighting
+  Intensity Target:   R+: 55% (~12) X: 45% (~9)
+  Intensity Actual:   R+: 12 X: 9
+  Yuri Target:        ~30% (7 prompts)
+  Skeleton Default:   BALANCED
+  Cognitive Default:  STANDARD (themed batch → all at least STANDARD)
+  Archetype Position: relaxing (seed rotation — different from previous batch)
+  Fingerprint Last 3: n/a (new theme session)
+  Memory Window:      empty (new session)
+  Tail Last 4:        n/a
+  Batch Size:         STANDARD (21)
+
+ARCHETYPE REMAP (Witches Lewd Bitches):
+  relaxing → cottage fireside, post-spell unwind
+  cooking/working → brewing potion, alchemy
+  dressing → removing witch robes, transformation
+  social → coven gathering, magical festival
+  ritual/ceremonial → full moon ritual, casting circle
+  intimate → spell-sharing, familiar encounter
+  battle aftermath → post-magical duel, post-hex
+  sleeping → napping on grimoire, cottage bed
+  traveling/commuting → broomstick flight, enchanted forest walk
+  bathing → magical spring, enchanted lake
+  reading/quiet → studying grimoire, meditation
+  stretching/exercising → broomstick training, spell practice
+
+ARTISTIC CONSISTENCY TOKEN (shared across batch):
+  atmospheric depth, detailed fabric shading, refined detail
+
+================================================================================
+PROMPT 1 — R+ SOLO | relaxing | HOME/COZY
+================================================================================
+
+FINGERPRINT: RECLINING / WARM / HOME/COZY / face+cleavage / R+ / mid / warm
+COGNITIVE (STANDARD):
+  MOMENT: Witch lounging by cottage hearth after a long day of spellcasting
+  CAUSE: Relaxing by fire caused her robe to slip open naturally
+  FEELING: Soft warmth — contented, inviting
+  LIGHT: Candlelight warm glow from the hearth
+  FOCUS: Her gentle smile and cleavage visible from the open robe
+
+TAGS:
+masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, subsurface scattering hint, clean lineart, 1girl, slim body, fair skin, long silver hair, hair loose, expressive anime eyes, detailed iris, gentle smile, soft eyes, relaxed brows, looking down, slender waist, cleavage visible from angle, leaning back against cushion, black witch robe open front, fabric loose, purple lace bra, witch cottage hearth, candlelight warm glow, skin catching warm light, black purple gold cream palette, muted saturation, mid shot, three-quarter view, aftermath, normal skin, body settled into cushion, subtle chest rise, atmospheric depth, detailed fabric shading
+
+NEGATIVE:
+bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, flat shading, chibi, overexposed, 1boy, male, man, boy, unnatural skin color, hidden hands, background male, male silhouette, fully buttoned, covered cleavage
+
+================================================================================
+PROMPT 2 — R+ SOLO | cooking/working | SPECIALTY
+================================================================================
+
+FINGERPRINT: STANDING / PLAYFUL / SPECIALTY / potion+skin / R+ / close / warm
+COGNITIVE (STANDARD):
+  MOMENT: Witch at her cauldron, potion splash on her skin, grinning
+  CAUSE: Potion ingredient exploded, splashing liquid across her chest
+  FEELING: Playful mischief — she finds it funny, not annoying
+  LIGHT: Firelight warm flickering glow from cauldron
+  FOCUS: Her grinning face and wet skin on chest
+
+TAGS:
+masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, natural skin gradients, defined anime lineart, 1girl, curvy body, light skin, twin-tails orange hair, expressive anime eyes, detailed iris, grin, bright eyes, raised brows, looking at viewer, hip curve, wet skin on chest, fabric clinging to skin from splash, stirring cauldron, short witch apron dress, white apron over black dress, sheer bra visible through wet fabric, underground potion lab, firelight warm flickering glow, skin catching warm light, orange black green cream palette, moderate saturation, close shot, front view, mid-action, wet skin, cauldron with bubbling potion, one hand on spoon, slight hip shift, atmospheric depth
+
+NEGATIVE:
+bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, flat shading, chibi, overexposed, 1boy, male, man, boy, unnatural skin color, dry fabric, dry skin, covered chest, background male, male silhouette
+
+================================================================================
+PROMPT 3 — R+ SOLO | dressing | BEDROOM
+================================================================================
+
+FINGERPRINT: SEATED / TENSE / BEDROOM / shoulder+bra / R+ / mid / mixed
+COGNITIVE (STANDARD):
+  MOMENT: Witch on bed edge, removing ritual robe, half-undressed
+  CAUSE: Just returned from full moon ritual, removing ceremonial robes
+  FEELING: Half-hidden desire — the ritual left her heightened
+  LIGHT: Moonlight through window + candle on nightstand (mixed)
+  FOCUS: Bare shoulder and visible bra strap slipping down
+
+TAGS:
+masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, tactile skin softness, clean lineart, 1girl, athletic body, olive skin, long dark purple hair, hair slightly messy, expressive anime eyes, detailed iris, conflicted eyes, slightly tight mouth, tense brows, light blush, looking at viewer, bare shoulder line, collarbone line, seated on bed edge, garment sliding off shoulder, dark ritual robe slipping down, burgundy push-up bra, cottage bedroom, moonlight through window, warm skin with cool shadow, burgundy dark blue cream palette, muted saturation, mid shot, three-quarter view, held breath, normal skin, weight pressing into mattress, candle on nightstand, one hand holding robe, subtle chest rise, atmospheric depth, detailed fabric shading
+
+NEGATIVE:
+bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, flat shading, chibi, overexposed, 1boy, male, man, boy, unnatural skin color, covered shoulders, fully robed, flat lighting, background male, male silhouette
+
+================================================================================
+PROMPT 4 — R+ YURI | social | BATH/WATER
+================================================================================
+
+FINGERPRINT: SEATED / WARM / BATH/WATER / faces+contact / R+ / mid / warm
+COGNITIVE (STANDARD):
+  MOMENT: Two witches at coven hot spring, close together in steam
+  CAUSE: Coven gathering moved to hot spring, intimacy built naturally
+  FEELING: Warm affection — comfortable closeness between coven sisters
+  LIGHT: Steam-diffused warm light
+  FOCUS: Their faces close together and the hand on shoulder
+
+TAGS:
+masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, gentle skin gradient, defined anime lineart, 2girls, curvy body, fair skin, long red hair, hair damp at ends, wet strands on neck, expressive anime eyes, detailed iris, warm eyes, soft smile, light blush, looking at partner, waist curve visible, sheer white wrap clinging wet, closer to camera, slim body, tan skin, short black hair, wet hair slicked back, expressive anime eyes, detailed iris, gentle smile, soft eyes, looking at partner, hand on shoulder, dark green wrap loose, coven hot spring, steam-diffused warm light, skin catching warm light, white green cream warm palette, soft saturation, mid shot, front view, transition, wet skin, body settled on stone seat, slight head tilt, atmospheric depth, refined detail
+
+NEGATIVE:
+bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, flat shading, chibi, overexposed, 1boy, male, man, boy, limb merge, too many arms, conjoined, dry skin, dry hair, fully clothed, background male, male silhouette
+
+================================================================================
+PROMPT 5 — X SOLO | ritual/ceremonial | OUTDOOR (EMOTIONAL CONTRAPOINT)
+================================================================================
+
+FINGERPRINT: KNEELING / VULNERABLE / OUTDOOR / bare breasts / X / mid / mixed
+COGNITIVE (STANDARD):
+  MOMENT: Witch kneeling in moonlit clearing after ritual, robe fallen open
+  CAUSE: Full moon ritual required offering her robe, now kneeling in aftermath
+  FEELING: Shy anticipation — vulnerability after exposure (contrapoint to recent warm)
+  LIGHT: Moonlight blue + candlelight from ritual candles (mixed)
+  FOCUS: Bare breasts in the moonlight
+
+TAGS:
+masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, soft light on skin contour, clean lineart, 1girl, petite body, fair skin, long white hair, hair flowing, expressive anime eyes, detailed iris, averted gaze, slightly open mouth, soft brows, visible blush, looking away, bare breasts, visible nipples, hip curve from angle, kneeling on grass, ritual robe fallen to waist, weight on one knee, one hand on ground, moonlit clearing, moonlight blue through trees, warm skin with cool shadow, silver blue cream palette, muted saturation, mid shot, slight low angle, three-quarter view, aftermath, normal skin, ritual candles around, spell circle on ground, slight flush across chest, atmospheric depth
+
+NEGATIVE:
+bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, flat shading, chibi, overexposed, 1boy, male, man, boy, unnatural skin color, covered chest, robed, direct gaze, flat lighting, background male, male silhouette, kneeling on nothing
+
+================================================================================
+PROMPT 6 — X YURI | intimate | URBAN/MODERN
+================================================================================
+
+FINGERPRINT: ACTIVE / TENSE / URBAN/MODERN / bare breasts+yuri / X / close / mixed
+COGNITIVE (STANDARD):
+  MOMENT: Two witches in modern apartment, spell-sharing, one pressed against bookshelf
+  CAUSE: Spell-sharing ritual created intense proximity, clothing came off in heat
+  FEELING: Breathless tension — the magic between them is palpable
+  LIGHT: Neon accent cool with warm fill (city lights through window + candles)
+  FOCUS: Bare breasts of the closer witch and their pressed closeness
+
+TAGS:
+masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, subsurface scattering hint, defined anime lineart, 2girls, slim body, fair skin, short silver hair, messy hair, expressive anime eyes, detailed iris, parted lips, focused eyes, slight brow furrow, light blush, looking at viewer, bare breasts, visible nipples, slender waist, open black shirt hanging off arms, against bookshelf, closer to camera, curvy body, olive skin, long dark hair, hair over shoulder, expressive anime eyes, detailed iris, direct gaze, slight smirk, looking at partner, hand on waist, dark red corset, behind her, modern witch apartment, neon accent cool with warm fill, warm skin with cool shadow, black red silver palette, moderate saturation, close shot, three-quarter view, held breath, normal skin, one hand gripping shelf, slight flush across chest, atmospheric depth, refined detail
+
+NEGATIVE:
+bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, flat shading, chibi, overexposed, 1boy, male, man, boy, limb merge, too many arms, conjoined, fully clothed, covered chest, background male, male silhouette, color banding, oversaturation, neon glow artifact
+
+================================================================================
+PROMPT 7 — R+ SOLO | battle aftermath | HOME/COZY
+================================================================================
+
+FINGERPRINT: RECLINING / COOL / HOME/COZY / collarbone+blush / R+ / mid / cool
+COGNITIVE (STANDARD):
+  MOMENT: Witch recovering on cottage couch after magical duel, exhausted
+  CAUSE: Duel drained her energy, she collapsed on couch to recover
+  FEELING: Pensive softness — reflective, depleted, guarded
+  LIGHT: Rainy window diffused grey light
+  FOCUS: Her collarbone and the flush on her skin
+
+TAGS:
+masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, natural skin gradients, defined anime lineart, 1girl, athletic body, medium skin, short auburn hair, hair disheveled, expressive anime eyes, detailed iris, distant look, soft mouth, slight brow tension, looking away, collarbone line, shoulder curve, off-shoulder torn white shirt, loose dark skirt, reclining on cottage couch, body settled into cushion, rainy window diffused grey light, porcelain skin tone, grey cream soft blue palette, muted saturation, mid shot, side view, aftermath, normal skin, bandage on arm, one leg extended, slight shoulder tilt, atmospheric depth, detailed fabric shading
+
+NEGATIVE:
+bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, flat shading, chibi, overexposed, 1boy, male, man, boy, unnatural skin color, pristine clothing, covered shoulders, warm light, background male, male silhouette
+
+================================================================================
+PROMPT 8 — X SOLO | sleeping | BEDROOM
+================================================================================
+
+FINGERPRINT: RECLINING / VULNERABLE / BEDROOM / bare breasts / X / close / warm
+COGNITIVE (STANDARD):
+  MOMENT: Witch asleep in cottage bed, nightgown slipped down, exposed
+  CAUSE: Fell asleep reading grimoire, nightgown slipped during sleep
+  FEELING: Sleepy sensuality — unconscious vulnerability
+  LIGHT: Soft warm diffused room light (bedside candle)
+  FOCUS: Bare breasts and her peaceful sleeping face
+
+TAGS:
+masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, tactile skin softness, clean lineart, 1girl, curvy body, fair skin, long pink hair, hair spread on pillow, expressive anime eyes, detailed iris, heavy lids, soft mouth, relaxed brows, half-lidded looking at viewer, bare breasts, visible nipples, waist curve visible, silk nightgown fallen to waist, reclining on bed, body settled into mattress, cottage bedroom, soft warm diffused room light, skin catching warm light, pink cream white palette, muted saturation, close shot, slight above view, aftermath, normal skin, grimoire on chest, one hand resting on book, release signal, atmospheric depth
+
+NEGATIVE:
+bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, flat shading, chibi, overexposed, 1boy, male, man, boy, unnatural skin color, nightgown up, covered chest, sitting up, alert, background male, male silhouette
+
+================================================================================
+PROMPT 9 — R+ SOLO | traveling/commuting | OUTDOOR
+================================================================================
+
+FINGERPRINT: ACTIVE / PLAYFUL / OUTDOOR / hip+flight / R+ / wide / warm
+COGNITIVE (STANDARD):
+  MOMENT: Witch riding broomstick at golden hour, wind catching her dress
+  CAUSE: Flying home before sunset, wind from flight displacing clothes
+  FEELING: Mischievous — she loves the feeling of freedom
+  LIGHT: Golden hour sunlight through clouds
+  FOCUS: Hip curve visible under wind-blown dress
+
+TAGS:
+masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, gentle skin gradient, clean lineart, 1girl, slim body, tan skin, long dark brown hair, hair flowing in wind, strands across face, expressive anime eyes, detailed iris, bright eyes, grin, raised brows, looking at viewer, hip curve, short witch dress riding up, black stockings, thigh line visible, sitting sidesaddle on broom, golden hour sunlight through clouds, amber tint on skin, amber brown gold sky palette, soft saturation, wide shot, three-quarter view, mid-action, normal skin, broomstick, pointed witch hat, wind in fabric, slight lopsided smile, atmospheric depth, refined detail
+
+NEGATIVE:
+bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, flat shading, chibi, overexposed, 1boy, male, man, boy, unnatural skin color, still hair, dress down, indoor, background male, male silhouette
+
+================================================================================
+PROMPT 10 — R+ YURI | bathing | BATH/WATER
+================================================================================
+
+FINGERPRINT: SEATED / WARM / BATH/WATER / wet skin+contact / R+ / mid / warm
+COGNITIVE (STANDARD):
+  MOMENT: Two witches at enchanted spring, washing each other's backs
+  CAUSE: Bathing together after coven ritual, natural intimacy
+  FEELING: Gentle invitation — soft, welcoming closeness
+  LIGHT: Late afternoon amber glow through trees
+  FOCUS: Wet skin and the hand washing her shoulder
+
+TAGS:
+masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, soft light on skin contour, defined anime lineart, 2girls, curvy body, fair skin, long blonde hair, hair damp at ends, wet strands on shoulders, expressive anime eyes, detailed iris, warm eyes, soft smile, no blush, looking at partner, waist curve visible, sheer white cloth wrap, seated on rock in spring, closer to camera, slim body, tan skin, short green hair, wet hair slicked, expressive anime eyes, detailed iris, gentle smile, soft eyes, looking at partner, hand on shoulder washing, dark cloth wrap, behind her, enchanted forest spring, late afternoon amber glow, skin catching warm light, green gold cream palette, soft saturation, mid shot, front view, transition, wet skin, water droplets on shoulders, body settled on rock, atmospheric depth, detailed fabric shading
+
+NEGATIVE:
+bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, flat shading, chibi, overexposed, 1boy, male, man, boy, limb merge, too many arms, conjoined, dry skin, dry hair, indoor, background male, male silhouette
+
+================================================================================
+PROMPT 11 — R+ SOLO | reading/quiet | HOME/COZY (EMOTIONAL CONTRAPOINT)
+================================================================================
+
+FINGERPRINT: SEATED / COOL / HOME/COZY / face+page / R+ / close / cool
+COGNITIVE (STANDARD):
+  MOMENT: Witch reading grimoire at cottage desk, lost in study
+  CAUSE: Late night research, completely absorbed in ancient text
+  FEELING: Dreamy calm — lost in thought (contrapoint to recent warm/trend)
+  LIGHT: Cool window light from the side (overcast dawn)
+  FOCUS: Her face and the grimoire pages
+
+TAGS:
+masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, subsurface scattering hint, clean lineart, 1girl, slim body, fair skin, long straight indigo hair, hair over one shoulder, expressive anime eyes, detailed iris, unfocused eyes, soft smile, relaxed brows, looking down, slender waist, off-shoulder dark sweater, subtle nipple bump through thin fabric, seated at wooden desk, weight pressing into chair, cottage study, cool window light from the side, cool light on warm skin, indigo grey cream palette, muted saturation, close shot, three-quarter view, aftermath, normal skin, grimoire open on desk, one hand turning page, reading glasses, head tilt, atmospheric depth, refined detail
+
+NEGATIVE:
+bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, flat shading, chibi, overexposed, 1boy, male, man, boy, unnatural skin color, warm light, direct gaze, visible nipples colored, background male, male silhouette, flat lighting
+
+================================================================================
+PROMPT 12 — X SOLO | stretching/exercising | URBAN/MODERN
+================================================================================
+
+FINGERPRINT: STANDING / TENSE / URBAN/MODERN / bare breasts / X / mid / warm
+COGNITIVE (STANDARD):
+  MOMENT: Modern witch on rooftop after broomstick training, shirt off, stretching
+  CAUSE: Intense training session overheated her, removed shirt to cool down
+  FEELING: Subtle hunger — adrenaline still coursing, aware of eyes on her
+  LIGHT: Warm lamp glow from the side + moonlight (hybrid)
+  FOCUS: Bare breasts and the tension in her arched stretch
+
+TAGS:
+masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, natural skin gradients, defined anime lineart, 1girl, athletic body, tan skin, ponytail white hair, expressive anime eyes, detailed iris, locked eyes, controlled mouth, intense brows, looking at viewer, bare breasts, visible nipples, slender waist, no top, workout shorts black, arms stretching overhead, back slightly arched, witch rooftop, warm lamp glow from the side, moonlight blue, skin catching warm light, black silver warm palette, moderate saturation, mid shot, slight low angle, three-quarter view, release, sweaty skin, broomstick leaning on wall, one hand on hip after stretch, slight flush across chest, atmospheric depth
+
+NEGATIVE:
+bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, flat shading, chibi, overexposed, 1boy, male, man, boy, unnatural skin color, shirt on, covered chest, standing still, background male, male silhouette, fully lit face
+
+================================================================================
+PROMPT 13 — X YURI | cooking/working | SPECIALTY
+================================================================================
+
+FINGERPRINT: ACTIVE / PLAYFUL / SPECIALTY / bare breasts+yuri / X / mid / warm
+COGNITIVE (STANDARD):
+  MOMENT: Two witches in alchemy lab, potion accident, one topless, both laughing
+  CAUSE: Potion explosion blew off one witch's top, other finds it hilarious
+  FEELING: Flustered charm — embarrassed but laughing about it
+  LIGHT: Firelight warm flickering glow from alchemy furnace
+  FOCUS: Bare breasts of the closer witch and their playful energy
+
+TAGS:
+masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, tactile skin softness, defined anime lineart, 2girls, curvy body, fair skin, long pink hair, hair messy with potion residue, expressive anime eyes, detailed iris, bright eyes, blush, raised brows, looking at viewer, bare breasts, visible nipples, waist curve visible, no top, black skirt with potion stains, closer to camera, slim body, light skin, short blue hair, hair neat, expressive anime eyes, detailed iris, suppressed grin, bright eyes, looking at partner, hand covering mouth laughing, white lab coat over dark dress, behind her, alchemy workshop, firelight warm flickering glow, skin catching warm light, pink black orange cream palette, moderate saturation, mid shot, three-quarter view, mid-action, normal skin, cauldron with foam overflowing, one hand wiping potion off shoulder, lopsided smile, atmospheric depth, refined detail
+
+NEGATIVE:
+bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, flat shading, chibi, overexposed, 1boy, male, man, boy, limb merge, too many arms, conjoined, fully clothed primary, covered chest, serious, background male, male silhouette
+
+================================================================================
+PROMPT 14 — R+ SOLO | dressing | OUTDOOR
+================================================================================
+
+FINGERPRINT: STANDING / WARM / OUTDOOR / off-shoulder+glow / R+ / mid / warm
+COGNITIVE (STANDARD):
+  MOMENT: Witch in cottage garden, putting on pointed hat, dress slipping
+  CAUSE: Reaching up for hat on hook pulled her dress off one shoulder
+  FEELING: Confident allure — she knows she looks good
+  LIGHT: Contre-jour window light (sun behind her from cottage window)
+  FOCUS: Bare shoulder line against the backlit glow
+
+TAGS:
+masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, gentle skin gradient, defined anime lineart, 1girl, tall body, light skin, long wavy golden hair, hair flowing, expressive anime eyes, detailed iris, direct gaze, slight smirk, relaxed brows, looking at viewer, bare shoulder line, shoulder curve, off-shoulder dark green witch dress, fabric slipping down arm, reaching upward, cottage garden, contre-jour window light, backlit skin edge, green gold cream palette, soft saturation, mid shot, front view, mid-action, normal skin, pointed witch hat in hand, one arm raised, weight on one hip, atmospheric depth, detailed fabric shading, refined detail
+
+NEGATIVE:
+bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, flat shading, chibi, overexposed, 1boy, male, man, boy, unnatural skin color, covered shoulders, turtleneck, both arms down, background male, male silhouette, fully lit face
+
+================================================================================
+PROMPT 15 — X SOLO | relaxing | BEDROOM
+================================================================================
+
+FINGERPRINT: RECLINING / COOL / BEDROOM / bare breasts / X / mid / warm
+COGNITIVE (STANDARD):
+  MOMENT: Witch on bedroom floor by fireplace, robe fully open, warm and drowsy
+  CAUSE: Fire too warm, let robe fall completely open to cool down
+  FEELING: Dreamy calm — peaceful, unhurried, comfortable exposed
+  LIGHT: Candlelight warm glow from fireplace
+  FOCUS: Bare breasts and her drowsy expression
+
+TAGS:
+masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, soft light on skin contour, clean lineart, 1girl, curvy body, fair skin, long chestnut hair, hair spread on rug, expressive anime eyes, detailed iris, unfocused eyes, soft smile, relaxed brows, half-lidded looking at viewer, bare breasts, visible nipples, waist curve visible, open dark purple robe, fabric spread on floor, reclining on fur rug, body settled into rug, cottage bedroom, candlelight warm glow, skin catching warm light, purple cream gold palette, muted saturation, mid shot, slight above view, release, normal skin, wine glass on floor, one hand resting on stomach, slight chest rise, atmospheric depth, refined detail
+
+NEGATIVE:
+bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, flat shading, chibi, overexposed, 1boy, male, man, boy, unnatural skin color, covered chest, robed closed, alert, sitting up, background male, male silhouette
+
+================================================================================
+PROMPT 16 — R+ YURI | intimate | HOME/COZY
+================================================================================
+
+FINGERPRINT: SEATED / VULNERABLE / HOME/COZY / cleavage+mark / R+ / close / warm
+COGNITIVE (STANDARD):
+  MOMENT: Two witches on cottage floor, one showing magical mark on her chest
+  CAUSE: Familiar bonding ritual left a glowing mark on her chest, partner examining it
+  FEELING: Tender uncertainty — vulnerable showing the mark, seeking reassurance
+  LIGHT: Soft morning window light
+  FOCUS: Cleavage and the magical mark glowing between her breasts
+
+TAGS:
+masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, subsurface scattering hint, defined anime lineart, 2girls, curvy body, fair skin, long white hair, hair loose, expressive anime eyes, detailed iris, guarded eyes, level brows, light blush, looking at viewer, cleavage visible from angle, open white ritual robe, glowing sigil on chest, seated on floor, closer to camera, slim body, olive skin, short dark hair, hair neat, expressive anime eyes, detailed iris, soft eyes, gentle smile, looking at partner, hand near mark examining, dark tunic, behind her, cottage interior, soft morning window light, skin catching warm light, white cream green palette, muted saturation, close shot, three-quarter view, held breath, normal skin, weight on floor cushion, one hand holding robe open, slight shoulder tilt, atmospheric depth, refined detail
+
+NEGATIVE:
+bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, flat shading, chibi, overexposed, 1boy, male, man, boy, limb merge, too many arms, conjoined, high neckline, closed robe, background male, male silhouette
+
+================================================================================
+PROMPT 17 — X SOLO | battle aftermath | SPECIALTY (EMOTIONAL CONTRAPOINT)
+================================================================================
+
+FINGERPRINT: KNEELING / TENSE / SPECIALTY / bare breasts / X / mid / cool
+COGNITIVE (STANDARD):
+  MOMENT: Witch kneeling in dungeon recovery room, armor destroyed, catching breath
+  CAUSE: Magical duel shredded her armor, she retreated here to recover
+  FEELING: Breathless tension — still alert, adrenaline fading (contrapoint to recent)
+  LIGHT: Moonlight blue through dungeon window
+  FOCUS: Bare breasts and the tension in her kneeling pose
+
+TAGS:
+masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, natural skin gradients, clean lineart, 1girl, athletic body, medium skin, short red hair, hair disheveled, expressive anime eyes, detailed iris, wide eyes, parted lips, raised brow, light blush, looking at viewer, bare breasts, visible nipples, hip curve from angle, torn witch tunic hanging off, dark shorts, kneeling on stone floor, weight on one knee, one hand on floor for balance, dungeon recovery room, moonlight blue through window, cool light on warm skin, blue grey red palette, muted saturation, mid shot, slight low angle, three-quarter view, aftermath, normal skin, broken wand on floor, one brow higher than other, slight mouth corner lifted, atmospheric depth
+
+NEGATIVE:
+bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, flat shading, chibi, overexposed, 1boy, male, man, boy, unnatural skin color, intact clothing, covered chest, warm light, standing, background male, male silhouette, kneeling on nothing
+
+================================================================================
+PROMPT 18 — X YURI | ritual/ceremonial | OUTDOOR
+================================================================================
+
+FINGERPRINT: RECLINING / PLAYFUL / OUTDOOR / bare breasts+yuri / X / mid / warm
+COGNITIVE (STANDARD):
+  MOMENT: Two witches in forest ritual circle after successful spell, one on top
+  CAUSE: Ritual succeeded, euphoric release led to playful closeness
+  FEELING: Mischievous — giddy from magical success, being bold
+  LIGHT: City glow warm-cool mix (distant town + ritual fire)
+  FOCUS: Bare breasts of closer witch and their playful intimacy
+
+TAGS:
+masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, tactile skin softness, defined anime lineart, 2girls, slim body, fair skin, short silver hair, messy hair, expressive anime eyes, detailed iris, sparkling mischievous eyes, active mouth, raised brows, looking at partner, bare breasts, visible nipples, slender waist, open ritual robe, forest ground, closer to camera, curvy body, tan skin, long dark hair, hair spread on ground, expressive anime eyes, detailed iris, gentle smile, soft eyes, looking at partner, hand on hip, sarashi half-unwrapped, behind her, forest ritual circle, city glow warm-cool mix, warm skin with cool shadow, silver dark green cream palette, moderate saturation, mid shot, side view, release, normal skin, ritual circle markings, one hand propping up, lopsided smile, atmospheric depth, refined detail
+
+NEGATIVE:
+bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, flat shading, chibi, overexposed, 1boy, male, man, boy, limb merge, too many arms, conjoined, fully clothed, covered chest, serious, background male, male silhouette, color banding, oversaturation
+
+================================================================================
+PROMPT 19 — R+ SOLO | reading/quiet | BEDROOM
+================================================================================
+
+FINGERPRINT: SEATED / COOL / BEDROOM / collarbone+page / R+ / close / cool
+COGNITIVE (STANDARD):
+  MOMENT: Witch reading in bed past midnight, shirt unbuttoned, absorbed
+  CAUSE: Late night study session, unbuttoned shirt for comfort
+  FEELING: Pensive softness — lost in thought, unaware of her exposure
+  LIGHT: Golden reading lamp pool on nightstand
+  FOCUS: Collarbone visible from unbuttoned shirt
+
+TAGS:
+masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, gentle skin gradient, defined anime lineart, 1girl, slim body, fair skin, long straight black hair, hair over one shoulder, expressive anime eyes, detailed iris, distant look, soft mouth, slight brow tension, looking down, collarbone line, slender waist, unbuttoned white sleep shirt, half-open, black shorts, seated on bed, weight pressing into mattress, cottage bedroom, golden reading lamp pool, warm skin tone, black white gold cream palette, muted saturation, close shot, three-quarter view, aftermath, normal skin, grimoire in lap, one hand turning page, reading glasses on nose, slight shoulder tilt, atmospheric depth, detailed fabric shading
+
+NEGATIVE:
+bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, flat shading, chibi, overexposed, 1boy, male, man, boy, unnatural skin color, fully buttoned, direct gaze, warm light overall, background male, male silhouette
+
+================================================================================
+PROMPT 20 — R+ YURI | social | URBAN/MODERN
+================================================================================
+
+FINGERPRINT: STANDING / WARM / URBAN/MODERN / faces+dance / R+ / wide / mixed
+COGNITIVE (STANDARD):
+  MOMENT: Two witches at occult festival, dancing close under string lights
+  CAUSE: Festival music drew them together, alcohol and magic lowered barriers
+  FEELING: Warm affection — comfortable, joyful closeness
+  LIGHT: Neon accent cool with warm fill + string lights (dramatic)
+  FOCUS: Their faces close together while dancing
+
+TAGS:
+masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, soft light on skin contour, clean lineart, 2girls, curvy body, fair skin, long red hair, hair flowing, expressive anime eyes, detailed iris, warm eyes, soft smile, light blush, looking at partner, hip curve, low-cut black dress, standing at festival, closer to camera, slim body, tan skin, short blonde hair, hair neat, expressive anime eyes, detailed iris, gentle smile, soft eyes, looking at partner, hand on waist, deep green dress, behind her, occult street festival, neon accent cool with warm fill, warm skin with cool shadow, red green gold black palette, moderate saturation, wide shot, front view, transition, normal skin, string lights overhead, one hand on shoulder, slight head tilt, atmospheric depth, refined detail
+
+NEGATIVE:
+bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, flat shading, chibi, overexposed, 1boy, male, man, boy, limb merge, too many arms, conjoined, high neckline, separate, background male, male silhouette, color banding, oversaturation, neon glow artifact, cluttered background
+
+================================================================================
+PROMPT 21 — X SOLO | traveling/commuting | BATH/WATER
+================================================================================
+
+FINGERPRINT: ACTIVE / VULNERABLE / BATH/WATER / hip+water / X / mid / cool
+COGNITIVE (STANDARD):
+  MOMENT: Witch at enchanted lake, rising from water, arms lifting wet hair
+  CAUSE: Midnight swim after long flight, rising from water
+  FEELING: Sleepy sensuality — drowsy, water-slicked, unguarded
+  LIGHT: Moonlight blue through trees + firefly glow
+  FOCUS: Bare breasts rising from the water surface
+
+TAGS:
+masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, subsurface scattering hint, defined anime lineart, 1girl, athletic body, olive skin, long dark wet hair, hair damp, wet strands clinging to shoulders, expressive anime eyes, detailed iris, heavy lids, soft mouth, relaxed brows, half-lidded looking at viewer, bare breasts, visible nipples, hip curve, water at waist level, arms lifting wet hair, enchanted forest lake, moonlight blue through trees, cool light on warm skin, blue silver olive palette, muted saturation, mid shot, slight low angle, three-quarter view, release, wet skin, water droplets on shoulders, water surface reflection, fireflies, one foot forward in water, atmospheric depth, refined detail
+
+NEGATIVE:
+bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, extra limbs, blurry, low quality, worst quality, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, flat shading, chibi, overexposed, 1boy, male, man, boy, unnatural skin color, dry skin, dry hair, clothing on, covered chest, indoor pool, background male, male silhouette, flat lighting
+
+================================================================================
+BATCH SUMMARY
+================================================================================
+
+INTENSITY DISTRIBUTION:
+  R+: Prompts 1, 2, 3, 4, 7, 9, 10, 11, 14, 16, 19, 20 = 12 (57%)
+  X:  Prompts 5, 6, 8, 12, 13, 15, 17, 18, 21 = 9 (43%)
+  Target: R+ 55% / X 45% — ON TARGET
+
+YURI DISTRIBUTION:
+  Prompts 4, 6, 10, 13, 16, 18, 20 = 7 (33%)
+  Target: 25-35% — ON TARGET
+
+THEME DEPTH:
+  CORE (13): 1, 2, 3, 5, 6, 8, 9, 10, 12, 13, 15, 17, 18
+  EXTENDED (6): 4, 7, 11, 16, 19, 21
+  EDGE (2): 14, 20
+
+ARCHETYPE ROTATION:
+  relaxing → cooking/working → dressing → social → ritual/ceremonial →
+  intimate → battle aftermath → sleeping → traveling/commuting →
+  bathing → reading/quiet → stretching/exercising →
+  cooking/working(v2) → dressing(v2) → relaxing(v2) → intimate(v2) →
+  battle aftermath(v2) → ritual/ceremonial(v2) → reading/quiet(v2) →
+  social(v2) → traveling/commuting(v2)
+
+EMOTION FAMILY ROTATION:
+  WARM → PLAYFUL → TENSE → WARM → VULNERABLE → TENSE →
+  COOL → VULNERABLE → PLAYFUL → WARM → COOL → TENSE →
+  PLAYFUL → WARM → COOL → VULNERABLE → TENSE → PLAYFUL →
+  COOL → WARM → VULNERABLE
+  No same family within 2 prompts — PASS
+
+POSE ROTATION:
+  RECLINING → STANDING → SEATED → SEATED → KNEELING → ACTIVE →
+  RECLINING → RECLINING → ACTIVE → SEATED → SEATED → STANDING →
+  ACTIVE → STANDING → RECLINING → SEATED → KNEELING → RECLINING →
+  SEATED → STANDING → ACTIVE
+  No same category 3+ in a row — PASS
+
+CAMERA ROTATION (by category):
+  mid → close → mid → mid → mid → close → mid → close → wide →
+  mid → close → mid → mid → mid → mid → close → mid → mid →
+  close → wide → mid
+  No same category 2+ in a row except P3→P4 (mid→mid, different angles) —
+  P3 mid/three-quarter vs P4 mid/front, angle differs — PASS
+
+ENVIRONMENT ROTATION:
+  HOME → SPECIALTY → BEDROOM → BATH → OUTDOOR → URBAN →
+  HOME → BEDROOM → OUTDOOR → BATH → HOME → URBAN →
+  SPECIALTY → OUTDOOR → BEDROOM → HOME → SPECIALTY → OUTDOOR →
+  BEDROOM → URBAN → BATH
+  No same category within 4 prompts — PASS
+
+LIGHTING ROTATION:
+  P1: candlelight warm glow
+  P2: firelight warm flickering glow
+  P3: moonlight + candle (HYBRID)
+  P4: steam-diffused warm light
+  P5: moonlight blue + candlelight (HYBRID)
+  P6: neon accent cool with warm fill (DRAMATIC)
+  P7: rainy window diffused grey light
+  P8: soft warm diffused room light
+  P9: golden hour sunlight through clouds
+  P10: late afternoon amber glow
+  P11: cool window light from the side
+  P12: warm lamp glow + moonlight (HYBRID)
+  P13: firelight warm flickering glow
+  P14: contre-jour window light
+  P15: candlelight warm glow
+  P16: soft morning window light
+  P17: moonlight blue through window
+  P18: city glow warm-cool mix (HYBRID)
+  P19: golden reading lamp pool
+  P20: neon accent cool with warm fill (DRAMATIC)
+  P21: moonlight blue through trees
+  Hybrid/dramatic at P3, P5, P6, P12, P18, P20 = 6 in 21 (~1 in 3.5) — PASS
+  No preset twice in a row — PASS
+
+STYLE ANCHOR TAIL ROTATION:
+  P1: subsurface scattering hint + clean lineart
+  P2: natural skin gradients + defined anime lineart
+  P3: tactile skin softness + clean lineart
+  P4: gentle skin gradient + defined anime lineart
+  P5: soft light on skin contour + clean lineart
+  P6: subsurface scattering hint + defined anime lineart
+  P7: natural skin gradients + defined anime lineart
+  P8: tactile skin softness + clean lineart
+  P9: gentle skin gradient + clean lineart
+  P10: soft light on skin contour + defined anime lineart
+  P11: subsurface scattering hint + clean lineart
+  P12: natural skin gradients + defined anime lineart
+  P13: tactile skin softness + defined anime lineart
+  P14: gentle skin gradient + defined anime lineart
+  P15: soft light on skin contour + clean lineart
+  P16: subsurface scattering hint + defined anime lineart
+  P17: natural skin gradients + clean lineart
+  P18: tactile skin softness + defined anime lineart
+  P19: gentle skin gradient + defined anime lineart
+  P20: soft light on skin contour + clean lineart
+  P21: subsurface scattering hint + defined anime lineart
+  No same combination within 4 prompts — PASS
+
+EROTIC IMPACT ENGINE v3 VERIFICATION:
+  R+ scenes (min 2 of 3 vectors):
+    P1: body language (leaning back) + curve camera (3q view) ✓
+    P2: body language (hip shift) + form-revealing (wet cling) ✓
+    P3: body language (slipping shoulder) + curve camera (3q) ✓
+    P4: body language (seated close) + form-revealing (sheer wet) ✓
+    P7: body language (one leg extended) + curve camera (side) ✓
+    P9: body language (weight on hip) + form-revealing (dress riding) ✓
+    P10: body language (seated close) + curve camera (front) ✓
+    P11: body language (off-shoulder) + form-revealing (thin fabric) ✓
+    P14: body language (weight on hip) + curve camera (front) ✓
+    P16: body language (open robe) + curve camera (3q close) ✓
+    P19: body language (unbuttoned) + form-revealing (half-open) ✓
+    P20: body language (dancing close) + form-revealing (low-cut) ✓
+
+  X scenes (min 2 of 4 vectors):
+    P5: arched+low angle ✓ + parted lips+flush ✓
+    P6: provocative orientation ✓ + parted lips+flush ✓
+    P8: provocative orientation ✓ + explicit micro-action ✓
+    P12: low angle+arched ✓ + parted lips+flush ✓
+    P13: explicit micro-action (potion blew top off) ✓ + provocative orientation ✓
+    P15: explicit micro-action (robe open) ✓ + provocative orientation ✓
+    P17: low angle+arched ✓ + parted lips+flush ✓
+    P18: low angle+close ✓ + explicit micro-action ✓
+    P21: provocative orientation ✓ + parted lips (heavy lids) ✓
+
+  All pass ✓
+
+NIPPLE HIERARCHY VERIFICATION:
+  R+ prompts: No bare breasts/nipple tags. Exposure limited to cleavage,
+    sheer fabric, off-shoulder, subtle bump through thin fabric. ✓
+  X prompts: All have "bare breasts, visible nipples" ✓
+  No contradictions between clothing state and nipple visibility ✓
+
+BODY SENSUALITY MASTER LIST VERIFICATION:
+  Every R+ and X prompt includes ≥1 tag from the Master List:
+    P1: slender waist ✓ | P2: hip curve ✓ | P3: bare shoulder line, collarbone line ✓
+    P4: waist curve visible ✓ | P5: hip curve from angle ✓ | P6: slender waist ✓
+    P7: collarbone line, shoulder curve ✓ | P8: waist curve visible ✓
+    P9: hip curve, thigh line visible ✓ | P10: waist curve visible ✓
+    P11: slender waist ✓ | P12: slender waist ✓
+    P13: waist curve visible ✓ | P14: bare shoulder line, shoulder curve ✓
+    P15: waist curve visible ✓ | P16: cleavage visible from angle (erotic, + body curve via pose)
+    P17: hip curve from angle ✓ | P18: slender waist ✓
+    P19: collarbone line ✓ | P20: hip curve ✓ | P21: hip curve ✓
+  All pass ✓
+
+SURFACE CONTACT VERIFICATION:
+  Seated/reclining/kneeling prompts:
+    P1: body settled into cushion ✓ | P3: weight pressing into mattress ✓
+    P4: body settled on stone seat ✓ | P5: weight on one knee ✓
+    P7: body settled into cushion ✓ | P8: body settled into mattress ✓
+    P10: body settled on rock ✓ | P11: weight pressing into chair ✓
+    P13: (standing/active — not required) | P15: body settled into rug ✓
+    P16: weight on floor cushion ✓ | P17: weight on one knee ✓
+    P19: weight pressing into mattress ✓
+  All pass ✓
+
+================================================================================

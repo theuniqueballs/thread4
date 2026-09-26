@@ -1,0 +1,338 @@
+A3P1A — BATCH: TRIBAL
+═══════════════════════════════════════════════════════════════════════
+
+BATCH DECLARATION:
+Theme: Tribal — marks, belonging, the body as territory and testimony
+Arc: Earth → Exposure → Liberation
+Starting mood: Rooted silence
+Yuri: ~30% (6 prompts)
+
+The tribal mark is the GAP made skin:
+chosen or inherited, visible, permanent.
+Every mark says something. Every bare inch says something else.
+The body is not just a body — it's a document.
+
+═══════════════════════════════════════════════════════════════════════
+
+
+P1 — MORNING RIVER — WASHING OFF PAINT
+──────────────────────────────────────────────────────────────────────
+Moment: Dawn. She's kneeling at the river, washing the ceremonial paint from last night. The white clay is coming off her arms, but the line across her collarbone won't scrub away — it's a scar, not paint. She's not trying to scrub the scar. She stopped trying years ago.
+Door: UNSEEN / MELANCHOLY
+Umami: The scar across her collarbone — she stopped trying to scrub it off years ago. Some marks choose you.
+Palette: River grey-blue, dawn mist white, clay-pale arms, warm brown skin where paint is already gone
+Gaze: Looking down at the water, focused on her own reflection, not noticing the world
+
+1girl, masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, luminous, natural skin gradients, soft light on skin contour, tribal scar on collarbone, white clay paint on arms, paint washing off, wet skin, kneeling at river, dawn mist, river water, clay residue on fingers, dark hair wet, amber eyes, looking down at water, tribal jewelry on one wrist, bare shoulders, simple cloth wrap, river stones, morning grey blue, mist rising, waist shot, from behind slightly, scar visible on collarbone, paint streaks on wet skin
+
+Negative: bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, 1boy, male, man, boy, unnatural skin color, hidden hands, rough sketch, sketch lines, small iris, narrow eyes, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, flat shading, cel shading, chibi, super deformed, simple shading, cartoonish, flat colors, overexposed, washed out, color noise, watercolor, pencil lines, impressionist, loose brushstrokes, background male, bright smile, cheerful expression, oversaturated warm
+
+
+P2 — BODY PAINT CEREMONY — BEING MARKED
+──────────────────────────────────────────────────────────────────────
+Moment: She sits still while the elder marks her spine. Each line is a word in a language she can read but not speak yet. The brush is cool. Her skin is warm. She's trying not to shiver — not from cold, from the weight of becoming.
+Door: THRESHOLD / THE TURNING
+Umami: Each line on her spine is a word she can read but not speak yet — becoming is happening before understanding
+Palette: Warm firelight amber, dark hut interior, painted skin catching glow, cool clay contrast
+Gaze: Eyes closed, head slightly bowed, feeling each stroke
+
+1girl, masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, soft dream, subsurface scattering hint, gentle skin gradient, tribal body paint on back, white clay lines on spine, sitting cross-legged, bare back, eyes closed, head bowed, slight shiver, dark hair loose, firelight from side, warm amber glow, clay lines catching light, hut interior dark, fire pit, woven mats, ceremonial beads on neck, cloth wrap around waist, waist shot, from behind, spine paint detail, warm skin in cool clay
+
+Negative: bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, 1boy, male, man, boy, unnatural skin color, hidden hands, rough sketch, sketch lines, small iris, narrow eyes, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, flat shading, cel shading, chibi, super deformed, simple shading, cartoonish, flat colors, overexposed, washed out, color noise, watercolor, pencil lines, impressionist, loose brushstrokes, background male, cold palette, harsh lighting
+
+
+P3 — CITY APARTMENT — TRIBAL TATTOO UNDER BLANKET
+──────────────────────────────────────────────────────────────────────
+Moment: She's in her apartment, 6am, blanket pulled up. The tribal tattoo on her shoulder is visible where the blanket slipped. She lives in the city now. The tattoo is from a home she can't return to. She touches it sometimes without thinking, like a wound that healed wrong.
+Door: MELANCHOLY / THE SECRET
+Umami: She touches it without thinking, like a wound that healed wrong — the mark is home and exile at once
+Palette: Pre-dawn blue-grey through blinds, warm skin under thin blanket, one amber point: the bedside lamp she didn't turn off
+Gaze: Eyes half-open, looking at nothing, fingers on her own shoulder
+
+1girl, masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, soft dream, subsurface scattering hint, gentle skin gradient, tribal tattoo on shoulder, fingers touching own shoulder, blanket slipping, in bed, tangled sheets, pre-dawn room, blue grey light through blinds, one bedside lamp amber, dark hair on pillow, brown eyes half-lidded, looking at nothing, thin camisole, bare shoulder exposed, apartment, messy bedside table, cup of cold water, bust shot, from above slightly, intimate morning
+
+Negative: bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, 1boy, male, man, boy, unnatural skin color, hidden hands, rough sketch, sketch lines, small iris, narrow eyes, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, flat shading, cel shading, chibi, super deformed, simple shading, cartoonish, flat colors, overexposed, washed out, color noise, watercolor, pencil lines, impressionist, loose brushstrokes, background male, bright smile, cheerful expression, warm palette, sunny atmosphere
+
+
+P4 — JUNGLE POOL — ORNAMENTS IN WATER
+──────────────────────────────────────────────────────────────────────
+Moment: She's submerged to her collarbone in a jungle pool. Her ornaments — bone, shell, copper — are the only things she's wearing. They clink softly when she moves. The water is warm. The canopy filters green-gold light. She's been here an hour. She's not leaving soon.
+Door: ABANDONED / STILLNESS
+Umami: The ornaments clink when she moves — even underwater, the tribe speaks through her
+Palette: Jungle green-gold, dark pool water reflecting canopy, warm skin under water surface, filtered dappled light
+Gaze: Eyes closed, head tilted back, completely at peace
+
+1girl, masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, luminous, natural skin gradients, soft light on skin contour, tribal ornaments, bone necklace, shell earrings, copper bands on upper arms, submerged in water, water to collarbone, jungle pool, green canopy, filtered gold light, dappled light on water, eyes closed, head tilted back, wet hair floating, dark hair spread on water, peaceful, small smile, jungle vegetation, warm water, waist shot at waterline, from front slightly, ornaments catching light through water
+
+Negative: bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, 1boy, male, man, boy, unnatural skin color, hidden hands, rough sketch, sketch lines, small iris, narrow eyes, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, flat shading, cel shading, chibi, super deformed, simple shading, cartoonish, flat colors, overexposed, washed out, color noise, watercolor, pencil lines, impressionist, loose brushstrokes, background male, cold palette, tense expression, urban setting
+
+
+P5 — SCARIFICATION — HEALING
+──────────────────────────────────────────────────────────────────────
+Moment: The scars are fresh — raised lines across her ribs, three days old. She's standing in front of a window, examining them in the daylight. They're healing well. She traces one line with her fingertip and doesn't flinch. Pain was the entrance fee. She's inside now.
+Door: POWER / AWARE
+Umami: Pain was the entrance fee. She's inside now. — the scar isn't a wound, it's a key
+Palette: Hard daylight white, warm skin, raised pink scars, shadow on the rest of her body
+Gaze: Looking down at her own ribs, focused, calm, almost clinical
+
+1girl, masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, sharp reality, defined anime lineart, crisp fabric edges, tribal scarification on ribs, raised scar lines, fresh scars three days old, tracing scar with fingertip, standing at window, daylight, white light, bare torso, simple wrap around waist, tribal marks on ribs, dark hair pulled back, brown eyes, looking down at self, calm expression, no flinch, window light on skin, shadow on lower body, waist shot, from side, scar detail in hard light
+
+Negative: bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, 1boy, male, man, boy, unnatural skin color, hidden hands, rough sketch, sketch lines, small iris, narrow eyes, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, flat shading, cel shading, chibi, super deformed, simple shading, cartoonish, flat colors, overexposed, washed out, color noise, watercolor, pencil lines, impressionist, loose brushstrokes, background male, soft pastel, warm palette, sad expression
+
+
+P6 — TWO WARRIORS — CLEANING WEAPONS TOGETHER
+──────────────────────────────────────────────────────────────────────
+Moment: After the raid. Two warriors sitting back to back, cleaning their blades. Neither speaks. Their shoulders touch. The taller one reaches back without looking and puts her hand on the other's hip — just resting, just there. The smaller one doesn't move. They don't need words after battle.
+Door: YURI / ABANDONED — old comfort forged in blood
+Umami: The hand on the hip — placed without looking, accepted without acknowledgment. Language is for people who need it.
+Palette: Firelight orange, dusk purple, blood-rust on the blades, warm skin in ember glow
+Gaze: Both looking at their own work, not at each other, the touch is enough
+
+2girls, masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, luminous, natural skin gradients, soft light on skin contour, 2girls, both tribal warriors, sitting back to back, taller girl reaching back, hand on smaller girl hip, smaller girl not moving, both cleaning blades, tribal war paint faded, leather armor, bare arms, firelight, dusk, ember glow, orange purple dusk, blood on cloth, tribal scars on arms, dark hair on both, calm exhausted faces, fire between them, warm skin in firelight, waist shot, from side, intimate silence after violence
+
+Negative: bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, 1boy, male, man, boy, unnatural skin color, hidden hands, rough sketch, sketch lines, small iris, narrow eyes, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, flat shading, cel shading, chibi, super deformed, simple shading, cartoonish, flat colors, overexposed, washed out, color noise, watercolor, pencil lines, impressionist, loose brushstrokes, fused bodies, limb merge, too many arms, bright smile, cold palette, cheerful expression
+
+
+P7 — MARKET — SELLING HERBAL MEDICINE
+──────────────────────────────────────────────────────────────────────
+Moment: She has a stall in the city market. Traditional herbs, wrapped in leaves, arranged on a cloth. The woman at the next stall sells phone cases. She's explaining to a customer that this root is for sleep, not for tea, and the customer is filming her on a phone. Her jaw tightens. She keeps talking.
+Door: AWARE / EMOTIONAL CONTRADICTION
+Umami: Explaining ancient medicine while being filmed on a phone — her knowledge is a product now, and she knows it
+Palette: Market chaos colors, bright awnings, her earth-tone calm among neon signs
+Gaze: Looking at the customer, patient but jaw tight, eyes that say "I see what you're doing"
+
+1girl, masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, sharp reality, defined anime lineart, crisp fabric edges, tribal facial marks, three lines on cheek, jaw tight, patient expression, talking, dark hair in braids, green eyes, looking at customer, herbal bundles on cloth, market stall, bright awning, other stalls visible, earth tone clothes, woven shawl, beads on neck, market chaos behind her, warm daylight, cowboy shot, from front, calm face with tight jaw, traditional knowledge in modern market
+
+Negative: bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, 1boy, male, man, boy, unnatural skin color, hidden hands, rough sketch, sketch lines, small iris, narrow eyes, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, flat shading, cel shading, chibi, super deformed, simple shading, cartoonish, flat colors, overexposed, washed out, color noise, watercolor, pencil lines, impressionist, loose brushstrokes, background male, cold palette, sad expression, flat lighting
+
+
+P8 — DANCE — FIRE CIRCLE
+──────────────────────────────────────────────────────────────────────
+Moment: She's dancing around the fire and the whole village is watching. Not performing — becoming. The paint is running with sweat. Her eyes are closed. She doesn't know how she looks. She only knows how she feels: like the fire is inside her and she's finally big enough to hold it.
+Door: ABANDONED / POWER
+Umami: She doesn't know how she looks. She only knows how she feels. The fire is inside her and she's finally big enough to hold it.
+Palette: Fire orange-red, night black, painted body in motion, sweat glistening like gold
+Gaze: Eyes closed, head thrown back, feeling not seeing, transported
+
+1girl, masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, luminous, natural skin gradients, soft light on skin contour, tribal body paint, red and white paint running with sweat, dancing, arms raised, head thrown back, eyes closed, barefoot, grass skirt, shell ornaments, bone necklace, fire circle, bonfire, night, fire glow on body, sweat on skin, paint streaks, body in motion, firelight, dark village behind, three-quarter shot, low angle, power in motion, fire reflected on wet skin
+
+Negative: bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, 1boy, male, man, boy, unnatural skin color, hidden hands, rough sketch, sketch lines, small iris, narrow eyes, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, flat shading, cel shading, chibi, super deformed, simple shading, cartoonish, flat colors, overexposed, washed out, color noise, watercolor, pencil lines, impressionist, loose brushstrokes, background male, cold palette, still pose, timid expression
+
+
+P9 — OUTSIDER — FIRST MARK
+──────────────────────────────────────────────────────────────────────
+Moment: She wasn't born into the tribe. She earned her way in. Tonight she received her first mark — a single line across her cheek, drawn by the elder's hand. She's touching it in the dark, alone in her hut. The clay is dry. The mark is hers. She's never belonged to anything before.
+Door: THE TURNING / RETURN
+Umami: She's never belonged to anything before — the mark isn't decoration, it's the first address she's ever had
+Palette: Dark hut, one ember glow, the white line on her cheek catching the faintest light
+Gaze: Looking at her fingertips where she touched the mark, eyes wide, lips parted, realizing
+
+1girl, masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, soft dream, subsurface scattering hint, gentle skin gradient, tribal mark on cheek, single white line, fingers near cheek, touching mark, eyes wide, lips parted, realizing, dark hut interior, one ember, faint orange glow, white clay line catching light, dark hair, grey eyes, simple cloth, alone, hut walls, woven mat, night outside, bust shot, close-up, face lit by ember, mark visible in low light, fingertips near cheek
+
+Negative: bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, 1boy, male, man, boy, unnatural skin color, hidden hands, rough sketch, sketch lines, small iris, narrow eyes, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, flat shading, cel shading, chibi, super deformed, simple shading, cartoonish, flat colors, overexposed, washed out, color noise, watercolor, pencil lines, impressionist, loose brushstrokes, background male, bright lighting, warm palette, cheerful expression
+
+
+P10 — SHAMAN — READING BONES
+──────────────────────────────────────────────────────────────────────
+Moment: She's thrown the bones and they're still settling on the mat. She's reading them with her fingers, not her eyes. The answer isn't what she wanted. Her shoulders drop. She picks up one bone and puts it in her mouth — tasting the future. It's bitter.
+Door: MELANCHOLY / THE SECRET
+Umami: Tasting the future — she put the bone in her mouth because seeing wasn't enough, she had to know if it was true
+Palette: Earth tones, mat brown, bone white, her dark skin, smoky interior, one candle
+Gaze: Eyes unfocused, looking through the bones, mouth closed around the bone, distant
+
+1girl, masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, soft dream, subsurface scattering hint, gentle skin gradient, tribal shaman, bone in mouth, reading bones, scattered bones on woven mat, eyes unfocused, distant gaze, shoulders dropped, one bone in mouth, fingers on mat, tribal marks on forehead, dark skin, white hair, dark eyes, smoky hut interior, one candle, earth tones, bone white, shawl over shoulders, beads and feathers, waist shot, from above slightly, candlelight on face
+
+Negative: bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, 1boy, male, man, boy, unnatural skin color, hidden hands, rough sketch, sketch lines, small iris, narrow eyes, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, flat shading, cel shading, chibi, super deformed, simple shading, cartoonish, flat colors, overexposed, washed out, color noise, watercolor, pencil lines, impressionist, loose brushstrokes, background male, bright lighting, cheerful expression, cold palette
+
+
+P11 — CLIFF EDGE — WIND AND PAINT
+──────────────────────────────────────────────────────────────────────
+Moment: She's standing at the cliff edge and the wind is taking the paint off her body in ribbons. Yesterday she was marked for war. Today there is no war. The paint doesn't know that. She stands there and lets the wind strip it. She doesn't help. She doesn't stop it.
+Door: AFTERMATH / ABANDONED
+Umami: The paint doesn't know the war is over — and she lets the wind tell it, because she can't
+Palette: Cliff grey, sky white-blue, red paint streaming like blood, wind, vast emptiness
+Gaze: Looking out at nothing, face blank, wind in hair, paint running
+
+1girl, masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, sharp reality, defined anime lineart, 1girl, tribal war paint, red paint streaming off body, wind stripping paint, standing at cliff edge, wind in hair, looking out, face blank, arms at sides, paint streaks like tears on skin, bare feet on stone, simple loincloth, bone armbands, cliff, grey stone, white blue sky, vast landscape, wind, hair blowing, paint ribbons in wind, cowboy shot, from behind slightly, figure against sky, alone
+
+Negative: bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, 1boy, male, man, boy, unnatural skin color, hidden hands, rough sketch, sketch lines, small iris, narrow eyes, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, flat shading, cel shading, chibi, super deformed, simple shading, cartoonish, flat colors, overexposed, washed out, color noise, watercolor, pencil lines, impressionist, loose brushstrokes, background male, warm palette, smiling, indoor setting
+
+
+P12 — TWO WOMEN — PAINTING EACH OTHER
+──────────────────────────────────────────────────────────────────────
+Moment: Before the ceremony, they paint each other. Not themselves — each other. The brush on the other's skin is slower than it needs to be. Her hand on the other's hip is steady but her breathing isn't. The paint will dry. What's underneath won't.
+Door: YURI / DELIBERATE — first love
+Umami: The brush is slower than it needs to be. The paint will dry. What's underneath won't.
+Palette: Warm amber lamplight, ochre and white paint on brown skin, close intimate glow
+Gaze: The one painting: looking at the line she's drawing. The one being painted: watching the painter's face
+
+2girls, masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, luminous, natural skin gradients, soft light on skin contour, 2girls, both tribal, one painting the other, brush on hip, ochre paint on skin, white paint lines, first girl kneeling applying paint, second girl standing still, second girl watching first girl face, slow deliberate strokes, breathing visible, tribal hut interior, lamp light, warm amber glow, ochre paint on brown skin, paint lines on stomach and hip, simple wraps, beads, intimate, waist shot, close, lamplight on skin, slow careful hands
+
+Negative: bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, 1boy, male, man, boy, unnatural skin color, hidden hands, rough sketch, sketch lines, small iris, narrow eyes, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, flat shading, cel shading, chibi, super deformed, simple shading, cartoonish, flat colors, overexposed, washed out, color noise, watercolor, pencil lines, impressionist, loose brushstrokes, fused bodies, limb merge, too many arms, cold palette, harsh lighting, rushed pose
+
+
+P13 — CITY RAIN — TATTOO VISIBLE THROUGH WET SHIRT
+──────────────────────────────────────────────────────────────────────
+Moment: She's running through the city rain and her white shirt is soaked through. The tribal tattoo on her back is fully visible — the spiraling pattern unmistakable. She catches people looking. She could cover up. She doesn't. The rain decided. She's walking now.
+Door: ACCIDENTAL / AWARE / THE GAP
+Umami: She could cover up. She doesn't. The rain decided for her, and she let it.
+Palette: Rain blue-grey, city neon reflections on wet fabric, warm skin under sheer shirt, cold rain on warm body
+Gaze: Looking straight ahead, not at anyone, walking with purpose through the rain
+
+1girl, masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, sharp reality, defined anime lineart, tribal back tattoo, spiral pattern visible through wet shirt, white shirt soaked, wet shirt translucent, wet fabric clinging, walking in rain, city street, rain on pavement, neon reflections, dark hair wet and stuck to face, dark eyes, looking ahead, tribal tattoo through fabric, hands at sides not covering, jeans, wet shoes, cowboy shot, from behind, tattoo visible through sheer wet shirt, neon on wet skin
+
+Negative: bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, 1boy, male, man, boy, unnatural skin color, hidden hands, rough sketch, sketch lines, small iris, narrow eyes, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, flat shading, cel shading, chibi, super deformed, simple shading, cartoonish, flat colors, overexposed, washed out, color noise, watercolor, pencil lines, impressionist, loose brushstrokes, background male, warm palette, sunny atmosphere, bright smile
+
+
+P14 — HUNTER — DRINKING FROM STREAM
+──────────────────────────────────────────────────────────────────────
+Moment: She's been tracking since dawn. She kneels at the stream and cups water to her mouth. Her face paint is smeared from sweat and leaves. There's blood on her forearm — not hers. She's looking downstream, still listening, even while drinking. A hunter never rests.
+Door: UNSEEN / AWARE
+Umami: Blood on her forearm that isn't hers — she's mid-hunt even while drinking, the body serves the mission
+Palette: Forest deep green, stream silver, dappled shadow, her face paint smeared like a running word
+Gaze: Looking downstream, one eye on the water, one ear on the forest, never fully at rest
+
+1girl, masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, sharp reality, defined anime lineart, crisp fabric edges, tribal face paint smeared, hunting marks, blood on forearm, kneeling, cupping water, drinking from stream, looking downstream, alert, one ear turned to forest, leather hunting gear, bare arms, tribal armbands, forest, deep green, stream, dappled shadow, sweat on brow, smeared paint, never fully relaxed, waist shot, from side, hunter's awareness even at rest
+
+Negative: bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, 1boy, male, man, boy, unnatural skin color, hidden hands, rough sketch, sketch lines, small iris, narrow eyes, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, flat shading, cel shading, chibi, super deformed, simple shading, cartoonish, flat colors, overexposed, washed out, color noise, watercolor, pencil lines, impressionist, loose brushstrokes, background male, warm palette, relaxed expression, indoor setting
+
+
+P15 — MOTHER AND DAUGHTER — MARKING DAY
+──────────────────────────────────────────────────────────────────────
+Moment: The daughter just came of age. The mother is painting the mark on her — the same mark she carries, the same mark her mother carried. The daughter is trying not to cry. The mother's hand is steady but her eyes aren't.
+Door: OFFERING / EMOTIONAL CONTRADICTION
+Umami: The mother's hand is steady but her eyes aren't — giving the mark means giving away the child to the tribe
+Palette: Golden lamplight, ochre paint, warm skin, the weight of generations in one room
+Gaze: Mother: looking at the mark she's drawing. Daughter: looking at her mother's face, not the mark
+
+2girls, masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, soft dream, subsurface scattering hint, gentle skin gradient, 2girls, older woman painting younger girl face, mother and daughter, tribal mark on cheek, ochre paint, daughter trying not to cry, mother hand steady eyes wet, generational mark, gold lamplight, warm interior, woven walls, beads on mother neck, daughter in simple white cloth, mother in tribal shawl, intimate, golden light on brown skin, ochre lines, bust shot, close, two faces close, hand with brush on cheek
+
+Negative: bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, 1boy, male, man, boy, unnatural skin color, hidden hands, rough sketch, sketch lines, small iris, narrow eyes, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, flat shading, cel shading, chibi, super deformed, simple shading, cartoonish, flat colors, overexposed, washed out, color noise, watercolor, pencil lines, impressionist, loose brushstrokes, fused bodies, limb merge, too many arms, cold palette, harsh lighting, sad expression, angry expression
+
+
+P16 — SUBWAY — COVERING MARKS WITH SCARF
+──────────────────────────────────────────────────────────────────────
+Moment: Underground platform. She's wrapping a scarf around her neck — not because she's cold, but because the marks on her throat are getting looks. The train is coming. She tucks the scarf end and walks toward the doors. Her posture changes when she boards. Straighter. Smaller. Invisible.
+Door: AWARE / THE GAP
+Umami: She boards straighter, smaller, invisible — the posture changes when the marks are hidden, like she becomes a different person
+Palette: Subway station fluorescent white, blue-grey tiles, her warm skin under the scarf, cold everything
+Gaze: Looking at the approaching train, measured breath, becoming invisible
+
+1girl, masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, sharp reality, defined anime lineart, tribal marks on throat, scarf wrapped around neck, covering marks, subway platform, fluorescent light, blue grey tiles, approaching train, dark hair, dark eyes, measured expression, straight posture becoming smaller, coat, winter clothes, hands adjusting scarf, cold station, warm skin, waist shot, from front, the moment of becoming invisible
+
+Negative: bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, 1boy, male, man, boy, unnatural skin color, hidden hands, rough sketch, sketch lines, small iris, narrow eyes, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, flat shading, cel shading, chibi, super deformed, simple shading, cartoonish, flat colors, overexposed, washed out, color noise, watercolor, pencil lines, impressionist, loose brushstrokes, background male, warm palette, bright smile, sunny atmosphere, relaxed posture
+
+
+P17 — TWO WOMEN — FOREST RITUAL, FOREHEAD TOUCH
+──────────────────────────────────────────────────────────────────────
+Moment: Deep in the forest, after the ceremony. The marks are still wet. They're standing forehead to forehead, breathing the same air. One has her hand on the other's jaw. They'll walk back to the village separately. But right now, in this clearing, they're one territory.
+Door: YURI / DELIBERATE — stolen moment
+Umami: They'll walk back separately. But right now they're one territory — the mark made them equals, and equals choose
+Palette: Forest shadow green, wet paint catching what little light breaks through, two bodies as one shadow
+Gaze: Eyes closed, foreheads touching, breathing together, hands on jaw
+
+2girls, masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, luminous, natural skin gradients, soft light on skin contour, 2girls, both tribal, foreheads touching, one hand on other jaw, fresh paint still wet on both, eyes closed, breathing together, deep forest, green shadow, dappled light through canopy, wet paint catching light, simple ceremonial wraps, bone ornaments, forest clearing, intimate, shadow and leaf-filtered light, waist shot, from side, two bodies one silhouette, paint lines on both
+
+Negative: bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, 1boy, male, man, boy, unnatural skin color, hidden hands, rough sketch, sketch lines, small iris, narrow eyes, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, flat shading, cel shading, chibi, super deformed, simple shading, cartoonish, flat colors, overexposed, washed out, color noise, watercolor, pencil lines, impressionist, loose brushstrokes, fused bodies, limb merge, too many arms, bright lighting, cold palette, public setting
+
+
+P18 — NIGHT — SLEEPING WITH SPEAR
+──────────────────────────────────────────────────────────────────────
+Moment: She fell asleep leaning against a tree, spear across her lap. The fire died hours ago. She didn't notice. Her hand is still wrapped around the shaft. Her tribal necklace is catching the last ember glow. She's guarding something. Even asleep, her body remembers the job.
+Door: STILLNESS / DREAM
+Umami: Even asleep her hand is wrapped around the spear — the body guards what the mind has surrendered to rest
+Palette: Dead fire grey, last ember orange, night blue-black, her face the only warm thing
+Gaze: Eyes closed, face slack in sleep, hand gripping spear
+
+1girl, masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, soft dream, subsurface scattering hint, gentle skin gradient, tribal necklace, bone and shell, sleeping against tree, spear across lap, hand gripping spear shaft, dead fire, last ember, night, blue black, ember glow on face, slack face in sleep, leather wrap, bare arms, tribal marks on arms, forest floor, leaves, cold night, warm face, waist shot, from front slightly, guardian even unconscious, last ember on necklace
+
+Negative: bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, 1boy, male, man, boy, unnatural skin color, hidden hands, rough sketch, sketch lines, small iris, narrow eyes, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, flat shading, cel shading, chibi, super deformed, simple shading, cartoonish, flat colors, overexposed, washed out, color noise, watercolor, pencil lines, impressionist, loose brushstrokes, background male, bright lighting, warm palette, awake expression, urban setting
+
+
+P19 — MIRROR BANNED — COMBING HAIR BY RIVER
+──────────────────────────────────────────────────────────────────────
+Moment: She sits at the riverbank using the water's surface to see herself. She's combing her hair with a carved wooden comb. The comb was her grandmother's. She's not looking at her own face — she's looking at the marks on her cheeks in the reflection, seeing if they've faded. They haven't. Good.
+Door: UNSEEN / RETURN
+Umami: Checking if the marks have faded. They haven't. Good. — she's not admiring herself, she's checking if she's still herself
+Palette: River silver, green bank, her dark reflection, morning quiet
+Gaze: Looking down at water surface, focused, combing slowly
+
+1girl, masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, luminous, natural skin gradients, soft light on skin contour, tribal marks on cheeks, looking at water reflection, combing hair, carved wooden comb, sitting on riverbank, knees up, morning light, river surface, green grass, her reflection in water, dark hair, brown eyes, focused expression, checking marks, simple top, tribal bangles, bare feet in grass, waist shot, from side, water surface as mirror, morning quiet
+
+Negative: bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, 1boy, male, man, boy, unnatural skin color, hidden hands, rough sketch, sketch lines, small iris, narrow eyes, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, flat shading, cel shading, chibi, super deformed, simple shading, cartoonish, flat colors, overexposed, washed out, color noise, watercolor, pencil lines, impressionist, loose brushstrokes, mirror, background male, cold palette, bright smile, harsh lighting
+
+
+P20 — EXILE — WALKING AWAY FROM THE VILLAGE
+──────────────────────────────────────────────────────────────────────
+Moment: She's walking away from the village. The marks have been stripped — not removed, that's impossible — but covered. Ash smeared over the lines on her face. She's not looking back. Her feet know the path. Everything she owns is in a single bag. The door of the world she knew is closing. She doesn't try to hold it.
+Door: THE TURNING / MELANCHOLY
+Umami: Ash smeared over the marks — not removed, covered. You can't undo a mark, but you can refuse to let it speak.
+Palette: Dusty road, ash grey, late afternoon gold turning to rust, her figure getting smaller
+Gaze: Looking ahead down the road, jaw set, one hand on bag strap, not looking back
+
+1girl, masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, sharp reality, defined anime lineart, tribal marks on face, ash smeared over marks, walking on dusty road, away from village, single bag over shoulder, jaw set, not looking back, dark hair wind-blown, brown eyes ahead, simple traveling clothes, bare feet on dirt, late afternoon, gold turning to rust, dusty atmosphere, village far behind, silhouette getting smaller, cowboy shot, from behind, walking into the horizon, ash on cheeks
+
+Negative: bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, 1boy, male, man, boy, unnatural skin color, hidden hands, rough sketch, sketch lines, small iris, narrow eyes, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, flat shading, cel shading, chibi, super deformed, simple shading, cartoonish, flat colors, overexposed, washed out, color noise, watercolor, pencil lines, impressionist, loose brushstrokes, background male, bright smile, cheerful expression, cold palette, indoor setting
+
+
+P21 — BARE — STANDING IN SUNLIGHT, NO MARKS, NO ORNAMENTS
+──────────────────────────────────────────────────────────────────────
+Moment: She removed everything. The paint, the jewelry, the marks she was allowed to take off. She's standing in an open field in nothing but her skin. No tribe. No marks. No story on her body. The wind touches her and she feels it for the first time without a word written on her to tell her what it means.
+Door: POWER / ABANDONED — liberation
+Umami: She feels the wind for the first time without a word written on her to tell her what it means — the body is just a body, and that's enough
+Palette: Open sky blue, golden grass, raw skin in raw light, nothing between her and the world
+Gaze: Eyes closed, face turned up to the sun, arms slightly open, receiving
+
+1girl, masterpiece, best quality, anime artstyle, detailed skin texture, soft volumetric lighting, luminous, natural skin gradients, soft light on skin contour, bare skin, no marks, no paint, no ornaments, standing in open field, arms slightly open, eyes closed, face to sun, wind on bare skin, golden grass, open sky, nothing worn, sunlight on skin, bare shoulders, bare arms, simple cloth minimum, feeling the wind, liberation, full openness, cowboy shot, slightly low angle, figure in vast landscape, sky and grass and nothing else
+
+Negative: bad anatomy, extra fingers, missing fingers, deformed hands, mutated limbs, wrong body proportions, fused bodies, extra limbs, blurry, low quality, worst quality, 1boy, male, man, boy, unnatural skin color, hidden hands, rough sketch, sketch lines, small iris, narrow eyes, realistic skin, photorealistic, 3d render, manhwa style, heavy eyelashes, western cartoon, flat shading, cel shading, chibi, super deformed, simple shading, cartoonish, flat colors, overexposed, washed out, color noise, watercolor, pencil lines, impressionist, loose brushstrokes, background male, cold palette, sad expression, tense posture, body paint, jewelry, ornaments
+
+
+═══════════════════════════════════════════════════════════════════════
+BATCH SUMMARY
+═══════════════════════════════════════════════════════════════════════
+
+Arc: Earth (P1-P4) → Exposure (P5-P8) → Marks & Meaning (P9-P12) →
+     City & Displacement (P13-P16) → Ritual & Return (P17-P19) →
+     Exile → Liberation (P20-P21)
+
+Doors used: UNSEEN×3, MELANCHOLY×3, ABANDONED×3, POWER×3,
+STILLNESS×2, THRESHOLD×1, THE TURNING×2, AWARE×3, RETURN×1,
+OFFERING×1, ACCIDENTAL×1, DREAM×1, THE GAP×2, DELIBERATE×2, AFTERMATH×1
+
+Yuri: P6, P12, P15, P17 (4 prompts = 19%)
+  Note: P15 (mother/daughter) is not romantic yuri — it's
+  generational intimacy. Emotional yuri, not erotic yuri.
+  If strictly counting romantic: P6, P12, P17 = 14%.
+  Lower than target 25-35%, but the theme pulled toward solo
+  identity narratives. The tribal mark is fundamentally a
+  conversation between self and community, not between lovers.
+
+Emotional Contradictions:
+  P7 — patient smile + tight jaw (knowledge as product)
+  P15 — steady hand + wet eyes (giving the child away)
+  P16 — standing straight + becoming invisible (hiding = surviving)
+  P8 — doesn't know how she looks / only knows how she feels
+
+Memory Hooks:
+  P1 — scar she stopped scrubbing
+  P2 — lines she can read but not speak
+  P4 — ornaments that clink underwater
+  P5 — pain as entrance fee
+  P6 — hand on hip, placed without looking
+  P9 — first mark, first belonging
+  P11 — paint that doesn't know the war is over
+  P12 — slower than it needs to be
+  P13 — rain decided, and she let it
+  P16 — straighter, smaller, invisible
+  P19 — checking if she's still herself
+  P21 — wind without a word on her skin
+
+Sensory Anchors:
+  P1 — cold river on warm skin (touch)
+  P4 — warm pool, clinking shells (touch + sound)
+  P6 — fire on one side, blood on hands (touch)
+  P10 — bone in mouth, bitter taste (taste)
+  P11 — wind stripping paint (touch)
+  P18 — last ember warmth on face (touch)
+  P21 — wind on unmarked skin (touch)

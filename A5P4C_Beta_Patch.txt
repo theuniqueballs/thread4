@@ -1,0 +1,268 @@
+A5P4C BETA — NICHE REFACTOR + ANTI-REPEAT
+Patch on top of A5P4B. Fixes user feedback from HYBRID v2.
+Goal: NICHE returns to beauty. No repeats across batches.
+
+═══════════════════════════════════════════════════════════════════════
+§0. WHAT THIS PATCH FIXES
+═══════════════════════════════════════════════════════════════════════
+
+PROBLEM 1: NICHE prompts in HYBRID v2 were "VOLT-ified" — too
+           much wet-gown-nipple, too much conceptual complexity.
+           NICHE lost its beauty/atmosphere identity.
+FIX: NICHE stream refactored. Return to beautiful women in
+     beautiful places. Less intellectual exercise, more mood.
+
+PROBLEM 2: Repeats across batch and across batches.
+FIX: Cross-batch banned patterns log + pre-batch reading mandate.
+
+PROBLEM 3: NICHE Tier A (sheer) became "nipple through wet fabric"
+           which is VOLT territory, not NICHE.
+FIX: NICHE Tier A redefined. No nipple-through-wet-fabric in NICHE.
+
+═══════════════════════════════════════════════════════════════════════
+§1. NICHE STREAM REFACTOR
+═══════════════════════════════════════════════════════════════════════
+
+NICHE IDENTITY (restated):
+  NICHE = beautiful women in beautiful places.
+  Mood-driven, not concept-driven.
+  Atmospheric, not intellectual.
+  Sensual, not carnal.
+
+NICHE TIER REDEFINITION:
+
+  NICHE-S (Sensual, no anatomy)
+    Beautiful woman, clothed, atmosphere primary.
+    NO nipple visibility, NO through-fabric.
+    Examples: woman in silk dress at sunset, woman reading by window,
+    woman on balcony with wind in hair.
+
+  NICHE-A (Atmospheric sheer, NO nipple)
+    Sheer fabric but dry. Nipple NOT visible.
+    Sheer OVER bra. Sheer OVER slip.
+    The fabric is sheer, the body is not exposed.
+    Examples: sheer robe over slip, mesh top over bra, lace dress
+    over undergarments.
+    BANNED in NICHE-A: wet fabric, nipple-through-fabric.
+    (Wet fabric = VOLT Y2 territory, not NICHE.)
+
+  NICHE-E (Artistic nude, R+ safe)
+    Nude with concept, but back/profile/concealed.
+    Nipple NOT visible (concealed by pose, hair, arm, shadow).
+    Examples: back nude at atelier, profile nude in bath (water
+    conceals), reclining nude with sheet across chest.
+    BANNED in NICHE-E: bare breast with visible nipple.
+    (Visible nipple = VOLT Y-SX territory, not NICHE.)
+
+═══════════════════════════════════════════════════════════════════════
+§2. NICHE COMPOSITION RULES
+═══════════════════════════════════════════════════════════════════════
+
+NICHE is about beauty, not cleverness.
+
+RULE 1: One strong visual idea per prompt.
+        Not three. Not "mirror-late + waterfall-hair + time-loop."
+        ONE.
+
+RULE 2: Setting does the heavy lifting.
+        Beautiful setting → beautiful image. The woman inhabits
+        the setting, doesn't compete with it.
+        Good NICHE settings: cathedral, library, atelier, bath,
+        garden, balcony, field, beach, theater, observatory.
+
+RULE 3: Light is the protagonist.
+        NICHE light is dramatic, single-source, painterly.
+        NOT flat, NOT multi-source.
+        Light describes the woman, doesn't just illuminate her.
+
+RULE 4: Pose is simple and natural.
+        No "mid-formal-bow" or "crucifixion-pose" in NICHE.
+        Standing, sitting, reclining, turning. Natural.
+        The beauty is in the woman, not the pose.
+
+RULE 5: No manhwa-bait compositions.
+        Banned: hip-cocked, hand-on-hip, center-frame poster.
+        Banned: "magic circle" + "candles" + "open robe" combo.
+        Banned: "midnight market" as setting.
+
+═══════════════════════════════════════════════════════════════════════
+§3. NICHE SEL RESTRICTIONS
+═══════════════════════════════════════════════════════════════════════
+
+SEL (Surreal Erotic Library) in NICHE — restricted.
+
+ALLOWED in NICHE (subtle surreal):
+  SEL2  mirror-5-seconds-late (reflection different pose)
+  SEL8  breath-made-visible (smoke from lips)
+  SEL14 reflection-different-race (mirror shift)
+
+BANNED in NICHE (too complex, caused problems):
+  SEL5  time-loop-three (three figures — too complex)
+  SEL6  glass-body (transparent — user disliked)
+  SEL9  hair-waterfall (user disliked)
+  SEL10 eye-constellation (stars in irises — too anime)
+  SEL11 second-mouth-singing (body horror)
+  SEL12 body-as-landscape (too abstract)
+
+SEL cap in NICHE: 1-2 per batch (was 2-4).
+Prefer NO surreal in NICHE when possible. Beauty first.
+
+═══════════════════════════════════════════════════════════════════════
+§4. NICHE PAN/PANHEON USAGE
+═══════════════════════════════════════════════════════════════════════
+
+PAN pantheon (12 recurring characters) is NICHE's strength.
+Use freely — min 5 PAN per NICHE batch.
+
+PAN characters are beautiful women with identity, not concepts.
+The Librarian, The Bather, The Sleeper, The Dancer, etc.
+Each has hair/eye/body/skin/VIS fixed.
+Setting/scenario changes, identity doesn't.
+
+PAN RECURRENCE: same PAN may appear in multiple batches.
+This builds audience recognition.
+
+═══════════════════════════════════════════════════════════════════════
+§5. CROSS-BATCH ANTI-REPEAT PROTOCOL
+═══════════════════════════════════════════════════════════════════════
+
+MANDATORY: Before writing any new batch, Block A must:
+
+1. Read previous 1-2 batches (prompt bodies only, skip negatives).
+2. Log all patterns used: settings, poses, accessories, motifs,
+   light descriptions, closure styles.
+3. Identify any pattern used 2+ times in previous batch → cap at 1
+   for new batch.
+4. Identify any pattern used in previous batch → consider whether
+   to ban for new batch.
+5. Write the log at top of new batch file as "PREVIOUS BATCH
+   PATTERNS" section.
+
+PATTERN LOG FORMAT (at top of each batch):
+  PREVIOUS BATCH: HYBRID v2 — THE INHERITANCE
+  PATTERNS USED (cap or ban for this batch):
+    - chain-from-wall-to-collar: 3× → BANNED this batch
+    - brass-key-on-cord: 4× → max 1 this batch
+    - wet-fabric-nipple-visible: 4× → max 2 this batch
+    - back-bare-robe-to-hips: 3× → max 1 this batch
+    - "the X is the inheritance" closure: 8× → BANNED this batch
+    - hair-waterfall: 1× → BANNED this batch (user disliked)
+    - glass-body: 1× → BANNED this batch (user disliked)
+    - time-loop-three: 1× → BANNED this batch (user disliked)
+    - body-paint-corset: 2× → BANNED this batch (manhwa drift)
+
+═══════════════════════════════════════════════════════════════════════
+§6. INTRA-BATCH ANTI-REPEAT CHECK
+═══════════════════════════════════════════════════════════════════════
+
+After writing all 21 prompts, Block A must run this check:
+
+□ No two prompts share the same setting archetype
+□ No two prompts share the same pose (PL code)
+□ No two prompts share the same FET technique
+□ No two prompts share the same AXI archetype (max 2 same)
+□ No two prompts share the same VIS signature (max 2 same)
+□ No two prompts share the same light description pattern
+□ No two prompts share the same closure style
+□ No two prompts share the same opening structure
+□ No two prompts share the same color palette
+□ No motif (MOT) appears in more than 2 prompts
+
+If any check fails: rewrite the offending prompt.
+
+═══════════════════════════════════════════════════════════════════════
+§7. NEGATIVE CLEANUP RULES
+═══════════════════════════════════════════════════════════════════════
+
+Per BBAN_1D §3, negatives must match prompt content.
+
+ADDITIONAL RULES:
+
+RULE 1: If prompt has no fantasy elements (no tentacles, no magic,
+        no monsters), DO NOT include FE-PROTECTION negatives.
+        (Already removed in BBAN_1B, but double-check.)
+
+RULE 2: If prompt is NICHE-S (clothed, no anatomy), DO NOT include
+        ANTI-CENSOR-LIGHT negatives.
+        Only STD-CORE + NIPPLE-SUPPRESSION (if sheer) or just STD-CORE.
+
+RULE 3: If prompt is NICHE-E (artistic nude, concealed), include
+        ANTI-CENSOR-LIGHT but NOT NIPPLE-SUPPRESSION (nipple is
+        concealed by pose, not by clothing — suppression is
+        about clothing).
+
+RULE 4: If prompt setting is indoor only, DO NOT include outdoor
+        negatives (already in core, but verify).
+
+RULE 5: If prompt has solo character, ensure "multiple characters"
+        negative is in STD-CORE (it is, but verify).
+
+═══════════════════════════════════════════════════════════════════════
+§8. MEM (MEMORABILITY) RECALIBRATION
+═══════════════════════════════════════════════════════════════════════
+
+MEM criteria revised for simplicity.
+
+MEM1 = forgettable (BANNED, 0 per batch)
+MEM2 = slightly memorable (max 4)
+MEM3 = memorable (min 8)
+MEM4 = highly memorable (min 6)
+MEM5 = iconic (min 3)
+
+MEM5 criteria simplified:
+  - Strong visual identity (hair/eye/body/VIS all specific)
+  - Simple but striking concept
+  - Beautiful setting
+  - Dramatic light
+  - Natural pose
+  - NOT complex surreal, NOT body horror, NOT glass body
+
+MEM5 examples (good):
+  - Beautiful woman reading letter in candlelit library
+  - Woman reclining in bath with rose petals
+  - Woman on balcony at sunset, wind in hair
+
+MEM5 non-examples (bad):
+  - Glass woman in elevator with cracked mirror
+  - Three versions of woman time-looped in bed
+  - Woman with hair-waterfall on salt flat
+
+═══════════════════════════════════════════════════════════════════════
+§9. SUMMARY OF CHANGES FROM A5P4B
+═══════════════════════════════════════════════════════════════════════
+
+NICHE REFACTOR:
+  - NICHE-S: clothed, atmospheric, no anatomy
+  - NICHE-A: sheer but dry, NO nipple-through-fabric
+  - NICHE-A: sheer OVER undergarments (no wet)
+  - NICHE-E: nude but concealed (no visible nipple)
+  - NICHE beauty > NICHE cleverness
+  - One strong visual idea per prompt
+  - Simple natural poses
+  - Setting does heavy lifting
+  - Light is protagonist
+
+SEL RESTRICTED in NICHE:
+  - Only SEL2, SEL8, SEL14 allowed
+  - SEL5, SEL6, SEL9, SEL10, SEL11, SEL12 BANNED
+  - SEL cap: 1-2 per NICHE batch
+
+ANTI-REPEAT:
+  - Mandatory previous-batch reading
+  - Pattern log at top of each batch
+  - Intra-batch repeat check (10 checks)
+  - Cross-batch banned patterns carry forward
+
+NEGATIVE CLEANUP:
+  - Context-negatives match prompt content
+  - No FE-PROTECTION when no fantasy elements
+  - No ANTI-CENSOR when no anatomy
+  - No NIPPLE-SUPPRESSION when no sheer fabric
+
+MEM RECALIBRATED:
+  - MEM5 = simple beauty, not complex surreal
+  - Glass-body / hair-waterfall / time-loop DISQUALIFY from MEM5
+
+═══════════════════════════════════════════════════════════════════════
+END OF A5P4C BETA PATCH
+═══════════════════════════════════════════════════════════════════════

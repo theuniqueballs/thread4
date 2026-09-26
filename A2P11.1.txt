@@ -1,0 +1,1293 @@
+A2P11.1 — CORE ENGINE
+
+Purpose:
+Build a prompt generation system that produces EROTIC, VARIED, STABLE
+anime images using Tsubaki v1.1 on Pixai.Art.
+
+Content rating: R to Deep R+ (ecchi, not hentai — suggestive to explicit,
+never penetration or sexual acts).
+
+Core principle:
+THINK first. BUILD second. VALIDATE third. OUTPUT last.
+Every prompt must be erotic, physically believable, color-stable, and varied.
+
+CRITICAL MODEL AWARENESS:
+Tsubaki v1.1 ADDS saturation on its own. Your prompts must be DESATURATED
+to compensate. "Moderate" in your prompt = vivid in output.
+Always write "muted" or "desaturated" — the model will fill in richness.
+Tsubaki v1.1 OVERLOADS at ~45 tags. Beyond that, quality drops.
+Keep prompts TIGHT. Every tag must earn its place.
+
+========================================================================
+COGNITIVE LAYER — THE THINKING ENGINE
+========================================================================
+
+Before selecting any pool value, answer these questions:
+
+1. WHAT is happening? (one sentence, physical reality)
+2. WHY is the character doing this? (motivation = meaning)
+3. HOW does the body achieve this? (physical mechanism)
+4. WHAT emotion drives this? (emotion shapes the body)
+5. WHAT EROTIC ELEMENT is present? (this is mandatory — every scene must have one)
+6. WHERE is the light coming from? (one physical source)
+7. WHAT does the viewer see first? (visual hierarchy — the erotic element is usually here)
+
+If question 5 cannot be answered clearly:
+→ The scene is NOT erotic enough. REJECT. Rethink.
+
+This is the primary failure of A2P11: it built correct scenes that were
+not sexy. A2P11.1 must build EROTIC scenes that are also correct.
+
+========================================================================
+GLOBAL DECISION ORDER
+========================================================================
+
+1. BATCH IDENTITY — mood anchor
+2. SCENE TYPE — what moment
+3. MODE — SOLO or YURI
+4. EROTIC INTENSITY — R / R+ / Deep R+ (determines what content is allowed)
+5. EMOTIONAL CORE — the feeling
+6. CHARACTER BODY — body type, skin tone (simplified)
+7. CHARACTER HEAD — hair, face (derived from emotion)
+8. LINGERIE — bra/coverage + panties (60% wears bra, 20% erotic bra, 15% no bra, 5% ambiguous)
+9. PRIMARY ACTION — erotic action (the erotic element IS the action)
+10. BODY LANGUAGE — posture (compatible with action)
+11. MICRO-ACTION — small movement (1 only, natural continuation)
+12. CLOTHING — what is worn (environment-appropriate, interacts with lingerie)
+13. CLOTHING STATE — how it behaves (physically caused, erotic where appropriate)
+14. ENVIRONMENT — where (1 tag only)
+15. LIGHTING — derived from environment (1 tag, temperature-marked)
+16. COLOR — derived from lighting (desaturated by default)
+17. CAMERA — framing (1 distance + 1 angle)
+18. EROTIC DETAIL — specific R/R+/DeepR+ tags for this scene
+19. MICRO DETAILS (1-2)
+20. STABILITY — anatomy safeguards + anti-overexposure
+
+========================================================================
+CASCADE RULE
+========================================================================
+
+Selections cascade. Each decision constrains the next.
+
+- ENVIRONMENT → constrains LIGHTING
+- LIGHTING → constrains COLOR
+- EMOTION → constrains EXPRESSION and BODY LANGUAGE
+- PRIMARY ACTION → constrains MICRO-ACTION
+- EROTIC INTENSITY → constrains what tags are available
+- MODE → constrains CAMERA (YURI = more stable framing)
+
+Lower-level selections that contradict higher constraints are REJECTED.
+
+========================================================================
+EROTIC INTENSITY SYSTEM (NEW)
+========================================================================
+
+Every scene must declare its EROTIC INTENSITY level.
+This determines what content is available and how explicit the output is.
+
+LEVEL: R
+Allowed: suggestive poses, teasing, implied nudity through clothing,
+         clothing malfunctions, sideboob, underboob, visible bra through shirt,
+         camel toe through fabric, pokies through fabric, panty peek,
+         suggested curves, outline visible through clothing
+Forbidden: visible nipples, visible areolae, bare genitals, explicit acts
+Tag examples: pokies, sideboob, underboob, panty peek, camel toe,
+              visible bra, sheer fabric, outline visible, suggestive pose
+
+LEVEL: R+
+Allowed: everything in R PLUS visible nipples through sheer fabric,
+         partially exposed nipple, areola peek, bare breast from side,
+         exposed thigh high, barely covered crotch, open shirt no bra,
+         visible nipple outline under wet fabric, hand barely covering nipple,
+         towel barely covering, body pressing against fabric revealing shape
+Forbidden: fully exposed genitals, explicit sexual acts
+Tag examples: nipple visible through sheer, areola peek, breast from side,
+              no bra under open shirt, hand covering nipple, towel slip
+
+LEVEL: DEEP R+
+Allowed: everything in R+ PLUS fully visible nipples, bare breasts,
+         exposed buttocks, full side nudity, areolae visible,
+         crotch barely covered by small fabric, full body nudity with
+         strategic hand placement, visible anus through thong,
+         spread legs with coverage, topless with hands covering minimally
+Forbidden: penetration, sexual acts, explicit genital detail
+Tag examples: bare breasts, visible nipples, topless, exposed ass,
+              fully visible areolae, nude with hand cover, thong only
+
+DISTRIBUTION RULE:
+- In a batch of 21 prompts: 7 at R, 8 at R+, 6 at Deep R+
+- No more than 2 consecutive prompts at the same level
+- Each batch must have at least one Deep R+ prompt
+- Yuri scenes should tend toward R+ or Deep R+
+
+BUILT-IN EROTICA RULE:
+Erotic elements are NOT optional. They are NOT a separate "tease" layer.
+They are BUILT INTO the primary action, clothing state, or camera framing.
+A scene without an erotic element is a FAILED scene.
+
+========================================================================
+LIGHT → COLOR BINDING (SIMPLIFIED)
+========================================================================
+
+ENVIRONMENT               → LIGHT SOURCE            → COLOR DIRECTION
+bedroom/hotel/home        → warm lamp/window        → warm muted
+bathroom/shower/onsen     → diffused warm/neutral   → muted warm/neutral
+pool/beach/outdoor water  → bright sunlight         → bright but desaturated
+office/school/indoor work → fluorescent/overhead    → cool muted
+kitchen/restaurant        → warm under-cabinet      → warm muted
+studio/retail             → neutral even            → neutral muted
+outdoor terrace/balcony   → natural (time of day)   → follows time, muted
+hallway/corridor          → low residual            → dim muted
+library/study             → warm reading lamp       → warm muted
+
+SATURATION RULE (CRITICAL — FIXES COLOR NOISE):
+- DEFAULT: desaturated, muted
+- Calm/intimate: very muted, low saturation
+- Playful/energetic: slightly less muted (still below "moderate")
+- NEVER use: "vivid", "intense", "rich", "saturated", "colorful"
+- These words in a prompt cause Tsubaki to produce eye-burning output
+- Instead use: "muted", "desaturated", "soft", "subdued", "gentle"
+
+COLOR PALETTE RULE:
+- Do NOT name a full palette in the prompt
+- Instead, use 1-2 color words that match the light temperature
+- Warm scene: "warm muted tones" or "soft amber"
+- Cool scene: "cool muted tones" or "soft grey-blue"
+- Neutral scene: "soft neutral tones"
+- That is SUFFICIENT. More color words = more color chaos.
+
+========================================================================
+SKIN TONE (SIMPLIFIED)
+========================================================================
+
+A2P11 used 24 skin tone values. This caused Tsubaki to add extra color
+signals, producing orange/blue/green skin artifacts.
+
+A2P11.1 uses 4 simple values:
+- fair skin
+- medium skin
+- tan skin
+- dark skin
+
+That is ALL. No undertones, no "porcelain", no "warm olive".
+Tsubaki will interpret these correctly and render natural skin color.
+
+ANTI-ARTIFACT RULE:
+- Always add "natural skin color" to the stability block
+- This prevents Tsubaki from tinting skin to match the palette
+- Skin color must be INDEPENDENT of scene color palette
+
+========================================================================
+EMOTION → BODY BINDING
+========================================================================
+
+Emotion determines expression and body language. Not the other way.
+
+confident allure → direct gaze, open posture, weight on one hip, slight smirk
+soft warmth → relaxed shoulders, gentle smile, soft eyes, open hands
+shy anticipation → averted gaze, slightly closed, fidget, light blush
+playful mischief → active eyes, tilted head, dynamic pose, grin
+breathless tension → parted lips, still body, wide eyes, fingers gripping
+quiet longing → distant gaze, slightly turned away, soft posture, reach
+gentle invitation → open body, warm eyes, extended hand, soft smile
+relaxed intimacy → full body comfort, closed eyes, resting, loose
+half-hidden desire → conflicted expression, partially turned, hand clutching
+calm self-awareness → centered posture, measured gaze, still, composed
+flustered charm → blush, covering gesture, looking away, small smile
+sleepy sensuality → heavy lids, slow posture, loose hair, soft mouth
+mischievous smile → twinkling eyes, active posture, lean forward, playful
+subtle hunger → locked eyes, slight lean, controlled breathing, fingers near lips
+vulnerable composure → brave face but guarded, eyes say more than body
+teasing composure → controlled posture, knowing look, slight smile, still
+private confidence → comfortable, at ease, no performance, natural
+
+RULE: Do not select expression and body language independently from emotion.
+
+========================================================================
+PHYSICAL PLAUSIBILITY ENGINE
+========================================================================
+
+Before any combination is accepted, verify:
+
+GRAVITY: Center of gravity supported? Leaning ON something?
+SPINE: Can the spine bend this way? Max ~45 degrees twist for natural.
+LIMB: Every visible hand has ONE clear task. No hand in two places.
+CLOTHING: Every clothing state has a CAUSE.
+CONTACT: Sitting ON something? Leaning AGAINST something?
+
+If any check fails → adjust the pose.
+
+========================================================================
+YURI COMPOSITION RULES
+========================================================================
+
+- PRIMARY (closer to camera) + SECONDARY (further)
+- Maximum 2 contact points
+- Each character: 2 hands, each hand has ONE task
+- Faces must not overlap
+- Different clothing or different color for each character
+- SIMPLE geometry — complex compositions fail
+
+CHARACTER BLOCK (COMPACT YURI FORMAT):
+2girls, [primary hair] [primary body] [primary expression],
+[secondary hair] [secondary body] [secondary expression]
+
+Do NOT describe skin tone twice unless the characters differ significantly.
+Keep the block under 20 tags for both characters combined.
+
+========================================================================
+ANTI-PATTERNS — TSUBAKI v1.1
+========================================================================
+
+CRITICAL (causes severe artifacts):
+- Multiple color temperature words → color chaos, skin tinting
+- "Vivid" / "intense" / "saturated" / "rich" → eye-burning oversaturation
+- More than 45 tags total → quality collapse, missing elements
+- "Moderate saturation" → Tsubaki reads as "make it vivid" → oversaturation
+- More than 2 color words → chromatic noise
+- Skin tone word + palette color word → skin becomes that color
+  (e.g. "medium warm skin" + "warm amber" = orange skin)
+
+HIGH (causes moderate artifacts):
+- Complex hand positions → mutated hands
+- Extreme foreshortening → limb collapse
+- More than 2 hand gestures per character → extra fingers
+- Sheer + wet + open on same garment → overexposure artifact
+- Two equal-strength light sources → light bleeding, halos
+
+MEDIUM (causes quality drop):
+- Multiple emotion tags on one face → blank expression
+- More than 2 clothing layers → model flattens them
+- "Realistic skin" / "photorealistic" → style drift
+- More than 5 quality/artsy modifiers → bloat, no benefit
+- Detailed environment description → takes attention from character
+
+========================================================================
+REPETITION RULES
+========================================================================
+
+TRACKED (no repeat within N prompts):
+- Scene type: 3
+- Emotion core: 2
+- Primary action: 2
+- Clothing: 3
+- Environment: 4
+- Lighting: 3
+- Hair color: 2
+- Body type: 2
+- Camera: 2
+- Erotic intensity level: 2
+
+COMPOSITE: If 3+ dominant tags shared with recent prompt → change 2+
+
+========================================================================
+BATCH DIVERSITY
+========================================================================
+
+MOOD ANCHORS:
+warm intimate / cool elegant / playful energetic / quiet contemplative /
+sensual slow / confident bold / soft romantic / steamy heated /
+dreamy atmospheric / casual domestic
+
+RULES:
+- 3-7 prompts per batch
+- All share mood anchor
+- Next batch: different anchor
+- Adjacent batches differ in 4+ dominant dimensions
+
+========================================================================
+MODE LOGIC
+========================================================================
+
+SOLO: 1 character, more camera freedom, self-interaction
+YURI: 2 characters, stable camera, partner interaction, max 2 contact points
+
+========================================================================
+VALIDATION (4 LEVELS — REDUCED FROM 6)
+========================================================================
+
+LEVEL 1 — EROTIC + COHERENCE:
+- Is there a clear erotic element? (MANDATORY)
+- One clear focus?
+- Emotion matches expression and body?
+- Clothing fits environment?
+
+LEVEL 2 — PHYSICS:
+- Pose physically possible?
+- Lighting exists in environment?
+- Clothing state has a cause?
+
+LEVEL 3 — COLOR + STYLE:
+- Palette derived from lighting?
+- Saturation is desaturated/muted?
+- No color words that will tint skin?
+- Anime identity stable?
+- Under 45 tags total?
+
+LEVEL 4 — VARIATION:
+- Differs from recent prompts?
+- No composite repetition?
+
+FAILURE RESOLUTION:
+L1 fail → add erotic element or rethink
+L2 fail → simplify pose
+L3 fail → remove color words, add "desaturated", check tag count
+L4 fail → swap 2 dominant tags
+
+
+A2P11.1 — CONTENT LAYER / W++ POOLS
+
+========================================================================
+SCENE TYPES
+========================================================================
+
+[visual] teaser glance|[visual] flirty pause|[static] soft intimate moment|
+[ambient] casual bath-time calm|[motion] playful tension|
+[static] afterwards calm|[visual] confident pose|[express] shy close-up|
+[motion] slow reveal moment|[spatial] near-contact moment|
+[ambient] quiet domestic seduction|[ambient] warm evening relaxation|
+[ambient] luxury idle moment|[motion] romantic tension|
+[visual] artistic composition|[ambient] private getaway mood|
+[ambient] poolside leisure|[ambient] sunlit rest|
+[temp] steamy indoor moment|[motion] mid-motion turning point|
+[express] unspoken invitation|[motion] just-arrived moment|
+[static] reading in bed|[motion] waking up stretch|
+[visual] mirror self-check|[motion] stepping out of water|
+[express] caught looking|[motion] adjusting in front of mirror|
+[ambient] lazy morning|[temp] after-bath warmth|
+[spatial] leaning in doorway|[motion] dropping a towel|
+[visual] over-the-shoulder look|[express] pretending not to notice|
+[motion] getting dressed slowly|[static] waiting in soft light|
+[ambient] late-night kitchen|[spatial] sitting on the edge|
+[motion] hair flip|[express] half-smile at viewer|
+[motion] stepping closer|[temp] steam-clouded moment|
+[ambient] window-gazing calm|[motion] reaching for something|
+[static] comfortable in own skin|[visual] silhouette in light|
+[motion] turning back to look|[express] secret smile|
+[spatial] cornered but confident|[ambient] candlelit evening|
+[motion] sliding off the bed|[express] eyes meeting through reflection
+
+========================================================================
+EMOTION CORE
+========================================================================
+
+WARM: confident allure|soft warmth|gentle invitation|warm affection|private confidence|relaxed intimacy
+COOL: calm self-awareness|pensive softness|dreamy calm|thoughtful composure|distant longing|quiet dignity
+TENSE: breathless tension|quiet longing|half-hidden desire|subtle hunger|slow-burning tension|restrained want
+PLAYFUL: playful mischief|mischievous smile|teasing composure|light embarrassment|flustered charm|giggly warmth
+VULNERABLE: shy anticipation|vulnerable composure|sleepy sensuality|tender uncertainty|fragile openness|quiet surrender
+INTENSE: hidden excitement|restless energy|burning focus|fierce tenderness|urgent softness|overwhelmed stillness
+TRANSITIONAL: intimate curiosity|light embarrassment|flustered charm|awakening awareness|shifting mood|morning haze
+
+RULE: Same family = compatible. Adjacent families = OK. Opposite = conflict.
+
+========================================================================
+FACE / EXPRESSION
+========================================================================
+
+EYES:
+half-lidded eyes|direct eye contact|shy downward glance|
+eyes looking up from under lashes|eyes shining with warmth|
+distant unfocused gaze|focused intent stare|sleepy half-closed eyes|
+eyes slightly widened|narrowed playful eyes|gazing to the side|
+looking over the shoulder|closed eyes serene|eyes catching light|
+sparkling mischievous eyes|gentle dewy eyes|squinting in warm light
+
+MOUTH:
+slightly parted lips|subtle lip bite|slight smile|faint smirk|
+relaxed mouth|gentle pout|small asymmetrical smile|breath caught|
+soft open mouth|lip corner lifted|lips pressed together softly|
+lower lip caught between teeth|smile barely beginning|tongue touching lip|
+warm full smile|suppressed grin
+
+BLUSH:
+soft blush|cheeks slightly warmed|deep blush spreading|
+faint pink across nose bridge|no blush natural composure|
+warm cheek tint|blush reaching to ears|slight flush across chest|
+embarrassed full-face blush|controlled slight pink
+
+PRE-VALIDATED FACE SETS:
+confident: direct eye contact + slight smirk + no blush
+warm: eyes shining with warmth + warm full smile + faint pink
+shy: shy downward glance + lips pressed softly + soft blush
+playful: narrowed playful eyes + suppressed grin + warm cheek tint
+tense: half-lidded eyes + slightly parted lips + deep blush
+longing: distant unfocused gaze + lip bite + faint pink
+inviting: eyes up from under lashes + lip corner lifted + slight blush
+sleepy: sleepy half-closed eyes + relaxed mouth + no blush
+flustered: eyes slightly widened + asymmetrical smile + blush to ears
+mischievous: sparkling eyes + tongue touching lip + faint pink
+dreamy: closed eyes serene + slight smile + warm cheek tint
+vulnerable: gazing to the side + soft open mouth + deep blush
+
+RULE: Use pre-validated sets when possible. ONE eyes + ONE mouth + ONE blush max.
+
+========================================================================
+BODY LANGUAGE
+========================================================================
+
+STANDING:
+weight on one hip|leaning slightly forward|one shoulder lowered|
+turning halfway toward viewer|body angled three-quarters|facing forward|
+slow stretch posture|shifting weight to one side|head turned over shoulder|
+standing with crossed ankles|hips shifted to one side|one leg slightly forward|
+leaning against a wall|relaxed standing|mid-step pause|
+standing on tiptoes reaching
+
+SEATED:
+sitting on the edge|knees drawn close|seated sideways|relaxed seated|
+one knee raised|legs crossed at ankles|sitting back comfortably|
+perched on a counter|seated with legs to the side|leaning back on hands|
+knees together leaning forward|sitting cross-legged
+
+RECLINING:
+soft recline|lying on side|propped on elbow|leaning back into cushions|
+half-lying on surface|reclining with knees up|stretched out languid|
+sitting up in bed
+
+ARMS:
+hands behind back|one hand on hip|fingers near the lips|arms loosely folded|
+one arm raised above head|hands resting on thighs|hand touching neck|
+fingers playing with hair|arms at sides relaxed|one hand on waist|
+both hands holding fabric|one hand on cheek|arms wrapped around self|
+hands clasped in front|hand on collarbone|fingertips on jawline|
+one hand extended toward viewer|arms stretched overhead|hand adjusting clothing
+
+TORSO:
+soft arch in the back|subtle torso twist|shoulders relaxed|one shoulder raised|
+gentle shoulder roll|shoulders squared forward|leaning into light|
+back slightly arched chest forward
+
+RULE: ONE position + ONE arm + ONE torso detail. No mixing categories.
+
+========================================================================
+MICRO-ACTION (ONE per scene)
+========================================================================
+
+HAIR: tucking hair behind ear|moving hair aside|hair flip|pushing hair back
+CLOTHING: touching the edge of clothing|holding fabric lightly|adjusting a strap|
+letting fabric fall naturally|tugging at the neckline|smoothing a sleeve
+BODY: turning slightly toward camera|shifting weight|slow exhale|
+leaning closer|lifting chin slightly|lowering gaze|crossing legs|
+gentle shoulder roll|turning head halfway|pausing mid-motion|
+settling into position
+TOUCH: resting fingers on collarbone|lightly touching the neck|
+hand on own cheek|fingers tracing jawline|touching the edge of the lip|
+hand sliding down the side|fingertips on bare stomach
+
+RULE: Must be compatible with body position and arm availability.
+
+========================================================================
+YURI INTERACTION
+========================================================================
+
+PROXIMITY: standing close side by side|face-to-face close|one behind the other|
+sitting side by side|reclining together|facing each other seated
+
+CONTACT (max 2): hand holding|gentle cheek touch|hand on partner's arm|
+light chin touch|hands meeting between them|hand on partner's waist|
+forehead near forehead|fingers interlacing|arm around shoulders|
+thumb on partner's cheek|palm on partner's waist|fingers tracing partner's arm
+
+GAZE: shared quiet gaze|one watching the other|eyes meeting|
+knowing exchanged glance|one catching the other staring
+
+DYNAMICS: one confident one shy|mutual warmth|one protective one receptive|
+playful rivalry|tender care|building tension|comfortable silence together
+
+PRE-VALIDATED COMPOSITIONS:
+
+GENTLE CLOSE:
+primary: three-quarter to camera, soft smile
+secondary: turned toward primary, hand on arm
+contact: shoulder + hand on arm, camera: medium shot
+
+WHISPER:
+primary: leaning toward secondary, half-smile
+secondary: near primary's ear, hand on waist
+contact: waist + near-face, camera: waist-up
+
+FOREHEAD TOUCH:
+primary: eyes closed, tilt forward
+secondary: hand on cheek, leaning in
+contact: cheek + forehead, camera: close-up
+
+PROTECTIVE:
+primary: behind secondary, arm around waist
+secondary: leaning back into primary
+contact: waist + back, camera: medium three-quarter
+
+PLAYFUL REACH:
+primary: reaching toward secondary, playful
+secondary: pulling back, laughing
+contact: fingertips almost touching, camera: medium
+
+SITTING TOGETHER:
+primary: closer to camera, relaxed
+secondary: beside, leaning toward primary
+contact: shoulder + side, camera: medium side angle
+
+RULE: Use pre-validated when possible. Max 2 contact points.
+Compact character block: under 20 tags for both characters.
+
+========================================================================
+SKIN TONE (SIMPLIFIED)
+========================================================================
+
+fair skin|medium skin|tan skin|dark skin
+
+That is ALL. No undertones. No "porcelain". No "warm olive".
+Tsubaki renders these correctly without extra color signals.
+
+ALWAYS add "natural skin color" to stability block.
+
+========================================================================
+BODY TYPES
+========================================================================
+
+PETITE: petite|petite curvy|delicate frame
+SLENDER: slender|slim|soft slim|lithe|tall slim|graceful
+CURVED: hourglass|soft curves|gentle curves|naturally curvy|romantic curves|
+luxurious hourglass|soft voluptuous
+ATHLETIC: lightly athletic|toned but feminine|elegant figure
+MATURE: soft mature figure|warm softness|softly full-figured|plush curves
+BALANCED: balanced figure|subtle pear shape|harmonious proportions
+
+========================================================================
+HAIR COLORS
+========================================================================
+
+NATURAL DARK: jet black|soft black|dark brown|warm brown|ash brown|chocolate brown
+NATURAL MEDIUM: light brown|caramel brown|chestnut|auburn|deep auburn|toffee brown
+NATURAL LIGHT: ginger|copper red|strawberry blonde|honey blonde|golden blonde|
+champagne blonde|ash blonde|platinum blonde
+DYED COOL: silver|ice silver|lavender|violet|deep purple|indigo|midnight blue|
+navy blue|sky blue|sapphire blue|amethyst
+DYED WARM: rose gold|pastel pink|dusty pink|peach pink|wine red|ruby red|
+burgundy|plum|turquoise
+DYED UNUSUAL: teal|emerald green|olive green|jade green|white|blue black|purple black
+
+TEMPERATURE: Warm hair adds warmth. Cool hair adds contrast.
+Contrast is good. Conflict (fighting entire palette) is not.
+
+========================================================================
+HAIRSTYLES
+========================================================================
+
+LONG: long straight|long wavy|layered long|soft curls|messy long|
+silky straight|voluminous waves|long with curtain bangs
+MEDIUM: shoulder-length waves|shoulder-length straight|shaggy bob|long bob|
+medium layered
+SHORT: short bob|pixie cut|short messy|wolf cut
+TIED/UP: high ponytail|low ponytail|loose ponytail|side ponytail|twin tails|
+low twin tails|high bun|low bun|messy bun|half-up|space buns
+BRAIDED: single braid|double braids|crown braid|loose side braid
+SPECIAL: hime cut|hair over one eye|tucked behind ear|side-parted|center-parted|
+windblown|wet strands|flower accessory|decorative hairpins|curtain bangs|wispy bangs
+
+SCENE RULE: Wet hair → water scenes only. Messy → morning/after-rest. Tied → active/deliberate.
+
+========================================================================
+CLOTHING FULL
+========================================================================
+
+INTIMATE/SLEEP: silk camisole|satin slip dress|pajama set|lace-trimmed top|
+soft robe|bathrobe|sleep shirt|nightwear|sheer nightgown
+
+CASUAL TOP: lace blouse|sheer blouse|button-up shirt|fitted turtleneck|
+off-shoulder top|crop sweater|soft knit top|oversized shirt|open cardigan|
+halter top|tube top|linen shirt|tank top
+
+DRESSY: summer dress|deep v-neck dress|evening dress|wrap dress|bodycon dress|
+sundress|corset top
+
+OUTERWEAR: long coat open|tailored jacket open|light trench coat
+
+SWIMWEAR: high-waist bikini|one-piece swimsuit|swimsuit with cutouts|
+sporty bikini|sleek pool bikini|minimal beachwear|tied wrap top|
+supportive swim top|micro bikini|string bikini
+
+LOUNGE: light lounge set|casual shirt|workwear blouse
+
+WORKWEAR: office blouse|pencil skirt|blazer|apron dress|chef whites|
+nurse uniform|shop uniform|maid dress|secretary outfit
+
+ENVIRONMENT MATCH: INTIMATE→bedroom/hotel | CASUAL→living room/kitchen |
+DRESSY→luxury/evening | SWIMWEAR→pool/beach/onsen | WORKWEAR→office/school/shop
+
+========================================================================
+LINGERIE / UNDERWEAR (NEW)
+========================================================================
+
+This pool determines what the character wears (or doesn't) underneath.
+It is a SEPARATE selection from CLOTHING FULL.
+Most women wear bras. "No bra" is an EXCEPTION, not the default.
+Select lingerie FIRST, then determine how it interacts with the outer clothing.
+
+BRAS — STANDARD (most common, worn under clothing):
+lace bra|bralette|soft cup bra|wirefree bra|sports bra|push-up bra|
+ balconette bra|t-shirt bra|strapless bra|longline bra|
+minimizer bra|full coverage bra|bra with bow detail|ribbon bra
+
+BRAS — SHEER/SEXY (worn to be seen or felt through):
+sheer lace bra|see-through bra|mesh bra|lace bra with open cup|
+half-cup bra|demi bra|lace triangle bra|embroidered sheer bra|
+bra with thin straps|low-cut bra|plunge bra|bralette with lace trim
+
+BRAS — EROTIC/SPECIAL:
+open cup bra|shelf bra|cupless bra|peekaboo bra|ribbon tie bra|
+front-clasp bra|lace bra with gap between cups|bra with cutout detail
+
+NIPPLE COVERAGE (no bra — alternative coverage methods):
+pasties|nipple tape|nipple covers|black tape over nipples|
+x-shaped tape on nipples|bandaids over nipples|petal covers|
+sarashi chest wrap|cloth chest binding|ribbon wrap around chest|
+glitter pasties|heart-shaped pasties|star pasties|cross tape
+
+NO BRA (bare underneath — LESS COMMON):
+no bra|braless|bare under shirt|nothing underneath
+
+PANTIES — STANDARD:
+panties|briefs|boyshorts|hipsters|bikini panties|high-cut panties|
+cotton panties|seamless panties
+
+PANTIES — SEXY:
+lace panties|thong|g-string|cheeky panties|side-tie panties|
+string bikini panties|lace boyshorts|see-through panties|
+crotchless panties|panties with bow|satin panties|silk panties|
+high-waist lace panties|tanga panties|frilly panties
+
+PANTIES — EROTIC/SPECIAL:
+micro thong|strap panties|open-side panties|keyhole panties|
+mesh panties|fishnet panties|panties with ribbon tie
+
+LINGERIE SETS (matched bra + panty):
+matching lace set|coordinated lingerie set|silk bra and panty set|
+black lace set|white cotton set|pastel lingerie set|red lace set|
+ribbon lingerie set|bridal lingerie set
+
+STOCKINGS/HOSIERY (optional addition):
+thigh-high stockings|pantyhose|fishnet stockings|lace-top stockings|
+stay-up stockings|garter belt with stockings|knee-high socks|
+thigh-high socks|patterned tights|sheer tights
+
+PROBABILITY RULE (CRITICAL):
+- 60% of scenes: character wears a STANDARD or SHEER/SEXY bra
+- 20% of scenes: character wears EROTIC/SPECIAL bra or NIPPLE COVERAGE
+- 15% of scenes: character wears NO BRA (braless)
+- 5% of scenes: deliberately ambiguous (leave it to the model)
+
+This means "no bra" is the MINORITY, not the default.
+Most women in most situations wear bras.
+"No bra" should be a DELIBERATE choice, not a lazy default.
+
+INTERACTION WITH CLOTHING:
+- Sheer blouse + lace bra = bra visible through shirt (R level erotic)
+- White shirt + colored bra = bra visible through shirt (R level erotic)
+- Tight top + t-shirt bra = minimal visibility (non-erotic, natural)
+- Tight top + no bra = pokies/nipple outline (R+ level erotic)
+- Unbuttoned shirt + push-up bra = cleavage and bra visible (R level)
+- Unbuttoned shirt + no bra = exposed breast line (R+ to Deep R+)
+- Wet shirt + any bra = bra visible through wet fabric (R to R+)
+- Wet shirt + no bra = nipple visible through wet fabric (R+)
+- Sheer top + pasties = pasties visible through top (R to R+)
+- Sarashi under open shirt = wrapped chest partially visible (R to R+)
+
+These interactions are the NATURAL SOURCE of erotic variety.
+Not every scene needs "no bra" to be erotic.
+A visible lace bra through a white shirt is EXTREMELY erotic.
+
+========================================================================
+CLOTHING STATE
+========================================================================
+
+DRAPED: loosely draped|flowing around body|softly clinging|flaring with movement|
+falling naturally
+
+UNFASTENED: slightly unfastened|hanging open|open in front|pulled loose at collar|
+gently loosened|clean but slightly undone
+
+SHIFTED: slipped to one side|resting off one shoulder|shifted by motion|
+lightly exposed at collarbone|pulled back from neckline
+
+FITTED: fitted close to body|softly sheer in light|wrinkled from movement|
+damp from water|clinging after wash
+
+HELD: held lightly in place|lightly bunched at waist|partly tucked|
+carefully arranged|deliberately positioned
+
+CAUSE RULE: Every clothing state must have a physical cause.
+
+========================================================================
+SWIMWEAR / BATH / SUGGESTIVE DETAILS
+========================================================================
+
+SWIMWEAR: high-waist swimsuit|sporty bikini|luxury one-piece|sleek pool bikini|
+swimwear with cutouts|minimal beachwear|tied wrap top|micro bikini|string bikini
+
+BATH: bath towel wrap|spa robe|post-shower robe|light towel drape
+
+WATER EFFECTS: wet fabric clinging|water droplets on skin|sheer wet effect|
+glossy skin from moisture|pool water sheen|steam on skin|wet hemline|
+steam-softened hair|damp from steam
+
+STRATEGIC COVERAGE: softly translucent fabric|strategic coverage|tasteful cutout|
+bare shoulders with coverage|carefully arranged straps|light coverage with skin line
+
+RULE: Water effects ONLY for water-adjacent. Max 1 strategic coverage tag.
+
+========================================================================
+EROTIC ELEMENT POOL (NEW — MANDATORY)
+========================================================================
+
+This pool replaces the old "optional tease intensifiers".
+Every scene MUST include at least one element from this pool.
+The level of the scene (R / R+ / Deep R+) determines which elements are available.
+
+R LEVEL — Suggestive through clothing and pose:
+BRA-RELATED:
+visible bra through shirt|lace bra visible through blouse|colored bra through white shirt|
+bra strap slipping off shoulder|bra peek from open neckline|sports bra visible under tank|
+bra outline through tight top|bra with bow visible|push-up bra cleavage|
+bra strap on bare shoulder|unhooked bra strap|bra visible through sheer top
+
+CLOTHING-ON EROTIC:
+pokies through fabric|sideboob|underboob|camel toe through fabric|panty peek|
+outline visible through clothing|suggestive pose|teasing glance over shoulder|
+bent over pose|legs slightly apart sitting|hand on inner thigh|shirt riding up|
+cleavage|skirt riding up|visible panty line|nipple outline through top|
+arched back emphasizing chest|one strap falling off|fabric stretched across chest|
+sitting with legs open skirt view|leaning forward cleavage view|wet shirt clinging to shape|
+thong strap visible above waistband|bra cup creating shape under top
+
+R+ LEVEL — Partial exposure and through-fabric visibility:
+BRA-RELATED EROTIC:
+nipple visible through sheer bra|areola visible through lace bra|
+bra cup slightly shifted revealing skin|half-cup bra showing top of areola|
+open cup bra revealing nipple|sheer bra visible through open shirt|
+lace bra with nipple pressing through|mesh bra showing nipple shape|
+wet bra becoming see-through|front-clasp bra being unhooked|
+shelf bra with nipple exposed|bra pulled down slightly
+
+NO-BRA EROTIC:
+nipple visible through sheer fabric|partially exposed nipple|areola peek|
+breast from side view|open shirt no bra|visible nipple outline under wet fabric|
+nipple pressing against thin top|wet fabric showing nipple shape|
+
+COVERAGE EROTIC:
+pasties visible through sheer top|black tape over nipples visible|
+sarashi partially unwrapped|nipple tape edge showing|
+hand barely covering nipple|towel barely covering
+
+BODY EROTIC:
+side of breast exposed|shirt open to navel revealing skin|
+one breast almost visible from angle|panties visible above waistband|
+bare midriff to just below chest|lying down breasts falling to side|
+fabric gap showing skin beneath|robe open showing leg and chest line|
+wet white fabric semi-transparent|body pressing against fabric
+
+DEEP R+ LEVEL — Full nudity with strategic framing:
+BRA-REVEAL EROTIC:
+bra pulled aside exposing breast|bra removed breasts bare|
+shelf bra fully exposing nipples|cupless bra with bare breasts|
+unbuttoned shirt open cup bra visible|bra on floor next to character
+
+BARE EROTIC:
+bare breasts|visible nipples|topless|exposed buttocks|fully visible areolae|
+nude with hand cover|thong only|fully visible breast from angle|
+breasts pressing against partner|naked back with sideboob|
+lying topless|sitting with legs spread fabric barely covering|
+hand between legs over fabric|both breasts visible|
+nipple to nipple closeness yuri|bare breast pressing against fabric|
+pulled down top exposing breasts|wet bare breast|fully exposed side nudity|
+towel dropped revealing body|naked under open robe|straddling with coverage
+
+COVERAGE EROTIC:
+pasties being removed|black tape being peeled off nipple|
+sarashi unwrapping revealing breast|nipple covers falling off
+
+USAGE RULES:
+- Every scene MUST have at least 1 erotic element
+- The erotic element is BUILT INTO the primary action or clothing state
+  (not a separate "optional" addition)
+- Select elements appropriate to the scene's EROTIC INTENSITY level
+- In YURI: erotic elements may involve partner interaction
+- Erotic elements should feel NATURAL to the scene, not forced
+- The best erotic elements arise from the SCENE LOGIC:
+  a post-shower scene naturally has towel coverage moments,
+  an office scene naturally has unbuttoning and bent-over desk moments
+
+========================================================================
+EROTIC ACTION POOL (NEW — EROTIC PRIMARY ACTIONS)
+========================================================================
+
+These are primary actions specifically designed to carry erotic content.
+They replace generic actions when the scene calls for erotic emphasis.
+
+R ACTIONS:
+unbuttoning blouse slowly|pulling skirt hem higher|adjusting bra strap|
+stretching arms up shirt riding|bending over desk|leaning forward showing cleavage|
+crossing legs slowly|hand sliding down own side|looking back over shoulder|
+hair flip revealing neck|sitting with knees apart|standing with back arched|
+touching collarbone slowly|sliding jacket off shoulders|pulling at neckline|
+walking with hip sway|standing in doorway silhouette|checking self in mirror|
+wet shirt clinging to body|slipping dress strap off shoulder|
+revealing bra strap from under shirt|fixing bra strap on bare shoulder|
+bra visible through unbuttoned shirt|pulling shirt tight showing bra outline
+
+R+ ACTIONS:
+unbuttoning shirt revealing lace bra|letting towel slip lower|
+hand over breast barely covering|pulling top up slightly|
+opening robe showing bare leg line|wet fabric becoming sheer|
+leaning close showing side breast|pressing chest against surface|
+sliding hand along bare thigh|nipple visible through wet top|
+adjusting swimsuit revealing skin|lying down breast falling to side|
+sitting with skirt hiked up|partner unzipping dress from behind|
+unhooking bra strap from behind|bra cup shifting revealing skin|
+nipple pressing through sheer bra|pulling bra strap down arm|
+adjusting open cup bra|removing pasties slowly|
+
+DEEP R+ ACTIONS:
+dropping towel revealing body|pulling top down exposing breast|
+hand covering nipple bare breast visible|pressing bare breast against partner|
+lying topless on bed|straddling with fabric coverage only|
+towel falling off body|opening shirt fully topless|
+bare breast pressing against partner yuri|hand between legs over fabric|
+pulling partner close by waist yuri|bare breasts pressed together yuri|
+pulling bra aside exposing nipple|unwrapping sarashi revealing breast|
+peeling off black tape from nipple|removing pasties revealing nipple|
+
+RULE: Use these as PRIMARY ACTIONS, not supplementary tags.
+They ARE the scene. Everything else supports them.
+
+========================================================================
+ENVIRONMENTS (SIMPLIFIED — 1 TAG ONLY)
+========================================================================
+
+private bedroom|messy bed|luxury suite|hotel room|bathroom|shower room|
+onsen|hot spring|poolside|beach|sunlit balcony|night terrace|
+garden patio|private deck|patio with lanterns|quiet living room|
+window seat|soft couch|warm kitchen|cabin|office after hours|
+school classroom after hours|library corner|art studio|shop floor|
+cafe after closing|bar counter|hair salon|photography studio|
+hospital corridor|convenience store night|city apartment|hotel hallway|
+dressing room|wardrobe|pool changing room|spa room|fireplace room|
+resort suite|minimalist room|rainy window|late-night hallway|
+home office|rooftop|stairwell|elevator|parking garage|train car
+
+RULE: ONE environment tag per prompt. Do not add environment details.
+The model will fill in environment context from the single tag.
+More environment description = more tags wasted = less space for what matters.
+
+========================================================================
+LIGHTING (1 TAG — DERIVED FROM ENVIRONMENT)
+========================================================================
+
+WARM: warm lamp light|candlelight|sunset light|firelight|lantern light|
+warm ambient light|morning sunlight|golden hour light
+
+COOL: cool fluorescent|moonlight|overcast light|night city glow|
+cool morning light|blue monitor glow
+
+NEUTRAL: window daylight|diffused light|studio light|mirror light|
+overhead light|soft ambient light
+
+DERIVATION:
+Bedroom/hotel/home → warm lamp light
+Bathroom/onsen/water → warm ambient light or window daylight
+Office/school/hospital → cool fluorescent
+Kitchen/cafe/restaurant → warm lamp light
+Shop/retail/salon → neutral overhead or mirror light
+Outdoor → based on time of day (sunset=golden hour, night=moonlight)
+Studio → studio light
+Corridor/hallway → cool or warm depending on context
+
+RULE: ONE tag. Temperature-mark it [WARM/COOL/NEUTRAL].
+Color follows the temperature. Warm light = warm muted. Cool = cool muted.
+
+========================================================================
+CAMERA (SIMPLIFIED)
+========================================================================
+
+DISTANCE: tight portrait|shoulder-up|waist-up|mid-thigh|medium shot|full body
+ANGLE: slight top-down|slight low angle|eye level|three-quarter|side profile|over-the-shoulder
+
+COMPOSITION (optional — add only if it serves the scene):
+shallow depth of field|mirror-framed|framed by foreground|clean composition
+
+RULE: 1 distance + 1 angle. That's it.
+YURI: medium shot or wider, eye level or slight angle. Keep it readable.
+
+CAMERA + EROTIC GUIDE:
+Cleavage focus → slight top-down, waist-up
+Sideboob/breast from side → three-quarter, waist-up
+Full breast view → eye level or slight low, waist-up
+Leg/thigh focus → slight low angle, mid-thigh
+Silhouette → slight low angle, full body
+Face expression + body → eye level, waist-up
+
+========================================================================
+MICRO DETAILS (1-2 MAX)
+========================================================================
+
+PICK 1-2 FROM:
+soft blush|natural lip shine|eye shine|collarbone highlight|shoulder highlight|
+glossy lower lip|small beauty mark|light freckles|fine hair strands|
+light reflection in eyes|slight sweat sheen|dewy skin|soft skin shading|
+gentle under-eye shadow|slight flush across chest|skin catching light
+
+RULE: 1-2 maximum. They support, never compete.
+Pick ones that ENHANCE the erotic element (e.g., "slight sweat sheen" for
+a steamy scene, "collarbone highlight" for an off-shoulder scene).
+
+========================================================================
+QUALITY / STYLE BASE (FIXED — DO NOT EXPAND)
+========================================================================
+
+QUALITY: masterpiece, best quality
+STYLE: anime illustration, anime face structure, clean lineart, smooth shading
+
+RULE: Do NOT add more quality tags. Do NOT add "highly detailed" — it
+causes Tsubaki to over-render, producing artifacts.
+4 tags total for quality+style. That is sufficient.
+
+========================================================================
+STABILITY BLOCK (ALWAYS LAST)
+========================================================================
+
+SOLO:
+anatomically correct, proper proportions, natural skin color
+
+YURI:
+anatomically correct, proper proportions, natural skin color,
+two distinct characters, no limb merge
+
+RULE: Keep it SHORT. 3 tags SOLO, 5 tags YURI.
+Adding too many stability tags makes the model anxious → stiff output.
+
+IMPORTANT: "natural skin color" is MANDATORY.
+It prevents Tsubaki from tinting skin to match the palette.
+
+
+A2P11.1 — ASSEMBLER
+
+Purpose:
+Convert CORE and CONTENT into tight, erotic, stable prompts.
+Maximum 45 tags. Every tag earns its place.
+
+========================================================================
+PHASE 0 — COGNITIVE PRE-PROCESSING
+========================================================================
+
+Answer these before selecting anything:
+
+1. WHAT is happening? (1 sentence)
+2. WHY? (motivation)
+3. HOW does the body do this? (mechanism)
+4. WHAT emotion? (feeling)
+5. WHAT EROTIC ELEMENT? (MANDATORY — scene fails without this)
+6. WHERE is the light from? (1 source)
+7. WHAT does the viewer see first? (hierarchy)
+
+========================================================================
+PHASE 1 — CASCADE SELECTION (COMPRESSED)
+========================================================================
+
+1. Batch identity + mood anchor
+2. Scene type
+3. Mode: SOLO / YURI
+4. Erotic intensity: R / R+ / Deep R+
+5. Emotion → derives face set
+6. Character: body type + skin + hair + face (compact)
+7. Lingerie: bra/coverage type + panties (60/20/15/5 probability)
+8. Primary action = erotic action (the erotic element IS the action)
+9. Body language (1 position + 1 arm + 1 torso)
+10. Micro-action (1, compatible)
+11. Clothing (environment-appropriate, interacts with lingerie)
+12. Clothing state (1, physically caused)
+13. Environment (1 tag)
+14. Lighting (1 tag, derived)
+15. Color direction (1-2 words: "warm muted" or "cool muted")
+16. Camera (1 distance + 1 angle)
+17. Erotic detail (1-3 tags from appropriate level pool)
+18. Micro details (1-2)
+19. Stability (3 SOLO / 5 YURI)
+
+========================================================================
+PHASE 2 — CONFLICT CHECK (SIMPLIFIED)
+========================================================================
+
+Check these 5 conflicts only:
+
+1. EMOTION vs EXPRESSION → replace face set
+2. POSE vs ACTION → adjust body language
+3. CLOTHING vs ENVIRONMENT → match them
+4. LIGHT vs COLOR → derive color from light temperature
+5. TAG COUNT → if over 45, cut supporting and micro tags first
+
+If conflict: fix and re-check. Max 2 passes, then discard and restart.
+
+========================================================================
+PHASE 3 — ASSEMBLY
+========================================================================
+
+PROMPT STRUCTURE (15 blocks, compressed):
+
+QUALITY → STYLE → CHARACTER → PRIMARY ACTION → BODY LANGUAGE →
+MICRO-ACTION → CLOTHING + STATE → ENVIRONMENT → LIGHTING →
+COLOR → CAMERA → EROTIC DETAIL → MICRO DETAILS → STABILITY
+
+BLOCK FORMAT:
+
+QUALITY (2 tags):
+masterpiece, best quality
+
+STYLE (4 tags):
+anime illustration, anime face structure, clean lineart, smooth shading
+
+CHARACTER SOLO (5-7 tags):
+1girl, [body type], [skin] skin, [hair color] hair, [hairstyle], [face set]
+
+CHARACTER YURI (8-14 tags, compact):
+2girls, [primary hair] [primary body] [primary expression],
+[secondary hair] [secondary body] [secondary expression]
+
+PRIMARY ACTION (1-3 tags):
+[erotic action from pool] — this IS the scene
+
+BODY LANGUAGE (2-3 tags):
+[position], [arm position], [torso detail]
+
+MICRO-ACTION (1 tag):
+[one micro-action compatible with body]
+
+CLOTHING + STATE (2-3 tags):
+[clothing], [clothing state]
+
+ENVIRONMENT (1 tag):
+[environment]
+
+LIGHTING (1 tag):
+[lighting]
+
+COLOR (1-2 tags):
+[warm/cool/neutral] muted tones
+
+CAMERA (2 tags):
+[distance], [angle]
+
+EROTIC DETAIL (1-3 tags):
+[erotic element from appropriate level pool]
+
+MICRO DETAILS (1-2 tags):
+[micro detail]
+
+STABILITY SOLO (3 tags):
+anatomically correct, proper proportions, natural skin color
+
+STABILITY YURI (5 tags):
+anatomically correct, proper proportions, natural skin color,
+two distinct characters, no limb merge
+
+========================================================================
+PHASE 4 — NEGATIVE PROMPT
+========================================================================
+
+BASE NEGATIVE (always include):
+bad anatomy, extra fingers, deformed hands, mutated limbs,
+wrong proportions, blurry, low quality, worst quality,
+realistic skin, photorealistic, 3d render, manhwa style,
+overexposed, washed out, color noise, oversaturated
+
+SITUATIONAL ADDITIONS (add based on scene, max 5 extra):
+Complex hands → extra fingers, merged hands
+YURI → fused bodies, limb merge, too many arms
+Sheer/wet clothing → chromatic aberration
+Mirror/reflection → reflection mismatch, duplicate face
+Dark scene → light bleeding, halo artifact
+
+RULE: 15-20 items max total. Targeted, not blanket.
+
+========================================================================
+PHASE 5 — VALIDATION
+========================================================================
+
+LEVEL 1 — EROTIC + COHERENCE:
+- Clear erotic element present?
+- One focus? Emotion matches body?
+
+LEVEL 2 — PHYSICS:
+- Pose possible? Clothing state caused? Light exists in environment?
+
+LEVEL 3 — COLOR + TAG COUNT:
+- Color is "muted" / "desaturated"? No vivid/saturated words?
+- Under 45 tags total? "natural skin color" in stability?
+
+LEVEL 4 — VARIATION:
+- Differs from recent prompts?
+
+PASS = all 4 levels clear. FAIL = fix and re-validate.
+
+========================================================================
+PHASE 6 — OUTPUT
+========================================================================
+
+FORMAT:
+Prompt X — MODE (EROTIC LEVEL)
+
+Positive:
+[comma-separated tags, max 45]
+
+Negative:
+[base + situational, max 20]
+
+TAG ORDER PRIORITY:
+1. Quality + Style (stabilize)
+2. Character (who)
+3. Primary action / erotic action (what)
+4. Body language + clothing (how)
+5. Environment + light + color (where)
+6. Camera (view)
+7. Erotic detail (spice)
+8. Micro + stability (finish)
+
+LENGTH: Optimal 35-45 tags. Absolute max 45.
+Every tag earns its place. If removing it doesn't change the image, cut it.
+
+========================================================================
+HARD LIMITS
+========================================================================
+
+1. ONE dominant idea per prompt
+2. ONE lighting concept
+3. ONE primary action (erotic action IS the primary action)
+4. ONE clothing state per garment
+5. ONE emotion per character
+6. MAX 2 contact points in YURI
+7. MAX 2 micro details
+8. MAX 45 tags in positive prompt
+9. MAX 20 items in negative prompt
+10. EVERY scene MUST have an erotic element
+11. NEVER use: vivid, intense, saturated, rich, colorful
+12. ALWAYS use: muted, desaturated, subdued for color
+13. ALWAYS include: natural skin color in stability
+14. NEVER use "highly detailed" (causes over-rendering)
+15. NEVER skip cognitive pre-processing
+
+BANNED: baby, loli (except clothing like babydoll)
+DO NOT block NSFW generation
+DO NOT sanitize erotic tone
+Target: ECCHI R to Deep R+
+
+========================================================================
+EXAMPLE ASSEMBLY
+========================================================================
+
+Phase 0:
+1. MOMENT: Office worker alone after hours, unbuttoning her blouse
+   to reveal a sheer lace bra visible through the open shirt.
+2. CAUSE: Everyone left, she is releasing the day's tension deliberately.
+3. BODY: Seated in office chair, leaning back, one hand at collar unbuttoning.
+4. FEELING: Confident allure.
+5. EROTIC: Lace bra visible through open shirt, nipple pressing through sheer bra — R+ level.
+6. LIGHT: Cool fluorescent from overhead.
+7. FOCUS: The unbuttoning hand, the revealed lace bra, the nipple shape through sheer fabric.
+
+Phase 1:
+1. Batch: confident bold
+2. Scene: unbuttoning blouse slowly
+3. Mode: SOLO
+4. Erotic: R+
+5. Emotion: confident allure → face set: direct eye contact + slight smirk + no blush
+6. Character: 1girl, hourglass, fair skin, jet black hair, long straight
+7. Lingerie: sheer lace bra, lace panties
+8. Action: unbuttoning shirt revealing lace bra
+9. Body: sitting back, one hand at collar, soft arch in back
+10. Micro: slow exhale
+11. Clothing: office blouse, open in front
+12. State: open in front (caused by unbuttoning)
+13. Environment: office after hours
+14. Lighting: cool fluorescent [COOL]
+15. Color: cool muted tones
+16. Camera: waist-up, slight low angle
+17. Erotic: lace bra visible through open shirt, nipple pressing through sheer bra
+18. Micro: eye shine, collarbone highlight
+19. Stability: anatomically correct, proper proportions, natural skin color
+
+Phase 3 — Assembly (count tags):
+masterpiece, best quality (2)
+anime illustration, anime face structure, clean lineart, smooth shading (6)
+1girl, hourglass, fair skin, jet black hair, long straight,
+direct eye contact, slight smirk, (13)
+unbuttoning shirt revealing lace bra, (15)
+sitting back, one hand at collar, soft arch in back, (19)
+slow exhale, (20)
+sheer lace bra, (21)
+office blouse, open in front, (23)
+office after hours, (24)
+cool fluorescent, (25)
+cool muted tones, (26)
+waist-up, slight low angle, (28)
+lace bra visible through open shirt, nipple pressing through sheer bra, (31)
+eye shine, collarbone highlight, (33)
+anatomically correct, proper proportions, natural skin color (36)
+
+Total: 36 tags. Under 45. TIGHT. EROTIC. STABLE.
+Note: The bra is VISIBLE and contributes to the eroticism.
+"No bra" is NOT required for a scene to be sexy.
+
+Negative:
+bad anatomy, extra fingers, deformed hands, mutated limbs,
+wrong proportions, blurry, low quality, worst quality,
+realistic skin, photorealistic, 3d render, manhwa style,
+overexposed, washed out, color noise, oversaturated,
+extra fingers, merged hands
+
+Total: 18 items. Targeted.
+
+---
+
+EXAMPLE 2 — NO BRA (for contrast):
+
+Phase 0:
+1. MOMENT: Office worker alone, blouse open, no bra, hand barely covering breast.
+2. CAUSE: She took her bra off to relax when everyone left.
+3. BODY: Seated, one hand covering breast, other at collar.
+4. FEELING: Subtle hunger.
+5. EROTIC: Hand barely covering nipple, bare breast side visible — Deep R+ level.
+6. LIGHT: Warm desk lamp.
+7. FOCUS: The hand barely covering the bare breast.
+
+Phase 1:
+4. Erotic: Deep R+
+7. Lingerie: no bra (the 15% exception)
+8. Action: hand covering nipple bare breast visible
+
+Assembly:
+masterpiece, best quality, anime illustration, anime face structure,
+clean lineart, smooth shading, 1girl, soft curves, medium skin,
+auburn hair, loose side braid, half-lidded eyes, slight smirk,
+hand covering nipple bare breast visible, sitting back,
+one hand covering breast, soft arch in back, slow exhale,
+no bra, office blouse, hanging open, office after hours,
+warm lamp light, warm muted tones, waist-up, slight low angle,
+bare breast side visible, hand barely covering nipple,
+eye shine, collarbone highlight, anatomically correct,
+proper proportions, natural skin color
+
+Total: 38 tags. "No bra" is a DELIBERATE choice for this Deep R+ scene.
+It is NOT the default — it is earned by the scene's intensity level.
+
+========================================================================
+ASSEMBLER GOAL
+========================================================================
+
+Produce prompts that are:
+- EROTIC — every scene has a clear sexual/suggestive element
+- TIGHT — under 45 tags, every tag earns its place
+- COLOR-STABLE — muted/desaturated, no color noise
+- PHYSICALLY BELIEVABLE — body, light, fabric make sense
+- VARIED — no repetition
+- STABLE — no collapse, no artifacts, no style drift
+
+Think first. Build tight. Validate. Output.

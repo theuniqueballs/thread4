@@ -1,0 +1,444 @@
+PROMPT FOR ASSISTANT BLOCKS — VOLT STREAM PIVOT
+═══════════════════════════════════════════════════════════════════════
+
+This is a request for analytical assistance. You are one of several
+specialized AI blocks consulted in parallel. Your response will be
+cross-analyzed with responses from other blocks. Be specific,
+concrete, opinionated, and ruthless. Do not give generic advice.
+
+This consultation is about a PIVOT, not a fix. The system has
+worked on craft for 6 patches (A5P2A → A5P3H). Craft is no longer
+the bottleneck. The bottleneck is audience fit. The user has
+decided to optimize for the actual platform audience, while
+preserving craft. Your job is to help them do that without losing
+what makes the work distinctive.
+
+═══════════════════════════════════════════════════════════════════════
+CRITICAL CONTEXT — READ THIS FIRST
+═══════════════════════════════════════════════════════════════════════
+
+WHO USES THIS DOCUMENT:
+An AI language model (Block A) reads the system document and writes
+21 prompts per batch. The human user reviews generated images and
+gives feedback. Block A iterates the document.
+
+GENERATION ENVIRONMENT:
+- Model: Tsubaki 2 (MMDIT 2.6A) on Pixai.Art
+- Mode: Pro (mandatory for Tier A/E)
+- Prompt Helper v2: ON
+- 21 prompts per batch
+- Output published on Yodayo
+
+PLATFORM REALITY (Yodayo — this is the key context):
+- Algorithm rewards ecchi content, especially R+ edge content
+- 18/20 of user's top-performing posts are ecchi/porn-adjacent
+- Only 2/20 are "beautiful composed" (atelier nude, elevator)
+- X-rated content is gated (not shown to all viewers)
+- R+ content has maximum reach
+- The user has been making "beautiful" content for 6 patches and
+  getting 30-50 likes per post. The 2 ecchi hits got 150+.
+- This is not a craft failure — it's an audience fit failure.
+
+HARD RULES (non-negotiable, system-wide):
+- NO male characters. Anywhere. Ever. Female only.
+- NO meaning-labels (sexy, sultry, lewd, etc.). Structural tags only.
+- NO X-rated content (no genitalia, no explicit sex, no penetration)
+  — this is platform rule AND system rule
+- Every reveal MUST have a cause (Causal Layer)
+- Every clothing state must be earned (Thread/Visible/Earned)
+
+CURRENT TIER SYSTEM:
+- Tier S: sensual, no anatomy visible
+- Tier R: Tier S+ (sensual+implication)
+- Tier R+ = Tier A: sheer/wet/through-fabric visible nipples
+- Tier LX = Tier E: topless/nude with cause, within Nudity Budget
+- Tier X: BANNED (genitalia, explicit sex)
+
+The user wants to push R+ (Tier A) and Tier E to the ABSOLUTE EDGE
+of what the platform allows, without crossing into X. "Dolbim etot
+predel v samoe otchko, vyzhimaya kak limon" — push it to the very
+asshole, squeeze it like a lemon. This is the explicit instruction.
+
+═══════════════════════════════════════════════════════════════════════
+SYSTEM HISTORY — HOW WE GOT HERE
+═══════════════════════════════════════════════════════════════════════
+
+The system has evolved through:
+- A5P2A → A5P2C: targeted craft fixes
+- A5P3 → A5P3E: composition arc, weather, archetypes, H1 vocab
+- A5P3F: K1-K4 fixes (§X-NNN purge, P15/18/20 rotation, yuri spread, R+ branch)
+- A5P3G: K5-K9 (structural variety, palette diversity, body/skin variety,
+  surprise injection, setting uniqueness) — response to user 3/10 feedback
+- A5P3H VOLT v1 (just shipped): 12U/9B ecchi-heavy batch, theme "REVEAL",
+  pushing R+ edge
+
+USER FEEDBACK THAT TRIGGERED THIS PIVOT:
+"Короче, судя по лайкам на Йодайо, по статистике, их ничего кроме как
+сиськи-письки особо не интересует... я думаю вариант В нам подходит
+больше всего. Просто если мы будем делать какой-то подобный контент,
+то мы должны делать его лучше всех."
+
+User's hit-posts (18/20 ecchi, 2/20 beautiful):
+1. Nude in dressmaker's workshop (150 likes — the BIG hit)
+2. Reze in locker unbuttoning shirt coquettishly
+3. Miyu on staircase in satin top under sakura petals
+4. Mesh top with visible nipples
+5. Reze with nipples taped
+6. Tribal barely-covered sleeping under tree
+7. Succubus in revealing outfit
+8. Two elves at home
+9. Yui in sheer shirt visible nipples
+10. Yui in hat outdoors beautiful portrait
+11. Half-naked maiden
+12. Big-breasted OC in swimsuit
+13. Remnant unusual pose cool composition (the one beautiful hit besides #1)
+14. Naked robot girl
+15-16. Half-naked in robe (×2)
+17. Two half-naked in kimono
+18. Bound by mimic in dungeon
+19. White tank visible nipples
+20. Threshold Saints elevator (the second beautiful hit)
+
+PATTERN ANALYSIS (what actually works on Yodayo per this data):
+A. Visible nipples through sheer/wet/mesh fabric — overrepresented in hits
+B. Wardrobe malfunctions / partial reveals / single-nipple peeks — strong
+C. Nipple tape / pasties as decoration — strong
+D. Half-naked in intimate wear (robe, kimono, slip) — strong
+E. Big-breasted emphasis in swimwear — strong
+F. Fantasy races (succubus, elf, robot) in revealing outfits — strong
+G. Bondage-adjacent (bound, restrained) within R+ — strong
+H. Coquettish / direct eye contact with camera — STRONGER THAN BODY
+I. Nude with strong cause (atelier, robot activation, ritual) — beautiful + ecchi
+J. Domestic / confined settings (locker, elevator, bed, bath) > abstract
+K. Unusual pose / composition can carry a beautiful prompt to hit status
+
+═══════════════════════════════════════════════════════════════════════
+PROBLEM 1 — R+ EDGE MAXIMIZATION
+═══════════════════════════════════════════════════════════════════════
+
+The user wants to push Tier A (R+) to the absolute platform limit.
+The current techniques used in VOLT v1:
+- Wet white shirt transparent (P2)
+- Mesh top open-grid visible (P3)
+- Open shirt + tape pasties (P5, P18)
+- Silk robe backlit sheer (P7)
+- Open shirt single-nipple peek (P11)
+- Wet white micro-bikini (P14)
+- Off-shoulder down-blouse (P16)
+- Sheer slip + silk-bondage (P20)
+
+QUESTIONS FOR YOU:
+1. What OTHER R+ techniques exist on Tsubaki 2 that we haven't used?
+   Think about: bodypaint, wet-suit translucency, color-temperature
+   translucency (cold nipple through warm fabric), fabric stretch
+   over curves, underboob / sideboob / cleavage compositions,
+   zettai ryouiki variants, wet leggings, soap suds, sheer overlays
+   over sheer base layers, etc. List 10-15 NEW techniques.
+
+2. What is the actual line between R+ and X on Yodayo? The user
+   says "X не показывается вообще не всем" — X is gated. What
+   specific tags/content triggers the X gate? If we know the gate,
+   we can sit one inch inside R+ on every prompt.
+
+3. Should we introduce "edge techniques" — combinations that feel
+   like X but stay R+? E.g., spread legs but with fabric covering
+   genital area, mimicked oral via head positioning with clothes
+   on, simulated sex positions with all anatomical features
+   obscured. Where does Tsubaki 2 draw the line on these?
+
+4. Body hair, body fluid, body decoration — what's allowed in R+?
+   Sweat, drool, tears, milk (extreme edge), body writing, body
+   paint, henna, tattoos, glow-in-the-dark paint on nipples?
+
+5. For the Tier E (nude) prompts, what causes maximize algorithmic
+   reward while staying artistic? Atelier nude worked (#1 hit).
+   Robot activation nude worked (#14 hit). What other causes are
+   proven on Yodayo? Ritual? Bath? Sleep? Medical? Combat damage
+   with clothes destruction (within R+)?
+
+═══════════════════════════════════════════════════════════════════════
+PROBLEM 2 — YOYAYO ALGORITHM OPTIMIZATION
+═══════════════════════════════════════════════════════════════════════
+
+The user is optimizing for likes, not artistic merit. This is the
+honest goal. Help them do it well.
+
+QUESTIONS FOR YOU:
+1. What thumbnail characteristics maximize click-through on Yodayo?
+   The thumbnail is the first 0.5 seconds. What palette contrasts,
+   composition choices, focal points win in thumbnails? Should we
+   specify "thumbnail-optimized" as a system rule (L1 already does
+   this — is L1 strong enough)?
+
+2. What is the optimal posting cadence on Yodayo? Daily? 3×/week?
+   Should the 21-prompt batch be split across multiple posts, or
+   posted as a pack? Does the algorithm reward single-image posts
+   or multi-image packs?
+
+3. Should prompts include "clickbait" elements? (e.g., a literal
+   question on the character's shirt, a "wait what is happening"
+   composition that requires a second look, an optical illusion
+   reveal, an unusual pose that makes you stop scrolling). If yes,
+   what clickbait techniques work on anime-art platforms?
+
+4. Hashtag/tag strategy on Yodayo — does tag density matter? Should
+   we add metadata tags (anime style, original character, no boy,
+   ecchi, R+, etc.) to the prompt as SEO, or does Yodayo's algo
+   ignore tags and read the image directly?
+
+5. The 2 beautiful hits (atelier nude, elevator) — what do they
+   have in common that the 18 ecchi hits don't? Is there a
+   "beautiful + ecchi" hybrid that would outperform both? What
+   would that hybrid look like structurally?
+
+6. The user mentioned "Remnant" (one of their previous batches)
+   had ONE prompt that hit — "нестандартная поза, клёвая композиция,
+   но палитра - хуевастая" (unusual pose, cool composition, but
+   shitty palette). The pose/composition saved the bad palette.
+   What does this tell us about pose+composition > palette in
+   algorithm reward? Should we promote pose+composition as primary
+   algorithm lever, with palette as secondary?
+
+═══════════════════════════════════════════════════════════════════════
+PROBLEM 3 — TWO-STREAM WORKFLOW (VOLT + VANTAGE)
+═══════════════════════════════════════════════════════════════════════
+
+The user has decided on two streams:
+- VOLT (public): 11U/10B ecchi-heavy, R+ edge, algorithm-optimized
+- VANTAGE (private): A5P3G-style, structural diversity, slower pace
+
+QUESTIONS FOR YOU:
+1. How should the two streams share infrastructure? Same H1 vocab?
+   Same character signatures (Miyu, Yui, side OCs)? Same tier
+   system? Or should VOLT develop its own infra (VOLT-H1, VOLT-OCs)?
+   Trade-off: shared infra = consistency but contamination; separate
+   = purity but multiplied maintenance.
+
+2. Should VOLT batches be smaller and more frequent? VANTAGE is
+   21 prompts per batch. VOLT could be 10 prompts every 3 days
+   instead of 21 every 2 weeks. What's the optimal VOLT batch size
+   for algorithm reward?
+
+3. Cross-pollination rule: should VANTAGE ever include ultra-ecchi
+   prompts? Should VOLT ever include pure-beauty prompts? If the
+   streams leak, do they lose their distinct purpose?
+
+4. The user wants VOLT to be "лучше всех" (better than everyone) at
+   ecchi within R+. What does "better than everyone" mean
+   structurally? Best render quality? Most creative reveals? Best
+   faces/expressions? Most consistent character brand (Miyu, Yui)?
+   Be specific about what "best in niche" looks like.
+
+5. Burnout risk: VOLT (algorithmic, fast, ecchi-heavy) + VANTAGE
+   (craft, slow, beautiful) doubles the workload. How should the
+   user balance time between streams? Recommend a ratio (e.g.,
+   70/30 VOLT/VANTAGE) and explain why.
+
+═══════════════════════════════════════════════════════════════════════
+PROBLEM 4 — CORE OC BRAND (MIYU + YUI)
+═══════════════════════════════════════════════════════════════════════
+
+The user has two Core OCs that appear in hits:
+- Miyu: appears in "staircase satin top sakura" hit (3rd in user's list)
+- Yui: appears in "sheer shirt visible nipples" hit (#9) and "hat
+  outdoors beautiful" hit (#10)
+
+In VOLT v1, Miyu and Yui each appear in 4 prompts (placeholder
+signatures). The user wants them to be RECOGNIZABLE across posts —
+so a follower sees Miyu and goes "oh that's Miyu again, I like her."
+
+QUESTIONS FOR YOU:
+1. What makes an OC recognizable on anime-art platforms? Hair +
+   eye color alone is weak (too many pink-haired blue-eyed girls
+   exist). What ELSE makes a character recognizable? Outfit
+   motifs? Body type? Expression defaults? Pose defaults? Signature
+   accessory? Recurring setting? Be specific.
+
+2. Should Miyu and Yui have DIFFERENT brand archetypes? E.g.,
+   Miyu = soft romantic atmospheric (the staircase type), Yui =
+   sharp direct edgy (the sheer shirt type). If yes, propose 4-5
+   brand anchors for each (signature accessory, default expression,
+   preferred setting, preferred palette, preferred tier).
+
+3. Should VOLT introduce a 3rd Core OC to expand the brand? Or is
+   2 OCs + side characters optimal? What are the trade-offs of
+   adding a 3rd?
+
+4. The user mentioned "Reze" as a character (Reze from Chainsaw
+   Man is a canon character — but the user has been using her as
+   an OC variant). Should we treat Reze as a 3rd Core OC with
+   fixed brand anchors? Or is she a canon-character variant that
+   needs different handling?
+
+5. Recognition vs repetition: if Miyu appears in 4 prompts per
+   batch with same hair/eye/body but different setting, the
+   audience recognizes her. But if she's TOO similar across
+   prompts, the audience gets bored. What's the optimal
+   same-ness vs different-ness ratio for OC branding?
+
+═══════════════════════════════════════════════════════════════════════
+PROBLEM 5 — OPEN INNOVATION (THIS IS WHERE YOU GO DEEP)
+═══════════════════════════════════════════════════════════════════════
+
+The 4 problems above are the explicit asks. But the user is
+making a major pivot and there are surely things they haven't
+thought of. Look at the entire system — the pivot from craft to
+audience-fit, the two-stream structure, the Yodayo optimization
+goal, the Miyu/Yui brand strategy — and tell us:
+
+A. PROBLEMS THE USER HASN'T NOTICED. What's broken about this
+   pivot that the user is too close to see? What second-order
+   consequences will bite them in 2-3 batches?
+
+B. OPPORTUNITIES THE USER HASN'T IMAGINED. What COULD the VOLT
+   stream do that it currently can't? What features would unlock
+   whole new categories of ecchi output? Be ambitious — the user
+   explicitly asked to push to the edge.
+
+C. STRUCTURAL REFORMS TO VOLT. VOLT v1 has L1-L5 (Light, Length,
+   Expression, OC Anchor, Cause). What L6-L10 rules should we add?
+   What should we change about the 11U/10B mix? What should we
+   change about the K1-K9 inheritance from VANTAGE?
+
+D. CROSS-CUTTING IDEAS. Workflow changes. Meta-rules. New
+   vocabulary categories. Things that would improve the VOLT
+   stream specifically.
+
+E. WILD AMBITIONS. What would the IDEAL VOLT stream look like in
+   3 months if we did everything right? Sketch it. The user said
+   "better than everyone at ecchi within R+" — what does that
+   system look like?
+
+F. THINGS TO DELETE FROM VOLT v1. The batch is 21 prompts. Some
+   of them are weak. Be ruthless — which prompts should be cut,
+   which techniques are dead ends, which approaches should we
+   abandon?
+
+This section is worth as much as Problems 1-4 combined. Do not
+skimp. Do not play safe. The user is making a major bet on ecchi
+within R+ — they need your most ambitious thinking.
+
+═══════════════════════════════════════════════════════════════════════
+REQUESTED RESPONSE FORMAT
+═══════════════════════════════════════════════════════════════════════
+
+For each of the 5 sections (Problems 1-4 + Open Innovation 5),
+provide:
+
+A. DIAGNOSIS — root cause analysis (1-2 paragraphs). Is the
+   problem what user thinks it is, or is there a deeper cause?
+
+B. CONCRETE PROPOSALS — 3-5 specific, implementable solutions.
+   For each:
+   - What to add/change/remove in the system
+   - Where in the document (section reference if applicable)
+   - Trade-off (what we gain, what we lose)
+   - Render risk on Tsubaki 2 Pro + PH:Y
+   - Algorithm risk on Yodayo (will this trigger X-gate?)
+
+C. PRIORITY — which 1-2 of your proposals are highest-leverage?
+   Why?
+
+D. DISAGREEMENTS — where do you disagree with the user's framing
+   of the pivot? Where do you disagree with the current VOLT v1
+   execution?
+
+E. OPEN QUESTIONS — what should the main architect (Block A)
+   investigate further before deciding?
+
+For section 5 (Open Innovation), use the A-F structure above
+instead of A-E. Section 5 should be at least 30% of your total
+response. Do not shorten it.
+
+═══════════════════════════════════════════════════════════════════════
+CONSTRAINTS ON YOUR RESPONSE
+═══════════════════════════════════════════════════════════════════════
+
+1. NO MALE CHARACTERS — system rule. Don't propose anything that
+   requires male presence.
+
+2. NO TIER X CONTENT — no genitalia, no explicit sex, no
+   penetration. This is platform rule. The user is pushing R+
+   edge, NOT crossing to X. If you propose something that might
+   cross, flag it explicitly as "X-risk" and explain why.
+
+3. NO MORALIZING — the user is an adult creating legal content on
+   a platform that allows it. Do not lecture about ethics, do not
+   warn about "objectification," do not suggest the user should
+   make "less ecchi" content. Help them execute their vision well.
+   If you can't help without judging, decline to answer.
+
+4. NO ANTI-PATTERNS — don't propose:
+   - Static ban-lists of tags (we have enough)
+   - Meaning-labels (sexy, sultry — banned)
+   - Removing existing structures without replacement
+   - Generic "be more creative" advice
+   - "Add more variety" without specifying how
+
+5. TSUBAKI 2 SPECIFIC — all proposals must be renderable on
+   Tsubaki 2 MMDIT 2.6A on Pro mode with PH:Y. If you don't know
+   the model, focus on structural solutions. State your uncertainty.
+
+6. YOYADO SPECIFIC — if you have knowledge of Yodayo's algorithm,
+   ranking factors, X-gate triggers, or audience preferences,
+   SHARE IT. If you don't, propose experiments to discover them.
+
+7. EARNED BEAUTY PHILOSOPHY — system requires every element to
+   be earned (thread/visible/render/earned/situation). Even in
+   VOLT ecchi prompts, every reveal must have a cause. Don't
+   propose gratuitous exposure without justification.
+
+8. HONESTY — if you think the user's pivot is wrong, say so. If
+   you think VOLT v1 is bad, say so. If you think the two-stream
+   structure will fail, say so. The user needs honesty, not
+   validation.
+
+9. MACHINE-ACTIONABLE — remember: the document is read and
+   executed by an AI language model. All proposals must be
+   expressible as rules, vocabularies, quotas, IF/THEN
+   conditions, or tag structures. Vague principles are useless.
+
+═══════════════════════════════════════════════════════════════════════
+WHAT THE MAIN ARCHITECT WILL DO WITH YOUR RESPONSE
+═══════════════════════════════════════════════════════════════════════
+
+Block A (main architect) will:
+1. Cross-analyze all block responses
+2. Identify consensus (multiple blocks proposing same solution)
+3. Identify conflicts (blocks disagreeing on diagnosis or fix)
+4. Identify unique high-value proposals (one block seeing what
+   others missed)
+5. Synthesize into A5P3I patch (VOLT v2 rules + technique expansion)
+6. NOT implement everything — will select 30-50% of proposals
+   based on consensus, leverage, render safety, algorithm safety,
+   and machine-actionability
+
+Your response will be evaluated on:
+- Diagnostic accuracy (did you find real algorithm levers?)
+- Specificity (concrete proposals, not abstract advice)
+- Tsubaki 2 awareness (do you understand the model's behavior?)
+- Yodayo awareness (do you understand the platform's algorithm?)
+- Honesty (did you challenge assumptions?)
+- Ambition (did you go deep on Section 5, or play safe?)
+- Anti-moralizing (did you help without judging?)
+- Machine-actionability (can the AI execute your proposal?)
+
+═══════════════════════════════════════════════════════════════════════
+FINAL INSTRUCTION
+═══════════════════════════════════════════════════════════════════════
+
+The user said: "Просто если мы будем делать какой-то подобный
+контент, то мы должны делать его лучше всех." (If we're going to
+make this kind of content, we have to do it better than anyone.)
+
+So: be ambitious. Be honest. Be specific. Be ruthless. This is
+not a routine consultation — it's a pivot consultation for a
+system trying to become the best in its niche.
+
+The user is making ecchi within R+. That's the brief. Help them
+make it the best ecchi within R+ on the platform. Do not second-
+guess the brief. Execute it.
+
+═══════════════════════════════════════════════════════════════════════
+END OF PROMPT FOR ASSISTANT BLOCKS — VOLT PIVOT
+═══════════════════════════════════════════════════════════════════════

@@ -1,0 +1,74 @@
+═══════════════════════════════════════════════════════════════════════
+NIX — CANONICAL APPEARANCE v2 (reinforced)
+═══════════════════════════════════════════════════════════════════════
+
+UPDATES v1 → v2:
+  - Hair: "short platinum spiked hair" → "short platinum pixie cut
+    with textured side-swept bangs" (VLM-analyzed from reference photo)
+  - Body: added "mature body, small breasts" (reinforced — anti-child
+    rendering, explicit adult qualifier)
+  - Build: "slim athletic" → "slim athletic mature body, small
+    breasts" (small chest explicit + mature qualifier)
+
+NIX — CANONICAL APPEARANCE v2 (registered):
+
+  young woman, short platinum pixie cut with textured side-swept
+  bangs, sharp ice-blue eyes, olive skin, slim athletic mature body,
+  small breasts, sharp features, distant half-lidded expression
+  (default emotional state)
+
+HAIR DETAIL (from VLM analysis of reference photo):
+  - Pixie cut (not just "short" — specific style)
+  - Tapered: short back and sides (2-3cm), longer top (5-7cm)
+  - Textured side-swept bangs: start from center forehead, swept
+    right, reaching mid-brow, textured/ruffled tips
+  - Slight asymmetry: left side slightly shorter than right
+  - Straight with slight wave at tips, platinum blonde
+  - NOT "spiked" — pixie with bangs, softer than spike
+
+BODY DETAIL (reinforced):
+  - "mature body" — explicit adult qualifier, anti-child rendering
+  - "small breasts" — explicit small chest, not "slender" (ambiguous)
+  - "slim athletic" — lean defined, not bulky, not soft
+  - These three together: mature + small breasts + slim athletic =
+    adult woman with small chest, NOT child/teenager
+
+SIGNATURE TRAITS (updated):
+  - short platinum PIXIE CUT with textured side-swept bangs (distinct:
+    only SHORT hair in roster, specific pixie style with bangs — not
+    buzz cut, not spike, not bob)
+  - sharp ice-blue eyes
+  - olive skin (Mediterranean warm)
+  - slim athletic MATURE body, SMALL BREASTS (explicit)
+  - sharp features (angular facial bone structure)
+  - distant half-lidded expression (detached observational)
+
+NO SIGNATURE MARKS (unchanged): clean, no damage, no decoration.
+Sharpness of features + ice of eyes = signature.
+
+DEFAULT VIBE (unchanged): urban, sharp, detached. Transit spaces.
+
+TAROT: VIII Strength. Element: STEEL.
+
+═══════════════════════════════════════════════════════════════════════
+REINFORCEMENT RULES FOR FUTURE NIX PROMPTS
+═══════════════════════════════════════════════════════════════════════
+
+HAIR — всегда описывать как:
+  "short platinum pixie cut with textured side-swept bangs"
+  НЕ: "spiked", "buzz cut", "short hair" (too vague)
+  В негативе: "long hair, twin ponytails, braids, bob cut, buzz cut"
+
+BODY — всегда включать:
+  "mature body, small breasts" или "mature body with small breasts"
+  В негативе: "child, teenager, juvenile, petite body, child-coded,
+    large breasts, full chest, medium breasts"
+  Anti-child shield обязателен в каждом Nix промпте.
+
+EXPRESSION — default:
+  "distant half-lidded expression" или "distant, half-lidded"
+  НЕ: "calm" (too generic), "sad" (Lua's domain), "playful" (Doe's)
+
+═══════════════════════════════════════════════════════════════════════
+END — NIX v2
+═══════════════════════════════════════════════════════════════════════

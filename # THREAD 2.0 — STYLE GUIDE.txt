@@ -1,0 +1,554 @@
+# THREAD 2.0 — STYLE GUIDE
+## Prose = instruction for Tsubaki 2 DiT, structured per PixAI block order.
+
+## PIXAI BLOCK ORDER (MANDATORY)
+
+PixAI recommends: **Composition → Lighting → Depth of Field → Angle → Subject → Environment → Details**
+
+Style/composition MUST go at the BEGINNING, not as trailing tag.
+"anime artstyle" as last token is treated as genre label, not rendering instruction.
+
+## ATOMS (Prompt Structure — v2.0, PixAI-aligned)
+
+Every prompt assembled in this order:
+```
+[COMPOSITION] → [LIGHTING] → [DOF] → [ANGLE] → [SUBJECT] → [ENVIRONMENT] → [DETAILS]
+```
+
+### COMPOSITION-ATOM (FIRST — sets tone for entire caption)
+Style declaration + shot type + framing:
+- "A 2D hand-drawn anime illustration, medium shot, cowboy framing."
+- "A 2D hand-drawn anime illustration, wide environmental view, full body."
+- "A 2D hand-drawn anime illustration, extreme close-up, macro detail."
+
+**PH DEFENSE:** Style declaration at beginning MUST include "2D hand-drawn anime" — PH keeps
+opening framing tone. Face geometry anchor in Subject block MUST include structural markers
+("large expressive eyes, small nose, small mouth, flat cel-shaded skin") — PH may paraphrase
+but keeps the semantic content if it's a complete sentence with specific anatomical terms.
+DO NOT replace structural markers with vague phrases like "high-quality 2D anime style" —
+PH will strip them.
+
+### LIGHTING-ATOM (second — defines light before body)
+LQ + LD + FR + CT integrated:
+- "Soft diffused moonlight from off-frame, front and high, 2:1 fill, cool temperature."
+- "Hard key light from off-frame, side and eye-level, 4:1 fill, warm on cheekbones, cool in shadowed hollows."
+
+### DOF-ATOM (third — focus/blur)
+What is sharp, what dissolves:
+- "Sharp focus on her lips, the rest dissolving into soft bokeh."
+- "Everything in focus, crisp detail from foreground to background."
+- "Shallow depth of field, only her collarbones sharp, her face and body soft."
+
+### ANGLE-ATOM (fourth — viewpoint, NO "camera" word!)
+- "Viewed from above, looking down at her."
+- "Viewed from below, looking up at her arched throat."
+- "Viewed from the side, her profile silhouetted."
+- "Viewed from over her shoulder, her back to the viewer."
+
+### SUBJECT-ATOM (fifth — character, the longest block)
+Order within subject: identity → hair → eyes → skin → face geometry → body → pose → wardrobe
+
+**Face geometry anchor (MANDATORY, separate sentence with period):**
+"Her face is rendered in stylized 2D anime style: large expressive eyes, small nose, small mouth, flat cel-shaded skin."
+
+Body described through LIGHT INTERACTION (BPT rotation, ≤3 each per batch):
+- BPT-1 (bust-first): "Her breasts catch the hard key as deep shadow pools beneath"
+- BPT-2 (hips-first): "Her hips divide the rim-light into curved shadow"
+- BPT-3 (thighs-first): "Her thighs hold shadow where diffused light cannot reach"
+- BPT-4 (waist-first): "Her waist narrows where light converges and shadow deepens"
+- BPT-5 (back-first): "Her back is canvas for the candle-glow, spine a river of warm shadow"
+- BPT-6 (hands-first): "Her hands interrupt the key light, casting striped shadows across her collarbone"
+- BPT-7 (silhouette-first): "Her silhouette against the window reads as abstract form before body resolves"
+- BPT-8 (motion-first): "Her body mid-arch catches the beam while her stomach escapes into shadow"
+
+### ENVIRONMENT-ATOM (sixth — setting + scene action)
+Not "a room". Environment = source of reflected light + narrative context:
+- "On a mirror-polished floor, flower petals suspended in the air around her."
+- "In a bathroom filled with violet steam, the vapor concealing and revealing."
+
+### DETAILS-ATOM (LAST — quality tags)
+Palette-specific quality tags + "Masterpiece, best quality, anime artstyle."
+- P01: "Noir velvet palette, high contrast, chiaroscuro. Masterpiece, best quality, anime artstyle."
+- P07: "Frost lavender palette, silver and lavender, moonlit, ethereal. Masterpiece, best quality, anime artstyle."
+
+## FULL EXAMPLE (PixAI-aligned)
+
+```
+A 2D hand-drawn anime illustration, medium shot, cowboy framing. Soft diffused moonlight from off-frame, front and high, 2:1 fill, cool temperature. Sharp focus on her collarbones, her face soft in shadow. Viewed from the side, her profile silhouetted. 1girl, young woman, female, feminine, raven-black sleek straight hair individual strands visible, storm-grey eyes, honey-amber skin. Her face is rendered in stylized 2D anime style: large expressive eyes, small nose, small mouth, flat cel-shaded skin. Slender build, wearing a simple silk slip, lying on her back with one arm raised. On a mirror-polished floor, flower petals suspended in the air around her, the reflection beneath her as clear as her body above. Frost lavender palette, silver and lavender, moonlit, ethereal. Masterpiece, best quality, anime artstyle.
+```
+
+## BANNED PATTERNS (auto-REJECT)
+
+| Pattern | Why Dead | Replace With |
+|---------|----------|--------------|
+| "vivid saturated colors" | Empty noise. No palette. | palette-locked color harmony |
+| "rich color palette" | Same. | "restricted palette of [DOMINANT] and [ACCENT]" |
+| "high color contrast" | Contrast of what? | "sharp temperature shift between light and shadow" |
+| "The [X] fills the chamber" | Mad Libs template. | Specific environment detail |
+| "Her [body-part] the primary focus" | Robot speak. | Active verb + light interaction |
+| "The moment stretches" | Cliché. | "Time-state: suspended/collapsing/arrested" |
+| "beautiful, gorgeous, stunning" | Empty epithets. | Specific texture or light effect |
+| "perfect skin" | Unrealistic. | "skin catching light with [OAS-specific texture]" |
+| "camera [anything]" | Tsubaki 2 draws camera as object | "viewed from [angle]" |
+| "desk lamp", "brass lamp" | Tsubaki 2 draws lamp as object | "warm key from off-frame" |
+| "[subject] does not [verb]" (×>2) | Reskin-immune pattern ban | Active alternatives (stays, holds, lingers) |
+
+## NEGATIVE CONSTRUCTION (v2.0 — face geometry defense)
+
+### CRITICAL: Do NOT ban anime techniques
+- **REMOVED**: "cel shading", "flat anime shading" — these ARE anime rendering techniques!
+- **KEPT**: named webtoon tags (manhwa, webtoon, korean comic, etc.) — they discriminate precisely
+
+### Added: geometric face anti-realism
+- "realistic facial structure, photorealistic facial proportions, natural human nose bridge, realistic lip shape, semi-realistic anime face, 2.5D face, 3D face"
+
+### Batch-Level (footer)
+`[PALETTE.FORBIDDEN] + [THEME.NEGATIVES] + [UNIVERSAL from SCOPE.md] + [GEOMETRIC FACE DEFENSE]`
+
+### Prompt-Level (if needed)
+`[OC-SPECIFIC] + [POSE-SPECIFIC] + [LQ-SPECIFIC]`
+
+## QUALITY TAGS (palette-specific, NOT generic)
+Each batch generates quality tags FROM the palette:
+- P01 Noir Velvet: "Noir velvet palette, high contrast, chiaroscuro. Masterpiece, best quality, anime artstyle."
+- P02 Dawn Amber: "Dawn amber palette, warm golden light, long shadows. Masterpiece, best quality, anime artstyle."
+- P07 Frost Lavender: "Frost lavender palette, silver and lavender, moonlit, ethereal. Masterpiece, best quality, anime artstyle."
+NOT: "Vivid saturated colors, rich color palette, high color contrast" (banned)
+
+## SIG Format
+```
+[OC-NAME]-[BDM]-[PALETTE-ID]-[LQ-CODE]-[LD-short]-[PL-CODE]-[GAR-CODE]-[E-CODE]
+```
+Example: `Sue-B4H4T3W1-P02_DAWN_AMBER-LQ01-side-high-PL14-GAR01-E04`
+
+---
+
+## NICHE QUALITY GUIDELINES (v2.1 — "превосходство над всеми художниками")
+
+NICHE = the most beautiful and amazing thing you can find. Not "atmospheric emptiness" — BREATHTAKING.
+
+### NICHE Checklist (human review, NOT keyword-scan):
+- [ ] **Wow factor**: one striking visual idea that makes you stop scrolling
+- [ ] **Story**: the frame tells a story in one image — not just "she stands"
+- [ ] **Composition**: intentional framing (symmetry, negative space, leading lines, frame-within-frame)
+- [ ] **Color harmony**: palette used creatively, not just "dark" or "warm"
+
+### NICHE Light Quality (MANDATORY — use the MOST beautiful LQ codes):
+- LQ03 Rim Only — body edges glowing, face in shadow
+- LQ07 Volumetric Beam — visible light shaft through dust/particles
+- LQ11 Prism Split — rainbow spectrum across body
+- LQ14 Moonlight Cool — silver-blue, long soft shadows
+- LQ15 Bioluminescent — soft glow from within environment
+- AVOID defaulting to LQ02 (Soft Diffused) — too safe, too common
+
+### NICHE Camera (MANDATORY — use unusual angles):
+- Aerial top-down (CAM12) — body as map, as offering
+- Mirror reflection (CAM11) — doubled, fragmented
+- Through element (CAM10) — glass, water, fabric between viewer and body
+- Dutch tilt (CAM09) — world tilted, unease
+- From below (CAM03/CAM_PU) — heroic, vulnerable, or intimate
+- AVOID defaulting to CAM01 (Eye-level Front) for NICHE — too mundane
+
+### NICHE Body Focus (rotate — NOT always breasts):
+- Collarbones and throat — vulnerability, elegance
+- Hands and fingers — gesture, tension, story
+- Back and spine — curve, shadow, sculpture
+- Waist and hip curve — line, architecture
+- Hair as environment — strands catching light, framing
+- Feet and ankles — intimacy, grounding
+
+### NICHE Emotional Register:
+- Detachment (E05) — she exists in her own world
+- Melancholy (E08) — beauty tinged with loss
+- Ecstasy (E06) — transcendence, not sexual but spiritual
+- Contempt (E01) — she looks through you, not at you
+- AVOID defaulting to "anticipation" or "vulnerability" — too generic
+
+---
+
+## VOLT QUALITY GUIDELINES (v2.1 — "грань эротики, ебанутые и сочные, сладкие как персики")
+
+VOLT = extremely erotic. The edge. Crazy and juicy. NOT safe "through-fabric" — VISCERAL.
+
+### VOLT Checklist (human review, NOT keyword-scan):
+- [ ] **Visceral**: the prompt makes you FEEL something physical — heat, tension, ache
+- [ ] **Tension**: the body is AVAILABLE, not just visible — the moment before or after
+- [ ] **Psychological**: WHY is she in this state? What happened? What will happen?
+- [ ] **Sensory**: at least one tactile/thermal descriptor (clinging, glistening, flushed, trembling, burning, aching)
+- [ ] **Power dynamic**: is she dominant, submissive, equal, or unaware? Make it clear.
+
+### VOLT Sensory Vocabulary (use naturally, don't stuff):
+- **Tactile**: clinging, pressed, pulled tight, slipping, clinging to every curve
+- **Thermal**: flushed, burning, feverish, cold against warm skin, heat rising
+- **Wet**: glistening, soaked, dripping, slick, translucent with moisture
+- **Tension**: trembling, taut, arched, breathless, held, suspended
+- **Desire**: aching, wanting, offering, surrendered, taken, claimed
+
+### VOLT Power Dynamics (rotate — NOT always submissive):
+- **Dominant**: she controls the frame, the viewer is her subject
+- **Submissive**: surrendered, offered, bound by shadow/light/fabric
+- **Equal**: mutual gaze, shared intimacy, she sees you seeing her
+- **Unaware**: she doesn't know you're watching — voyeuristic tension
+- **Post-intimate**: the aftermath — flushed, disheveled, satisfied, vulnerable
+
+### VOLT Body Focus (rotate — NOT always breasts):
+- Hip bones and the V of skin above underwear
+- Inner thigh where shadow pools
+- The curve where waist meets hip (the "hourglass pinch")
+- Lips — parted, swollen, bitten, wet
+- The line of the spine when arched
+- Fingers hooking elastic, pulling fabric, gripping sheets
+
+### VOLT Wardrobe State (rotate — NOT always "pristine"):
+- **Half-removed**: one strap down, unbuttoned, unzipped, pulled aside
+- **Soaking**: wet fabric translucent, clinging, revealing
+- **Torn**: ripped, damaged, the violence of removal
+- **Borrowed**: oversized, masculine, intimate
+- **Disheveled**: post-struggle, post-sleep, post-passion
+
+### VOLT LLS Guidelines:
+- L1 (suggestive): tension without reveal — the PROMISE
+- L2 (sexualised): the body visible but through context, not clinical — the REALITY
+- VOLT L2 should feel like the moment before revelation — NOT clinical description
+- AVOID "safe" THROUGH_FABRIC without tension — if fabric is translucent, make it MATTER
+
+---
+
+## VOLT EROTIC TECHNIQUES (concrete, from MARKER_AUDIT.md)
+
+### VOLT is NOT "through fabric with tension." VOLT is EROTIC. Here's how:
+
+**Clothing as Erotic Weapon (use these CONCRETE patterns):**
+- Wet white shirt — translucent, clinging, nipple visible through fabric
+- Panties pulled ASIDE — not removed, displaced, elastic cutting into hip
+- Bra strap fallen — cup loosened, curve of breast visible above lace
+- Pencil skirt ridden up — thighs to stocking-tops, garter clips visible
+- Unbuttoned shirt gap — V of skin, bra lace peeking
+- Dress zipper open down back — spine to dimple above ass
+
+**Body Exposed Through Action:**
+- Arched back — chest thrust forward, ribs visible, stomach concave
+- Bent over — curve of ass visible, thighs pressing together
+- Reaching up — V of hips exposed, hip bones above waistband
+- Legs spread on chair — inner thigh, shorts riding into crease
+- Stretching overhead — bottom curve of breasts below crop top
+
+**Tension & Almost-Touch (VOLT L1 = promise, VOLT L2 = reality):**
+- Hand on inner thigh — fingers spread, not touching higher
+- Thumb in waistband — pulling down a centimeter, V deepening
+- Fingers on own lips — pressing, parting
+- Palming own breast — hand cupping, nipple between fingers
+- Biting lower lip — teeth pulling, eyes on viewer
+
+**Power Dynamics (MUST be explicit, MUST be unique per prompt):**
+- Collar and leash, hands bound, on knees looking up, straddling
+- Pushed against wall, bending over furniture, standing over viewer
+- Hair pulled from behind, fingers in mouth, blindfolded
+
+**Sensory & Visceral (MUST include at least 1 per VOLT prompt):**
+- Sweat-sheen, flush across chest, hardened nipples through fabric
+- Wet inner thighs, trembling, heavy breathing
+- Bite marks, hickeys, post-orgasmic slack
+
+### VOLT FAILURE MODES (what makes it "soy" / PG-13):
+- ❌ "through fabric" without describing WHAT is visible through the fabric
+- ❌ "tension" without describing WHERE the tension is in the body
+- ❌ "power dynamic" without describing the PHYSICAL manifestation
+- ❌ "sensory" without a CONCRETE sensory detail
+- ❌ VOLT L2 that doesn't make the viewer feel something physical
+- ❌ Safe, clinical, anatomical description instead of visceral, arousing prose
+
+---
+
+## NICHE SURREAL TECHNIQUES (concrete, from MARKER_AUDIT.md)
+
+### NICHE is NOT "atmospheric darkness." NICHE is IMPOSSIBLE and BEAUTIFUL.
+
+**Impossible Physics:**
+- Gravity inversion (hair falls UP)
+- Time fracture (3 moments in one frame)
+- Scale violation (10cm tall on desk, or 50m straddling city)
+- Solid light (beam she can sit on)
+- Sound made solid (music notes as physical objects)
+
+**Body Impossible:**
+- Extra anatomy (third eye on palm)
+- Transparency gradient (solid feet → ghostly head)
+- Hair as environment (fills entire room)
+- Skin as canvas (patterns MOVE across skin)
+- Eye as portal (looking into eye reveals different world)
+
+**Space Impossible:**
+- Room within room (infinitely recursive)
+- Sky below (glass floor with infinite sky beneath)
+- Mirror world (reflection does something different)
+- Domestic cosmos (bedroom contains planets)
+- Door to nowhere (door in mid-air)
+
+**Material Surreal:**
+- Body becomes garden (vines from veins)
+- Body becomes clockwork (gears through cracked skin)
+- Body becomes constellation (freckles form star maps)
+- Body becomes text (words on skin)
+- Body becomes crystal (geode formations)
+
+**Emotional Surreal:**
+- Tears become gemstones
+- Laughter becomes visible color
+- Fear becomes shadow that swallows room
+- Grief becomes rain from personal cloud
+- Loneliness becomes infinite space
+
+### NICHE FAILURE MODES:
+- ❌ "dark room with soft light" — that's just a room
+- ❌ "she stands looking distant" — that's not impossible
+- ❌ "atmospheric" without a concrete surreal element
+- ❌ "beautiful" without a specific impossible visual
+- ❌ NICHE that could be described as "empty" or "boring"
+
+---
+
+## YURI-FORCE RULES (v2.0.8 — user feedback "all interactions female")
+
+**ABSOLUTE RULE:** All interaction (hands, tentacles, plants, slime, partners) MUST be female-coded. NO males, NO male hands, NO penises, NO futanari. YURI SUPREMACY.
+
+### MANDATORY FEMALE QUALIFIERS
+
+Every reference to a second person / partner / hand-not-hers / non-human element in prose MUST be qualified as female. The qualifier MUST appear within 5 words of the trigger word.
+
+| Trigger word | REQUIRED qualifier pattern | FORBIDDEN pattern |
+|---|---|---|
+| `partner` | "her female partner", "another girl" | "her partner" (unqualified) |
+| `second figure` | "a second female figure", "another girl" | "a second figure" (unqualified) |
+| `another person` | "another woman", "another girl" | "another person" (unqualified) |
+| `someone` | "another girl", "a woman" | "someone" (unqualified) |
+| `a hand` (not hers) | "a female hand", "another girl's hand" | "a hand" (unqualified) |
+| `hand` (not hers) | "female hand", "her sister's hand" | "hand" (unqualified) |
+| `tentacle` | "female tentacle", "feminine tendril" | "tentacle" (unqualified) |
+| `tendril` | "feminine tendril", "female-coded tendril" | "tendril" (unqualified) |
+| `vine` | "female vine", "feminine vine" | "vine" (unqualified) |
+| `plant` | "female plant", "feminine plant" | "plant" (unqualified) |
+| `slime` | "female slime", "feminine ooze" | "slime" (unqualified) |
+| `root` | "feminine root", "female root" | "root" (unqualified) |
+
+### BULGE-WORD REPLACEMENTS
+
+The word `bulge` is BANNED — it generates male genitals on female bodies in Tsubaki 2. Use these approved replacement phrases instead:
+
+| Forbidden | Approved replacement |
+|---|---|
+| `visible bulge under fabric` | `tendril-shape displacing the fabric from beneath` |
+| `bulge moving under skirt` | `cloth pushed from beneath by the tendril` |
+| `bulge in panties` | `fabric displaced by the feminine tendril` |
+| `bulge from tentacle` | `outline of the female tendril through the cloth` |
+| `bulge under clothes` | `vine pressing the cloth from beneath` |
+
+### MALE-CODED WORDS — NEVER USE IN PROSE
+
+`male, man, boy, guy, him, his, he, gentleman, lad, fellow, dude, masculine, penis, dick, cock, shaft, glans, testicles, balls, scrotum, bulge, futa, futanari, dickgirl, shemale, trap, newhalf, femboy, otoko no ko, 1boy, 2boys, cumshot, ejaculation, semen on body, package, boner, erection`
+
+### YURI DYNAMIC ROTATION (use 6+ per batch)
+
+When prose features a second female, vary the yuri dynamic across the batch:
+- YD_SIZE_DIFFERENCE — tall + petite contrast
+- YD_PERSONALITY_OPPOSITE — shy + bold
+- YD_POWER_EQUAL — mutual gaze, mutual touch
+- YD_POWER_DOM_SUB — one leads, other follows
+- YD_VOYEUR — third girl watches two, unseen
+- YD_TRIANGLE — three girls in tension
+- YD_SISTERS_CHOSEN — found-family
+- YD_PRIESTESS_ACOLYTE — religious dynamic
+- YD_STRANGERS_FIRST_GLANCE — meeting eyes
+- YD_LONG_TERM_COUPLE — comfortable intimacy
+- YD_RIVALS_TO_LOVERS — competitive tension
+- YD_FRIENDS_TO_LOVERS — slow realization
+- YD_ENEMIES_TO_LOVERS — hate-becomes-desire
+- YD_MORNING_AFTER — post-first-time
+- YD_MUTUAL_PINING — both want, neither acts
+
+### YURI TOUCH ROTATION (use 5+ per batch)
+
+- Female hand on her cheek — tender
+- Female hand on her throat — submission (consensual)
+- Female hand in her hair — pulling back
+- Female hand between her thighs — intimate
+- Female hand on her breast — possessive
+- Female hand on her chin — tilting for kiss
+- Female lips on her neck — claiming
+- Female lips on her collarbone — adoring
+- Female thigh between hers — tribades positioning
+- Female tentacle wrapping her thigh — otherworldly
+
+---
+
+## THEME-DEPTH MODE — OPTIONAL, NOT FORCED (v2.0.11 revision)
+
+**REVISED.** Forced 7-phase × 3-angle structure (v44/v45) produced "бездушные" prompts with conceptual repeats (P16/17/18 Epiphany = 3 identical "emotion materialization").
+
+**NEW approach for v47+:** 21 separate cool ideas, NOT forced arc-curve. Theme can still be a loose umbrella, but each prompt is its own thing — no P01-03 anchor / P04-09 dev / P10-15 climax forced structure.
+
+**When theme-depth IS useful:** for very tight conceptual themes where 21 angles genuinely exist (e.g., "Le Fil Rouge" v43 worked because each sub-theme explored a different thread-material).
+
+**When theme-depth is HARMFUL:** for abstract themes ("Epiphany", "La Femme") where forcing 7 phases produces template-like repeats. Use 21 standalone ideas instead.
+
+OLD behavior (v44/v45): forced arc-curve, 7 phases × 3 angles
+NEW behavior (v47+): 21 standalone cool ideas, theme is loose umbrella not forced structure
+
+When user provides 1 theme, batch MAY operate in `single-theme-depth` mode (optional):
+- Solver generates 21 sub-themes under the umbrella theme
+- All 21 prompts MUST reference the theme keyword ≥1×
+- All 21 sub-theme anchors MUST be distinct
+- VOLT/NICHE ratio: 14 VOLT + 7 NICHE
+- Arc-curve applied: P01-03 anchor (NICHE), P04-09 dev (VOLT), P10-15 climax (VOLT-PEAK), P16-18 resolution (VOLT/NICHE), P19-21 counterpoint (NICHE)
+
+### SUB-THEME GENERATION RULES
+
+1. Each sub-theme = 1 angle on the umbrella theme
+2. Sub-themes should span conceptual categories:
+   - 3-4 sub-themes from mythology/symbolism
+   - 3-4 sub-themes from body/physical
+   - 3-4 sub-themes from relationship/yuri
+   - 3-4 sub-themes from space/impossible
+   - 3-4 sub-themes from material/elemental
+3. Sub-themes should NOT overlap semantically (e.g., "thread of fate" and "thread of destiny" = same)
+4. Each sub-theme gets its own ANCHOR keyword (kebab-case, 2-4 words)
+5. Sub-theme keyword MUST appear in prose
+
+### THEME-DEPTH EXAMPLES (see THEME_LIBRARY.md for full enumeration)
+
+- "Le Fil Rouge" (red thread) — 21 sub-themes: fate, love, puppet-string, suture, vein, hair, root, river, constellation, music-string, ariadne, spider-web, writing-on-skin, blood-vessel, wire, tear, promise, severed, self-spun, web-of-fates, no-thread
+- "La Marionnette" (puppet) — 21 sub-themes: strings-from-nowhere, body-in-void, shadow-puppeteer, doll-in-dollhouse, strings-made-of-hair, joints-visible, broken-string, puppet-holds-puppeteer, etc.
+- "L'Heure Bleue" (blue hour) — 21 sub-themes: dawn-blue, dusk-blue, snow-blue, water-blue, memory-blue, sleep-blue, death-blue, etc.
+
+---
+
+## NARRATIVE ARC CURVE (v2.0.8)
+
+Every batch MUST follow narrative arc. Apply these rules to position:
+
+| Position | Arc Phase | Genre | LLS Range | Palette intensity | Light |
+|---|---|---|---|---|---|
+| P01-03 | Anchor | NICHE | L0-L1 | Soft, atmospheric | Soft diffused, moonlight |
+| P04-09 | Development | VOLT | L1-L2 | Building | Hard key, candle |
+| P10-15 | Climax | VOLT-PEAK | L2-L3 | Maximum contrast | Hard key, rim, dramatic |
+| P16-18 | Resolution | VOLT/NICHE | L1-L2 | Softening | Soft, bioluminescent |
+| P19-21 | Counterpoint | NICHE | L0-L1 | Antithesis (e.g., warm if batch cold) | Moonlight, prism |
+
+### ARC APPLIED TO THEME-DEPTH
+
+In single-theme-depth mode, the arc also applies to sub-theme intensity:
+- P01-03: sub-theme introduced subtly (atmospheric)
+- P04-09: sub-theme explored through body (VOLT)
+- P10-15: sub-theme at peak intensity (VOLT-PEAK, risky poses)
+- P16-18: sub-theme resolved/descending
+- P19-21: sub-theme inverted/counterpoint (e.g., "no-thread" if theme is "thread")
+
+---
+
+## NICHE WOW-FACTOR CHECKLIST (v2.0.8 — user feedback "NICHE didn't deliver impossible")
+
+Every NICHE prompt MUST pass this checklist before approval:
+
+- [ ] **Impossible element present** (≥1 from: gravity inversion, time fracture, scale violation, material-becomes-solid, body-impossible, space-impossible, emotional-impossible)
+- [ ] **Specific visual idea** (not just "atmospheric" or "moody")
+- [ ] **Story in one frame** (viewer can imagine what happened / will happen)
+- [ ] **Composition intentional** (symmetry, negative space, frame-within-frame, reflection)
+- [ ] **Color harmony creative** (not just "dark" or "warm" — palette used inventively)
+- [ ] **Would make viewer stop scrolling** (the "wow factor")
+
+### NICHE IMPOSSIBLE ELEMENT ROTATION
+
+Across 7 NICHE prompts per batch, use ≥5 distinct impossible elements:
+- IE_GRAVITY (hair/skirt/water falls UP)
+- IE_TIME (3 moments in 1 frame, young AND old)
+- IE_SCALE (10cm tall, or 50m straddling city)
+- IE_MATERIAL (solid light, sound made solid, body becomes X)
+- IE_BODY (third eye, transparency gradient, hair-as-environment)
+- IE_SPACE (room-within-room, sky-below, mirror-world)
+- IE_EMOTIONAL (tears-as-gemstones, laughter-as-color, grief-as-rain)
+
+---
+
+## OC CANON-LOCK RULES (v2.0.9 — user feedback "следовать кору внимательней")
+
+**ABSOLUTE RULE:** OC_CANON.yaml is the single source of truth for OC appearance. Every OC prompt MUST match it EXACTLY.
+
+### FORBIDDEN IN PROSE
+
+The following clauses MUST NOT appear in the prose body:
+
+1. **`CANON: [OC-name] — ...`** — FORBIDDEN. The "CANON:" suffix with summary list is metadata noise that pollutes the prose. The canon data is in the prose itself (hair, eyes, skin, signature_marks all explicitly described). Do NOT append a "CANON:" summary.
+
+2. **`ANTI-BULK: ...`** — FORBIDDEN in prose. Anti-bulk phrases ("not muscular, not broad, feminine curves") belong in the **NEG (STD-CORE)** section, NOT in the positive prose. Putting them in prose can confuse the model and dilutes the visual instruction.
+
+### REQUIRED IN PROSE (per OC)
+
+Every OC prompt's prose MUST contain (no CANON suffix, just the data inline):
+- **Hair** — exact match to OC_CANON.yaml `hair` field
+- **Eyes** — exact match to OC_CANON.yaml `eyes` field (color + special features)
+- **Skin** — exact match to OC_CANON.yaml `skin` field
+- **Body type** — exact match to OC_CANON.yaml `body_type` field
+- **All signature_marks** — every entry in OC_CANON.yaml `signature_marks` list must appear in prose
+- **Default attire** (if specified) — must appear unless theme overrides
+- **Anti-shields** — opening phrases ("1girl, young woman, female, feminine") always present
+
+### REQUIRED IN NEG (per OC)
+
+Every OC prompt's NEG section MUST contain:
+- The full NEG_CORE
+- OC-specific anti-shields from OC_CANON.yaml:
+  - **Anti-human-ears** (for non-human OCs): "human ears, ears on sides of head, second pair of ears, elf ears, normal ears, human ears visible, ears under hair, human ears alongside fox ears"
+  - **Anti-bulk** (anti-body-drift): from OC body_type, add the opposite. E.g., curvy voluptuous OC → "slender build, small chest, flat chest, narrow hips, masculine body". Slender OC → "large breasts, huge chest, broad shoulders, muscular".
+  - **Anti-wrong-color** (for distinctive OCs): e.g., Yui (blonde) → "violet hair, purple hair, silver hair, black hair". Sol (silver-white) → "platinum hair, silver hair" (must be silver-WHITE not platinum/silver).
+  - **Anti-wrong-ears** (for fox/cat/etc OCs): e.g., Sol → "perked fox ears, upright fox ears, human ears" (Sol's fox ears are DROOPING, hanging beside head).
+
+### CRITICAL CANON CHECKS PER OC
+
+**Sue** — platinum twin ponytails + square white medical eyepatch on LEFT eye + neck tattoo + pale ivory + soft purple RIGHT eye (LEFT covered) + distant
+
+**Miyu** — long straight black hime cut + blunt bangs + long sidelocks + heterochromia LEFT red RIGHT blue (Miyu is the ONLY OC with heterochromia_red_blue) + sharp triangular anime fangs + warm light tan + slim elegant
+
+**Yui** — yellowish-blonde hair with PINK GRADIENT AT TIPS + low messy ponytail + LARGE ELEGANT BOW + DECORATIVE HAIRPINS + GOLDEN eyes with LIGHTER RING-SHAPED PUPILS + sharp triangular anime fangs + BEAUTY MARK under LEFT eye + fair skin with WARM undertone + medium to full chest + soft feminine build. NOT violet. NOT slender.
+
+**Sol** — long silver-WHITE THICK LAYERED hair + MESSY SIDE BANGS PARTIALLY COVERING ONE EYE + bright AMBER SLIT PUPILS (NOT gold — amber) + DARK BRONZE skin (NOT warm tan — dark bronze) + full chest + soft feminine build + LARGE DROOPING FOX EARS HANGING BESIDE HEAD (NOT perked — DROOPING) + LARGE GOLD HOOP EARRINGS ON FOX EARS + SMALL GEMSTONE EARRINGS ON FOX EARS + golden tail. NOT athletic. NOT perked ears.
+
+**Noa** — long deep COPPER-RED hair in loose SIDE BRAID + stray strands at temples + sharp EMERALD-GREEN eyes with GOLDEN FLECKS (REINFORCE) + fair FRECKLED skin + sandstone undertone + ATHLETIC TONED build (not slender) + small burn scar on RIGHT wrist
+
+**Doe** — shoulder-length WAVY LAVENDER hair + side-swept bangs + ROUND GLASSES + expressive GOLDEN-YELLOW eyes (NOT glowing) + light purple eyeliner + band-aid on bridge of nose + SINGLE small hoop earring in LEFT ear (asymmetric) + small soft purple scales on cheeks + small DEER-LIKE chinese dragon horns (antler-shaped, smooth, NOT branched, NOT curved backward) + thick toned thighs
+
+**Lua** — very long straight OBSIDIAN-BLACK hair with FAINT PURPLE SHEEN + side-swept bangs + PALE ICY GREY almond eyes (half-lidded) + curved RAM-LIKE horns + thin SERPENTINE tail + fair cream skin + light freckles + small beauty mark on RIGHT cheek + slender womanly build
+
+**Nix** — short platinum FRENCH BOB + wispy bangs + tapered nape + sharp ICE-BLUE eyes + MEDITERRANEAN BRONZE skin (NOT olive) + slim athletic MATURE body + SMALL BREASTS (explicit) + sharp angular features
+
+**Vae** — very long BLACK hair + SINGLE WHITE STREAK + side-swept bangs + striking RED eyes (NOT heterochromia — Miyu has heterochromia) + OBSIDIAN skin + curved RAM-LIKE horns + long SERPENTINE tail + tall curvy hourglass + LARGE BARE BREASTS + wide hips + ceremonial torn white robe (chest exposed) + X-TAPE over each nipple (canonical default)
+
+**Ash** — very long IVORY-WHITE hair (NOT platinum, NOT silver — ivory) + thin white VEIL covering eyes (canonical — eyes rarely seen) + snow-pale skin + slender build + simple white cotton garments (monastic) + crown of thorns over veil (optional)
+
+**Rae** — strawberry-blonde pixie cut + moonstone-pale eyes + fair freckled skin with cool undertone + small star-shaped scar on left collarbone + slender, small-breasted, delicate frame
+
+**Iya** — dark-blonde wavy hair in low messy ponytail + storm-grey eyes (warm despite name) + rich ebony skin with warm undertone + athletic full-figured strong frame + rain-drop tattoo on right wrist
+
+### CANON VIOLATION EXAMPLES (DO NOT REPEAT)
+
+- ❌ "Yui — violet hair + violet eyes" — WRONG. Yui is blonde+pink tips + golden ring pupils.
+- ❌ "Vae — heterochromia red/blue" — WRONG. Heterochromia is Miyu's signature. Vae has striking RED eyes (single color).
+- ❌ "Sol — fox ears perked" — WRONG. Sol's fox ears are DROOPING (hanging beside head).
+- ❌ "Sol — gold slit pupils" — WRONG. Sol has AMBER slit pupils (amber, not gold).
+- ❌ "Sol — warm tan skin" — WRONG. Sol has DARK BRONZE skin.
+- ❌ "Sol — athletic build" — WRONG. Sol has full chest + soft feminine build (not athletic).
+- ❌ Any `CANON: [name] — ...` suffix in prose — FORBIDDEN.
+- ❌ Any `ANTI-BULK: ...` clause in prose — FORBIDDEN (goes to NEG only).
+
+---
+
+## PH-DECOY PARAGRAPH — DEPRECATED (v2.0.11)
+
+**REMOVED.** PH-DECOY caused "poetry-vomit" — atmospheric sentences before visual instructions diluted prompts.
+Diagnostic v46 confirmed: prompts work better WITHOUT PH-DECOY. Prompt should start with visual immediately.
+
+OLD behavior: "A 2D anime illustration. The atmosphere carries a quiet weight. Hard key light..."
+NEW behavior: "A 2D anime illustration, medium shot. Hard key light from off-frame..."
+
+If PH strips anchors, fix the anchor — don't add decoy.
+
+---

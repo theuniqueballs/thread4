@@ -1,0 +1,508 @@
+A5P4A BETA — CORE PATCH
+Patch on top of A5P4_Core_Beta.txt. Adds creative/beauty/freedom vector.
+Goal: keep the system from stagnating, expand creative territory.
+
+═══════════════════════════════════════════════════════════════════════
+§0. WHAT THIS PATCH ADDS
+═══════════════════════════════════════════════════════════════════════
+
+5 MAJOR SYSTEMS:
+  CTP = Concept Transcendence Protocol (meta-concepts beyond CL01-30)
+  SEL = Surreal Erotic Library (impossible-but-renderable images)
+  NTS = Narrative Thread System (21 prompts = 21-chapter story)
+  ARI = Art Reference Index (30 stylistic directions, no artist names)
+  CWS = Composition Workshop (20+ composition techniques)
+
+15 MINOR ADDITIONS:
+  - Sound-led prompts
+  - Smell-led prompts
+  - Memory-led prompts
+  - Dream-logic prompts
+  - Poetic-form prompts
+  - Color-theory prompts
+  - Single-object-focus prompts
+  - Negative-space-as-subject prompts
+  - Time-of-day-as-character prompts
+  - Weather-as-emotion prompts
+  - Architecture-as-mood prompts
+  - Textile-as-narrative prompts
+  - Light-as-protagonist prompts
+  - Silence-as-action prompts
+  - Gesture-as-plot prompts
+
+═══════════════════════════════════════════════════════════════════════
+§1. CONCEPT TRANSCENDENCE PROTOCOL (CTP)
+═══════════════════════════════════════════════════════════════════════
+
+A5P4 Core §11 has CL01-CL30 (concrete concepts: moment-before-falling,
+discovery, reveal, etc.). CTP adds META-CONCEPTS — abstract,
+atmospheric, non-literal. They can be combined with concrete CLs.
+
+CTP1 = THE SILENCE BETWEEN
+       The pause between two breaths. The space between two
+       heartbeats. Image captures the gap, not the event.
+
+CTP2 = THE WEIGHT OF POSSIBILITY
+       The moment before a choice. Image holds multiple futures
+       simultaneously. None chosen yet.
+
+CTP3 = THE MOMENT OF FORGETTING
+       A memory dissolving. Image captures forgetting in progress,
+       not what was forgotten.
+
+CTP4 = THE ECHO OF AN ABSENT PRESENCE
+       Someone was here. They are gone. The image shows the trace.
+
+CTP5 = THE COLOR OF A SOUND
+       Synesthesia prompt. Sound rendered as color. The image
+       visualizes an auditory experience.
+
+CTP6 = THE SHAPE OF A SMELL
+       Synesthesia prompt. Smell rendered as form. Petrichor as
+       a figure. Incense as architecture.
+
+CTP7 = THE WEIGHT OF A GLANCE
+       A look so heavy it bends the room. Image visualizes the
+       gravitational pull of gaze.
+
+CTP8 = THE THRESHOLD OF KNOWING
+       The exact moment of understanding. Not before, not after.
+       The edge of realization.
+
+CTP9 = THE PRESENCE OF AN ABSENT THING
+       The image is shaped by what is not there. A silhouette of
+       something missing.
+
+CTP10 = THE TIME INSIDE A SINGLE SECOND
+        Time dilation. The image exists in a stretched moment.
+
+CTP usage:
+  - May replace CL in GENO code (CL## becomes CT##)
+  - May combine with CL (CL## + CT## as compound concept)
+  - Min 2 CTP per batch (forces abstract territory)
+
+═══════════════════════════════════════════════════════════════════════
+§2. SURREAL EROTIC LIBRARY (SEL)
+═══════════════════════════════════════════════════════════════════════
+
+Surreal images that Tsubaki 2 can render. Eroticism through
+impossibility, not through anatomy. Each is a specific visual idea.
+
+SEL1 = STAR-DISSOLUTION
+       Woman's body dissolving into stars at the edges. Nipples
+       become constellations. Tag: "her body dissolving into stars
+       at the edges, constellations forming along her collarbones"
+
+SEL2 = MIRROR-5-SECONDS-LATE
+       Reflection in mirror shows her 5 seconds in the past —
+       different pose. Tag: "her reflection in the mirror shows
+       her in a different pose than her body, the mirror lagging"
+
+SEL3 = SHADOW-ONLY-FABRIC
+       Fabric exists only where shadow falls. Lit areas show bare
+       skin. Tag: "fabric appearing only in shadow, lit areas
+       showing bare skin, the garment woven from darkness"
+
+SEL4 = DOUBLE-LIFE-SIZE
+       Her reflection in water is twice her size. Tag: "her
+       reflection in the pool twice her actual size, the water-
+       self towering over her"
+
+SEL5 = TIME-LOOP-THREE
+       Three versions of her in same frame, each 1 second apart.
+       Tag: "three versions of her in same frame, each one second
+       apart, the time-loop visible"
+
+SEL6 = GLASS-BODY
+       Her body is transparent glass, organs visible. Tag: "her
+       body made of transparent glass, internal structure visible,
+       light refracting through her"
+
+SEL7 = MIRROR-WORLD-INVERTED
+       Through the mirror, the world is inverted (sky below,
+       ground above). She stands at the threshold. Tag: "through
+       the mirror, the world inverted, sky below ground above,
+       she at the threshold"
+
+SEL8 = BREATH-MADE-VISIBLE
+       Her breath materializes as smoke, then dissolves. Tag:
+       "her breath materializing as visible smoke, curling from
+       her lips, dissipating"
+
+SEL9 = HAIR-WATERFALL
+       Her hair is an actual waterfall, water flowing from her
+       scalp. Tag: "her hair a waterfall, water cascading from
+       her scalp, pooling at her feet"
+
+SEL10 = EYE-CONSTELLATION
+        Her eyes contain entire night skies. Stars in the irises.
+        Tag: "her irises containing entire night skies, stars
+        visible in the colored part of her eyes"
+
+SEL11 = SECOND-MOUTH-SINGING
+        A mouth on her shoulder, singing silently. Tag: "second
+        mouth on her shoulder, lips parted as if singing, no
+        sound emerging"
+
+SEL12 = BODY-AS-LANDSCAPE
+        Her body becomes a landscape — mountains at hips, valleys
+        at collarbones, river of hair. Tag: "her body as
+        landscape, mountains at the hips, valleys at collarbones,
+        hair flowing as river"
+
+SEL13 = TIME-FROZEN-MID-ACTION
+        Everything frozen except her eyes. Tag: "everything in
+        frame frozen mid-action, water droplets suspended, only
+        her eyes able to move"
+
+SEL14 = REFLECTION-DIFFERENT-RACE
+        Her reflection is a different race than her body. Tag:
+        "her body pale, her reflection in the mirror deep-brown,
+        the race-shift between body and reflection"
+
+SEL15 = BUTTERFLY-EMERGING-FROM-BACK
+        Butterflies emerging from her shoulder blades, the skin
+        breaking into wing-patterns. Tag: "butterflies emerging
+        from her shoulder blades, her skin patterned with wing-
+        marks, the transformation mid-process"
+
+SEL quota: 2-4 per batch. Forces surreal territory.
+SEL declared in pre-header SEL field.
+
+═══════════════════════════════════════════════════════════════════════
+§3. NARRATIVE THREAD SYSTEM (NTS)
+═══════════════════════════════════════════════════════════════════════
+
+Each batch is a 21-chapter story. The 21 prompts form a narrative
+arc, not just a thematic variation.
+
+NTS structure:
+  Chapter 1 (P01): INCITING INCIDENT — the event that starts it
+  Chapter 2-5 (P02-P05): RISING ACTION — complications
+  Chapter 6 (P06): MIDPOINT — the turn
+  Chapter 7-9 (P07-P09): COMPLICATION DEEPENS
+  Chapter 10 (P10): FALSE RESOLUTION
+  Chapter 11-13 (P11-P13): DESCENT
+  Chapter 14 (P14): DARK NIGHT — lowest point
+  Chapter 15-17 (P15-P17): REVELATION
+  Chapter 18 (P18): CHOICE
+  Chapter 19-20 (P19-P20): CLIMAX APPROACH
+  Chapter 21 (P21): RESOLUTION (or new threshold)
+
+NTS field in pre-header: NTS:CHAPTER-NAME
+Example: NTS:INCITING-INCIDENT
+
+Each batch declares its narrative premise in header:
+  NARRATIVE: "A shrine maiden discovers her reflection is a
+  different woman every night. Across 21 prompts, she tries to
+  understand which one is real."
+
+NTS rule: prompts should reference the narrative implicitly,
+not through meta-text. The connection is conceptual, not declared.
+
+═══════════════════════════════════════════════════════════════════════
+§4. ART REFERENCE INDEX (ARI) — 30 stylistic directions
+═══════════════════════════════════════════════════════════════════════
+
+NO artist names (banned). Instead, stylistic directions. Each
+declares visual qualities Tsubaki 2 can render.
+
+AR01 = ART NOUVEAU
+       Mucha-style flowing lines, botanical frames, decorative
+       borders, flat color blocks. Tag: "art nouveau style,
+       flowing organic lines, botanical frame, decorative flat
+       color"
+
+AR02 = UKIYO-E
+       Woodblock print aesthetic, flat perspective, bold outlines,
+       limited palette. Tag: "ukiyo-e style, woodblock print,
+       flat perspective, bold ink outlines"
+
+AR03 = PRE-RAPHAELITE
+       Medieval romanticism, rich color, mythological subjects,
+       detailed nature. Tag: "pre-raphaelite style, rich
+       medieval color, mythological mood"
+
+AR04 = SYMBOLIST
+       Dreamlike, allegorical, muted palette, suggestive forms.
+       Tag: "symbolist style, dreamlike allegory, muted palette"
+
+AR05 = SURREALIST
+       Impossible combinations, dream logic, juxtaposed elements.
+       Tag: "surrealist style, impossible combinations, dream
+       logic"
+
+AR06 = CYBERPUNK
+       Neon, chrome, urban dystopia, holographic overlays.
+       Tag: "cyberpunk style, neon glow, chrome surfaces,
+       holographic overlay"
+
+AR07 = VAPORWAVE
+       Pink/cyan gradient, retro 80s aesthetic, glitch elements.
+       Tag: "vaporwave style, pink-cyan gradient, retro glitch"
+
+AR08 = DARK ACADEMIA
+       Candlelit library, old books, gothic mood, amber tones.
+       Tag: "dark academia style, candlelit library, gothic
+       mood, amber tones"
+
+AR09 = BAROQUE
+       Dramatic chiaroscuro, ornate detail, theatrical poses.
+       Tag: "baroque style, chiaroscuro lighting, ornate detail"
+
+AR10 = ROCOCO
+       Pastel palette, ornamental excess, frivolous mood.
+       Tag: "rococo style, pastel palette, ornamental excess"
+
+AR11 = ART DECO
+       Geometric patterns, gold/black palette, sleek lines.
+       Tag: "art deco style, geometric patterns, gold-black
+       palette"
+
+AR12 = GOTHIC
+       Dark mood, pointed arches, ecclesiastical atmosphere.
+       Tag: "gothic style, pointed arches, ecclesiastical
+       atmosphere"
+
+AR13 = IMPRESSIONIST
+       Visible brushstrokes, light-focused, soft edges.
+       Tag: "impressionist style, visible brushstroke texture,
+       light-focused"
+
+AR14 = EXPRESSIONIST
+       Distorted forms, emotional intensity, vivid colors.
+       Tag: "expressionist style, distorted forms, vivid
+       emotional color"
+
+AR15 = MINIMALIST
+       Sparse composition, single focal point, negative space.
+       Tag: "minimalist style, sparse composition, single focal
+       point"
+
+AR16 = MAXIMALIST
+       Dense detail, every space filled, visual overload.
+       Tag: "maximalist style, dense detail, visual overload"
+
+AR17 = WATERCOLOR
+       Soft edges, bleeding colors, paper texture.
+       Tag: "watercolor style, soft bleeding edges, paper texture"
+
+AR18 = INK-WASH
+       Sumi-e style, gradient ink, white space.
+       Tag: "ink-wash sumi-e style, gradient ink, white space"
+
+AR19 = STAINED-GLASS
+       Lead lines, colored glass panels, luminous.
+       Tag: "stained glass style, lead lines, colored panels"
+
+AR20 = MOSAIC
+       Tessellated tiles, grout lines, fragmented image.
+       Tag: "mosaic style, tessellated tiles, fragmented image"
+
+AR21 = CEL-SHADED-ANIME
+       Bold outlines, flat color, anime default.
+       Tag: "cel-shaded anime style, bold outlines, flat color"
+
+AR22 = PAINTERLY-ANIME
+       Soft gradients, painted backgrounds, anime figures.
+       Tag: "painterly anime style, soft gradients, painted
+       background"
+
+AR23 = GOUACHE
+       Opaque watercolor, matte finish, layered strokes.
+       Tag: "gouache style, opaque matte finish, layered strokes"
+
+AR24 = CHARCOAL-DRAWING
+       Smudged charcoal, paper tooth visible, monochrome.
+       Tag: "charcoal drawing style, smudged tones, paper tooth"
+
+AR25 = ETCHING
+       Fine cross-hatching, ink lines, old-print aesthetic.
+       Tag: "etching style, fine cross-hatching, old-print
+       aesthetic"
+
+AR26 = SOLARPUNK
+       Green infrastructure, bright optimistic palette, nature-
+       integrated tech. Tag: "solarpunk style, green infrastructure,
+       optimistic palette"
+
+AR27 = BRUTALIST
+       Raw concrete, monumental forms, harsh shadows.
+       Tag: "brutalist style, raw concrete, monumental forms"
+
+AR28 = MAGICAL-REALISM
+       Realistic setting with one impossible element.
+       Tag: "magical realism style, realistic setting, single
+       impossible element"
+
+AR29 = GOTHIC-REVIVAL
+       Neo-gothic ornament, dark romanticism, decayed grandeur.
+       Tag: "gothic revival style, neo-gothic ornament, decayed
+       grandeur"
+
+AR30 = POST-IMPRESSIONIST
+       Structured brushstrokes, vivid color, emotional form.
+       Tag: "post-impressionist style, structured brushstrokes,
+       vivid color"
+
+ARI quota: 3-5 distinct AR per batch. No AR repeated more than 3×.
+ARI declared in pre-header AR field.
+
+═══════════════════════════════════════════════════════════════════════
+§5. COMPOSITION WORKSHOP (CWS) — 20+ composition techniques
+═══════════════════════════════════════════════════════════════════════
+
+CW01 = RULE-OF-THIRDS
+       Subject at thirds intersection. Classic.
+
+CW02 = GOLDEN-RATIO
+       Subject on golden spiral. Organic.
+
+CW03 = FRAME-WITHIN-FRAME
+       Doorway, window, mirror framing subject.
+
+CW04 = NEGATIVE-SPACE-DOMINANT
+       Subject occupies <30% of frame. Space is the subject.
+
+CW05 = ASYMMETRY-EXTREME
+       Subject pushed to extreme edge. Off-balance.
+
+CW06 = PERSPECTIVE-PULL
+       Strong vanishing point. Subject at convergence.
+
+CW07 = DEPTH-STACKING
+       Foreground/midground/background all populated.
+
+CW08 = SILHOUETTE-DOMINANT
+       Subject as silhouette against bright background.
+
+CW09 = COLOR-BLOCKING
+       Bold color zones, geometric division.
+
+CW10 = GEOMETRIC-RIGIDITY
+       Strong geometric shapes (triangles, rectangles).
+
+CW11 = ORGANIC-FLOW
+       Curved lines, no straight edges. S-curve composition.
+
+CW12 = DIAGONAL-DYNAMISM
+       Strong diagonal lines through frame.
+
+CW13 = CENTER-COMPOSITION
+       Subject dead center. Symmetric.
+
+CW14 = TRIANGLE-COMPOSITION
+       Three points forming triangle.
+
+CW15 = LEADING-LINES
+       Lines converging on subject.
+
+CW16 = REFLECTION-SYMMETRY
+       Water/mirror reflection creates symmetry.
+
+CW17 = HIGH-ANGLE-DOMINANT
+       Camera looks down, subject small in frame.
+
+CW18 = LOW-ANGLE-DOMINANT
+       Camera looks up, subject looms.
+
+CW19 = DUTCH-TILT-COMPOSITION
+       Camera tilted, horizon off-level.
+
+CW20 = PANORAMIC-WIDE
+       Extreme aspect ratio feel, subject distant.
+
+CW21 = INTIMATE-CLOSE
+       Subject fills 80%+ of frame.
+
+CW22 = FIGURE-IN-LANDSCAPE
+       Tiny figure in vast environment.
+
+CWS quota: 5-7 distinct CW per batch. Forces composition variety.
+CWS declared in pre-header CW field.
+
+═══════════════════════════════════════════════════════════════════════
+§6. MINOR ADDITIONS — sensory/structural prompts
+═══════════════════════════════════════════════════════════════════════
+
+Each is a structural device for SS field (extends A5P4 §3).
+
+SS21 = sound-led (the only sound is the dryer humming)
+SS22 = smell-led (the room smells of incense and old paper)
+SS23 = memory-led (she remembers this room from childhood)
+SS24 = dream-logic (the walls are breathing, she does not notice)
+SS25 = poetic-form (haiku-structure prompt: 3 lines, 5-7-5 syllables feel)
+SS26 = color-theory (single color dominates entire frame)
+SS27 = single-object-focus (one object is the protagonist)
+SS28 = negative-space-as-subject (the empty space is the point)
+SS29 = time-of-day-as-character (5 AM is the antagonist)
+SS30 = weather-as-emotion (the rain is her grief)
+SS31 = architecture-as-mood (the cathedral is the loneliness)
+SS32 = textile-as-narrative (the silk tells the story)
+SS33 = light-as-protagonist (the light is the main character)
+SS34 = silence-as-action (the silence does something)
+SS35 = gesture-as-plot (a single gesture carries the narrative)
+SS36 = glance-as-conflict (a look is the argument)
+SS37 = threshold-as-resolution (the doorway is the answer)
+SS38 = trace-as-plot (what was left behind drives the story)
+SS39 = echo-as-structure (the prompt repeats with variation)
+
+Quota: min 7 distinct SS per batch (unchanged), but now with
+19 more options to draw from.
+
+═══════════════════════════════════════════════════════════════════════
+§7. UPDATED PRE-HEADER PROTOCOL
+═══════════════════════════════════════════════════════════════════════
+
+Format:
+  P## | STREAM:{VOLT|NICHE} | GENO:V2:P##:C##:T#:S##:CL##
+  | T:{tier} | SIG:{...} | RACE:{...} | SS:{...}
+  | COL:{...} | AR:{AR##} | CW:{CW##}
+  | CT:{CT# or none} | SEL:{SEL# or none}
+  | NTS:{chapter-name}
+  | G:✓✓✓✓✓
+
+New fields:
+  AR   = art reference (AR01-AR30)
+  CW   = composition workshop (CW01-CW22)
+  CT   = concept transcendence (CTP1-CTP10, may combine with CL)
+  SEL  = surreal erotic library (SEL1-SEL15, optional)
+  NTS  = narrative thread chapter name
+
+═══════════════════════════════════════════════════════════════════════
+§8. UPDATED QUOTAS (per batch of 21)
+═══════════════════════════════════════════════════════════════════════
+
+CONCEPT (CL + CTP):
+  Min 5 distinct CL or CTP per batch
+  Min 2 CTP per batch (forces abstract territory)
+
+ART REFERENCE:
+  3-5 distinct AR per batch. Max 3 same AR.
+
+COMPOSITION:
+  5-7 distinct CW per batch.
+
+SURREAL:
+  2-4 SEL per batch (forces surreal territory).
+
+NARRATIVE:
+  Each batch has declared NARRATIVE premise.
+  Each prompt has NTS chapter name.
+  No meta-text in body — connection is conceptual.
+
+═══════════════════════════════════════════════════════════════════════
+§9. WHAT WAS NOT INCLUDED (and why)
+═══════════════════════════════════════════════════════════════════════
+
+NOT INCLUDED:
+  - Letter-from-character prompts (A10 from brainstorm)
+    Reason: text renders poorly on Tsubaki 2, gibberish risk
+  - ARI artist names
+    Reason: banned in A5P4 §0.5 — style imitation triggers
+  - CWS beyond 22 techniques
+    Reason: diminishing returns, 22 covers all major approaches
+
+═══════════════════════════════════════════════════════════════════════
+END OF A5P4A BETA PATCH
+═══════════════════════════════════════════════════════════════════════

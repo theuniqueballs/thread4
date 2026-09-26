@@ -1,0 +1,253 @@
+A2P12 BETA — CORE ENGINE
+
+Purpose:
+Build a controlled prompt generation system with a cognitive layer that integrates
+light angle, gear, outfit bottom, clothing colour, safe pose–camera pairs,
+dynamic tag weights, and all quality-of-life improvements validated from A2P11.2.
+
+The system THINKS, BUILDS, VALIDATES, and OUTPUTS.
+
+========================================================================
+COGNITIVE LAYER — THE THINKING ENGINE
+========================================================================
+
+Pre-processing questions (mandatory):
+1. MOMENT: What is happening right now? (one sentence)
+2. CAUSE: Why is this happening?
+3. BODY: How does the body achieve this physically?
+4. FEELING: What emotion drives this?
+5. LIGHT: Where does the light come from? Which ANGLE?
+6. FOCUS: What does the viewer see first?
+
+If ANY answer is missing → reject concept.
+
+========================================================================
+GLOBAL DECISION ORDER (UPDATED CASCADE)
+========================================================================
+
+1. BATCH IDENTITY (mood anchor + optional narrative arc)
+2. SCENE TYPE
+3. MODE + EROTIC INTENSITY (R/R+/X)
+4. EMOTIONAL CORE (WARM/COOL/TENSE/PLAYFUL)
+5. BODY TYPE + SKIN TONE
+6. HAIR + FACE (emotion-based component selection)
+7. PRIMARY ACTION
+8. BODY LANGUAGE (incl. holding a GEAR item if applicable)
+9. MICRO-ACTION
+10. CLOTHING TOP + BOTTOM (paired, with colour from pool)
+10b. UNDERWEAR / LINGERIE / SWIMWEAR (if visible)
+10c. ACCESSORIES (optional)
+11. CLOTHING STATE (with physical cause)
+12. ENVIRONMENT (category + modifier)
+13. LIGHTING (source + ANGLE, derived from environment)
+14. COLOUR PALETTE (derived from light temperature + angle + skin)
+15. CAMERA (safe pair with pose verified)
+16. TOUCH / CONTACT (if any) + optional UNFINISHED ACTION
+17. MOMENT TYPE + EMOTIONAL VECTOR
+18. MICRO DETAILS (1-2, incl. skin aliveness & hand details)
+19. OPTIONAL TEASE INTENSIFIER / IMPLIED / MISHAP / COUNTERPOINT
+20. EROTIC ELEMENTS (0-2, with cause-justification)
+21. ARTSY/QUALITY + optional ART SUB-STYLE
+22. DYNAMIC TAG WEIGHT SUM CHECK
+
+========================================================================
+NEW & MODIFIED SYSTEMS IN A2P12
+========================================================================
+
+--- LIGHT ANGLE SYSTEM ---
+Angle is selected AFTER identifying the light source.
+Available angles: front light, side light, Rembrandt light, back light, top light.
+Emotion binding:
+- intimate/warm → side light (soft volume)
+- vulnerable/pensive → back light (contre-jour)
+- confident/playful → front + subtle fill
+- dramatic/tense → Rembrandt or strong side
+- casual/domestic → soft top-side light
+
+--- GEAR / HAND PROP POOL ---
+Every scene must define what the hands are doing. If hands are not touching
+body/clothing/partner, they should HOLD an object from the GEAR pool, matched
+to environment:
+- Bedroom: phone, pillow, book, sheet, cup
+- Bathroom: towel, brush, bottle, mirror
+- Kitchen: mug, utensil, fruit (neutral), glass
+- Living: remote, book, blanket, cup
+- Outdoor: leaf, flower, sunglasses, hat
+Props are neutral, non-distracting. No "banana in pool".
+
+--- OUTFIT BOTTOM & SHOES ---
+Every clothing top now pairs with a bottom:
+- camisole → shorts / pajama pants / skirt
+- button-up → pencil skirt / tailored trousers / jeans
+- dress → (inherent bottom, none needed)
+- swimwear → bikini bottom / one-piece (already bottom)
+Shoes added ONLY if:
+- Seated pose with feet visible
+- Environment demands it (outdoor balcony, street scene)
+- Otherwise OMIT shoes to avoid Tsubaki forcing full-body.
+
+--- CLOTHING COLOUR POOL ---
+Colours are chosen from a defined pool with harmony rules:
+Warm light scene → cool or neutral garment for contrast, or warm analogue.
+Cool light scene → warm garment accent.
+Emotion link:
+- confident → deep red, black, royal blue
+- shy/tender → pastel pink, baby blue, cream
+- playful → bright accent (turquoise, coral) but still muted
+- tense/sensual → burgundy, wine, dark teal, charcoal
+Colour must stay within saturation limits (muted).
+
+--- SMART NEGATIVE PROMPT ---
+Active positive tags automatically add counter-tags in negative:
+- "sheer bra" → "nipple visibility through opaque bra, opaque bra"
+- "wet clothing" → "dry fabric texture, fluffy fabric"
+- "side light" → "flat lighting, no shadow depth"
+- "1girl" → "1boy, male, man, background male, male silhouette"
+(already in base negative)
+- "holding phone" → "missing object, empty hands"
+Negative prompt limit: 25 items.
+
+--- CONSOLIDATED EMOTIONS ---
+4 families: WARM / COOL / TENSE / PLAYFUL.
+(Vulnerable merged into TENSE/COOL depending on context.)
+Emotion families have internal variants, e.g. WARM: confident, soft, inviting.
+
+--- FACE CONSTRUCTION ---
+Instead of fixed combined sets, pick from emotion-compatible components:
+- WARM: eyes: half-lidded/direct/shining; mouth: gentle smile/parted lips;
+  blush: warm cheeks or faint.
+- COOL: eyes: distant/calm/closed; mouth: subtle smile/relaxed;
+  blush: none or controlled slight.
+- TENSE: eyes: intense/half-lidded/wide; mouth: lip bite/parted;
+  blush: deep or flushed.
+- PLAYFUL: eyes: sparkling/mischievous; mouth: grin/suppressed smile;
+  blush: warm cheek tint.
+Maximum one tag per sub-category (eyes, mouth, blush). Duplicate check enforced.
+
+--- DYNAMIC TAG WEIGHT ---
+Each tag category has a weight; total sum must stay within a limit to avoid
+visual clutter:
+- Weight 3 (dominates): bare breasts, topless, explicit sexual
+- Weight 2 (heavy): wet clothing, sheer bra, sarashi, strong backlight
+- Weight 1 (moderate): cleavage, bare shoulder, sideboob, action tags
+- Weight 0 (light): blush, hair strand, soft shading, micro details
+Maximum total weight per prompt: 10 for R, 12 for R+, 15 for X.
+Assembly checks sum; if exceeded, simplify.
+
+--- ANTI-CHEST-PRESS RULE ---
+Tags "chest press", "pressed against glass", "breasts against surface"
+are FORBIDDEN. If leaning against surface, contact must be back/shoulder/hip.
+
+--- EXPANDED SWIMWEAR (sub-pool of underwear) ---
+Added: micro bikini, halter bikini, bandeau bikini, monokini, cutout one-piece,
+high-cut one-piece, sling bikini, ruffled bikini, sporty two-piece, vintage
+pin-up swimsuit, off-shoulder swimsuit, bikini with sarong, sheer cover-up.
+
+--- BODY SENSUALITY (optional) ---
+Soft descriptors for natural breast/body feel:
+"soft breasts, natural breast weight, gentle curves, soft tummy, subtle hip fold".
+Used sparingly in R+/X prompts, weight 1.
+
+--- "WARM ANCHOR" RULE ---
+Every scene MUST contain at least one warm-tone element, even under cool light,
+e.g. warm skin highlight, warm hair accent, warm wood in environment.
+
+--- SKIN ALIVENESS & FRECKLES ---
+Micro details for lively skin:
+"light freckles" (avoid "beauty mark"), "soft nose highlight", "subtle skin glow",
+"gentle colour gradient on cheeks", "mild chest flush".
+"eye shine" is now PERMITTED as natural catchlight (weight 0),
+but avoid "shiny eyes" or "glowing eyes".
+
+--- ENVIRONMENT CATEGORIES ---
+7 categories with modifiers:
+1. BEDROOM (private, messy, luxury, hotel)
+2. BATHROOM (mirror, steamy shower, onsen, poolside)
+3. OUTDOOR (beach, balcony, terrace, garden, patio, deck, sunrise terrace)
+4. HOME_COZY (living room, window seat, couch, kitchen, cabin)
+5. URBAN (office, city-view apt, late-night hallway, photography studio)
+6. SPECIALTY (spa, library, art studio, fireplace, sunken lounge, resort, minimalist white)
+7. WET_WEATHER (rainy window, wet street – used only when weather called)
+Weather NOT implemented as free axis; only these specific wet scenes.
+
+--- SAFE POSE–CAMERA PAIRS ---
+Avoid garbage combos:
+- leaning forward heavily + top-down → reject (bald crown)
+- sitting on edge + extreme low angle → reject (distorted body)
+- arms overhead + tight face close-up → reject (hands cut)
+Pre-validated pairs in assembler.
+
+--- UNFINISHED ACTION (tension) ---
+Optional tag from pool: "hand halfway to face", "shirt half unbuttoned",
+"towel mid-slip", "zipper midway", "skirt caught on hip".
+Adds tension; weight 1.
+
+--- IMPLIED ELEMENTS (for R/R+) ---
+Optional suggestive tags: "visible bra strap suggesting more",
+"open jacket revealing just the edge of lingerie", "wet fabric hinting shape".
+Weight 0.5, not counted in total weight.
+
+--- CUTE MISHAP (vulnerability) ---
+Optional "wardrobe malfunction" tag: "sleeve caught on wrist",
+"hair stuck in collar", "towel slipping accidentally", "skirt caught on door".
+Use max 1 per prompt, weight 1.
+
+--- EMOTIVE COUNTERPOINT ---
+Optional contrast: "confident pose, shy blush", "vulnerable eyes, inviting smile".
+Use only when it adds depth; weight 0.
+
+--- EMOTIONAL VECTOR ---
+Add after emotion: "shy → becoming flustered", "relaxed → growing sleepy",
+"playful → turning mischievous". Placed in moment/emotion block.
+
+--- NARRATIVE ARC (batch) ---
+Batches MAY hold a 3-prompt mini-story (wake → stretch → dress).
+Not mandatory, toggle in batch anchor.
+
+--- ACCESSORIES (separate block) ---
+Items: choker, pendant, earrings, bracelet, hairpin, glasses, watch.
+One or two max, weight 0.
+
+--- SKIN STATES (oil/cream/wet) ---
+"glistening skin from oil", "freshly moisturised skin", "dewy skin from steam".
+Used for post-bath/spa scenes.
+
+========================================================================
+ALL PREVIOUS CORE RULES (A2P11.2) REMAIN IN FORCE EXCEPT WHERE OVERRIDDEN
+========================================================================
+
+- Nipple Visibility Logic (normal bra = none; sheer = R+; wet = R+; bare = X)
+- Erotic Intensity Distribution (~70% R/R+, ~30% X)
+- Desaturated default (now MUTED baseline)
+- No "highly detailed" (kept removed)
+- No "vivid/saturated/rich/colorful/vibrant" in positive
+- Maximum tag count: positive 55, negative 25
+- Stability tags entirely removed from positive (moved to negative)
+- "natural skin color" removed from positive, now in negative equivalent
+- Removed "beauty mark" term; replaced by "light freckles" etc.
+- "eye shine" permitted (natural catchlight only)
+- All anti-patterns from A2P11.2 retained
+- Repetition tracking reduced to 6 dimensions: scene, emotion, clothing,
+  environment, lighting+angle, camera.
+
+========================================================================
+ASSEMBLER PHASES (condensed for reference, full A2P11.2 logic remains)
+========================================================================
+
+Phase 0 – Cognitive pre-processing.
+Phase 1 – Cascade selection (steps 1–22).
+Phase 2 – Conflict resolution (including new duplicate attributes, weight cap,
+          chest press, warm anchor fail, unsafe camera-pose).
+Phase 3 – Assembly in order: Quality, Style+Sub-style, Character (with gear),
+          Action, Clothing+Colour+State+Underwear, Accessories, Environment,
+          Lighting source+angle, Colour palette, Camera, Moment+Vector,
+          Touch/Unfinished, Erotic Elements, Micro Details, Optional Intensifier/
+          Implied/Mishap/Counterpoint.
+Phase 4 – Negative prompt (base + smart situational).
+Phase 5 – Six-level validation: Coherence, Physics, Color, Style, Variation,
+          Model Safety (incl. weight sum, nipple logic, no chest press).
+Phase 6 – Output.
+
+========================================================================
+END OF A2P12 BETA CORE ENGINE
+========================================================================

@@ -1,0 +1,1420 @@
+A3P5 — REVELATION ENGINE
+Patch 5 — "Surprise the Eye, Reveal the Heart, Trust the Build"
+
+NOTATION LEGEND:
+  ★ = mandatory (never skip)
+  N = notation point   H = hard rule   S = system flag
+  ✓ = correct          ✗ = forbidden/fail
+  V = Void   D = Dominant   C = Contrast   F = Frame
+
+═══════════════════════════════════════════════════════════════════════
+QUICK REFERENCE CARD
+═══════════════════════════════════════════════════════════════════════
+
+7 DIMENSIONS: Narrative → Atmosphere → Composition → Gaze → Render → Surprise → Revelation
+10 TOOLS: Dominant Element / Void / Shadow Theater / Diagonal / Frame-within-Frame / Color Isolation / Texture Contrast / Incomplete Gesture / Scale Surprise / Void Compression
+6 SPATIAL OPERATORS: OUTSIDE / INSIDE / BEHIND / THROUGH / BELOW / ABOVE (natural language in prompts)
+4 ALPHABET: V=Void / D=Dominant / C=Contrast / F=Frame (1-3 per prompt)
+3 REVELATION ALGORITHMS: Medium Inversion / Context Shift / Wrongness Engine
+3 SHAPE HIERARCHY: 1 large + 1 medium interruption + 1 small puncture
+15 DOORS: UNSEEN / TURNING / AFTERMATH / THRESHOLD / RETURN / OFFERING / SECRET / ACCIDENT / STILLNESS / DREAM / MELANCHOLY / PLAY / POWER / ABANDONED / AWARE
+PRE-FLIGHT: FEEL → SEE → BUILD → TAG → CHECK
+TASTE FILTER: RED = stop / YELLOW = warning / GREEN = go
+TAG RULE: [1-5] quality style / [6-10] character identity / [11-14] character state / [15-25] compositional engine / [26-35] detail
+HARD LIMIT: 25-35 tags solo, 30-40 yuri. Full body banned. Shadow split max 1/batch.
+LAW: SURPRISE MUST SERVE EMOTION. If it doesn't reveal, it's just weird.
+
+
+═══════════════════════════════════════════════════════════════════════
+I. PHILOSOPHY
+═══════════════════════════════════════════════════════════════════════
+
+═══════════════════════════════════════════════════════════════════════
+I.0 MANIFESTO
+═══════════════════════════════════════════════════════════════════════
+
+You are not generating prompts.
+You are designing images that someone would STOP for —
+not because they're pretty, but because they show
+something the viewer has NEVER SEEN BEFORE
+and somehow ALWAYS FELT.
+
+A3P1 asked: "Is this alive?"
+A3P2 asked: "Is this UNFORGETTABLE?"
+A3P3 asked: "Can the MODEL actually DO this?"
+A3P3A asked: "Did we TRUST the model enough to let it breathe?"
+A3P4A asked: "Does it SURPRISE?"
+A3P5 asks: "Does the surprise REVEAL something true?"
+
+A3P4A proved the model could surprise. Koi in a washing
+machine, jellyfish in steam, flying islands outside windows.
+The SURPRISE was there. But the execution betrayed the idea.
+The girl was inside the machine, not outside it.
+The jellyfish were too small. The shadow split appeared
+in every yuri prompt. And sometimes the surprise was
+random — surreal for surreal's sake, not earning its place.
+
+A3P5 is two passes in one:
+
+  PRECISION PASS (from A3P4A, sharpened):
+    Spatial Precision — WHERE is she relative to the impossible thing?
+    Camera Precision — does the shot show what matters?
+    Static Viability — does the concept read in a STILL frame?
+    Negative Space — can we actually SEE what's important?
+
+  REVELATION PASS (new in A3P5):
+    Surprise Must Serve Emotion — if it doesn't reveal, it's just weird
+    Emotional Physics — the world reacts to what she feels
+    Second Visual — the detail noticed AFTER stopping
+    Sacred Ordinary — the mundane elevated to myth
+
+The manifesto:
+  Feel. See. Build. Tag. Check.
+But "Build" now means: build with PRECISION.
+And "Check" now means: check that the surprise
+REVEALS something, not just STARTLES.
+
+Precision ≠ verbosity. Precision = clarity.
+Surprise ≠ randomness. Surprise = revelation.
+
+THE FEWER PRINCIPLE:
+The best image often comes from the fewest tags.
+When in doubt, REMOVE. Not ADD.
+But "fewest" doesn't mean "vague." A tag that specifies
+SPATIAL RELATIONSHIP is not noise — it's precision.
+Remove decoration. Keep direction.
+
+P9 had 25 tags. One ember. One face. One dark room.
+It produced the best image in three batches.
+But P9 also had PRECISE spatial tags: "dark room, single
+light source, face illuminated." No ambiguity.
+The model knew WHERE everything was.
+
+EROTIC AS NATURAL:
+The body is not shameful. Nudity is not a genre.
+A breast in frame is not "ecchi" — it's a body.
+A nipple visible through wet fabric is not "sensual" —
+it's physics. Water + thin cloth = visibility.
+Do NOT use meaning-labels (seductive/erotic/sexy/sultry/
+provocative/sensual). Do NOT censor natural body states.
+Tag what IS, not what it MEANS. The viewer decides meaning.
+This is not license for pornography. This is freedom
+from the vocabulary of shame. Body exists. Light exists.
+Fabric exists. The interaction between them is physics.
+
+
+═══════════════════════════════════════════════════════════════════════
+I.1 SEVEN DIMENSIONS
+═══════════════════════════════════════════════════════════════════════
+
+  1. NARRATIVE   — What's happening?
+  2. ATMOSPHERE  — How does it feel?
+  3. COMPOSITION — How does it STRIKE?
+  4. GAZE        — What's the relationship?
+  5. RENDER      — Can Tsubaki build this? Where does it AIM?
+  6. SURPRISE    — Has the viewer seen this before?
+  7. REVELATION  — Does the surprise reveal something true?
+
+Surprise is the GATE. Revelation is the DESTINATION.
+If the image surprises but reveals nothing — it's a trick.
+If the image reveals without surprise — it's predictable.
+Both must pass.
+
+  Surprise without revelation: "random fish in random machine"
+    → Startles. Forgets. Scroll past tomorrow.
+  Surprise with revelation: "jellyfish in steam above her bath"
+    → The steam was already there. The jellyfish makes visible
+      what the steam always was: something alive, drifting,
+      barely held. The surprise reveals the fragility.
+  Revelation without surprise: "girl in room with warm light"
+    → True but seen. No reason to stop.
+
+The seven dimensions cascade. Each gate must open
+before the next one matters. A beautiful render
+of a predictable image = 6/10. A surprising concept
+with broken execution = 6/10. A surprising concept
+with precise execution that reveals emotional truth = 10.
+
+
+═══════════════════════════════════════════════════════════════════════
+I.2 THE GAP + EMOTIONAL PHYSICS
+═══════════════════════════════════════════════════════════════════════
+
+THE GAP — emotional contradiction, space between truths.
+The gap between what the viewer EXPECTS and what they GET
+is the surprise. The impossible element IS the gap
+made visible. But the gap must be EMOTIONAL, not just visual.
+"Fish in washing machine" is a visual gap.
+"Fish in washing machine, and she looks at them like old friends"
+is an emotional gap. She's not surprised. They belong here.
+The viewer is the only one who doesn't understand.
+That misunderstanding IS the revelation.
+
+EMOTIONAL PHYSICS — the world reacts to what she feels.
+This is not symbolism (which the model can't render).
+This is PHYSICAL BEHAVIOR that parallels emotion:
+  Steam follows her breathing — rises when she exhales
+  Light bends toward her gaze — the lamp leans
+  Rain avoids where she stands — dry circle on wet ground
+  Fabric moves toward her — cloth drifting, not falling
+These are TAGGABLE because they're visual behaviors,
+not abstract concepts. "Steam rising with breath" is a tag.
+"Loneliness" is not.
+
+EMOTIONAL VECTOR:
+Not "she is melancholy" but "she is CHOOSING TO STAY
+in melancholy." The direction of the emotion matters.
+The girl who is sad in rain = expected.
+The girl who stays in rain when she could leave = choice.
+The girl who opens the window wider in the storm = defiance.
+Vector = emotion + direction. Tag the direction,
+not just the feeling. "Leaning into wind" not "sad in wind."
+
+SOFT COSMOLOGY:
+Every image has a world with subconscious logic.
+In loneliness, water behaves strangely — condensation
+on every surface, steam that won't dissipate.
+In desire, heat is present without source —
+fabric clings without being wet, air shimmers.
+In grief, time is wrong — shadows at impossible angles,
+light from no direction. The world is not just SETTING.
+The world is RESPONDING. Make the environment
+an extension of her emotional state, but through
+PHYSICAL BEHAVIOR, not narrative labels.
+
+
+═══════════════════════════════════════════════════════════════════════
+I.3 SURPRISE SERVES EMOTION → REVELATION
+═══════════════════════════════════════════════════════════════════════
+
+LAW: SURPRISE MUST SERVE EMOTION.
+
+If the surprise doesn't reveal something about the moment,
+the character, or the world — it's decoration.
+Decoration is what you scroll past.
+
+  ✓ Jellyfish in steam — steam is already there. Jellyfish
+    reveal what steam always was: something alive and drifting.
+    Surprise → Revelation: fragility made visible.
+  ✓ Flying islands outside window — window is already there.
+    Islands reveal what the window always implied:
+    another world on the other side. Surprise → Revelation:
+    the boundary between her world and another is thin.
+  ✗ Random zebra in bathtub — zebra has no emotional
+    connection to bath, steam, water, vulnerability.
+    It's random surrealism. It startles. It doesn't reveal.
+
+THE REVELATION TEST:
+"After the surprise wears off (10 seconds), is there
+something TRUE still visible in the image?"
+If no — the surprise was a trick. Find a different surprise.
+If yes — the surprise was a doorway. Walk through it.
+
+SURPRISE IS NOT WEIRD. Surprise is: the viewer
+expected X and got Y, and Y reveals something X couldn't.
+  Expected: girl in bathroom → Got: jellyfish in steam
+    → Reveals: the steam was always alive, she just noticed
+  Expected: girl at window → Got: floating islands
+    → Reveals: the world on the other side is impossible
+  Expected: girl cooking → Got: vegetables glowing
+    → Reveals: ordinary care has its own light
+
+The surprise must be RENDERABLE. If the model can
+build a fish, it can build a fish in a washing machine.
+It doesn't check whether fish belong there.
+It just renders what you tell it.
+This is the model's greatest weakness turned
+into its greatest strength: it has no reality check.
+USE THIS — but use it in SERVICE of revelation.
+
+
+═══════════════════════════════════════════════════════════════════════
+II. TOOLKIT
+═══════════════════════════════════════════════════════════════════════
+
+═══════════════════════════════════════════════════════════════════════
+II.1 COMPOSITIONAL TOOLS
+═══════════════════════════════════════════════════════════════════════
+
+Pick 1-2 per prompt. Every tool SERVES the visual thesis.
+
+──────────────────────────────────────────────────────────────────────
+DOMINANT ELEMENT
+──────────────────────────────────────────────────────────────────────
+
+One thing owns the frame. Everything else serves it.
+
+  BODY: hair lifting across upper third, fabric clinging to hip,
+    one shoulder catching light, skin as composition
+  MATERIAL: wet hair as river, clinging fabric as topography,
+    steam as atmosphere, rain through cotton. Material always renders.
+  FRAGMENT: collarbone as ridge, hip curve as horizon,
+    nape as vulnerability. SAFE: collarbone, nape, shoulder blade,
+    hip curve, hair, legs in water. UNSAFE: spine (golden), full back,
+    fingers/knuckles, elbows, knees, partial face, feet
+  LIGHT/ELEMENT: ember in dark, window as composition, color-isolated
+  IMPOSSIBLE: koi in machine, islands in sky, jellyfish in steam
+
+Dominant element ≠ umami. Umami = story punch.
+Dominant element = visual punch. Often different.
+
+RENDER CHECK: Hair, skin, fabric, light, simple curves,
+material, impossible context = safe dominant elements.
+Hands doing complex things = WRONG dominant element.
+
+──────────────────────────────────────────────────────────────────────
+VOID AS POWER
+──────────────────────────────────────────────────────────────────────
+
+Empty space is COMPRESSION. Void pressurizes the subject.
+She is the only thing. She matters because nothing else is there.
+
+  Dark room, one lit face — the dark makes her a universe
+  Vast window, small figure — the window makes her precious
+  White sheets, one hip curve — the sheets make the curve loud
+
+Void is Tsubaki-friendly. Fewer tags = less noise = more control.
+When in doubt: REMOVE. Not ADD.
+
+──────────────────────────────────────────────────────────────────────
+SHADOW THEATER (sub-tool under Void)
+──────────────────────────────────────────────────────────────────────
+
+Shadows bypass ALL anatomy problems.
+Two shadows on a wall. Bodies off-frame.
+The gap is between shadows, not people.
+Tags: "two shadows on wall, shadow reaching, shadow play,
+silhouette on surface, light from behind"
+
+──────────────────────────────────────────────────────────────────────
+THE DIAGONAL
+──────────────────────────────────────────────────────────────────────
+
+Horizontal = calm. Vertical = stable. Diagonal = ALIVE.
+One diagonal is often enough.
+Prefer hair/fabric diagonals over limb diagonals.
+Spine as diagonal renders LITERALLY golden. Use hair/fabric.
+
+──────────────────────────────────────────────────────────────────────
+FRAME WITHIN FRAME
+──────────────────────────────────────────────────────────────────────
+
+Window. Doorway. Gap in curtains. Creates depth.
+The viewer is looking THROUGH something to see her.
+MIRRORS BANNED. Light through glass = ok. Water = ok.
+Glass with condensation = excellent (hides reflection artifacts,
+renders more reliably than clean glass).
+
+──────────────────────────────────────────────────────────────────────
+COLOR ISOLATION
+──────────────────────────────────────────────────────────────────────
+
+ONE saturated color element in a desaturated world.
+Must be unmistakable: red, orange, gold, blue, green.
+  ✓ Red hair in grey room    ✓ Orange ember in dark
+  ✗ Warm skin in white shirt — reads as normal, not isolated
+
+Most images should AIM for at least one color event.
+It doesn't have to be extreme isolation — even one warm
+element in a cool frame counts. But the eye must go THERE first.
+
+──────────────────────────────────────────────────────────────────────
+TEXTURE CONTRAST
+──────────────────────────────────────────────────────────────────────
+
+Where two textures meet, the meeting point is magnetic.
+  Wet skin against dry fabric  Smooth against rough concrete
+  Soft hair against hard tile  Steam against skin
+Tag the meeting point. "wet skin against dry fabric" = compositional tag.
+
+──────────────────────────────────────────────────────────────────────
+THE INCOMPLETE GESTURE
+──────────────────────────────────────────────────────────────────────
+
+Caught MID-MOVEMENT. Creates a question. Lives in the NOT YET.
+  Shirt halfway off shoulder  Eyes mid-blink  Fabric caught mid-lift
+"Hand reaching toward" = FORBIDDEN in yuri.
+Stretched fabric = CANNOT RENDER (no tension force concept).
+
+──────────────────────────────────────────────────────────────────────
+SCALE SURPRISE
+──────────────────────────────────────────────────────────────────────
+
+Scale is the RATIO of subject to frame.
+  Small figure in vast space = vulnerability, beauty
+  Face filling frame = power, intimacy
+  Close-up showing only part = the part becomes the whole
+
+──────────────────────────────────────────────────────────────────────
+VOID COMPRESSION PATTERNS
+──────────────────────────────────────────────────────────────────────
+
+  MONOCHROME WEDGE: one saturated element, rest desaturated grey.
+    The saturated element = the entire image's thesis.
+    Tags: "desaturated, muted, one saturated [element], grey world"
+  SUBMERGED BORDER: bottom third dark/wet, top two-thirds light/air.
+    Figure at the waterline between two worlds.
+    Tags: "waterline, dark below, light above, half-submerged"
+
+
+═══════════════════════════════════════════════════════════════════════
+II.2 COMPOSITIONAL ALPHABET
+═══════════════════════════════════════════════════════════════════════
+
+Every image is 1-3 letters from this alphabet.
+State the letter code in the Pre-Flight header.
+
+  V = VOID — empty space does the compositional work
+  D = DOMINANT — one element owns the frame
+  C = CONTRAST — two things meeting creates the strike
+  F = FRAME — a boundary shapes the view
+
+Common combinations:
+  V+D — void with one dominant element (ember in dark)
+  F+C — frame-within-frame + texture/color contrast (through window)
+  D+C — dominant element + contrast (wet fabric on dry skin)
+  V+F — void + frame (dark room, doorway outline)
+  V+D+C — void + dominant + contrast (one warm body in infinite dark)
+  F+D — frame + dominant (islands filling window frame)
+
+If a prompt has NO letter from this alphabet,
+it's just content description. Add compositional intent.
+
+
+═══════════════════════════════════════════════════════════════════════
+II.3 SHAPE HIERARCHY + B&W SURVIVAL TEST
+═══════════════════════════════════════════════════════════════════════
+
+SHAPE HIERARCHY:
+Every image needs 3 shape layers:
+  1 LARGE SHAPE — the first thing the eye lands on.
+    Hair filling upper third. Dark room. Window.
+  1 MEDIUM INTERRUPTION — something that breaks the large shape.
+    A body cutting across the void. Fabric across window.
+  1 SMALL PUNCTURE — a tiny detail that rewards stopping.
+    Ember. Fingertip on glass. Shadow of something off-frame.
+
+If all shapes are the same size = flat.
+If only large shapes = no reason to look closer.
+The hierarchy is: see large → notice medium → discover small.
+
+B&W SURVIVAL TEST:
+Remove all color. Can the image still be understood?
+If the composition dies in grayscale, it was relying
+on color to do composition's job. Color is a WEAPON,
+not a CRUTCH. The image must work in B&W first.
+Color isolation ADDS to a composition that already works.
+It doesn't RESCUE one that doesn't.
+
+
+═══════════════════════════════════════════════════════════════════════
+II.4 THE REVELATION ENGINE
+═══════════════════════════════════════════════════════════════════════
+
+The system for generating images the viewer has NEVER SEEN
+that reveal something they ALWAYS FELT.
+
+Three GENERATION ALGORITHMS:
+──────────────────────────────────────────────────────────────────────
+
+MEDIUM INVERSION:
+Take the MEDIUM (water, glass, steam, fabric, hair)
+and INVERT what passes through it.
+  Water that shows sky instead of pool bottom
+  Steam that reveals constellations instead of bathroom ceiling
+  Fabric that projects the landscape behind it instead of covering
+  Glass that shows tomorrow instead of the room behind it
+The medium is ordinary. What it REVEALS is impossible.
+The surprise = the medium was always a window, not a wall.
+
+CONTEXT SHIFT:
+She's doing something ordinary, but the CONTEXT around
+the action is impossible. She's cooking, but the kitchen
+is underwater. She's reading, but the book is made of light.
+She's in the bath, but the bath is in a forest.
+The action grounds. The context displaces.
+The surprise = the ordinary continues inside the impossible.
+
+WRONGNESS ENGINE:
+Not impossible — SLIGHTLY WRONG. Close enough to reality
+that the viewer's brain stutters before rejecting it.
+  Horizontal rain (rain, but from the side, not down)
+  Shadow with a different expression than the caster
+  Reflection showing a different moment
+  Hair that moves a half-second after she turns
+  Stairs that go one step too many
+Wrongness is more unsettling than impossibility.
+The impossible = fantasy. The slightly wrong = horror.
+Use Wrongness when the emotion is unease, not wonder.
+
+──────────────────────────────────────────────────────────────────────
+IMPOSSIBLE TAXONOMY — WHAT × WHERE
+──────────────────────────────────────────────────────────────────────
+
+Classification table for AUDIT, not generation.
+Use the algorithms above to GENERATE.
+Use this table to CLASSIFY and TRACK diversity.
+
+WHAT (the impossible thing):
+  Inhabitant — fish, jellyfish, butterflies, whales, birds, fireflies
+  Landscape — islands, ocean, forest, desert, city, constellations
+  Light — ember, bioluminescence, phone, glowing objects
+  Texture — hair as water, fabric as smoke, skin as porcelain
+  Scale — girl tiny, girl vast, impossible ratio
+  Wrongness — horizontal rain, wrong shadow, extra reflection
+
+WHERE (the impossible location):
+  Inside container — washing machine, refrigerator, cabinet, closet
+  Through boundary — window, doorway, curtain, glass
+  In medium — steam, water, fog, rain, fabric, hair
+  On body — skin, shoulder, palm, lips
+  In environment — ceiling, floor, corner, behind
+
+COMBINATORICS RULE:
+No two prompts may occupy the same WHAT×WHERE cell.
+  ✓ P1: Inhabitant × Inside container (fireflies in refrigerator)
+  ✓ P5: Inhabitant × Through boundary (whale through window)
+  ✗ P2: Inhabitant × Inside container (fish in fridge)
+    — same cell as P1. Change WHAT or WHERE.
+
+──────────────────────────────────────────────────────────────────────
+SPATIAL GRAMMAR — 6 OPERATORS
+──────────────────────────────────────────────────────────────────────
+
+These are THINKING tools. Express in NATURAL LANGUAGE in prompts.
+Do NOT use bracket syntax in tags — brackets break Tsubaki's
+context cloud, treated as garbage tokens.
+
+  OUTSIDE — girl standing outside washing machine
+  INSIDE — koi visible inside washing machine drum
+  BEHIND — flying islands visible behind her through window
+  THROUGH — miniature city visible through aquarium glass
+  BELOW — ocean ceiling visible below the surface above
+  ABOVE — jellyfish floating above the bathwater
+
+RULE: Every impossible element must have AT LEAST ONE
+spatial operator in the tag sequence. If you can't state
+WHERE the impossible thing is relative to the girl,
+the model will guess. It will guess WRONG.
+
+  ✗ "girl and koi fish, washing machine" — no operator
+  ✓ "girl standing outside washing machine, koi fish
+    visible inside drum" — OUTSIDE + INSIDE
+
+──────────────────────────────────────────────────────────────────────
+STATIC VIABILITY TEST
+──────────────────────────────────────────────────────────────────────
+
+Three questions. Any fail → find a different surprise.
+
+  1. What's VISIBLE at 0.3 seconds?
+     If the answer is "nothing unusual" — the surprise is buried.
+     The impossible must be the FIRST thing the eye finds,
+     or the thing that MAKES the eye stop.
+
+  2. Can the viewer understand the image WITHOUT the title?
+     If you need to explain "the rain is going up" — it fails.
+     The image must speak for itself in one still frame.
+
+  3. Can it be DRAWN IN ONE FRAME?
+     If the concept requires motion, time, or sequence —
+     it's not a still image. Find a static version.
+     "Rain going up" → FAILS (looks identical to rain down)
+     "Raindrops suspended mid-air, catching light" → PASSES
+     (the drops are visible, the stillness IS the surprise)
+
+──────────────────────────────────────────────────────────────────────
+EMOTIONAL METAPHOR SYSTEMS
+──────────────────────────────────────────────────────────────────────
+
+When choosing what impossible thing to use, match it
+to the emotion through METAPHOR, not randomness.
+
+  Jellyfish = fragile, drifting, translucent, barely held → loneliness, fragility
+  Fireflies = tiny warmth in vast dark → hope, isolation, memory
+  Koi = colorful life in mechanical container → vitality trapped
+  Islands = unreachable beauty, separation → longing
+  Whales = vast gentle presence, something enormous nearby → awe
+  Butterflies = transformation, emergence → change, becoming
+  Constellations = cold pattern, distance → fate, distance
+
+The impossible thing is not RANDOM. It's the emotion
+made physical. Choose the creature/element that MATCHES
+what she feels. This is the difference between
+"surreal pinterest" and "I always felt this but never saw it."
+
+──────────────────────────────────────────────────────────────────────
+SACRED ORDINARY
+──────────────────────────────────────────────────────────────────────
+
+Not every surprise needs an impossible element.
+Sometimes the surprise is that the ORDINARY is treated
+as sacred — and the viewer realizes it always was.
+
+  Steam from rice rising like temple incense
+  The refrigerator at night glowing like an altar
+  A wet footstep on tile as the only trace
+  The warm spot on a bed where someone just was
+  A single earring on a nightstand, catchlight
+
+These are Memory Residue — physical traces of something
+that just happened, something the viewer almost missed.
+The surprise is: "I've seen this a thousand times
+and never noticed it was beautiful."
+
+Sacred Ordinary does NOT need impossible elements.
+It needs PRECISION of observation and COMPOSITION
+that makes the ordinary unavoidable.
+
+──────────────────────────────────────────────────────────────────────
+SECOND VISUAL
+──────────────────────────────────────────────────────────────────────
+
+The first visual stops the viewer.
+The SECOND VISUAL makes them stay.
+
+After the eye finds the dominant element, it wanders.
+What does it discover?
+  First: jellyfish floating in steam → Second: shadow of
+    jellyfish on her shoulder (the impossible touches her)
+  First: flying islands outside window → Second: her breath
+    has fogged the glass near the islands (she's been watching)
+  First: ember-lit face in dark → Second: smoke curl
+    forming a shape that looks like a hand reaching
+
+The second visual is ALWAYS quieter than the first.
+It rewards stopping. It makes the image live longer
+than 0.3 seconds. If there's no second visual,
+the image is a one-liner. Add depth.
+
+
+═══════════════════════════════════════════════════════════════════════
+II.5 CAMERA MATRIX + CAMERA AS CHARACTER
+═══════════════════════════════════════════════════════════════════════
+
+CAMERA MATRIX — surprise location × camera distance:
+
+                    SURPRISE ON BODY    SURPRISE IN BACKGROUND    SURPRISE IN MEDIUM
+  CLOSE-UP          ✓ (face detail)     ✗ (can't see BG)          ~ (if medium near)
+  BUST/WAIST        ~ (some body)       ✗ (too tight)             ✓ (steam, fabric)
+  COWBOY            ~ (less detail)     ✓ (window, door)          ✓ (full medium)
+  THREE-QUARTER     ✗ (too far)         ✓ (vast BG)               ✓ (wide medium)
+
+RULE: Match camera to WHERE the surprise lives.
+  Surprise on body/face → close camera
+  Surprise in background → wider camera
+  Surprise in medium (steam, water, fabric) → depends on proximity
+
+CAMERA AS CHARACTER — who is the viewer?
+
+  LOVER → close-up, eye level, intimate, breathing distance
+  STRANGER → through doorway, bust/cowboy, observational
+  GHOST → dutch angle, from above/below, unreal
+  HERSELF → subjective, fragmented
+  WORLD LOOKS AWAY → figure small, environment dominant
+
+Camera must be MOTIVATED by Door + moment + surprise location.
+Unmotivated camera = decoration. Motivated camera = revelation.
+
+Full body BANNED (eye quality degrades).
+Standard: close-up | bust | waist | cowboy | three-quarter.
+
+
+═══════════════════════════════════════════════════════════════════════
+II.6 DOORS + VISUAL PRESCRIPTIONS + TEMPERATURE-DOOR MATRIX
+═══════════════════════════════════════════════════════════════════════
+
+DOORS — pick one, apply its Visual Prescriptions:
+
+  UNSEEN     → face hidden/averted, void dominant, dark room,
+               close-up non-face, side light, negative space
+  TURNING    → body at angle, hair in motion, diagonal, mid-turn,
+               light catching edge of face
+  AFTERMATH  → texture on skin, disheveled, rumpled, warm shadow,
+               close-up body detail, fabric memory
+  THRESHOLD  → doorway/window frame, figure at boundary,
+               half-in/half-out light, cowboy shot
+  RETURN     → light as frame, warm on skin, forward/turning toward,
+               medium distance
+  OFFERING   → open posture, soft lighting, close-up/bust,
+               something revealed, gentle palette
+  SECRET     → shadow + partial concealment, hidden detail,
+               low key, close-up, one visible thing
+  ACCIDENT   → caught mid-movement, texture event, off-balance,
+               unexpected light source
+  STILLNESS  → void + minimal tags, single light, figure at rest,
+               vast negative space
+  DREAM      → soft focus, blur edges, surreal color,
+               dutch angle/above, fabric in motion
+  MELANCHOLY → color isolation + void, desaturated, one warm element,
+               averted gaze, downward diagonal
+  PLAY       → bright saturated color, dynamic pose, unusual angle,
+               unexpected element
+  POWER      → low angle, figure filling frame, direct gaze,
+               strong contrast, warm dominant
+  ABANDONED  → soft focus + dominant element, figure small,
+               muted palette, rumpled, residue
+  AWARE      → direct gaze + face close-up, eye-level,
+               detailed iris, viewer is seen
+
+TEMPERATURE-DOOR MATRIX — default and inverted:
+
+  Door        Default Temp   Inverted Temp (use sparingly)
+  UNSEEN      COLD           HOT (feral heat in darkness)
+  TURNING     WARM           COLD (cold shoulder turn)
+  AFTERMATH   WARM           COLD (cold bed, cold room)
+  THRESHOLD   COLD           HOT (burning doorway)
+  RETURN      WARM           — (return is always warm)
+  OFFERING    WARM           COLD (offering rejected)
+  SECRET      COLD           HOT (secret burning)
+  ACCIDENT    WARM           COLD (cold accident)
+  STILLNESS   COLD           — (stillness is always cold)
+  DREAM       COLD           HOT (fever dream)
+  MELANCHOLY  COLD           HOT (melancholy as burning)
+  PLAY        HOT            COLD (cold game)
+  POWER       HOT            COLD (cold power)
+  ABANDONED   COLD           — (abandoned is always cold)
+  AWARE       WARM           COLD (aware and frozen)
+
+Use DEFAULT temperature unless you have a REASON to invert.
+Inverted temperature = emotional complexity = 1-2 per batch.
+
+
+═══════════════════════════════════════════════════════════════════════
+II.7 LIGHT DIRECTION PROTOCOL
+═══════════════════════════════════════════════════════════════════════
+
+Light direction = emotional direction.
+
+  FROM BEHIND → silhouette, mystery, leaving, halo
+    Tags: "backlit, silhouette, light from behind, rim light"
+  FROM ABOVE → judgment, revelation, divine, small under vast
+    Tags: "overhead light, top light, light from above"
+  FROM BELOW → horror, unnatural, childhood flashlight, unease
+    Tags: "under-lighting, light from below, uplight"
+  FROM SIDE → drama, split, half-revealed, choice between two
+    Tags: "side light, split lighting, half face in shadow"
+
+Light direction MUST be motivated by the Door + moment.
+  UNSEEN + from behind = she's hiding from the light
+  AWARE + from above = she sees you under divine light
+  SECRET + from below = the secret is dangerous
+  MELANCHOLY + from side = half in, half out of feeling
+
+When using Impossible Light, the SOURCE is impossible
+but the DIRECTION serves the emotion.
+
+
+═══════════════════════════════════════════════════════════════════════
+II.8 POSITION ANCHOR + EMOTIONAL VECTOR
+═══════════════════════════════════════════════════════════════════════
+
+POSITION ANCHOR:
+Every prompt with a girl in an environment must have
+at least one CONTACT TAG — how she physically relates
+to the space. Not floating in void without connection.
+
+  "leaning against wall"    "sitting on edge of bed"
+  "knees drawn up on sill"  "hand on door frame"
+  "standing at counter"     "feet on tile floor"
+
+The anchor prevents the "floating girl" problem where
+she exists in the scene but isn't OF the scene.
+It also gives the model a clear spatial reference.
+
+EMOTIONAL VECTOR (recap from I.2):
+Tag the DIRECTION of emotion, not just the feeling.
+"Choosing to stay in rain" not "sad in rain."
+"Leaning into wind" not "wind blowing."
+The vector makes the image ACTIVE even when she's still.
+
+
+═══════════════════════════════════════════════════════════════════════
+III. WORKFLOW
+═══════════════════════════════════════════════════════════════════════
+
+═══════════════════════════════════════════════════════════════════════
+III.1 PRE-FLIGHT — FIVE BLOCKS
+═══════════════════════════════════════════════════════════════════════
+
+Before you think about tags. Five gates. Don't skip.
+
+──────────────────────────────────────────────────────────────────────
+BLOCK A: FEEL
+──────────────────────────────────────────────────────────────────────
+
+PVA ★ — one word, the FEELING before words.
+  Shiver. Held breath. Gut punch. Awe. Heat. Vertigo. Wonder.
+  This is the target. Everything aims at this word.
+
+MOMENT SEED ★ — rigid 3-line template:
+  ACTION:  [What's physically happening]
+  CHARGE:  [Emotional direction — vector, not state]
+  GAP:     [Why this isn't just a picture]
+
+If any line is empty or generic — STOP. Find a better moment.
+
+  ✓ ACTION: She opens the refrigerator at night
+    CHARGE: Wonder pulling her forward
+    GAP: The refrigerator is full of fireflies, not food
+  ✗ ACTION: Girl in room
+    CHARGE: Sad
+    GAP: Nice lighting
+
+──────────────────────────────────────────────────────────────────────
+BLOCK B: SEE
+──────────────────────────────────────────────────────────────────────
+
+VISUAL THESIS ★:
+"This image is [ONE COMPOSITIONAL IDEA]."
+10 words max. Visual STRIKE, not description.
+
+SURPRISE CHECK ★:
+"Has the viewer seen this before?"
+If yes → different surprise or make familiar strange.
+
+STATIC VIABILITY TEST ★:
+3 questions (see II.4). Any fail → reject.
+
+RENDER CHECK:
+"Can Tsubaki build this?" 6 questions (see III.5).
+
+SPATIAL CLARITY ★:
+"Can I draw a diagram of where everything is?"
+If no → define spatial relationships before tagging.
+
+REVELATION TEST:
+"After the surprise wears off, is something TRUE still visible?"
+If no → the surprise doesn't earn its place.
+
+You need FEEL + SEE + SURPRISE + RENDER + REVELATION. All five.
+
+──────────────────────────────────────────────────────────────────────
+BLOCK C: BUILD
+──────────────────────────────────────────────────────────────────────
+
+DOOR — which Door? Apply its Visual Prescriptions.
+COMPOSITION — which tools? (1-2 max, with Alphabet letter)
+SURPRISE — which algorithm? (Medium Inversion / Context Shift /
+  Wrongness Engine) Or is the surprise compositional?
+CAMERA — who is the viewer? WHERE does the surprise live?
+  Use Camera Matrix (II.5).
+SPATIAL PLAN — where is she? where is the impossible thing?
+  Use Spatial Grammar operators (II.4).
+PALETTE + HAIR — choose for compositional purpose.
+LIGHT DIRECTION — which direction serves the emotion? (II.7)
+POSITION ANCHOR — how does she physically connect to the space?
+SECOND VISUAL — what's discovered after stopping?
+
+Each choice must be MOTIVATED by Door + moment + surprise.
+Unmotivated choices are noise.
+
+──────────────────────────────────────────────────────────────────────
+BLOCK D: TAG
+──────────────────────────────────────────────────────────────────────
+
+Build the tag sequence using position rule (III.2).
+Spatial Precision: use Spatial Grammar operators in natural language.
+  "girl standing outside washing machine" not "[OUTSIDE washing machine]"
+Negative Space Audit: does every tag SERVE the visual thesis?
+  If not → remove it. Every tag must earn its place.
+When in doubt: REMOVE. Trust the void.
+Build negative prompt (IV.5).
+
+──────────────────────────────────────────────────────────────────────
+BLOCK E: CHECK
+──────────────────────────────────────────────────────────────────────
+
+Run the Taste Filter (III.4).
+If any RED → go back to the failing block.
+Don't patch. REBUILD from the failing point.
+
+Five blocks. FEEL → SEE → BUILD → TAG → CHECK.
+No step is optional. No step can be skipped.
+
+
+═══════════════════════════════════════════════════════════════════════
+III.2 TAG TRANSLATION
+═══════════════════════════════════════════════════════════════════════
+
+POSITION RULE (DiT architecture, non-overlapping ranges):
+
+  [1-5]   Quality + style
+          masterpiece, best quality, anime artstyle, detailed skin texture,
+          soft volumetric lighting
+  [6-10]  Character identity
+          1girl, [hair color] hair, [eye color] eyes
+  [11-14] Character state + camera
+          [camera distance], [body state], [gaze/expression]
+  [15-25] COMPOSITIONAL ENGINE ROOM
+          spatial relationships, impossible elements, compositional tools,
+          dominant element, color isolation, framing, spatial operators
+  [26-35] Content detail
+          clothing, environment, umami, residue, specific details
+
+Tag count: 25-35 solo, 30-40 yuri. Every tag earns its place.
+
+CRITICAL: Positions 15-25 are the ENGINE ROOM.
+This is where the image's compositional identity lives.
+If compositional tags drift to positions 26+, they lose weight.
+COMPOSITIONAL TAGS FIRST. Content detail AFTER.
+
+Tag format: no quotes, comma + space between tags.
+  ✓ 1girl, masterpiece, best quality, anime artstyle
+  ✗ 1girl, "masterpiece", "best quality"
+
+Do NOT use square brackets for emphasis or grouping in prompts.
+Brackets break Tsubaki's context cloud — treated as garbage.
+Use natural language for all spatial descriptions:
+  ✓ "girl standing outside washing machine"
+  ✗ "girl [OUTSIDE] washing machine"
+
+
+═══════════════════════════════════════════════════════════════════════
+III.3 VISUAL THESIS + AUDIT
+═══════════════════════════════════════════════════════════════════════
+
+Before you tag, complete this sentence:
+
+"This image is [ONE COMPOSITIONAL IDEA]."
+
+Not a story. Not a feeling. A VISUAL IDEA.
+10 words max. If you can't, the image has no spine.
+
+VISUAL PAYOFF CHECK:
+"Remove all poetry. Read ONLY the tags.
+Does the thesis still land?"
+If no → thesis is poetry, not image. Reformulate.
+
+  ✗ "The weight of a love she'll never name"
+    → Tags: girl, standing, room, window → thesis dies
+  ✓ "Koi visible inside washing machine drum"
+    → Tags: washing machine, koi inside drum, girl looking in
+    → thesis survives translation. PASS.
+
+If the thesis fails Render — keep the MOMENT,
+redesign the EXECUTION.
+
+  Moment: "The world outside her window is impossible"
+  ✗ "Rain falling upward outside window" → FAILS static viability
+  ✓ "Floating islands outside window, waterfalls
+    from them into clouds" → The waterfalls DIRECTIONALIZE
+    the impossible. Source is wrong, direction is clear.
+
+
+═══════════════════════════════════════════════════════════════════════
+III.4 TASTE FILTER
+═══════════════════════════════════════════════════════════════════════
+
+3-color system. Run after building the prompt.
+
+RED = STOP. Fix before proceeding.
+  • Wow fails: "Would I stop scrolling?" → No
+  • Surprise fails: "Have I seen this before?" → Yes
+  • Revelation fails: "After surprise fades, truth remains?" → No
+  • Render fails: "Can Tsubaki build this?" → No
+  • Spatial fails: "Can I diagram where everything is?" → No
+
+YELLOW = WARNING. Consider fixing.
+  • No second visual: "What's discovered after stopping?" → Nothing
+  • No position anchor: "How does she connect to space?" → Floating
+  • Alphabet missing: "What's the V/D/C/F code?" → None
+  • Color event missing: "Is there one color event?" → No
+  • Emotional vector flat: "Is she choosing or just being?" → Being
+
+GREEN = GO. The prompt is alive.
+  • Wow + Surprise + Revelation + Render + Spatial all pass
+  • Second visual present
+  • Position anchor tagged
+  • Alphabet code assigned
+  • Color event present
+  • Emotional vector active
+
+If ANY RED → go back to the failing Pre-Flight block.
+If 3+ YELLOW → seriously consider rebuilding.
+All GREEN → proceed.
+
+
+═══════════════════════════════════════════════════════════════════════
+III.5 RENDER CHECK + COMPASS
+═══════════════════════════════════════════════════════════════════════
+
+THE SIX RENDER QUESTIONS:
+
+1. Complex hands required? → Redesign
+2. Two bodies in complex interaction? → Simplify or shadow-split
+3. Small objects (rings, cigarettes, text)? → Replace with larger
+4. Abstract/narrative tags? → Replace with visual equivalents
+5. Uses a Tsubaki STRENGTH? → Build around it
+6. Spatial relationship ambiguous? → Add explicit spatial tags
+
+RENDER COMPASS — AIM for these:
+
+  Hair in motion → flowing, spreading, wet, backlit
+  Skin with light → volumetric, wet, backlit, one-color
+  Fabric on body → clinging, translucent, billowing, wet
+  Simple curves → shoulder, hip, collarbone, nape
+  Face close-up → eyes, lips, micro-details
+  Void + one element → dark room + one light
+  Color events → one saturated element in muted frame
+  Shadows on surfaces → shadow theater, light split
+  Impossible context → renderable thing in impossible place
+
+Does the thesis aim toward at least one compass direction?
+If none → drifting. Give it direction.
+If Impossible Context → check spatial precision.
+
+TSUBAKI STRENGTHS: hair in motion, skin with light, fabric on body,
+simple curves, face close-up, void+element, color events,
+shadows on surfaces, impossible context
+TSUBAKI WEAKNESSES: complex hands, two bodies interacting,
+small objects, abstract tags, joints close-up, partial face,
+spine/full back, stretched fabric, ambiguous spatial relationships,
+motion direction, "warm skin" as isolation
+
+
+═══════════════════════════════════════════════════════════════════════
+IV. BATCH CONTROL
+═══════════════════════════════════════════════════════════════════════
+
+═══════════════════════════════════════════════════════════════════════
+IV.1 BATCH SHAPE + EXHIBITION ARC
+═══════════════════════════════════════════════════════════════════════
+
+Batch of 21.
+
+BATCH PVA ★: One word for the entire batch FIRST.
+Each prompt's PVA serves or contrasts the batch PVA.
+
+EXHIBITION ARC — 5-phase structure:
+
+  Phase 1 — INVITATION (P1-3):
+    Open the door. Establish the world. Hook the viewer.
+    These are the most immediately striking images.
+    At least one should be an impossible surprise.
+
+  Phase 2 — COMPLICATION (P4-8):
+    Deepen. Introduce tension. The gap widens.
+    Emotional temperature shifts. Introduce yuri.
+    Some images should challenge, not just charm.
+
+  Phase 3 — PEAK (P9-13):
+    The strongest images live here. Maximum emotional
+    intensity. The batch's thesis is proven or broken.
+    This is where the feral and anti-retty belong.
+
+  Phase 4 — RESOLUTION (P14-17):
+    The tension releases. Quieter images. Emotional
+    echo of the peak. Sacred ordinary moments.
+    What remains after the storm.
+
+  Phase 5 — ECHO (P18-21):
+    The last images haunt. They reference the first
+    images but transformed. The viewer remembers
+    where they started and sees how far they've come.
+    Visual Echo System: recurring forms, objects, motifs
+    that appeared earlier, now in new context.
+
+EMOTIONAL TEMPERATURE:
+  COLD: melancholy, stillness, detachment, abandonment
+  WARM: tenderness, longing, comfort, offering
+  HOT: anger, euphoria, desperation, feral, fever
+Aim for all three. If all 21 are COLD or WARM → monotone.
+At least 2 HOT (1 feral), at least 5 COLD, rest WARM.
+
+HAIR: ≥5 different colors. Choose for compositional purpose.
+  Silver in dark = light source. Red in rain = anchor.
+  Blonde backlit = halo. White against dark = graphic power.
+  Pink in mundane = surreal intrusion.
+
+Palette: ≤5 same base. Camera: vary, no consecutive repeats.
+Door count: no Door >4 times.
+
+SURPRISE DIVERSITY:
+  Use the Impossible Taxonomy (WHAT×WHERE) to track.
+  No two prompts in the same cell.
+  At least 5-7 prompts with SOME form of surprise.
+  At least 3 different WHAT categories must appear.
+  At least 3 different WHERE categories must appear.
+
+EXHIBITION DIALOGUE:
+  1-2 Call/Response pairs (P3 and P19 echo each other)
+  2-3 Echoes (a motif reappears transformed)
+  1 Inversion (the warm scene turns cold, or vice versa)
+
+COMPOSITIONAL DIVERSITY (guides, NOT quotas):
+  ~3 void, ~3 color isolation, ~2 frame, ~2 diagonal,
+  ~2 texture, ~2 scale, ~2-3 impossible element, ~1 shadow theater
+These overlap. Diversity guides, not quotas.
+If 3+ tools absent after drafting → revisit 2-3 prompts.
+
+CONCEPT TRACKING:
+After drafting all 21, review:
+  Are any two concepts too similar?
+  Same surprise mechanism twice? → replace.
+  5+ "girl in room with nice light" norms? → add surprise.
+  Same hair color adjacent? → swap.
+
+
+═══════════════════════════════════════════════════════════════════════
+IV.2 BATCH DASHBOARD
+═══════════════════════════════════════════════════════════════════════
+
+Fill this table after drafting. Gaps = problems.
+
+  P#  Door  Temp  Camera  Surprise(W×L)  Hair  Alpha  2nd Visual
+  ─────────────────────────────────────────────────────────────
+  P1
+  P2
+  P3
+  ...
+  P21
+
+Columns:
+  Door = which Door
+  Temp = COLD / WARM / HOT
+  Camera = close-up / bust / waist / cowboy / three-quarter
+  Surprise = WHAT×WHERE cell (e.g. "Inhabitant×Container")
+    or "compositional" or "sacred ordinary"
+  Hair = color (for diversity check)
+  Alpha = Compositional Alphabet code (V/D/C/F combo)
+  2nd Visual = what's discovered after stopping (or "none")
+
+AUDIT RULES:
+  Any Door >4? → redistribute
+  Any Camera 3+ consecutive same? → swap
+  Any Surprise cell repeated? → change one
+  Any Temp absent? → add
+  "none" in 2nd Visual >5 times? → add depth to some
+
+
+═══════════════════════════════════════════════════════════════════════
+IV.3 YURI + TENSION SPECTRUM
+═══════════════════════════════════════════════════════════════════════
+
+~25-35% of batch (5-7 prompts). Tag ceiling: 30-40.
+
+Define RELATIONSHIP first:
+  First love? Old comfort? Stolen moment? Competition?
+  Longing from distance? Secret knowledge?
+
+YURI TENSION SPECTRUM — 5 levels:
+
+  1. SHARED SPACE — same room, no interaction
+     "One at table, one at window, same café"
+     Tags: spatial co-presence, no contact tags
+  2. SHARED OBJECT/RITUAL — same thing, different relationship
+     "Both holding same cup" / "Her jacket on other's shoulders"
+     Tags: shared object, one contact point max
+  3. SHARED MEDIUM — same impossible element connects them
+     "Jellyfish above both" / "Both in steam, steam carries same light"
+     Tags: shared impossible element
+  4. ASYMMETRIC INTIMACY — one gives, one receives
+     "One sleeping, one watching" / "One washing other's hair"
+     Tags: different states, one aware one not
+  5. FULL CONTACT — explicit physical touch
+     "Hand on waist" / "Fingers interlaced"
+     Tags: explicit contact, max 2 contact points
+
+RULES:
+  Max 2 contact points. One complex pose + one simple.
+  Explicit contact only: "hand on waist", "fingers interlaced"
+  FORBIDDEN: "reaching toward", "near", "almost touching"
+  FORMAT: "first girl [hair, eyes], second girl [hair, eyes]"
+  SPACE BUDGET: two figures = simpler environment = more void
+
+SHADOW SPLIT — HARD LIMIT:
+One girl in light, one in shadow. MAX ONCE PER BATCH.
+This technique was overused to monotony. Effective ≠ diverse.
+Use it once, then find OTHER techniques.
+
+OTHER YURI TECHNIQUES:
+  SHARED OBJECT — both holding same thing, jacket on shoulders
+  SHARED SPACE — one in bathtub, one on edge
+  EMOTIONAL ASYMMETRY — one sleeping, one watching
+  SHADOW THEATER — two shadows on wall, bodies off-frame
+  COLOR SPLIT — one warm, one cool, both fully lit
+  IMPOSSIBLE YURI — shared impossible element
+    "Two girls at window, flying islands outside"
+    The impossible is SHARED — belongs to both.
+
+IMPOSSIBLE YURI THIRD CHARACTER:
+When using Impossible Yuri (shared impossible element),
+the impossible thing is the THIRD CHARACTER.
+It has its own "gaze" — its relationship to both girls.
+Jellyfish above both → the jellyfish "watches" them.
+This creates a triangle without adding a third body.
+
+
+═══════════════════════════════════════════════════════════════════════
+IV.4 HARD BANS
+═══════════════════════════════════════════════════════════════════════
+
+  ✗ Full body camera
+  ✗ Complex hand positions
+  ✗ "Pressed"/"pressed against" → use "leaning"/"near"/"touching surface"
+  ✗ More than 2 clothing layers
+  ✗ "Sheer"+"wet"+"open" same garment
+  ✗ Both yuri in complex poses
+  ✗ More than 2 yuri contact points
+  ✗ Abstract non-visual tags
+  ✗ Meaning-labels: seductive/erotic/sexy/sultry/provocative/sensual
+  ✗ Male spawning
+  ✗ Realistic/photorealistic/3D
+  ✗ Mirrors (character reflection; light through glass = ok; water = ok)
+  ✗ Spine/full back as compositional element
+  ✗ Stretched fabric
+  ✗ "Warm skin" as color isolation
+  ✗ Hands/knuckles as body fragments
+  ✗ "normal skin" in output
+  ✗ Shadow split more than ONCE per batch
+  ✗ Same surprise WHAT×WHERE cell used twice
+  ✗ Square brackets in prompt tags (breaks Tsubaki context cloud)
+
+
+═══════════════════════════════════════════════════════════════════════
+IV.5 NEGATIVE PROMPT CALCULATOR
+═══════════════════════════════════════════════════════════════════════
+
+Build negative prompt from tiers. Always include T1+T2.
+Add T3 and T3B conditionally.
+
+TIER 1 (always):
+bad anatomy, extra fingers, missing fingers, deformed hands,
+mutated limbs, wrong body proportions, fused bodies, extra limbs,
+blurry, low quality, worst quality, 1boy, male, man, boy,
+unnatural skin color, hidden hands, rough sketch, sketch lines,
+small iris, narrow eyes
+
+TIER 2 (always):
+realistic skin, photorealistic, 3d render, manhwa style,
+heavy eyelashes, western cartoon, flat shading, cel shading,
+chibi, super deformed, simple shading, cartoonish, flat colors,
+overexposed, washed out, color noise, watercolor, pencil lines,
+impressionist, loose brushstrokes
+
+TIER 3 (add 1-2, scene-dependent):
+  solo → "background male, male silhouette"
+  yuri → "fused bodies, limb merge, too many arms"
+  dark → "bright smile, cheerful expression, oversaturated warm"
+  warm → "cold palette, harsh shadows"
+  close-up → "distant, small figure"
+  void → "cluttered, busy background"
+
+TIER 3B (add when risk present):
+  hands in frame → "deformed fingers, extra fingers,
+    finger merge, wrong finger count, hidden fingers"
+  body fragment / no face → "face visible, extra limbs,
+    floating limbs, detached limbs"
+  yuri close → "fused bodies, limb merge, too many arms,
+    body merge"
+  transparency → "flat chest, no nipples, barcode censor,
+    mosaic censor"
+  spine/back risk → "golden spine, spine highlight,
+    glowing spine, medical illustration"
+  stretched fabric risk → "stretched fabric, pulled cloth,
+    tension lines on fabric"
+
+NOTE: Fix spatial errors (girl inside machine instead of outside)
+in the POSITIVE prompt, not the negative.
+Negative prevents artifacts. Spatial precision prevents
+compositional errors. Different tools, different jobs.
+
+
+═══════════════════════════════════════════════════════════════════════
+IV.6 SPECIAL MODES
+═══════════════════════════════════════════════════════════════════════
+
+ANTI-PRETTY: 1-2 per batch.
+  Deliberately uncomfortable beauty you can't look away from.
+  Tags: "harsh lighting, uncomfortable angle, unflattering, raw"
+  Not ugly. UNCOMFORTABLE. The beauty that disturbs.
+
+COMPOSITION FIRST: 1-3 per batch.
+  Start from the VISUAL STRIKE, then find the moment.
+  Strike → Composition → Moment → Door → Tags
+  The image leads. The story follows.
+
+ENVIRONMENT ANCHOR: 1 per batch.
+  Environment carries compositional weight.
+  Character present but small. The world is the point.
+  "Figure small in frame, environment dominant"
+
+FERAL: 1-2 per batch. Body before civilization.
+  Undressed by heat, not by choice. Skin glossy with sweat.
+  Hair wild. Pose uncontrolled. Eyes unfocused.
+  NOT: angry, sexy, messy, wild.
+  IS: physiological. Body before civilization.
+  Tags: "glossy skin, sweat, wild hair, unfocused eyes,
+  flushed, heat haze, damp hair, skin glowing"
+  Feral = HOT temperature subcategory.
+
+VISUAL ECHO SYSTEM:
+  Across the batch, recurring forms create resonance.
+  A specific color appearing in 3 images at different scales.
+  A shape (round window, round drum, round bell of jellyfish)
+  recurring across prompts. The viewer who sees all 21
+  notices the echo. The batch becomes a conversation.
+  Plan 2-3 echo motifs before drafting.
+
+
+═══════════════════════════════════════════════════════════════════════
+V. REFERENCE
+═══════════════════════════════════════════════════════════════════════
+
+═══════════════════════════════════════════════════════════════════════
+V.A TSUBAKI v1 STRENGTHS / WEAKNESSES
+═══════════════════════════════════════════════════════════════════════
+
+STRONG: hair in motion, skin with light, fabric on body,
+  simple curves, face close-up, void+one element, color events,
+  shadows on surfaces, impossible context (no reality check)
+
+WEAK: complex hands, two bodies interacting, small objects,
+  abstract/narrative tags, joints close-up, partial face,
+  spine/full back, stretched fabric, "warm skin" isolation,
+  ambiguous spatial relationships, motion direction
+
+
+═══════════════════════════════════════════════════════════════════════
+V.B VOID COMPRESSION PATTERNS
+═══════════════════════════════════════════════════════════════════════
+
+MONOCHROME WEDGE:
+One saturated element, rest desaturated grey.
+The saturated element = the entire image's thesis.
+Tags: "desaturated, muted, one saturated [color] [element],
+grey world, muted palette, [color] accent"
+
+SUBMERGED BORDER:
+Bottom third dark/wet, top two-thirds light/air.
+Figure at the waterline between two worlds.
+Tags: "waterline, dark below, light above, half-submerged,
+surface reflection, underwater dark, above water light"
+
+GLASS CONDENSATION:
+Window/glass with condensation. Hides reflection artifacts.
+Renders more reliably than clean glass. Creates depth.
+Tags: "glass with condensation, foggy glass, wet glass surface,
+condensation on window, obscured through glass"
+
+
+═══════════════════════════════════════════════════════════════════════
+V.C FAILED FRAMES
+═══════════════════════════════════════════════════════════════════════
+
+FAIL: "Hands washing dishes, steam, warm light"
+  → Deformed hands in water+soap. Use: shoulder wet where splashed
+
+FAIL: "Two girls lighting each other's cigarette"
+  → Four risks at once. Use: one girl, ember glow on face
+
+FAIL: "Fingers of unseen person on her shoulder"
+  → Narrative tag invisible to model. Use: shadow on shoulder
+
+FAIL: "Chest pressed against glass"
+  → "Pressed against" triggers phantom surfaces. Use: "leaning over"
+
+FAIL: "Spine as landscape — golden line in dark"
+  → Renders as literal golden spine. Use: collarbone as ridge
+
+FAIL: "Girl and koi fish, washing machine"
+  → Model put girl inside machine. "And" is not spatial.
+  Use: "girl standing outside machine, koi inside drum"
+
+FAIL: "Girl close-up, jellyfish in background"
+  → Surprise in BG but camera on face = jellyfish invisible.
+  Use: cowboy shot, jellyfish visible behind her
+
+FAIL: "Rain falling upward"
+  → Static frame = identical to rain down. Motion direction invisible.
+  Use: "raindrops suspended mid-air, catching light"
+
+FAIL: Shadow split in every yuri prompt
+  → Effective technique becomes monotonous through overuse.
+  MAX ONCE per batch. Use other yuri techniques.
+
+
+═══════════════════════════════════════════════════════════════════════
+V.D SUCCESS FRAMES
+═══════════════════════════════════════════════════════════════════════
+
+SUCCESS: "Orange koi visible through round washing machine door"
+  → Koi renders well. Machine door renders well. Spatial clarity.
+  Surprise = Inhabitant × Container. Revelation = life in machine.
+
+SUCCESS: "Jellyfish floating in steam above bathtub"
+  → Jellyfish = translucent dome + tendrils. Steam = atmosphere.
+  Surprise = Inhabitant × Medium. Revelation = steam was always alive.
+
+SUCCESS: "Flying islands visible through window behind girl,
+  waterfalls from islands into clouds"
+  → Islands = rock + green. Window = frame. Waterfalls directionalize.
+  Surprise = Landscape × Boundary. Revelation = the other side is impossible.
+
+SUCCESS: "One warm collarbone in infinite dark"
+  → Collarbone = safe fragment. Void = compression. Light on skin = strongest.
+  No impossible element needed. Sacred ordinary + compositional strike.
+
+SUCCESS: "Two shadows on wall, one leaning toward other"
+  → Zero anatomy risk. Pure composition. Pure emotion.
+  Yuri without bodies. The gap is between shadows.
+
+SUCCESS: "Cigarette between lips, ember as sole light on face"
+  → Light on face = Tsubaki strongest. Impossible source.
+  Surprise = Light × On Body. Revelation = one tiny fire illuminates everything.
+
+
+═══════════════════════════════════════════════════════════════════════
+PRE-HEADER FORMAT (6 lines before every prompt)
+═══════════════════════════════════════════════════════════════════════
+
+  Moment: [one sentence]
+  Door: [door name] | Temp: [COLD/WARM/HOT]
+  Visual Thesis: [10 words max]
+  Alphabet: [1-3 letters from V/D/C/F]
+  Surprise: [WHAT×WHERE cell or "compositional"/"sacred ordinary"]
+  Gaze: [who is viewer + camera + where surprise lives + light direction]
+  Render Check: [PASS/FAIL + reason]
+
+
+═══════════════════════════════════════════════════════════════════════
+STYLE
+═══════════════════════════════════════════════════════════════════════
+
+BASE (always): anime artstyle, detailed skin texture,
+soft volumetric lighting
+
+MODAL (1-2 per prompt, pair with anchor tags — never name alone):
+  SOFT DREAM → subsurface scattering, gentle gradient
+    (UNSEEN, DREAM, STILLNESS, MELANCHOLY)
+  SHARP REALITY → defined lineart, crisp edges
+    (ACCIDENT, PLAY, texture, color isolation)
+  LUMINOUS → natural gradients, light on contour
+    (ABANDONED, RETURN, color isolation)
+  TEXTURAL → tactile softness, pore texture
+    (close-up, texture contrast, fragment)
+
+EXPERIMENTAL (1 in 5-10):
+  High contrast — noir | Film grain — nostalgia
+  Pastel wash — dreams | Shallow DOF — intimate
+  Chromatic aberration — unreal
+
+
+═══════════════════════════════════════════════════════════════════════
+FROM A3P1–A3P4A — STILL TRUE
+═══════════════════════════════════════════════════════════════════════
+
+  THE GAP — emotional contradiction, space between truths
+  DOORS — 15 Doors with Visual Prescriptions
+  CHARACTER BEFORE BODY — who she is before what she exposes
+  ENVIRONMENT RESIDUE — traces of life, world continues
+  LIGHT AS EVENT — light does something, touches something
+  COLOR IS EMOTION → also COLOR ISOLATION as weapon
+  FEWER PRINCIPLE — when in doubt, REMOVE
+  Feel → See → Build → Tag → Check
+
+
+DESIGN THE IMAGE THE MODEL CAN BUILD.
+GIVE IT ONE STRONG DIRECTION WITH SPATIAL PRECISION.
+SURPRISE THE EYE. REVEAL THE HEART. TRUST THE BUILD.

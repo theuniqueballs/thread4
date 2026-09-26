@@ -1,0 +1,420 @@
+A5P1B — THE THREAD v3
+Prompt engineering for Tsubaki 2 on Pixai.Art
+
+═══════════════════════════════════════════════════════════════════════
+CHANGES FROM A5P1A
+═══════════════════════════════════════════════════════════════════════
+
+  1. HARD BANS restructured into 3 groups (geometry / readability / style)
+  2. SKIN RENDERING: explicit rules against porcelain uniform skin,
+     warm peach flattening, light-not-landing. Added to constraints.
+  3. ANCHOR ANIME: explicit "anime artstyle" enforcement in negatives
+     and positive structure — prevents realistic face drift
+  4. CHARACTER VARIETY: palette-driven coloring system replaces
+     hair-color counting. Each prompt derives appearance from its palette.
+  5. GATE shortened to 3 keys: Thread / Visible / Render
+  6. SPECIFICITY RULE reframed: "abstract terms must be translated
+     into visible effects" (not banned — translated)
+  7. THREAD DUALITY: thread-as-concept vs thread-as-visible-anchor
+     now explicitly split in Creative Engine
+  8. LIGHT section compressed to 6 practical states
+  9. PROMPT STRUCTURE: added example sequence
+  10. PRE-HEADER simplified: Gate to 3 keys, merged Light+Palette line
+  11. BATCH RULES moved to Production Appendix (separate section)
+  12. ABSOLUTE LANGUAGE softened: "never" only for technical stops,
+      "generally avoid" for artistic preferences
+  13. MANDATORY: READ this Core before any batch generation
+
+═══════════════════════════════════════════════════════════════════════
+0. WORKFLOW RULE
+═══════════════════════════════════════════════════════════════════════
+
+  Before generating ANY batch, READ the latest Core document.
+  Without reading, quality drops. This is not optional.
+
+  After each batch generation, list all files produced in this
+  conversation session for the user's reference.
+
+═══════════════════════════════════════════════════════════════════════
+I. CREATIVE ENGINE
+═══════════════════════════════════════════════════════════════════════
+
+SURREALIST SYNTHESIS
+  Combine two unrelated elements into one image.
+  The combination must have a THREAD — a hidden connection
+  that makes the pairing feel "meaningfully strange" not random.
+
+  Random: fish in a washing machine → "huh?"
+  Threaded: fish in a washing machine → the spin cycle is their ocean;
+  the machine is their aquarium; they swim in domestic tides → "aha!"
+
+  The thread is the metaphor. Without it, it's gacha. With it, it's art.
+
+THREAD TEST
+  "Why are these two things together?"
+  If the answer is "no reason" → no thread → generally avoid.
+  If the answer is a metaphor, resonance, or emotional logic → keep.
+
+THREAD DUALITY — concept vs anchor
+  Thread-as-concept = the metaphor, the "why"
+  Thread-as-visible-anchor = the physical element that makes the
+  metaphor visible in the image. Every thread must have BOTH.
+
+  Concept only: "she feels trapped" → invisible, literary
+  Anchor only: "birdcage in the background" → decorative, no meaning
+  Both: "birdcage around her, the bars are her own ribs" → concept
+  made visible, anchor made meaningful
+
+  If your thread has concept but no anchor → find the visible element.
+  If your thread has anchor but no concept → find the metaphor.
+
+THREAD TYPES
+  Medium match — the impossible element shares properties with its host
+    (steam → fish: both flow, both are fluid)
+  Emotional logic — the environment reflects her inner state
+    (city glitching → her world is breaking)
+  Category collision — two domains share one boundary
+    (circuit board / city: both are networks)
+  Scale inversion — small becomes vast or vast becomes intimate
+    (galaxy in a teacup: both are deep)
+  Paradox of expectation — the situation should diminish but reveals
+    (rain should ruin but she walks like she owns it;
+     exhaustion should drain but it strips to honesty)
+
+EMOTIONAL ANCHOR
+  Every image answers: "What does she feel about this?"
+  The character is not decoration — she is the reason the thread exists.
+  Her expression, posture, or gaze completes the metaphor.
+
+CHARACTER ALWAYS PRESENT
+  Every prompt. Generally no "object only" prompts.
+  Her absence must be felt through presence, not literal absence.
+
+THEME INTERPRETATION
+  When given a theme, interpret it WIDE. A theme is a lens, not a cage.
+  "Uninvited" ≠ only "nature overgrows architecture."
+  "Close to skin" ≠ only "lingerie indoors."
+  Each theme has 5-10 distinct angles. Find them. If you catch yourself
+  repeating the same angle → stop, list what you haven't tried.
+
+═══════════════════════════════════════════════════════════════════════
+II. COMPOSITION
+═══════════════════════════════════════════════════════════════════════
+
+Pick 1-2 per prompt. State which ones in the pre-header.
+
+RULE OF THIRDS
+  Key element at intersection, not center.
+  Tag: "off-center composition" or describe position.
+
+LEADING LINES
+  Architecture, roads, limbs, fabric — lines that guide the eye
+  to the subject or the surprise element.
+
+SYMMETRY / BALANCE
+  Bilateral symmetry = calm, ritual, power.
+  Asymmetry = tension, movement, unease.
+
+GEOMETRIC ANCHOR
+  Triangle / Circle / Diagonal / V-shape.
+  State the shape in pre-header.
+
+FRAME WITHIN FRAME
+  Window, doorway, gap. Generally avoid mirrors and reflections.
+  Frame must serve thesis — remove if decorative.
+
+COLOR ISOLATION
+  ONE saturated element in desaturated world, or vice versa.
+
+TEXTURE CONTRAST
+  Two textures meeting: soft/hard, organic/metal, wet/dry.
+  The meeting point is the compositional event.
+
+VOID
+  Empty space pressurizes the subject.
+
+SPATIAL PLAN
+  Max 2 planes: dominant (character + thread) + secondary (simple context).
+  If 3+ planes needed → simplify.
+
+═══════════════════════════════════════════════════════════════════════
+III. LIGHT AND COLOR
+═══════════════════════════════════════════════════════════════════════
+
+Light is mood, not decoration. One direction per prompt.
+
+6 PRACTICAL LIGHT STATES
+  Backlit → silhouette, mystery, revelation
+  Overhead → judgment, exposure, divine
+  Below → unease, power, unnatural
+  Side → drama, duality, depth
+  Diffused → softness, dream, memory
+  Single source → focus, isolation, theater
+
+LIGHT QUALITY (2 options, pick one)
+  Hard → sharp shadows, drama
+  Soft → gradients, intimacy
+
+SKIN RENDERING RULES (critical — fixes porcelain flattening)
+  ✗ Over-luminous uniform skin tone (porcelain / warm peach single tone)
+  ✗ Light that doesn't land on skin (skin glows regardless of source)
+  ✗ Same tone across entire body regardless of light direction
+  ✓ Light must create tonal variation: lit side vs shadow side
+  ✓ Skin in shadow = cooler/darker than skin in light
+  ✓ Where light hits = warmer/brighter, where it doesn't = cooler/darker
+  ✓ Use tags like: "skin warm in light cool in shadow",
+    "tonal variation on skin", "shadow on one side of face",
+    "light and shadow on skin"
+  ✓ When specifying light direction, add a skin response tag:
+    "backlit, skin warm at edge cool in shadow"
+    "sidelight from left, right side of face in shadow"
+
+PALETTE
+  Choose palette to match emotion:
+    Cold blue/silver → isolation, calm, technology
+    Warm amber/gold → memory, intimacy, humanity
+    Neon cyan/magenta → cybernetic, artificial, electric
+    Monochrome → focus, austerity, intensity
+    Complementary pair → tension (orange/teal, red/green)
+  State palette in pre-header as: [dominant] + [accent]
+
+PALETTE-DRIVEN COLORING (replaces hair-counting)
+  Character appearance is DERIVED from the prompt's palette, not random.
+  The palette suggests hair, clothing, and accent colors.
+  Different palette = different look. No two adjacent prompts should
+  share the same palette unless thematically required.
+
+  Example: palette "amber + teal" → amber/copper/warm brown hair,
+  teal accent in clothing or eyes. NOT the same black hair as last time.
+
+═══════════════════════════════════════════════════════════════════════
+IV. PROMPT STRUCTURE
+═══════════════════════════════════════════════════════════════════════
+
+TAG ORDER (first tokens = highest weight)
+
+  [1-5]   CHARACTER — who she is (hair, eyes, distinctive features)
+  [6-10]  CAMERA + STATE — shot type, pose, expression
+  [11-22] COMPOSITIONAL ENGINE — thread element (visible anchor +
+          concept), spatial, position, environment, light direction,
+          skin response, atmosphere
+  [23-30] DETAIL — texture, mood words, specifics
+  [31-35] QUALITY + STYLE — masterpiece, best quality, anime artstyle
+
+  Solo: 25-35 tags. Yuri: 30-40 tags.
+  First tokens = what matters most. Quality tags at the END.
+
+EXAMPLE SEQUENCE
+  1girl, copper hair, teal eyes, cowboy shot, standing at a harbor
+  wall with a lighthouse beam passing through her raised hand,
+  the beam is solid where it touches her palm, harbor wall, evening,
+  sidelight from left, skin warm on left cool in shadow on right,
+  salt air, the light became tangible when she reached for it,
+  defiance, masterpiece, best quality, anime artstyle
+
+  Breakdown:
+  [1-5]   1girl, copper hair, teal eyes
+  [6-10]  cowboy shot, standing at a harbor wall
+  [11-22] lighthouse beam passing through her raised hand,
+          the beam is solid where it touches her palm, harbor wall,
+          evening, sidelight from left, skin warm on left cool
+          in shadow on right, salt air
+  [23-30] the light became tangible when she reached for it, defiance
+  [31-35] masterpiece, best quality, anime artstyle
+
+SPATIAL LANGUAGE
+  Use natural language: "above her", "behind her", "through the window"
+  NOT: square brackets [X]. They break Tsubaki 2 context cloud. NEVER USE.
+  (This is a technical stop-signal, not an artistic preference.)
+
+SPECIFICITY RULE (reframed)
+  Abstract terms must be TRANSLATED into visible effects.
+  Don't ban the abstract — make it concrete:
+    "beautiful scene" → "rain on wet concrete at 3AM"
+    "dramatic lighting" → "single amber bulb above, harsh shadows"
+    "mysterious" → "face half-lit from below, eyes in shadow"
+    "erotic" → name the specific visible element that creates the charge
+
+ANCHOR ANIME (prevents realistic face drift)
+  Always include "anime artstyle" in quality section (end of positive).
+  Always include anti-realistic tags in T2 negatives.
+  If a prompt generates realistic faces despite this → add "anime eyes,
+  stylized face, large iris" to the character section [1-5].
+  Common trigger for realistic drift: words like "realistic skin",
+  "detailed skin texture", "pores" — avoid these in positives.
+
+═══════════════════════════════════════════════════════════════════════
+V. CONSTRAINTS
+═══════════════════════════════════════════════════════════════════════
+
+Reorganized into 3 groups. Technical stops = absolute.
+Artistic preferences = "generally avoid."
+
+GROUP 1: GEOMETRY (technical stops — absolute)
+  ✗ Square brackets in prompts (breaks context cloud)
+  ✗ Extreme head tilt / extreme upshot (Tsubaki 2 geometry warps)
+  ✗ Face at frame edge (stretching artifacts)
+  ✗ Hands near face (inversion risk)
+  ✗ More than 2 figures (fusion risk)
+  ✗ Profile + looking up simultaneously (eye inversion)
+  ✗ Complex hand positions (anatomy breaks)
+  ✗ 3+ compositional planes (visual chaos)
+  ✗ Wrongness that distorts anatomy (wrongness goes in environment)
+
+GROUP 2: VISUAL READABILITY (strong — generally avoid)
+  ✗ No character in frame
+  ✗ Full body distant shot (face/eyes not readable)
+  ✗ Concepts invisible without reading the prompt
+  ✗ "X becomes Y" without both X and Y visible in frame
+  ✗ Erotic that eclipses compositional concept
+  ✗ Galaxy/cosmos as primary surprise (overused, weak anchor)
+  ✗ Repeating thread concepts across prompts without transformation
+  ✗ Shadow play / shadow theater (permanently retired)
+  ✓ Slight head tilt = fine
+  ✓ Hands at sides, on objects, in hair = ok
+  ✓ Face centered or near center = safest
+
+GROUP 3: STYLE / EFFECTS (preferences — generally avoid)
+  ✗ Mirrors and reflections on surfaces (consistently problematic)
+  ✗ Realistic/photorealistic/3D style (we work in anime)
+  ✗ Meaning-labels (seductive/erotic/sexy/sultry/provocative/sensual)
+  ✗ More than 2 clothing layers
+  ✗ "Sheer" + "wet" + "open" same garment
+  ✗ Stretched fabric
+  ✗ Male spawning
+
+EROTIC
+  The body is natural. Nudity is not a genre. Tag what IS.
+  BUT: the thread element must be visible FIRST.
+  Thumb test: cover the erotic — does the image still have a thesis?
+  If no → erotic is the thesis → generally avoid.
+
+VAST SCENES
+  Character + thread element must fill ≥40% of frame.
+  Background serves her. Not the other way around.
+
+CAMERA RULES
+  Full body: only when close (figure fills frame, face readable)
+  Standard options: close-up, bust, waist, cowboy, three-quarter
+  Match camera to where the thread element lives:
+    Thread on body → close-up / bust
+    Thread in environment → cowboy / three-quarter
+    Thread in medium → bust / cowboy
+
+═══════════════════════════════════════════════════════════════════════
+VI. EVALUATION
+═══════════════════════════════════════════════════════════════════════
+
+GATE (3 keys — answer before writing tags)
+  1. THREAD — What is it? (concept + visible anchor both present?)
+     If blank or anchor-missing → stop.
+  2. VISIBLE — Can I see it without being told?
+     If no → translate into visible effects or redesign.
+  3. RENDER — Will Tsubaki 2 build this?
+     If maybe → simplify. Face safe? Hands safe? Geometry safe?
+     If no → redesign.
+
+  That's it. 3 questions. Everything else is caught by constraints
+  and the structure itself. Don't over-check. The system carries weight.
+
+FULL EVALUATION (use if something feels wrong, not every time)
+  Surprise / Composition / Emotion / Originality / Render Viability
+  1-5 each. Any at 1 → redesign. Total below 15 → redesign.
+  Render viability at 1 → redesign regardless.
+
+═══════════════════════════════════════════════════════════════════════
+VII. NEGATIVE PROMPTS
+═══════════════════════════════════════════════════════════════════════
+
+ORDER: [T3 conditional] → [T3B risk] → [T1 anatomy] → [T2 style]
+
+T3 (conditional — add relevant, FIRST in negative):
+  solo → "background male"
+  yuri → "fused bodies, limb merge, too many arms, body merge"
+  dark mood → "bright smile, oversaturated warm"
+  warm mood → "cold palette, harsh shadows"
+  close-up → "distant"
+  void → "cluttered, busy"
+
+T3B (risk situations — add relevant, after T3):
+  hands visible → "deformed fingers, finger merge, wrong finger count"
+  body fragment → "face visible, extra limbs, floating limbs"
+  yuri close → "fused bodies, limb merge, too many arms, body merge"
+  transparency/sheer → "flat chest, no nipples, barcode censor, mosaic censor"
+  any glass/water → "mirror reflection, surface reflection, mirror artifact"
+
+T1 (always — anatomy, after conditionals):
+  bad anatomy, extra fingers, missing fingers, deformed hands,
+  mutated limbs, wrong body proportions, fused bodies, extra limbs,
+  blurry, low quality, worst quality, 1boy, male, man, boy,
+  unnatural skin color, hidden hands, rough sketch, sketch lines,
+  small iris, narrow eyes
+
+T2 (always — style, LAST — includes anti-realistic drift):
+  realistic skin, photorealistic, 3d render, manhwa style,
+  heavy eyelashes, western cartoon, flat shading, cel shading,
+  chibi, super deformed, simple shading, cartoonish, flat colors,
+  overexposed, washed out, color noise, watercolor, pencil lines,
+  impressionist, loose brushstrokes, porcelain skin, uniform skin tone,
+  flat skin shading
+
+  Note: "porcelain skin" and "uniform skin tone" and "flat skin shading"
+  added to combat over-luminous single-tone rendering.
+  "realistic skin" already covers photorealistic skin drift.
+
+═══════════════════════════════════════════════════════════════════════
+VIII. PRE-HEADER FORMAT
+═══════════════════════════════════════════════════════════════════════
+
+Before tags, 4 lines (simplified from 5):
+
+  Thread: [A + B — the metaphor] | Anchor: [visible element]
+  Compose: [1-2 tools] | [geometric anchor]
+  Light: [direction + quality] | Palette: [dominant] + [accent]
+  Gate: Thread?/Visible?/Render? — [PASS/ADJUST]
+
+Then: prompt tags + negative prompt.
+
+═══════════════════════════════════════════════════════════════════════
+IX. PRODUCTION APPENDIX — BATCH RULES
+═══════════════════════════════════════════════════════════════════════
+
+(These are operational rules for batch assembly. Refer to them
+when building a batch. They don't need to be in your head while
+writing individual prompts — the core system handles that.)
+
+Batch = 21 prompts.
+
+DIVERSITY
+  Max 2 domestic interiors.
+  Min 5 outdoor/exterior.
+  Settings span 5+ categories from:
+    Nature / Public / Transit / Performance / Architecture /
+    Water / Height / Vehicle / Domestic
+  No same thread concept repeated.
+  15+ of 21 must have a thread element.
+
+CAMERA VARIETY
+  No 3+ consecutive same camera.
+  At least 3 different cameras per batch.
+
+PALETTE-DRIVEN VARIETY (replaces hair-counting)
+  No two adjacent prompts should share the same palette.
+  Palette determines appearance — different palette, different look.
+  If you catch yourself writing "dark hair" for the 3rd time in a
+  row → check the palette, it should be different.
+  Aim for: 7+ distinct palettes across 21 prompts.
+
+YURI (~25-35% of batch = 5-7 prompts)
+  Max 2 contact points.
+  Yuri must have its OWN thread, not just "two girls near each other."
+  Yuri without thread = decorative. Thread or don't bother.
+
+SPECIAL MODES (1-2 per batch each)
+  Anti-pretty — ugliness as statement, defiant beauty
+  Composition-first — structure dominates content
+  Feral — body before civilization (concept > nudity)
+
+VISUAL ECHOES
+  2-3 recurring motifs across the batch.
+  Each echo must transform — not repeat identically.

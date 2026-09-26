@@ -1,0 +1,136 @@
+# MOTIF_LOG.yaml — THREAD 3.0
+# Cross-batch registry. Read before writing any new batch, updated after every batch.
+# Persistence caveat: this only works if you keep this file and re-upload it at the
+# start of future sessions — nothing survives on my end between conversations.
+
+version: "1.0.0"
+
+batches:
+
+  - name: "Requiem of Souls"
+    palettes_used: [P04_BLOOD_IVORY, P06_OBSIDIAN_GOLD, P13_ASH_VIOLET]
+    sub_variants_applied: false   # retroactive note: this batch predates the §2A fix
+    concept_anchors:
+      - joker-card-multiplier-flourish        # OC1 Sol
+      - spine-tubes-suspended-disassembly     # OC2 Sue
+      - doorway-blouse-half-removed           # OC3 Miyu
+      - # 21-batch anchors weren't individually named at delivery time — logged as
+        # "unnamed, Requiem P01-P21" for now. Future batches must name every anchor
+        # explicitly so this log is actually checkable.
+    motif_noun_counts:
+      candle: 22
+      mirror: 8
+      fog: 4
+      glass: 5
+    known_issues:
+      - "candle/wax imagery used in ~all 21 prompts — dominant motif, flagged post-delivery"
+      - "no sub-palette variation within any of the 3 palette blocks"
+      - "P12 shares a verbatim identity+pose block with Enigma-P11 (see cross-batch audit below) — 'black straight hair loose around her knees, black-obsidian eyes closed, warm ivory skin' + the oversized-sweater seated pose sentence"
+      - "P10 shares a near-verbatim VOLT block with Enigma-P13 — the leather-corset legs-spread sentence, only the light-color word changed"
+
+  - name: "ENIGMA"
+    palettes_used: [P03_CYBER_ASH, P16_ORCHID_SHADOW, P20_VOID_PRISM]
+    sub_variants_applied: false   # also predates the §2A fix
+    concept_anchors:
+      - nix-rotor-collar-unread               # OC1 Nix
+      - lua-cipher-ribbon-half-read           # OC2 Lua
+      - vae-fully-decrypted-tape-removed      # OC3 Vae
+      - noa-perkeo-cosplay-accurate           # OC1 in the companion OC_BATCH_02, cast-adjacent
+      - inverted-maintenance-patchwork        # OC2 Doe, same file
+      - moonlit-robe-slip-doorway             # OC3 Sue, same file
+      - # same issue as Requiem — the 21-batch's individual P01-P21 anchors weren't
+        # separately logged at delivery time
+    motif_noun_counts:
+      wax_seal: 8
+      prism: 31
+      absolute_black: 20
+      mirror: 1
+      glass_panel: 3
+    known_issues:
+      - "PL33 pose-clause reused VERBATIM 3x across OC(Lua)+P03+P09 — same file, uncoupled quota check"
+      - "PL15/PL37/PL21 each reused 2x, within cap but also verbatim, not reworded"
+      - "prism / absolute black over-saturated as the Act III identity — same failure shape as Requiem's candles"
+      - "P11 shares a verbatim identity+pose block with Requiem-P12 (see cross-batch audit below)"
+      - "P13 shares a near-verbatim VOLT block with Requiem-P10 — same corset/legs-spread sentence"
+
+  - name: "PENITENCE"
+    palettes_used: [P08_MIDNIGHT_BLUE, P01_NOIR_VELVET, P19_CINDER_SKY]
+    sub_variants_applied: true   # first real use of §2A — subA/subB/subC rotated ~3/2/2 per act
+    exposure_shape: "rise-peak-retreat, not monotonic — Act II (Confession) is the exposure peak,
+      Act III (Absolution) deliberately eases back toward coverage rather than climbing further.
+      Different structural shape from Requiem/Enigma's monotonic climb, by design."
+    concept_anchors:
+      - ash-vigil-alone-before-dawn            # OC1 Ash
+      - yui-fangs-confessed-aloud              # OC2 Yui
+      - miyu-unclenched-at-dawn                # OC3 Miyu
+      - # P01-P21 anchors still not individually named per-prompt at delivery — this is now
+        # the third batch with this gap, worth fixing in the next batch's process, not just noting again
+    motif_noun_counts_per_prompt_not_raw:      # counted properly this time: distinct prompts containing
+      rain: "7/21"                              # the word, not raw occurrences — see the difference that
+      confessional: "7/21"                      # mattered for Requiem's candle count
+      velvet: "10/21 raw, but 7 of those are the mandatory Act II quality-tag line (exempt) — 3 real prop uses"
+      fog: "4/21"
+      stone: "6/21"
+    known_issues:
+      - "none found at delivery — see cross_batch_audit_log entry below, highest cross-batch similarity was 0.41 (down from 0.49-0.50), highest within-batch was 0.40 and thematically deliberate (P15/P21 bookend)"
+      - "5 adjacent-emotion violations (C022) caught and fixed pre-delivery: P02/P03, P10/P11, P13/P14, P16/P17, P19/P20"
+      - "2 hard-constraint violations caught and fixed pre-delivery: VERTICAL category at 5/4 (P19 pose swapped PL08->PL11), cowboy framing at 4/3 (P08 swapped to full_body)"
+
+  - name: "UNDERTOW"
+    palettes_used: [P11_OCEAN_DEEP, P14_ROSE_GOLD, P10_ARCTIC_WHITE]
+    sub_variants_applied: true   # first use of the STRONGER §2A fix - quality-tag line itself varies now
+    l3_count: 2   # cut from 4 (Requiem/Enigma) down to 2, per author request after Penitence
+    hair_textures_used: {wet: 4, braided: 3, curly: 3, loose_long: 4, short_pixie: 3, straight: 2, wavy: 2}
+    back_view_compositions: 1   # capped at 2 per new rule, came in under
+    known_issues:
+      - "none at delivery - caught and fixed pre-delivery: VOLT run violations from an under-count
+        genre pass (fixed via P10/P11 content swap + P05 relabel), 2 category cap overflows
+        (VERTICAL, KNEELING both fixed), 1 adjacent-emotion repeat"
+      - "highest cross-batch similarity 0.44 (Undertow-P09 vs Enigma-P10), manually confirmed as
+        shared sentence-shape only, not content overlap"
+
+cross_batch_audit_log:
+  - date_context: "after Requiem + Enigma, both delivered"
+    method: "difflib.SequenceMatcher ratio on POS text, all-pairs, both batches"
+    findings:
+      - pair: ["Requiem-P12", "Enigma-P11"]
+        ratio: 0.49
+        issue: "verbatim identity block + verbatim pose sentence, different palette wrapper only"
+      - pair: ["Requiem-P13", "Enigma-P03"]
+        ratio: 0.50
+        issue: "same PL33 clause reused verbatim, root cause of the pose-reuse fix in RULES.md §17A"
+      - pair: ["Requiem-P13", "Enigma-P09"]
+        ratio: 0.49
+        issue: "same as above, PL33 reused a third time"
+      - pair: ["Requiem-P10", "Enigma-P13"]
+        ratio: 0.45
+        issue: "leather-corset legs-spread sentence reused near-verbatim, only light-color word changed"
+    conclusion: "axis-ID bookkeeping (BDM/PL/CAM uniqueness) was fully satisfied in both batches while
+      actual prose repeated at the sentence level for specific 'narrative roles' (quiet NICHE pause,
+      defiant kneel, corset reveal) — the bug was never in the constraint system, it was in prose
+      generation defaulting to a small cache of 'descriptions that worked' for those roles. RULES.md
+      §17A now mandates a real text-similarity pass against prior batches before delivery, not just
+      axis-uniqueness checks."
+  - date_context: "after Penitence, testing the §17A fix"
+    method: "same difflib method, Penitence's 24 prompts checked against all 48 prior prompts (Requiem+Enigma combined)"
+    findings:
+      - pair: ["Penitence-P10", "Enigma-P10"]
+        ratio: 0.41
+        issue: "same pose code (PL46 Collapse Drop) reused across batches — checked manually, NOT a real
+          duplicate: shared sentence-template shape ('sharp focus on X, room dissolving into Y') but
+          character, palette, and specific imagery are fully distinct. This is the acceptable residual
+          level of similarity when a pose code repeats and gets properly reworded, not the 0.49-0.50
+          verbatim-block level found in the Requiem/Enigma audit."
+    conclusion: "the fix worked — highest score dropped from 0.50 to 0.41 despite reusing at least one
+      identical pose code across batches, and the one borderline hit was confirmed non-duplicate on
+      manual inspection rather than assumed clean from the number alone."
+
+# ── USAGE ──────────────────────────────────────────────────────────────
+# Before a new batch: check new concept_anchors against every anchor already
+# listed here (not just within the new batch). Check new palette choices
+# against palettes_used across all batches if visual non-overlap with past
+# work matters for that batch (it did for Enigma vs Requiem, by request).
+# After a new batch: append a new entry here with real per-prompt concept
+# anchors (not "unnamed") and real motif_noun_counts pulled the same way
+# the retroactive counts above were pulled — grep the delivered file, don't
+# eyeball it.

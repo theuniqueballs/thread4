@@ -1,0 +1,79 @@
+# POSE_LIBRARY.yaml — THREAD 3.0
+# Fills the gap in THREAD 2.0's `pose` axis: PL01–PL48 existed only as IDs
+# grouped by category, with risk classification for 12/48 and 5 codes
+# (PL01, PL13, PL18, PL26, PL30) unassigned to any category.
+# Every code below now has an actual physical description, consistent
+# with the ontology's doctrine: "Pose = how body organizes space for light."
+# Risk = how much the pose itself implies exposure/vulnerability,
+# independent of wardrobe/NCS (those stack on top, they don't replace this).
+
+version: "1.0.0"
+
+pose_library:
+
+  # ── VERTICAL (standing) — 16 [PL01 added] ──────────────────────────
+  - {id: PL01, name: "Neutral Stand",       sd: "standing frontal, weight even on both feet, arms relaxed at sides",                          category: VERTICAL,   risk: LOW}
+  - {id: PL02, name: "Wall Lean",           sd: "shoulder against wall, hip cocked out, one leg crossed over the other",                       category: VERTICAL,   risk: LOW}
+  - {id: PL05, name: "Arms Overhead",       sd: "standing, both arms raised and crossed above the head, torso elongated and exposed",           category: VERTICAL,   risk: MID}
+  - {id: PL06, name: "Self-Embrace",        sd: "standing, arms wrapped around own torso, shoulders drawn in",                                  category: VERTICAL,   risk: LOW}
+  - {id: PL08, name: "Hip Shift Contrapposto", sd: "classic S-curve stand, weight on one leg, shoulders and hips counter-rotated",               category: VERTICAL,   risk: LOW}
+  - {id: PL15, name: "Back to Wall Slide",  sd: "spine flat against wall or glass, palms pressed beside hips, chin tilted down",                category: VERTICAL,   risk: MID}
+  - {id: PL19, name: "Window Silhouette",   sd: "standing before a light source, body read mostly as outline, face in half-shadow",             category: VERTICAL,   risk: LOW}
+  - {id: PL20, name: "Turned Away Glance",  sd: "standing with back three-quarters to viewer, head turned to look over shoulder",                category: VERTICAL,   risk: LOW}
+  - {id: PL23, name: "Robe Slip",           sd: "standing, one shoulder strap or robe edge slipping down, hand loosely catching fabric",         category: VERTICAL,   risk: MID}
+  - {id: PL29, name: "Mirror Face-Off",     sd: "standing before a reflective surface, one hand touching the reflection, weight forward",        category: VERTICAL,   risk: LOW}
+  - {id: PL32, name: "Stretch Reach",       sd: "standing on toes, one arm extended fully upward reaching for something off-frame",             category: VERTICAL,   risk: LOW}
+  - {id: PL35, name: "Hair Wring",          sd: "standing, both hands gathering and wringing hair over one shoulder, torso twisted",             category: VERTICAL,   risk: MID}
+  - {id: PL38, name: "Doorway Frame",       sd: "standing centered in a doorway or archway, one arm raised to the frame, hip leading",           category: VERTICAL,   risk: MID}
+  - {id: PL41, name: "Slow Undress Pause",  sd: "standing, mid-motion removing outer garment, one arm still in a sleeve",                        category: VERTICAL,   risk: MID}
+  - {id: PL44, name: "Back Arch Stand",     sd: "standing, spine arched back, head tilted back, throat exposed to the light",                    category: VERTICAL,   risk: MID}
+  - {id: PL48, name: "Cloak Open",          sd: "standing, both hands drawing an outer layer open at the front, revealing what's beneath",       category: VERTICAL,   risk: HIGH}
+
+  # ── HORIZONTAL (lying) — 11 [PL26 added] ────────────────────────────
+  - {id: PL03, name: "Supine Rest",         sd: "lying on back, one knee bent, one arm resting above the head",                                 category: HORIZONTAL, risk: LOW}
+  - {id: PL04, name: "Prone Stretch",       sd: "lying on stomach, propped on forearms, ankles crossed in the air behind",                       category: HORIZONTAL, risk: MID}
+  - {id: PL09, name: "Side Curl",           sd: "lying on side, knees drawn toward chest, both arms tucked close to body",                       category: HORIZONTAL, risk: LOW}
+  - {id: PL12, name: "Sprawl",              sd: "lying on back, limbs loosely sprawled outward, head turned to one side",                        category: HORIZONTAL, risk: MID}
+  - {id: PL24, name: "Floating Drift",      sd: "body horizontal as if suspended in water or air, hair fanned outward, limbs loose",             category: HORIZONTAL, risk: LOW}
+  - {id: PL26, name: "Side Lounge",         sd: "lying on side, head propped on one hand, other hand trailing along the hip",                    category: HORIZONTAL, risk: MID}
+  - {id: PL31, name: "Back Arch Lying",     sd: "lying on back, hips lifted and spine arched, shoulders still on the surface",                    category: HORIZONTAL, risk: HIGH}
+  - {id: PL36, name: "Stomach Chin-Rest",   sd: "lying on stomach, chin resting on stacked hands, legs bent up and crossed at the ankle",         category: HORIZONTAL, risk: LOW}
+  - {id: PL39, name: "Half-Roll",           sd: "caught mid-roll from back to side, one shoulder lifting off the surface, hair mid-motion",       category: HORIZONTAL, risk: MID}
+  - {id: PL42, name: "Draped Across",       sd: "body draped diagonally across furniture or a ledge, one limb hanging off the edge",              category: HORIZONTAL, risk: MID}
+  - {id: PL45, name: "Legs Raised Recline", sd: "lying on back, both legs raised and crossed at the ankle above the hips",                        category: HORIZONTAL, risk: HIGH}
+
+  # ── KNEELING — 8 [PL18 added] ────────────────────────────────────────
+  - {id: PL10, name: "Seiza Rest",          sd: "kneeling, sitting back on heels, hands folded in lap, spine straight",                          category: KNEELING,   risk: LOW}
+  - {id: PL14, name: "Kneel Forward Reach", sd: "kneeling, torso tipped forward, both hands planted ahead, back curved",                          category: KNEELING,   risk: HIGH}
+  - {id: PL16, name: "One-Knee Rise",       sd: "one knee down, other foot planted, torso half-turned as if rising or kneeling down",             category: KNEELING,   risk: LOW}
+  - {id: PL18, name: "Hands-on-Ground Kneel", sd: "kneeling with both palms flat on the ground, hips lifted, head down between arms",              category: KNEELING,   risk: HIGH}
+  - {id: PL28, name: "Kneel Arch Back",     sd: "kneeling upright, spine arched backward, hands braced on heels, chest lifted",                   category: KNEELING,   risk: HIGH}
+  - {id: PL33, name: "Kneel Head Bowed",    sd: "kneeling, shoulders rounded forward, head bowed, hands resting on thighs",                       category: KNEELING,   risk: MID}
+  - {id: PL40, name: "Kneel Reaching Up",   sd: "kneeling, torso lifted, both arms raised overhead reaching toward something",                    category: KNEELING,   risk: MID}
+  - {id: PL47, name: "Kneel Side-Sit",      sd: "kneeling with hips dropped to one side, legs folded, weight on one hand",                        category: KNEELING,   risk: LOW}
+
+  # ── SEATED — 6 [PL30 added] ──────────────────────────────────────────
+  - {id: PL07, name: "Chair Perch",         sd: "seated on the edge of a chair or ledge, hands resting on knees, spine straight",                 category: SEATED,     risk: LOW}
+  - {id: PL17, name: "Cross-Leg Sit",       sd: "seated, legs crossed at the knee, hands folded, calm upright posture",                            category: SEATED,     risk: LOW}
+  - {id: PL22, name: "Knees-to-Chest Sit",  sd: "seated on the floor, knees drawn to chest, arms wrapped around shins",                            category: SEATED,     risk: LOW}
+  - {id: PL30, name: "Curled Windowseat",   sd: "seated sideways, knees drawn up on the seat, one arm looped around them, head resting on knee",   category: SEATED,     risk: LOW}
+  - {id: PL37, name: "Legs Spread Sit",     sd: "seated with legs open, forearms resting on inner thighs, torso leaned forward",                   category: SEATED,     risk: HIGH}
+  - {id: PL43, name: "Leaned-Back Sit",     sd: "seated, torso leaned back on braced arms, chest lifted, legs extended forward",                   category: SEATED,     risk: HIGH}
+
+  # ── BENT ── 2 ─────────────────────────────────────────────────────────
+  - {id: PL25, name: "Forward Fold",        sd: "standing, torso folded forward at the hips, hands reaching toward the floor or ankles",          category: BENT,       risk: LOW}
+  - {id: PL34, name: "Braced Bend",         sd: "torso bent forward at a right angle, hands braced on a surface ahead, back flat",                 category: BENT,       risk: HIGH}
+
+  # ── DYNAMIC (in motion) — 5 [PL13 added] ────────────────────────────
+  - {id: PL11, name: "Mid-Turn",            sd: "caught mid pivot, hair and fabric trailing behind the motion, weight transferring between feet",  category: DYNAMIC,    risk: LOW}
+  - {id: PL13, name: "Flinch Recoil",       sd: "body pulling backward and away, one arm raised defensively, weight on the back foot",             category: DYNAMIC,    risk: MID}
+  - {id: PL21, name: "Fall Catch",          sd: "caught mid-fall or stumble, one hand reaching for support, hair and limbs in disarray",           category: DYNAMIC,    risk: MID}
+  - {id: PL27, name: "Leap Suspended",      sd: "body suspended mid-jump or mid-dive, limbs extended, fabric and hair frozen in the air",          category: DYNAMIC,    risk: LOW}
+  - {id: PL46, name: "Collapse Drop",       sd: "body caught mid-collapse, knees buckling, one hand trailing along a wall or surface for support",  category: DYNAMIC,    risk: MID}
+
+# ── VALIDATION NOTE ──────────────────────────────────────────────────
+# Total: 48/48 codes. All 6 categories now populated: VERTICAL 16,
+# HORIZONTAL 11, KNEELING 8, SEATED 6, BENT 2, DYNAMIC 5 = 48.
+# Risk distribution: LOW 20, MID 17, HIGH 11 — supports C015
+# (≥30% MID/HIGH per batch of 21 = ≥7 prompts; pool now makes this
+# honestly satisfiable instead of drawing from an unclassified 36/48).

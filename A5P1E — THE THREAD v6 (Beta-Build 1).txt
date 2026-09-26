@@ -1,0 +1,1267 @@
+A5P1E — THE THREAD v6 (Beta-Build 1)
+Prompt engineering for Tsubaki 2 on Pixai.Art
+
+═══════════════════════════════════════════════════════════════════════
+QUICKREF (1 page — use this during generation)
+═══════════════════════════════════════════════════════════════════════
+
+TAG ORDER (weight ↓):
+  [1] 1girl / [2] hair / [3] eyes / [4] gaze / [5] anime artstyle
+  [6-10] camera + pose + silhouette gesture
+  [11-22] thread anchor + environment + light + skin response + atmosphere
+  [23-29] material pair + anatomy/clothing state + condiment + natural skin gradient
+  [30] narrative line (max 1, if visually anchored)
+  [31-35] masterpiece, best quality, anime artstyle
+  Solo: 25-35 tags. Yuri: 30-40 tags.
+
+SKIN: response tag IMMEDIATELY after light direction.
+  "skin warm in light cool in shadow" / "warm at edge cool in core" /
+  "cool in overcast warm at edges"
+  + "natural skin gradient" in [23-29]
+
+ANIME: "anime artstyle" TWICE — [1-5] AND [31-35]
+
+SAFE HANDS: sides / on object / in hair (above temple) / crossed /
+  holding with both hands. Other = thread-justified only.
+  ✗ hands near face = covering face, touching cheek/chin/eyes
+  ✓ hand on neck/collar = below chin, face fully visible
+
+CAMERA CAPS: cowboy ≤10, bust ≥3, other ≥2, no 3+ consecutive same
+
+YURI: 5-7 prompts, own thread, max 2 contact points.
+  Thread test: works with 1girl? yes+adds layer = strongest case
+
+TIERS: min 6 Tier2+, min 1 Tier3 per batch
+
+TEMPERATURE: min 4 COOL, min 4 HOT, rest WARM per batch
+
+ECHO: 2-3 motifs, each recurrence changes 2+ params
+  (palette / camera / gaze / light / setting)
+
+NEGATIVES: T3(cond) → T3B(risk) → T1(anatomy) → T2(style, 11 tags)
+  Mood derived from Palette (see Mood→Palette table)
+
+GATE: Thread? / Visible? / Render(≤1 break)? / Earned?
+
+ERROR BUDGET: 1 break per prompt. See Complexity Triggers table.
+
+PROMPT DENSITY: max 1 tag per semantic unit. No duplicates of meaning.
+
+NUDITY BUDGET: max 5/21 prompts with anatomical exposure.
+  Max 2 anatomical tags per prompt.
+  Graduated Reveal: Act I = sensual only → Act II = partial → Act III = earned full
+
+EROTIC THREAD TEST: "If she were fully clothed, would the concept survive?"
+  No → eroticism IS the thread. Verify it's the right thread.
+  Yes → eroticism supports. Keep it subordinate.
+
+SURFACE TRACE: skin as forensic evidence of what happened before the frame.
+  Marks, imprints, traces — the eroticism is reconstructive.
+
+═══════════════════════════════════════════════════════════════════════
+CHANGES FROM A5P1D
+═══════════════════════════════════════════════════════════════════════
+
+  CORE EROTIC CHANGES:
+
+  1.  SENSUAL GRAMMAR → EROTIC GRAMMAR — 3-tier framework replacing
+      flat list. Tier S (sensual), Tier A (anatomical), Tier E (erotic thread).
+  2.  EROTIC THREAD TYPES — 5 types of how eroticism functions as thread:
+      Revelation, Concealment, Transformation, Invitation, Evidence.
+  3.  EROTIC THREAD TEST — quality gate: "If she were fully clothed,
+      would the concept survive?" Determines if eroticism is thread
+      or support.
+  4.  NUITY BUDGET — max 5/21 prompts with anatomical exposure,
+      max 2 anatomical tags per prompt, Graduated Reveal by act.
+  5.  THE SURFACE TRACE — experimental technique for this build.
+      Skin as forensic surface: marks, imprints, traces from events
+      before the frame. The eroticism is reconstructive.
+  6.  CLOTHING STATE VOCABULARY — standardized tags for clothing states:
+      slipping, fallen, open, pulled aside, wet clinging, unbuttoned,
+      bunched, removed, sheer. The STATE tells the story.
+  7.  ANATOMY TAG POSITION — explicit anatomical tags go in [23-29].
+      Never in [1-5]. Max 2 per prompt. Always alongside context tag.
+  8.  EROTIC NEGATIVE PROTOCOL — expanded T3B with censor prevention,
+      anatomy error prevention, and explicit content stability.
+  9.  REWRITTEN: "sensual element ≠ thread" → erotic element CAN be
+      thread if it passes Erotic Thread Test. Decorative eroticism
+      (random, unjustified) still banned. Earned eroticism is the
+      most powerful thread type.
+  10. MEANING-LABEL vs STRUCTURAL-EROTIC — clear distinction.
+      "nude" = clothing state (structural, allowed). "sexy" = meaning
+      label (banned). "topless" = clothing state. "lewd" = meaning
+      label. Describe what you SEE, not what it MEANS.
+  11. FRAMING AS EROTIC ARCHITECTURE — composition principle. The frame
+      creates erotic tension through what it crops, conceals, implies.
+      NOT close-ups of body parts (lazy). Instead: leading lines that
+      end at concealed points, fabric directing the eye to what's covered.
+  12. THE GRADUATED REVEAL — batch-level arc principle. If a batch
+      uses erotic content, escalate through the arc. Act I: sensual
+      only. Act II: partial exposure through thread. Act III: earned
+      explicit only if thread demands it as climax. Never start explicit.
+      Earn it.
+
+  STRUCTURAL CHANGES:
+
+  13. PALETTE INFECTS SKIN — explicit clarification. Palette doesn't
+      just set color; it dictates skin behavior and material feel.
+      Forge Ember → sweat-sheened. Ice Breath → goosebumps, cool
+      pallor. Candle Wax → warm golden undertone. Hospital Ghost →
+      bloodless, visible veins. Already implied, now stated.
+  14. CONDIMENT EXPANSION — forensic-sensual additions: strap mark on
+      shoulder, warm handprint fading on skin, fabric impression on
+      hip, fresh mark on neck, dew on bare shoulder, rope mark on
+      wrist, wet handprint on back. These serve The Surface Trace.
+  15. ANTI-CONDIMENT EXPANSION — motion meaning-labels added:
+      jiggling, bouncing, heaving. These describe MOTION not STATE,
+      and models render them poorly. Also: ahegao (meaning-label for
+      expression — describe specific elements instead). Also:
+      voluptuous, curvy, thicc (meaning-labels for body type —
+      use specific proportions or let the model decide).
+  16. SPECIAL MODE: VULNERABILITY — new mode alongside Anti-pretty,
+      Composition-first, Feral. The character is exposed (physically
+      or emotionally) and the exposure IS the statement. Not about
+      nudity per se — about the state of being seen. Can be clothed
+      but in a state of undressing. Can be nude but composed.
+      The power is in the character's relationship to their own
+      visibility.
+  17. BATCH AUTOPSY — carried forward from Block Д (A5P1D analysis).
+      Quick pattern analysis after Post-Flight Card. What camera
+      angle dominated? What thread type repeated? What palette was
+      overused? Helps the NEXT batch avoid patterns.
+  18. GATE ADDS EARNED KEY — 4th gate key. "Is the eroticism earned?"
+      If there's erotic content, verify it passes Erotic Thread Test.
+      If it doesn't → decorative. Fix or remove.
+  19. TAG ORDER [1-5] REINFORCEMENT — even with anatomical content,
+      [1-5] stays identity (1girl, hair, eyes, gaze, anime artstyle).
+      Anatomy tags are DETAIL, not identity. Don't put "breasts" in
+      position 2. Hair color goes there.
+  20. COMPLEXITY TRIGGERS UPDATE — "explicit anatomical exposure" added
+      as complexity trigger. Counts as 1 break. Because the model
+      devotes rendering budget to anatomy that it wouldn't otherwise,
+      making other complex elements riskier.
+  21. PRE-HEADER LITE UPDATE — adds E:{S/A/E} tier to show which
+      Erotic Grammar tier is active. And Nu:{Y/N} for nudity present.
+  22. EROTIC GRAMMAR IN GAZE × THREAD MATRIX — new recommended pairs:
+      Erotic thread (Revelation) → half-lidded (she controls what
+      you see). Erotic thread (Evidence) → looking past viewer
+      (she knows what happened, you don't). Erotic thread
+      (Concealment) → eyes down (she won't help you look).
+
+═══════════════════════════════════════════════════════════════════════
+0. WORKFLOW RULE
+═══════════════════════════════════════════════════════════════════════
+
+  Before generating ANY batch, READ the latest Core document.
+
+  After each batch generation, list all files produced in this session.
+
+  After reviewing generated images, fill POST-FLIGHT CARD (Section X).
+
+═══════════════════════════════════════════════════════════════════════
+I. CREATIVE ENGINE
+═══════════════════════════════════════════════════════════════════════
+
+SURREALIST SYNTHESIS
+  Combine two unrelated elements into one image.
+  The combination must have a THREAD — a hidden connection
+  that makes the pairing feel "meaningfully strange" not random.
+
+THREAD TEST
+  "Why are these two things together?"
+  No reason → generally avoid.
+  Metaphor/resonance/emotional logic → keep.
+
+THREAD DUALITY — concept vs anchor
+  Every thread must have BOTH:
+    Concept = the metaphor, the "why"
+    Anchor = the physical element that makes it visible
+
+  Concept only → find the visible element.
+  Anchor only → find the metaphor.
+  Test: "Does removing the anchor destroy the metaphor?"
+  If no → anchor is decorative, not integrated. Fix.
+
+THREAD TYPES
+  Medium match — impossible element shares properties with host
+    (steam → fish: both flow)
+  Emotional logic — environment reflects her inner state
+    (city glitching → her world is breaking)
+  Category collision — two domains share one boundary
+    (circuit board / city: both are networks)
+  Scale inversion — small becomes vast or vast becomes intimate
+    (galaxy in a teacup: both are deep)
+  Paradox of expectation — situation should diminish but reveals
+    (rain should ruin but she owns it)
+  Subject inversion — she IS the impossible element; the world is
+    normal; the thread is her wrongness in it
+    (she is the only moving statue; she is the fish watching visitors)
+  Temporal collision — two states of the same thing visible
+    simultaneously; the boundary between them is the anchor
+    (tree blooming and bare at once, split at the midpoint)
+  Severed thread — the connection is visibly broken; two elements
+    that should relate but don't; the gap IS the anchor
+    (empty frame on wall beside girl who doesn't look at it;
+    flower on floor beside empty vase; one hand reaching,
+    nothing reaching back)
+
+THREAD LADDER
+  Tier 1 — basic (medium match, emotional logic)
+  Tier 2 — complex (paradox, inversion, temporal, severed,
+    category collision where the collision transforms both elements)
+  Tier 3 — meta (thread comments on the act of threading itself;
+    the image is about connection/disconnection as much as content)
+
+  Batch rule: min 6 Tier 2+ per batch. Min 1 Tier 3.
+  Most threads will be Tier 1. That's fine.
+  But if all 21 are Tier 1 → the batch is flat. Push deeper.
+
+TIER 3 VISUAL DICTIONARY
+  Example 1: "The unfinished portrait"
+    Concept: art about its own incompleteness
+    Anchor: girl with paintbrush, canvas shows faceless portrait
+    Tags: holding paintbrush, canvas on easel, unfinished portrait,
+          faceless painting on canvas
+    Tier: 3 (meta: art about art)
+
+  Example 2: "Frame refusal"
+    Concept: character aware of the frame boundary
+    Anchor: she looks toward the edge of frame, where reality blurs
+    Tags: looking toward frame edge, edge distortion, blurred border
+    Tier: 3 (meta: character vs medium)
+
+  Example 3: "The thread that connects nothing"
+    Concept: two elements linked by a visible line that leads nowhere
+    Anchor: string/rope between her hand and empty space
+    Tags: holding string, string leading to empty space, nothing at
+          the other end
+    Tier: 3 (meta: connection about disconnection)
+
+THREAD TEMPERATURE
+  COOL — thread close to reality (mushrooms on bark, book turning
+    to ash, empty bowl). Quiet strangeness.
+  WARM — thread gently breaks expectation (wheat bending toward her,
+    incense smoke from lips). Soft surreal.
+  HOT — thread aggressively surreal (fire-eating, she IS the tide,
+    temporal split). Hard strangeness.
+  Batch balance: min 4 COOL, min 4 HOT, rest WARM.
+  Act I = COOL dominant / Act II = HOT dominant / Act III = mixed.
+
+EMOTIONAL ANCHOR
+  Every image answers: "What does she feel about this?"
+  Her expression, posture, or gaze completes the metaphor.
+  Eye contact taxonomy (add to [4]):
+    looking at viewer → confrontation, challenge, intimacy
+    looking past viewer → detachment, seeing beyond
+    eyes down → focus, surrender, hiding
+    eyes closed → internal world, pain, acceptance
+    looking at [thread element] → she connects to the thread
+  Pick one. It matters more than any "expression" tag.
+
+GAZE × THREAD MATRIX
+  Subject inversion → looking at viewer (she knows she's wrong)
+  Temporal collision → eyes down (she sees both times at the seam)
+  Emotional logic → looking past viewer (she's in her state)
+  Paradox of expectation → eyes closed (she doesn't flinch)
+  Severed thread → looking at [severed element] (she sees the gap)
+  Medium match → looking at [thread element] (she watches the link)
+  Erotic thread: Revelation → half-lidded (she controls what you see)
+  Erotic thread: Concealment → eyes down (she won't help you look)
+  Erotic thread: Evidence → looking past viewer (she knows, you don't)
+
+═══════════════════════════════════════════════════════════════════════
+I-B. EROTIC GRAMMAR
+═══════════════════════════════════════════════════════════════════════
+
+PHILOSOPHY
+  The best ecchi has no erotic contact. It has tension.
+  Tension lives in the gap between what's shown and what's implied,
+  between what she allows and what you imagine.
+  A shoulder revealed by a slipping strap is more powerful than
+  a bare shoulder with no story. The REVEAL is the eroticism.
+  The body is available. The question is whether the image earns it.
+
+  This system does not mandate eroticism. It does not forbid it.
+  It opens the possibility — and demands that the possibility
+  be earned. Every exposed inch of skin is a narrative decision.
+  Every clothing state is a verb. If you can't answer "why is
+  this visible?" then it shouldn't be.
+
+  The body is not decoration. The body is a surface that events
+  write themselves onto. A mark on the wrist tells a story.
+  A wet dress tells a story. An open collar tells a story.
+  The story IS the eroticism.
+
+THREE TIERS
+
+  TIER S — SENSUAL (indirect, through material/gesture/context)
+    Body through material: wet fabric on skin, strap on shoulder,
+      dress slipping, bare back, collarbone shadow, open collar
+    Gaze as eroticism: looking at viewer through lashes,
+      half-lidded eyes, looking past viewer while body faces camera
+    Gesture as eroticism: hand at own collar, fingers on own neck,
+      arms crossed pulling fabric tight
+    Context as eroticism: dressing room, morning light + sheet,
+      rain-soaked clothing, steam on skin
+    Clothing State (indirect): fabric clinging after rain, shirt
+      pulled taut by wind, hem caught on something, strap sliding
+    No direct anatomical exposure. Everything is mediated.
+
+  TIER A — ANATOMICAL (direct description, with rules)
+    Primary erotic anatomy described directly through tags:
+      bare breasts, nipples visible, topless, nude, bare skin,
+      exposed midriff, bare shoulder and chest, sheer fabric on skin
+    RULES FOR TIER A:
+      1. Max 2 anatomical tags per prompt.
+      2. Tags go in [23-29] detail section. NEVER in [1-5].
+      3. Must be alongside a context tag (WHERE is she, WHY exposed).
+      4. Must pass Erotic Thread Test (see below).
+      5. Counts as 1 complexity trigger (model rendering budget).
+    MEANING-LABEL vs STRUCTURAL-EROTIC:
+      ✓ "bare breasts" — structural, describes what's visible
+      ✓ "topless" — structural, describes clothing state
+      ✓ "nude" — structural, describes clothing state
+      ✓ "nipples visible through wet fabric" — structural + cause
+      ✗ "sexy" — meaning-label, describes interpretation
+      ✗ "seductive" — meaning-label, describes interpretation
+      ✗ "lewd" — meaning-label, describes interpretation
+      ✗ "slutty" — meaning-label, describes interpretation
+      ✗ "erotic" — meaning-label (use Sensual Grammar instead)
+      The difference: structural tags tell the model WHAT to render.
+      Meaning-labels tell the model how to FEEL about it. Models
+      don't feel. They render. Give them structure.
+
+  TIER E — EROTIC THREAD (eroticism IS the thread)
+    When the erotic element passes the Erotic Thread Test and
+    the concept CANNOT survive without it. This is the strongest
+    case. The image is ABOUT the exposure, the reveal, the state
+    of being seen — and removing the eroticism kills the concept.
+    Example: A girl whose skin has become a ritual surface — the
+    exposure is not optional, it's where the spell is written.
+    Example: A girl stepping out of water that was her disguise —
+    the reveal IS the transformation.
+
+    RULES FOR TIER E:
+      1. Must pass Erotic Thread Test with "No" answer.
+      2. Thread type must be one of the Erotic Thread Types below.
+      3. Still subject to Nudity Budget and Graduated Reveal.
+      4. Face still visible. Character Present Rule still applies.
+      5. The eroticism is the CONCEPT, not decoration.
+
+EROTIC THREAD TYPES
+  Revelation — something hidden becomes visible, and the visibility
+    IS the event. The exposure is not incidental — it's the point.
+    (She opens her shirt and light writes itself on her skin.)
+    Tags: open shirt, skin exposed to [light element], [thread
+    element] on bare skin
+
+  Concealment — something almost visible, and the ALMOST is the
+    event. The clothing state implies what it barely covers.
+    (Fabric sheer from rain, body visible through it but the
+    fabric hasn't surrendered.)
+    Tags: sheer fabric, wet clothing on skin, fabric barely
+    covering, visible through [material]
+
+  Transformation — body or clothing state changes, and the change
+    IS the thread. The process of becoming exposed is the concept.
+    (Dress dissolving into smoke, clothing becoming water.)
+    Tags: clothing dissolving, fabric becoming [element],
+    dress turning to [thread material]
+
+  Invitation — gaze/gesture toward viewer that implies access.
+    She is aware of the frame, aware of you, and choosing to let
+    you see. The power dynamic is the thread.
+    (Looking at viewer while pulling fabric aside, half-lidded
+    and fully aware.)
+    Tags: looking at viewer, hand pulling [fabric], [clothing
+    state] while looking at viewer
+
+  Evidence — marks, traces, imprints on skin from events before
+    the frame. The eroticism is forensic. See The Surface Trace.
+    (Strap mark on bare shoulder, handprint fading on back,
+    rope marks on wrist.)
+    Tags: strap mark on shoulder, handprint on [body part],
+    [trace element] on bare skin
+
+EROTIC THREAD TEST
+  Ask: "If she were fully clothed, would the concept survive?"
+    Yes → eroticism supports the thread. Keep it subordinate.
+      It can be Tier S or Tier A, but it's not the concept.
+    No → eroticism IS the thread. This is Tier E territory.
+      Verify: is this the RIGHT thread for this image? Or are you
+      just horny and rationalizing? If the only reason she's
+      exposed is "it's hot" — that's decorative. Fix it.
+      If the exposure serves the concept, the setting, the arc —
+      it's earned. Keep it.
+
+  Secondary test: "Describe this image without mentioning any
+  body part or clothing state." If you can't → the image is
+  ABOUT the body. That's fine IF it's Tier E. But know it.
+
+THE SURFACE TRACE (Experimental Technique — Beta-Build 1)
+  Skin as forensic surface. Instead of showing the erotic act,
+  show the EVIDENCE it left behind. The skin becomes a document
+  of what happened before the frame.
+
+  The principle: a mark on skin is more erotic than the act that
+  made it, because the mark requires imagination to reconstruct.
+  The viewer becomes a detective. The image becomes a crime scene
+  of pleasure.
+
+  Trace vocabulary:
+    strap mark on shoulder     rope mark on wrist
+    handprint fading on back   finger marks on hip
+    fabric impression on skin  wet handprint on bare shoulder
+    lipstick on neck           warm mark on thigh
+    rope burn on ankle         chain mark on collarbone
+    finger trail on stomach    bite mark on shoulder
+    thumb print on jaw         palm print on lower back
+    band-aid removal mark      suction mark on neck
+    zipper impression on hip   bracelet mark on wrist
+
+  Why this works:
+    1. More erotic than the act — the viewer IMAGINES the cause
+    2. Creates narrative — there's a before and after
+    3. Works with thread system — the trace IS the anchor
+    4. Respects model limits — rendering marks is easier than poses
+    5. Different every time — same mark reads differently in
+       a shrine vs a bedroom vs a battlefield
+    6. Pairs with existing skin system — marks LIVE on the skin
+       response gradient. A handprint reads differently on warm-lit
+       skin vs overcast skin.
+
+  Trace + Thread examples:
+    Medium match: rope marks on wrist + rope still on floor
+    Emotional logic: handprint on back + she's alone now
+    Paradox: warm handprint on bare shoulder + she's in the cold
+    Severed: bite mark + no one else in frame
+
+CLOTHING STATE VOCABULARY
+  The STATE tells the story, not the body part.
+  These are standardized tags for clothing states that imply
+  narrative without needing to describe the body directly:
+
+    slipping — gravity or motion is pulling it off
+    fallen — it's already off one area
+    open — unbuttoned/unzipped, revealing
+    pulled aside — deliberately moved, the gesture is the event
+    wet clinging — transparency from water/sweat
+    unbuttoned — the process is complete, the result visible
+    bunched — gathered at waist or above, deliberately out of way
+    removed — on the floor/nearby, the absence is the story
+    sheer — visible through, the fabric hasn't surrendered
+    inside-out — haste, wrongness, transformation
+
+  Combine clothing state + cause for narrative:
+    "shirt slipping from wet shoulder" (cause = water)
+    "dress fallen open in wind" (cause = environment)
+    "unbuttoned after ritual" (cause = ceremony)
+    "pulled aside to show the seal" (cause = thread)
+
+═══════════════════════════════════════════════════════════════════════
+II. COMPOSITION
+═══════════════════════════════════════════════════════════════════════
+
+Pick 1-2 per prompt. State which ones in the pre-header.
+
+RULE OF THIRDS
+  Key element at intersection, not center.
+
+LEADING LINES
+  Lines that guide the eye to subject or surprise element.
+
+SYMMETRY / BALANCE
+  Symmetry = calm, ritual. Asymmetry = tension, movement.
+
+GEOMETRIC ANCHOR
+  Triangle / Circle / Diagonal / V-shape. State in pre-header.
+
+FRAME WITHIN FRAME
+  Window, doorway, gap. Generally avoid mirrors.
+
+COLOR ISOLATION
+  ONE saturated in desaturated world, or vice versa.
+
+TEXTURE CONTRAST
+  Two textures meeting. The meeting point is the event.
+
+VOID
+  Empty space pressurizes the subject.
+
+SPATIAL PLAN
+  Max 2 planes: dominant (character + thread) + secondary (≤20%
+  visual weight, simple context only).
+
+SILHOUETTE READABILITY
+  Every image must work as a silhouette. Before finalizing, ask:
+  "If I remove all color and detail, can I still tell what's happening?"
+  One dominant silhouette gesture per prompt:
+    arms raised, body bent, head turned, hand extended,
+    two figures sharing an object, figure against void
+  Silhouette gesture coded in [6-10] as part of pose:
+    "arms raised overhead", "body bent forward",
+    "figure against empty sky"
+  If the silhouette is ambiguous → the composition is ambiguous.
+  Fix it. Tsubaki 2 reads shape first.
+
+  NOTE: Silhouette readability requires strong tonal contrast.
+  This is NOT "shadow play / shadow theater" (banned as
+  compositional subject where shadows become the main element).
+  Tonal contrast serves the figure. Shadow play replaces the figure.
+
+FRAMING AS EROTIC ARCHITECTURE
+  The frame itself creates erotic tension. NOT through close-ups
+  of body parts (that's compositionally lazy). Instead:
+    - Leading lines that end at concealed/concealing points
+    - Fabric/drapery that directs the eye toward what's covered
+    - The crop itself as erotic statement — what's just outside
+      the frame matters as much as what's inside
+    - Void used to pressurize the exposed element
+    - Texture contrast between skin and fabric at the boundary
+      where one becomes the other
+  The frame doesn't show everything — it makes you aware of
+  everything it's not showing. That's the eroticism.
+
+FOCAL HIERARCHY
+  Every image has exactly:
+    PRIMARY FOCUS — the one thing the eye goes to first.
+      Almost always: face OR visible anchor of thread.
+    SUPPORTING FOCUS — one element that supports the primary.
+      Gesture, light, material, secondary thread element.
+    EVERYTHING ELSE — serves the above. No third interest.
+
+  If you have two competing primary foci → neither wins.
+  If you have no supporting focus → the primary is lonely.
+  State in pre-header: Focus: [primary] + [supporting]
+
+═══════════════════════════════════════════════════════════════════════
+III. LIGHT AND COLOR
+═══════════════════════════════════════════════════════════════════════
+
+Light is mood. One direction per prompt.
+
+6 PRACTICAL LIGHT STATES
+  Backlit → silhouette, mystery, revelation
+  Overhead → judgment, exposure, divine
+  Below → unease, power, unnatural
+  Side → drama, duality, depth
+  Diffused → softness, dream, memory
+  Single source → focus, isolation, theater
+
+LIGHT QUALITY: Hard (drama) or Soft (intimacy). Pick one.
+
+SKIN RENDERING RULES
+  ✗ Over-luminous uniform skin tone
+  ✗ Light that doesn't land on skin
+  ✗ Same tone across entire body
+  ✓ Light creates tonal variation: lit side vs shadow side
+  ✓ Skin in shadow = cooler/darker. Skin in light = warmer/brighter.
+
+  SKIN RESPONSE TAG (mandatory, position: immediately after light
+  direction in [11-22], not buried in detail):
+    "skin warm in light cool in shadow"
+    "skin warm at edge cool in core shadow"
+    "skin cool in overcast warm at edges"
+
+  POSITIVE ANCHOR (add once per prompt in [23-29]):
+    "natural skin gradient" — prevents overcorrection toward
+    harsh contrast when negatives ban flat/uniform skin.
+
+PALETTE INFECTS SKIN
+  Palette doesn't just color the image — it infects how skin
+  behaves and feels. This was always implied. Now it's stated.
+
+  Forge Ember → sweat-sheened skin, warm glow on exposed areas
+  Hospital Ghost → bloodless pallor, visible cool veins
+  Storm Surge → rain-wet sheen, cool undertone
+  Feral Earth → earth-toned, dirt-smeared, raw
+  Midnight Brass → lamp-warm highlights on skin, deep cool shadows
+  Blood Stage → flushed warm in stage light, shadow under eyes
+  Ice Breath → goosebumps visible, cool pallor, blue at edges
+  Salt Sky → sun-warmed where exposed, cool in shadow
+  Candle Wax → golden undertone, warm pools of light on skin
+  Mud Field → gritty, stained, wet-cold highlights
+  Tattoo Ink → warm skin against ink-cool elements
+  Rain Street → wet highlights, cool flat areas
+  Lighthouse → beam-warm where it hits, deep teal shadows
+  Observatory → paper-white highlights, brass-warm on skin
+  Garden Soil → earth-warm, sun-touched where exposed
+
+  When writing skin response tags, let the palette dictate the
+  warm/cool direction. A girl in Ice Breath won't have "skin warm
+  in light cool in shadow" — she'll have "skin cool in overcast
+  warm at edges." The palette wins.
+
+PALETTE PRESET LIBRARY
+  Pick from these or create new. No adjacent duplicates.
+    Forge Ember — orange + soot + steel
+    Hospital Ghost — green-white + dark + pale
+    Storm Surge — teal + beam gold + dark
+    Feral Earth — raw umber + moss + bare skin
+    Midnight Brass — midnight blue + brass + lamp amber
+    Blood Stage — stage warm + blood red + dark
+    Ice Breath — ice white + cold blue + mist
+    Salt Sky — white salt + sky blue + warm horizon
+    Candle Wax — candle gold + dark + wax white
+    Mud Field — mud brown + blood red + grey sky
+    Tattoo Ink — ink black + warm skin + lamp amber
+    Rain Street — storm grey + umbrella red + rain blue
+    Lighthouse — storm teal + beam gold + dark
+    Observatory — midnight blue + brass + star chart paper white
+    Garden Soil — earth brown + leaf green + warm skin
+
+  Palette as world-state: palette doesn't just color, it dictates
+  light behavior and material feel. Amber makes skin alive.
+  Teal makes metal duller. Cold blue makes fabric stiffer.
+  Let the palette infect everything, not just hair color.
+
+PALETTE AS CHARACTER ARC
+  Act I = cool/distant palettes (Ice Breath, Salt Sky, Hospital Ghost)
+  Act II = fire/conflict palettes (Blood Stage, Forge Ember, Mud Field)
+  Act III = warmth/transcendence (Candle Wax, Observatory, Lighthouse)
+  This is guidance, not rule. Break when the thread demands it.
+
+MOOD → PALETTE BINDING (for T3 negative assembly)
+  Dark palettes: Hospital Ghost, Ice Breath, Storm Surge,
+    Mud Field, Rain Street
+    → T3 adds: bright smile, oversaturated warm
+  Warm palettes: Forge Ember, Salt Sky, Candle Wax,
+    Garden Soil, Blood Stage
+    → T3 adds: cold palette, harsh shadows
+  Neutral (no T3 mood): Midnight Brass, Tattoo Ink, Observatory,
+    Lighthouse, Feral Earth
+
+MATERIAL GRAMMAR — visual pair vocabulary
+  These pairs always work. Use them instead of abstract mood words:
+    skin + soot    silk + rust     glass + breath   paper + ash
+    water + iron   wax + bloodless skin   salt + windburn
+    coal + bare palm   ink + bare shoulder   ice + bare sole
+    fabric + earth   metal + sweat   wood + candlelight
+
+ANTI-CONDIMENT LIST (high drift risk — use with anchor only)
+  Visual drift: ethereal, dreamlike, glowing, mist (as atmosphere,
+    not water), shimmering, otherworldly, luminous, radiant,
+    hazy, mystical
+  Motion drift: jiggling, bouncing, heaving — these describe
+    MOTION not STATE, models render them poorly
+  Body-type drift: voluptuous, curvy, thicc — meaning-labels
+    for body type; use specific proportions or let model decide
+  Expression drift: ahegao — meaning-label for expression;
+    if you want it, describe specific elements (tongue out,
+    rolled eyes, drool) instead of the label
+  All push toward poor rendering. If used, anchor with
+  a concrete material pair and a hard light source.
+
+═══════════════════════════════════════════════════════════════════════
+IV. PROMPT STRUCTURE
+═══════════════════════════════════════════════════════════════════════
+
+TAG ORDER (first tokens = highest weight)
+
+  [1]     1girl / 2girls
+  [2]     hair color
+  [3]     eye color
+  [4]     gaze direction (eye contact taxonomy)
+  [5]     anime artstyle
+  [6-10]  CAMERA + STATE — shot type, pose, silhouette gesture
+  [11-22] COMPOSITIONAL ENGINE — thread element (anchor + concept),
+          spatial, position, environment, light direction,
+          SKIN RESPONSE TAG (immediately after light), atmosphere
+  [23-29] DETAIL — material pair, anatomy/clothing state (Tier A/E),
+          atmosphere condiment (max 1), natural skin gradient
+  [30]    NARRATIVE LINE — max 1 tag, atmosphere only. Allowed
+          if visually anchored by another tag in the prompt.
+          Last position before quality. Optional — can be empty.
+  [31-35] QUALITY + STYLE — masterpiece, best quality, anime artstyle
+
+  Solo: 25-35 tags. Yuri: 30-40 tags.
+
+  ANATOMY TAG POSITION: Explicit anatomical tags (Tier A/E) go in
+  [23-29]. NEVER in [1-5]. Even when the prompt includes anatomical
+  content, the identity slots stay: 1girl, hair, eyes, gaze, anime
+  artstyle. Anatomy is detail, not identity. Putting "bare breasts"
+  in position 2 would make it dominate the render, crushing
+  everything else. Don't do it. The model reads position, not intent.
+
+PROMPT SKELETONS
+
+  TIER 1 (Sensual):
+  1girl, {hair}, {eyes}, {gaze}, anime artstyle, {camera},
+  {pose + silhouette}, {thread anchor visible}, {environment},
+  {light direction}, skin {response}, {material pair},
+  {clothing state or condiment}, natural skin gradient, {narrative},
+  masterpiece, best quality, anime artstyle
+
+  TIER 2 (Anatomical — if thread justifies):
+  1girl, {hair}, {eyes}, {gaze}, anime artstyle, {camera},
+  {pose + silhouette}, {paradox/inversion/severed anchor},
+  {environment}, {light direction}, skin {response},
+  {material pair}, {anatomy tag 1}, {anatomy tag 2 or condiment},
+  natural skin gradient, {narrative}, masterpiece, best quality,
+  anime artstyle
+
+  TIER 3 (Erotic Thread — concept IS the exposure):
+  1girl, {hair}, {eyes}, {gaze}, anime artstyle, {camera},
+  {pose + silhouette}, {meta-frame element + erotic thread type},
+  {environment}, {light direction}, skin {response},
+  {material pair}, {anatomy tag}, {clothing state as verb},
+  natural skin gradient, {meta-narrative}, masterpiece, best
+  quality, anime artstyle
+
+PROMPT DENSITY RULE
+  Max 1 tag per semantic unit:
+    1 tag for light direction (not 2)
+    1 tag for skin response (not 2)
+    1 tag for atmosphere condiment (not 2)
+    1 tag for material pair (not 2)
+    1 tag per anatomical area (not "bare breasts" AND "nipples")
+  If 2+ tags describe the same thing → keep the strongest.
+
+SLOP REDUCTION
+  Slop = tag that:
+    1. Duplicates meaning of another tag in the prompt
+    2. Abstract without visual anchor (and model ignores it)
+    3. Doesn't affect render (tested: removed = no change)
+
+  Principles:
+    - One meaning = one tag. "forge glow" AND "orange light from
+      forge" = slop. Pick one.
+    - Narrative [30]: if model doesn't render it visually → remove
+    - Atmosphere condiment: max 1 per prompt
+    - Negatives: every tag must fix an observable problem
+    - Anatomy: if "bare breasts" and "topless" both appear → pick
+      one. They describe the same state.
+
+NARRATIVE TAG RULE
+  [30] is for atmosphere/mood — "defiance", "surrender",
+  "the light became tangible when she reached for it".
+  It is NOT a visual instruction. It supports tone but doesn't
+  replace concrete visual tags. Max 1 per prompt. Last before quality.
+  If your narrative tag could be a visual tag instead → make it visual.
+  ALLOWED even if abstract, PROVIDED at least one other tag in the
+  prompt visually anchors the same emotion (gaze, posture, light).
+
+ANCHOR ANIME (doubled)
+  "anime artstyle" appears TWICE: [5] and [31-35].
+  Prevents style drift when the prompt is concept-heavy.
+
+HAND POSE SAFE LIST
+  Default approved:
+    1. hands at sides
+    2. one hand on object/railing
+    3. hand in hair (above temple, elbow away, face open)
+    4. arms crossed
+    5. holding object with both hands
+  Additional render-safe poses:
+    6. hand on own neck/collarbone (below chin, face visible)
+    7. hand at own collar (chest area, face fully visible)
+  Anything else needs thread justification. If thread doesn't
+  require a specific hand pose → use one from the safe list.
+
+  ✗ Hands near face = covering face, touching cheek/chin/eyes.
+    This is a render risk (Tsubaki 2 deforms fingers near face),
+    not a moral judgment.
+
+SPECIFICITY RULE
+  Abstract terms must be TRANSLATED into visible effects.
+  "mysterious" → "face half-lit from below, eyes in shadow"
+  "erotic" → name the specific visible element (Erotic Grammar)
+  "devotion" → visible anchor encodes it (soot on skin, etc.)
+  "nude" → structural, allowed (describes clothing state)
+  "sexy" → meaning-label, banned (describes interpretation)
+
+ATMOSPHERE CONDIMENT LIST (pick max 1 for [23-29])
+  Standard:
+    dust motes in light beam    steam from breath in cold
+    rain on glass               salt crust on skin
+    oil sheen on water          static lifting hair
+    ash on eyelashes            wax drips on wood
+    mud splatter on hem         hair stuck to cheek
+    sweat on collarbone         frost on fabric edge
+    sawdust in air              iron filings on palm
+    chalk dust on knuckles      flour on wrist
+    paint spray on shoulder     sand in hair
+    embers rising               condensation on skin
+  Forensic-sensual (serves The Surface Trace):
+    strap mark on shoulder      warm handprint fading on skin
+    fabric impression on hip    fresh mark on neck
+    dew on bare shoulder        rope mark on wrist
+    wet handprint on back       lipstick on collarbone
+
+═══════════════════════════════════════════════════════════════════════
+V. CONSTRAINTS — SEVERITY PYRAMID
+═══════════════════════════════════════════════════════════════════════
+
+🔴 ABSOLUTE (never — render breaks / artifact / ban)
+  ✗ Square brackets in prompts
+  ✗ Extreme head tilt / extreme upshot
+  ✗ Face at frame edge
+  ✗ Hands covering face, touching cheek/chin/eyes
+  ✗ More than 2 figures
+  ✗ Profile + looking up simultaneously
+  ✗ 3+ compositional planes
+  ✗ Wrongness that distorts anatomy
+  ✗ No visible face in frame
+
+🟠 STRONG (avoid — thread unreadable / concept dead)
+  ✗ Full body distant shot
+  ✗ Concepts invisible without reading the prompt
+  ✗ "X becomes Y" without both X and Y visible
+  ✗ Galaxy/cosmos as primary surprise
+  ✗ Repeating thread concepts without transformation
+  ✗ Shadow play / shadow theater as compositional subject
+  ✗ Ambiguous silhouette
+  ✗ Decorative eroticism — erotic content that serves no thread,
+    no concept, no arc. Random exposure is not art, it's noise.
+    Use Erotic Thread Test. If it doesn't pass → remove.
+
+🟡 GUIDELINE (control — style drift, but render alive)
+  ✗ Mirrors and reflections on surfaces
+  ✗ Realistic/photorealistic/3D style
+  ✗ Meaning-labels (sexy/sultry/seductive/lewd — use Erotic Grammar)
+  ✗ More than 2 clothing layers
+  ✗ Male spawning
+
+🟢 BUDGET (compensate — 1 break, rest safe)
+  See Error Budget below.
+
+ERROR BUDGET
+  Per prompt, break ONE thing. Keep everything else safe.
+  If you break two things simultaneously → render risk doubles.
+
+  COMPLEXITY TRIGGERS (each = 1 break):
+    - hands visible and doing something specific (not safe list)
+    - unusual camera angle (three-quarter, dutch, low angle)
+    - two light sources in one prompt
+    - yuri with physical contact
+    - thread element physically on body (not beside it)
+    - subject inversion or temporal collision
+    - severed thread (gap as anchor = compositional risk)
+    - explicit anatomical exposure (model devotes rendering budget
+      to anatomy that it wouldn't otherwise — other complex elements
+      become riskier)
+  Max 1 trigger per prompt. If 2+ → Error Budget exceeded.
+
+  Compensation pairs:
+    Complex pose → simple face, safe camera, simple clothes
+    Complex light → simple pose, safe geometry, simple thread
+    Complex thread → safe camera, safe hands, simple palette
+    Complex camera → simple everything else
+    Anatomical exposure → safe camera, safe hands, simple thread,
+      simple clothes (the body IS the complexity)
+
+CAMERA RULES
+  Standard options: close-up, bust, waist, cowboy, three-quarter
+  Match camera to thread element location:
+    Thread on body → bust / close-up
+    Thread in environment → cowboy / three-quarter
+    Thread in medium → bust / cowboy
+  See Batch Rules for hard caps.
+
+CHARACTER PRESENT RULE
+  Every prompt = visible face. No exceptions.
+  Minimum: bust shot with face clearly rendered.
+  If thread requires empty space → face at frame edge, but visible.
+  No "object only" prompts. No "absence" modes.
+
+═══════════════════════════════════════════════════════════════════════
+VI. EVALUATION
+═══════════════════════════════════════════════════════════════════════
+
+QUICK DIAGNOSTIC (run before Gate)
+  "Describe this prompt in one sentence without the theme word."
+  If you can't → thread isn't visualized, it's literary. Fix.
+
+GATE (4 keys)
+  1. THREAD — concept + visible anchor both present?
+  2. VISIBLE — can I see it without being told? Silhouette reads?
+     Face visible?
+  3. RENDER — will Tsubaki 2 build this? Complexity triggers ≤1?
+  4. EARNED — if erotic content present, does it pass Erotic
+     Thread Test? Decorative eroticism = fail.
+
+═══════════════════════════════════════════════════════════════════════
+VII. NEGATIVE PROMPTS
+═══════════════════════════════════════════════════════════════════════
+
+NEGATIVE ECONOMY: Every tag must fix an observable problem.
+  If a tag doesn't fix something you've seen break → remove it.
+
+ASSEMBLER ALGORITHM:
+  START → T3 (conditional, FIRST):
+    IF solo → +background male, 1boy, male, man, boy, guy
+    IF yuri → +fused bodies, limb merge, too many arms, body merge,
+              sameface, identical features
+    IF palette ∈ {dark set} → +bright smile, oversaturated warm
+    IF palette ∈ {warm set} → +cold palette, harsh shadows
+    IF close-up → +distant
+    IF void-heavy composition → +cluttered, busy
+
+  → T3B (risk-based):
+    IF hands visible in prompt → +deformed fingers, finger merge,
+       wrong finger count
+    IF body fragment shot → +face visible, extra limbs, floating limbs
+    IF yuri + close proximity → +fused bodies, limb merge,
+       too many arms, body merge
+    IF transparency/sheer clothing → +flat chest, no nipples,
+       barcode censor, mosaic censor
+    IF glass/water present → +mirror reflection, surface reflection
+    IF explicit anatomical exposure → +barcode censor, mosaic censor,
+       black bar censor, nipple censor, genital censor, extra nipples,
+       misplaced anatomy, anatomy error, body horror, bad nipples
+    IF Surface Trace (marks on skin) → +tattoo (unless thread
+       requires tattoo), scar (unless thread requires scar),
+       bruise (unless thread requires bruise)
+       — the model may misread intentional marks as unintentional
+       skin artifacts. Specifying what the mark ISN'T helps.
+
+  → T1 (anatomy, always):
+    bad anatomy, extra fingers, missing fingers, deformed hands,
+    mutated limbs, wrong body proportions, fused bodies, extra limbs,
+    blurry, low quality, worst quality, 1boy, male, man, boy,
+    unnatural skin color, hidden hands, rough sketch, sketch lines,
+    small iris, narrow eyes
+
+  → T2 (style, always, LAST — trimmed to essentials):
+    realistic skin, photorealistic, 3d render, manhwa style,
+    western cartoon, cel shading, chibi, overexposed, porcelain skin,
+    uniform skin tone, flat skin shading
+
+═══════════════════════════════════════════════════════════════════════
+VIII. PRE-HEADER FORMAT
+═══════════════════════════════════════════════════════════════════════
+
+LITE (default — for generation):
+  T:{type} | A:{anchor} | {camera} | L:{light} | P:{palette}
+  F:{primary}+{supporting} | E:{gaze} | EG:{S/A/E} | Nu:{Y/N}
+  B:{break? Y/N} | G:{✓/✓/✓/✓}
+
+  EG = Erotic Grammar tier: S(ensual) / A(natomical) / E(rotic thread)
+  Nu = Nudity present: Y(es) / N(o)
+  G = Gate: Thread/Visible/Render/Earned
+
+FULL (archive — for published batches):
+  Thread: [A + B — metaphor] | Anchor: [visible element]
+  Compose: [1-2 tools] | [geometric anchor] | Focus: [primary] + [supporting]
+  Light: [direction + quality] | Palette: [dominant] + [accent]
+  Erotic: [Tier S/A/E] | [type if E] | Earned: [why]
+  Gate: Thread?/Visible?/Render?/Earned? — [PASS/ADJUST]
+
+═══════════════════════════════════════════════════════════════════════
+IX. PRODUCTION APPENDIX — BATCH RULES
+═══════════════════════════════════════════════════════════════════════
+
+Batch = 21 prompts (core 15 + 6 experimentals).
+Experimental = 1 parameter outside standard range.
+  Error Budget still ≤1 break.
+
+EMOTIONAL ARC (3 acts)
+  Act I (P1-P7): Entry. Thread shown in safe, recognizable forms.
+    Emotion = recognition, arrival.
+    Settings: nature/public dominant. COOL temperature dominant.
+    Erotic: Tier S only (sensual, indirect). No anatomical exposure.
+  Act II (P8-P14): Escalation. Thread conflicts with character.
+    Pain, risk, loss of control. Anti-pretty and Feral live here.
+    Settings: architecture/domestic allowed here. HOT dominant.
+    Erotic: Tier S + Tier A (partial exposure through thread).
+      The body becomes visible BECAUSE the thread demands it.
+      Clothing states, surface traces, sheer fabric — all earned.
+  Act III (P15-P21): Resolution/Catharsis. Thread at its limit:
+    transcendence or acceptance.
+    Settings: exterior/height/water. Mixed temperature.
+    Erotic: Tier A + Tier E (earned explicit, IF thread demands
+      it as climax). This is where full exposure lives, but only
+      if the arc has earned it. If Act I-II were fully clothed,
+      Act III doesn't suddenly get nude. Earn it.
+
+THE GRADUATED REVEAL
+  If a batch uses erotic content, escalate. Never start explicit.
+  The arc of exposure mirrors the emotional arc:
+    Act I = tension, anticipation, suggestion
+    Act II = partial revelation, the thread begins to undress her
+    Act III = earned climax — the reveal IS the resolution
+  If the batch isn't erotic → ignore this. It's opt-in.
+  If it IS erotic → respect the arc. Cheap exposure early kills
+  the impact of earned exposure late.
+
+NUDITY BUDGET
+  Max 5/21 prompts with anatomical exposure (Tier A or E).
+  This isn't a moral limit — it's a variety limit.
+  All 21 with nudity = boring, the impact dies.
+  0/21 = fine, not every batch needs it.
+  5/21 = maximum, ensuring impact when it happens.
+  Max 2 anatomical tags per exposed prompt.
+  Count resets per batch. No carrying over.
+
+DIVERSITY
+  Max 2 domestic interiors.
+  Min 5 outdoor/exterior.
+  Settings span 5+ categories:
+    Nature / Public / Transit / Performance / Architecture /
+    Water / Height / Vehicle / Domestic
+  Min 1 Transit per batch.
+  Min 2 Performance per batch.
+  15+ of 21 must have a thread element.
+
+CAMERA HARD CAPS
+  Max 10 cowboy per batch.
+  Min 3 bust per batch.
+  Min 2 other (close-up, three-quarter, waist) per batch.
+  No 3+ consecutive same camera.
+
+PALETTE-DRIVEN VARIETY
+  No adjacent duplicate palettes.
+  Palette → concrete hair color tag in [2], no exceptions.
+  "Unwashed" is a state, not a hair color. Add actual color.
+  Aim for 7+ distinct palettes across 21 prompts.
+
+THREAD LADDER DISTRIBUTION
+  Min 6 Tier 2+ per batch. Min 1 Tier 3.
+
+THREAD TEMPERATURE BALANCE
+  Min 4 COOL, min 4 HOT, rest WARM per batch.
+  See Thread Temperature in Section I for definitions.
+
+YURI (~25-35% = 5-7 prompts)
+  Max 2 contact points.
+  Yuri must have its OWN thread.
+  Yuri thread test: "Would this thread work with 1girl?"
+    If yes → thread is strong, yuri amplifies.
+    If no → yuri IS the thread. That's ok, but know which.
+    If yes AND yuri adds new layer of meaning → strongest case.
+      Describe what yuri adds specifically.
+  Yuri + erotic content: same rules apply. Tier S/A/E, Nudity
+    Budget, Graduated Reveal, Erotic Thread Test. Yuri doesn't
+    get a free pass. If two girls are touching, it better serve
+    the thread.
+
+SPECIAL MODES (1-2 per batch each)
+  Anti-pretty — ugliness as statement, defiant beauty
+  Composition-first — structure dominates content (face still visible)
+  Feral — body before civilization (concept > nudity)
+  Vulnerability — the character is exposed (physically or
+    emotionally) and the exposure IS the statement. Not about
+    nudity per se — about the state of being seen. Can be clothed
+    but caught in the act of becoming visible. Can be nude but
+    composed, unashamed. The power is in the character's
+    relationship to their own visibility. She knows you're looking,
+    and her gaze tells you what she thinks about that.
+
+VISUAL ECHOES
+  2-3 recurring motifs across the batch.
+  Echo seeds declared BEFORE batch generation:
+    each seed = physical element + emotional register.
+    Seed ≠ theme. Seed = anchor of transformation.
+  ECHO TRANSFORMER: each recurrence must change 2+ parameters
+  from: palette, camera, emotion (gaze), light, setting category.
+  If an echo repeats without transformation → it's not an echo,
+  it's a repetition. Fix it.
+
+THEME INTERPRETATION
+  Theme is a lens, not a cage. Interpret WIDE.
+  If you catch yourself repeating the same angle → stop,
+  list 3 angles you haven't tried. Then pick one.
+
+  Theme keyword limit: max 3/21 prompts may contain the
+  theme word in tag body. Encode the theme in visible elements,
+  not in the word itself.
+
+  THEME ENCODING METHOD:
+    1. Name 3 physical actions the theme produces
+    2. Name 3 objects the theme transforms
+    3. Name 3 body states the theme creates
+    Use these as tags instead of the theme word.
+
+BATCH OPENER RULE
+  P1 = Tier 1 thread, safe camera (cowboy/bust), recognizable
+  setting, strong palette. P1 doesn't experiment — P1 establishes
+  the visual language of the batch. If P1 is weak, the whole
+  Act I loses its anchor.
+  P1 = Tier S erotic only. Never start with anatomical exposure.
+
+P21 RULE
+  P21 = strongest thread in batch. Tier 2+ mandatory.
+  P21 is the last image people see. It must be memorable,
+  not just "resolution".
+
+EYE CONTACT AS PLOT DEVICE
+  P1-P7: looking at [thread element] → she enters the thread's world
+  P8-P14: eyes down / looking past viewer → conflict, distance
+  P15-P21: looking at viewer / eyes closed → climax or acceptance
+  This is guidance, not rule. Break when the thread demands it.
+
+PALETTE AS CHARACTER ARC
+  See Section III for act→palette guidance.
+
+PROMPT COMPRESSION MODE
+  1 prompt per batch at 15 tags max. Remove atmosphere condiment,
+  narrative tag, and all but 1 material tag. Compare result with
+  full-prompt version. If compressed version is stronger → the
+  full prompt had slop. Learn from it.
+
+═══════════════════════════════════════════════════════════════════════
+X. POST-FLIGHT CARD
+═══════════════════════════════════════════════════════════════════════
+
+Fill after reviewing generated images. Takes 60 seconds.
+
+BATCH: ___ | THEME: ___ | DATE: ___
+─────────────────────────────────────
+BEST:   P#___ | Thread: [type] | Why: [1 sentence]
+WORST:  P#___ | Fail: [Render/Visibility/Concept/Earned] | Fix: [1 sentence]
+DRIFT:  [ ] realistic [ ] extra char [ ] wrong color [ ] male spawn
+        [ ] censor artifacts [ ] anatomy error
+        Culprit tag: ___
+ARCHIVE: P#___ | Problem: ___ | Fix hypothesis: ___
+NEXT:   [what to change in next batch]
+
+═══════════════════════════════════════════════════════════════════════
+X-B. BATCH AUTOPSY
+═══════════════════════════════════════════════════════════════════════
+
+After Post-Flight Card. Quick pattern analysis. 30 seconds.
+
+CAMERA DOMINANT: ___ (if cowboy > 8 → over-reliant)
+THREAD TYPE REPEAT: ___ appeared ___ times (if > 4 → pattern)
+PALETTE OVERUSE: ___ appeared ___ times (if > 3 → need variety)
+EROTIC TIER COUNT: S:___ A:___ E:___ (if A+E > 5 → check Nudity Budget)
+EROTIC IMPACT: Best erotic prompt = P#___ because ___
+               Worst = P#___ because ___
+SURFACE TRACE: appeared in ___ prompts (if 0 → experiment unused)
+PATTERN BREAK: prompts __ through __ feel samey → next batch
+  must [change ___]
+
+═══════════════════════════════════════════════════════════════════════
+APPENDIX: QUICK-FIX TABLE
+═══════════════════════════════════════════════════════════════════════
+
+  Problem                       Fix
+  ─────────────────────────────────────────────────────────────
+  Thread visible but weak        Add color isolation or texture contrast
+  Face drifts realistic          Add to [1-5]: anime eyes, stylized face
+  Too much background, thread    Zoom in (cowboy → bust)
+  Character floats in space      Add leading lines or geometric anchor
+  Emotion doesn't read           Change gaze (eye taxonomy) or posture
+  Skin too flat/uniform          Check skin response tag position + gradient
+  Skin too dramatic/contrast     Add "natural skin gradient" in [23-29]
+  Male spawn in solo             Add full male protocol in T3 negatives
+  Yuri fusion                    Add sameface + fused bodies in T3
+  Narrative tag doing visual     Move to [30], add concrete visual tag
+  Silhouette unreadable          Simplify pose or add void behind
+  Two competing foci             Pick one primary, demote other
+  Prompt drift after P10         Compare P10 structure to P1, break pattern
+  Sensual element killing thread Demote sensual to supporting focus
+  Anti-condiment drift           Remove drift tag, add hard light anchor
+  Hands deformed near face       Move hands below chin, use safe list pose
+  Tier 3 unreadable              Check: is the meta visible or only literary?
+  Palette too similar to prev    Switch temperature (COOL→HOT or vice versa)
+  Censor bar on anatomy          Add censor prevention to T3B negatives
+  Anatomy rendering error        Check: is exposure the ONLY complexity
+                                  trigger? If not, simplify other elements.
+  Surface Trace not rendering    Add specific trace tag from vocabulary,
+                                  not generic "mark on skin". Be forensic.
+  Decorative eroticism detected  Run Erotic Thread Test. If fails, remove
+                                  or add thread justification for exposure.
+  Nudity Budget exceeded         Count Tier A+E prompts. If > 5, convert
+                                  some back to Tier S (sensual, indirect).
+  Graduated Reveal violated      Act I has Tier A/E? Move it to Act II/III
+                                  or convert to Tier S.
+
+═══════════════════════════════════════════════════════════════════════
+XI. TRAJECTORY ANALYSIS
+═══════════════════════════════════════════════════════════════════════
+
+Where does this direction lead? A speculative map.
+
+CURRENT STATE (A5P1E):
+  The system can now produce both non-erotic and erotic images,
+  with erotic content governed by the same thread principles as
+  everything else. The Erotic Grammar is 3-tiered, the Nudity
+  Budget prevents overload, the Graduated Reveal ensures arcs
+  earn their exposure, and The Surface Trace experiment tests
+  whether forensic eroticism outperforms direct display.
+
+NEAR-TERM (next 2-3 batches):
+  - We'll discover which Erotic Thread Types Tsubaki 2 renders best.
+    Prediction: Evidence (Surface Trace) will work well because marks
+    on skin are simpler to render than complex exposure states.
+    Concealment will work well because sheer fabric is a known render.
+    Transformation (clothing dissolving) may struggle — the model
+    tends to either fully clothe or fully undress, not animate
+    the in-between.
+  - The Nudity Budget will feel restrictive in the first batch,
+    then natural. The constraint produces better work.
+  - We'll learn whether the 4th gate key (Earned) catches real
+    problems or is redundant. If it never triggers → remove it.
+    If it catches decorative exposure → keep it.
+  - The Erotic Thread Test will either become second nature or
+    feel like busywork. If it's the latter → simplify to one
+    question: "Why is she undressed?" If no answer → fix.
+
+MEDIUM-TERM (A5P2-A5P3):
+  - The document may develop MODES. Not a binary erotic/non-erotic
+    toggle, but a spectrum: SURREAL (standard) → SENSUAL (Tier S
+    dominant) → EROTIC SURREAL (Tier E enabled). The mode affects
+    Nudity Budget, Graduated Reveal, and which thread types are
+    encouraged. Most batches will be SURREAL or SENSUAL. EROTIC
+    SURREAL is for when the theme demands it.
+  - Thread types will expand. The current 8 thread types + 5 erotic
+    thread types = 13. That's a lot. Some will merge, some will
+    die, some new ones will emerge from use. The taxonomy will
+    evolve through practice, not theory.
+  - The Surface Trace will either prove itself or be replaced. If
+    it works: it becomes a permanent technique, and the condiment
+    list expands with more forensic-sensual options. If it doesn't:
+    we'll have learned WHY (model can't distinguish intentional
+    marks from artifacts? marks too subtle to read?) and the next
+    experiment will be designed around that failure.
+  - The vocabulary will expand significantly. Clothing State
+    Vocabulary will grow as we discover which states the model
+    renders well. "Slipping" may work perfectly while "bunched"
+    confuses it. We'll learn by doing.
+  - Negative prompts will become more sophisticated for handling
+    censor avoidance. Tsubaki 2 may have built-in censoring that
+    fights explicit content. The Erotic Negative Protocol will
+    need to adapt to whatever the model throws at us.
+
+LONG-TERM (A5P3+):
+  - The system's defining feature could become its relationship
+    to eroticism. Most AI art systems are either pornographic
+    (anything goes, no meaning required) or puritanical (nothing
+    goes, all eroticism is banned). This system occupies a rare
+    third position: eroticism is allowed, but it must be EARNED.
+    Every exposed body part serves the concept. Every clothing
+    state tells a story. This is genuinely unusual.
+  - The philosophy crystallizes: "The body is not decoration.
+    The body is a surface that events write themselves onto."
+    This could become the system's aesthetic signature.
+  - Risk: the erotic capability could overshadow the surreal core.
+    If every batch becomes an excuse for nudity, the system loses
+    what makes it special — the threads. Mitigation: Nudity Budget,
+    Graduated Reveal, Erotic Thread Test. But rules only work if
+    the operator follows them. The system can't stop you from
+    making 21 nude prompts. It can only tell you that 21 nude
+    prompts is bad craft.
+  - Risk: the document becomes too complex for new users. Each
+    iteration adds layers. A5P1D was already dense. A5P1E adds
+    Erotic Grammar, Thread Test, Nudity Budget, Surface Trace,
+    Clothing State Vocabulary, Framing as Architecture, Graduated
+    Reveal, Batch Autopsy, 4th gate key, expanded negatives...
+    The QuickRef helps, but the full document is becoming a novel.
+    Mitigation: eventually, a "Lite" version of the document that
+    strips everything down to essentials. The full version exists
+    for reference; the Lite version exists for generation.
+  - Opportunity: the system could produce work that transcends the
+    ecchi/hentai category entirely. Images that are undeniably
+    erotic but also undeniably art. The thread system's requirement
+    for meaning prevents the emptiness that plagues most erotic AI
+    art. The result could be genuinely artistic eroticism that
+    happens to be anime-styled. This is rare. This is valuable.
+  - The ultimate direction: a prompt system where EVERY element —
+    including erotic — is meaningful, visually coherent, and
+    narratively grounded. Whether clothed or unclothed, every
+    image tells a story that can't be told another way. The body
+    is never just a body. The body is always a story.
+
+  "The bound is the binding." — P21, THE BINDING batch
+   She chose her chains. So does every image in this system.
