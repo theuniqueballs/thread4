@@ -1,11 +1,11 @@
 {
   "slug": "T4-09",
   "theme": "Dark & Darker",
-  "engine": "tint",
-  "engineLaw": "the concept is DYED INTO her — color as substance, absorbed into fabric/skin/hair chemistry, saturation as emotional state",
-  "engineWhy": "Ротация движков: tint (proven, дебют N24 \"Blue Is the Loneliest Color\"). Семена на подъёмной сетке: 5. Движок — мировой закон, который носится на теле; тема автора ложится на его ось, NICHE-слоты несут невозможное, VOLT — плоть.",
+  "engine": "heldhour",
+  "engineLaw": "the hour is HELD — one slowed hour per frame during which everything moves at breath-speed: fabric falls slow, spills hang, dust halts mid-sink; her wardrobe obeys the held hour (hems mid-fall, straps mid-slip, clasps opening at half-speed), and WHAT THE HOUR RELEASES finishes its fall IN frame",
+  "engineWhy": "Ротация движков: heldhour (forged, дебют — (awaiting debut)). Семена на подъёмной сетке: 5. Движок — мировой закон, который носится на теле; тема автора ложится на его ось, NICHE-слоты несут невозможное, VOLT — плоть.",
   "seed": 1730092984,
-  "createdAt": "2026-09-26T11:45:50.397Z",
+  "createdAt": "2026-09-26T11:49:55.655Z",
   "spread": [
     {
       "rating": "R",
@@ -32,9 +32,15 @@
       "palette": "P98_PIXIE_SUMMER_SHIFT",
       "paletteName": "Pixie Summer Shift",
       "kinetics": [
-        "K80"
+        "K122"
       ],
       "carriers": [
+        {
+          "id": "CR-L17",
+          "name": "Three-Layer Confession",
+          "cls": "L",
+          "deg": "M"
+        },
         {
           "id": "CR-U06",
           "name": "Car Door Catch",
@@ -42,21 +48,15 @@
           "deg": "M"
         },
         {
-          "id": "CR-U09",
-          "name": "Fitting Room Curtain",
-          "cls": "U",
+          "id": "CR-L03",
+          "name": "Double-Strap Cross",
+          "cls": "L",
           "deg": "M"
-        },
-        {
-          "id": "CR-D28",
-          "name": "Arms-Crossed Gathering",
-          "cls": "D",
-          "deg": "L"
         }
       ],
       "lead": "cheeks",
-      "register": "milf",
-      "closer": "dialogue"
+      "register": "student",
+      "closer": "image-close"
     },
     {
       "position": 2,
@@ -69,7 +69,44 @@
       "palette": "P84_CERULEAN_STILL",
       "paletteName": "Cerulean Still",
       "kinetics": [
-        "K62"
+        "K118"
+      ],
+      "carriers": [
+        {
+          "id": "CR-U09",
+          "name": "Fitting Room Curtain",
+          "cls": "U",
+          "deg": "M"
+        },
+        {
+          "id": "CR-D28",
+          "name": "Arms-Crossed Gathering",
+          "cls": "D",
+          "deg": "L"
+        },
+        {
+          "id": "CR-L10",
+          "name": "Collars Overlapping Wrong",
+          "cls": "L",
+          "deg": "L"
+        }
+      ],
+      "lead": "collarbone",
+      "register": "student",
+      "closer": "action-close"
+    },
+    {
+      "position": 3,
+      "kind": "OC",
+      "oc": "Lua",
+      "rating": "R",
+      "pose": "PL141",
+      "poseName": "Fan-Snap Open",
+      "poseRisk": "MID",
+      "palette": "P42_PRE_DAWN_STILL",
+      "paletteName": "Pre-Dawn Still",
+      "kinetics": [
+        "K129"
       ],
       "carriers": [
         {
@@ -85,52 +122,15 @@
           "deg": "M"
         },
         {
-          "id": "CR-L17",
-          "name": "Three-Layer Confession",
-          "cls": "L",
-          "deg": "M"
+          "id": "CR-U01",
+          "name": "Mid-Change",
+          "cls": "U",
+          "deg": "H"
         }
       ],
-      "lead": "breasts",
-      "register": "milf",
-      "closer": "action-close"
-    },
-    {
-      "position": 3,
-      "kind": "OC",
-      "oc": "Lua",
-      "rating": "R",
-      "pose": "PL141",
-      "poseName": "Fan-Snap Open",
-      "poseRisk": "MID",
-      "palette": "P42_PRE_DAWN_STILL",
-      "paletteName": "Pre-Dawn Still",
-      "kinetics": [
-        "K82"
-      ],
-      "carriers": [
-        {
-          "id": "CR-L10",
-          "name": "Collars Overlapping Wrong",
-          "cls": "L",
-          "deg": "L"
-        },
-        {
-          "id": "CR-L03",
-          "name": "Double-Strap Cross",
-          "cls": "L",
-          "deg": "M"
-        },
-        {
-          "id": "CR-D03",
-          "name": "Quarter-Turn Lead",
-          "cls": "D",
-          "deg": "M"
-        }
-      ],
-      "lead": "waist",
-      "register": "student",
-      "closer": "image-close"
+      "lead": "back",
+      "register": "young",
+      "closer": "dialogue"
     },
     {
       "position": 4,
@@ -142,7 +142,7 @@
       "palette": "P20_VOID_PRISM",
       "paletteName": "Void Prism",
       "kinetics": [
-        "K122"
+        "K127"
       ],
       "carriers": [
         {
@@ -152,84 +152,41 @@
           "deg": "M"
         },
         {
-          "id": "CR-B16",
-          "name": "Shoulder-Ball",
-          "cls": "B",
-          "deg": "L"
+          "id": "CR-A02",
+          "name": "Center-Seam Whole Line",
+          "cls": "A",
+          "deg": "H"
         },
         {
-          "id": "CR-E13",
-          "name": "Placket Gape",
+          "id": "CR-E09",
+          "name": "Vent Gust Flip",
           "cls": "E",
           "deg": "M"
         },
         {
-          "id": "CR-M10",
-          "name": "Hug Crush",
-          "cls": "M",
-          "deg": "M"
+          "id": "CR-I18",
+          "name": "Towel's Damp Rectangle",
+          "cls": "I",
+          "deg": "H"
         }
       ],
-      "lead": "back",
-      "register": "student",
-      "closer": "long-fused",
-      "targetChannel": "underlayer"
+      "lead": "seat",
+      "register": "milf",
+      "closer": "long-fused"
     },
     {
       "position": 5,
       "kind": "VOLT",
       "rating": "R+",
+      "race": "Ram-demon",
+      "raceFeature": "horns half-curl",
       "pose": "PL09",
       "poseName": "Side Curl",
       "poseRisk": "LOW",
       "palette": "P36_VOID_RUST",
       "paletteName": "Void Rust",
       "kinetics": [
-        "K180"
-      ],
-      "carriers": [
-        {
-          "id": "CR-W15",
-          "name": "Leather Mold",
-          "cls": "W",
-          "deg": "M"
-        },
-        {
-          "id": "CR-C05",
-          "name": "Sit-Trap Hem",
-          "cls": "C",
-          "deg": "M"
-        },
-        {
-          "id": "CR-E21",
-          "name": "Swimsuit Edge Migration",
-          "cls": "E",
-          "deg": "H"
-        },
-        {
-          "id": "CR-I17",
-          "name": "Wet Footprints",
-          "cls": "I",
-          "deg": "H"
-        }
-      ],
-      "lead": "seat",
-      "register": "student",
-      "closer": "fragment-pair"
-    },
-    {
-      "position": 6,
-      "kind": "VOLT",
-      "rating": "R+",
-      "race": "Ram-demon",
-      "raceFeature": "horns half-curl",
-      "pose": "PL117",
-      "poseName": "Meadow Starfish",
-      "poseRisk": "LOW",
-      "palette": "P12_AUTUMN_RUST",
-      "paletteName": "Autumn Rust",
-      "kinetics": [
-        "K118"
+        "K126"
       ],
       "carriers": [
         {
@@ -239,86 +196,246 @@
           "deg": "L"
         },
         {
-          "id": "CR-C01",
-          "name": "Denim Claim",
-          "cls": "C",
+          "id": "CR-A08",
+          "name": "Post-Dive Panel",
+          "cls": "A",
           "deg": "H"
         },
         {
-          "id": "CR-E32",
-          "name": "Petticoat Drop",
+          "id": "CR-E17",
+          "name": "Qipao Side-Slit",
           "cls": "E",
           "deg": "H"
         },
         {
-          "id": "CR-M05",
-          "name": "Counter Reach",
-          "cls": "M",
+          "id": "CR-I06",
+          "name": "Bikini Pale Borders",
+          "cls": "I",
           "deg": "M"
         }
       ],
-      "lead": "collarbone",
-      "register": "milf",
-      "closer": "dialogue",
+      "lead": "breasts",
+      "register": "young",
+      "closer": "fragment-pair"
+    },
+    {
+      "position": 6,
+      "kind": "VOLT",
+      "rating": "R+",
+      "race": "Merfolk-adapt",
+      "raceFeature": "scales shin-and-hip",
+      "pose": "PL117",
+      "poseName": "Meadow Starfish",
+      "poseRisk": "LOW",
+      "palette": "P12_AUTUMN_RUST",
+      "paletteName": "Autumn Rust",
+      "kinetics": [
+        "K121"
+      ],
+      "carriers": [
+        {
+          "id": "CR-W01",
+          "name": "Taut Weave",
+          "cls": "W",
+          "deg": "M"
+        },
+        {
+          "id": "CR-B21",
+          "name": "Mound In Seam Shadow",
+          "cls": "B",
+          "deg": "M"
+        },
+        {
+          "id": "CR-E24",
+          "name": "Glove Peel",
+          "cls": "E",
+          "deg": "L"
+        },
+        {
+          "id": "CR-I15",
+          "name": "Seatbelt Sleep-Crease",
+          "cls": "I",
+          "deg": "M"
+        }
+      ],
+      "lead": "waist",
+      "register": "young",
+      "closer": "image-close",
       "ab": {
         "pair": "α",
         "half": "A",
         "withSlot": 19,
-        "lead": "collarbone"
+        "lead": "waist"
       }
     },
     {
       "position": 7,
       "kind": "NICHE",
       "rating": "R",
-      "race": "Merfolk-adapt",
-      "raceFeature": "scales shin-and-hip",
+      "race": "Bat-kin",
+      "raceFeature": "ears ribbed-tall",
       "pose": "PL104",
       "poseName": "Dance-Break Snap",
       "poseRisk": "MID",
       "palette": "P11_OCEAN_DEEP",
       "paletteName": "Ocean Deep",
       "kinetics": [
-        "K85"
+        "K128"
       ],
       "carriers": [
         {
-          "id": "CR-U13",
-          "name": "Hotel Robe",
-          "cls": "U",
+          "id": "CR-D27",
+          "name": "Cheer Herkie",
+          "cls": "D",
+          "deg": "H"
+        },
+        {
+          "id": "CR-L12",
+          "name": "Shirt Over Suit",
+          "cls": "L",
           "deg": "M"
         },
         {
-          "id": "CR-D14",
-          "name": "Equestrian Canter",
+          "id": "CR-D03",
+          "name": "Quarter-Turn Lead",
           "cls": "D",
           "deg": "M"
-        },
-        {
-          "id": "CR-U11",
-          "name": "Exam Dawn",
-          "cls": "U",
-          "deg": "L"
         }
       ],
-      "lead": "hands",
+      "lead": "hips",
       "register": "student",
       "closer": "action-close",
-      "witness": "wet street"
+      "witness": "traffic mirror"
     },
     {
       "position": 8,
       "kind": "VOLT",
       "rating": "X",
-      "race": "Bat-kin",
-      "raceFeature": "ears ribbed-tall",
       "pose": "PL227",
       "poseName": "Forehead-to-Wall Rest",
       "poseRisk": "LOW",
       "palette": "P50_GLASS_AURORA",
       "paletteName": "Glass Aurora",
       "kinetics": [
-        "K150"
+        "K130"
+      ],
+      "carriers": [
+        {
+          "id": "CR-W24",
+          "name": "Suit-Seat Taut",
+          "cls": "W",
+          "deg": "M"
+        },
+        {
+          "id": "CR-B17",
+          "name": "Spine Valley",
+          "cls": "B",
+          "deg": "L"
+        },
+        {
+          "id": "CR-U08",
+          "name": "Quick-Change Screen",
+          "cls": "U",
+          "deg": "H"
+        },
+        {
+          "id": "CR-D01",
+          "name": "Full Drop Mid-Sway",
+          "cls": "D",
+          "deg": "H"
+        }
+      ],
+      "lead": "thighs",
+      "register": "student",
+      "closer": "dialogue"
+    },
+    {
+      "position": 9,
+      "kind": "NICHE",
+      "rating": "R",
+      "pose": "PL110",
+      "poseName": "Counter Hip-Rest",
+      "poseRisk": "LOW",
+      "palette": "P39_VOID_INFRARED",
+      "paletteName": "Void Infrared",
+      "kinetics": [
+        "K131"
+      ],
+      "carriers": [
+        {
+          "id": "CR-W27",
+          "name": "Steam-Damp",
+          "cls": "W",
+          "deg": "L"
+        },
+        {
+          "id": "CR-L11",
+          "name": "Borrowed Jacket Strain",
+          "cls": "L",
+          "deg": "L"
+        },
+        {
+          "id": "CR-L09",
+          "name": "Bandeau Migration",
+          "cls": "L",
+          "deg": "H"
+        }
+      ],
+      "lead": "nape",
+      "register": "student",
+      "closer": "long-fused",
+      "witness": "level gauge"
+    },
+    {
+      "position": 10,
+      "kind": "NICHE",
+      "rating": "R",
+      "race": "Kitsune (fox-kin)",
+      "raceFeature": "ears perked-small",
+      "pose": "PL62",
+      "poseName": "Sweater Pull Mid-Off",
+      "poseRisk": "HIGH",
+      "palette": "P76_IRON_TIDE",
+      "paletteName": "Iron Tide",
+      "kinetics": [
+        "K132"
+      ],
+      "carriers": [
+        {
+          "id": "CR-D04",
+          "name": "Overhead Reach Lift",
+          "cls": "D",
+          "deg": "M"
+        },
+        {
+          "id": "CR-D18",
+          "name": "Spin Flare",
+          "cls": "D",
+          "deg": "M"
+        },
+        {
+          "id": "CR-L14",
+          "name": "Thigh-High Negotiation",
+          "cls": "L",
+          "deg": "M"
+        }
+      ],
+      "lead": "hamstrings",
+      "register": "milf",
+      "closer": "fragment-pair",
+      "witness": "propped phone"
+    },
+    {
+      "position": 11,
+      "kind": "VOLT",
+      "rating": "R+",
+      "pose": "PL226",
+      "poseName": "Steam-Squint Emerge",
+      "poseRisk": "LOW",
+      "palette": "P15_INDUSTRIAL_STEEL",
+      "paletteName": "Industrial Steel",
+      "kinetics": [
+        "K120"
       ],
       "carriers": [
         {
@@ -334,130 +451,8 @@
           "deg": "M"
         },
         {
-          "id": "CR-E23",
-          "name": "Sock Slouch",
-          "cls": "E",
-          "deg": "L"
-        },
-        {
-          "id": "CR-D26",
-          "name": "Swing Apex",
-          "cls": "D",
-          "deg": "M"
-        }
-      ],
-      "lead": "shoulders",
-      "register": "student",
-      "closer": "image-close"
-    },
-    {
-      "position": 9,
-      "kind": "NICHE",
-      "rating": "R",
-      "race": "Kitsune (fox-kin)",
-      "raceFeature": "ears perked-small",
-      "pose": "PL110",
-      "poseName": "Counter Hip-Rest",
-      "poseRisk": "LOW",
-      "palette": "P39_VOID_INFRARED",
-      "paletteName": "Void Infrared",
-      "kinetics": [
-        "K155"
-      ],
-      "carriers": [
-        {
-          "id": "CR-W01",
-          "name": "Taut Weave",
-          "cls": "W",
-          "deg": "M"
-        },
-        {
-          "id": "CR-D04",
-          "name": "Overhead Reach Lift",
-          "cls": "D",
-          "deg": "M"
-        },
-        {
-          "id": "CR-D18",
-          "name": "Spin Flare",
-          "cls": "D",
-          "deg": "M"
-        }
-      ],
-      "lead": "hamstrings",
-      "register": "young",
-      "closer": "long-fused",
-      "witness": "level gauge"
-    },
-    {
-      "position": 10,
-      "kind": "NICHE",
-      "rating": "R",
-      "race": "Bunny-kin",
-      "raceFeature": "ears long-upright",
-      "pose": "PL62",
-      "poseName": "Sweater Pull Mid-Off",
-      "poseRisk": "HIGH",
-      "palette": "P76_IRON_TIDE",
-      "paletteName": "Iron Tide",
-      "kinetics": [
-        "K139"
-      ],
-      "carriers": [
-        {
-          "id": "CR-D07",
-          "name": "Pendulum Lag",
-          "cls": "D",
-          "deg": "M"
-        },
-        {
-          "id": "CR-L18",
-          "name": "Cutout's Whole Point",
-          "cls": "L",
-          "deg": "H"
-        },
-        {
-          "id": "CR-D08",
-          "name": "Aftershock",
-          "cls": "D",
-          "deg": "M"
-        }
-      ],
-      "lead": "hips",
-      "register": "young",
-      "closer": "fragment-pair",
-      "witness": "window pane"
-    },
-    {
-      "position": 11,
-      "kind": "VOLT",
-      "rating": "R+",
-      "race": "Moth-kin",
-      "raceFeature": "antennae feathered-curved",
-      "pose": "PL226",
-      "poseName": "Steam-Squint Emerge",
-      "poseRisk": "LOW",
-      "palette": "P15_INDUSTRIAL_STEEL",
-      "paletteName": "Industrial Steel",
-      "kinetics": [
-        "K67"
-      ],
-      "carriers": [
-        {
-          "id": "CR-W24",
-          "name": "Suit-Seat Taut",
-          "cls": "W",
-          "deg": "M"
-        },
-        {
-          "id": "CR-B14",
-          "name": "Cheek Shelf Under Drape",
-          "cls": "B",
-          "deg": "M"
-        },
-        {
-          "id": "CR-E25",
-          "name": "Cuff Lost Button",
+          "id": "CR-E26",
+          "name": "Camisole Peek",
           "cls": "E",
           "deg": "L"
         },
@@ -468,14 +463,15 @@
           "deg": "L"
         }
       ],
-      "lead": "nape",
+      "lead": "shoulders",
       "register": "young",
-      "closer": "dialogue",
+      "closer": "image-close",
+      "targetChannel": "underlayer",
       "ab": {
         "pair": "β",
         "half": "A",
         "withSlot": 24,
-        "lead": "nape"
+        "lead": "shoulders"
       }
     },
     {
@@ -488,7 +484,170 @@
       "palette": "P28_VOID_BONE",
       "paletteName": "Void Bone",
       "kinetics": [
-        "K175"
+        "K119"
+      ],
+      "carriers": [
+        {
+          "id": "CR-W15",
+          "name": "Leather Mold",
+          "cls": "W",
+          "deg": "M"
+        },
+        {
+          "id": "CR-S19",
+          "name": "Open-Back Field",
+          "cls": "S",
+          "deg": "M"
+        },
+        {
+          "id": "CR-E27",
+          "name": "Stretched Neckhole",
+          "cls": "E",
+          "deg": "M"
+        },
+        {
+          "id": "CR-M08",
+          "name": "Doorframe Squeeze",
+          "cls": "M",
+          "deg": "L"
+        }
+      ],
+      "lead": "hands",
+      "register": "milf",
+      "closer": "action-close"
+    },
+    {
+      "position": 13,
+      "kind": "NICHE",
+      "rating": "R",
+      "race": "Bunny-kin",
+      "raceFeature": "ears long-upright",
+      "pose": "PL56",
+      "poseName": "Straddle Settle",
+      "poseRisk": "HIGH",
+      "palette": "P80_SALT_APPETITE",
+      "paletteName": "Salt Appetite",
+      "kinetics": [
+        "K122"
+      ],
+      "carriers": [
+        {
+          "id": "CR-U13",
+          "name": "Hotel Robe",
+          "cls": "U",
+          "deg": "M"
+        },
+        {
+          "id": "CR-D16",
+          "name": "Tram Brake",
+          "cls": "D",
+          "deg": "L"
+        },
+        {
+          "id": "CR-D26",
+          "name": "Swing Apex",
+          "cls": "D",
+          "deg": "M"
+        }
+      ],
+      "lead": "throat",
+      "register": "student",
+      "closer": "dialogue",
+      "witness": "window pane",
+      "exploratory": "EXPLORATORY slot — the law it probes is named in the batch worklog at delivery"
+    },
+    {
+      "position": 14,
+      "kind": "VOLT",
+      "rating": "R+",
+      "pose": "PL120",
+      "poseName": "Laundry-Line Tangle",
+      "poseRisk": "MID",
+      "palette": "P38_VOID_BLOOD_ACCENT",
+      "paletteName": "Void Blood Accent",
+      "kinetics": [
+        "K118"
+      ],
+      "carriers": [
+        {
+          "id": "CR-W11",
+          "name": "Worn-Thin At The Strap",
+          "cls": "W",
+          "deg": "M"
+        },
+        {
+          "id": "CR-A07",
+          "name": "Grande Plié",
+          "cls": "A",
+          "deg": "M"
+        },
+        {
+          "id": "CR-E02",
+          "name": "Bra Strap Escaped Boat Neck",
+          "cls": "E",
+          "deg": "M"
+        },
+        {
+          "id": "CR-M15",
+          "name": "Corset Exhale",
+          "cls": "M",
+          "deg": "H"
+        }
+      ],
+      "lead": "cheeks",
+      "register": "young",
+      "closer": "long-fused"
+    },
+    {
+      "position": 15,
+      "kind": "NICHE",
+      "rating": "R",
+      "race": "Moth-kin",
+      "raceFeature": "antennae feathered-curved",
+      "pose": "PL240",
+      "poseName": "Bus-Step Fare Count",
+      "poseRisk": "LOW",
+      "palette": "P90_FAIRY_LAUNDRY",
+      "paletteName": "Fairy Laundry",
+      "kinetics": [
+        "K129"
+      ],
+      "carriers": [
+        {
+          "id": "CR-L08",
+          "name": "Boyshorts Waistband",
+          "cls": "L",
+          "deg": "M"
+        },
+        {
+          "id": "CR-D12",
+          "name": "Breaststroke Push",
+          "cls": "D",
+          "deg": "M"
+        },
+        {
+          "id": "CR-U19",
+          "name": "Yukata Morning",
+          "cls": "U",
+          "deg": "M"
+        }
+      ],
+      "lead": "collarbone",
+      "register": "young",
+      "closer": "fragment-pair",
+      "witness": "door gap"
+    },
+    {
+      "position": 16,
+      "kind": "VOLT",
+      "rating": "R+",
+      "pose": "PL128",
+      "poseName": "Fence Chest-Lean",
+      "poseRisk": "MID",
+      "palette": "P55_SYMBIOTE_BIOLUMINESCENT",
+      "paletteName": "Symbiote Bioluminescent",
+      "kinetics": [
+        "K127"
       ],
       "carriers": [
         {
@@ -496,6 +655,180 @@
           "name": "Splash-Side",
           "cls": "W",
           "deg": "L"
+        },
+        {
+          "id": "CR-A06",
+          "name": "Yoga Deep Lunge",
+          "cls": "A",
+          "deg": "H"
+        },
+        {
+          "id": "CR-E11",
+          "name": "Waistband Roll",
+          "cls": "E",
+          "deg": "L"
+        },
+        {
+          "id": "CR-M05",
+          "name": "Counter Reach",
+          "cls": "M",
+          "deg": "M"
+        }
+      ],
+      "lead": "back",
+      "register": "milf",
+      "closer": "image-close",
+      "targetChannel": "wet-sheer-flat"
+    },
+    {
+      "position": 17,
+      "kind": "VOLT",
+      "rating": "X",
+      "pose": "PL134",
+      "poseName": "Fitting-Room Lean-In",
+      "poseRisk": "MID",
+      "palette": "P03_CYBER_ASH",
+      "paletteName": "Cyber Ash",
+      "kinetics": [
+        "K126"
+      ],
+      "carriers": [
+        {
+          "id": "CR-W07",
+          "name": "Plastered Wet Shirt",
+          "cls": "W",
+          "deg": "H"
+        },
+        {
+          "id": "CR-B14",
+          "name": "Cheek Shelf Under Drape",
+          "cls": "B",
+          "deg": "M"
+        },
+        {
+          "id": "CR-U15",
+          "name": "Door-Knock Gown",
+          "cls": "U",
+          "deg": "H"
+        },
+        {
+          "id": "CR-D17",
+          "name": "Dance Dip",
+          "cls": "D",
+          "deg": "H"
+        }
+      ],
+      "lead": "seat",
+      "register": "milf",
+      "closer": "action-close"
+    },
+    {
+      "position": 18,
+      "kind": "NICHE",
+      "rating": "R",
+      "pose": "PL201",
+      "poseName": "Bolster Back-Arch",
+      "poseRisk": "HIGH",
+      "palette": "P01_NOIR_VELVET",
+      "paletteName": "Noir Velvet",
+      "kinetics": [
+        "K121"
+      ],
+      "carriers": [
+        {
+          "id": "CR-D08",
+          "name": "Aftershock",
+          "cls": "D",
+          "deg": "M"
+        },
+        {
+          "id": "CR-L05",
+          "name": "Petticoat's Half",
+          "cls": "L",
+          "deg": "M"
+        },
+        {
+          "id": "CR-U18",
+          "name": "Apron Over Nightgown",
+          "cls": "U",
+          "deg": "M"
+        }
+      ],
+      "lead": "breasts",
+      "register": "young",
+      "closer": "dialogue",
+      "witness": "wet street"
+    },
+    {
+      "position": 19,
+      "kind": "VOLT",
+      "rating": "R+",
+      "race": "Cecaelia (upper)",
+      "raceFeature": "suckered smooth arms from the elbow",
+      "pose": "PL224",
+      "poseName": "Collar-Nuzzle",
+      "poseRisk": "LOW",
+      "palette": "P57_SUNSET_ON_WATER",
+      "paletteName": "Sunset on Water",
+      "kinetics": [
+        "K128"
+      ],
+      "carriers": [
+        {
+          "id": "CR-W13",
+          "name": "Sitting-Crease",
+          "cls": "W",
+          "deg": "L"
+        },
+        {
+          "id": "CR-A09",
+          "name": "Jeans Fly Line",
+          "cls": "A",
+          "deg": "M"
+        },
+        {
+          "id": "CR-E22",
+          "name": "Thigh-High Roll",
+          "cls": "E",
+          "deg": "L"
+        },
+        {
+          "id": "CR-M07",
+          "name": "Cello Embrace",
+          "cls": "M",
+          "deg": "M"
+        }
+      ],
+      "lead": "waist",
+      "register": "milf",
+      "closer": "long-fused",
+      "ab": {
+        "pair": "α",
+        "half": "B",
+        "withSlot": 6,
+        "lead": "waist"
+      }
+    },
+    {
+      "position": 20,
+      "kind": "VOLT",
+      "rating": "R+",
+      "race": "Deer-folk",
+      "raceFeature": "horns smooth-unbranched",
+      "pose": "PL208",
+      "poseName": "Grin Suppression",
+      "poseRisk": "LOW",
+      "palette": "P64_SUNRISE_INDIGO",
+      "paletteName": "Sunrise Indigo",
+      "kinetics": [
+        "K130"
+      ],
+      "carriers": [
+        {
+          "id": "CR-W23",
+          "name": "Elastic Bite",
+          "cls": "W",
+          "deg": "M"
         },
         {
           "id": "CR-B19",
@@ -510,321 +843,34 @@
           "deg": "H"
         },
         {
-          "id": "CR-I12",
-          "name": "Inside-Out Shirt",
-          "cls": "I",
-          "deg": "L"
-        }
-      ],
-      "lead": "throat",
-      "register": "young",
-      "closer": "action-close",
-      "targetChannel": "wet-sheer-flat"
-    },
-    {
-      "position": 13,
-      "kind": "NICHE",
-      "rating": "R",
-      "pose": "PL56",
-      "poseName": "Straddle Settle",
-      "poseRisk": "HIGH",
-      "palette": "P80_SALT_APPETITE",
-      "paletteName": "Salt Appetite",
-      "kinetics": [
-        "K149"
-      ],
-      "carriers": [
-        {
-          "id": "CR-D27",
-          "name": "Cheer Herkie",
-          "cls": "D",
-          "deg": "H"
-        },
-        {
-          "id": "CR-W27",
-          "name": "Steam-Damp",
-          "cls": "W",
-          "deg": "L"
-        },
-        {
-          "id": "CR-L06",
-          "name": "Strapless Vigilance",
-          "cls": "L",
-          "deg": "M"
-        }
-      ],
-      "lead": "thighs",
-      "register": "young",
-      "closer": "image-close",
-      "witness": "mirror"
-    },
-    {
-      "position": 14,
-      "kind": "VOLT",
-      "rating": "R+",
-      "pose": "PL120",
-      "poseName": "Laundry-Line Tangle",
-      "poseRisk": "MID",
-      "palette": "P38_VOID_BLOOD_ACCENT",
-      "paletteName": "Void Blood Accent",
-      "kinetics": [
-        "K166"
-      ],
-      "carriers": [
-        {
-          "id": "CR-W11",
-          "name": "Worn-Thin At The Strap",
-          "cls": "W",
-          "deg": "M"
-        },
-        {
-          "id": "CR-A10",
-          "name": "Riding Breeches",
-          "cls": "A",
-          "deg": "M"
-        },
-        {
-          "id": "CR-E02",
-          "name": "Bra Strap Escaped Boat Neck",
-          "cls": "E",
-          "deg": "M"
-        },
-        {
           "id": "CR-I02",
           "name": "Pillow Crease",
           "cls": "I",
           "deg": "L"
         }
       ],
-      "lead": "cheeks",
+      "lead": "hips",
       "register": "milf",
-      "closer": "long-fused"
+      "closer": "fragment-pair"
     },
     {
-      "position": 15,
-      "kind": "NICHE",
-      "rating": "R",
-      "pose": "PL240",
-      "poseName": "Bus-Step Fare Count",
-      "poseRisk": "LOW",
-      "palette": "P90_FAIRY_LAUNDRY",
-      "paletteName": "Fairy Laundry",
-      "kinetics": [
-        "K134"
-      ],
-      "carriers": [
-        {
-          "id": "CR-D09",
-          "name": "Jog Rhythm",
-          "cls": "D",
-          "deg": "H"
-        },
-        {
-          "id": "CR-L16",
-          "name": "Hanfu Layers",
-          "cls": "L",
-          "deg": "L"
-        },
-        {
-          "id": "CR-L04",
-          "name": "Corset Busk Ridge",
-          "cls": "L",
-          "deg": "M"
-        }
-      ],
-      "lead": "breasts",
-      "register": "milf",
-      "closer": "fragment-pair",
-      "witness": "elevator brass"
-    },
-    {
-      "position": 16,
-      "kind": "VOLT",
+      "position": 21,
+      "kind": "EXQUISITE",
       "rating": "R+",
-      "race": "Cecaelia (upper)",
-      "raceFeature": "suckered smooth arms from the elbow",
-      "pose": "PL128",
-      "poseName": "Fence Chest-Lean",
+      "race": "Gargoyle-kin",
+      "raceFeature": "small stone horns rough-textured",
+      "pose": "PL138",
+      "poseName": "Self-Serenade",
       "poseRisk": "MID",
-      "palette": "P55_SYMBIOTE_BIOLUMINESCENT",
-      "paletteName": "Symbiote Bioluminescent",
+      "palette": "P32_VOID_ICE",
+      "paletteName": "Void Ice",
       "kinetics": [
-        "K70"
-      ],
-      "carriers": [
-        {
-          "id": "CR-W25",
-          "name": "Apron Bib Swell",
-          "cls": "W",
-          "deg": "M"
-        },
-        {
-          "id": "CR-C08",
-          "name": "Office Tilt",
-          "cls": "C",
-          "deg": "M"
-        },
-        {
-          "id": "CR-E26",
-          "name": "Camisole Peek",
-          "cls": "E",
-          "deg": "L"
-        },
-        {
-          "id": "CR-M16",
-          "name": "Measuring Tape",
-          "cls": "M",
-          "deg": "M"
-        }
-      ],
-      "lead": "waist",
-      "register": "milf",
-      "closer": "dialogue",
-      "exploratory": "EXPLORATORY slot — the law it probes is named in the batch worklog at delivery"
-    },
-    {
-      "position": 17,
-      "kind": "VOLT",
-      "rating": "X",
-      "pose": "PL134",
-      "poseName": "Fitting-Room Lean-In",
-      "poseRisk": "MID",
-      "palette": "P03_CYBER_ASH",
-      "paletteName": "Cyber Ash",
-      "kinetics": [
-        "K162"
+        "K131"
       ],
       "carriers": [
         {
           "id": "CR-W06",
           "name": "Sweat-Damp Spine",
-          "cls": "W",
-          "deg": "M"
-        },
-        {
-          "id": "CR-B30",
-          "name": "Shoji Silhouette",
-          "cls": "B",
-          "deg": "M"
-        },
-        {
-          "id": "CR-E09",
-          "name": "Vent Gust Flip",
-          "cls": "E",
-          "deg": "M"
-        },
-        {
-          "id": "CR-D01",
-          "name": "Full Drop Mid-Sway",
-          "cls": "D",
-          "deg": "H"
-        }
-      ],
-      "lead": "back",
-      "register": "young",
-      "closer": "action-close"
-    },
-    {
-      "position": 18,
-      "kind": "NICHE",
-      "rating": "R",
-      "pose": "PL201",
-      "poseName": "Bolster Back-Arch",
-      "poseRisk": "HIGH",
-      "palette": "P01_NOIR_VELVET",
-      "paletteName": "Noir Velvet",
-      "kinetics": [
-        "K129"
-      ],
-      "carriers": [
-        {
-          "id": "CR-D22",
-          "name": "Laugh Bounce",
-          "cls": "D",
-          "deg": "L"
-        },
-        {
-          "id": "CR-L15",
-          "name": "Pinafore Crossing",
-          "cls": "L",
-          "deg": "L"
-        },
-        {
-          "id": "CR-L05",
-          "name": "Petticoat's Half",
-          "cls": "L",
-          "deg": "M"
-        }
-      ],
-      "lead": "seat",
-      "register": "student",
-      "closer": "image-close",
-      "witness": "door gap"
-    },
-    {
-      "position": 19,
-      "kind": "VOLT",
-      "rating": "R+",
-      "pose": "PL224",
-      "poseName": "Collar-Nuzzle",
-      "poseRisk": "LOW",
-      "palette": "P57_SUNSET_ON_WATER",
-      "paletteName": "Sunset on Water",
-      "kinetics": [
-        "K116"
-      ],
-      "carriers": [
-        {
-          "id": "CR-W08",
-          "name": "Wet Hemline",
-          "cls": "W",
-          "deg": "M"
-        },
-        {
-          "id": "CR-B17",
-          "name": "Spine Valley",
-          "cls": "B",
-          "deg": "L"
-        },
-        {
-          "id": "CR-E28",
-          "name": "Hoodie Zipper",
-          "cls": "E",
-          "deg": "L"
-        },
-        {
-          "id": "CR-M09",
-          "name": "Crowd Press",
-          "cls": "M",
-          "deg": "M"
-        }
-      ],
-      "lead": "collarbone",
-      "register": "young",
-      "closer": "long-fused",
-      "ab": {
-        "pair": "α",
-        "half": "B",
-        "withSlot": 6,
-        "lead": "collarbone"
-      }
-    },
-    {
-      "position": 20,
-      "kind": "VOLT",
-      "rating": "R+",
-      "pose": "PL208",
-      "poseName": "Grin Suppression",
-      "poseRisk": "LOW",
-      "palette": "P64_SUNRISE_INDIGO",
-      "paletteName": "Sunrise Indigo",
-      "kinetics": [
-        "K143"
-      ],
-      "carriers": [
-        {
-          "id": "CR-W12",
-          "name": "Threadbare Tee",
           "cls": "W",
           "deg": "M"
         },
@@ -835,108 +881,62 @@
           "deg": "M"
         },
         {
-          "id": "CR-E11",
-          "name": "Waistband Roll",
+          "id": "CR-E20",
+          "name": "Leotard Leg-Line",
           "cls": "E",
-          "deg": "L"
+          "deg": "M"
         },
         {
-          "id": "CR-I18",
-          "name": "Towel's Damp Rectangle",
+          "id": "CR-I01",
+          "name": "Bra Release Lines",
           "cls": "I",
-          "deg": "H"
+          "deg": "M"
         }
       ],
-      "lead": "hands",
-      "register": "student",
-      "closer": "fragment-pair"
-    },
-    {
-      "position": 21,
-      "kind": "EXQUISITE",
-      "rating": "R+",
-      "race": "Deer-folk",
-      "raceFeature": "horns smooth-unbranched",
-      "pose": "PL138",
-      "poseName": "Self-Serenade",
-      "poseRisk": "MID",
-      "palette": "P32_VOID_ICE",
-      "paletteName": "Void Ice",
-      "kinetics": [
-        "K104"
-      ],
-      "carriers": [
-        {
-          "id": "CR-W29",
-          "name": "Pleat-Set",
-          "cls": "W",
-          "deg": "L"
-        },
-        {
-          "id": "CR-S13",
-          "name": "Goosebumps Field",
-          "cls": "S",
-          "deg": "L"
-        },
-        {
-          "id": "CR-E24",
-          "name": "Glove Peel",
-          "cls": "E",
-          "deg": "L"
-        },
-        {
-          "id": "CR-M15",
-          "name": "Corset Exhale",
-          "cls": "M",
-          "deg": "H"
-        }
-      ],
-      "lead": "shoulders",
-      "register": "milf",
-      "closer": "dialogue"
+      "lead": "thighs",
+      "register": "young",
+      "closer": "image-close"
     },
     {
       "position": 22,
       "kind": "VOLT",
       "rating": "R+",
-      "race": "Gargoyle-kin",
-      "raceFeature": "small stone horns rough-textured",
       "pose": "PL167",
       "poseName": "Sidecar Scarf-Stream",
       "poseRisk": "LOW",
       "palette": "P86_PRUSSIAN_BOTTLE",
       "paletteName": "Prussian Bottle",
       "kinetics": [
-        "K171"
+        "K132"
       ],
       "carriers": [
         {
-          "id": "CR-W04",
-          "name": "Ribbing Stress-Bands",
+          "id": "CR-W25",
+          "name": "Apron Bib Swell",
           "cls": "W",
           "deg": "M"
         },
         {
-          "id": "CR-A09",
-          "name": "Jeans Fly Line",
-          "cls": "A",
-          "deg": "M"
+          "id": "CR-C01",
+          "name": "Denim Claim",
+          "cls": "C",
+          "deg": "H"
         },
         {
-          "id": "CR-E19",
-          "name": "Overall Unbuckled",
+          "id": "CR-E13",
+          "name": "Placket Gape",
           "cls": "E",
           "deg": "M"
         },
         {
-          "id": "CR-M04",
-          "name": "Window Glass",
+          "id": "CR-M03",
+          "name": "Table Edge",
           "cls": "M",
-          "deg": "H"
+          "deg": "M"
         }
       ],
-      "lead": "hamstrings",
-      "register": "milf",
+      "lead": "nape",
+      "register": "student",
       "closer": "action-close"
     },
     {
@@ -951,32 +951,32 @@
       "palette": "P82_INK_SUNDOWN",
       "paletteName": "Ink Sundown",
       "kinetics": [
-        "K101"
+        "K120"
       ],
       "carriers": [
         {
-          "id": "CR-L08",
-          "name": "Boyshorts Waistband",
+          "id": "CR-D22",
+          "name": "Laugh Bounce",
+          "cls": "D",
+          "deg": "L"
+        },
+        {
+          "id": "CR-L02",
+          "name": "Lace Under Blazer",
           "cls": "L",
           "deg": "M"
         },
         {
-          "id": "CR-L14",
-          "name": "Thigh-High Negotiation",
+          "id": "CR-L06",
+          "name": "Strapless Vigilance",
           "cls": "L",
-          "deg": "M"
-        },
-        {
-          "id": "CR-U17",
-          "name": "Shared Kitchen",
-          "cls": "U",
           "deg": "M"
         }
       ],
-      "lead": "hips",
-      "register": "young",
-      "closer": "image-close",
-      "witness": "propped phone"
+      "lead": "hamstrings",
+      "register": "student",
+      "closer": "dialogue",
+      "witness": "spoon"
     },
     {
       "position": 24,
@@ -988,42 +988,42 @@
       "palette": "P87_ICE_SHEET_FIRSTLIGHT",
       "paletteName": "Ice Sheet Firstlight",
       "kinetics": [
-        "K163"
+        "K119"
       ],
       "carriers": [
         {
-          "id": "CR-W17",
-          "name": "Open-Weave Light",
+          "id": "CR-W04",
+          "name": "Ribbing Stress-Bands",
           "cls": "W",
           "deg": "M"
         },
         {
-          "id": "CR-A07",
-          "name": "Grande Plié",
-          "cls": "A",
+          "id": "CR-C08",
+          "name": "Office Tilt",
+          "cls": "C",
           "deg": "M"
         },
         {
-          "id": "CR-E10",
-          "name": "Barstool Ride",
+          "id": "CR-E23",
+          "name": "Sock Slouch",
           "cls": "E",
-          "deg": "M"
+          "deg": "L"
         },
         {
-          "id": "CR-M12",
-          "name": "Backpack Chest Strap",
-          "cls": "M",
-          "deg": "M"
+          "id": "CR-I04",
+          "name": "Sock Rings",
+          "cls": "I",
+          "deg": "L"
         }
       ],
-      "lead": "nape",
-      "register": "student",
+      "lead": "shoulders",
+      "register": "milf",
       "closer": "long-fused",
       "ab": {
         "pair": "β",
         "half": "B",
         "withSlot": 11,
-        "lead": "nape"
+        "lead": "shoulders"
       }
     }
   ],
@@ -1047,18 +1047,18 @@
       "pair": "α",
       "a": 6,
       "b": 19,
-      "lead": "collarbone"
+      "lead": "waist"
     },
     {
       "pair": "β",
       "a": 11,
       "b": 24,
-      "lead": "nape"
+      "lead": "shoulders"
     }
   ],
   "carrierStats": {
-    "wSharePct": 19,
-    "sheerRplusPct": 33,
+    "wSharePct": 17,
+    "sheerRplusPct": 8,
     "wCapPct": 45,
     "sheerFrameCapPct": 40
   },
@@ -1083,13 +1083,7 @@
       "cameltoe",
       "oc-rplus"
     ],
-    "deadClaims": [
-      {
-        "zone": "P01-P03 OC R+",
-        "channel": "oc-rplus",
-        "evidence": "T4-03 OC 0/3; T4-04 OC-трио 0/3; T4-05 OC-трио 0/3 (P01 R — вуаль смутировала, P02/P03 PG-13 — «очень красиво, но не на этот рейтинг»)"
-      }
-    ]
+    "deadClaims": []
   },
   "platform": {
     "platform": {
@@ -1145,6 +1139,33 @@
       "mature/adult теги сдвигают батч в MILF-скью (бабулек не надо)"
     ]
   },
+  "engineRent": [
+    {
+      "kind": "witness-noun",
+      "count": "exactly-1",
+      "allow": [
+        "clock",
+        "egg-timer",
+        "dripping tap",
+        "stopped metronome"
+      ],
+      "note": "ровно один объект-таймкипер на слот, обязан присутствовать в POS; гейт: count == 1"
+    },
+    {
+      "kind": "kinetics-lock",
+      "ranges": [
+        [
+          118,
+          132
+        ],
+        [
+          185,
+          188
+        ]
+      ],
+      "note": "кинетики ТОЛЬКО из breath-and-lag / breath-ledger семей; ВНИМАНИЕ: K185-188 в pools.json отсутствуют (дыра K-нумерации, PARSE_REPORT) — фактически K118-132, добор пула вернёт диапазон"
+    }
+  ],
   "laws": {
     "core4": "R+/X слоты: 4 носителя из 4 механо-групп (FABRIC/BODY/POSITION/PHYSICS), ≥4 классов",
     "wCapPct": 45,
