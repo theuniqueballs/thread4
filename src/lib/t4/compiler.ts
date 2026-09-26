@@ -582,8 +582,10 @@ export function compileBatch(theme: string, options: CompileOptions = {}): Batch
     const rehab = chPolicy.rehab_channels ?? []
     const quota = Math.min(chPolicy.rehab_quota_per_batch ?? 0, rehab.length || 1)
     if (rehab.length > 0 && quota > 0) {
-      slots
-        .filter((s) => s.kind !== 'OC' && s.rating === 'R+')
+      /* Issue #4 Кенни: выбираем те же mulberry32-потоком, что и всё остальное —
+         детерминировано по сиду и без позиционного смещения ранних слотов */
+      rng
+        .shuffle(slots.filter((s) => s.kind !== 'OC' && s.rating === 'R+'))
         .slice(0, quota)
         .forEach((s, i) => {
           s.targetChannel = rehab[i % rehab.length]
