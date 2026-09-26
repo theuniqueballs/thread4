@@ -1,9 +1,0 @@
-# LINT_RECEIPTS.tsv — §62 FIRST-PASS ledger. Каждый настоящий прогон
-# house_lint пишет рецепт; sha-дельта между соседними прогонами слага =
-# фикс-пасс (требуется оплата: root-cause + пункт контракта, §62(3)).
-# Селфтесты и мутации ничего не пишут. Колонки:
-date	slug	run	sha10	errors	warns	note
-2026-09-16	n29	0	retro-seed	60	2	first run: house 60 err · rating gate 2 core4-fail + 4 borderline · PH-sim 5 drops → 4 fix-passes (fix_n29_pass1..4) → clean; рендер-чисто. Базлайн эры фикс-пассов — мотивация §62 (заказ автора 2026-09-16)
-2026-09-15	n29	1	0eb628866b	0	21	
-2026-09-15	n29	2	0eb628866b	0	21	
-2026-09-16	n29	3	0eb628866b	0	21	

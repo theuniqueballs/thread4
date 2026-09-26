@@ -21,11 +21,12 @@ import path from 'node:path'
 
 const ROOT = process.cwd()
 
-/** Что защищаем: состояние THREAD 4 + записи работы + загруженное автором. */
+/** Что защищаем: состояние THREAD 4 + записи работы. Рендеры (upload/) и
+ *  легаси-чемодан (chemodan/) с Issue #6 живут вне гита — они в чемодане
+ *  CHEMODAN_THREAD_4.1b/renders и на диске; bundle должен быть лёгким. */
 const STAGE_PATHS = [
   'thread4',
   'worklog.md',
-  'upload',
   'src/lib/t4',
   'src/app/api/t4',
   'src/components/t4',

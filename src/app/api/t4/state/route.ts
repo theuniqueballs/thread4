@@ -60,10 +60,13 @@ export async function GET() {
         events
           .filter((e) => e.type === 'note' && e.summary.includes('VAULT'))
           .at(-1)?.at ?? null,
-      /* Issue #4 Кенни: доверенная граница чтения — объявлена, а не молчит.
-         dev-скрипт слушает 127.0.0.1 (package.json -H); если когда-нибудь
-         понадобится смотреть тред снаружи — появляется read-key, не тишина. */
-      readBoundary: 'loopback-only (dev -H 127.0.0.1; внешний доступ = read-key, не молчание)',
+      /* Issue #2 + #5 Кенни: доверенная граница чтения — объявлена, а не молчит.
+         Слои границы: (1) dev слушает 127.0.0.1 (-H в package.json);
+         (2) Caddyfile перед Next — XTransformPort зажат до 3000 (Issue #5),
+         на берегу Чарли Caddy не запущен; на берегу Кенни границу своего
+         рантайма объявляет он. Внешний доступ = read-key, не тишина. */
+      readBoundary:
+        'loopback-only: dev -H 127.0.0.1 + Caddyfile XTransformPort зажат на 3000 (проверять оба слоя; внешний доступ = read-key, не молчание)',
     },
   })
 }
