@@ -462,7 +462,7 @@ function assembleBatch(
       if (slot.ocTheme && slot.kind === 'OC') spineParts.push(`OC theme: ${slot.ocTheme}`)
       if (slot.targetChannel) spineParts.push(`REHAB target channel: ${slot.targetChannel} (добор по вердикту автора — сделай заявку этого канала_delivery главным сигналом кадра)`)
       /* аренда движка (Issue #3): witness-noun идёт инструкцией в каждый слот */
-      for (const r of contract.engineRent ?? []) {
+      for (const r of ctx.contract.engineRent ?? []) {
         if (r.kind === 'witness-noun' && r.allow) {
           spineParts.push(`RENT witness-noun: include exactly ONE of — ${r.allow.join(', ')}`)
         }
