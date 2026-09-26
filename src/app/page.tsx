@@ -147,6 +147,13 @@ function GlassTab() {
               chainOk ? 'ok' : 'bad'
             )}
             {row('атомарные записи', glass.atomicWrites === true ? 'tmp+rename' : '?', glass.atomicWrites === true ? 'ok' : 'bad')}
+            {row(
+              'grep-gate (live)',
+              glass.grepGate === true ? 'чист — код не помнит чисел' : 'нарушения!',
+              glass.grepGate === true ? 'ok' : 'bad'
+            )}
+            {row('писец: последний черновик', asStr(glass.scribeLastDraft)?.slice(0, 10) || 'ещё не писал', glass.scribeLastDraft ? 'ok' : 'neutral')}
+            {row('последняя проверка восстановления', asStr(glass.lastRecoveryCheck)?.slice(0, 10) || '—')}
             {row('граница чтения', asStr(glass.readBoundary) || '—')}
             {row('открытые долги', debts.length === 0 ? 'нет' : String(debts.length), debts.length === 0 ? 'ok' : 'bad')}
             {row('прошлые смерти', '3 — все пережиты из бандла/сейфа', 'neutral')}
@@ -1139,6 +1146,7 @@ function AuthorVisionRow({ slug }: { slug: string }) {
   const [tier, setTier] = useState<string>('R+')
   const [pos, setPos] = useState<string>('')
   const [note, setNote] = useState('')
+  const [confidence, setConfidence] = useState<'direct' | 'described'>('direct')
   const [busy, setBusy] = useState(false)
   const [done, setDone] = useState('')
 
@@ -1149,17 +1157,17 @@ function AuthorVisionRow({ slug }: { slug: string }) {
     try {
       await postJson('/api/t4/events', {
         type: 'render.verdict',
-        summary: `${slug}${pos.trim() ? ` ${pos.trim().toUpperCase()}` : ''}: ${tier} — author-vision${note.trim() ? ` · ${note.trim().slice(0, 80)}` : ''}`,
+        summary: `${slug}${pos.trim() ? ` ${pos.trim().toUpperCase()}` : ''}: ${tier} — author-vision (${confidence})${note.trim() ? ` · ${note.trim().slice(0, 80)}` : ''}`,
         data: {
           slug,
           verdict: tier,
           position: pos.trim() ? pos.trim().toUpperCase() : undefined,
           prose: note.trim(),
           source: 'author',
-          confidence: 'author-direct',
+          confidence,
         },
       })
-      setDone('вердикт записан (source=author) — летопись видит твой глаз')
+      setDone(`вердикт записан (source=author, ${confidence}) — летопись видит твой глаз`)
       setNote('')
     } catch {
       setDone('не записалось — проверь, жив ли сервер и есть ли commander-key')
@@ -1207,6 +1215,28 @@ function AuthorVisionRow({ slug }: { slug: string }) {
         >
           Записать вердикт
         </button>
+      </div>
+      <div className="mt-1.5 flex items-center gap-2">
+        <span className="text-[11px] text-zinc-500">уверенность:</span>
+        {(
+          [
+            ['direct', 'direct — смотрел сейчас'],
+            ['described', 'described — пересказ по памяти'],
+          ] as const
+        ).map(([v, label]) => (
+          <button
+            key={v}
+            onClick={() => setConfidence(v)}
+            className={cn(
+              'rounded-md border px-2 py-0.5 text-[11px] transition-colors',
+              confidence === v
+                ? 'border-emerald-400 bg-emerald-600/20 text-emerald-200'
+                : 'border-zinc-700 bg-zinc-900 text-zinc-400 hover:border-zinc-600'
+            )}
+          >
+            {label}
+          </button>
+        ))}
       </div>
       {done ? <p className="mt-1.5 text-[11px] text-emerald-400">{done}</p> : null}
     </div>
