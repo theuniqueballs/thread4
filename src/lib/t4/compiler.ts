@@ -672,7 +672,11 @@ export function compileBatch(theme: string, options: CompileOptions = {}): Batch
   const channelCandidate = dsChannels.filter((c) => c.status === 'candidate').map((c) => c.id)
   const channelDead = dsChannels.filter((c) => c.status === 'dead').map((c) => c.id)
   const deadClaims: { zone: string; channel: string; evidence: string }[] = []
-  if (dsChannels.some((c) => c.id === 'oc-rplus' && c.status === 'dead')) {
+  /* Залп 2-консистентность: oc-rplus мёртв — но заявка существует, только если
+     OC-слоты реально несут R+. Дауншифт (OC → R) сам и есть ответ рефлекса,
+     dead-claim не дублирует его (иначе scribe.objection кричит ложную тревогу). */
+  const ocStillRplus = slots.some((s) => s.kind === 'OC' && s.rating === 'R+')
+  if (dsChannels.some((c) => c.id === 'oc-rplus' && c.status === 'dead') && ocStillRplus) {
     const oc = dsChannels.find((c) => c.id === 'oc-rplus')
     deadClaims.push({
       zone: 'P01-P03 OC R+',
