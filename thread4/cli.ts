@@ -349,8 +349,8 @@ async function main() {
         return gs.size >= 4
       })
       check('core-4 groups on every R+/X slot (мех из carriers.json)', groupsOk)
-      check('contract channelStats printed (dead-каналы видимы автору)',
-        (c1.channelStats?.dead ?? []).includes('oc-rplus') && c1.channelStats?.deadClaims?.length === 1)
+      check('contract channelStats: dead-каналы видимы, дауншифт погасил dead-claim (рефлекс)',
+        (c1.channelStats?.dead ?? []).includes('oc-rplus') && (c1.channelStats?.deadClaims?.length ?? 0) === 0)
     }
     check('racial count 10 (на мейнах)', c1.slots.filter((s) => s.race).length === 10)
     check('races only on mains', c1.slots.slice(0, 3).every((s) => !s.race))
