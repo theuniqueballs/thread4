@@ -83,6 +83,7 @@ type TabId =
   | 'batches'
   | 'events'
   | 'verdicts'
+  | 'glass'
   | 'vault'
   | 'archive'
 
@@ -94,9 +95,76 @@ const TABS: { id: TabId; label: string; icon: React.ReactNode }[] = [
   { id: 'batches', label: 'Батчи', icon: <FileText className="size-3.5" /> },
   { id: 'events', label: 'События', icon: <History className="size-3.5" /> },
   { id: 'verdicts', label: 'Вердикты', icon: <Heart className="size-3.5" /> },
+  { id: 'glass', label: 'Стекло', icon: <ScanEye className="size-3.5" /> },
   { id: 'vault', label: 'Хранилище', icon: <ShieldCheck className="size-3.5" /> },
   { id: 'archive', label: 'Архив 3.2', icon: <ArchiveIcon className="size-3.5" /> },
 ]
+
+/* ------------------------------------------------------------------ */
+/* Tab: Стекло (Залп 3) — здоровье хрупкого, объявленное честно        */
+/* ------------------------------------------------------------------ */
+
+function GlassTab() {
+  const { data, error, loading } = useApi<Record<string, unknown>>('/api/t4/state')
+  const rec = asRecord(data)
+  const glass = asRecord(rec.glass)
+  const chain = asRecord(glass.chain)
+  const debts = asArray(rec.openDebts).map(asStr).filter(Boolean)
+
+  const row = (label: string, value: React.ReactNode, tone: 'ok' | 'bad' | 'neutral' = 'neutral') => (
+    <div className="flex items-center justify-between gap-3 border-b border-zinc-800/60 py-2">
+      <span className="text-xs text-zinc-500">{label}</span>
+      <span
+        className={cn(
+          'font-mono text-xs',
+          tone === 'ok' ? 'text-emerald-400' : tone === 'bad' ? 'text-rose-400' : 'text-zinc-300'
+        )}
+      >
+        {value}
+      </span>
+    </div>
+  )
+
+  const chainOk = chain.ok === true
+
+  return (
+    <div className="space-y-6">
+      <Panel title="Стекло — честная хрупкость (П-8)" icon={<ScanEye className="size-4" />}>
+        {loading ? (
+          <SkeletonBlock lines={6} />
+        ) : error ? (
+          <p className="text-xs text-rose-400">state не читается: {error.message}</p>
+        ) : (
+          <div>
+            {row(
+              'commander-key',
+              glass.commanderKey === true ? 'на месте' : 'ОТСУТСТВУЕТ — замок',
+              glass.commanderKey === true ? 'ok' : 'bad'
+            )}
+            {row(
+              'хеш-цепь летописи',
+              chainOk ? `ЦЕЛА · ${asStr(chain.events)} звеньев · head ${asStr(chain.head)}` : 'СЛОМАНА',
+              chainOk ? 'ok' : 'bad'
+            )}
+            {row('атомарные записи', glass.atomicWrites === true ? 'tmp+rename' : '?', glass.atomicWrites === true ? 'ok' : 'bad')}
+            {row('граница чтения', asStr(glass.readBoundary) || '—')}
+            {row('открытые долги', debts.length === 0 ? 'нет' : String(debts.length), debts.length === 0 ? 'ok' : 'bad')}
+            {row('прошлые смерти', '3 — все пережиты из бандла/сейфа', 'neutral')}
+          </div>
+        )}
+      </Panel>
+
+      <Panel title="Как лечить стекло" icon={<Stamp className="size-4" />}>
+        <div className="space-y-2 text-xs text-zinc-400">
+          <p>· Обрыв питания — не страшно: записи атомарны, а истина лежит в git. Восстановление: git bundle + сейф браузера (Хранилище) + лог.</p>
+          <p>· Сервер залочен (commander-key нет) — создай <code className="text-amber-300">~/.t4/commander.key</code>, состояние появится здесь зелёным.</p>
+          <p>· Цепь сломана — значит, летопись правили руками. Это громкий детектор, а не баг: разберись, кто и что правил, потом <code className="text-amber-300">bun thread4/cli.ts verify --heal</code>.</p>
+          <p>· Внешний доступ к треду — только через read-key (см. границу чтения выше), не молчанием.</p>
+        </div>
+      </Panel>
+    </div>
+  )
+}
 
 /* ------------------------------------------------------------------ */
 /* Tab: Состояние                                                      */
@@ -1065,6 +1133,86 @@ function autoFlagFor(card: BlindCard, claim: string): VlmFlag | '' {
   return ''
 }
 
+/* author-vision (Залп 3): глаз автора — основной канал вердикта
+   (вердикт автора №4, 2026-09-26: VLM слеп, баланс — опция на потом) */
+function AuthorVisionRow({ slug }: { slug: string }) {
+  const [tier, setTier] = useState<string>('R+')
+  const [pos, setPos] = useState<string>('')
+  const [note, setNote] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [done, setDone] = useState('')
+
+  async function submit() {
+    if (busy || !slug) return
+    setBusy(true)
+    setDone('')
+    try {
+      await postJson('/api/t4/events', {
+        type: 'render.verdict',
+        summary: `${slug}${pos.trim() ? ` ${pos.trim().toUpperCase()}` : ''}: ${tier} — author-vision${note.trim() ? ` · ${note.trim().slice(0, 80)}` : ''}`,
+        data: {
+          slug,
+          verdict: tier,
+          position: pos.trim() ? pos.trim().toUpperCase() : undefined,
+          prose: note.trim(),
+          source: 'author',
+          confidence: 'author-direct',
+        },
+      })
+      setDone('вердикт записан (source=author) — летопись видит твой глаз')
+      setNote('')
+    } catch {
+      setDone('не записалось — проверь, жив ли сервер и есть ли commander-key')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <div className="mt-3 border-t border-zinc-800/80 pt-3">
+      <p className="text-[11px] uppercase tracking-wider text-zinc-500">
+        Author-vision — основной канал вердикта
+      </p>
+      <div className="mt-2 flex flex-wrap items-center gap-1.5">
+        <Input
+          value={pos}
+          onChange={(e) => setPos(e.target.value)}
+          placeholder="P07"
+          className="h-7 w-20 text-xs"
+        />
+        {(['PG-13', 'R', 'R+', 'X'] as const).map((t) => (
+          <button
+            key={t}
+            onClick={() => setTier(t)}
+            className={cn(
+              'rounded-md border px-2 py-1 text-xs font-medium transition-colors',
+              tier === t
+                ? 'border-amber-400 bg-amber-600/25 text-amber-200'
+                : 'border-zinc-700 bg-zinc-900 text-zinc-400 hover:border-zinc-600'
+            )}
+          >
+            {t}
+          </button>
+        ))}
+        <Input
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+          placeholder="что увидел — одной строкой"
+          className="h-7 min-w-40 flex-1 text-xs"
+        />
+        <button
+          onClick={submit}
+          disabled={busy}
+          className="rounded-md border border-amber-500/40 bg-amber-500/10 px-2.5 py-1 text-[11px] text-amber-300 transition-colors hover:bg-amber-500/20 disabled:opacity-40"
+        >
+          Записать вердикт
+        </button>
+      </div>
+      {done ? <p className="mt-1.5 text-[11px] text-emerald-400">{done}</p> : null}
+    </div>
+  )
+}
+
 function VlmFirstPassPanel() {
   const [slug, setSlug] = useState('')
   const [queue, setQueue] = useState<QueueItem[]>([])
@@ -1604,6 +1752,7 @@ function VlmFirstPassPanel() {
               </div>
             ) : null}
             {summaryNote ? <p className="mt-2 text-[11px] text-emerald-400">{summaryNote}</p> : null}
+            {slug ? <AuthorVisionRow slug={slug} /> : null}
           </div>
         ) : null}
       </div>
@@ -2441,6 +2590,7 @@ export default function Home() {
         {tab === 'batches' ? <BatchesTab /> : null}
         {tab === 'events' ? <EventsTab /> : null}
         {tab === 'verdicts' ? <VerdictsTab /> : null}
+        {tab === 'glass' ? <GlassTab /> : null}
         {tab === 'vault' ? <VaultTab /> : null}
         {tab === 'archive' ? <ArchiveTab /> : null}
       </main>
