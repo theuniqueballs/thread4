@@ -154,9 +154,14 @@ No commentary, no markdown fences, no numbering of your own. Every slot of the c
 function goldenCorpusBlock(): string {
   const corpus = getGoldenCorpus()
   if (!corpus || corpus.entries.length === 0) return ''
-  const exactRplus = corpus.entries.filter((e) => e.claim === e.delivered && e.delivered === 'R+')[0]
-  const miss = corpus.entries.filter((e) => e.claim !== e.delivered)[0]
-  const picks = [exactRplus, miss].filter(Boolean)
+  /* Issue #4 Кенни: не «сколько», а «какие» — писец должен видеть ОБЕ формы
+     порчи (leak и reshape дают промахи разной глубины). 1 точный R+ +
+     2 промаха с разными доставленными тирами. */
+  const exactRplus = corpus.entries.find((e) => e.claim === e.delivered && e.delivered === 'R+')
+  const misses = corpus.entries.filter((e) => e.claim !== e.delivered)
+  const missA = misses.find((e) => e.delivered === 'R') ?? misses[0]
+  const missB = misses.find((e) => e !== missA && e.delivered !== missA?.delivered)
+  const picks = [exactRplus, missA, missB].filter(Boolean)
   if (picks.length === 0) return ''
   return (
     '\nREAL RENDER RECEIPTS — golden corpus (what PH actually sent, what the author SAW; learn the voice and the delivery logic, never the content):\n' +
@@ -456,6 +461,12 @@ function assembleBatch(
       if (slot.witness) spineParts.push(`witness: ${slot.witness}`)
       if (slot.ocTheme && slot.kind === 'OC') spineParts.push(`OC theme: ${slot.ocTheme}`)
       if (slot.targetChannel) spineParts.push(`REHAB target channel: ${slot.targetChannel} (добор по вердикту автора — сделай заявку этого канала_delivery главным сигналом кадра)`)
+      /* аренда движка (Issue #3): witness-noun идёт инструкцией в каждый слот */
+      for (const r of contract.engineRent ?? []) {
+        if (r.kind === 'witness-noun' && r.allow) {
+          spineParts.push(`RENT witness-noun: include exactly ONE of — ${r.allow.join(', ')}`)
+        }
+      }
       L.push(`Spine: ${spineParts.join(' · ')}`)
       L.push(`Stack: ${slot.carriers.map((x) => x.id).join(' + ')}`)
       L.push('POS:')

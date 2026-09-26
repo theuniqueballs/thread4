@@ -67,6 +67,16 @@ export interface PaletteSpec {
 
 /* ------------------------------ engines ---------------------------- */
 
+export interface EngineRent {
+  kind: 'witness-noun' | 'kinetics-lock' | 'kinetics-unique'
+  count?: string
+  allow?: string[]
+  ranges?: number[][]
+  mustDifferFrom?: string
+  source?: string
+  note?: string
+}
+
 export interface Engine {
   first_batch: string
   status: string
@@ -80,6 +90,12 @@ export interface Engine {
   genre_split?: string
   parents?: string[]
   generation?: number
+  /** Issue #3 (Кенни, 2026-09-26): bespoke — не движок, а пол (общая аксиома) */
+  role?: 'floor' | string
+  role_note?: string
+  /** Залп 3 + Issue #3: аренда движка — машиночитаемые механизмы, которые
+   *  реально читают компилятор/гейты/писца. Нет аренды → это тема (TASTE). */
+  rent?: EngineRent[]
 }
 
 export interface EngineSpec {

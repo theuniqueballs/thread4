@@ -449,6 +449,20 @@ async function main() {
       )
     }
 
+    // Issue #3 Кенни: аренда движков — bespoke пол, у трёх движков rent
+    {
+      const { getEngines } = await import('../src/lib/t4/specs')
+      const engines = getEngines()
+      check('bespoke = пол (role floor), не участник ротации', engines?.engines.bespoke?.role === 'floor')
+      check(
+        'аренда сформулирована: limen/heldhour/glamour-tax имеют rent',
+        ['limen', 'heldhour', 'glamour-tax'].every((k) => (engines?.engines[k]?.rent?.length ?? 0) > 0)
+      )
+      let confThrew = false
+      try { appendEvent('render.verdict', 'T4-99: author probe', { source: 'author' }) } catch { confThrew = true }
+      check('guard рождения: author-verdict без confidence отвергается (Issue #4 Кенни)', confThrew)
+    }
+
     console.log(`\nselftest: ${ok} pass, ${fail} fail`)
     process.exit(fail === 0 ? 0 : 1)
   }

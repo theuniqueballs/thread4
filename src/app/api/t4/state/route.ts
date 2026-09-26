@@ -4,6 +4,8 @@ import { foldState, nextBatchNumber, readEvents, verifyChain } from '@/lib/t4/ev
 import { specInventory } from '@/lib/t4/specs'
 import { GATES_TOTAL } from '@/lib/t4/gates'
 import { listFiles, BATCHES_DIR, readCommanderKey } from '@/lib/t4/fsutil'
+import { scanSource } from '@/lib/t4/hygiene'
+import path from 'node:path'
 
 export const dynamic = 'force-dynamic'
 
@@ -47,7 +49,18 @@ export async function GET() {
         return { ok: v.ok, events: v.events, storedLinks: v.storedLinks, head: v.head?.slice(0, 10) ?? null, problems: v.problems }
       })(),
       atomicWrites: true,
-      /* Issue #2 Кенни: доверенная граница чтения — объявлена, а не молчит.
+      /* Issue #4 Кенни: grep-gate как живой булев (П-2 видно СЕЙЧАС), аптайм
+         писца и последняя проверка восстановления — по чертежу Cortex */
+      grepGate: scanSource(path.join(process.cwd(), 'src', 'lib', 't4')).length === 0,
+      scribeLastDraft:
+        events
+          .filter((e) => e.type === 'scribe.drafted')
+          .at(-1)?.at ?? null,
+      lastRecoveryCheck:
+        events
+          .filter((e) => e.type === 'note' && e.summary.includes('VAULT'))
+          .at(-1)?.at ?? null,
+      /* Issue #4 Кенни: доверенная граница чтения — объявлена, а не молчит.
          dev-скрипт слушает 127.0.0.1 (package.json -H); если когда-нибудь
          понадобится смотреть тред снаружи — появляется read-key, не тишина. */
       readBoundary: 'loopback-only (dev -H 127.0.0.1; внешний доступ = read-key, не молчание)',

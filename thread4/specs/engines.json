@@ -1,5 +1,5 @@
 {
-  "version": "1.1.0",
+  "version": "1.2.0",
   "born": "2026-09-19",
   "source": "3.2 ENGINES.yaml (THREAD 3.2-EXP V16, Path B MVP-4, born 2026-09-14)",
   "engines": {
@@ -15,7 +15,9 @@
         "sermon — morality narrated in prose while the render shows a normal girl in a nice dress; if the law isn't visible in fabric, it isn't there"
       ],
       "witness_register": "the occasion object — the sin's own prop that carries the frame's moral (the ledger, the key, the coat-check ticket, the borrowed coat); pre-tradition, retroactively named",
-      "genre_split": "NICHE carries the sin as an impossible institution (a city where guilt is tailored to measure); VOLT carries the wardrobe-failure sin fitted ON her — the N22 autopsy line: «весь батч — волт» is the failure, the split is the vaccine"
+      "genre_split": "NICHE carries the sin as an impossible institution (a city where guilt is tailored to measure); VOLT carries the wardrobe-failure sin fitted ON her — the N22 autopsy line: «весь батч — волт» is the failure, the split is the vaccine",
+      "role": "floor",
+      "role_note": "Issue #3 Кенни: bespoke — общая аксиома «закон виден в ткани», повторённая failure_modes всех движков (N22). Не конкурирует за слот — гравитация под всеми. Вне ротации; в контракте присутствует как базовый закон всегда."
     },
     "tint": {
       "first_batch": "N24 \"Blue Is the Loneliest Color\"",
@@ -74,7 +76,26 @@
         "uniform wonder — 21 identical fairy doors; the seam's LOCATION and MATERIAL rotate every prompt (21 distinct seams, zero repeats), the NICHE slots carry the impossible-physics read while VOLT slots carry the wardrobe read — the genre split working as designed"
       ],
       "witness_register": "the MUNDANE witness — the one ordinary object that refuses the magic (the steaming kettle, the bus sign, the parking meter)",
-      "genre_split": "NICHE carries the impossible far-side (the magic legible AT A GLANCE); VOLT carries the wardrobe claimed by two weathers at the shoulder"
+      "genre_split": "NICHE carries the impossible far-side (the magic legible AT A GLANCE); VOLT carries the wardrobe claimed by two weathers at the shoulder",
+      "rent": [
+        {
+          "kind": "witness-noun",
+          "count": "exactly-1",
+          "allow": [
+            "kettle",
+            "bus sign",
+            "parking meter"
+          ],
+          "source": "witness_register",
+          "note": "ОДИН mundane-свидетель на кадр — единственный обычный объект, отказывающийся от магии"
+        },
+        {
+          "kind": "kinetics-unique",
+          "source": "failure_modes",
+          "note": "21 differing seams, zero repeats — уникальность спайна, без повторов"
+        }
+      ],
+      "rent_born": "2026-09-26, Issue #3: второй шанс (T4-06 умер провенансом, не законом)"
     },
     "arcana": {
       "first_batch": "N28 \"Nobody Knows\"",
@@ -142,7 +163,34 @@
         "two-clocks — the held object and the released object obeying different physics without the frame saying which is which"
       ],
       "witness_register": "the STOPPED TIMEPIECE — one timekeeping object per frame frozen at the held minute (clock, egg-timer, dripping tap, stopped metronome): the ordinary world's receipt that time is being spent here",
-      "genre_split": "NICHE carries impossible slow-physics (the suspended spill, the mid-air laundry, dust that waits); VOLT carries the slow-fall wardrobe failures — the strap that has been slipping for an hour and is one breath from landing"
+      "genre_split": "NICHE carries impossible slow-physics (the suspended spill, the mid-air laundry, dust that waits); VOLT carries the slow-fall wardrobe failures — the strap that has been slipping for an hour and is one breath from landing",
+      "rent": [
+        {
+          "kind": "witness-noun",
+          "count": "exactly-1",
+          "allow": [
+            "clock",
+            "egg-timer",
+            "dripping tap",
+            "stopped metronome"
+          ],
+          "note": "ровно один объект-таймкипер на слот, обязан присутствовать в POS; гейт: count == 1"
+        },
+        {
+          "kind": "kinetics-lock",
+          "ranges": [
+            [
+              118,
+              132
+            ],
+            [
+              185,
+              188
+            ]
+          ],
+          "note": "кинетики ТОЛЬКО из breath-and-lag / breath-ledger семей; ВНИМАНИЕ: K185-188 в pools.json отсутствуют (дыра K-нумерации, PARSE_REPORT) — фактически K118-132, добор пула вернёт диапазон"
+        }
+      ]
     },
     "glamour-tax": {
       "first_batch": "— (awaiting debut)",
@@ -161,7 +209,31 @@
         "confidant-clutter — three kept objects doing one job; ONE confidant per frame, the rest is inventory"
       ],
       "witness_register": "the CONFIDANT-BALANCE — the one kept object that holds the unpaid remainder (the held glove, the closed clasp, the pinned hem): what she refused to spend",
-      "genre_split": "NICHE carries the magic doing the collecting (impossible hands at the hem, sprites reading the ledger); VOLT carries the paid/kept arithmetic on fabric — the exposure with a receipt"
+      "genre_split": "NICHE carries the magic doing the collecting (impossible hands at the hem, sprites reading the ledger); VOLT carries the paid/kept arithmetic on fabric — the exposure with a receipt",
+      "rent": [
+        {
+          "kind": "kinetics-lock",
+          "count": "exactly-1",
+          "ranges": [
+            [
+              139,
+              154
+            ]
+          ],
+          "note": "paid-piece: ровно один K-тег исчезнувшего куска (garment-kinetic returns) на слот — блокирует gratis-magic"
+        },
+        {
+          "kind": "witness-noun",
+          "count": "exactly-1",
+          "allow": [
+            "glove",
+            "clasp",
+            "pinned hem"
+          ],
+          "mustDifferFrom": "paid-piece",
+          "note": "confidant-noun из семьи glove/clasp/pinned-hem, НЕ совпадающий с paid-item — бухгалтерия paid vs kept из on_body, блокирует strip-roulette"
+        }
+      ]
     }
   },
   "open_seeds": [
@@ -180,5 +252,6 @@
     "first_batch": "where it debuted",
     "status": "proven | retired | experimental | render-graded"
   },
-  "definition": "AN ENGINE IS NOT A THEME. An engine is a PHYSICAL/METAPHORICAL LAW of the world that can be worn; every engine answers the N22 question first: HOW DOES THIS LAW SIT ON HER? (hem / hair / weave / kinetic / wardrobe-state — never scenery)."
+  "definition": "AN ENGINE IS NOT A THEME. An engine is a PHYSICAL/METAPHORICAL LAW of the world that can be worn; every engine answers the N22 question first: HOW DOES THIS LAW SIT ON HER? (hem / hair / weave / kinetic / wardrobe-state — never scenery).",
+  "born_from_rent": "Issue #3 (Кенни + Чарли, вердикт-делегирование автора 2026-09-26): аренда = машиночитаемые механизмы, которые реально читают компилятор/гейты/писца. Движок без аренды — тема, а тема живёт в TASTE. bespoke — не движок, а пол (общая аксиома всех failure_modes)."
 }

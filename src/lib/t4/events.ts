@@ -67,12 +67,27 @@ export const VERDICT_SOURCES = [
   'author-oc',
 ] as const
 
+/** Уверенность author-вердикта (Issue #4 Кенни): direct — смотрел сейчас,
+ *  described — пересказ по памяти. Плоской константы больше нет. */
+export const CONFIDENCE_LEVELS = ['direct', 'described'] as const
+
 function assertBornSemantics(type: string, data?: Record<string, unknown>): void {
   if (type === 'render.verdict') {
     const src = data?.source
     if (typeof src !== 'string' || !(VERDICT_SOURCES as readonly string[]).includes(src)) {
       throw new Error(
         `event born wounded: render.verdict требует data.source из enum [${VERDICT_SOURCES.join(', ')}] — проза-идентичность и пустота запрещены (Issue #1 Кенни)`
+      )
+    }
+    const conf = data?.confidence
+    if (conf != null && (typeof conf !== 'string' || !(CONFIDENCE_LEVELS as readonly string[]).includes(conf))) {
+      throw new Error(
+        `event born wounded: confidence вне enum [${CONFIDENCE_LEVELS.join(', ')}] (Issue #4 Кенни)`
+      )
+    }
+    if (src === 'author' && conf == null) {
+      throw new Error(
+        `event born wounded: author-verdict требует confidence: ${CONFIDENCE_LEVELS.join(' | ')} (Issue #4 Кенни)`
       )
     }
   }

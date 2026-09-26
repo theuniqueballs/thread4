@@ -143,6 +143,8 @@ export interface BatchContract {
   }
   /** Факты мира (Залп 3): платформа/экономика/доказанное — планируем с потерями */
   platform?: Record<string, unknown>
+  /** Аренда движка (Issue #3): машиночитаемые механизмы, читаемые гейтами и писцом */
+  engineRent?: import('./specs').EngineRent[]
   laws: Record<string, string | number>
 }
 
@@ -275,9 +277,10 @@ export function compileBatch(theme: string, options: CompileOptions = {}): Batch
   /* engine: explicit override (сознательный дебют), else least-recently-used
      среди ДЕБЮТИРОВАВШИХ (Залп 2 «Рефлекс», policy.engines: ротация по дебютам
      — сданным батчам, не компайлам; недебютировавшие в авто-пул не попадают,
-     их дебют = explicit engine или author_pin engine:<key>) */
+     их дебют = explicit engine или author_pin engine:<key>). Issue #3: движки
+     с role='floor' (bespoke — общая аксиома) в ротации не участвуют. */
   const engineEntries = Object.entries(engines.engines).filter(
-    ([, e]) => e.status !== 'retired'
+    ([, e]) => e.status !== 'retired' && e.role !== 'floor'
   )
   const usedEngines = new Set(
     events
@@ -354,7 +357,27 @@ export function compileBatch(theme: string, options: CompileOptions = {}): Batch
     path.join(process.cwd(), 'thread4', 'specs', 'pools.json')
   )
   const poolsK: { id: string; name?: string }[] = poolsSpec?.sections?.kinetics_k ?? []
-  const kPool = lruPick(poolsK, usage.kinetics, rng)
+  /* Залп 3 + Issue #3: аренда kinetics-lock — движок сужает пул кинетиков до
+     своих семей (heldhour: breath-and-lag). Диапазон, пустой в пуле (дыра
+     K-нумерации), не проглатывается — остаётся в аренде контракта как долг. */
+  const engineRent = engine.rent ?? []
+  const lock = engineRent.find((r) => r.kind === 'kinetics-lock') as
+    | { ranges?: number[][]; note?: string }
+    | undefined
+  let poolsKFiltered = poolsK
+  if (lock?.ranges) {
+    const inRange = (id: string): boolean => {
+      const n = parseInt(String(id).replace(/\D/g, ''), 10)
+      return lock.ranges!.some(([a, b]) => n >= a && n <= b)
+    }
+    poolsKFiltered = poolsK.filter((x) => inRange(x.id))
+    if (poolsKFiltered.length === 0) {
+      throw new Error(
+        `аренда ${engineKey}: kinetics-lock ${JSON.stringify(lock.ranges)} пуст в pools.json — движок не может дышать (смерть контейнера пула или дыра нумерации); ДЕЙСТВУЙ`
+      )
+    }
+  }
+  const kPool = lruPick(poolsKFiltered, usage.kinetics, rng)
 
   /* carrier assignment helpers */
   const byClass = carriers.classes
@@ -690,6 +713,7 @@ export function compileBatch(theme: string, options: CompileOptions = {}): Batch
         ? { platform: f.platform, economics: f.economics, proven: f.proven_facts, ph_behavior: f.ph_behavior }
         : undefined
     })(),
+    engineRent: engineRent.length > 0 ? engineRent : undefined,
     laws: {
       core4: 'R+/X слоты: 4 носителя из 4 механо-групп (FABRIC/BODY/POSITION/PHYSICS), ≥4 классов',
       wCapPct: LAWS.wCapPct,
@@ -770,6 +794,23 @@ export function contractMarkdown(c: BatchContract): string {
   lines.push('')
   lines.push(c.engineWhy)
   lines.push('')
+
+  /* Аренда движка (Issue #3): механика, которую проверяют гейты */
+  if (c.engineRent && c.engineRent.length > 0) {
+    for (const r of c.engineRent) {
+      const allow = (r as { allow?: string[] }).allow
+      const ranges = (r as { ranges?: number[][] }).ranges
+      const note = (r as { note?: string }).note
+      const head =
+        r.kind === 'witness-noun'
+          ? `witness-noun [${(allow ?? []).join(' / ')}] — ровно один в POS`
+          : r.kind === 'kinetics-lock'
+            ? `kinetics-lock K${(ranges ?? []).map(([a, b]) => `${a}-${b}`).join(' ∪ K')}`
+            : r.kind
+      lines.push(`**Аренда · ${head}**${note ? ` — ${note}` : ''}`)
+    }
+    lines.push('')
+  }
 
   /* Залп 3 «Мир»: платформа как элемент модели — планируем с потерями */
   if (c.platform) {
