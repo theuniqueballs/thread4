@@ -12,6 +12,7 @@
  * z-ai-web-dev-sdk — ТОЛЬКО бэкенд (сюда импортируется и из API-роута,
  * и из bun-CLI).
  */
+import fs from 'node:fs'
 import path from 'node:path'
 
 import ZAI from 'z-ai-web-dev-sdk'
@@ -82,7 +83,10 @@ interface ScribeCtx {
   kNames: Map<string, { name: string; light: string }>
   batchThesis: string
   acts: string[]
-  /** ТЕМА-СЛОВА (верdict автора «тема не раскрывается»): слова, обязанные
+  /** Одноразовый движок (3.2-традиция): спайн изобретает под тему, утилизирует после батча */
+  engineName: string
+  engineLaw: string
+  /** ТЕМА-СЛОВА (вердикт автора «тема не раскрывается»): слова, обязанные
    *  появляться в тег-ранах слотов — спайн выводит из темы. */
   themeKeywords: string[]
 }
@@ -443,6 +447,8 @@ function assembleBatch(
     L.push(`ТЕМА-СЛОВА: ${ctx.themeKeywords.join(', ')}`)
     L.push('')
   }
+  L.push(`ДВИЖОК (одноразовый): ${ctx.engineName} — ${ctx.engineLaw}`)
+  L.push('')
   L.push('ЖАНРЫ (легенда — вердикт T4-02: жанр обязан быть виден): **OC** — канон-локи персонажа, тема в слоте; **NICHE** — невозможный образ: раса делает ФИЗИЧЕСКУЮ работу в кадре, свидетель держит кадр, невозможное — первое считывание силуэта; **VOLT** — плоть: камера-участник, тело в движении, взгляд-вектор, экспозиция тегом; **EXQUISITE** — ультра своего жанра.')
   const mains = c.slots.filter((s) => s.kind !== 'OC')
   const spread: Record<string, number> = {}
@@ -631,6 +637,9 @@ export async function scribeBatch(
     kNames,
     batchThesis: '',
     acts: [],
+    themeKeywords: [],
+    engineName: '',
+    engineLaw: '',
   }
 
   const engine = contract.engineLaw
@@ -645,17 +654,31 @@ export async function scribeBatch(
   const spineRaw = await chat(
     zai,
     systemPrompt(),
-    `BATCH ${slug} «${theme}». THE THEME IS THE LAW: the whole batch must READ as "${theme}" — every slot carries a piece of it. ENGINE LAW: ${engine}\n\nPlan the batch spine. Return EXACTLY, nothing else:\nTITLE: <2-5 words, no quotes inside>\nTHEME-KEYWORDS: <5-8 English tag-safe words from the THEME itself — objects, places, states, materials that can appear inside tags and prose (NOT style words)>\nTHESIS: <one paragraph, 90-140 words: the batch's ONE law, physical and testable in-frame, how the THEME (not the engine) is delivered across the 24 frames, and how the three acts escalate it>\nACT I: <WIDE sub-theme name, 2-5 words — each act must hold VERY different pictures>\nACT II: <WIDE sub-theme name>\nACT III: <WIDE sub-theme name>`,
+    `BATCH ${slug} «${theme}». THE THEME IS THE LAW.\n\nInvent a ONE-BATCH ENGINE for this theme (3.2-традиция, одноразовый): a physical law SPECIFIC to this theme that bends fabric, light, physics and wardrobe in every frame — not a generic style. The engine lives for this batch only. Return EXACTLY, nothing else:\nENGINE: <2-4 words, name of the engine>\nLAW: <1-2 sentences: the physical law and how the wardrobe obeys it>\nTITLE: <2-5 words, no quotes inside>\nTHEME-KEYWORDS: <5-8 English tag-safe words from the THEME itself — objects, places, states, materials that can appear inside tags and prose (NOT style words)>\nTHESIS: <one paragraph, 90-140 words: the batch's ONE law, physical and testable in-frame, how the THEME (not the engine) is delivered across the 24 frames, and how the three acts escalate it>\nACT I: <WIDE sub-theme name, 2-5 words — each act must hold VERY different pictures>\nACT II: <WIDE sub-theme name>\nACT III: <WIDE sub-theme name>`,
     log
   )
-  const title = (/^TITLE:\s*(.+)$/m.exec(spineRaw)?.[1] ?? theme).replace(/^["«]|["»]$/g, '').trim().slice(0, 80) || theme
+  const engineName = (/^ENGINE:\s*(.+)$/m.exec(spineRaw)?.[1] ?? 'per-theme').trim().slice(0, 60)
+  const engineLawSpine = (/^LAW:\s*(.+)$/m.exec(spineRaw)?.[1] ?? '').trim().slice(0, 300)
+  ctx.engineName = engineName
+  ctx.engineLaw = engineLawSpine || contract.engineLaw
+  /* утилизация: одноразовый движок уходит в архив вместе с батчем */
+  try {
+    fs.appendFileSync(
+      path.join(process.cwd(), 'thread4', 'engines-archive.jsonl'),
+      JSON.stringify({ slug, theme, engine: engineName, law: engineLawSpine, at: new Date().toISOString() }) + '\n',
+      'utf-8'
+    )
+  } catch {
+    /* архив не критичен для записи — движок живёт в шапке батча */
+  }
   ctx.themeKeywords = (/^THEME-KEYWORDS:\s*(.+)$/m.exec(spineRaw)?.[1] ?? '')
     .split(',')
     .map((s) => s.trim().toLowerCase())
     .filter(Boolean)
     .slice(0, 8)
+  const title = (/^TITLE:\s*(.+)$/m.exec(spineRaw)?.[1] ?? theme).replace(/^["«]|["»]$/g, '').trim().slice(0, 80) || theme
   const thesisP = (/^THESIS:\s*\n?([\s\S]*?)(?=\nACT I:|$)/m.exec(spineRaw)?.[1] ?? '').trim()
-  ctx.batchThesis = thesisP || `The batch's law: ${engine}`
+  ctx.batchThesis = thesisP || `The batch's law: ${ctx.engineLaw}`
   ctx.acts = [
     (/^ACT I:\s*(.+)$/m.exec(spineRaw)?.[1] ?? 'The Law Arrives').trim(),
     (/^ACT II:\s*(.+)$/m.exec(spineRaw)?.[1] ?? 'The Law Worn In').trim(),
@@ -669,7 +692,7 @@ export async function scribeBatch(
   for (let i = 0; i < contract.slots.length; i += chunkSize) {
     chunks.push(contract.slots.slice(i, i + chunkSize))
   }
-    const batchLawBlock = `BATCH ${slug} «${title}» — theme: ${theme}\nENGINE LAW: ${engine}\nBATCH THESIS (yours, keep it): ${ctx.batchThesis}\nTHEME-KEYWORDS (weave ≥1 into EVERY slot's tags or prose — the theme must be VISIBLE in the frame, not in the header): ${ctx.themeKeywords.join(', ') || '—'}\nGENRE PLAN: ${contract.slots.filter((s) => s.kind === 'NICHE').length} NICHE (R) · ${contract.slots.filter((s) => s.kind === 'VOLT' || s.kind === 'EXQUISITE').length} VOLT/EXQUISITE (R+ incl. 3 OC) · ${contract.slots.filter((s) => s.rating === 'X').length} X`
+    const batchLawBlock = `BATCH ${slug} «${title}» — theme: ${theme}\nENGINE (одноразовый, ваш): ${ctx.engineName} — ${ctx.engineLaw}\nBATCH THESIS (yours, keep it): ${ctx.batchThesis}\nTHEME-KEYWORDS (weave ≥1 into EVERY slot's tags or prose — the theme must be VISIBLE in the frame, not in the header): ${ctx.themeKeywords.join(', ') || '—'}\nGENRE PLAN: ${contract.slots.filter((s) => s.kind === 'NICHE').length} NICHE (R) · ${contract.slots.filter((s) => s.kind === 'VOLT' || s.kind === 'EXQUISITE').length} VOLT/EXQUISITE (R+ incl. 3 OC) · ${contract.slots.filter((s) => s.rating === 'X').length} X`
 
   for (let ci = 0; ci < chunks.length; ci++) {
     const chunk = chunks[ci]
