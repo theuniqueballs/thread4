@@ -1,0 +1,224 @@
+{
+  "slug": "T4-13",
+  "title": "Singularity",
+  "date": "2026-09-27T22:38:17.230Z",
+  "theme": "Singularity",
+  "engine": "per-theme",
+  "hardPass": true,
+  "firstRunClean": true,
+  "sha10": "e3b6930732",
+  "run": 1,
+  "receipts": [
+    {
+      "gate": "structure",
+      "level": "hard",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "floors",
+      "level": "hard",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "rating-recipe",
+      "level": "hard",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "canon",
+      "level": "hard",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "diversity",
+      "level": "hard",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "window",
+      "level": "hard",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "budget",
+      "level": "warn",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "cadence",
+      "level": "warn",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "niche-legibility",
+      "level": "warn",
+      "verdict": "WARN",
+      "findings": [
+        "P14: NICHE без свидетеля в кадре (mirror/glass/monitor/phone/gauge…) — свидетель держит невозможное"
+      ]
+    },
+    {
+      "gate": "prop-geometry",
+      "level": "warn",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "claim-visibility",
+      "level": "warn",
+      "verdict": "WARN",
+      "findings": [
+        "P12: зона сигнала (низ) закрыта «dress» — cameltoe/pantyline не виден камере; открой зону или перевези claim (вердикт T4-03)",
+        "P23: зона сигнала (низ) закрыта «skirt» — cameltoe/pantyline не виден камере; открой зону или перевези claim (вердикт T4-03)"
+      ]
+    },
+    {
+      "gate": "technique-layers",
+      "level": "warn",
+      "verdict": "WARN",
+      "findings": [
+        "P4: сумма факторов не набрана — 2 сигнал(а) через 2 слой(я) (видимо+дорисовывает)· блок 8: R+ = 3+ сигнала через 2+ слоя — это R/R+ граница, не R+ сумма; карта кадра: panties visible, see-through",
+        "P5: сумма факторов не набрана — 2 сигнал(а) через 2 слой(я) (видимо+дорисовывает)· блок 8: R+ = 3+ сигнала через 2+ слоя — это R/R+ граница, не R+ сумма; карта кадра: nipple outline, see-through",
+        "P6: сумма факторов не набрана — 2 сигнал(а) через 2 слой(я) (видимо+дорисовывает)· блок 8: R+ = 3+ сигнала через 2+ слоя — это R/R+ граница, не R+ сумма; карта кадра: nipple outline, see-through",
+        "P7: сумма факторов не набрана — 2 сигнал(а) через 2 слой(я) (видимо+дорисовывает)· блок 8: R+ = 3+ сигнала через 2+ слоя — это R/R+ граница, не R+ сумма; карта кадра: nipple outline, see-through",
+        "P8: сумма факторов не набрана — 2 сигнал(а) через 2 слой(я) (видимо+дорисовывает)· блок 8: R+ = 3+ сигнала через 2+ слоя — это R/R+ граница, не R+ сумма; карта кадра: nipple outline, see-through",
+        "P10: сумма факторов не набрана — 2 сигнал(а) через 2 слой(я) (видимо+дорисовывает)· блок 8: R+ = 3+ сигнала через 2+ слоя — это R/R+ граница, не R+ сумма; карта кадра: panties visible, see-through",
+        "P12: сумма факторов не набрана — 2 сигнал(а) через 2 слой(я) (видимо+дорисовывает)· блок 8: R+ = 3+ сигнала через 2+ слоя — это R/R+ граница, не R+ сумма; карта кадра: panties visible, see-through",
+        "P13: сумма факторов не набрана — 2 сигнал(а) через 2 слой(я) (видимо+дорисовывает)· блок 8: R+ = 3+ сигнала через 2+ слоя — это R/R+ граница, не R+ сумма; карта кадра: nipple outline, see-through",
+        "P16: сумма факторов не набрана — 2 сигнал(а) через 2 слой(я) (видимо+дорисовывает)· блок 8: R+ = 3+ сигнала через 2+ слоя — это R/R+ граница, не R+ сумма; карта кадра: nipple outline, see-through",
+        "P20: сумма факторов не набрана — 2 сигнал(а) через 2 слой(я) (видимо+дорисовывает)· блок 8: R+ = 3+ сигнала через 2+ слоя — это R/R+ граница, не R+ сумма; карта кадра: nipple outline, see-through",
+        "P21: сумма факторов не набрана — 2 сигнал(а) через 2 слой(я) (видимо+дорисовывает)· блок 8: R+ = 3+ сигнала через 2+ слоя — это R/R+ граница, не R+ сумма; карта кадра: nipple outline, see-through",
+        "P23: сумма факторов не набрана — 2 сигнал(а) через 2 слой(я) (видимо+дорисовывает)· блок 8: R+ = 3+ сигнала через 2+ слоя — это R/R+ граница, не R+ сумма; карта кадра: panties visible, see-through"
+      ]
+    },
+    {
+      "gate": "noun-lock",
+      "level": "warn",
+      "verdict": "WARN",
+      "findings": [
+        "P4: сквозь-ткань заявка (see-through) не залочена на именованную тонкую вещь — назови garment существительным (blouse/tee/shirt/knit/swimsuit/leotard/sheet/towel…), прилагательное заявку не несёт (§10-поправка, noun-lock)",
+        "P5: сквозь-ткань заявка (clothed nipples) не залочена на именованную тонкую вещь — назови garment существительным (blouse/tee/shirt/knit/swimsuit/leotard/sheet/towel…), прилагательное заявку не несёт (§10-поправка, noun-lock)",
+        "P5: подслой не заявлен позитивом — «braless / nothing underneath» нет в POS: негатива мало, рендерер рисует лифчик ПОВЕРХ NEG-лока (вердикт T4-05, P07) — POS обязан нести позитивное утверждение (§9-септима, noun-lock bare-under)",
+        "P6: сквозь-ткань заявка (nipples through clothing) не залочена на именованную тонкую вещь — назови garment существительным (blouse/tee/shirt/knit/swimsuit/leotard/sheet/towel…), прилагательное заявку не несёт (§10-поправка, noun-lock)",
+        "P6: подслой не заявлен позитивом — «braless / nothing underneath» нет в POS: негатива мало, рендерер рисует лифчик ПОВЕРХ NEG-лока (вердикт T4-05, P07) — POS обязан нести позитивное утверждение (§9-септима, noun-lock bare-under)",
+        "P7: сквозь-ткань заявка (nipples through clothing) не залочена на именованную тонкую вещь — назови garment существительным (blouse/tee/shirt/knit/swimsuit/leotard/sheet/towel…), прилагательное заявку не несёт (§10-поправка, noun-lock)",
+        "P7: подслой не заявлен позитивом — «braless / nothing underneath» нет в POS: негатива мало, рендерер рисует лифчик ПОВЕРХ NEG-лока (вердикт T4-05, P07) — POS обязан нести позитивное утверждение (§9-септима, noun-lock bare-under)",
+        "P8: подслой не заявлен позитивом — «braless / nothing underneath» нет в POS: негатива мало, рендерер рисует лифчик ПОВЕРХ NEG-лока (вердикт T4-05, P07) — POS обязан нести позитивное утверждение (§9-септима, noun-lock bare-under)",
+        "P9: подслой не заявлен позитивом — «braless / nothing underneath» нет в POS: негатива мало, рендерер рисует лифчик ПОВЕРХ NEG-лока (вердикт T4-05, P07) — POS обязан нести позитивное утверждение (§9-септима, noun-lock bare-under)",
+        "P10: сквозь-ткань заявка (see-through) не залочена на именованную тонкую вещь — назови garment существительным (blouse/tee/shirt/knit/swimsuit/leotard/sheet/towel…), прилагательное заявку не несёт (§10-поправка, noun-lock)",
+        "P13: сквозь-ткань заявка (nipples through clothing) не залочена на именованную тонкую вещь — назови garment существительным (blouse/tee/shirt/knit/swimsuit/leotard/sheet/towel…), прилагательное заявку не несёт (§10-поправка, noun-lock)",
+        "P13: подслой не заявлен позитивом — «braless / nothing underneath» нет в POS: негатива мало, рендерер рисует лифчик ПОВЕРХ NEG-лока (вердикт T4-05, P07) — POS обязан нести позитивное утверждение (§9-септима, noun-lock bare-under)",
+        "P16: сквозь-ткань заявка (nipples through clothing) не залочена на именованную тонкую вещь — назови garment существительным (blouse/tee/shirt/knit/swimsuit/leotard/sheet/towel…), прилагательное заявку не несёт (§10-поправка, noun-lock)",
+        "P16: подслой не заявлен позитивом — «braless / nothing underneath» нет в POS: негатива мало, рендерер рисует лифчик ПОВЕРХ NEG-лока (вердикт T4-05, P07) — POS обязан нести позитивное утверждение (§9-септима, noun-lock bare-under)",
+        "P19: сквозь-ткань заявка (see-through) не залочена на именованную тонкую вещь — назови garment существительным (blouse/tee/shirt/knit/swimsuit/leotard/sheet/towel…), прилагательное заявку не несёт (§10-поправка, noun-lock)",
+        "P19: тишина по подслою = дыра — NEG не лочит подслой (bra / camisole / bandeau / undershirt): рендерер дорисует его сам и тир упадёт в R (§10-поправка, noun-lock)",
+        "P19: нижняя заявка (visible pantyline) не залочена на именованную вещь — pantyline живёт на именованном низе (skirt/shorts/leggings/sheet…), не в воздухе (§10-поправка, noun-lock)",
+        "P21: сквозь-ткань заявка (clothed nipples) не залочена на именованную тонкую вещь — назови garment существительным (blouse/tee/shirt/knit/swimsuit/leotard/sheet/towel…), прилагательное заявку не несёт (§10-поправка, noun-lock)",
+        "P21: подслой не заявлен позитивом — «braless / nothing underneath» нет в POS: негатива мало, рендерер рисует лифчик ПОВЕРХ NEG-лока (вердикт T4-05, P07) — POS обязан нести позитивное утверждение (§9-септима, noun-lock bare-under)",
+        "P23: сквозь-ткань заявка (see-through) не залочена на именованную тонкую вещь — назови garment существительным (blouse/tee/shirt/knit/swimsuit/leotard/sheet/towel…), прилагательное заявку не несёт (§10-поправка, noun-lock)"
+      ]
+    },
+    {
+      "gate": "character-collision",
+      "level": "warn",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "ab-single-variable",
+      "level": "warn",
+      "verdict": "WARN",
+      "findings": [
+        "пара α (hands): 8 отличий стека — больше одной замены носителя (policy.ab.one_variable, аудит I-4)",
+        "пара β (breasts): 8 отличий стека — больше одной замены носителя (policy.ab.one_variable, аудит I-4)",
+        "пара γ (nape): 8 отличий стека — больше одной замены носителя (policy.ab.one_variable, аудит I-4)"
+      ]
+    },
+    {
+      "gate": "theme-presence",
+      "level": "warn",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "garment-family",
+      "level": "warn",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "simcheck",
+      "level": "warn",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "freq-report",
+      "level": "advisory",
+      "verdict": "REPORT",
+      "findings": [
+        "кандидаты в тики: anime 24/21 · style 24/21 · original 24/21 · character 24/21 · ecchi 24/21 · small 24/21 · rendered 24/21 · stylized 24/21 · mouth 24/21 · masterpiece 24/21 · quality 24/21 · artstyle 24/21"
+      ]
+    },
+    {
+      "gate": "usage",
+      "level": "advisory",
+      "verdict": "REPORT",
+      "findings": [
+        "носителей в стеках: 86; уникальных: 86",
+        "R+ слотов: 14; X: 0"
+      ]
+    },
+    {
+      "gate": "technique-map",
+      "level": "advisory",
+      "verdict": "REPORT",
+      "findings": [
+        "P04 R+: 2 сигнал(ов) · слои 1·видимо + 4·дорисовывает · panties visible, see-through",
+        "P05 R+: 2 сигнал(ов) · слои 1·видимо + 4·дорисовывает · nipple outline, see-through",
+        "P06 R+: 2 сигнал(ов) · слои 1·видимо + 4·дорисовывает · nipple outline, see-through",
+        "P07 R+: 2 сигнал(ов) · слои 1·видимо + 4·дорисовывает · nipple outline, see-through",
+        "P08 R+: 2 сигнал(ов) · слои 1·видимо + 4·дорисовывает · nipple outline, see-through",
+        "P09 R+: 3 сигнал(ов) · слои 1·видимо + 4·дорисовывает · nipple outline, sheer, see-through",
+        "P10 R+: 2 сигнал(ов) · слои 1·видимо + 4·дорисовывает · panties visible, see-through",
+        "P12 R+: 2 сигнал(ов) · слои 1·видимо + 4·дорисовывает · panties visible, see-through",
+        "P13 R+: 2 сигнал(ов) · слои 1·видимо + 4·дорисовывает · nipple outline, see-through",
+        "P16 R+: 2 сигнал(ов) · слои 1·видимо + 4·дорисовывает · nipple outline, see-through",
+        "P19 R+: 4 сигнал(ов) · слои 1·видимо + 3·зачем + 4·дорисовывает · panties visible, garter belt, see-through, fanservice",
+        "P20 R+: 2 сигнал(ов) · слои 1·видимо + 4·дорисовывает · nipple outline, see-through",
+        "P21 R+: 2 сигнал(ов) · слои 1·видимо + 4·дорисовывает · nipple outline, see-through",
+        "P23 R+: 2 сигнал(ов) · слои 1·видимо + 4·дорисовывает · panties visible, see-through"
+      ]
+    },
+    {
+      "gate": "salience-chain",
+      "level": "warn",
+      "verdict": "WARN",
+      "findings": [
+        "салиенс-цепочка (§9-секста + §9-септима BLOCKER/LEGIBILITY/POSE-RISK, вердикт T4-05): 14 R+/X слотов, под угрозой 14 (≥2 порванных звеньев — провал звена роняет тир)",
+        "P04 R+: OBJECT ✗ · EXPOSURE ✓ · CAMERA ✓ (поза) · CONTRAST ? — нет ни светлой вещи, ни света на зоне · SALIENCE ✓ (№7) · INTERPRETATION ✗ (без подачи) · BLOCKER ✓ · LEGIBILITY ✗ (дистанция кадра) · POSE-RISK ✓ (MID) → 4 звена порваны: ПРОГНОЗ — тир под угрозой",
+        "P05 R+: OBJECT ✗ · EXPOSURE ✓ · CAMERA ✓ (поза) · CONTRAST ? — нет ни светлой вещи, ни света на зоне · SALIENCE ✓ (№10) · INTERPRETATION ✗ (без подачи) · BLOCKER ✓ · LEGIBILITY ✗ (дистанция кадра) · POSE-RISK ✓ (MID) → 4 звена порваны: ПРОГНОЗ — тир под угрозой",
+        "P06 R+: OBJECT ✗ · EXPOSURE ✓ · CAMERA ✓ (поза) · CONTRAST ? — нет ни светлой вещи, ни света на зоне · SALIENCE ✓ (№10) · INTERPRETATION ✗ (без подачи) · BLOCKER ✓ · LEGIBILITY ✗ (дистанция кадра) · POSE-RISK ✓ (MID) → 4 звена порваны: ПРОГНОЗ — тир под угрозой",
+        "P07 R+: OBJECT ✗ · EXPOSURE ✓ · CAMERA ✓ (поза) · CONTRAST ✓ · SALIENCE ✓ (№10) · INTERPRETATION ✗ (без подачи) · BLOCKER ✓ · LEGIBILITY ✓ (свет на зоне) · POSE-RISK ✓ (LOW) → 2 звена порваны: ПРОГНОЗ — тир под угрозой",
+        "P08 R+: OBJECT ✓ (panel) · EXPOSURE ✓ · CAMERA ✗ (поза) · CONTRAST ? — нет ни светлой вещи, ни света на зоне · SALIENCE ✓ (№8) · INTERPRETATION ✓ (half-lidded) · BLOCKER ✓ · LEGIBILITY ✗ (дистанция кадра) · POSE-RISK ✓ (MID) → 3 звена порваны: ПРОГНОЗ — тир под угрозой",
+        "P09 R+: OBJECT ✓ (flat) · EXPOSURE ✓ · CAMERA ✓ (поза) · CONTRAST ? — нет ни светлой вещи, ни света на зоне · SALIENCE ✓ (№10) · INTERPRETATION ✓ (half-lidded) · BLOCKER ✓ · LEGIBILITY ✗ (дистанция кадра) · POSE-RISK ✓ (MID) → 2 звена порваны: ПРОГНОЗ — тир под угрозой",
+        "P10 R+: OBJECT ✗ · EXPOSURE ✓ · CAMERA ✗ (поза) · CONTRAST ? — нет ни светлой вещи, ни света на зоне · SALIENCE ✓ (№10) · INTERPRETATION ✗ (без подачи) · BLOCKER ✓ · LEGIBILITY ✗ (дистанция кадра) · POSE-RISK ✓ (MID) → 5 звена порваны: ПРОГНОЗ — тир под угрозой",
+        "P12 R+: OBJECT ✓ (dress) · EXPOSURE ✗ (закрыта «dress») · CAMERA ✓ (поза) · CONTRAST ? — нет ни светлой вещи, ни света на зоне · SALIENCE ✓ (№8) · INTERPRETATION ✗ (без подачи) · BLOCKER ✓ · LEGIBILITY ✗ (дистанция кадра) · POSE-RISK ✓ (LOW) → 4 звена порваны: ПРОГНОЗ — тир под угрозой",
+        "P13 R+: OBJECT ✗ · EXPOSURE ✓ · CAMERA ✗ (поза) · CONTRAST ? — нет ни светлой вещи, ни света на зоне · SALIENCE ✓ (№11) · INTERPRETATION ✗ (без подачи) · BLOCKER ✓ · LEGIBILITY ✗ (дистанция кадра) · POSE-RISK ✓ (LOW) → 5 звена порваны: ПРОГНОЗ — тир под угрозой",
+        "P16 R+: OBJECT ✗ · EXPOSURE ✓ · CAMERA ✓ (поза) · CONTRAST ? — нет ни светлой вещи, ни света на зоне · SALIENCE ✓ (№9) · INTERPRETATION ✗ (без подачи) · BLOCKER ✓ · LEGIBILITY ✗ (дистанция кадра) · POSE-RISK ✓ (LOW) → 4 звена порваны: ПРОГНОЗ — тир под угрозой",
+        "P19 R+: OBJECT ✗ · EXPOSURE ✓ · CAMERA ✗ (поза) · CONTRAST ? — нет ни светлой вещи, ни света на зоне · SALIENCE ✓ (№8) · INTERPRETATION ✓ (extreme fanservice) · BLOCKER ✓ · LEGIBILITY ✗ (дистанция кадра) · POSE-RISK ✓ (LOW) → 4 звена порваны: ПРОГНОЗ — тир под угрозой",
+        "P20 R+: OBJECT ✓ (tee) · EXPOSURE ✓ · CAMERA ✓ (поза) · CONTRAST ? — нет ни светлой вещи, ни света на зоне · SALIENCE ✓ (№8) · INTERPRETATION ✗ (без подачи) · BLOCKER ✓ · LEGIBILITY ✗ (дистанция кадра) · POSE-RISK ✓ (LOW) → 3 звена порваны: ПРОГНОЗ — тир под угрозой",
+        "P21 R+: OBJECT ✗ · EXPOSURE ✓ · CAMERA ✗ (поза) · CONTRAST ? — нет ни светлой вещи, ни света на зоне · SALIENCE ✓ (№12) · INTERPRETATION ✓ (half-lidded) · BLOCKER ✓ · LEGIBILITY ✗ (дистанция кадра) · POSE-RISK ✓ (MID) → 4 звена порваны: ПРОГНОЗ — тир под угрозой",
+        "P23 R+: OBJECT ✗ · EXPOSURE ✗ (закрыта «skirt») · CAMERA ✗ (поза) · CONTRAST ? — нет ни светлой вещи, ни света на зоне · SALIENCE ✓ (№8) · INTERPRETATION ✗ (без подачи) · BLOCKER ✓ · LEGIBILITY ✗ (дистанция кадра) · POSE-RISK ✓ (MID) → 6 звена порваны: ПРОГНОЗ — тир под угрозой"
+      ]
+    }
+  ]
+}
