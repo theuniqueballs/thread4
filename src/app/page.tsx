@@ -154,6 +154,13 @@ function GlassTab() {
             )}
             {row('писец: последний черновик', asStr(glass.scribeLastDraft)?.slice(0, 10) || 'ещё не писал', glass.scribeLastDraft ? 'ok' : 'neutral')}
             {row('последняя проверка восстановления', asStr(glass.lastRecoveryCheck)?.slice(0, 10) || '—')}
+            {(() => {
+              const cycle = asRecord(glass.authorCycle)
+              const hours = cycle.hours
+              const label = hours == null ? asStr(cycle.note) || '—' : `${hours} ч`
+              const bad = hours != null && Number(hours) > 24
+              return row(`цикл автора (${asStr(cycle.slug) || '—'})`, label, bad ? 'bad' : 'ok')
+            })()}
             {row('граница чтения', asStr(glass.readBoundary) || '—')}
             {row('открытые долги', debts.length === 0 ? 'нет' : String(debts.length), debts.length === 0 ? 'ok' : 'bad')}
             {row('прошлые смерти', '3 — все пережиты из бандла/сейфа', 'neutral')}
