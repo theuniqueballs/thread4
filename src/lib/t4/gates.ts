@@ -312,10 +312,12 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
       if (/\b(milf|milfs)\b/i.test(s.pos)) {
         f.push(`P${s.position}: тег зрелости в POS («milf») — N30: зрелость только нарративом`)
       }
-      // XXX never
+      // XXX never — УЛУЧШЕНО (аудит V3): word-boundary вместо подстроки —
+      // «amusement» больше не рождает ложный «semen»
       const posLow = s.pos.toLowerCase()
       for (const t of XXX_SIGNALS) {
-        if (posLow.includes(t)) {
+        const re = new RegExp(`\\b${t.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, 'i')
+        if (re.test(posLow)) {
           f.push(`P${s.position}: XXX-сигнал в POS («${t.trim()}») — вечный потолок`)
           break
         }
