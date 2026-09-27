@@ -10,6 +10,7 @@ const TITLES: Record<string, string> = {
   taste: 'Вкус',
   facts: 'Рендерер-факты',
   forge: 'Кузница движков',
+  niche: 'Ниша (доктрина)',
 }
 
 const FILES: Record<string, string> = {
@@ -17,6 +18,7 @@ const FILES: Record<string, string> = {
   taste: 'TASTE.md',
   facts: 'RENDERER_FACTS.md',
   forge: 'ENGINE_FORGE.md',
+  niche: 'NICHE.md',
 }
 
 export async function GET(

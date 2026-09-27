@@ -251,6 +251,7 @@ const DOCS = [
   { id: 'taste', label: 'Вкус' },
   { id: 'facts', label: 'Рендерер-факты' },
   { id: 'forge', label: 'Кузница движков' },
+  { id: 'niche', label: 'Ниша' },
 ] as const
 
 function DocsTab() {
