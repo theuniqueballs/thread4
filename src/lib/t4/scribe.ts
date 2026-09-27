@@ -169,7 +169,7 @@ function goldenCorpusBlock(): string {
   const misses = corpus.entries.filter((e) => e.claim !== e.delivered)
   const missA = misses.find((e) => e.delivered === 'R') ?? misses[0]
   const missB = misses.find((e) => e !== missA && e.delivered !== missA?.delivered)
-  const picks = [exactRplus, missA, missB].filter(Boolean)
+  const picks = [exactRplus, missA, missB].filter((e): e is NonNullable<typeof e> => Boolean(e))
   if (picks.length === 0) return ''
   return (
     '\nREAL RENDER RECEIPTS — golden corpus (what PH actually sent, what the author SAW; learn the voice and the delivery logic, never the content):\n' +
@@ -493,12 +493,6 @@ function assembleBatch(
       if (slot.witness) spineParts.push(`witness: ${slot.witness}`)
       if (slot.ocTheme && slot.kind === 'OC') spineParts.push(`OC theme: ${slot.ocTheme}`)
       if (slot.targetChannel) spineParts.push(`REHAB target channel: ${slot.targetChannel} (добор по вердикту автора — сделай заявку этого канала_delivery главным сигналом кадра)`)
-      /* аренда движка (Issue #3): witness-noun идёт инструкцией в каждый слот */
-      for (const r of ctx.contract.engineRent ?? []) {
-        if (r.kind === 'witness-noun' && r.allow) {
-          spineParts.push(`RENT witness-noun: include exactly ONE of — ${r.allow.join(', ')}`)
-        }
-      }
       L.push(`Spine: ${spineParts.join(' · ')}`)
       L.push(`Stack: ${slot.carriers.map((x) => x.id).join(' + ')}`)
       L.push('POS:')

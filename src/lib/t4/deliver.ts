@@ -60,6 +60,7 @@ export function deliverBatch(slug: string): DeliverResult | null {
     theme?: string
     engine?: string
     slots?: { kind?: string; oc?: string; exploratory?: string; position: number }[]
+    spread?: { rating: string; count: number }[]
   }>(path.join(CONTRACTS_DIR, `${slug}.json`))
   const title = parsed.title || contract?.theme || slug
 
@@ -96,7 +97,7 @@ export function deliverBatch(slug: string): DeliverResult | null {
       .map((s) => `${s.rating}×${s.count}`)
       .join(' · ')
     wl.push(
-      `- Структура: ${contract?.slots.length ?? LAWS.slotsTotal} слот(ов) — ${spreadText || 'спред из контракта'}; расовый каст на мейнах, регистры третями.`
+      `- Структура: ${contract?.slots?.length ?? LAWS.slotsTotal} слот(ов) — ${spreadText || 'спред из контракта'}; расовый каст на мейнах, регистры третями.`
     )
     if (exploratory.length > 0) {
       wl.push(

@@ -65,6 +65,9 @@ export function buildReaperDraft(): ReaperDraft {
       })
     }
     if (c.status === 'live' && !(n >= 3 && ok > 0)) {
+      /* grace: каналы, рождённые живым вердиктом автора (contact-physics),
+         не судятся пока не наберут попыток — ребёнка не судят до цикла */
+      if (n === 0 && ok === 0 && (c.born || c.rehab)) continue
       items.push({
         kind: 'channel',
         id: c.id,
@@ -75,7 +78,8 @@ export function buildReaperDraft(): ReaperDraft {
     }
   }
 
-  /* --- движки: дебюты по сданным батчам (не компайлам) --- */
+  /* --- движки: с Issue #11 Q3 движки ОДНОРАЗОВЫЕ (пишутся под тему, --- */
+  /* --- утилизируются) — аудит библиотеки движков более не существует --- */
   const engines = getEngines()
   const deliveredEngines = new Set<string>()
   for (const b of delivered) {
@@ -88,14 +92,15 @@ export function buildReaperDraft(): ReaperDraft {
     if (c?.engine) lastDeliveredWithEngine.set(c.engine, b.slug)
   }
   for (const [key, e] of Object.entries(engines?.engines ?? {})) {
+    if ((e as { role?: string }).role === 'floor') continue
     const debuted = deliveredEngines.has(key)
     if (!debuted) {
       items.push({
         kind: 'engine',
         id: key,
-        status: 'не дебютировал (ни одного сданного батча)',
-        facts: `запись в engines.json есть, дебюта нет — «никакой записи без дебюта» нарушено самой записью`,
-        recommendation: `план дебюта (конкретный слот конкретного батча) ИЛИ отставка — решает автор; дебют только explicit-приказом или author_pin engine:${key}`,
+        status: 'запись в архиве библиотеки (эра библиотеки закрыта 2026-09-27)',
+        facts: 'движки теперь одноразовые per-theme — эта запись историческая, не кандидат на дебют',
+        recommendation: 'архив хранить как наследие; при нужде темы писец изобретает движок заново',
       })
       continue
     }
@@ -106,9 +111,9 @@ export function buildReaperDraft(): ReaperDraft {
       items.push({
         kind: 'engine',
         id: key,
-        status: `простаивает ${idle} сданных батчей (последний ${last})`,
-        facts: `порог драфта — ${reaperPolicy.unused_batches_to_draft ?? 4} батчей безаботья`,
-        recommendation: 'ротация вернёт сама, ИЛИ предложить автору драфт отставки',
+        status: `исторический движок, не используется с ${last}`,
+        facts: `эра одноразовых движков: ротации больше нет`,
+        recommendation: 'хранить как наследие эры библиотеки',
       })
     }
   }

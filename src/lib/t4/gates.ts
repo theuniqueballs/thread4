@@ -38,7 +38,7 @@ export interface GatesResult {
 /** Всего гейтов в прогоне (state-панель читает отсюда — одна истина).
  *  Залп 2: +1 warn (ab-single-variable) → 20. Issue #3: +1 warn (engine-rent) → 21.
  *  Вердикт автора «тема не раскрывается»: +1 warn (theme-presence) → 22. */
-export const GATES_TOTAL = 22
+export const GATES_TOTAL = 21
 
 /* ------------------------------------------------------------------ */
 /* Batch file parsing                                                  */
