@@ -1,6 +1,6 @@
-const sharp = require('sharp');
-const fs = require('fs');
-const path = require('path');
+import sharp from 'sharp';
+import fs from 'node:fs';
+import path from 'node:path';
 const src = 'upload/t4-08-imgs';
 const dst = 'upload/t4-08-imgs-small';
 fs.mkdirSync(dst, { recursive: true });
