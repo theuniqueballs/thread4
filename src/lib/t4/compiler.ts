@@ -25,7 +25,6 @@ import {
   allCarrierIds,
   getCarriers,
   getDeliveryStats,
-  getEngines,
   getFacts,
   getNicheArchetypes,
   getOCCanon,
@@ -146,8 +145,6 @@ export interface BatchContract {
   }
   /** Факты мира (Залп 3): платформа/экономика/доказанное — планируем с потерями */
   platform?: Record<string, unknown>
-  /** Аренда движка (Issue #3): машиночитаемые механизмы, читаемые гейтами и писцом */
-  engineRent?: import('./specs').EngineRent[]
   laws: Record<string, string | number>
 }
 
@@ -267,43 +264,25 @@ export function compileBatch(theme: string, options: CompileOptions = {}): Batch
   const carriers = getCarriers()
   const poses = getPoses()
   const palettes = getPalettes()
-  const engines = getEngines()
   const ocCanon = getOCCanon()
   const races = getRaces()
   const recipes = getRatingRecipes()
-  if (!carriers || !poses || !palettes || !engines || !ocCanon || !races || !recipes) {
+  if (!carriers || !poses || !palettes || !ocCanon || !races || !recipes) {
     throw new Error('specs not loaded — run the pool import first')
   }
 
   const usage = foldWindowUsage(state.windowSlugs)
 
-  /* engine: explicit override (сознательный дебют), else least-recently-used
-     среди ДЕБЮТИРОВАВШИХ (Залп 2 «Рефлекс», policy.engines: ротация по дебютам
-     — сданным батчам, не компайлам; недебютировавшие в авто-пул не попадают,
-     их дебют = explicit engine или author_pin engine:<key>). Issue #3: движки
-     с role='floor' (bespoke — общая аксиома) в ротации не участвуют. */
-  const engineEntries = Object.entries(engines.engines).filter(
-    ([, e]) => e.status !== 'retired' && e.role !== 'floor'
-  )
-  const usedEngines = new Set(
-    events
-      .filter((e: T4Event) => e.type === 'batch.compiled')
-      .map((e) => String(e.data?.engine ?? ''))
-  )
-  const deliveredEngines = new Set<string>()
-  for (const b of state.batches.filter((x) => x.deliveredAt)) {
-    const c = readJson<{ engine?: string }>(path.join(CONTRACTS_DIR, `${b.slug}.json`))
-    if (c?.engine) deliveredEngines.add(c.engine)
+  /* Одноразовые движки (3.2-традиция, вердикт автора Issue #11 Q3): движок
+     пишется писцом ПОД ТЕМУ на этапе спайна и утилизируется после батча.
+     Никакой библиотеки, ротации, дебютов и ренты — интерпретация темы живёт
+     один батч. Контракт несёт только намерение; закон появится в батче. */
+  const engineKey = 'per-theme'
+  const engine = {
+    status: 'per-theme',
+    first_batch: '',
+    law: 'одноразовый движок: писец выводит физический закон ТЕМЫ на этапе спайна; после батча утилизируется',
   }
-  const pinEngines = (options.authorPin ?? [])
-    .filter((p) => p.startsWith('engine:'))
-    .map((p) => p.slice('engine:'.length))
-  const debutPool = engineEntries.filter(([k]) => deliveredEngines.has(k))
-  const engineKey =
-    options.engine ??
-    pinEngines.find((k) => engines.engines[k]) ??
-    (debutPool.find(([k]) => !usedEngines.has(k)) ?? debutPool[0] ?? engineEntries[0])[0]
-  const engine = engines.engines[engineKey] ?? Object.values(engines.engines)[0]
 
   /* OC rotation: author orders first, then longest-rested actives */
   const activeOcs = Object.entries(ocCanon.ocs)
@@ -360,27 +339,7 @@ export function compileBatch(theme: string, options: CompileOptions = {}): Batch
     path.join(process.cwd(), 'thread4', 'specs', 'pools.json')
   )
   const poolsK: { id: string; name?: string }[] = poolsSpec?.sections?.kinetics_k ?? []
-  /* Залп 3 + Issue #3: аренда kinetics-lock — движок сужает пул кинетиков до
-     своих семей (heldhour: breath-and-lag). Диапазон, пустой в пуле (дыра
-     K-нумерации), не проглатывается — остаётся в аренде контракта как долг. */
-  const engineRent = engine.rent ?? []
-  const lock = engineRent.find((r) => r.kind === 'kinetics-lock') as
-    | { ranges?: number[][]; note?: string }
-    | undefined
-  let poolsKFiltered = poolsK
-  if (lock?.ranges) {
-    const inRange = (id: string): boolean => {
-      const n = parseInt(String(id).replace(/\D/g, ''), 10)
-      return lock.ranges!.some(([a, b]) => n >= a && n <= b)
-    }
-    poolsKFiltered = poolsK.filter((x) => inRange(x.id))
-    if (poolsKFiltered.length === 0) {
-      throw new Error(
-        `аренда ${engineKey}: kinetics-lock ${JSON.stringify(lock.ranges)} пуст в pools.json — движок не может дышать (смерть контейнера пула или дыра нумерации); ДЕЙСТВУЙ`
-      )
-    }
-  }
-  const kPool = lruPick(poolsKFiltered, usage.kinetics, rng)
+  const kPool = lruPick(poolsK, usage.kinetics, rng)
 
   /* carrier assignment helpers */
   const byClass = carriers.classes
@@ -708,7 +667,7 @@ export function compileBatch(theme: string, options: CompileOptions = {}): Batch
     theme,
     engine: engineKey,
     engineLaw: engine.law,
-    engineWhy: engineWhyText(engineKey, engine, engines),
+    engineWhy: 'одноразовый движок: писец выведет физический закон ТЕМЫ на этапе спайна (3.2-традиция — движок под тему, утилизация после батча)',
     seed,
     createdAt: new Date().toISOString(),
     spread: Object.entries(spreadMap).map(([rating, count]) => ({ rating, count })),
@@ -737,7 +696,6 @@ export function compileBatch(theme: string, options: CompileOptions = {}): Batch
         ? { platform: f.platform, economics: f.economics, proven: f.proven_facts, ph_behavior: f.ph_behavior }
         : undefined
     })(),
-    engineRent: engineRent.length > 0 ? engineRent : undefined,
     laws: {
       core4: 'R+/X слоты: 4 носителя из 4 механо-групп (FABRIC/BODY/POSITION/PHYSICS), ≥4 классов',
       wCapPct: LAWS.wCapPct,
@@ -785,13 +743,6 @@ export function compileBatch(theme: string, options: CompileOptions = {}): Batch
   return contract
 }
 
-function engineWhyText(key: string, engine: { status: string; first_batch: string }, spec: { open_seeds: string[] }): string {
-  const seeds = spec.open_seeds.length
-  return `Ротация движков: ${key} (${engine.status}, дебют ${engine.first_batch}). ` +
-    `Семена на подъёмной сетке: ${seeds}. Движок — мировой закон, который носится на теле; ` +
-    `тема автора ложится на его ось, NICHE-слоты несут невозможное, VOLT — плоть.`
-}
-
 /** Мейн-спред слотами (без OC): «R+×12 · R×7 · X×2». */
 export function mainsSpreadText(c: BatchContract): string {
   const m: Record<string, number> = {}
@@ -818,23 +769,6 @@ export function contractMarkdown(c: BatchContract): string {
   lines.push('')
   lines.push(c.engineWhy)
   lines.push('')
-
-  /* Аренда движка (Issue #3): механика, которую проверяют гейты */
-  if (c.engineRent && c.engineRent.length > 0) {
-    for (const r of c.engineRent) {
-      const allow = (r as { allow?: string[] }).allow
-      const ranges = (r as { ranges?: number[][] }).ranges
-      const note = (r as { note?: string }).note
-      const head =
-        r.kind === 'witness-noun'
-          ? `witness-noun [${(allow ?? []).join(' / ')}] — ровно один в POS`
-          : r.kind === 'kinetics-lock'
-            ? `kinetics-lock K${(ranges ?? []).map(([a, b]) => `${a}-${b}`).join(' ∪ K')}`
-            : r.kind
-      lines.push(`**Аренда · ${head}**${note ? ` — ${note}` : ''}`)
-    }
-    lines.push('')
-  }
 
   /* НИША-50: раскладка архетипов по слотам — писец драфтирует DEVICE, автор правит */
   const archSlots = c.slots.filter((s) => s.arch)

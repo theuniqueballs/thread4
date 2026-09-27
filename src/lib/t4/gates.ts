@@ -11,7 +11,7 @@ import path from 'node:path'
 
 import { BATCHES_DIR, CONTRACTS_DIR, readJson, readText } from './fsutil'
 import { appendEvent, foldState, readEvents } from './events'
-import { getBans, getCarriers, getEngines, getOCCanon, getRaces, getRatingRecipes, getRatingTechniques, type TechniqueEntry } from './specs'
+import { getBans, getCarriers, getOCCanon, getRaces, getRatingRecipes, getRatingTechniques, type TechniqueEntry } from './specs'
 import { LAWS } from './compiler'
 import { TIER_RANK as TIER_ORDER } from './verdicts'
 
@@ -1097,49 +1097,6 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
       }
     }
     warn('ab-single-variable', f)
-  }
-
-  /* ---------------- 9c. engine-rent (warn, Issue #3 Кенни) ---------------- */
-  {
-    const f: string[] = []
-    const contract = readJson<{
-      engine?: string
-      slots?: { position: number; kinetics?: string[] }[]
-    }>(path.join(CONTRACTS_DIR, `${batch.slug}.json`))
-    const eng = contract?.engine ? getEngines()?.engines[contract.engine] : null
-    const rent = (eng?.rent ?? []) as {
-      kind: string
-      allow?: string[]
-      ranges?: number[][]
-      count?: string
-    }[]
-    if (contract?.engine && rent.length === 0) {
-      f.push(`движок ${contract.engine} без аренды — механика не претендует (проверь: это тема или движок)`)
-    }
-    for (const r of rent) {
-      if (r.kind === 'witness-noun' && r.allow) {
-        for (const s of batch.slots) {
-          const hits = r.allow.filter((w) =>
-            new RegExp(`\\b${w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i').test(s.pos)
-          ).length
-          if (hits !== 1) {
-            f.push(`P${s.position}: witness-noun [${r.allow.join('/')}] найдено ${hits} (аренда требует ровно 1)`)
-          }
-        }
-      }
-      if (r.kind === 'kinetics-lock' && r.ranges) {
-        const inRange = (id: string): boolean => {
-          const n = parseInt(String(id).replace(/\D/g, ''), 10)
-          return r.ranges!.some(([a, b]) => n >= a && n <= b)
-        }
-        for (const s of contract.slots ?? []) {
-          for (const k of s.kinetics ?? []) {
-            if (!inRange(k)) f.push(`P${s.position}: кинетик ${k} вне аренды-лока движка ${contract.engine}`)
-          }
-        }
-      }
-    }
-    warn('engine-rent', f)
   }
 
   /* ---------------- 9d. theme-presence (warn, вердикт автора «тема не раскрывается») --- */
