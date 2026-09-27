@@ -27,6 +27,7 @@ import {
   getDeliveryStats,
   getEngines,
   getFacts,
+  getNicheArchetypes,
   getOCCanon,
   getPalettes,
   getPolicy,
@@ -106,6 +107,8 @@ export interface SlotPlan {
   pinned?: string[]
   /** rehab-добор (Залп 3): канал доставки, который этот слот пытается оживить */
   targetChannel?: string
+  /** НИША-50: архетип невозможного композиции (ротация без повторов в батче) */
+  arch?: string
 }
 
 export interface BatchContract {
@@ -567,6 +570,21 @@ export function compileBatch(theme: string, options: CompileOptions = {}): Batch
     })
   }
 
+  /* НИША-50 (вердикт автора): каждый NICHE-слот несёт ровно один архетип
+     невозможного композиции — ротация без повторов в батче */
+  {
+    const pool = getNicheArchetypes()?.archetypes ?? []
+    const nicheSlots = slots.filter((s) => s.kind === 'NICHE')
+    if (pool.length > 0 && nicheSlots.length > 0) {
+      rng
+        .shuffle(pool.map((a) => a.id))
+        .slice(0, nicheSlots.length)
+        .forEach((id, i) => {
+          nicheSlots[i].arch = id
+        })
+    }
+  }
+
   const spreadMap: Record<string, number> = {}
   for (const s of slots) spreadMap[s.rating] = (spreadMap[s.rating] ?? 0) + 1
 
@@ -815,6 +833,17 @@ export function contractMarkdown(c: BatchContract): string {
             : r.kind
       lines.push(`**Аренда · ${head}**${note ? ` — ${note}` : ''}`)
     }
+    lines.push('')
+  }
+
+  /* НИША-50: раскладка архетипов по слотам — писец драфтирует DEVICE, автор правит */
+  const archSlots = c.slots.filter((s) => s.arch)
+  if (archSlots.length > 0) {
+    lines.push(
+      `**НИША-ARCH** (пул 50, вердикт автора): ${archSlots
+        .map((s) => `P${String(s.position).padStart(2, '0')} → ${s.arch}`)
+        .join(', ')} — каждый слот открывает THESIS строкой «ARCH: <id> · DEVICE: <невозможное устройство кадра>».`
+    )
     lines.push('')
   }
 

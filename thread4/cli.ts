@@ -261,7 +261,7 @@ async function main() {
     // статa доставки (рекомендация Claude №2, external.review 2026-09-23;
     // v0.2.0 — вердикт T4-05: 13 → 18 каналов)
     const dstats = inv.find((s) => s.id === 'delivery-stats')
-    check('стата доставки в инвентаре (18 каналов, v0.4.0: T4-09 вердикт, rehab-кровь)', dstats?.count === 18 && dstats?.version === '0.4.0')
+    check('стата доставки в инвентаре (19 каналов, v0.5.0: contact-physics рождён, X изъят)', dstats?.count === 19 && dstats?.version === '0.5.0')
     {
       const { getRatingRecipes, getRatingTechniques, getDeliveryStats } = await import('../src/lib/t4/specs')
       const rt = getRatingTechniques()
@@ -447,6 +447,16 @@ async function main() {
         targets.length === (chPolicy.rehab_quota_per_batch ?? 0) &&
           targets.every((s) => rehab.includes(String(s.targetChannel)))
       )
+      // НИША-50 (вердикт автора): каждый NICHE-слот несёт архетип, ротация без повторов
+      const { getNicheArchetypes } = await import('../src/lib/t4/specs')
+      const archPool = getNicheArchetypes()?.archetypes ?? []
+      const arches = c1.slots.filter((s) => s.arch).map((s) => s.arch)
+      check(
+        'НИША-50: пул архетипов ≥50, все NICHE-слоты несут ARCH без повторов',
+        archPool.length >= 50 && arches.length === c1.slots.filter((s) => s.kind === 'NICHE').length &&
+          new Set(arches).size === arches.length
+      )
+      check('X-слоты изъяты из плана (вердикт «эччи > порно»)', c1.slots.filter((s) => s.rating === 'X').length === 0)
     }
 
     // Issue #3 Кенни: аренда движков — bespoke пол, у трёх движков rent

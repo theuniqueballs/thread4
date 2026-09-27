@@ -460,6 +460,24 @@ export function getGoldenCorpus(): GoldenCorpusSpec | null {
   return load<GoldenCorpusSpec>('golden-corpus.json')
 }
 
+export interface NicheArchetype {
+  id: string
+  name: string
+  hint: string
+}
+
+export interface NicheArchetypesSpec {
+  id: string
+  version: string
+  archetypes: NicheArchetype[]
+}
+
+/** НИША-50 (вердикт автора 2026-09-27): пул архетипов невозможного
+ *  композиции — NICHE-слот несёт ровно один ARCH, ротация без повторов. */
+export function getNicheArchetypes(): NicheArchetypesSpec | null {
+  return load<NicheArchetypesSpec>('niche-archetypes.json')
+}
+
 export function allCarrierIds(spec: CarrierSpec): Carrier[] {
   return Object.values(spec.classes).flat()
 }

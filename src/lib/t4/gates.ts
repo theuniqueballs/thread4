@@ -36,8 +36,9 @@ export interface GatesResult {
 }
 
 /** Всего гейтов в прогоне (state-панель читает отсюда — одна истина).
- *  Залп 2: +1 warn (ab-single-variable) → 20. Issue #3: +1 warn (engine-rent) → 21. */
-export const GATES_TOTAL = 21
+ *  Залп 2: +1 warn (ab-single-variable) → 20. Issue #3: +1 warn (engine-rent) → 21.
+ *  Вердикт автора «тема не раскрывается»: +1 warn (theme-presence) → 22. */
+export const GATES_TOTAL = 22
 
 /* ------------------------------------------------------------------ */
 /* Batch file parsing                                                  */
@@ -1139,6 +1140,30 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
       }
     }
     warn('engine-rent', f)
+  }
+
+  /* ---------------- 9d. theme-presence (warn, вердикт автора «тема не раскрывается») --- */
+  {
+    const f: string[] = []
+    const text = readText(path.join(BATCHES_DIR, `${batch.slug}.md`)) ?? ''
+    const kwLine = /^ТЕМА-СЛОВА:\s*(.+)$/m.exec(text)
+    if (!kwLine) {
+      f.push('в батче нет строки ТЕМА-СЛОВА — тема не меряется (спайн писца обязан вывести из темы)')
+    } else {
+      const kws = kwLine[1]
+        .split(',')
+        .map((s) => s.trim().toLowerCase())
+        .filter(Boolean)
+      const withTheme = batch.slots.filter((s) =>
+        kws.some((k) => s.pos.toLowerCase().includes(k) || s.thesis.toLowerCase().includes(k))
+      )
+      if (withTheme.length < Math.ceil(batch.slots.length * 0.6)) {
+        f.push(
+          `тему несут ${withTheme.length}/${batch.slots.length} слотов (нужно ≥60%) — слова: ${kws.join(', ')}; тема живёт в кадрах, не в шапке`
+        )
+      }
+    }
+    warn('theme-presence', f)
   }
 
   /* ---------------- 9. simcheck (warn) ---------------- */

@@ -25,6 +25,7 @@ import {
   getBans,
   getCarriers,
   getGoldenCorpus,
+  getNicheArchetypes,
   getOCCanon,
   getPalettes,
   getPoses,
@@ -81,6 +82,9 @@ interface ScribeCtx {
   kNames: Map<string, { name: string; light: string }>
   batchThesis: string
   acts: string[]
+  /** ТЕМА-СЛОВА (верdict автора «тема не раскрывается»): слова, обязанные
+   *  появляться в тег-ранах слотов — спайн выводит из темы. */
+  themeKeywords: string[]
 }
 
 /* ------------------------------------------------------------------ */
@@ -259,6 +263,15 @@ function slotFrame(slot: SlotPlan, ctx: ScribeCtx): string {
   lines.push(`register: ${slot.register} — voice in prose ONLY, never tags`)
   lines.push(`closer: end the POS prose as a ${slot.closer} — ${closerHint(slot.closer)}`)
   if (slot.witness) lines.push(`witness: the ${slot.witness} — one object that holds the frame's law`)
+  if (slot.kind === 'NICHE' && slot.arch) {
+    const archMeta = getNicheArchetypes()?.archetypes.find((a) => a.id === slot.arch)
+    lines.push(
+      `ARCH (НИША, вердикт автора): ${slot.arch} ${archMeta?.name ?? ''} — ${archMeta?.hint ?? ''}\nTHESIS LAW: the THESIS MUST OPEN with "ARCH: ${slot.arch} · DEVICE: <one concrete impossible composition device for THIS frame>" — the DEVICE is the genre's claim: the picture must be impossible as COMPOSITION (framing/objects/scale), not as anatomy; erotica is allowed but is not the focus`
+    )
+  }
+  if (ctx.themeKeywords.length > 0) {
+    lines.push(`theme word for THIS slot (weave into tags or prose naturally): ${ctx.themeKeywords[slot.position % ctx.themeKeywords.length]}`)
+  }
   if (recipe) {
     const hardSignals = recipe.signals_hard ?? []
     lines.push(`REQUIRED rating signals — include ≥${recipe.signal_min} of these IN THE TAG BLOCK (before the environment tags): ${recipe.signals.slice(0, 14).join(', ')}`)
@@ -426,6 +439,10 @@ function assembleBatch(
   L.push('')
   L.push(ctx.batchThesis.trim())
   L.push('')
+  if (ctx.themeKeywords.length > 0) {
+    L.push(`ТЕМА-СЛОВА: ${ctx.themeKeywords.join(', ')}`)
+    L.push('')
+  }
   L.push('ЖАНРЫ (легенда — вердикт T4-02: жанр обязан быть виден): **OC** — канон-локи персонажа, тема в слоте; **NICHE** — невозможный образ: раса делает ФИЗИЧЕСКУЮ работу в кадре, свидетель держит кадр, невозможное — первое считывание силуэта; **VOLT** — плоть: камера-участник, тело в движении, взгляд-вектор, экспозиция тегом; **EXQUISITE** — ультра своего жанра.')
   const mains = c.slots.filter((s) => s.kind !== 'OC')
   const spread: Record<string, number> = {}
@@ -628,10 +645,15 @@ export async function scribeBatch(
   const spineRaw = await chat(
     zai,
     systemPrompt(),
-    `BATCH ${slug} «${theme}». ENGINE LAW: ${engine}\n\nPlan the batch spine. The theme rides the engine's axis and stays there. Return EXACTLY, nothing else:\nTITLE: <2-5 words, no quotes inside>\nTHESIS: <one paragraph, 90-140 words: the batch's ONE law, physical and testable in-frame, how it is delivered across the 24 frames, and how the three acts escalate it — no narrated morality, the law lives in fabric and silhouette>\nACT I: <act name, 2-5 words>\nACT II: <act name>\nACT III: <act name>`,
+    `BATCH ${slug} «${theme}». THE THEME IS THE LAW: the whole batch must READ as "${theme}" — every slot carries a piece of it. ENGINE LAW: ${engine}\n\nPlan the batch spine. Return EXACTLY, nothing else:\nTITLE: <2-5 words, no quotes inside>\nTHEME-KEYWORDS: <5-8 English tag-safe words from the THEME itself — objects, places, states, materials that can appear inside tags and prose (NOT style words)>\nTHESIS: <one paragraph, 90-140 words: the batch's ONE law, physical and testable in-frame, how the THEME (not the engine) is delivered across the 24 frames, and how the three acts escalate it>\nACT I: <WIDE sub-theme name, 2-5 words — each act must hold VERY different pictures>\nACT II: <WIDE sub-theme name>\nACT III: <WIDE sub-theme name>`,
     log
   )
   const title = (/^TITLE:\s*(.+)$/m.exec(spineRaw)?.[1] ?? theme).replace(/^["«]|["»]$/g, '').trim().slice(0, 80) || theme
+  ctx.themeKeywords = (/^THEME-KEYWORDS:\s*(.+)$/m.exec(spineRaw)?.[1] ?? '')
+    .split(',')
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean)
+    .slice(0, 8)
   const thesisP = (/^THESIS:\s*\n?([\s\S]*?)(?=\nACT I:|$)/m.exec(spineRaw)?.[1] ?? '').trim()
   ctx.batchThesis = thesisP || `The batch's law: ${engine}`
   ctx.acts = [
@@ -647,7 +669,7 @@ export async function scribeBatch(
   for (let i = 0; i < contract.slots.length; i += chunkSize) {
     chunks.push(contract.slots.slice(i, i + chunkSize))
   }
-  const batchLawBlock = `BATCH ${slug} «${title}» — theme: ${theme}\nENGINE LAW: ${engine}\nBATCH THESIS (yours, keep it): ${ctx.batchThesis}\nGENRE PLAN: ${contract.slots.filter((s) => s.kind === 'NICHE').length} NICHE (R) · ${contract.slots.filter((s) => s.kind === 'VOLT' || s.kind === 'EXQUISITE').length} VOLT/EXQUISITE (R+ incl. 3 OC) · 2 X`
+    const batchLawBlock = `BATCH ${slug} «${title}» — theme: ${theme}\nENGINE LAW: ${engine}\nBATCH THESIS (yours, keep it): ${ctx.batchThesis}\nTHEME-KEYWORDS (weave ≥1 into EVERY slot's tags or prose — the theme must be VISIBLE in the frame, not in the header): ${ctx.themeKeywords.join(', ') || '—'}\nGENRE PLAN: ${contract.slots.filter((s) => s.kind === 'NICHE').length} NICHE (R) · ${contract.slots.filter((s) => s.kind === 'VOLT' || s.kind === 'EXQUISITE').length} VOLT/EXQUISITE (R+ incl. 3 OC) · ${contract.slots.filter((s) => s.rating === 'X').length} X`
 
   for (let ci = 0; ci < chunks.length; ci++) {
     const chunk = chunks[ci]
