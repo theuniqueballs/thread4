@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "born": "2026-09-19",
   "source": "3.2 OC_CANON.yaml (THREAD 3.0 format, canon v1.7.1)",
-  "canon_version": "2.0.0",
+  "canon_version": "2.1.0",
   "usage_policy": "Tarot / element / zodiac fields below are REGISTRY DATA for the author's own\nseries (Rider-Waite-style card prompts, zodiac prompts). They are NOT batch\nmaterial. Without the author's explicit per-request direction, NO card, sign,\nor ability symbolism may appear in any batch prompt — not in POS, not in NEG,\nnot in theses, palettes, or prompt naming. Batch prompts use the OC's\nAPPEARANCE and origin-continuity motifs only. Card/zodiac assignments stay\nhere so the author can look them up for HIS series.",
   "selection_rule": "────────────────────────────────────────────────────\nPer session: author selects 3 of the 16 active OCs by vibe/theme fit.\nNo forced rotation schedule — author's call each time.",
   "ocs": {
@@ -365,41 +365,48 @@
       "element": "SPORE (assistant-assigned, pending author veto) — what grows where the rain stayed",
       "zodiac": "free sign at promotion (assistant-assigned, pending author veto)",
       "birth": "promoted from T4-11 P14 'mushroom-kin-spin-whirl' (author verdict 2026-09-27, Issue #11: «Очень красивая девочка... забрать девчонку в OC_Canon, дать ей имя из трёх букв»). Name from amanita; alternatives weighed: Uma, Nym",
-      "hair": "cap-frill at the crown replacing hair — layered mushroom-cap frill, pale tan with faint lavender gill lines underneath; no human hair",
-      "eyes": "deep violet eyes, wide with surprise, faint spore-glint in low light",
-      "skin": "pale lavender skin, soft matte, faint spore-freckles along the shoulders that glow faint in low light",
+      "hair": "long flowing lavender-white hair, waist-length, drifting like spores in water — under it, a large white-lavender mushroom cap worn as a wide hat, lavender gill lines underneath",
+      "eyes": "deep violet eyes, wide with wonder, faint spore-glint",
+      "skin": "pale lavender-white skin, soft matte, small spore-marks on the cheek",
       "body_type": "soft and slight; rain-sag comfort — clothes worn like after a warm storm",
       "signature_marks": [
-        "cap-frill crown with pale tan gill lines (T4-11 P14)",
-        "spore-freckles glowing faint at the shoulders and collarbone (T4-11 P14)"
+        "large white-lavender mushroom cap worn as a wide hat, gill lines lavender (рендер T4-12 калибровка)",
+        "long flowing lavender-white hair, waist-length (рендер: канон = рендер)",
+        "small spore-marks on the cheek (рендер)",
+        "faint glowing spore-trails drifting around her in rain (рендер)"
       ],
-      "emotional_register": "wonder first — surprise that blooms instead of frightening; the girl who finds the impossible cozy",
-      "anti_shield": "long flowing human hair, black hair, blonde hair, red hair, human ears, wings, tail, antennae, dark skin, tan skin, no cap-frill, no spore-freckles",
+      "emotional_register": "wonder first — she meets the impossible mid-spin and calls it cozy; the girl the rain follows",
+      "anti_shield": "dark hair, black hair, brunette, short hair only, no mushroom cap, small cap-frill only, dry sweater, bra, warm skin, tan skin, dark skin, human ears",
       "neg_additions": "human hair, long hair, wings, tail, antennae",
       "render_receipts": [
-        "T4-11 P14 (R+ delivered; author: «Очень красивая девочка, прикольная картинка»)"
-      ]
+        "T4-11 P14 (R+ delivered; author: «Очень красивая девочка, прикольная картинка»)",
+        "T4-12 калибровка (рендер: mid-spin whirl в дождю, white wet sheer sweater, nipples through, длинные лавандово-белые волосы + большая шляпка — канон = рендер, вердикт автора «очень круто и красиво»)"
+      ],
+      "wardrobe_policy": "signature: white wet sheer sweater, tight, wide neckline slipped, braless — the rain-soaked sweater is her uniform; sleeve pushed up, cuff button missing"
     },
     "Ila": {
       "name": "Ila",
       "tarot": "free at promotion (assistant-assigned 2026-09-27, pending author veto) — the guardian at rest after the routine",
       "element": "STONE-ICE (assistant-assigned, pending author veto) — гранит, которому тепло от выступления",
       "zodiac": "free sign (assistant-assigned, pending author veto)",
-      "birth": "promoted from T4-09 P21 'gargoyle-sweat-release' (EXQUISITE, R+ delivered; автор: «очень красивая девушка, просто богиня, реально» — отмечена в вердикте как пропущенная канонизация, 2026-09-27)",
-      "hair": "silver-frost hair swept back from the forehead, short-cropped like a statue wind-carved",
-      "eyes": "ice-pale eyes, half-lidded with post-performance calm, vertical pupils",
-      "skin": "glacier-white skin with ice-crystal highlights, cold to the touch but warm at the joints",
+      "birth": "promoted from T4-11 P17 'goat-kin-photo-frame' (NICHE N05 eye-worm — «самый лучший промпт за батч», единственная полная читаемость ниши; канонизация = рендер, 2026-09-27). Первичная запись ошибочно указывала gargoyle/T4-09 P21 — исправлено калибровкой рендера",
+      "hair": "silver-white hair, long, loose waves falling past the shoulders",
+      "eyes": "wide mist-white eyes, pale iris, the look of someone mid-air",
+      "skin": "pale fog skin, soft matte",
       "body_type": "athletic stone-kin build; strong thighs; the leotard line carved like architecture",
       "signature_marks": [
-        "small stone horns rough-textured, ribbed (T4-09 P21)",
-        "stone patches at the forearms like veined marble (T4-09 P21)"
+        "small ribbed-curved goat horns at the temples (рендер T4-11 P17)",
+        "long drooping goat ears with pink inner (рендер)",
+        "signature inverted framing — the eye-worm camera turns the world upside down around her"
       ],
-      "emotional_register": "serene, post-effort stillness; a guardian who performs and then rests without apology",
-      "anti_shield": "warm skin, tan skin, dark skin, human ears, soft round horns, wings, tail, bright warm palettes, blonde hair, red hair",
+      "emotional_register": "mid-air weightless — fluid, erotic motion without effort; the girl who is calm inside the flip",
+      "anti_shield": "warm skin, tan skin, dark skin, human ears only without drooping goat ears, straight standing poses only, heavy armor, bright warm palettes, blonde hair, red hair",
       "neg_additions": "human ears, round human ears, warm color palette",
       "render_receipts": [
-        "T4-09 P21 (R+ delivered; «очень красивая девушка, просто богиня, реально»)"
-      ]
+        "T4-09 P21 (R+ delivered; «очень красивая девушка, просто богиня, реально»)",
+        "T4-12 калибровка (рендер: инвертированный eye-worm ракурс, jump-rope arc, white sports bra + underwear, ribbed horns + drooping goat ear — канон = рендер)"
+      ],
+      "wardrobe_policy": "signature: white sports bra + matching underwear, fabric straining under momentum — athletic minimalism; jump-rope as her prop (dance dip + rope arc)"
     }
   },
   "inactive_reserve": {
