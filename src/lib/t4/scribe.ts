@@ -124,6 +124,10 @@ GENRES — the author must see the difference at a glance:
 - EXQUISITE: the ultra of its genre — extremity with dignity.
 
 HARD STYLE RULES:
+- TITLE IS THEME (вердикт автора 2026-09-27): the batch title IS the author's theme — never rename, never re-brand. The machine derives acts and keywords FROM the theme, not around it.
+- POSITIVE OC MARKER: every POS begins "anime style, original character, ..." — the original character tag defends against danbooru character drift (ram_(re:zero), aurora_(arknights) receipts).
+- PROSE PEOPLE LAW (T4-11 P18 receipt): prose NEVER references other people — no his jacket, no someone's hands, no male silhouettes. Solo means ALONE; objects and the world are her only company.
+- ARTIST BAN: never include artist names or "by <artist>" tags anywhere (T4-11 P06 receipt: artist tag ruined the render).
 - POS budget: ~230-300 words, never above 380. Density, not sprawl.
 - Hedges (maybe, perhaps, slightly, almost, sort of, kind of, a bit): at most 2 per POS.
 - Maturity is NEVER a tag: "adult woman", "mature female", "milf" are FORBIDDEN in POS. Maturity is a voice in prose only (a student's economy vs a woman's patience).
@@ -216,8 +220,8 @@ function canonTagHints(oc: OCLocks): string {
   const marks = Array.isArray(oc.signature_marks) ? (oc.signature_marks as unknown[]).map(String) : []
   const shield = Array.isArray(oc.anti_shield) ? (oc.anti_shield as unknown[]).map(String) : []
   return [
-    `hair: ${String(oc.hair ?? '')}`,
-    `eyes: ${String(oc.eyes ?? '')}`,
+    `hair: ${String(oc.hair ?? '')} — VERBATIM into the first 10 tokens of the tag block (canon colors are law: no drift, no human defaults)`,
+    `eyes: ${String(oc.eyes ?? '')} — VERBATIM into the tag block, same early position`,
     `skin: ${String(oc.skin ?? '')}`,
     marks.length ? `signature marks (carry as tags): ${marks.slice(0, 5).join(' | ')}` : '',
     shield.length ? `anti-drift (put these in NEG-EXTRA): ${shield.slice(0, 10).join(', ')}` : '',
@@ -230,7 +234,7 @@ function paletteLine(p: Palette | undefined): string {
   if (!p) return '—'
   const dom = (p.dominant ?? []).slice(0, 3).join(', ')
   const acc = [...(p.accent1 ?? []), ...(p.accent2 ?? []), ...(p.accent ?? [])].slice(0, 2).join(', ')
-  return `${p.name} (dominants: ${dom}${acc ? `; §51 accent: ${acc}` : ''}${p.light_type ? `; light: ${p.light_type}` : ''})`
+  return `${p.name} (dominants: ${dom}${acc ? `; §51 accent: ${acc}` : ''}${p.light_type ? `; light: ${p.light_type}` : ''}) — palette colors go into the garment/fabric tags VERBATIM (colored fabrics, never default white — вердикт автора: «делай разноцветно, раньше ж работало»)`
 }
 
 function raceLine(race: Race | undefined, raceFeature: string | undefined): string {
@@ -283,7 +287,10 @@ function slotFrame(slot: SlotPlan, ctx: ScribeCtx): string {
     )
   }
   if (ctx.themeKeywords.length > 0) {
-    lines.push(`theme word for THIS slot (weave into tags or prose naturally): ${ctx.themeKeywords[slot.position % ctx.themeKeywords.length]}`)
+    const k1 = ctx.themeKeywords[slot.position % ctx.themeKeywords.length]
+    const k2 = ctx.themeKeywords[(slot.position + Math.floor(ctx.themeKeywords.length / 2)) % ctx.themeKeywords.length]
+    const words = k2 && k2 !== k1 ? `${k1} AND ${k2}` : k1
+    lines.push(`theme words for THIS slot (weave into tags or prose naturally — the THEME is what the frame is ABOUT): ${words}`)
   }
   if (recipe) {
     const hardSignals = recipe.signals_hard ?? []
@@ -428,6 +435,12 @@ function normalizePos(pos: string, slot: SlotPlan, ctx: ScribeCtx): string {
     .replace(/,\s*\./g, '.')
     .replace(/^\s*,\s*/, '')
     .trim()
+  // U1 (вердикт автора 2026-09-27): original character — в позитив каждого
+  // слота. Рендерер не матчит данбуру-персонажей, когда тег заявляет
+  // оригинальность (ram_(re:zero), aurora_(arknights) —receipts)
+  if (!/(^|,\s*)original character/i.test(p)) {
+    p = p.replace(/^([^,]+,\s*)/, '$1original character, ')
+  }
   if (!/anime style/i.test(p)) {
     p = `${recipeOpener(ctx.recipes, slot.rating)}, ${p}`
   }
@@ -657,7 +670,7 @@ export async function scribeBatch(
   const spineRaw = await chat(
     zai,
     systemPrompt(),
-    `BATCH ${slug} «${theme}». THE THEME IS THE LAW.\n\nInvent a ONE-BATCH ENGINE for this theme (3.2-традиция, одноразовый): a physical law SPECIFIC to this theme that bends fabric, light, physics and wardrobe in every frame — not a generic style. The engine lives for this batch only. Return EXACTLY, nothing else:\nENGINE: <2-4 words, name of the engine>\nLAW: <1-2 sentences: the physical law and how the wardrobe obeys it>\nTITLE: <2-5 words, no quotes inside>\nTHEME-KEYWORDS: <5-8 English tag-safe words from the THEME itself — objects, places, states, materials that can appear inside tags and prose (NOT style words)>\nTHESIS: <one paragraph, 90-140 words: the batch's ONE law, physical and testable in-frame, how the THEME (not the engine) is delivered across the 24 frames, and how the three acts escalate it>\nACT I: <WIDE sub-theme name, 2-5 words — each act must hold VERY different pictures>\nACT II: <WIDE sub-theme name>\nACT III: <WIDE sub-theme name>`,
+    `BATCH ${slug} «${theme}». THE THEME IS THE LAW.\n\nInvent a ONE-BATCH ENGINE for this theme (3.2-традиция, одноразовый): a physical law SPECIFIC to this theme that bends fabric, light, physics and wardrobe in every frame — not a generic style. The engine lives for this batch only. Return EXACTLY, nothing else:\nENGINE: <2-4 words, name of the engine>\nLAW: <1-2 sentences: the physical law and how the wardrobe obeys it>\nTHEME-KEYWORDS: <5-8 English tag-safe words from the THEME itself — objects, places, states, materials that can appear inside tags and prose (NOT style words)>\nTHESIS: <one paragraph, 90-140 words: the batch's ONE law, physical and testable in-frame, how the THEME (not the engine) is delivered across the 24 frames, and how the three acts escalate it>\nACT I: <WIDE sub-theme name, 2-5 words — each act must hold VERY different pictures>\nACT II: <WIDE sub-theme name>\nACT III: <WIDE sub-theme name>`,
     log
   )
   const engineName = (/^ENGINE:\s*(.+)$/m.exec(spineRaw)?.[1] ?? 'per-theme').trim().slice(0, 60)
@@ -679,7 +692,9 @@ export async function scribeBatch(
     .map((s) => s.trim().toLowerCase())
     .filter(Boolean)
     .slice(0, 8)
-  const title = (/^TITLE:\s*(.+)$/m.exec(spineRaw)?.[1] ?? theme).replace(/^["«]|["»]$/g, '').trim().slice(0, 80) || theme
+  /* TITLE IS THEME (вердикт автора 2026-09-27: «меняется название темы» —
+     больше никогда): название батча = тема автора, без переименований */
+  const title = theme
   const thesisP = (/^THESIS:\s*\n?([\s\S]*?)(?=\nACT I:|$)/m.exec(spineRaw)?.[1] ?? '').trim()
   ctx.batchThesis = thesisP || `The batch's law: ${ctx.engineLaw}`
   ctx.acts = [

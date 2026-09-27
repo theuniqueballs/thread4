@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "born": "2026-09-19",
   "source": "3.2 OC_CANON.yaml (THREAD 3.0 format, canon v1.7.1)",
-  "canon_version": "1.9.0",
+  "canon_version": "2.0.0",
   "usage_policy": "Tarot / element / zodiac fields below are REGISTRY DATA for the author's own\nseries (Rider-Waite-style card prompts, zodiac prompts). They are NOT batch\nmaterial. Without the author's explicit per-request direction, NO card, sign,\nor ability symbolism may appear in any batch prompt — not in POS, not in NEG,\nnot in theses, palettes, or prompt naming. Batch prompts use the OC's\nAPPEARANCE and origin-continuity motifs only. Card/zodiac assignments stay\nhere so the author can look them up for HIS series.",
   "selection_rule": "────────────────────────────────────────────────────\nPer session: author selects 3 of the 16 active OCs by vibe/theme fit.\nNo forced rotation schedule — author's call each time.",
   "ocs": {
@@ -73,9 +73,12 @@
         "small gemstone earrings on the fox ears"
       ],
       "anti_shield": "perked fox ears, upright fox ears, human ears, gold slit pupils, warm tan skin, athletic build, platinum hair, silver hair without white base, tail, golden tail, fox tail, fluffy tail",
-      "neg_additions": "tail, golden tail, fox tail, fluffy tail",
+      "neg_additions": "human ears, round human ears, short ears, upright ears",
       "id": "sol",
-      "active": true
+      "active": true,
+      "render_receipts": [
+        "T4-11 P03 (R delivered; автор: уши нарисовались человеческими — NEG усилен 2026-09-27)"
+      ]
     },
     "Noa": {
       "name": "Noa",
@@ -376,6 +379,27 @@
       "render_receipts": [
         "T4-11 P14 (R+ delivered; author: «Очень красивая девочка, прикольная картинка»)"
       ]
+    },
+    "Ila": {
+      "name": "Ila",
+      "tarot": "free at promotion (assistant-assigned 2026-09-27, pending author veto) — the guardian at rest after the routine",
+      "element": "STONE-ICE (assistant-assigned, pending author veto) — гранит, которому тепло от выступления",
+      "zodiac": "free sign (assistant-assigned, pending author veto)",
+      "birth": "promoted from T4-09 P21 'gargoyle-sweat-release' (EXQUISITE, R+ delivered; автор: «очень красивая девушка, просто богиня, реально» — отмечена в вердикте как пропущенная канонизация, 2026-09-27)",
+      "hair": "silver-frost hair swept back from the forehead, short-cropped like a statue wind-carved",
+      "eyes": "ice-pale eyes, half-lidded with post-performance calm, vertical pupils",
+      "skin": "glacier-white skin with ice-crystal highlights, cold to the touch but warm at the joints",
+      "body_type": "athletic stone-kin build; strong thighs; the leotard line carved like architecture",
+      "signature_marks": [
+        "small stone horns rough-textured, ribbed (T4-09 P21)",
+        "stone patches at the forearms like veined marble (T4-09 P21)"
+      ],
+      "emotional_register": "serene, post-effort stillness; a guardian who performs and then rests without apology",
+      "anti_shield": "warm skin, tan skin, dark skin, human ears, soft round horns, wings, tail, bright warm palettes, blonde hair, red hair",
+      "neg_additions": "human ears, round human ears, warm color palette",
+      "render_receipts": [
+        "T4-09 P21 (R+ delivered; «очень красивая девушка, просто богиня, реально»)"
+      ]
     }
   },
   "inactive_reserve": {
@@ -426,5 +450,5 @@
     "2026-09-25 (T4-05 OC re-render receipt, author order «пофикси мне Ana»): Ana anti_shield/neg_additions extended — fairy/butterfly/large/transparent wings, full-body scales, tail family, blonde/golden hair defaults. Hair and gold-leaf skin must sit EARLY in the tag run (the old prompt carried them only in the face lock — the tail of the run renders weak). Canon v1.7.2 → v1.7.3.",
     "2026-09-25 (author order, chat): Ana v1.8.0 — CANON = THE RENDER. Blonde hair with cyan-teal streaks, large glossy obsidian eyes, teal crystal horns, head fin-fans, large translucent cyan wings, gold-teal scale fields (exclusive), finned tail. The v1.7.3 receipt-laws are reversed: those «violations» were the author intent. Hair/scale tags stay EARLY in the tag run."
   ],
-  "note_on_status": "18 ACTIVE OCs (3 drawn per session by author vibe/theme fit, no forced rotation). Rae and Iya are INACTIVE RESERVE (added accidentally, never used, bios retained). SP-registry characters (Nicole, Puppet/Valentine, Ereshkigal/Tito_Lopes) live in download/SP_ORDERS.md, never in OC canon."
+  "note_on_status": "19 ACTIVE OCs (3 drawn per session by author vibe/theme fit, no forced rotation). Rae and Iya are INACTIVE RESERVE (added accidentally, never used, bios retained). SP-registry characters (Nicole, Puppet/Valentine, Ereshkigal/Tito_Lopes) live in download/SP_ORDERS.md, never in OC canon."
 }

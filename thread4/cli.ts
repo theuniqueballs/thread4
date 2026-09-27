@@ -15,6 +15,8 @@ import { compileBatch, contractMarkdown } from '../src/lib/t4/compiler'
 import { runGates, parseBatch } from '../src/lib/t4/gates'
 import { deliverBatch } from '../src/lib/t4/deliver'
 import { scribeBatch } from '../src/lib/t4/scribe'
+import fs from 'node:fs'
+import path from 'node:path'
 import { appendEvent, bootstrapChain, foldState, healChainTail, readEvents, verifyChain } from '../src/lib/t4/events'
 import { getDeliveryStats, getPolicy, specInventory } from '../src/lib/t4/specs'
 import { buildReaperDraft } from '../src/lib/t4/reaper'
@@ -220,6 +222,63 @@ async function main() {
     console.log(`reaper: ${draft.items.length} претендент(ов) — драфт записан в ${file}`)
     for (const it of draft.items) console.log(`  [${it.kind}] ${it.id} — ${it.status}`)
     console.log('выстрел за автором (§10): по каждому пункту — дебют, подтверждение или отставка')
+    return
+  }
+
+  if (cmd === 'corpus') {
+    /* Corpus 2.0 (U6): очередь взглядов автора → кураторство ритуалом.
+       corpus               — показать очередь
+       corpus take <N>      — кандидат N → golden-corpus (author_note = взгляд)
+       corpus drop <N>      — кандидат N → мусор */
+    const qPath = path.join(process.cwd(), 'thread4', 'corpus-queue.jsonl')
+    const queue = fs.existsSync(qPath)
+      ? fs
+          .readFileSync(qPath, 'utf8')
+          .split('\n')
+          .filter(Boolean)
+          .map((l, i) => ({ n: i + 1, ...(JSON.parse(l) as Record<string, unknown>) }))
+      : []
+    const act = process.argv[3]
+    if (!act) {
+      for (const q of queue) console.log(`  ${q.n}. [${q.slug}] (${q.source}) ${String(q.prose).slice(0, 90)}`)
+      console.log(`очередь: ${queue.length} — take <N> в корпус, drop <N> в мусор`)
+      return
+    }
+    const num = parseInt(process.argv[4] ?? '', 10)
+    const entry = queue.find((q) => q.n === num)
+    if (!entry) {
+      console.error(`corpus: кандидата №${process.argv[4]} нет в очереди`)
+      process.exit(1)
+    }
+    if (act === 'take') {
+      const cPath = path.join(process.cwd(), 'thread4', 'specs', 'golden-corpus.json')
+      const corpus = JSON.parse(fs.readFileSync(cPath, 'utf8'))
+      corpus.entries.push({
+        slot: String(entry.slug ?? '') + (entry.position ? ' ' + String(entry.position) : ''),
+        claim: String(entry.verdict ?? ''),
+        delivered: String(entry.verdict ?? ''),
+        author_note: String(entry.prose ?? ''),
+        ph_text: '(author-vision: PH-текст слота см. в батче)',
+      })
+      corpus.version = `${Math.floor(parseFloat(String(corpus.version)) + 1)}.0.0`.replace(/^1\./, '1.')
+      fs.writeFileSync(cPath, JSON.stringify(corpus, null, 2) + '\n')
+      appendEvent(
+        'spec.imported',
+        `Corpus 2.0: взгляд автора по ${entry.slug} уходит в золотой корпус (очередь ${queue.length} → ${queue.length - 1})`,
+        { spec: 'golden-corpus', version: corpus.version }
+      )
+      const rest = queue.filter((q) => q.n !== num)
+      fs.writeFileSync(qPath, rest.map((q) => JSON.stringify(q)).join('\n') + (rest.length ? '\n' : ''))
+      console.log(`corpus: взят (всего записей: ${corpus.entries.length})`)
+      return
+    }
+    if (act === 'drop') {
+      const rest = queue.filter((q) => q.n !== num)
+      fs.writeFileSync(qPath, rest.map((q) => JSON.stringify(q)).join('\n') + (rest.length ? '\n' : ''))
+      console.log(`corpus: кандидат №${num} выброшен (осталось ${rest.length})`)
+      return
+    }
+    console.error('usage: corpus | corpus take <N> | corpus drop <N>')
     return
   }
 

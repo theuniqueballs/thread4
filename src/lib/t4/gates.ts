@@ -36,9 +36,10 @@ export interface GatesResult {
 }
 
 /** Всего гейтов в прогоне (state-панель читает отсюда — одна истина).
- *  Залп 2: +1 warn (ab-single-variable) → 20. Issue #3: +1 warn (engine-rent) → 21.
- *  Вердикт автора «тема не раскрывается»: +1 warn (theme-presence) → 22. */
-export const GATES_TOTAL = 21
+ *  Залп 2: +1 warn (ab-single-variable). Вердикт автора 2026-09-27:
+ *  +1 warn (theme-presence), -1 engine-rent (движки одноразовые),
+ *  +1 warn (garment-family, U8 «осторожно») → 22. */
+export const GATES_TOTAL = 22
 
 /* ------------------------------------------------------------------ */
 /* Batch file parsing                                                  */
@@ -1123,6 +1124,19 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
     warn('theme-presence', f)
   }
 
+  /* ---------------- 9e. garment-family (warn, U8 «внедрить, но осторожно») --- */
+  {
+    const f: string[] = []
+    const FAMILY = /\b(lingerie|stockings?|garter belt|panties|thong|bra(?!less)|lace)\b/i
+    const lingerieSlots = batch.slots.filter((s) => FAMILY.test(s.pos))
+    if (lingerieSlots.length > Math.ceil(batch.slots.length * 0.58)) {
+      f.push(
+        `бельё-семья монополизирует батч: ${lingerieSlots.length}/${batch.slots.length} слотов несут lingerie/stockings/garter — вердикт автора «дохуя белья с чулками»; разнообразь семьи одежды (forma/верхняя/спорт/домашнее), эротика не обязана быть бельём`
+      )
+    }
+    warn('garment-family', f)
+  }
+
   /* ---------------- 9. simcheck (warn) ---------------- */
   {
     const f: string[] = []
@@ -1376,7 +1390,9 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
         `салиенс-цепочка (§9-секста + §9-септима BLOCKER/LEGIBILITY/POSE-RISK, вердикт T4-05): ${f.length} R+/X слотов, под угрозой ${atRisk} (≥2 порванных звеньев — провал звена роняет тир)`
       )
     }
-    advisory('salience-chain', f)
+    /* U7 (вердикт автора 2026-09-27 «похуй, делаем»): салиенс — прогноз
+       доставки, подтверждён T4-11 (11/14 под угрозой → R+ 5/14) → warn */
+    warn('salience-chain', f)
   }
 
   /* ---------------- receipt + event ---------------- */
