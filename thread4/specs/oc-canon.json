@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "born": "2026-09-19",
   "source": "3.2 OC_CANON.yaml (THREAD 3.0 format, canon v1.7.1)",
-  "canon_version": "1.8.0",
+  "canon_version": "1.9.0",
   "usage_policy": "Tarot / element / zodiac fields below are REGISTRY DATA for the author's own\nseries (Rider-Waite-style card prompts, zodiac prompts). They are NOT batch\nmaterial. Without the author's explicit per-request direction, NO card, sign,\nor ability symbolism may appear in any batch prompt — not in POS, not in NEG,\nnot in theses, palettes, or prompt naming. Batch prompts use the OC's\nAPPEARANCE and origin-continuity motifs only. Card/zodiac assignments stay\nhere so the author can look them up for HIS series.",
   "selection_rule": "────────────────────────────────────────────────────\nPer session: author selects 3 of the 16 active OCs by vibe/theme fit.\nNo forced rotation schedule — author's call each time.",
   "ocs": {
@@ -355,6 +355,27 @@
       "render_receipts": "2026-09-25: the author rendered the T4-05 OC slot and CANONIZED THE RESULT («мне понравилось именно то, что я в итоге увидел на картинке»). The blonde-default, fairy-wing mutation, tail spawn and spread scales are NO LONGER violations — they are the canon. v1.7.3 anti-drift REVERSED by author order; canon v1.8.0 = the render itself. Hair and scale tags still ride EARLY in the tag run.",
       "id": "ana",
       "active": true
+    },
+    "Ama": {
+      "name": "Ama",
+      "tarot": "XVII — The Star (assistant-assigned 2026-09-27, pending author veto) — the bloom after rain; spores as stars",
+      "element": "SPORE (assistant-assigned, pending author veto) — what grows where the rain stayed",
+      "zodiac": "free sign at promotion (assistant-assigned, pending author veto)",
+      "birth": "promoted from T4-11 P14 'mushroom-kin-spin-whirl' (author verdict 2026-09-27, Issue #11: «Очень красивая девочка... забрать девчонку в OC_Canon, дать ей имя из трёх букв»). Name from amanita; alternatives weighed: Uma, Nym",
+      "hair": "cap-frill at the crown replacing hair — layered mushroom-cap frill, pale tan with faint lavender gill lines underneath; no human hair",
+      "eyes": "deep violet eyes, wide with surprise, faint spore-glint in low light",
+      "skin": "pale lavender skin, soft matte, faint spore-freckles along the shoulders that glow faint in low light",
+      "body_type": "soft and slight; rain-sag comfort — clothes worn like after a warm storm",
+      "signature_marks": [
+        "cap-frill crown with pale tan gill lines (T4-11 P14)",
+        "spore-freckles glowing faint at the shoulders and collarbone (T4-11 P14)"
+      ],
+      "emotional_register": "wonder first — surprise that blooms instead of frightening; the girl who finds the impossible cozy",
+      "anti_shield": "long flowing human hair, black hair, blonde hair, red hair, human ears, wings, tail, antennae, dark skin, tan skin, no cap-frill, no spore-freckles",
+      "neg_additions": "human hair, long hair, wings, tail, antennae",
+      "render_receipts": [
+        "T4-11 P14 (R+ delivered; author: «Очень красивая девочка, прикольная картинка»)"
+      ]
     }
   },
   "inactive_reserve": {
@@ -405,5 +426,5 @@
     "2026-09-25 (T4-05 OC re-render receipt, author order «пофикси мне Ana»): Ana anti_shield/neg_additions extended — fairy/butterfly/large/transparent wings, full-body scales, tail family, blonde/golden hair defaults. Hair and gold-leaf skin must sit EARLY in the tag run (the old prompt carried them only in the face lock — the tail of the run renders weak). Canon v1.7.2 → v1.7.3.",
     "2026-09-25 (author order, chat): Ana v1.8.0 — CANON = THE RENDER. Blonde hair with cyan-teal streaks, large glossy obsidian eyes, teal crystal horns, head fin-fans, large translucent cyan wings, gold-teal scale fields (exclusive), finned tail. The v1.7.3 receipt-laws are reversed: those «violations» were the author intent. Hair/scale tags stay EARLY in the tag run."
   ],
-  "note_on_status": "16 ACTIVE OCs (3 drawn per session by author vibe/theme fit, no forced rotation). Rae and Iya are INACTIVE RESERVE (added accidentally, never used, bios retained). SP-registry characters (Nicole, Puppet/Valentine, Ereshkigal/Tito_Lopes) live in download/SP_ORDERS.md, never in OC canon."
+  "note_on_status": "18 ACTIVE OCs (3 drawn per session by author vibe/theme fit, no forced rotation). Rae and Iya are INACTIVE RESERVE (added accidentally, never used, bios retained). SP-registry characters (Nicole, Puppet/Valentine, Ereshkigal/Tito_Lopes) live in download/SP_ORDERS.md, never in OC canon."
 }
