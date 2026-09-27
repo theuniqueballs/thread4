@@ -133,7 +133,7 @@ function GlassTab() {
         {loading ? (
           <SkeletonBlock lines={6} />
         ) : error ? (
-          <p className="text-xs text-rose-400">state не читается: {error.message}</p>
+          <p className="text-xs text-rose-400">state не читается: {typeof error === "string" ? error : (error as { message?: string }).message ?? "—"}</p>
         ) : (
           <div>
             {row(
