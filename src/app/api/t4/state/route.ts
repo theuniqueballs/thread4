@@ -60,6 +60,21 @@ export async function GET() {
         events
           .filter((e) => e.type === 'note' && e.summary.includes('VAULT'))
           .at(-1)?.at ?? null,
+      /* Метрика 4.2 (ответ автора Q10/Q12): сколько времени жрёт система у
+         автора. Цикл = batch.delivered → последний вердикт по этому слагу.
+         Цель: 1.5 часа творчества — настройка нас не должна её превышать. */
+      authorCycle: (() => {
+        const delivered = events.filter((e) => e.type === 'batch.delivered').at(-1)
+        if (!delivered) return null
+        const slug = String(delivered.data?.slug ?? '')
+        const last = events
+          .filter((e) => e.type === 'render.verdict' && String(e.data?.slug ?? '') === slug)
+          .at(-1)
+        if (!last) return { slug, hours: null, note: 'вердиктов ещё нет — цикл не замкнут' }
+        const hours =
+          Math.round(((new Date(last.at).getTime() - new Date(delivered.at).getTime()) / 3600000) * 10) / 10
+        return { slug, hours }
+      })(),
       /* Issue #2 + #5 Кенни: доверенная граница чтения — объявлена, а не молчит.
          Слои границы: (1) dev слушает 127.0.0.1 (-H в package.json);
          (2) Caddyfile перед Next — XTransformPort зажат до 3000 (Issue #5),

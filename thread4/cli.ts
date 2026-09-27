@@ -459,14 +459,13 @@ async function main() {
       check('X-слоты изъяты из плана (вердикт «эччи > порно»)', c1.slots.filter((s) => s.rating === 'X').length === 0)
     }
 
-    // Issue #3 Кенни: аренда движков — bespoke пол, у трёх движков rent
+    // Одноразовые движки (вердикт автора Issue #11 Q3): per-theme вместо библиотеки
     {
       const { getEngines } = await import('../src/lib/t4/specs')
       const engines = getEngines()
-      check('bespoke = пол (role floor), не участник ротации', engines?.engines.bespoke?.role === 'floor')
       check(
-        'аренда сформулирована: limen/heldhour/glamour-tax имеют rent',
-        ['limen', 'heldhour', 'glamour-tax'].every((k) => (engines?.engines[k]?.rent?.length ?? 0) > 0)
+        'движки одноразовые: контракт per-theme, engines.json — архив с арендой-наследием',
+        c1.engine === 'per-theme' && Boolean(engines?.engines)
       )
       let confThrew = false
       try { appendEvent('render.verdict', 'T4-99: author probe', { source: 'author' }) } catch { confThrew = true }
