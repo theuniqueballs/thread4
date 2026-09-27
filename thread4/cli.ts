@@ -318,7 +318,7 @@ async function main() {
     }
     check(
       `mains spread из policy (R${mainsR}/R+${law.rplusMains}/X${law.xSlots})`,
-      mainsSpread['R'] === mainsR && mainsSpread['R+'] === law.rplusMains && mainsSpread['X'] === law.xSlots
+      mainsSpread['R'] === mainsR && mainsSpread['R+'] === law.rplusMains && (mainsSpread['X'] ?? 0) === law.xSlots
     )
     const allSpread = Object.fromEntries(c1.spread.map((s) => [s.rating, s.count]))
     /* поведение-рефлекс (policy.channels): oc-rplus dead (0/9) → OC-слоты R,
@@ -333,7 +333,7 @@ async function main() {
     const expectedAllR = mainsR + (ocRplusDead ? law.ocSlots : 0)
     check(
       `all-slot spread из policy (R${expectedAllR}/R+${expectedAllRplus}/X${law.xSlots})`,
-      allSpread['R'] === expectedAllR && allSpread['R+'] === expectedAllRplus && allSpread['X'] === law.xSlots
+      allSpread['R'] === expectedAllR && allSpread['R+'] === expectedAllRplus && (allSpread['X'] ?? 0) === law.xSlots
     )
     check('24 distinct poses', new Set(c1.slots.map((s) => s.pose)).size === 24)
     check('24 distinct palettes', new Set(c1.slots.map((s) => s.palette)).size === 24)
