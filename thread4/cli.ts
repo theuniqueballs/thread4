@@ -535,7 +535,7 @@ async function main() {
     process.exit(fail === 0 ? 0 : 1)
   }
 
-  console.log('commands: seed | compile "theme" [engine] [oc1,oc2,oc3] [--pin x,y] | recompile T4-NN "theme" | scribe T4-NN | check T4-NN | gates T4-NN | deliver T4-NN | void T4-NN "reason" | state | chain | verify [--heal] | reaper | grep-gate | selftest')
+  console.log('commands: seed | compile "theme" [engine] [oc1,oc2,oc3] [--pin x,y] | recompile T4-NN "theme" | scribe T4-NN | check T4-NN | gates T4-NN | deliver T4-NN | void T4-NN "reason" | state | chain | verify [--heal] | reaper | grep-gate | corpus | selftest')
 }
 
 main().catch((e) => {
