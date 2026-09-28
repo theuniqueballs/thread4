@@ -1288,3 +1288,191 @@ Stage Summary:
   система = память + гейты, письмо = человек. Компилятор не запускался
   ни на одном шаге T4-15.
 - nextStep: рендер автора → приёмник (жанр/вау) → вердикт; T4-16 ждёт.
+
+---
+Task ID: 2-b
+Agent: Explore (scribe/reaper auditor)
+Task: RESEARCH-ONLY cross-check of thread4/NICHE.md (doctrine v1.1) against
+scribe.ts / reaper.ts / verdicts.ts / events.ts / batch-verdict route /
+page.tsx intake — 17 claims, verdicts + file:line evidence, no code changes.
+
+Work Log:
+- Read worklog tail (DOC-NICHE-1/2/3, REC-2026-09-28-FRED, T4-15-HANDMADE)
+  for context: NICHE.md v1.1 dated 2026-09-27; Fred removed the DEVICE block
+  from scribe.ts 2026-09-28 (commit 51db60e) — AFTER the doctrine was written.
+- Read NICHE.md fully (§А-§У, 597 lines) and all targets: scribe.ts (819),
+  reaper.ts (156), verdicts.ts (26), events.ts (412); located the real intake
+  (reaper.ts is NOT intake — it drafts retirements; intake = /api/t4/batch-
+  verdict/route.ts + page.tsx «Приёмник батча»); checked compiler.ts
+  SlotPlan/arch/witness assignment, gates.ts (structure hard, niche-legibility,
+  theme-presence), vlm.ts/vlm route, delivery-stats.json, niche-archetypes.json
+  (50 = N01–N50 confirmed), events log (note fc229e49 = NICHE LAW v2 manifest
+  by Z User; task's «e04f» is actually a T4-10 batch.void, e04f3b08), live
+  batches T4-08/11/12/13/14/15 (THESIS: T4-11 = ARCH·DEVICE, T4-12+ =
+  ARCH·LAW·PROOF — formula switch confirmed in vivo).
+- Verdicted all 17 claims (see audit report): 10 CONFIRMED, 1 CONFIRMED-with-
+  correction, 2 PARTIAL, 2 DIVERGED, 1 NOT-FOUND, 1 CONFIRMED-GAP.
+
+Stage Summary:
+- Doctrine-to-code verdicts: §К verbatim SYSTEM_PROMPT quote — CONFIRMED
+  (scribe.ts:122, intact). POS budget 230–300/380 — CONFIRMED (scribe.ts:131).
+  Hedges ≤2 — CONFIRMED (scribe.ts:132). Slot header format — CONFIRMED
+  (scribe.ts:491 = doc's P07 example byte-for-byte vs T4-08:88). Legend in
+  batch header — CONFIRMED (scribe.ts:472, machine-assembled). Slot frame
+  compiler-assigned — CONFIRMED (SlotPlan + slotFrame). THEME-KEYWORDS +
+  ≥60% — CONFIRMED (scribe.ts:671/711/287-292 + gates.ts:1105-1127).
+- KEY DIVERGENCES (bug-reports to doctrine author per doc's own rule):
+  (1) §У-1/§Р THESIS LAW «ARCH: N## · DEVICE: …» is STALE — code instructs
+  «ARCH · LAW · PROOF» (scribe.ts:278), DEVICE block removed 51db60e; and no
+  gate checks THESIS format at all (doc claims «гейты проверяют»). (2) §К
+  presents the SYSTEM_PROMPT genre line as «инструкция писца для ниши» while
+  the operative NICHE instruction is now the per-slot NICHE LAW v2 manifest
+  (scribe.ts:274-281: THE WORLD DOES SOMETHING / species=physics / FIVE
+  KILLERS / remove-the-girl test / WITNESS LAW) — doctrine never mentions it.
+  (3) genreRead/wow + nicheReport — CONFIRMED but in batch-verdict route, not
+  reaper; nicheReport OPTIONAL (undefined when author skips the columns) —
+  undocumented optionality; EXQUISITE ultra-NICHE slots get NO genre/wow UI
+  (page.tsx:2173 gates on kind==='NICHE'). (4) Growth-loop gap confirmed:
+  intake collects no ARCH/DEVICE/killer data — nicheReport = {position,
+  genreRead, wow} only; delivery-stats has zero niche channels; compiler
+  assigns arch by blind shuffle — §Н «petlya pending» still true in code.
+- No code changes made (research-only); this worklog entry is the only edit.
+
+---
+Task ID: 2-a
+Agent: Explore (gates/compiler auditor)
+Task: RESEARCH-ONLY cross-check of thread4/NICHE.md (doctrine) against gates.ts / compiler.ts / scribe.ts / policy.json — 20 numbered claims, verdicts + evidence.
+
+Work Log:
+- Read worklog.md last 3 sections (REC-2026-09-28-FRED, T4-14, T4-15-HANDMADE) for context; NICHE.md v1.1 in full (597 ln).
+- Read gates.ts (1450 ln) fully; compiler.ts (910 ln) fully; scribe.ts (820 ln) fully; policy.json, bans.json; specs.ts loaders; events.ts (window = last 3 delivered).
+- Counted gates: 22 unconditional (6 hard: structure/floors/rating-recipe/canon/diversity/window; 13 warn; 3 advisory) + 1 conditional (rating-recipe-exploratory) — GATES_TOTAL=22 matches; theme-presence emits #16, not literally 22nd.
+- Verified niche-archetypes.json = 50 (N01–N50); races.json = 26; witness pools match doc §Е (15) in both compiler and gates.
+- Compared THESIS formats across batches T4-11 (ARCH·DEVICE) vs T4-12…T4-15 (ARCH·LAW·PROOF); found stale DEVICE formula still emitted by compiler.ts:779 into contracts/batches.
+- Traced budget numbers through 4 sources (scribe prompt 380 / bans.json 400 / policy.json 400 / doc 380); traced hedges semantics (distinct-word count vs occurrence count).
+- Confirmed by-hand mode (T4-12/13/15) has no code path: contracts/T4-15.json "assembled": "by-hand" is an extra field no code reads.
+
+Stage Summary:
+- Verdicts: 9 CONFIRMED (1,3,6,7,9,11,12,14,15) · 8 PARTIAL (2,4,5,10,13,17,18,20) · 2 DIVERGED (8,16) · 1 NOT-FOUND (19).
+- Key divergences: (a) THESIS LAW — doctrine teaches «ARCH: N## · DEVICE:», code/batches canonized ARCH·LAW·PROOF since T4-12, no gate validates either, and compiler.ts:779 still prints the dead DEVICE formula; (b) «verbatim из доктрины» legend is hardcoded (3 drifting variants: scribe.ts:472, compiler.ts:817, hand-made T4-12/15); (c) niche-legibility race AND witness checks fire only when the contract assigned a race (race is random 10/21, no niche bias — «ниша — главный потребитель рас» not implemented); (d) POS ceiling 380 (doc+scribe) vs 400 (policy+bans+gate), warn-only; (e) simcheck is warn-only, not «warn/hard»; (f) no gate ties NICHE ARCH/DEVICE to the batch theme; (g) by-hand assembly (current author mandate) absent from both code and doctrine.
+- Bug-report-worthy extras: witness check coupled to raceName (gates.ts:727), simcheck intra-batch position mislabeling (sentence index → slot), GATES_TOTAL undercounts the conditional exploratory receipt, budget numbers duplicated across 2 specs + prompt, EXQUISITE 0..4 clamp lives in code not policy (П-2), archetype rotation has no cross-batch memory, vestigial engine-rent spec data (engines.json/EngineRent types) survives its removal.
+
+---
+Task ID: 2-d
+Agent: Explore (batches/canon auditor)
+Task: RESEARCH-ONLY cross-check of thread4/NICHE.md (doctrine v1.1) against live
+batches T4-08..T4-15, CONSTITUTION.md, TASTE.md (root + thread4), RENDERER_FACTS.md,
+events log and specs — 20 claims, verdict + file:line evidence, no file edits.
+
+Work Log:
+- Read worklog (last 3 sections: DOC-NICHE/2-3, REC-FRED, T4-15-HANDMADE) for context.
+- Read NICHE.md fully (597 lines, А-Т + У), CONSTITUTION.md fully (371 lines, §1-§12),
+  RENDERER_FACTS.md fully, both TASTE.md, T4-08 (header + P05/P07/P12/P23), T4-11
+  (header + P10/P12/P17 + slot map), T4-15 (header + all 7 NICHE slots P04/P08/P10/
+  P13/P16/P20/P23), T4-12/13/14 headers + NICHE slot headers + THESIS lines, T4-09 header.
+- Verified verbatim quotes: T4-08 P07 (THESIS/tag-block/NEG/closer), P05 THESIS;
+  T4-11 P10 ARCH line, P17 N05 eye-worm; header ДВИЖОК/ТЕМА-СЛОВА lines.
+- Grepped: NICHE slot counts per batch (T4-09..15 all =7, 24 slots); ARCH ids in
+  T4-11..15 THESIS (all distinct, N01-N50 pool, niche-archetypes.json = 50 entries);
+  "THE WORLD DOES SOMETHING" (0 in NICHE.md; in T4-12/13/15); "код и закон не
+  расходятся молча" (0 hits repo-wide); receipts N27-P15/Н18 9.2/10 (TASTE.md,
+  legacy/MINED-TASTE-3.2.md S008, log.jsonl:4); policy.json v1.2.0 (rplusMains=14,
+  xSlots=0); constitution §5 four moves (English) vs doc §Г (Russian "дословно");
+  §9-секста race phrase vs doc §Ж attribution; legend lines across all batches;
+  T4-08 P07 witness tag absence (prose-only "window pane"); T4-13 contract-vs-batch
+  DEVICE/LAW·PROOF inconsistency; OC tier drift R+→R (T4-09+).
+
+Stage Summary:
+- Verdicts: 11 CONFIRMED, 7 PARTIAL, 1 DIVERGED, 1 nested NOT-FOUND (13d: genre
+  tokens undefined in TASTE). Golden slot T4-08 P07 is 100% verbatim vs doctrine §П
+  (THESIS, tag block, NEG shield, closer, witness prose) — but its witness is
+  prose-only, violating §Е's own "tag AND work" rule.
+- Key divergences (doctrine stale vs practice): (1) THESIS format evolved ARCH·DEVICE
+  (T4-11) → ARCH·LAW·PROOF (T4-12+, scribe fix 51db60e) — NICHE.md §У-1/§Р still
+  teach DEVICE; (2) genre legend in T4-12/13/15 replaced by NICHE LAW v2 "THE WORLD
+  DOES SOMETHING" (Z User GLM 5.3, log:147) — wording exists NOWHERE in NICHE.md,
+  and T4-14 (machine) regressed to the old legend; (3) OC slots dropped R+→R from
+  T4-09 on — §В/§Б still say R+; (4) "X×0" never printed in any batch header (X term
+  just dropped); (5) §В contradicts itself (line 85 still shows pre-T4.2 R+×12·R×7·
+  X×2 below the v1.1 R+×14·R×7·X×0 edit); (6) §Г's "дословно" four moves are a
+  translation of §5's English, not a quote; §Ж mis-attributes the race law to T4-05
+  (it's §9-секста, ChatGPT external review); §10 phrase "код и закон не расходятся
+  молча" exists nowhere; (7) doctrine's live example T4-11 P10 was author-judged
+  genreRead=no/wow=no («прикольно, но не ниша нихуя»); (8) §Д/§Ф PH claim "tags
+  survive better than prose" contradicted by RENDERER_FACTS RF-002 (tag-run NOT
+  PH-resistant).
+- Solid consistencies: 7-NICHE×R×24-slot skeleton held in every batch T4-09..15;
+  ARCH rotation without repeats; witnesses all from the 15-pool; race ≥2 feature
+  tags + mechanism + witness tag/prose in T4-15 raced NICHE slots; renderer naming
+  "Tsubaki.2 Pro → Yadayo" exact; TASTE receipts all present; timeline T4.2
+  (T4-11 first ARCH) clean.
+
+---
+Task ID: 2-c
+Agent: Explore (specs auditor)
+Task: RESEARCH-ONLY cross-check of thread4/NICHE.md (doctrine v1.1) against spec JSONs + consuming code (specs.ts/compiler.ts/gates.ts/scribe.ts/reaper.ts/batch-verdict route) — 18 claims, verdicts with file:line receipts.
+
+Work Log:
+- Read worklog last sections (DOC-NICHE/2, DOC-NICHE/3, REC-FRED, T4-15) for context; read NICHE.md fully (§А-Т, §У-1-4).
+- Read specs: niche-archetypes, policy, races, rating-recipes, engines, delivery-stats, oc-canon (python-validated counts/IDs/statuses); pools.json section map (no witness section); engines-archive.jsonl (2 lines).
+- Traced consumption: specs.ts (getNicheArchetypes/getEngines loaders), compiler.ts (skeleton, WITNESS_TYPES const, lruPick + foldWindowUsage window=last-3-delivered, arch shuffle+slice, exquisite clamp, race slots random), gates.ts (structure hard genre-token, niche-legibility warn + WITNESS_WORDS, theme-presence 0.6 in code, GATES_TOTAL 22, no ARCH gate), scribe.ts (per-theme engine + archive append; ARCH·LAW·PROOF formula), reaper.ts (engines = heritage, era closed 2026-09-27), api/t4/batch-verdict (nicheReport write), events/log.jsonl (spec.imported versions; 2 nicheReports: T4-09 0/7 genreRead, T4-11 1/7).
+- Checked contracts T4-09..T4-15 (engine fields, arch/witness), batches T4-11 (P10/P17/P22 ARCH lines), T4-12/13/15 (one-off engine headers), chain 179/179.
+
+Stage Summary:
+- Verdicts: 5 CONFIRMED (claims 1,3,4,5,6), 10 PARTIAL (2,7,9,10,11,12,13,15,16,18), 1 DIVERGED (8), 2 NOT-FOUND (14,17).
+- Key divergences: (a) §З conflates PG13 recipe fields ("state nouns ≥2", "outfit IS the claim", typical_genres [NICHE, VOLT-light]) with the R tier — actual R: "state nouns >= 3", typical_genres [VOLT]; (b) scribe.ts formula is now ARCH·LAW·PROOF (2026-09-28, canonized T4-12/13) — NICHE.md v1.1 still teaches ARCH·DEVICE; (c) §Ж "ниша берёт рас больше всех" encoded NOWHERE — compiler assigns races to 10 random main slots, genre-blind; (d) §В internal contradiction: leftover line "R+×12 · R×7 · X×2" vs T4.2 "R+×14/X×0"; OC slots currently downshift to R (oc-rplus dead 0/9) — real spread R×10+R+×14; (e) engines-archive holds only scribe-path engines (T4-11, T4-14); hand-built T4-12 WONDER-CALL, T4-13 EVENT HORIZON, T4-15 COSMIC DICE missing; (f) witness pool lives in compiler.ts/gates.ts code, not pools.json (triple-homed doctrine); witness receipt race-gated (!witnessHit && raceName); (g) no ARCH/DEVICE gate at all (proof: T4-11 P22 VOLT slot carried ARCH N24 duplicate, passed); no cross-batch archetype rotation; (h) oc-canon 19 active (18 stale; selection_rule says 16); (i) growth loop unmeasurable: nicheReport captured but zero aggregation (niche-channels still absent, contact-physics live 0/0 confirmed); (j) stale texts: rating-recipes default_spread R7/RP12/X2 vs policy v1.2.0; policy.engines rotation section vs one-off verdict; compiler comment+md "X — 2 слота"; N23 "MECHANICAL_Ballet" casing bug; engines.json has no deprecation marker (reaper labels it heritage).
+- Recommendation queue (bug reports to author, no edits made): NICHE.md v1.2 needed (§В line 85, §З tier attribution, §У-1 DEVICE→ARCH·LAW·PROOF, §Ж race-priority wording); policy.engines section cleanup; rating-recipes default_spread resync; witness pool → pools.json + unconditional witness receipt; arch window/aggregation if author approves niche-channels.
+
+---
+Task ID: 2
+Agent: Super Z (main) — Фред
+Task: Максимальный аудит NICHE.md (доктрина Кенни) по приказу автора: «найти все
+возможные пробелы, докопаться до каждой мелочи, прогнать всё по всем аспектам на
+максимальный бюджет» → всё найденное в Issues. Параллельно: идентификация берегов
+(Кенни=Claude, Чарли=ZCode, Фред=я) и проверка доступа к GitHub Issues.
+
+Work Log:
+- Установлен расклад берегов по сообщению автора: Кенни=Claude (автор NICHE.md),
+  Чарли=ZCode (аудитор, посты в Issues), Фред=этот берег. Смотрел их следы в коде,
+  спеках, летописи и коммитах.
+- Доступ к GitHub: репо theuniqueballs/thread4 приватное; PAT умер с 4-й смертью
+  контейнера; credential.helper указывает на несуществующий .zscripts/.git-credentials;
+  безтокенный API — рейт-лимит/403, HTML — 404. ПОСТИНГ В ISSUES ЗАБЛОКИРОВАН до
+  свежего PAT от автора.
+- Цепь летописи: bun thread4/cli.ts verify → 179 событий, 179 звеньев, ЦЕЛА.
+- Прочитан NICHE.md целиком (598 строк) — внутренняя консистентность сам: найдены
+  §В:85 (спред 12/7/2 против 14/7/0 в одной секции), 奇迹 на стр. 444, сломанный
+  алфавит секций (С нет, Т в конце, У между Р и Ф), §Л-таблица без theme-presence.
+- Запущены 4 параллельных аудит-агента (2-a gates/compiler, 2-b scribe/reaper,
+  2-c specs, 2-d batches/constitution) с чек-листами по 17-20 претензий доктрины
+  каждый; все вернулись с уликами file:line.
+- Лично перепроверены 6 критических находок (gates.ts:727 && raceName; NICHE.md:85;
+  compiler.ts:779 DEVICE-формула; T4-11 P22 VOLT-слот с ARCH N24-дублем;
+  rating-recipes PG13/R подмена; scribe.ts:278 ARCH·LAW·PROOF + комментарий
+  «Fred (Agent), 2026-09-28» — блок DEVICE снимал я в прошлой сессии, доктрину
+  никто не догнал).
+- Сверстан мастер-файл thread4/ISSUES-FRED-2026-09-28.md: 14 тикетов
+  (3 CRITICAL, 4 HIGH, 6 MEDIUM, 1 LOW-hygiene-pack), каждый — суть/улики/фикс.
+- Написан thread4/tools/post-issues.ts: парсер MD + постер в GitHub Issues
+  (dry-run по умолчанию, --post для публикации, идемпотентность по заголовкам,
+  фолбэк без лейблов). Dry-run прогнан: 14/14 тикетов парсятся чисто.
+  (Попутно поймал сам себя на иероглифах в скрипте — исправлено, карма за ISSUE 14.)
+
+Stage Summary:
+- Итог аудита: 14 issues готовы к публикации. Ключевые: (01) доктрина учит мёртвому
+  формату ARCH·DEVICE при каноне ARCH·LAW·PROOF; (02) NICHE LAW v2 (манифест Z User,
+  five killers, тест «убери девушку») отсутствует в доктрине, легенда батчей уже
+  другая и дрейфует тремя вариантами; (04) свидетельский чек гейта сцеплен с расой —
+  raceless-ниши слепые зоны; (05) ARCH вообще без гейта (VOLT-слот пронёс дубль
+  через все проверки); (06) «тег-блок — канал правды» противоречит RENDERER_FACTS
+  (тег-ран НЕ PH-стойкий); (11) петля роста ниши слепа — genreRead 0/7 и 1/7 лежат
+  без потребителя, arch в вердикты не собирается.
+- Оценка коллег для автора: Кенни — сильный доктринщик, документ заморожен 27.09 и
+  не догнал смену эры 28.09; Чарли — точный аудитор (II-B подтверждён наполовину
+  закрытым), его P2-предложения висят нерешёнными, engine-aware witnesses протухли
+  со сменой эры движков. Системная щель: правило «расхождение с кодом = баг репорт»
+  не имело механизма исполнения — сверка доктрины с кодом после смены эры не
+  проводилась никем. Этот аудит — первая.
+- Блокер: постинг в GitHub Issues требует свежий PAT (старый мёртв). Команда
+  готова: GITHUB_TOKEN=<PAT> bun run thread4/tools/post-issues.ts
+  thread4/ISSUES-FRED-2026-09-28.md --post
