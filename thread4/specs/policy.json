@@ -1,7 +1,7 @@
 {
   "id": "policy",
   "name": "Политика треда — единственное место решений-настроек",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "born": "2026-09-26",
   "born_from": "Залп 2 «Рефлекс» чертежа T4.2 (принцип П-2: код не знает чисел треда). Ранее закон жил константой LAWS в compiler.ts — теперь компилятор, гейты и selftest читают отсюда.",
   "law": {
@@ -79,5 +79,30 @@
   },
   "debts": {
     "id_convention": "note с data.debtId; debt.paid гасит по debtId точно, прозой — по подстроке (урок призрачного долга T4-06)"
+  },
+  "writer_rules": {
+    "born": "2026-09-28, вердикты T4-12 + Аудит V3 + закон письма",
+    "title_is_theme": "название батча = тема автора, спайн не переименовывает",
+    "original_character_pos": "original character — второй тег в POS каждого слота",
+    "prose_people_law": "проза не зовёт людей: no his jacket, no silhouettes — solo значит ALONE",
+    "artist_ban": "artist-теги запрещены в POS и прозе",
+    "canon_colors_verbatim": "канон-цвета волос/глаз — VERBATIM в первые 10 токенов тег-рана",
+    "palette_colors_verbatim": "палитра-цвета идут в теги тканей VERBATIM (не дефолт-белое)",
+    "theme_words_two": "2 тема-слова на слот из THEME-KEYWORDS спайна",
+    "species_collision": "вид дебютирующего OC исключает ту же расу из NICHE-слотов батча (P14 mushroom-повторка при дебюте Ama)",
+    "radical_mode": "кто не рискует — не пьёт шампанское: сырые гипотезы пилотируются 1-2 слотами, не откладываются",
+    "milf_word_ban": "слово milf запрещено ВЕЗДЕ в POS включая прозу (N30 ловит везде) — голос без слова",
+    "word_boundary_lesson": "гейты матчат по границам слов (amusement ≠ semen) — урок floors-гейта"
+  },
+  "corpus_2_0": {
+    "queue": "thread4/corpus-queue.jsonl — авто-сбор render.verdict prose ≥40 симв, source author*",
+    "ritual": "раз в батч: corpus take <N> в корпус, corpus drop <N> в мусор (CLI)",
+    "versioning": "рост корпуса только через spec.imported",
+    "retrieval_trigger": "≥4 различных движков с рентой ИЛИ ≥40 записей — что раньше; при срабатывании retrieval = блокер следующего батча",
+    "anti_flag": "анти-канон в том же файле, флаг anti: true"
+  },
+  "salience": {
+    "level": "warn (повышено из advisory по вердикту автора U7)",
+    "evidence": "T4-11: 11/14 под угрозой → R+ 5/14 — прогноз подтверждён"
   }
 }
