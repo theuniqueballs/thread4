@@ -162,3 +162,4 @@
 {"id":"011c4367","at":"2026-09-27T22:38:17.215Z","type":"oc.appeared","summary":"OC Rin назначен в T4-13","data":{"slug":"T4-13","name":"Rin"}}
 {"id":"97357afb","at":"2026-09-27T22:38:17.221Z","type":"oc.appeared","summary":"OC Una назначен в T4-13","data":{"slug":"T4-13","name":"Una"}}
 {"id":"e8ea8138","at":"2026-09-27T22:38:17.232Z","type":"batch.delivered","summary":"T4-13 «Singularity» сдан: гейты hard PASS · FIRST RUN CLEAN (sha e3b6930732)","data":{"slug":"T4-13","title":"Singularity","theme":"Singularity","engine":"per-theme","hardPass":true,"firstRunClean":true,"sha10":"e3b6930732"}}
+{"id":"b94122c8","at":"2026-09-28T15:10:32.736Z","type":"batch.compiled","summary":"T4-14 «Android Luvv» — контракт скомпилирован (движок per-theme, мейны R+×14 · R×7)","data":{"slug":"T4-14","theme":"Android Luvv","engine":"per-theme","seed":1483541104,"recompile":false}}
