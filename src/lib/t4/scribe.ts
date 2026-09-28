@@ -280,12 +280,10 @@ function slotFrame(slot: SlotPlan, ctx: ScribeCtx): string {
       `WITNESS LAW: someone or something must DISCOVER the wrongness — «кто первый понял, что здесь что-то не так?» Small beats beat big magic: a drop hanging, a shadow arriving early, snow avoiding one object.`
     )
   }
-  if (slot.kind === 'NICHE' && slot.arch) {
-    const archMeta = getNicheArchetypes()?.archetypes.find((a) => a.id === slot.arch)
-    lines.push(
-      `ARCH (НИША, вердикт автора): ${slot.arch} ${archMeta?.name ?? ''} — ${archMeta?.hint ?? ''}\nTHESIS LAW: the THESIS MUST OPEN with "ARCH: ${slot.arch} · DEVICE: <one concrete impossible composition device for THIS frame>" — the DEVICE is the genre's claim: the picture must be impossible as COMPOSITION (framing/objects/scale), not as anatomy; erotica is allowed but is not the focus`
-    )
-  }
+  /* Fred (Agent), 2026-09-28: старый DEVICE-блок снят — формула вердикта T4-11
+     (NICHE-LAW v2, «ARCH · LAW · PROOF» выше) канонизирована и доказана батчами
+     T4-12/T4-13; дубль с формулой DEVICE противоречил ей в промпте писца
+     (хвост патча 3e7aa87: новый блок дописан, старый не снят). Issue #13. */
   if (ctx.themeKeywords.length > 0) {
     const k1 = ctx.themeKeywords[slot.position % ctx.themeKeywords.length]
     const k2 = ctx.themeKeywords[(slot.position + Math.floor(ctx.themeKeywords.length / 2)) % ctx.themeKeywords.length]

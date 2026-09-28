@@ -64,3 +64,8 @@ server.log
 # Рендеры живут на диске и в чемодане (CHEMODAN_THREAD_4.1b/renders), не в bundle.
 upload/
 chemodan/
+
+# Fred (Agent), 2026-09-28: секреты и контейнерный деплой вне гита
+.zscripts/
+/download/*.tar
+tool-results/
