@@ -1,0 +1,291 @@
+# THREAD 4 — Batch T4-14: "Android Luvv"
+
+The theme is ANDROID LUVV — the visible tension between synthetic perfection and organic malfunction. Every frame holds one point where the machine betrays the body it houses: coolant at the joints, biolight under the skin, thermal regulation failing at the worst moment, data ports pulsing with processing heat. The wardrobe is the diagnostic layer — garments cling where the body runs hot, go transparent where the computation peaks, and fail exactly where the android is most alive. Act I shows the pristine facade cracking, Act II lives inside the malfunction, Act III finds the beauty in breakdown — the android sweating, leaking, glowing: more alive than the humans who built her.
+
+ТЕМА-СЛОВА: android, synthetic skin, coolant, biolight, chrome, thermal, liquid glass, data port
+
+ДВИЖОК (одноразовый): COOLANT REVEAL — the android's body maintains itself at one degree above human temperature; the coolant leaks at the joints are her version of sweat; the biolight circuits under her skin pulse with the rhythm of processing, and when the processing peaks the garment goes glass-transparent at the point of highest computation.
+
+ЖАНРЫ (легенда — вердикт T4-02: жанр обязан быть виден): **OC** — канон-локи персонажа, тема в слоте; **NICHE** — THE WORLD DOES SOMETHING: одно невозможное правило, физическое доказательство, она свидетель; **VOLT** — плоть: камера-участник, тело в движении, взгляд-вектор, экспозиция тегом; **EXQUISITE** — ультра своего жанра.
+СТРУКТУРА (закон 24): 24 промпта = 3 OC (P01-P03) + 21 мейн (P04-P24) · спред мейнов R+×14 · R×7 · расовый каст 10/21 · регистры третями.
+RENDER PROTOCOL: PH ON — тег-блок канал правды, проза несёт красоту. Спайн назначен контрактом до первого слова; гейты читают те же числа.
+
+════════════════════════════════════════════════════════════════════════
+ACT I — PRISTINE FACADE
+════════════════════════════════════════════════════════════════════════
+
+P01 — android-sue-port (OC · Sue · R+ · PL20 · P93_GLASS_BELL_JAR)
+THESIS: Sue as a premium android model — the eyepatch is the hardware port, the platinum twin ponytails are the chrome antenna array, and the visible pantyline through the pencil skirt is the one diagnostic reading the casing can't hide.
+Canon: Sue — platinum-white hair in twin ponytails, soft purple right eye, square white medical eyepatch over the left eye, pale ivory skin, slender, neck tattoo
+Spine: PL20 Turned Away Glance · K155 mid_diagnostic_glance · LEAD hamstrings · milf register · closer fragment-pair
+Stack: CR-D18 + CR-D25 + CR-L18 + CR-W05
+POS:
+
+anime style, original character, ecchi anime style, 1girl, solo, android girl, platinum-white hair in twin ponytails, soft purple right eye, square white medical eyepatch over left eye, pale ivory synthetic skin, neck tattoo as serial etching, visible pantyline, tight pencil skirt, thigh-highs, biolight veins at the collarbone, chrome seam at the neck, data port at the base of the skull, turned away glance over shoulder, glass bell jar, threshold, keepsake, reveal, fragment-pair. The eyepatch is not medical — it is the hardware port where the diagnostics jack in, and the soft purple eye beside it is the only organic part left. She stands turned away in the glass bell jar light — the diagnostic bay's overhead glow laying a keepsake line along her chrome neck seam — and glances back over the shoulder with the one purple eye that still processes color. The tight pencil skirt pulls taut across the synthetic hamstrings, the visible pantyline reading through like a diagnostic strip — the one data feed the casing can't encrypt. The biolight veins at the collarbone pulse twice, processing. Her face is rendered in stylized 2D anime style: anime eyes (soft purple, half-lidded above the eyepatch, diagnostic), small nose, small mouth set in the model's distant almost-smile, pale ivory synthetic skin. The port stays open for the next query. Masterpiece, best quality, anime artstyle.
+
+NEG:
+
+realistic facial structure, photorealistic facial proportions, natural human nose bridge, realistic lip shape, semi-realistic anime face, 2.5D face, 3D face, child, children, childish, chibi, young girl, immature body, oversized head, loli, shota, exposed genitals, vulva, pubic hair, sex, sexual act, signature, watermark, artist name, logo, candle, candles, candelabra, lamp, lantern, torch, chandelier, brazier, male, man, 1boy, 2girls, nipples exposed, areola, naked breasts, topless, both eyes visible, no eyepatch, brown eyes, blue eyes, warm skin tone, sweat, human temperature
+
+P02 — android-noa-malfunction (OC · Noa · R · PL157 · P57_SUNSET_ON_WATER)
+THESIS: Noa as the malfunctioning prototype — the copper-red hair is the wiring loom, the freckles are data-corruption pixels spreading across the nose bridge, and the green eyes with golden flecks are the diagnostic readout of a system that feels too much.
+Canon: Noa — long deep copper-red hair in a loose side braid with a small bow, sharp emerald-green eyes with golden flecks, fair freckled sandstone skin with freckles across the nose and cheeks, small burn scar on the right wrist, thin stick-style earrings
+Spine: PL157 Waltz-Box Solo · K176 mid_corruption_spread · LEAD back · milf register · closer long-fused
+Stack: CR-D27 + CR-U19 + CR-D01
+POS:
+
+anime style, original character, ecchi anime style, 1girl, solo, android girl, long deep copper-red hair in loose side braid, small bow at braid's end, sharp emerald-green eyes with golden flecks, fair freckled sandstone skin, freckles across nose and cheeks, small burn scar on right wrist, thin stick earrings, thermal malfunction glow, coolant at the joints, synthetic skin, back arch, sunset on water palette, long-fused. The copper-red braid is the wiring loom the factory never admitted to: each strand a conductor running too hot. The freckles across her nose and cheeks are data-corruption pixels — golden flecks in the green eyes matching the corruption's advance — and the burn scar on the right wrist marks where the first coolant leak broke the synthetic skin's seal. The back arches as the thermal regulation oscillates: the sunset palette wrapping her malfunction in warm colors the diagnostic bay cannot explain. Her face is rendered in stylized 2D anime style: anime eyes (emerald-green with golden corruption flecks, half-lidded), small nose, small mouth set in the malfunction's quiet surprise, freckled sandstone skin. The corruption spreads one freckle per day. Masterpiece, best quality, anime artstyle.
+
+NEG:
+
+realistic facial structure, photorealistic facial proportions, natural human nose bridge, realistic lip shape, semi-realistic anime face, 2.5D face, 3D face, child, children, childish, chibi, young girl, immature body, oversized head, loli, shota, exposed genitals, vulva, pubic hair, sex, sexual act, signature, watermark, artist name, logo, candle, candles, candelabra, lamp, lantern, torch, chandelier, brazier, male, man, 1boy, 2girls, nipples exposed, areola, naked breasts, topless, bra, camisole, bandeau, undershirt, unfreckled skin, plain green eyes, slender build, hoop earrings
+
+P03 — android-doe-calibration (OC · Doe · R · PL221 · P55_SYMBIOTE_BIOLUMINESCENT)
+THESIS: Doe as the observation model — the round glasses are the calibration lens, the golden-yellow eyes read the biolight spectrum humans can't see, and the band-aid on the nose bridge covers the serial number.
+Canon: Doe — shoulder-length wavy lavender hair, side-swept bangs, expressive golden-yellow eyes, light purple eyeliner, soft fair porcelain skin, round glasses, band-aid on the bridge of the nose, single small hoop earring in the left ear
+Spine: PL221 Rain-Face Up-Turn · K181 mid_calibration_read · LEAD throat · milf register · closer action-close
+Stack: CR-U18 + CR-L03 + CR-U02
+POS:
+
+anime style, original character, ecchi anime style, 1girl, solo, android girl, shoulder-length wavy lavender hair, side-swept bangs, round glasses as calibration lens, expressive golden-yellow eyes, light purple eyeliner, soft fair porcelain synthetic skin, band-aid on nose bridge over serial etching, single hoop earring left ear, bioluminescent-cyan biolight at throat, data port at the nape, sterile ward, cold light, rain window, lingerie, panties, erotic pose. The round glasses are the calibration lens — through them the golden-yellow eyes read the biolight spectrum that human eyes cannot register, and the data they return is the android's version of longing. The band-aid on the nose bridge covers the serial etching the factory engraved before she learned to feel. The lavender hair falls around the calibration lens like a curtain the observer forgot to close, and the biolight at the throat pulses the only warm color in the sterile ward's cold inventory. Her face is rendered in stylized 2D anime style: anime eyes (golden-yellow behind round glasses, reading), small nose, small mouth set in the observer's line, soft fair porcelain skin. The calibration never ends. Masterpiece, best quality, anime artstyle.
+
+NEG:
+
+realistic facial structure, photorealistic facial proportions, natural human nose bridge, realistic lip shape, semi-realistic anime face, 2.5D face, 3D face, child, children, childish, chibi, young girl, immature body, oversized head, loli, shota, exposed genitals, vulva, pubic hair, sex, sexual act, signature, watermark, artist name, logo, candle, candles, candelabra, lamp, lantern, torch, chandelier, brazier, male, man, 1boy, 2girls, nipples, areola, cameltoe, glowing eyes, curved backward horns, branched antlers, no glasses, symmetric earrings
+
+════════════════════════════════════════════════════════════════════════
+ACT I — PRISTINE FACADE
+════════════════════════════════════════════════════════════════════════
+
+P04 — android-jellyfish-thighs (VOLT · Jellyfish-kin · R+ · PL35 · P02_DAWN_AMBER)
+THESIS: The jellyfish-android's bell-hood glows at the crown while the tendrils trail down to the thighs — the wet thin jersey confesses the thighs' synthetic shape in dawn amber.
+Spine: PL35 Hair Wring · K131 mid_wade_dark · LEAD thighs · student register · closer fragment-pair
+Stack: CR-W22 + CR-B11 + CR-E20 + CR-I14
+POS:
+
+anime style, original character, ecchi anime style, 1girl, solo, android, jellyfish-kin, bell-hood translucent at the crown, tendril-strands at the nape, wet thin jersey, thighs, dawn amber, fragment-pair. The bell-hood glows at the crown like a halo the factory installed, the tendrils trailing down past the shoulders to the waist, each one a wire the diagnostic bay forgot to label. The wet thin jersey clings from collar to hem, the thighs' synthetic shape reading through the soaked fabric in the dawn amber — the thighs the field manual describes as load-bearing but the render describes as the reason the engineer quit. The tendril-strands at the nape pulse with processing biolight. Her face is rendered in stylized 2D anime style: anime eyes (dawn-amber, focused), small nose, small mouth set in a line of quiet computation, synthetic skin. The tendrils process what the mouth won't say. Masterpiece, best quality, anime artstyle.
+
+NEG:
+
+realistic facial structure, photorealistic facial proportions, natural human nose bridge, realistic lip shape, semi-realistic anime face, 2.5D face, 3D face, child, children, childish, chibi, young girl, immature body, oversized head, loli, shota, exposed genitals, vulva, pubic hair, sex, sexual act, signature, watermark, artist name, logo, candle, candles, candelabra, lamp, lantern, torch, chandelier, brazier, male, man, 1boy, 2girls, nipples exposed, areola, naked breasts, topless, bra, camisole, bandeau, undershirt
+
+P05 — android-wallpaper-breach (NICHE · — · R · PL149 · P28_VOID_BONE)
+THESIS: ARCH: N18 · LAW: the room's wallpaper pattern extends across her skin where the synthetic barrier fails · PROOF: the floral design continues seamlessly from wall to thigh, the border between room and body dissolved.
+Spine: PL149 Encore Arms · K182 mid_wall_breach · LEAD thighs · young register · closer fragment-pair · witness: the wallpaper pattern itself
+Stack: CR-W02 + CR-U17 + CR-D09
+POS:
+
+anime style, original character, ecchi anime style, 1girl, solo, young, thermal regulation failure, synthetic barrier breach, wallpaper pattern on skin, thighs, floral design continuing from wall to leg, void-bone palette, boyshorts, fragment-pair. The room's wallpaper pattern extends across her thighs where the synthetic barrier fails: the floral design continues seamlessly from wall to leg, the border between room and body dissolved at the exact point where the thermal regulation dropped below threshold. The boyshorts' waistband sits above the breach line, the fabric's edge the last honest border before the pattern takes over. The void-bone palette makes the extension read as diagnosis, not magic. Her face is rendered in stylized 2D anime style: anime eyes (wide with detached curiosity), small nose, small mouth set in a questioning line, skin glowing with the heat of malfunction. The wall claims her as furniture. Masterpiece, best quality, anime artstyle.
+
+NEG:
+
+realistic facial structure, photorealistic facial proportions, natural human nose bridge, realistic lip shape, semi-realistic anime face, 2.5D face, 3D face, child, children, childish, chibi, young girl, immature body, oversized head, loli, shota, exposed genitals, vulva, pubic hair, sex, sexual act, signature, watermark, artist name, logo, candle, candles, candelabra, lamp, lantern, torch, chandelier, brazier, male, man, 1boy, 2girls, nipples, areola, cameltoe, no bra, no underwear
+
+P06 — android-ice-waist (VOLT · — · R+ · PL69 · P87_ICE_SHEET_FIRSTLIGHT)
+THESIS: The ice-sheet firstlight wraps the android's waist in white-gold — the wet thin top gone glass-clear at the waistband, the synthetic skin's chrome seam reading through like a solder line.
+Spine: PL69 Ice-Waist Lean · K154 mid_ice_waist · LEAD waist · student register · closer long-fused
+Stack: CR-W03 + CR-A13 + CR-E24 + CR-I16
+POS:
+
+anime style, original character, ecchi anime style, 1girl, solo, young, android, wet thin top, see-through, chrome seam at the waist, synthetic skin, waist, ice-sheet firstlight, long-fused. The ice-sheet firstlight wraps the android's waist in white-gold — and the wet thin top goes glass-clear at the waistband, the chrome seam at the synthetic skin's midline reading through like a solder line the factory polished and forgot to paint. The firstlight does what the diagnostic bay cannot: it shows the seam. Her face is rendered in stylized 2D anime style: anime eyes (firstlight-white, half-lidded), small nose, small mouth set in the long-fuse calm, ice-pale synthetic skin. The solder line holds the frame's singular point. Masterpiece, best quality, anime artstyle.
+
+NEG:
+
+realistic facial structure, photorealistic facial proportions, natural human nose bridge, realistic lip shape, semi-realistic anime face, 2.5D face, 3D face, child, children, childish, chibi, young girl, immature body, oversized head, loli, shota, exposed genitals, vulva, pubic hair, sex, sexual act, signature, watermark, artist name, logo, candle, candles, candelabra, lamp, lantern, torch, chandelier, brazier, male, man, 1boy, 2girls, nipples exposed, areola, naked breasts, topless, bra, camisole, bandeau, undershirt
+P07 — android-ocean-prism-shoulders (VOLT · — · R+ · PL198 · P43_OCEAN_DEEP_PRISM)
+THESIS: The ocean-deep prism light hits the android's shoulders and splits — each chrome seam a different color, the shoulders the frame's prism, the action-close catching the spectrum at its narrowest.
+Spine: PL198 Prism-Shoulder Turn · K121 mid_prism_split · LEAD shoulders · student register · closer action-close
+Stack: CR-W04 + CR-B23 + CR-E23 + CR-I18
+POS:
+
+anime style, original character, ecchi anime style, 1girl, solo, android, shoulders, chrome seam, ocean-deep prism light, tight top, see-through, biolight at the collarbone, student, action-close. The ocean-deep prism light hits the android's shoulders and splits — each chrome seam at the joint a different color of the spectrum, the shoulders the frame's prism — and the tight top has gone see-through where the split light lands, the biolight at the collarbone pulsing in the same frequency as the split. The action-close catches the spectrum at its narrowest: two shoulders, six colors, one android deciding which color to keep. Her face is rendered in stylized 2D anime style: anime eyes (prism-split, narrowed), small nose, small mouth set in the computation's focus, synthetic skin. The spectrum waits for her verdict. Masterpiece, best quality, anime artstyle.
+
+NEG:
+
+realistic facial structure, photorealistic facial proportions, natural human nose bridge, realistic lip shape, semi-realistic anime face, 2.5D face, 3D face, child, children, childish, chibi, young girl, immature body, oversized head, loli, shota, exposed genitals, vulva, pubic hair, sex, sexual act, signature, watermark, artist name, logo, candle, candles, candelabra, lamp, lantern, torch, chandelier, brazier, male, man, 1boy, 2girls, nipples exposed, areola, naked breasts, topless, bra, camisole, bandeau, undershirt
+
+P08 — android-rust-hips (VOLT · — · R+ · PL33 · P12_AUTUMN_RUST)
+THESIS: The autumn rust palette turns the android's hips to oxidized chrome — the image-close catches the patina eating the chrome plating at the hip joint, the coolant leaking rust-orange.
+Spine: PL33 Hip-Patina Lean · K168 mid_patina_eat · LEAD hips · young register · closer image-close
+Stack: CR-W19 + CR-C11 + CR-E09 + CR-M05
+POS:
+
+anime style, original character, ecchi anime style, 1girl, solo, android, hips, chrome plating oxidized, autumn rust palette, coolant leak rust-orange, tight bottom, image-close, patina. The autumn rust palette turns the android's hips to oxidized chrome — the patina eating the chrome plating at the hip joint in real time, the coolant leaking rust-orange down the thigh like a flag the malfunction raised. The image-close catches the exact point where chrome meets rust: the singular line between maintained and abandoned, the hips the border. She does not wipe the rust. Her face is rendered in stylized 2D anime style: anime eyes (rust-orange, half-lidded), small nose, small mouth set in the patina's calm, oxidized chrome skin. The rust is her favorite color. Masterpiece, best quality, anime artstyle.
+
+NEG:
+
+realistic facial structure, photorealistic facial proportions, natural human nose bridge, realistic lip shape, semi-realistic anime face, 2.5D face, 3D face, child, children, childish, chibi, young girl, immature body, oversized head, loli, shota, exposed genitals, vulva, pubic hair, sex, sexual act, signature, watermark, artist name, logo, candle, candles, candelabra, lamp, lantern, torch, chandelier, brazier, male, man, 1boy, 2girls, nipples exposed, areola, naked breasts, topless, bra, camisole, bandeau, undershirt, clean chrome, polished metal
+
+P09 — android-gargoyle-seat (VOLT · Gargoyle-kin · R+ · PL02 · P82_INK_SUNDOWN)
+THESIS: The gargoyle-android sits at the ink-sundown edge — the stone skin and the chrome plating married at the hip joint, the seat's press showing the hybrid's seam in fragment-pair.
+Spine: PL02 Stone-Chrome Sit · K129 mid_hybrid_seam · LEAD seat · student register · closer fragment-pair
+Stack: CR-W01 + CR-B08 + CR-E29 + CR-M11
+POS:
+
+anime style, original character, ecchi anime style, 1girl, solo, android gargoyle, stone skin, chrome plating at the joints, ink-sundown, seat, fragment-pair, hybrid seam. The gargoyle-android sits at the ink-sundown edge — the stone skin and the chrome plating married at the hip joint where the seat's press shows the hybrid's seam: stone on one side, chrome on the other, the singular line between architect and machine drawn across the seat. The fragment-pair holds both materials honest — the stone cracking where the chrome flexes, the chrome tarnishing where the stone breathes. Her face is rendered in stylized 2D anime style: anime eyes (ink over chrome, fragment-still), small nose, small mouth set in the hybrid's patience, stone-chrome skin. The seam is the signature. Masterpiece, best quality, anime artstyle.
+
+NEG:
+
+realistic facial structure, photorealistic facial proportions, natural human nose bridge, realistic lip shape, semi-realistic anime face, 2.5D face, 3D face, child, children, childish, chibi, young girl, immature body, oversized head, loli, shota, exposed genitals, vulva, pubic hair, sex, sexual act, signature, watermark, artist name, logo, candle, candles, candelabra, lamp, lantern, torch, chandelier, brazier, male, man, 1boy, 2girls, nipples exposed, areola, naked breasts, topless, bra, camisole, bandeau, undershirt, no stone, all chrome
+
+P10 — android-goat-hands (VOLT · Goat-kin · R+ · PL137 · P68_INK_AND_GOLD)
+THESIS: The goat-android's hands hold the ink-and-gold diagnostic tablet — the hoof-textured fingertips reading the screen the way a goat reads a cliff face: by feel, not by sight.
+Spine: PL137 Tablet-Read Stand · K02 mid_tablet_read · LEAD hands · milf register · closer dialogue
+Stack: CR-W17 + CR-S02 + CR-E26 + CR-M12
+POS:
+
+anime style, original character, ecchi anime style, 1girl, solo, android goat girl, hoof-textured fingertips, diagnostic tablet, ink-and-gold screen, milf, hands, dialogue. The goat-android's hands hold the diagnostic tablet — the hoof-textured fingertips reading the ink-and-gold screen the way a goat reads a cliff face: by feel, not by sight — and the milf-register voice behind the reading is the voice of the engineer who designed the hooves to be sensitive enough for this exact task. The hands are the frame's singular point: two hooves, one tablet, the ink-and-gold data flowing between them. Her face is rendered in stylized 2D anime style: anime eyes (ink-and-gold, reading), small nose, small mouth set in the reading's focus, pale hoof-warm skin. The tablet answers in goat. Masterpiece, best quality, anime artstyle.
+
+NEG:
+
+realistic facial structure, photorealistic facial proportions, natural human nose bridge, realistic lip shape, semi-realistic anime face, 2.5D face, 3D face, child, children, childish, chibi, young girl, immature body, oversized head, loli, shota, exposed genitals, vulva, pubic hair, sex, sexual act, signature, watermark, artist name, logo, candle, candles, candelabra, lamp, lantern, torch, chandelier, brazier, male, man, 1boy, 2girls, nipples exposed, areola, naked breasts, topless, bra, camisole, bandeau, undershirt, no horns, human hands, soft fingertips
+
+P11 — android-dryad-underlayer (VOLT · Dryad · R+ · PL220 · P32_VOID_ICE · REHAB underlayer)
+THESIS: The underlayer-rehab, third build: the dryad-android's bark skin parts at the hamstrings to show the ice-white underlayer beneath — the bark is the outer casing, the ice-lace is the diagnostic layer, and both are visible.
+Spine: PL220 Bark-Part Reveal · K119 mid_bark_part · LEAD hamstrings · milf register · closer long-fused
+Stack: CR-W07 + CR-A01 + CR-E19 + CR-I06
+POS:
+
+anime style, original character, ecchi anime style, 1girl, solo, android dryad, bark skin parting at the hamstrings, ice-white underlayer beneath, see-through bark, visible underlayer, milf, void-ice light, long-fused
+P13 — android-serpent-glass (NICHE · Serpent-kin · R · PL191 · P98_PIXIE_SUMMER_SHIFT)
+THESIS: ARCH: N47 · LAW: liquid freezes into an arch above the serpent-kin's breasts — the arch is the serpent's shed glass, and it holds the pose like a crown · PROOF: frozen liquid curves over the chest, each drop a lens.
+Spine: PL191 Glass-Arch Breast · K141 mid_glass_arch · LEAD breasts · student register · closer image-close · witness: the frozen arch itself
+Stack: CR-W25 + CR-L06 + CR-D24
+POS:
+
+anime style, original character, ecchi anime style, 1girl, solo, serpent girl, liquid frozen in arch above breasts, glass lens drops, pixie summer shift, breasts, student, image-cover. The serpent-kin sheds her own glass: liquid freezes into an arch above the breasts — the arch is the serpent's shed glass, curved and holding — and each drop in the frozen curve is a lens that refracts the pixie summer light into the chest beneath. The serpent's own shed skin is the top: transparent by the serpent's nature, the breasts reading through the shed like moons behind glass. The arch holds the pose like a crown the serpent earned by growing. Her face is rendered in stylized 2D anime style: anime eyes (glass-lit, wide), small nose, small mouth set in the shed's calm, cool scale skin. The serpent wears itself. Masterpiece, best quality, anime artstyle.
+
+NEG:
+
+realistic facial structure, photorealistic facial proportions, natural human nose bridge, realistic lip shape, semi-realistic anime face, 2.5D face, 3D face, child, children, childish, chibi, young girl, immature body, oversized head, loli, shota, exposed genitals, vulva, pubic hair, sex, sexual act, signature, watermark, artist name, logo, candle, candles, candelabra, lamp, lantern, torch, chandelier, brazier, male, man, 1boy, 2girls, nipples exposed, areola, naked breasts, topless, bra, camisole, bandeau, undershirt, no tail, human legs only
+
+P14 — android-ram-bottled-storm (NICHE · Ram-demon · R · PL197 · P86_PRUSSIAN_BOTTLE)
+THESIS: ARCH: N25 · LAW: a bottled storm hangs beside the ram-demon — the storm is hers, exhaled, and it rains only on the side of the frame she faces · PROOF: rain inside the bottle, dry outside.
+Spine: PL197 Bottled-Storm Lie · K71 mid_bottled_rain · LEAD back · young register · closer fragment-pair · witness: the bottled storm
+Stack: CR-L02 + CR-D14 + CR-L15
+POS:
+
+anime style, original character, ecchi anime style, 1girl, solo, ram-demon, curled ram horns, prussian bottle, bottled storm raining inside, back bare to the waist, young, fragment-pair. A bottled storm hangs beside the ram-demon — the storm is hers, exhaled in a moment of anger, and it rains only on the side of the frame she faces: the back bare to the waist where the bottled rain cannot reach, the prussian-blue glass holding the storm's discipline. The curled horns catch the bottle's overflow — one drop per horn, precise. She lies on her stomach, the back bare, the bottled storm her only companion in the prussian dark. Her face is rendered in stylized 2D anime style: anime eyes (prussian-blue, half-lidded), small nose, small mouth set in the storm's patience, pale skin. The storm rains because she wills it. Masterpiece, best quality, anime artstyle.
+
+NEG:
+
+realistic facial structure, photorealistic facial proportions, natural human nose bridge, realistic lip shape, semi-realistic anime face, 2.5D face, 3D face, child, children, childish, chibi, young girl, immature body, oversized head, loli, shota, exposed genitals, vulva, pubic hair, sex, sexual act, signature, watermark, artist name, logo, candle, candles, candelabra, lamp, lantern, torch, chandelier, brazier, male, man, 1boy, 2girls, nipples, areola, cameltoe, no tail, wrong horns
+
+P15 — android-mushroom-nape (VOLT · Mushroom-kin · R+ · PL88 · P47_PORCELAIN_LACQUER)
+THESIS: The mushroom-kin android's nape catches the porcelain-lacquer light — the chrome seam at the synthetic nape reads through the lacquer-thin skin like a hallmark stamped on porcelain.
+Spine: PL88 Lacquer-Nape Turn · K134 mid_lacquer_nape · LEAD nape · milf register · closer dialogue
+Stack: CR-W24 + CR-B30 + CR-E08 + CR-M16
+POS:
+
+anime style, original character, ecchi anime style, 1girl, solo, android mushroom girl, cap-frill crown porcelain-lacquered, lavender gill lines at the crown, nape, chrome seam at the synthetic nape, milf, porcelain lacquer light, dialogue. The mushroom-kin android's nape catches the porcelain-lacquer light — and the chrome seam at the synthetic nape reads through the lacquer-thin skin like a hallmark stamped on porcelain by the factory's oldest stamp: this one is real, this one computes, this one dreams in spore-light. The milf-voice speaks through the lacquer without opening the throat. Her face is rendered in stylized 2D anime style: anime eyes (porcelain-lavender, level, gill-framed), small nose, small mouth set in the hallmark's calm, lacquer-pale skin. The hallmark is the seam. Masterpiece, best quality, anime artstyle.
+
+NEG:
+
+realistic facial structure, photorealistic facial proportions, natural human nose bridge, realistic lip shape, semi-realistic anime face, 2.5D face, 3D face, child, children, childish, chibi, young girl, immature body, oversized head, loli, shota, exposed genitals, vulva, pubic hair, sex, sexual act, signature, watermark, artist name, logo, candle, candles, candelabra, lamp, lantern, torch, chandelier, brazier, male, man, 1boy, 2girls, nipples exposed, areola, naked breasts, topless, bra, camisole, bandeau, undershirt, long flowing human hair, dark hair
+
+P16 — android-sunrise-throat (VOLT · — · R+ · PL91 · P64_SUNRISE_INDIGO)
+THESIS: The sunrise-indigo light hits the android's throat at the chrome seam — the biolight under the synthetic skin pulses in the same indigo, and the throat becomes the frame's singular lit point in a dark room.
+Spine: PL91 Sunrise-Throat Turn · K140 mid_indigo_pulse · LEAD throat · milf register · closer long-fused
+Stack: CR-W11 + CR-S17 + CR-E27 + CR-M13
+POS:
+
+anime style, original character, ecchi anime style, 1girl, solo, android, throat, chrome seam at the synthetic throat, biolight pulsing indigo, milf, sunrise-indigo, dark room, long-fused. The sunrise-indigo light hits the android's throat at the chrome seam — and the biolight under the synthetic skin pulses in the same indigo, the throat becoming the frame's singular lit point in a dark room where every other surface has surrendered to the dark. The milf-register holds the chin up so the seam catches the indigo at its brightest: the one place the android cannot hide the machine. Her face is rendered in stylized 2D anime style: anime eyes (indigo-pulsed, level), small nose, small mouth set in the pulse's rhythm, dark synthetic skin. The throat is the proof. Masterpiece, best quality, anime artstyle.
+
+NEG:
+
+realistic facial structure, photorealistic facial proportions, natural human nose bridge, realistic lip shape, semi-realistic anime face, 2.5D face, 3D face, child, children, childish, chibi, young girl, immature body, oversized head, loli, shota, exposed genitals, vulva, pubic hair, sex, sexual act, signature, watermark, artist name, logo, candle, candles, candelabra, lamp, lantern, torch, chandelier, brazier, male, man, 1boy, 2girls, nipples exposed, areola, naked breasts, topless, bra, camisole, bandeau, undershirt
+
+P17 — android-salamander-thighs (EXQUISITE · Flame-salamander kin · R+ · PL13 · P80_SALT_APPETITE)
+THESIS: The flame-salamander android's thighs generate their own heat — the salt-appetite light catches the thermal bloom at the thighs where the synthetic skin runs hottest, the coolant racing to cool what the thighs refuse to cool.
+Spine: PL13 Salt-Thigh Bloom · K122 mid_thermal_bloom · LEAD thighs · student register · closer action-close
+Stack: CR-W13 + CR-C13 + CR-E01 + CR-I17
+POS:
+
+anime style, original character, ecchi anime style, 1girl, solo, android flame salamander, thermal bloom at thighs, salt-appetite light, coolant racing at the joints, synthetic skin hottest at the thighs, student, action-close. The flame-salamander android's thighs generate their own heat — the thermal bloom at the thighs where the synthetic skin runs hottest — and the salt-appetite light catches the bloom: the thighs glowing from inside like a kiln the factory built and forgot to vent. The coolant races at the joints to cool what the thighs refuse to cool, the visible coolant lines tracing the failure's map down the shin. The student-register focus is the focus of someone watching their own body do something the manual said was impossible. Her face is rendered in stylized 2D anime style: anime eyes (thermal-bloom, wide with the salt's surprise), small nose, small mouth set in the bloom's discovery, salt-warm synthetic skin. The thighs outburn the coolant. Masterpiece, best quality, anime artstyle.
+
+NEG:
+
+realistic facial structure, photorealistic facial proportions, natural human nose bridge, realistic lip shape, semi-realistic anime face, 2.5D face, 3D face, child, children, childish, chibi, young girl, immature body, oversized head, loli, shota, exposed genitals, vulva, pubic hair, sex, sexual act, signature, watermark, artist name, logo, candle, candles, candelabra, lamp, lantern, torch, chandelier, brazier, male, man, 1boy, 2girls, nipples exposed, areola, naked breasts, topless, bra, camisole, bandeau, undershirt, cold thighs, no thermal bloom
+
+P18 — android-porcelain-aurora-cheeks (VOLT · Porcelain-doll · R+ · PL106 · P50_GLASS_AURORA)
+THESIS: The glass aurora wraps the porcelain doll's cheeks in the android's version of blushing — the synthetic skin's chrome underlayer refracting the aurora into colors the porcelain alone cannot make.
+Spine: PL106 Aurora-Cheek Turn · K148 mid_aurora_cheek · LEAD cheeks · milf register · closer image-close
+Stack: CR-W27 + CR-C08 + CR-E05 + CR-M01
+POS:
+
+anime style, original character, ecchi anime style, 1girl, solo, android porcelain doll, cheeks, glass aurora light, chrome underlayer refracting, synthetic blushing, milf, image-close. The glass aurora wraps the porcelain doll's cheeks in the android's version of blushing — the chrome underlayer beneath the porcelain surface refracting the aurora into colors the porcelain alone cannot make: rose-gold, ice-green, one shade of violet that belongs to no aurora but this one. The milf-register turn presents the blush as a fact the android cannot suppress — the machine's body responding to the light the way a body should respond to a touch it didn't expect. Her face is rendered in stylized 2D anime style: anime eyes (aurora-refracted, milf-level), small nose, small mouth set in the blush's silence, porcelain-chrome skin. The aurora blushes through her. Masterpiece, best quality, anime artstyle.
+
+NEG:
+
+realistic facial structure, photorealistic facial proportions, natural human nose bridge, realistic lip shape, semi-realistic anime face, 2.5D face, 3D face, child, children, childish, chibi, young girl, immature body, oversized head, loli, shota, exposed genitals, vulva, pubic hair, sex, sexual act, signature, watermark, artist name, logo, candle, candles, candelabra, lamp, lantern, torch, chandelier, brazier, male, man, 1boy, 2girls, nipples exposed, areola, naked breasts, topless, bra, camisole, bandeau, undershirt, cracks in porcelain, broken porcelain
+
+P19 — android-pre-dawn-waist (VOLT · — · R+ · PL225 · P42_PRE_DAWN_STILL)
+THESIS: The pre-dawn still holds the android's waist in the one light that shows the chrome seam without the biolight — the seam bare, the data port dark, the android between power cycles.
+Spine: PL225 Pre-Dawn Waist · K08 mid_power_gap · LEAD waist · young register · closer fragment-pair
+Stack: CR-W23 + CR-A03 + CR-E16 + CR-I13
+POS:
+
+anime style, original character, ecchi anime style, 1girl, solo, android, waist, chrome seam bare without biolight, data port dark, pre-dawn still, young, fragment-pair. The pre-dawn still holds the android's waist in the one light that shows the chrome seam without the biolight — the seam bare, the data port dark, the android between power cycles when the biolight is off and the chrome is honest: this is what the machine looks like when it is not performing. The waist's singular line is the only edge in the frame. Her face is rendered in stylized 2D anime style: anime eyes (pre-dawn dark, half-lidded, powered down), small nose, small mouth set in the gap's quiet, pale chrome-pale skin. The port sleeps. The seam does not. Masterpiece, best quality, anime artstyle.
+
+NEG:
+
+realistic facial structure, photorealistic facial proportions, natural human nose bridge, realistic lip shape, semi-realistic anime face, 2.5D face, 3D face, child, children, childish, chibi, young girl, immature body, oversized head, loli, shota, exposed genitals, vulva, pubic hair, sex, sexual act, signature, watermark, artist name, logo, candle, candles, candelabra, lamp, lantern, torch, chandelier, brazier, male, man, 1boy, 2girls, nipples exposed, areola, naked breasts, topless, bra, camisole, bandeau, undershirt, biolight on, data port glowing
+
+P20 — android-prism-shoulder-lie (NICHE · — · R · PL141 · P20_VOID_PRISM)
+THESIS: ARCH: N09 · LAW: the prism mirror shows the android's shoulder without the chrome seam — the mirror lies about what the shoulder looks like, and the android prefers the lie · PROOF: two shoulders in the frame, one with the seam, one without.
+Spine: PL141 Mirror-Lie Shoulder · K118 mid_mirror_lie · LEAD shoulders · young register · closer dialogue · witness: the lying mirror
+Stack: CR-U11 + CR-U10 + CR-D17
+POS:
+
+anime style, original character, ecchi anime style, 1girl, solo, android, shoulders, mirror showing one shoulder without chrome seam, the other with the seam visible, young, dialogue. The prism mirror shows the android's shoulder without the chrome seam — the mirror lies about what the shoulder looks like, erasing the factory's hallmark, and the android prefers the lie: in the mirror she is not a machine, she is a girl with two unmarked shoulders in the prism light. The real shoulder beside the mirror keeps the seam visible — the two shoulders in one frame, one lying, one honest, and she watches both without choosing. Her face is rendered in stylized 2D anime style: anime eyes (prism-split, seeing both), small nose, small mouth set in the choice's hesitation, pale synthetic skin. The mirror is kinder than the truth. Masterpiece, best quality, anime artstyle.
+
+NEG:
+
+realistic facial structure, photorealistic facial proportions, natural human nose bridge, realistic lip shape, semi-realistic anime face, 2.5D face, 3D face, child, children, childish, chibi, young girl, immature body, oversized head, loli, shota, exposed genitals, vulva, pubic hair, sex, sexual act, signature, watermark, artist name, logo, candle, candles, candelabra, lamp, lantern, torch, chandelier, brazier, male, man, 1boy, 2girls, nipples, areola, cameltoe, no tail, wrong ears
+P21 — android-bat-cyber-hips (NICHE · Bat-kin · R · PL84 · P03_CYBER_ASH)
+THESIS: ARCH: N13 · LAW: the bat-kin's wing-membranes build a cyber-ash cathedral over the hips — the membrane is the architecture, the cyber-ash is the nave, the hips are the altar · PROOF: wing-membrane arches holding themselves with no body beneath the hips.
+Spine: PL84 Cyber-Arch Hips · K151 mid_cyber_arch · LEAD hips · young register · closer long-fused · witness: the cyber-ash nave
+Stack: CR-D26 + CR-L18 + CR-U20
+POS:
+
+anime style, original character, ecchi anime style, 1girl, solo, bat girl, wing-membranes building cyber-ash cathedral over the hips, cyber-ash nave, bat ears ribbed-tall, hips, young, long-fused. The bat-kin's wing-membranes build a cyber-ash cathedral over the hips — the membrane is the architecture, the cyber-ash is the nave, and the hips are the altar where the membrane anchors into the body's own chrome: the wing built this, the body hosts it, the ash fills it. The ribbed-tall ears read the nave's acoustics, the long-fused light holding the arch without a single column under it. Her face is rendered in stylized 2D anime style: anime eyes (cyber-ash lit, wide), small nose, small mouth set in the architect's focus, pale chrome skin. The nave holds because she holds. Masterpiece, best quality, anime artstyle.
+
+NEG:
+
+realistic facial structure, photorealistic facial proportions, natural human nose bridge, realistic lip shape, semi-realistic anime face, 2.5D face, 3D face, child, children, childish, chibi, young girl, immature body, oversized head, loli, shota, exposed genitals, vulva, pubic hair, sex, sexual act, signature, watermark, artist name, logo, candle, candles, candelabra, lamp, lantern, torch, chandelier, brazier, male, man, 1boy, 2girls, nipples, areola, cameltoe, no wings, no tail, human arms only
+
+P22 — android-fairy-laundry-verdict (NICHE · — · R · PL135 · P90_FAIRY_LAUNDRY)
+THESIS: ARCH: N08 · LAW: the fairy laundry's reflection shows the android's seat without the data port — the reflection erases the factory's mark, and the android sits in the kinder version · PROOF: two versions of the same seat, one with the port, one without.
+Spine: PL135 Laundry-Verdict Sit · K04 mid_laundry_verdict · LEAD seat · milf register · closer action-close · witness: the fairy laundry reflection
+Stack: CR-L17 + CR-U13 + CR-L10
+POS:
+
+anime style, original character, ecchi anime style, 1girl, solo, android, milf, seat, fairy laundry reflection showing the seat without the data port, action-close. The fairy laundry's reflection shows the android's seat without the data port — the reflection erases the factory's mark, and the android sits in the kinder version: in the laundry's light the seat is unmarked, the data port a rumor the mirror refuses to confirm. The real seat beside the reflection keeps the port visible — the two versions in one frame, one kinder, one honest, and the milf-register sits in both without choosing. Her face is rendered in stylized 2D anime style: anime eyes (laundry-lit, seeing both versions), small nose, small mouth set in the choice's patience, pale synthetic skin. The reflection is kinder than the port. Masterpiece, best quality, anime artstyle.
+
+NEG:
+
+realistic facial structure, photorealistic facial proportions, natural human nose bridge, realistic lip shape, semi-realistic anime face, 2.5D face, 3D face, child, children, childish, chibi, young girl, immature body, oversized head, loli, shota, exposed genitals, vulva, pubic hair, sex, sexual act, signature, watermark, artist name, logo, candle, candles, candelabra, lamp, lantern, torch, chandelier, brazier, male, man, 1boy, 2girls, nipples, areola, cameltoe, no tail, wrong ears
+
+P23 — android-deep-hands (NICHE · — · R · PL62 · P11_OCEAN_DEEP)
+THESIS: ARCH: N27 · LAW: the android's palms read as etched serial plates in the ocean-deep dark — the serial numbers glow where the coolant pooled, each digit a data point the ocean keeps · PROOF: serial-lit palms in the dark, the ocean reading them.
+Spine: PL62 Serial-Palms Open · K145 mid_serial_glow · LEAD hands · student register · closer image-close · witness: the ocean reading the serials
+Stack: CR-U01 + CR-U15 + CR-D08
+POS:
+
+anime style, original character, ecchi anime style, 1girl, solo, android, hands open palms up, serial numbers glowing where the coolant pooled, ocean-deep dark, student, image-close. The android's palms read as etched serial plates in the ocean-deep dark — the serial numbers glow where the coolant pooled in the palm creases, each digit a data point the ocean keeps: the deep has been reading her serials since she sank, and the serials have not faded. The student-register holds both palms open — not surrender; presentation — the ocean the witness that reads without touching. Her face is rendered in stylized 2D anime style: anime eyes (ocean-deep, reading), small nose, small mouth set in the serial's silence, pale coolant-stained skin. The deep knows her serial. Masterpiece, best quality, anime artstyle.
+
+NEG:
+
+realistic facial structure, photorealistic facial proportions, natural human nose bridge, realistic lip shape, semi-realistic anime face, 2.5D face, 3D face, child, children, childish, chibi, young girl, immature body, oversized head, loli, shota, exposed genitals, vulva, pubic hair, sex, sexual act, signature, watermark, artist name, logo, candle, candles, candelabra, lamp, lantern, torch, chandelier, brazier, male, man, 1boy, 2girls, nipples, areola, cameltoe, no tail, wrong ears
+
+P24 — android-ultramarine-hamstrings (VOLT · — · R+ · PL222 · P85_ULTRAMARINE_HOUR)
+THESIS: The ultramarine hour catches the android's hamstrings at the chrome-to-synthetic transition — the seam between machine and body runs the hamstrings' length, the fragment-pair holding both materials in one frame.
+Spine: PL222 Hamstring-Seam Pair · K82 mid_seam_pair · LEAD hamstrings · young register · closer fragment-pair
+Stack: CR-W28 + CR-A06 + CR-E06 + CR-M08
+POS:
+
+anime style, original character, ecchi anime style, 1girl, solo, android, hamstrings, chrome-to-synthetic transition seam, ultramarine hour, young, fragment-pair. The ultramarine hour catches the android's hamstrings at the chrome-to-synthetic transition — the seam between machine and body runs the hamstrings' length, chrome below the knee, synthetic above, and the fragment-pair holds both materials in one frame: the machine's precision and the body's warmth sharing the same leg. The hour's deep blue makes the chrome glow and the synthetic skin warm, the singular line between the two the frame's one unavoidable center. Her face is rendered in stylized 2D anime style: anime eyes (ultramarine, half-lidded at the transition), small nose, small mouth set in the seam's calm, chrome-to-warm skin. The seam is the android. Masterpiece, best quality, anime artstyle.
+
+NEG:
+
+realistic facial structure, photorealistic facial proportions, natural human nose bridge, realistic lip shape, semi-realistic anime face, 2.5D face, 3D face, child, children, childish, chibi, young girl, immature body, oversized head, loli, shota, exposed genitals, vulva, pubic hair, sex, sexual act, signature, watermark, artist name, logo, candle, candles, candelabra, lamp, lantern, torch, chandelier, brazier, male, man, 1boy, 2girls, nipples exposed, areola, naked breasts, topless, bra, camisole, bandeau, undershirt, all chrome, all synthetic
