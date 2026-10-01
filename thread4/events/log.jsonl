@@ -189,3 +189,4 @@
 {"id":"6c7bead2","at":"2026-10-01T15:08:15.367Z","type":"oc.appeared","summary":"OC Ila назначен в T4-16","data":{"slug":"T4-16","name":"Ila"}}
 {"id":"92b5eec5","at":"2026-10-01T15:08:15.375Z","type":"oc.appeared","summary":"OC Noa назначен в T4-16","data":{"slug":"T4-16","name":"Noa"}}
 {"id":"326ee84e","at":"2026-10-01T15:08:15.387Z","type":"batch.delivered","summary":"T4-16 «Dota 2 Beauties» сдан: гейты hard PASS · FIRST RUN CLEAN (sha d94675ab75)","data":{"slug":"T4-16","title":"Dota 2 Beauties","theme":"Dota 2 Beauties","engine":"per-theme","hardPass":true,"firstRunClean":true,"sha10":"d94675ab75"}}
+{"id":"19ca9344","at":"2026-10-01T15:09:52.604Z","type":"batch.void","summary":"T4-17 закрыт по приказу автора: . Контракт остаётся в архиве как провенанс; в нумерации и ротации не участвует.","data":{"slug":"T4-17","reason":""}}
