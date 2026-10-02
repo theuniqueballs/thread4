@@ -466,6 +466,11 @@ function CompileTab() {
             рейтинги по рецептуре, назначенные носители, позы, палитры, расы, регистры.
             Диверсия назначается ДО письма. Контракт = экспозиция для автора + закон для писца.
           </p>
+          <p className="rounded border border-amber-900/50 bg-amber-950/30 px-3 py-2 text-[11px] leading-relaxed text-amber-400">
+            Статус: experimental / low-trust (Issue #21). Авто-скелет и авто-писец дают черновик,
+            требующий обязательной ручной переработки писцом — закон письма (вердикт T4-12).
+            Качество измеряет вердикт автора после рендера, не FIRST RUN CLEAN (Issue #20).
+          </p>
           <Textarea
             value={theme}
             onChange={(e) => setTheme(e.target.value)}
