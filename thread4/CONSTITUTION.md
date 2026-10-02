@@ -182,7 +182,7 @@ rendered with broken geometry) — prop-geometry gate.
 - These floors hold in every mode, every experiment, every hurry. Only an
   explicit author order amends them.
 
-## §9. FIRST RUN CLEAN IS THE DEFINITION OF DONE.
+## §9. FIRST RUN CLEAN IS THE TECHNICAL RECEIPT, NOT THE QUALITY.
 
 A batch is delivered when it passed every hard gate on the FIRST run.
 A fix-pass is a defect: it costs a root-cause note in the batch worklog +
@@ -369,3 +369,26 @@ event log. A law that only ever blocks strong frames is a suspect law
 8. **VERDICT** — author's prose → structured events (+ optional VLM pass on
    uploaded renders).
 9. **LEARN** — taste log / recipes / specs amended through events only.
+
+## DoD v1 — DEFINITION OF DONE (принято автором 2026-10-02, Issue #17).
+
+Базовая конституция работы на ближайшие 8–12 батчей (вердикт автора: «DoD принят»).
+
+1. Батч пишется **вручную** (закон письма, вердикт T4-12). Авто-компилятор и
+   авто-писец = experimental / low-trust, не в основном потоке.
+2. Hard PASS гейтов = техническая квитанция «текст не нарушает текущие законы».
+   **Не качество.** (§9 в этой редакции.)
+3. Качество батча = **вердикт автора после рендера** («клёво» и выше) +
+   скорборд приёмника. Без вердикта батч не считается завершённым.
+4. Метрика цикла: `authorCycle` ≤ 2 часов (цель). Систематически выше —
+   сигнал чинить процесс, а не продукт.
+5. Эксперименты (новые жанры, kin-версии, героини и т.д.) живут в отдельно
+   помеченных батчах и не загрязняют основной поток.
+
+Антипаттерны (Cole, Issue #17): не открывать глубокие аудиты «почему R+ не
+доезжает» из одного кадра; не плодить hard-гейты из одного неудачного рендера;
+не возвращать авто-циклы ремонта, пока ручной поток не стабилен.
+
+Обратная связь (P1): после каждого вердикта автора 1–3 квитанции
+«что сработало / что умерло» вливаются в `thread4/LIVING-NOTES.md` —
+короткий живой лист, который читает писец перед следующим батчем.
