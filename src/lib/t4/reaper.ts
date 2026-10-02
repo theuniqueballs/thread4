@@ -36,6 +36,8 @@ export function buildReaperDraft(): ReaperDraft {
     unused_batches_to_draft?: number
     channel_dead_rule?: string
     channel_live_rule?: string
+    /** Retirement Protocol (Issue #18): минимум полных прогонов на закон */
+    law_min_runs?: number
   }
   const events = readEvents()
   const state = foldState(events)
