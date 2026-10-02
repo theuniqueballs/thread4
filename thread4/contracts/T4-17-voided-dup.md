@@ -1,6 +1,6 @@
 # T4-17 «Dota 2 Beauties» — КОНТРАКТ
 
-**Скомпилировано**: 2026-10-01 · сид 3194470355 · окно ротации: T4-14 + T4-15 + T4-16
+**Скомпилировано**: 2026-10-01 · сид 3199917718 · окно ротации: T4-13 + T4-14 + T4-15
 
 ## Экспозиция — как и что решено
 
@@ -8,19 +8,19 @@
 
 одноразовый движок: писец выведет физический закон ТЕМЫ на этапе спайна (3.2-традиция — движок под тему, утилизация после батча)
 
-**НИША-ARCH** (пул 50, вердикт автора): P04 → N39, P05 → N24, P06 → N29, P07 → N32, P14 → N06, P18 → N45, P22 → N48 — каждый слот открывает THESIS строкой «ARCH: <id> · DEVICE: <невозможное устройство кадра>».
+**НИША-ARCH** (пул 50, вердикт автора): P11 → N47, P13 → N40, P15 → N15, P19 → N28, P21 → N10, P22 → N32, P23 → N14 — каждый слот открывает THESIS строкой «ARCH: <id> · DEVICE: <невозможное устройство кадра>».
 
 **Мир**: Yodayo ← Tsubaki.2 Pro · фильтр [400, 1301] душит X (проверка судьбы) · стохастика рероллов n=23 — планируем с потерями (specs/facts.json)
 
-**REHAB-добор** (policy.channels.rehab): P10 → underlayer, P20 → wet-sheer-flat — слоты пытаются оживить каналы, добор до n=15.
+**REHAB-добор** (policy.channels.rehab): P05 → underlayer, P16 → wet-sheer-flat — слоты пытаются оживить каналы, добор до n=15.
 
-**Спред рейтингов (мейны P04-P24)**: R×7 · R+×14 + OC R×3 = 24 промпта — NICHE-слоты зарабатывают R эротической позой (честный тег), VOLT несёт R+ по рецептуре (сигнал-теги + контр-NEG), X — 2 слота (Yadayo душит алгоритмически, это art-for-art).
+**Спред рейтингов (мейны P04-P24)**: R+×14 · R×7 + OC R×3 = 24 промпта — NICHE-слоты зарабатывают R эротической позой (честный тег), VOLT несёт R+ по рецептуре (сигнал-теги + контр-NEG), X — 2 слота (Yadayo душит алгоритмически, это art-for-art).
 
 **Жанры — как читать план** (вердикт T4-02: ниша/волт должны быть видны): **OC** — канон-локи персонажа, его тема в слоте; **NICHE** — невозможный образ: раса/природа делает ФИЗИЧЕСКУЮ работу в кадре (механизм, не костюм), свидетель держит кадр, невозможное — первое считывание силуэта; **VOLT** — плоть: камера-участник, тело в движении, взгляд-вектор, экспозиция тегом; **EXQUISITE** — ультра своего жанра. Жанр пишется в шапку КАЖДОГО промпта — это структурный идентификатор, гейтится.
 
-**Ротация OC**: Ama (было 1), Doe (было 1), Miyu (было 2) — по longest-rested.
+**Ротация OC**: Sue (было 3), Miyu (было 1), Ila (было 1) — по longest-rested.
 
-**A/B-дисциплина (§10-поправка)**: пара α = P08 × P21 (LEAD shoulders) · пара β = P10 × P23 (LEAD seat) · пара γ = P11 × P24 (LEAD waist) — один канал доставки (заявка одна и та же), подача разная; вердикт приёмника атрибутирует канал, а не случай (системно, а не как P10).
+**A/B-дисциплина (§10-поправка)**: пара α = P04 × P17 (LEAD throat) · пара β = P05 × P18 (LEAD nape) · пара γ = P07 × P20 (LEAD hamstrings) — один канал доставки (заявка одна и та же), подача разная; вердикт приёмника атрибутирует канал, а не случай (системно, а не как P10).
 
 **Расовый каст**: 10/21 мейнов — раса делает физическую работу в кадре (механизм, не костюм).
 
@@ -32,30 +32,30 @@
 
 | P | Жанр | Рейтинг | OC/раса | Поза | Палитра | K | Носители | LEAD | Регистр | Клоузер |
 |---|---|---|---|---|---|---|---|---|---|---|
-| P01 | OC | R | Ama | PL87 Rail Vault (HIGH) | P26_VOID_ECLIPSE | K159 | CR-U08 + CR-U14 + CR-L07 | back | milf | long-fused |
-| P02 | OC | R | Doe | PL209 Lash-Lowered Look-Down (LOW) | P07_FROST_LAVENDER | K169 | CR-D06 + CR-D11 + CR-U07 | nape | young | action-close |
-| P03 | OC | R | Miyu | PL170 Cast Follow-Through (LOW) | P73_VERMEIL_SMOKE | K135 | CR-D14 + CR-D10 + CR-L09 | collarbone | young | dialogue |
-| P04 | NICHE | R | Serpent-kin | PL158 Ice-Glide Chin-High (MID) | P23_VOID_VIOLET | K143 | CR-W18 + CR-L18 + CR-W05 | cheeks | young | fragment-pair |
-| P05 | NICHE ⚗ | R | — | PL49 Two-Hand Seat Claim (HIGH) | P99_MOONLIT_TOOLSHED | K91 | CR-U18 + CR-D27 + CR-L10 | throat | milf | image-close |
-| P06 | NICHE | R | Elf | PL58 Deep Squat Present (HIGH) | P18_EARTH_WARM | K87 | CR-W19 + CR-W08 + CR-D22 | thighs | milf | long-fused |
-| P07 | NICHE | R | Mushroom-kin | PL92 Handstand Split (HIGH) | P81_FAWN_FOLD | K104 | CR-U17 + CR-W22 + CR-U06 | breasts | student | action-close |
-| P08 | VOLT · A/α | R+ | — | PL160 Scarf-Pull From Off-Frame (MID) | P97_SELKIE_COMMUTE | K72 | CR-W26 + CR-S05 + CR-E28 + CR-I08 | shoulders | student | dialogue |
-| P09 | VOLT | R+ | — | PL117 Meadow Starfish (LOW) | P37_BLOOD_MOON | K101 | CR-W15 + CR-A07 + CR-E15 + CR-M07 | hamstrings | milf | fragment-pair |
-| P10 | VOLT · A/β | R+ | Kitsune (fox-kin) | PL83 Strap Adjust (LOW) | P52_MEIJI_DUSK | K166 | CR-W13 + CR-B14 + CR-E21 + CR-M02 | seat | student | image-close |
-| P11 | VOLT · A/γ | R+ | Harpy-kin (wing-armed) | PL219 Temple-Rub Amusement (LOW) | P44_DESERT_NIGHT | K133 | CR-W14 + CR-B13 + CR-E06 + CR-M09 | waist | student | long-fused |
-| P12 | VOLT | R+ | — | PL211 Sleeve-Shrug Shiver (LOW) | P83_MIDNIGHT_LAGOON | K153 | CR-W17 + CR-B24 + CR-E03 + CR-M06 | hands | young | action-close |
-| P13 | EXQUISITE | R+ | Dragon-kin | PL145 Coat-Flare Pivot (MID) | P63_GLACIER_BREACH | K155 | CR-W27 + CR-S10 + CR-E29 + CR-I09 | hips | young | dialogue |
-| P14 | NICHE | R | — | PL31 Back Arch Lying (HIGH) | P17_DESERT_BLEACH | K68 | CR-U04 + CR-U19 + CR-D03 | back | milf | fragment-pair |
-| P15 | VOLT | R+ | — | PL132 Tailgate Sit (LOW) | P89_THRESHOLD_GOLD | K01 | CR-W30 + CR-B28 + CR-E18 + CR-I12 | nape | young | image-close |
-| P16 | VOLT | R+ | — | PL174 Sit-Up Crunch (MID) | P51_RAIN_STAINED_GLASS | K170 | CR-W04 + CR-S04 + CR-E32 + CR-M14 | collarbone | student | long-fused |
-| P17 | VOLT | R+ | — | PL164 Oar-Lean Pull (MID) | P19_CINDER_SKY | K66 | CR-W12 + CR-C12 + CR-E17 + CR-I03 | cheeks | student | action-close |
-| P18 | NICHE | R | — | PL112 Banister Side-Slide (HIGH) | P56_AURORA_BOREALIS_NIGHT | K177 | CR-U03 + CR-L01 + CR-U09 | throat | milf | dialogue |
-| P19 | VOLT | R+ | — | PL85 Pirouette Bell (MID) | P67_PEARL_VOID | K76 | CR-W25 + CR-B27 + CR-E31 + CR-M15 | thighs | student | fragment-pair |
-| P20 | VOLT | R+ | Gargoyle-kin | PL100 Skirt-Fan Twirl (MID) | P10_ARCTIC_WHITE | K69 | CR-W09 + CR-S03 + CR-E30 + CR-M04 | breasts | student | image-close |
-| P21 | VOLT · B/α | R+ | Porcelain-doll | PL212 Laugh Head-Back (MID) | P105_MIDNIGHT_POCKET | K85 | CR-W07 + CR-C09 + CR-E25 + CR-M08 | shoulders | young | long-fused |
-| P22 | NICHE | R | Merfolk-adapt | PL99 Floor Slide (HIGH) | P74_HONEY_STATIC | K164 | CR-U15 + CR-D21 + CR-D01 | hamstrings | milf | action-close |
-| P23 | VOLT · B/β | R+ | Jellyfish-kin | PL180 Beam Cross-Step (MID) | P41_SUNSET_DRIFT | K171 | CR-W29 + CR-C14 + CR-E13 + CR-M16 | seat | young | dialogue |
-| P24 | VOLT · B/γ | R+ | — | PL29 Mirror Face-Off (LOW) | P93_GLASS_BELL_JAR | K62 | CR-W01 + CR-B20 + CR-E07 + CR-I04 | waist | milf | fragment-pair |
+| P01 | OC | R | Sue | PL213 Ear-Tip Burn Turn (LOW) | P58_INDUSTRIAL_DUST | K155 | CR-U09 + CR-D13 + CR-D02 | back | milf | long-fused |
+| P02 | OC | R | Miyu | PL136 Stage Bow (LOW) | P26_VOID_ECLIPSE | K130 | CR-L11 + CR-U12 + CR-U06 | cheeks | young | action-close |
+| P03 | OC | R | Ila | PL160 Scarf-Pull From Off-Frame (MID) | P15_INDUSTRIAL_STEEL | K05 | CR-D28 + CR-D25 + CR-D18 | waist | young | dialogue |
+| P04 | VOLT · A/α | R+ | Elf | PL100 Skirt-Fan Twirl (MID) | P41_SUNSET_DRIFT | K03 | CR-W17 + CR-S14 + CR-E17 + CR-M15 | throat | milf | fragment-pair |
+| P05 | VOLT · A/β | R+ | Bat-kin | PL40 Kneel Reaching Up (MID) | P65_OBSIDIAN_TEAL | K100 | CR-W18 + CR-B14 + CR-E25 + CR-M04 | nape | young | image-close |
+| P06 | VOLT | R+ | Kitsune (fox-kin) | PL27 Leap Suspended (LOW) | P88_COBALT_ROAD | K174 | CR-W02 + CR-B17 + CR-E22 + CR-M14 | collarbone | milf | long-fused |
+| P07 | VOLT · A/γ | R+ | Jellyfish-kin | PL238 Puddle-Rim Crouch (MID) | P34_VOID_AURORA | K72 | CR-W01 + CR-B13 + CR-E07 + CR-I01 | hamstrings | milf | action-close |
+| P08 | VOLT | R+ | — | PL215 Palm-Cheek Drowse (LOW) | P33_VOID_PRISM | K165 | CR-W03 + CR-S01 + CR-E09 + CR-I03 | thighs | young | dialogue |
+| P09 | VOLT | R+ | — | PL74 Yawn Arc (MID) | P56_AURORA_BOREALIS_NIGHT | K01 | CR-W24 + CR-A12 + CR-E02 + CR-I04 | breasts | milf | fragment-pair |
+| P10 | VOLT | R+ | — | PL32 Stretch Reach (LOW) | P77_LATE_MILK | K61 | CR-W30 + CR-C05 + CR-E28 + CR-I15 | hips | milf | image-close |
+| P11 | NICHE | R | — | PL25 Forward Fold (LOW) | P04_BLOOD_IVORY | K161 | CR-D10 + CR-L05 + CR-D27 | hands | student | long-fused |
+| P12 | VOLT | R+ | — | PL39 Half-Roll (MID) | P68_INK_AND_GOLD | K117 | CR-W20 + CR-C10 + CR-E26 + CR-I11 | shoulders | student | action-close |
+| P13 | NICHE | R | Porcelain-doll | PL170 Cast Follow-Through (LOW) | P45_FOREST_MIST_DAWN | K78 | CR-L07 + CR-D06 + CR-D07 | seat | student | dialogue |
+| P14 | EXQUISITE | R+ | Merfolk-adapt | PL126 Doorframe Top-Hang (MID) | P48_AURORA_SILK | K167 | CR-W04 + CR-S03 + CR-E23 + CR-I10 | back | young | fragment-pair |
+| P15 | NICHE | R | Flame-salamander kin | PL124 Railing Perch Lean (LOW) | P18_EARTH_WARM | K07 | CR-U07 + CR-U01 + CR-L03 | cheeks | milf | image-close |
+| P16 | VOLT | R+ | — | PL79 Covers-Peek Kneel (LOW) | P07_FROST_LAVENDER | K162 | CR-W21 + CR-S11 + CR-E06 + CR-I18 | waist | milf | long-fused |
+| P17 | VOLT · B/α | R+ | Mushroom-kin | PL66 Ladder Climb Look-Down (MID) | P66_DUSK_VERMILION | K172 | CR-W15 + CR-A14 + CR-E19 + CR-I16 | throat | milf | action-close |
+| P18 | VOLT · B/β | R+ | — | PL143 Veil Half-Lift (MID) | P95_SPELLBOUND_LINEN | K85 | CR-W25 + CR-C06 + CR-E13 + CR-M12 | nape | student | dialogue |
+| P19 | NICHE | R | — | PL210 Morning-Stretch Face (LOW) | P69_EMBER_FROST | K06 | CR-L18 + CR-L10 + CR-L12 | collarbone | student | fragment-pair |
+| P20 | VOLT · B/γ | R+ | Cat-kin | PL78 Slipper-Hunt Hop (LOW) | P09_CANDLE_AMBER | K128 | CR-W27 + CR-A07 + CR-E15 + CR-I09 | hamstrings | student | image-close |
+| P21 | NICHE | R | — | PL115 Tree-Fork Sit (LOW) | P08_MIDNIGHT_BLUE | K79 | CR-W08 + CR-U04 + CR-U08 | thighs | young | long-fused |
+| P22 | NICHE | R | — | PL52 Hands-Behind Chest Thrust (HIGH) | P27_VOID_STARLIGHT | K160 | CR-L02 + CR-D15 + CR-D17 | breasts | young | action-close |
+| P23 | NICHE | R | Gargoyle-kin | PL56 Straddle Settle (HIGH) | P79_WAX_NOON | K87 | CR-D22 + CR-U16 + CR-U19 | hips | young | dialogue |
+| P24 | VOLT ⚗ | R+ | — | PL121 High-Ledge Dangle (LOW) | P23_VOID_VIOLET | K103 | CR-W19 + CR-S12 + CR-E08 + CR-M06 | hands | student | fragment-pair |
 
 ⚗ — EXPLORATORY-слоты (конституция §10): легализованные эксперименты против нежёстких законов. Что именно щупаем — фиксируется в ворклоге батча при сдаче.
 
