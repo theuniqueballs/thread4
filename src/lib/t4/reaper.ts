@@ -178,6 +178,13 @@ export function buildReaperDraft(): ReaperDraft {
   lines.push('')
   lines.push(`Прогон по ${deliveredCount} сданным батчам эпохи. Пороги из policy.json (reaper).`)
   lines.push('Это ДРАФТ: ни одно событие не записано, ничего не удалено. Выстрел — за автором (§10).')
+  const receiptRuns = events.filter((e) => e.type === 'gate.run' && Array.isArray(e.data?.receipts)).length
+  lines.push('')
+  lines.push(
+    `Retirement Protocol (Issue #18): жнец судит законы по полным слепкам gate.run; ` +
+      `сейчас в летописи ${receiptRuns} таких прогонов (поле receipts появилось 2026-10-02), ` +
+      `порог — ${lawMinRuns} прогонов на закон. До набора порога законы не судятся.`
+  )
   lines.push('')
   if (items.length === 0) {
     lines.push('Претендентов на отставку нет — все органы дышат по правилам политики.')
