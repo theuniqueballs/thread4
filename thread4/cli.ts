@@ -212,6 +212,56 @@ async function main() {
     return
   }
 
+  if (cmd === 'shore-merge') {
+    /* Решение аудита V3 №5 (Issue #16): слияние берегов одной командой.
+       fetch → union лога (дедуп по id) → bootstrap цепи → verify → отчёт.
+       Пуш после слияния — осознанное действие оператора. */
+    const { execSync } = await import('node:child_process')
+    try {
+      execSync('git fetch origin', { stdio: 'pipe' })
+    } catch {
+      console.error('shore-merge: git fetch не удался — нет сети или origin; продолжаю только с локальным логом')
+    }
+    let remoteRaw = ''
+    try {
+      remoteRaw = execSync('git show origin/main:thread4/events/log.jsonl', { encoding: 'utf8' })
+    } catch {
+      console.log('shore-merge: удалённого лога нет — слияние не требуется, локальный лог уже главный')
+      return
+    }
+    const localLines = fs.readFileSync('thread4/events/log.jsonl', 'utf8').split('\n').filter(Boolean)
+    const remoteLines = remoteRaw.split('\n').filter(Boolean)
+    const seen = new Set<string>()
+    const merged: Array<{ at: string; line: string }> = []
+    let dupes = 0
+    for (const line of [...localLines, ...remoteLines]) {
+      try {
+        const obj = JSON.parse(line) as { id?: string; at?: string }
+        const key = obj.id ?? line
+        if (seen.has(key)) {
+          dupes += 1
+          continue
+        }
+        seen.add(key)
+        merged.push({ at: obj.at ?? '', line })
+      } catch {
+        /* битая строка не переносится — гвард рождения такие не пропускал */
+      }
+    }
+    merged.sort((a, b) => (a.at < b.at ? -1 : a.at > b.at ? 1 : 0))
+    writeText('thread4/events/log.jsonl', merged.map((m) => m.line).join('\n') + '\n')
+    const rebuilt = bootstrapChain()
+    const v = verifyChain()
+    const localOnly = localLines.filter((l) => !remoteLines.includes(l)).length
+    const remoteOnly = remoteLines.filter((l) => !localLines.includes(l)).length
+    console.log(`shore-merge: локальных новых ${localOnly}, удалённых новых ${remoteOnly}, дублей снято ${dupes}`)
+    console.log(`shore-merge: лог ${merged.length} событий, цепь ${rebuilt.links} звеньев, head ${rebuilt.head.slice(0, 10)}`)
+    console.log(`shore-merge: verify — ${v.ok ? 'ЦЕЛА' : 'СЛОМАНА: ' + v.problems.join('; ')}`)
+    console.log('shore-merge: следующее — осознанный git add thread4/events && git commit && git push')
+    process.exit(v.ok ? 0 : 1)
+    return
+  }
+
   if (cmd === 'reaper') {
     /* Залп 2 «Рефлекс»: жнец собирает ДРАФТ-отставки по каналам, движкам и OC.
        Ни одного события, ни одного удаления — доклад автору, выстрел за ним (§10). */
