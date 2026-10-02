@@ -65,7 +65,8 @@ export async function POST(req: Request) {
             ],
           },
         ],
-        thinking: { type: 'disabled' },
+        model: 'glm-4.5v',
+      thinking: { type: 'disabled' },
       })
       const raw = completion.choices[0]?.message?.content ?? ''
       if (raw.trim() === '') {
@@ -85,6 +86,7 @@ export async function POST(req: Request) {
           ],
         },
       ],
+      model: 'glm-4.5v',
       thinking: { type: 'disabled' },
     })
     const raw = completion.choices[0]?.message?.content ?? ''

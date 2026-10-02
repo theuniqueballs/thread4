@@ -193,6 +193,8 @@ export interface TierRecipe {
       lower_claims?: string[]
       /** upper-заявки (зона груди) */
       upper_claims?: string[]
+      /** bare-under маркеры (braless-позитивы, §9-септима) */
+      bare_under_marker?: string[]
     }
   >
   carrier_classes: string[]
@@ -293,6 +295,10 @@ export interface DeliveryChannel {
   delivered?: number
   evidence?: string[]
   note?: string
+  /** рождение живым вердиктом автора (grace от жнеца) */
+  born?: string
+  /** канал в доборе до n=15 */
+  rehab?: boolean
 }
 
 export interface DeliveryStatsSpec {
@@ -509,7 +515,7 @@ export function specInventory(): { id: string; name: string; count: number; vers
   const po = getPools()
   if (po) {
     const n = Object.values(po.sections).reduce(
-      (acc, v) => acc + (Array.isArray(v) ? v.length : typeof v === 'object' && v ? Object.keys(v as object).length : 0),
+      (acc: number, v: unknown): number => acc + (Array.isArray(v) ? v.length : typeof v === 'object' && v ? Object.keys(v as object).length : 0),
       0
     )
     out.push({ id: 'pools', name: 'Пулы (K/FET/H/GAR…)', count: n, version: po.version })

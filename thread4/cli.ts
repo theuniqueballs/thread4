@@ -22,7 +22,6 @@ import { getDeliveryStats, getPolicy, specInventory } from '../src/lib/t4/specs'
 import { buildReaperDraft } from '../src/lib/t4/reaper'
 import { scanSource } from '../src/lib/t4/hygiene'
 import { writeText } from '../src/lib/t4/fsutil'
-import path from 'node:path'
 
 const cmd = process.argv[2] ?? ''
 
@@ -236,7 +235,7 @@ async function main() {
           .readFileSync(qPath, 'utf8')
           .split('\n')
           .filter(Boolean)
-          .map((l, i) => ({ n: i + 1, ...(JSON.parse(l) as Record<string, unknown>) }))
+          .map((l, i): { n: number } & Record<string, unknown> => ({ n: i + 1, ...(JSON.parse(l) as Record<string, unknown>) }))
       : []
     const act = process.argv[3]
     if (!act) {

@@ -994,7 +994,7 @@ function PoolsView({ spec, filter }: { spec: unknown; filter: string }) {
     } else {
       const rec = asRecord(v)
       const inner = pickStr(rec, 'items', 'concepts', 'values', 'pool')
-      if (inner.length > 0) sections.push({ name: name || pickStr(rec, 'name', 'id'), items: inner, raw: v })
+      if (inner.length > 0) sections.push({ name: name || pickStr(rec, 'name', 'id'), items: [inner], raw: v })
     }
   }
 

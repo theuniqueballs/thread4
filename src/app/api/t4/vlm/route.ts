@@ -50,6 +50,7 @@ export async function POST(req: Request) {
           ],
         },
       ],
+      model: 'glm-4.5v',
       thinking: { type: 'disabled' },
     })
     const raw = completion.choices[0]?.message?.content ?? ''
