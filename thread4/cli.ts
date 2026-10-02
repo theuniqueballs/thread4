@@ -229,8 +229,8 @@ async function main() {
       console.log('shore-merge: удалённого лога нет — слияние не требуется, локальный лог уже главный')
       return
     }
-    const localLines = fs.readFileSync('thread4/events/log.jsonl', 'utf8').split('\n').filter(Boolean)
-    const remoteLines = remoteRaw.split('\n').filter(Boolean)
+    const localLines = fs.readFileSync('thread4/events/log.jsonl', 'utf8').split('\n').filter(Boolean).map((l) => l.trim())
+    const remoteLines = remoteRaw.split('\n').filter(Boolean).map((l) => l.trim())
     const seen = new Set<string>()
     const merged: Array<{ at: string; line: string }> = []
     let dupes = 0
@@ -243,7 +243,7 @@ async function main() {
           continue
         }
         seen.add(key)
-        merged.push({ at: obj.at ?? '', line })
+        merged.push({ at: obj.at ?? '', line: line.trim() })
       } catch {
         /* битая строка не переносится — гвард рождения такие не пропускал */
       }
