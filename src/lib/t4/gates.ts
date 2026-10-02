@@ -1427,6 +1427,10 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
           .filter((r) => r.level === 'hard' && r.verdict === 'FAIL')
           .map((r) => r.gate),
         warns: receipts.filter((r) => r.level === 'warn' && r.verdict === 'WARN').length,
+        warnNames: receipts.filter((r) => r.level === 'warn' && r.verdict === 'WARN').map((r) => r.gate),
+        /* полный слепок прогона — еда для Retirement Protocol (Issue #18):
+           закон, ни разу не поймавший ловушку, — кандидат на отставку */
+        receipts: receipts.map((r) => ({ gate: r.gate, level: r.level, verdict: r.verdict })),
       }
     )
   }

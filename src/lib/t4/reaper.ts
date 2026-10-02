@@ -16,7 +16,7 @@ import { foldState, readEvents } from './events'
 import { getDeliveryStats, getEngines, getOCCanon, getPolicy } from './specs'
 
 export interface ReaperItem {
-  kind: 'channel' | 'engine' | 'oc'
+  kind: 'channel' | 'engine' | 'oc' | 'law'
   id: string
   status: string
   facts: string
@@ -129,6 +129,45 @@ export function buildReaperDraft(): ReaperDraft {
         status: '0 появлений в летописи',
         facts: 'в каноне активна, в ротации не светилась (или события канонизации старше пересборок лога)',
         recommendation: 'дать дебют в ближайших батчах ИЛИ перевести в inactive_reserve — решает автор',
+      })
+    }
+  }
+
+  /* --- законы/гейты: Retirement Protocol (Issue #18, MD-4 храповик).
+     Закон, который ни разу не поймал реальную ловушку за N полных прогонов,
+     — кандидат на suspension/retirement. Выстрел за автором (§10):
+     закон.retired / закон.suspended событие записывается только по вердикту. */
+  const lawMinRuns = Number(reaperPolicy.law_min_runs ?? 5)
+  const gateTally = new Map<string, { runs: number; hardFails: number; warns: number }>()
+  for (const e of events) {
+    if (e.type !== 'gate.run') continue
+    const receipts = Array.isArray(e.data?.receipts) ? (e.data?.receipts as Array<{ gate?: string; level?: string; verdict?: string }>) : []
+    for (const r of receipts) {
+      if (!r.gate) continue
+      const t = gateTally.get(r.gate) ?? { runs: 0, hardFails: 0, warns: 0 }
+      t.runs += 1
+      if (r.level === 'hard' && r.verdict === 'FAIL') t.hardFails += 1
+      if (r.level === 'warn' && r.verdict === 'WARN') t.warns += 1
+      gateTally.set(r.gate, t)
+    }
+  }
+  for (const [gate, t] of [...gateTally.entries()].sort((a, b) => a[1].runs - b[1].runs)) {
+    if (t.runs < lawMinRuns) continue
+    if (t.hardFails === 0 && t.warns === 0) {
+      items.push({
+        kind: 'law',
+        id: gate,
+        status: `${t.runs} прогонов — ни одной ловушки`,
+        facts: `гейт за ${t.runs} полных прогонов не поймал ни одного FAIL/WARN — он ничего не измеряет, только весит (храповик MD-4)`,
+        recommendation: 'кандидат на law.suspended (заморозка) или law.retired — решает автор (§10)',
+      })
+    } else if (t.hardFails + t.warns >= Math.ceil(t.runs / 2)) {
+      items.push({
+        kind: 'law',
+        id: gate,
+        status: `ловит в ${(t.hardFails + t.warns) / t.runs * 100 | 0}% прогонов`,
+        facts: `hard FAIL ×${t.hardFails}, WARN ×${t.warns} из ${t.runs} прогонов — закон живой и работает`,
+        recommendation: 'оставить (двусторонний храповик: жизнь тоже фиксируется)',
       })
     }
   }
