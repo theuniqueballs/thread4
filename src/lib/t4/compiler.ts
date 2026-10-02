@@ -763,6 +763,9 @@ export function contractMarkdown(c: BatchContract): string {
   lines.push('')
   lines.push(`**Скомпилировано**: ${c.createdAt.slice(0, 10)} · сид ${c.seed} · окно ротации: ${c.windowSlugs.length ? c.windowSlugs.join(' + ') : 'чистый лист'}`)
   lines.push('')
+  /* Issue #21: авто-компилятор/писец — experimental/low-trust (вердикт автора 2026-10-02) */
+  lines.push('**СТАТУС: experimental / low-trust** — авто-скелет требует ручной переработки писцом (закон письма, вердикт T4-12; Issue #21).')
+  lines.push('')
   lines.push('## Экспозиция — как и что решено')
   lines.push('')
   lines.push(`**Движок**: \`${c.engine}\` — ${c.engineLaw}`)

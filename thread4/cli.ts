@@ -32,6 +32,9 @@ function printGates(result: NonNullable<ReturnType<typeof runGates>>) {
     for (const f of r.findings.slice(0, 5)) console.log(`       ${f}`)
   }
   console.log(`\nrun #${result.runIndex} · hard ${result.hardPass ? 'PASS' : 'FAIL'}${result.firstRunClean ? ' · FIRST RUN CLEAN' : ''}`)
+  /* Issue #20: FRC — согласие гейтов с текстом, не качество.
+     Единственный честный сигнал качества — вердикт автора после рендера. */
+  console.log('  (FRC = гейты согласны с текстом; качество измеряет вердикт автора после рендера — Issue #20)')
 }
 
 async function main() {
