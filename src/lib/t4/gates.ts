@@ -269,6 +269,7 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
   {
     const f: string[] = []
     const floors = recipes?.eternal_floors ?? {}
+    const milfSlots = new Set<number>()
     for (const s of batch.slots) {
       const neg = s.neg.toLowerCase()
       for (const term of floors.genital_lock ?? []) {
@@ -307,11 +308,10 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
           break
         }
       }
-      // maturity tags (N30): milf is ALWAYS banned in POS; adult woman /
-      // mature female are warn-level (batch-wide MILF skew receipt)
-      if (/\b(milf|milfs)\b/i.test(s.pos)) {
-        f.push(`P${s.position}: тег зрелости в POS («milf») — N30: зрелость только нарративом`)
-      }
+      // maturity tags (N30 + поправка автора 2026-10-03 «милф разрешён,
+      // но не везде»): milf-токен в POS легален, но квота — треть батча
+      // (8/24); сверх квоты — hard fail. Проверка квоты — после цикла.
+      if (/\b(milf|milfs)\b/i.test(s.pos)) milfSlots.add(s.position)
       // XXX never — УЛУЧШЕНО (аудит V3): word-boundary вместо подстроки —
       // «amusement» больше не рождает ложный «semen»
       const posLow = s.pos.toLowerCase()
@@ -322,6 +322,13 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
           break
         }
       }
+    }
+    // N30-поправка 2026-10-03: milf разрешён, но не везде — квота треть батча
+    const milfCap = Math.ceil(batch.slots.length / 3)
+    if (milfSlots.size > milfCap) {
+      f.push(
+        `milf-токен в ${milfSlots.size} слотах (${[...milfSlots].map((n) => 'P' + String(n).padStart(2, '0')).join(', ')}) > ${milfCap} — N30-поправка: милф разрешён, но не везде`
+      )
     }
     hard('floors', f)
   }
