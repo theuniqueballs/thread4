@@ -153,7 +153,25 @@ export function buildReaperDraft(): ReaperDraft {
       gateTally.set(r.gate, t)
     }
   }
+  /* Issue #23 (Кенни): страховочные гейты (anti-loli, genital lock — «floors»)
+     молчат ПО ОПРЕДЕЛЕНИЮ: батчи пишутся так, чтобы они проходили. Тишина =
+     защита работает, не мёртвый закон. protected_gates не судятся. */
+  const protectedGates = new Set(
+    (reaperPolicy as { protected_gates?: string[] }).protected_gates ?? []
+  )
+  for (const gate of protectedGates) {
+    if (gateTally.has(gate)) {
+      items.push({
+        kind: 'law',
+        id: gate,
+        status: 'страховка (protected_gates)',
+        facts: 'молчание = норма: защита от детского/запретного кодирования всегда должна молчать; отставке не подлежит',
+        recommendation: 'не судить Retirement Protocol — исключено policy.reaper.protected_gates (Issue #23)',
+      })
+    }
+  }
   for (const [gate, t] of [...gateTally.entries()].sort((a, b) => a[1].runs - b[1].runs)) {
+    if (protectedGates.has(gate)) continue
     if (t.runs < lawMinRuns) continue
     if (t.hardFails === 0 && t.warns === 0) {
       items.push({

@@ -65,6 +65,8 @@
     "unused_batches_to_draft": 4,
     "channel_dead_rule": "n>=15 и delivered=0 → dead",
     "channel_live_rule": "n>=3 и delivered>0 → live",
+    "law_min_runs": 5,
+    "protected_gates": ["floors"],
     "note": "эра проксируется сданными батчами; reaper пишет ДРАФТ-отставки, выстрел всегда за автором (§10)"
   },
   "author_pin": {

@@ -39,7 +39,7 @@ export interface GatesResult {
  *  Залп 2: +1 warn (ab-single-variable). Вердикт автора 2026-09-27:
  *  +1 warn (theme-presence), -1 engine-rent (движки одноразовые),
  *  +1 warn (garment-family, U8 «осторожно») → 22. */
-export const GATES_TOTAL = 22
+export const GATES_TOTAL = 24
 
 /* ------------------------------------------------------------------ */
 /* Batch file parsing                                                  */
@@ -1124,6 +1124,45 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
       }
     }
     warn('theme-presence', f)
+  }
+
+  /* ---------------- 9e-2. original-character-coverage (warn — Issue #24) ---
+     U1 (вердикт автора 2026-09-27) в ручном потоке: «original character» —
+     тег POS каждого не-OC слота; защита от данбуру-дрейфа (ram → Re:Zero).
+     normalizePos исполняет его только для авто-писца — руки Чарли гейт
+     теперь проверяет. Исключение: героинь-батчи (маркер HEROINE-BATCH: yes
+     в шапке — ORDER v2: тег рисует «оригинального персонажа» вместо героини). */
+  {
+    const f: string[] = []
+    const heroineBatch = /HEROINE-BATCH:\s*yes/i.test(file)
+    for (const s of batch.slots) {
+      if (s.genre === 'OC') continue
+      const firstPeriod = s.pos.indexOf('.')
+      const tagBlock = (firstPeriod > 0 ? s.pos.slice(0, firstPeriod) : s.pos).toLowerCase()
+      if (!/\boriginal character\b/.test(tagBlock)) {
+        f.push(
+          `P${s.position}: нет original character в тег-блоке — U1 в ручном потоке (Issue #24)${heroineBatch ? ' [HEROINE-BATCH: исключение не действует на не-OC слоты вне героинь-батчей]' : ''}`
+        )
+      }
+    }
+    if (heroineBatch) f.unshift('HEROINE-BATCH: yes — U1 действует только на OC-слоты (ORDER v2, вердикт T4-17)')
+    warn('original-character-coverage', f)
+  }
+
+  /* ---------------- 9e-3. artist-leak (warn — Issue #24, U3 в ручном потоке)
+     artist-теги = PH-утечка (T4-11 P06): имя художника в POS зовёт его стиль
+     чужого рисования. Правило policy.writer_rules.artist_ban руками Чарли
+     гейт теперь проверяет. */
+  {
+    const f: string[] = []
+    for (const s of batch.slots) {
+      const firstPeriod = s.pos.indexOf('.')
+      const tagBlock = (firstPeriod > 0 ? s.pos.slice(0, firstPeriod) : s.pos)
+      if (/\bartist\b|\bart by\b|\bdrawn by\b|\bpainted by\b/i.test(tagBlock)) {
+        f.push(`P${s.position}: artist-подобный токен в тег-блоке — artist_ban, PH-утечка (Issue #24, U3)`)
+      }
+    }
+    warn('artist-leak', f)
   }
 
   /* ---------------- 9e. garment-family (warn, U8 «внедрить, но осторожно») --- */
