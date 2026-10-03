@@ -1135,17 +1135,18 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
   {
     const f: string[] = []
     const heroineBatch = /HEROINE-BATCH:\s*yes/i.test(file)
-    for (const s of batch.slots) {
-      if (s.genre === 'OC') continue
-      const firstPeriod = s.pos.indexOf('.')
-      const tagBlock = (firstPeriod > 0 ? s.pos.slice(0, firstPeriod) : s.pos).toLowerCase()
-      if (!/\boriginal character\b/.test(tagBlock)) {
-        f.push(
-          `P${s.position}: нет original character в тег-блоке — U1 в ручном потоке (Issue #24)${heroineBatch ? ' [HEROINE-BATCH: исключение не действует на не-OC слоты вне героинь-батчей]' : ''}`
-        )
+    if (heroineBatch) {
+      f.unshift('HEROINE-BATCH: yes — U1 действует только на OC-слоты (ORDER v2, вердикт T4-17); не-OC слоты исключены')
+    } else {
+      for (const s of batch.slots) {
+        if (s.genre === 'OC') continue
+        const firstPeriod = s.pos.indexOf('.')
+        const tagBlock = (firstPeriod > 0 ? s.pos.slice(0, firstPeriod) : s.pos).toLowerCase()
+        if (!/\boriginal character\b/.test(tagBlock)) {
+          f.push(`P${s.position}: нет original character в тег-блоке — U1 в ручном потоке (Issue #24)`)
+        }
       }
     }
-    if (heroineBatch) f.unshift('HEROINE-BATCH: yes — U1 действует только на OC-слоты (ORDER v2, вердикт T4-17)')
     warn('original-character-coverage', f)
   }
 
