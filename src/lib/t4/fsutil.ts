@@ -18,6 +18,7 @@ export const CHAIN_LOG = path.join(EVENTS_DIR, 'chain.jsonl')
 export const COMMANDER_KEY = path.join(os.homedir(), '.t4', 'commander.key')
 export const BATCHES_DIR = path.join(T4_ROOT, 'batches')
 export const CONTRACTS_DIR = path.join(T4_ROOT, 'contracts')
+export const DRAFTS_DIR = path.join(T4_ROOT, 'drafts')
 export const DOCS_DIR = T4_ROOT
 
 /** 3.2 archive — read-only substrate (the rollback stays in chemodan/). */
@@ -29,7 +30,7 @@ export const ARCHIVE_DIR = path.join(
 )
 
 export function ensureDirs(): void {
-  for (const d of [T4_ROOT, SPECS_DIR, EVENTS_DIR, BATCHES_DIR, CONTRACTS_DIR]) {
+  for (const d of [T4_ROOT, SPECS_DIR, EVENTS_DIR, BATCHES_DIR, CONTRACTS_DIR, DRAFTS_DIR]) {
     fs.mkdirSync(d, { recursive: true })
   }
 }

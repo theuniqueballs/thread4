@@ -221,3 +221,4 @@
 {"id":"5c306f5f","at":"2026-10-04T18:33:46.282Z","type":"oc.appeared","summary":"OC Yui назначен в T4-21","data":{"slug":"T4-21","name":"Yui"}}
 {"id":"294ff2c2","at":"2026-10-04T18:33:46.294Z","type":"oc.appeared","summary":"OC Una назначен в T4-21","data":{"slug":"T4-21","name":"Una"}}
 {"id":"494c75cf","at":"2026-10-04T18:33:46.317Z","type":"batch.delivered","summary":"T4-21 «MAIN CHARACTER SYNDROME» сдан: гейты hard PASS · FIRST RUN CLEAN (sha 2db3f32413)","data":{"slug":"T4-21","title":"MAIN CHARACTER SYNDROME","theme":"MAIN CHARACTER SYNDROME","engine":"per-theme","hardPass":true,"firstRunClean":true,"sha10":"2db3f32413"}}
+{"id":"ad78ae9b","at":"2026-10-04T19:13:26.530Z","type":"note","summary":"T4-22: черновик контракта создан автором через UI (без компиляции) — тема «TEST-DRAFT-SMOKE», OC-тем: 3, кины ON ×5, X=1","data":{"slug":"T4-22","kind":"contract-draft","source":"author"}}
