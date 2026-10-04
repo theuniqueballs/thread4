@@ -74,3 +74,4 @@ tool-results/
 dev-*.log
 .dev-server.log
 *.tsbuildinfo
+tmp-research-data.txt
