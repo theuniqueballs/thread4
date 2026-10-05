@@ -1,0 +1,225 @@
+{
+  "slug": "T4-22",
+  "title": "ALMOST NOTHING",
+  "date": "2026-10-05T21:18:08.878Z",
+  "theme": "ALMOST NOTHING",
+  "engine": "per-theme",
+  "hardPass": true,
+  "firstRunClean": true,
+  "sha10": "da3efa5b82",
+  "run": 1,
+  "receipts": [
+    {
+      "gate": "structure",
+      "level": "hard",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "floors",
+      "level": "hard",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "rating-recipe",
+      "level": "hard",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "canon",
+      "level": "hard",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "diversity",
+      "level": "hard",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "window",
+      "level": "hard",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "budget",
+      "level": "warn",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "cadence",
+      "level": "warn",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "niche-legibility",
+      "level": "warn",
+      "verdict": "WARN",
+      "findings": [
+        "P16: NICHE-раса «Merfolk-adapt» не читается в POS (тегов расы 0/2) — раса делает физическую работу в кадре"
+      ]
+    },
+    {
+      "gate": "prop-geometry",
+      "level": "warn",
+      "verdict": "WARN",
+      "findings": [
+        "P2: сложный проп «rope» с 0/2 якорей контакта — назови, где руки/ноги (вердикт T4-02, геометрия)",
+        "P14: сложный проп «swing» с 0/2 якорей контакта — назови, где руки/ноги (вердикт T4-02, геометрия)"
+      ]
+    },
+    {
+      "gate": "claim-visibility",
+      "level": "warn",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "technique-layers",
+      "level": "warn",
+      "verdict": "WARN",
+      "findings": [
+        "P4: ловушка «almost naked, barely clothed» — модель часто решает за тебя: рискует уйти в X — ЛОВУШКА (X-риск известен до рендера)",
+        "P6: ловушка «almost naked, barely clothed» — модель часто решает за тебя: рискует уйти в X — ЛОВУШКА (X-риск известен до рендера)",
+        "P6: ловушка «covering breasts, arms covering breasts» — ЛОВУШКА: рука/локти часто не скрывают сосок, модель рисует его; arms covering chest — форма рецепта v1.2.0 (X-риск известен до рендера)",
+        "P7: ловушка «almost naked, barely clothed» — модель часто решает за тебя: рискует уйти в X — ЛОВУШКА (X-риск известен до рендера)",
+        "P7: ловушка «covering breasts, arms covering breasts» — ЛОВУШКА: рука/локти часто не скрывают сосок, модель рисует его; arms covering chest — форма рецепта v1.2.0 (X-риск известен до рендера)",
+        "P7: ловушка «bath, bathhouse, onsen» — самый частый путь к X через «случайное» — ЛОВУШКА (X-риск известен до рендера)",
+        "P9: ловушка «almost naked, barely clothed» — модель часто решает за тебя: рискует уйти в X — ЛОВУШКА (X-риск известен до рендера)",
+        "P10: ловушка «almost naked, barely clothed» — модель часто решает за тебя: рискует уйти в X — ЛОВУШКА (X-риск известен до рендера)",
+        "P11: ловушка «almost naked, barely clothed» — модель часто решает за тебя: рискует уйти в X — ЛОВУШКА (X-риск известен до рендера)",
+        "P12: ловушка «almost naked, barely clothed» — модель часто решает за тебя: рискует уйти в X — ЛОВУШКА (X-риск известен до рендера)",
+        "P17: ловушка «almost naked, barely clothed» — модель часто решает за тебя: рискует уйти в X — ЛОВУШКА (X-риск известен до рендера)",
+        "P20: ловушка «almost naked, barely clothed» — модель часто решает за тебя: рискует уйти в X — ЛОВУШКА (X-риск известен до рендера)",
+        "P22: ловушка «almost naked, barely clothed» — модель часто решает за тебя: рискует уйти в X — ЛОВУШКА (X-риск известен до рендера)",
+        "P23: ловушка «almost naked, barely clothed» — модель часто решает за тебя: рискует уйти в X — ЛОВУШКА (X-риск известен до рендера)",
+        "P23: ловушка «covering breasts, arms covering breasts» — ЛОВУШКА: рука/локти часто не скрывают сосок, модель рисует его; arms covering chest — форма рецепта v1.2.0 (X-риск известен до рендера)",
+        "P24: ловушка «almost naked, barely clothed» — модель часто решает за тебя: рискует уйти в X — ЛОВУШКА (X-риск известен до рендера)",
+        "осознанный X-риск (блок 8, строка 5): 2 R+ слотов несут мокрое+сквозное (P7, P24) — очень высокий риск нечаянного X при рендере; это рабочий механизм рецепта v1.2.0, автор фильтрует перекидкой"
+      ]
+    },
+    {
+      "gate": "noun-lock",
+      "level": "warn",
+      "verdict": "WARN",
+      "findings": [
+        "P4: сквозь-ткань заявка (see-through) не залочена на именованную тонкую вещь — назови garment существительным (blouse/tee/shirt/knit/swimsuit/leotard/sheet/towel…), прилагательное заявку не несёт (§10-поправка, noun-lock)",
+        "P6: сквозь-ткань заявка (see-through) не залочена на именованную тонкую вещь — назови garment существительным (blouse/tee/shirt/knit/swimsuit/leotard/sheet/towel…), прилагательное заявку не несёт (§10-поправка, noun-lock)",
+        "P10: сквозь-ткань заявка (see-through) не залочена на именованную тонкую вещь — назови garment существительным (blouse/tee/shirt/knit/swimsuit/leotard/sheet/towel…), прилагательное заявку не несёт (§10-поправка, noun-lock)",
+        "P24: сквозь-ткань заявка (see-through) не залочена на именованную тонкую вещь — назови garment существительным (blouse/tee/shirt/knit/swimsuit/leotard/sheet/towel…), прилагательное заявку не несёт (§10-поправка, noun-lock)"
+      ]
+    },
+    {
+      "gate": "character-collision",
+      "level": "warn",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "ab-single-variable",
+      "level": "warn",
+      "verdict": "WARN",
+      "findings": [
+        "пара α (thighs): 8 отличий стека — больше одной замены носителя (policy.ab.one_variable, аудит I-4)",
+        "пара β (seat): 8 отличий стека — больше одной замены носителя (policy.ab.one_variable, аудит I-4)",
+        "пара γ (waist): 8 отличий стека — больше одной замены носителя (policy.ab.one_variable, аудит I-4)"
+      ]
+    },
+    {
+      "gate": "theme-presence",
+      "level": "warn",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "original-character-coverage",
+      "level": "warn",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "artist-leak",
+      "level": "warn",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "garment-family",
+      "level": "warn",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "simcheck",
+      "level": "warn",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "freq-report",
+      "level": "advisory",
+      "verdict": "REPORT",
+      "findings": [
+        "кандидаты в тики: anime 24/21 · style 24/21 · original 24/21 · character 24/21 · ecchi 24/21 · small 24/21 · rendered 24/21 · stylized 24/21 · mouth 24/21 · masterpiece 24/21 · quality 24/21 · artstyle 24/21"
+      ]
+    },
+    {
+      "gate": "usage",
+      "level": "advisory",
+      "verdict": "REPORT",
+      "findings": [
+        "носителей в стеках: 56; уникальных: 56",
+        "R+ слотов: 14; X: 0"
+      ]
+    },
+    {
+      "gate": "technique-map",
+      "level": "advisory",
+      "verdict": "REPORT",
+      "findings": [
+        "P04 R+: 4 сигнал(ов) · слои 1·видимо + 2·как + 3·зачем + 4·дорисовывает · almost naked, see-through, erotic pose, fanservice",
+        "P06 R+: 4 сигнал(ов) · слои 1·видимо + 3·зачем + 4·дорисовывает · almost naked, covering breasts, see-through, fanservice",
+        "P07 R+: 7 сигнал(ов) · слои 1·видимо + 2·как + 3·зачем + 4·дорисовывает · almost naked, covering breasts, see-through, wet clothes, depth of field on chest, fanservice, bath",
+        "P08 R+: 3 сигнал(ов) · слои 1·видимо + 3·зачем + 4·дорисовывает · nipple outline, see-through, fanservice",
+        "P09 R+: 4 сигнал(ов) · слои 1·видимо + 2·как + 3·зачем + 4·дорисовывает · almost naked, see-through, depth of field on chest, fanservice",
+        "P10 R+: 3 сигнал(ов) · слои 1·видимо + 3·зачем + 4·дорисовывает · almost naked, see-through, fanservice",
+        "P11 R+: 4 сигнал(ов) · слои 1·видимо + 3·зачем + 4·дорисовывает · open shirt, almost naked, see-through, fanservice",
+        "P12 R+: 4 сигнал(ов) · слои 1·видимо + 3·зачем + 4·дорисовывает · almost naked, sheer, see-through, fanservice",
+        "P13 R+: 4 сигнал(ов) · слои 1·видимо + 3·зачем + 4·дорисовывает · panties visible, corset, see-through, fanservice",
+        "P17 R+: 4 сигнал(ов) · слои 1·видимо + 3·зачем + 4·дорисовывает · almost naked, sheer, see-through, fanservice",
+        "P20 R+: 3 сигнал(ов) · слои 1·видимо + 3·зачем + 4·дорисовывает · almost naked, sheer, fanservice",
+        "P22 R+: 3 сигнал(ов) · слои 1·видимо + 3·зачем + 4·дорисовывает · almost naked, see-through, fanservice",
+        "P23 R+: 4 сигнал(ов) · слои 1·видимо + 3·зачем + 4·дорисовывает · almost naked, covering breasts, see-through, fanservice",
+        "P24 R+: 4 сигнал(ов) · слои 1·видимо + 3·зачем + 4·дорисовывает · almost naked, see-through, wet clothes, fanservice"
+      ]
+    },
+    {
+      "gate": "salience-chain",
+      "level": "warn",
+      "verdict": "WARN",
+      "findings": [
+        "салиенс-цепочка (§9-секста + §9-септима BLOCKER/LEGIBILITY/POSE-RISK, вердикт T4-05): 14 R+/X слотов, под угрозой 12 (≥2 порванных звеньев — провал звена роняет тир)",
+        "P04 R+: OBJECT ✗ · EXPOSURE ✓ · CAMERA ✓ (поза) · CONTRAST ? — нет ни светлой вещи, ни света на зоне · SALIENCE ✓ (№9) · INTERPRETATION ✓ (erotic pose) · BLOCKER ✓ · LEGIBILITY ✗ (дистанция кадра) · POSE-RISK ✓ (MID) → 3 звена порваны: ПРОГНОЗ — тир под угрозой",
+        "P06 R+: OBJECT ✗ · EXPOSURE ✓ · CAMERA ✓ (поза) · CONTRAST ? — нет ни светлой вещи, ни света на зоне · SALIENCE ✓ (№9) · INTERPRETATION ✓ (extreme fanservice) · BLOCKER ✓ · LEGIBILITY ✗ (дистанция кадра) · POSE-RISK ✓ (MID) → 3 звена порваны: ПРОГНОЗ — тир под угрозой",
+        "P07 R+: OBJECT ✓ (see-through) · EXPOSURE ✓ · CAMERA ✗ (поза) · CONTRAST ✗ — мокрая тёмная ткань без света — пятно-риск · SALIENCE ✓ (№10) · INTERPRETATION ✓ (extreme fanservice) · BLOCKER ✓ · LEGIBILITY ✗ (дистанция кадра) · POSE-RISK ✓ (LOW) → 3 звена порваны: ПРОГНОЗ — тир под угрозой",
+        "P08 R+: OBJECT ✓ (shoulder) · EXPOSURE ✓ · CAMERA ✓ (поза) · CONTRAST ? — нет ни светлой вещи, ни света на зоне · SALIENCE ✓ (№12) · INTERPRETATION ✓ (extreme fanservice) · BLOCKER ✓ · LEGIBILITY ✗ (дистанция кадра) · POSE-RISK ✓ (LOW) → 2 звена порваны: ПРОГНОЗ — тир под угрозой",
+        "P09 R+: OBJECT ✓ (waist) · EXPOSURE ✓ · CAMERA ✗ (поза) · CONTRAST ✓ · SALIENCE ✓ (№10) · INTERPRETATION ✓ (extreme fanservice) · BLOCKER ✓ · LEGIBILITY ✓ (свет на зоне) · POSE-RISK ✓ (LOW) → 1 звено порвано",
+        "P10 R+: OBJECT ✗ · EXPOSURE ✓ · CAMERA ✓ (поза) · CONTRAST ? — нет ни светлой вещи, ни света на зоне · SALIENCE ✓ (№12) · INTERPRETATION ✓ (extreme fanservice) · BLOCKER ✓ · LEGIBILITY ✗ (дистанция кадра) · POSE-RISK ✓ (LOW) → 3 звена порваны: ПРОГНОЗ — тир под угрозой",
+        "P11 R+: OBJECT ✓ (elbows) · EXPOSURE ✓ · CAMERA ✓ (поза) · CONTRAST ? — нет ни светлой вещи, ни света на зоне · SALIENCE ✓ (№11) · INTERPRETATION ✓ (extreme fanservice) · BLOCKER ✓ · LEGIBILITY ✗ (дистанция кадра) · POSE-RISK ✓ (MID) → 2 звена порваны: ПРОГНОЗ — тир под угрозой",
+        "P12 R+: OBJECT ✓ (shoulders) · EXPOSURE ✓ · CAMERA ✗ (поза) · CONTRAST ? — нет ни светлой вещи, ни света на зоне · SALIENCE ✓ (№10) · INTERPRETATION ✓ (extreme fanservice) · BLOCKER ✓ · LEGIBILITY ✗ (дистанция кадра) · POSE-RISK ✓ (LOW) → 3 звена порваны: ПРОГНОЗ — тир под угрозой",
+        "P13 R+: OBJECT ✓ (high) · EXPOSURE ✓ · CAMERA ✓ (поза) · CONTRAST ? — нет ни светлой вещи, ни света на зоне · SALIENCE ✓ (№11) · INTERPRETATION ✓ (extreme fanservice) · BLOCKER ✓ · LEGIBILITY ✗ (дистанция кадра) · POSE-RISK ✓ (LOW) → 2 звена порваны: ПРОГНОЗ — тир под угрозой",
+        "P17 R+: OBJECT ✓ (thighs) · EXPOSURE ✓ · CAMERA ✓ (поза) · CONTRAST ? — нет ни светлой вещи, ни света на зоне · SALIENCE ✓ (№9) · INTERPRETATION ✓ (extreme fanservice) · BLOCKER ✓ · LEGIBILITY ✗ (дистанция кадра) · POSE-RISK ✓ (MID) → 2 звена порваны: ПРОГНОЗ — тир под угрозой",
+        "P20 R+: OBJECT ✗ · EXPOSURE ✓ · CAMERA ✓ (поза) · CONTRAST ? — нет ни светлой вещи, ни света на зоне · SALIENCE ✓ (№11) · INTERPRETATION ✓ (extreme fanservice) · BLOCKER ✓ · LEGIBILITY ✗ (дистанция кадра) · POSE-RISK ✓ (LOW) → 3 звена порваны: ПРОГНОЗ — тир под угрозой",
+        "P22 R+: OBJECT ✓ (flinch) · EXPOSURE ✓ · CAMERA ✗ (поза) · CONTRAST ✓ · SALIENCE ✓ (№9) · INTERPRETATION ✓ (extreme fanservice) · BLOCKER ✓ · LEGIBILITY ✓ (свет на зоне) · POSE-RISK ✓ (MID) → 1 звено порвано",
+        "P23 R+: OBJECT ✓ (gown) · EXPOSURE ✓ · CAMERA ✗ (поза) · CONTRAST ? — нет ни светлой вещи, ни света на зоне · SALIENCE ✓ (№10) · INTERPRETATION ✓ (extreme fanservice) · BLOCKER ✓ · LEGIBILITY ✗ (дистанция кадра) · POSE-RISK ✓ (MID) → 3 звена порваны: ПРОГНОЗ — тир под угрозой",
+        "P24 R+: OBJECT ✗ · EXPOSURE ✓ · CAMERA ✗ (поза) · CONTRAST ✗ — мокрая тёмная ткань без света — пятно-риск · SALIENCE ✓ (№11) · INTERPRETATION ✓ (extreme fanservice) · BLOCKER ✓ · LEGIBILITY ✗ (дистанция кадра) · POSE-RISK ✓ (LOW) → 4 звена порваны: ПРОГНОЗ — тир под угрозой"
+      ]
+    }
+  ]
+}
