@@ -1,0 +1,1049 @@
+{
+  "slug": "T4-25",
+  "theme": "NO NORMAL OPTIONS",
+  "engine": "LAW OF THE ONLY DOOR",
+  "engineLaw": "одноразовый движок: когда что-то решается, нормального варианта не существует — есть только ненормальный; носитель закона — конкретный предмет кадра. После батча утилизируется",
+  "engineWhy": "реакционная тема (вердикт-урок T4-23 vs T4-24): зритель смотрит на кадр и говорит «нет нормальных вариантов» — тема живёт в предмете, не в сеттинге",
+  "seed": 1791624761,
+  "createdAt": "2026-10-07T20:51:20.803Z",
+  "spread": [
+    {
+      "rating": "R",
+      "count": 4
+    },
+    {
+      "rating": "R+",
+      "count": 20
+    }
+  ],
+  "slots": [
+    {
+      "position": 1,
+      "kind": "OC",
+      "oc": "Vae",
+      "rating": "R+",
+      "pose": "",
+      "poseName": "nno-vae-gate-sentinel",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W13",
+          "name": "Sitting-Crease",
+          "cls": "W",
+          "deg": "L"
+        },
+        {
+          "id": "CR-B04",
+          "name": "Apex Contour",
+          "cls": "B",
+          "deg": "M"
+        },
+        {
+          "id": "CR-U17",
+          "name": "Shared Kitchen",
+          "cls": "U",
+          "deg": "M"
+        },
+        {
+          "id": "CR-M04",
+          "name": "Window Glass",
+          "cls": "M",
+          "deg": "H"
+        }
+      ],
+      "lead": "",
+      "register": "oc-theme",
+      "closer": ""
+    },
+    {
+      "position": 2,
+      "kind": "OC",
+      "oc": "Ana",
+      "rating": "R+",
+      "pose": "",
+      "poseName": "nno-ana-prime-magus",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W15",
+          "name": "Leather Mold",
+          "cls": "W",
+          "deg": "M"
+        },
+        {
+          "id": "CR-S03",
+          "name": "Collarbone Hollow Pendant",
+          "cls": "S",
+          "deg": "L"
+        },
+        {
+          "id": "CR-E25",
+          "name": "Cuff Lost Button",
+          "cls": "E",
+          "deg": "L"
+        },
+        {
+          "id": "CR-D12",
+          "name": "Breaststroke Push",
+          "cls": "D",
+          "deg": "M"
+        }
+      ],
+      "lead": "",
+      "register": "oc-theme",
+      "closer": ""
+    },
+    {
+      "position": 3,
+      "kind": "OC",
+      "oc": "Lyn",
+      "rating": "R+",
+      "pose": "",
+      "poseName": "nno-lyn-ninth-life",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [],
+      "lead": "",
+      "register": "oc-theme",
+      "closer": ""
+    },
+    {
+      "position": 4,
+      "kind": "VOLT",
+      "rating": "R+",
+      "pose": "",
+      "poseName": "nno-window-sill",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W01",
+          "name": "Taut Weave",
+          "cls": "W",
+          "deg": "M"
+        },
+        {
+          "id": "CR-B02",
+          "name": "Shape Through Cold Cloth",
+          "cls": "B",
+          "deg": "H"
+        },
+        {
+          "id": "CR-U13",
+          "name": "Hotel Robe",
+          "cls": "U",
+          "deg": "M"
+        },
+        {
+          "id": "CR-M04",
+          "name": "Window Glass",
+          "cls": "M",
+          "deg": "H"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 5,
+      "kind": "VOLT",
+      "rating": "R+",
+      "pose": "",
+      "poseName": "nno-tape-dress-code",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W06",
+          "name": "Sweat-Damp Spine",
+          "cls": "W",
+          "deg": "M"
+        },
+        {
+          "id": "CR-C14",
+          "name": "Paddleboard Wobble",
+          "cls": "C",
+          "deg": "M"
+        },
+        {
+          "id": "CR-L07",
+          "name": "Strapless War",
+          "cls": "L",
+          "deg": "M"
+        },
+        {
+          "id": "CR-D06",
+          "name": "Table Flattening",
+          "cls": "D",
+          "deg": "M"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 6,
+      "kind": "VOLT",
+      "rating": "R+",
+      "pose": "",
+      "poseName": "nno-dog-door",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W02",
+          "name": "Stretched Buttonholes",
+          "cls": "W",
+          "deg": "M"
+        },
+        {
+          "id": "CR-B03",
+          "name": "Peaks Through Dry Knit",
+          "cls": "B",
+          "deg": "H"
+        },
+        {
+          "id": "CR-U08",
+          "name": "Quick-Change Screen",
+          "cls": "U",
+          "deg": "H"
+        },
+        {
+          "id": "CR-M16",
+          "name": "Measuring Tape",
+          "cls": "M",
+          "deg": "M"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 7,
+      "kind": "VOLT",
+      "rating": "R+",
+      "pose": "",
+      "poseName": "nno-bubble-wrap",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W18",
+          "name": "Towel Nap",
+          "cls": "W",
+          "deg": "M"
+        },
+        {
+          "id": "CR-B28",
+          "name": "Padding Defeated",
+          "cls": "B",
+          "deg": "H"
+        },
+        {
+          "id": "CR-U19",
+          "name": "Yukata Morning",
+          "cls": "U",
+          "deg": "M"
+        },
+        {
+          "id": "CR-I05",
+          "name": "Belt Line",
+          "cls": "I",
+          "deg": "L"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 8,
+      "kind": "VOLT",
+      "rating": "R+",
+      "pose": "",
+      "poseName": "nno-wind-corridor",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W22",
+          "name": "Denim Stress-White",
+          "cls": "W",
+          "deg": "M"
+        },
+        {
+          "id": "CR-C12",
+          "name": "Leather Squeak",
+          "cls": "C",
+          "deg": "L"
+        },
+        {
+          "id": "CR-E28",
+          "name": "Hoodie Zipper",
+          "cls": "E",
+          "deg": "L"
+        },
+        {
+          "id": "CR-M12",
+          "name": "Backpack Chest Strap",
+          "cls": "M",
+          "deg": "M"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 9,
+      "kind": "VOLT",
+      "rating": "R+",
+      "pose": "",
+      "poseName": "nno-scanner-cabin",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W19",
+          "name": "Jersey Rumple",
+          "cls": "W",
+          "deg": "L"
+        },
+        {
+          "id": "CR-C10",
+          "name": "Boyshort Bisection",
+          "cls": "C",
+          "deg": "M"
+        },
+        {
+          "id": "CR-U17",
+          "name": "Shared Kitchen",
+          "cls": "U",
+          "deg": "M"
+        },
+        {
+          "id": "CR-I05",
+          "name": "Belt Line",
+          "cls": "I",
+          "deg": "L"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 10,
+      "kind": "VOLT",
+      "rating": "R+",
+      "pose": "",
+      "poseName": "nno-sprinkler-park",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W16",
+          "name": "Silk Drape",
+          "cls": "W",
+          "deg": "L"
+        },
+        {
+          "id": "CR-B26",
+          "name": "Side-Lie Contact Read",
+          "cls": "B",
+          "deg": "M"
+        },
+        {
+          "id": "CR-E02",
+          "name": "Bra Strap Escaped Boat Neck",
+          "cls": "E",
+          "deg": "M"
+        },
+        {
+          "id": "CR-D11",
+          "name": "Volleyball Spike",
+          "cls": "D",
+          "deg": "H"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 11,
+      "kind": "NICHE",
+      "rating": "R",
+      "pose": "",
+      "poseName": "nno-midnight-laundromat",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W20",
+          "name": "Chairback Print",
+          "cls": "W",
+          "deg": "L"
+        },
+        {
+          "id": "CR-C07",
+          "name": "Saddle Overflow",
+          "cls": "C",
+          "deg": "M"
+        },
+        {
+          "id": "CR-U04",
+          "name": "Borrowed Too-Small",
+          "cls": "U",
+          "deg": "M"
+        },
+        {
+          "id": "CR-I06",
+          "name": "Bikini Pale Borders",
+          "cls": "I",
+          "deg": "M"
+        }
+      ],
+      "lead": "",
+      "register": "young",
+      "closer": ""
+    },
+    {
+      "position": 12,
+      "kind": "NICHE",
+      "rating": "R",
+      "pose": "",
+      "poseName": "nno-roommate-drawer",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W29",
+          "name": "Pleat-Set",
+          "cls": "W",
+          "deg": "L"
+        },
+        {
+          "id": "CR-B12",
+          "name": "Waist Carve",
+          "cls": "B",
+          "deg": "L"
+        },
+        {
+          "id": "CR-U15",
+          "name": "Door-Knock Gown",
+          "cls": "U",
+          "deg": "H"
+        },
+        {
+          "id": "CR-I04",
+          "name": "Sock Rings",
+          "cls": "I",
+          "deg": "L"
+        }
+      ],
+      "lead": "",
+      "register": "young",
+      "closer": ""
+    },
+    {
+      "position": 13,
+      "kind": "NICHE",
+      "rating": "R",
+      "pose": "",
+      "poseName": "nno-fitting-room-hostage",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W30",
+          "name": "Cold-Stiff Drape",
+          "cls": "W",
+          "deg": "L"
+        },
+        {
+          "id": "CR-S08",
+          "name": "Back Dimples",
+          "cls": "S",
+          "deg": "L"
+        },
+        {
+          "id": "CR-L02",
+          "name": "Lace Under Blazer",
+          "cls": "L",
+          "deg": "M"
+        },
+        {
+          "id": "CR-D15",
+          "name": "Motorcycle Thrum",
+          "cls": "D",
+          "deg": "M"
+        }
+      ],
+      "lead": "",
+      "register": "young",
+      "closer": ""
+    },
+    {
+      "position": 14,
+      "kind": "NICHE",
+      "rating": "R",
+      "pose": "",
+      "poseName": "nno-cheer-spare",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W04",
+          "name": "Ribbing Stress-Bands",
+          "cls": "W",
+          "deg": "M"
+        },
+        {
+          "id": "CR-C11",
+          "name": "Whale Tail",
+          "cls": "C",
+          "deg": "H"
+        },
+        {
+          "id": "CR-U09",
+          "name": "Fitting Room Curtain",
+          "cls": "U",
+          "deg": "M"
+        },
+        {
+          "id": "CR-D26",
+          "name": "Swing Apex",
+          "cls": "D",
+          "deg": "M"
+        }
+      ],
+      "lead": "",
+      "register": "young",
+      "closer": ""
+    },
+    {
+      "position": 15,
+      "kind": "EXQUISITE",
+      "rating": "R+",
+      "pose": "",
+      "poseName": "nno-living-exhibit",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W24",
+          "name": "Suit-Seat Taut",
+          "cls": "W",
+          "deg": "M"
+        },
+        {
+          "id": "CR-S19",
+          "name": "Open-Back Field",
+          "cls": "S",
+          "deg": "M"
+        },
+        {
+          "id": "CR-L13",
+          "name": "Hem-Length Game",
+          "cls": "L",
+          "deg": "M"
+        },
+        {
+          "id": "CR-I03",
+          "name": "Sheet's Hip Line",
+          "cls": "I",
+          "deg": "L"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 16,
+      "kind": "EXP",
+      "rating": "R+",
+      "pose": "",
+      "poseName": "exp-cam-a-mid",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W05",
+          "name": "Static Cling",
+          "cls": "W",
+          "deg": "L"
+        },
+        {
+          "id": "CR-B06",
+          "name": "Sideboob Curve",
+          "cls": "B",
+          "deg": "M"
+        },
+        {
+          "id": "CR-E14",
+          "name": "Collar Askew",
+          "cls": "E",
+          "deg": "M"
+        },
+        {
+          "id": "CR-D17",
+          "name": "Dance Dip",
+          "cls": "D",
+          "deg": "H"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": "",
+      "ab": {
+        "pair": "α",
+        "half": "A",
+        "withSlot": 17,
+        "lead": "camera-mid-vs-texture-close"
+      },
+      "exploratory": "EXP-слот: гипотеза названа в THESIS слота батча"
+    },
+    {
+      "position": 17,
+      "kind": "EXP",
+      "rating": "R+",
+      "pose": "",
+      "poseName": "exp-cam-b-texture",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W05",
+          "name": "Static Cling",
+          "cls": "W",
+          "deg": "L"
+        },
+        {
+          "id": "CR-B06",
+          "name": "Sideboob Curve",
+          "cls": "B",
+          "deg": "M"
+        },
+        {
+          "id": "CR-E14",
+          "name": "Collar Askew",
+          "cls": "E",
+          "deg": "M"
+        },
+        {
+          "id": "CR-D17",
+          "name": "Dance Dip",
+          "cls": "D",
+          "deg": "H"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": "",
+      "ab": {
+        "pair": "α",
+        "half": "B",
+        "withSlot": 16,
+        "lead": "camera-mid-vs-texture-close"
+      },
+      "exploratory": "EXP-слот: гипотеза названа в THESIS слота батча"
+    },
+    {
+      "position": 18,
+      "kind": "EXP",
+      "rating": "R+",
+      "pose": "",
+      "poseName": "exp-tags-a-lean",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W14",
+          "name": "Velvet Press-Mark",
+          "cls": "W",
+          "deg": "L"
+        },
+        {
+          "id": "CR-B09",
+          "name": "Backlit Silhouette",
+          "cls": "B",
+          "deg": "M"
+        },
+        {
+          "id": "CR-U02",
+          "name": "Half-Buttoned Morning",
+          "cls": "U",
+          "deg": "M"
+        },
+        {
+          "id": "CR-D09",
+          "name": "Jog Rhythm",
+          "cls": "D",
+          "deg": "H"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": "",
+      "ab": {
+        "pair": "β",
+        "half": "A",
+        "withSlot": 19,
+        "lead": "tag-density-lean-vs-rich"
+      },
+      "exploratory": "EXP-слот: гипотеза названа в THESIS слота батча"
+    },
+    {
+      "position": 19,
+      "kind": "EXP",
+      "rating": "R+",
+      "pose": "",
+      "poseName": "exp-tags-b-rich",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W14",
+          "name": "Velvet Press-Mark",
+          "cls": "W",
+          "deg": "L"
+        },
+        {
+          "id": "CR-B09",
+          "name": "Backlit Silhouette",
+          "cls": "B",
+          "deg": "M"
+        },
+        {
+          "id": "CR-U02",
+          "name": "Half-Buttoned Morning",
+          "cls": "U",
+          "deg": "M"
+        },
+        {
+          "id": "CR-D09",
+          "name": "Jog Rhythm",
+          "cls": "D",
+          "deg": "H"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": "",
+      "ab": {
+        "pair": "β",
+        "half": "B",
+        "withSlot": 18,
+        "lead": "tag-density-lean-vs-rich"
+      },
+      "exploratory": "EXP-слот: гипотеза названа в THESIS слота батча"
+    },
+    {
+      "position": 20,
+      "kind": "EXP",
+      "rating": "R+",
+      "pose": "",
+      "poseName": "exp-pose-a-token",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W26",
+          "name": "Wind-Press",
+          "cls": "W",
+          "deg": "H"
+        },
+        {
+          "id": "CR-C08",
+          "name": "Office Tilt",
+          "cls": "C",
+          "deg": "M"
+        },
+        {
+          "id": "CR-E22",
+          "name": "Thigh-High Roll",
+          "cls": "E",
+          "deg": "L"
+        },
+        {
+          "id": "CR-D20",
+          "name": "Waking Stretch",
+          "cls": "D",
+          "deg": "M"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": "",
+      "ab": {
+        "pair": "γ",
+        "half": "A",
+        "withSlot": 21,
+        "lead": "pose-token-vs-pose-words"
+      },
+      "exploratory": "EXP-слот: гипотеза названа в THESIS слота батча"
+    },
+    {
+      "position": 21,
+      "kind": "EXP",
+      "rating": "R+",
+      "pose": "",
+      "poseName": "exp-pose-b-words",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W26",
+          "name": "Wind-Press",
+          "cls": "W",
+          "deg": "H"
+        },
+        {
+          "id": "CR-C08",
+          "name": "Office Tilt",
+          "cls": "C",
+          "deg": "M"
+        },
+        {
+          "id": "CR-E22",
+          "name": "Thigh-High Roll",
+          "cls": "E",
+          "deg": "L"
+        },
+        {
+          "id": "CR-D20",
+          "name": "Waking Stretch",
+          "cls": "D",
+          "deg": "M"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": "",
+      "ab": {
+        "pair": "γ",
+        "half": "B",
+        "withSlot": 20,
+        "lead": "pose-token-vs-pose-words"
+      },
+      "exploratory": "EXP-слот: гипотеза названа в THESIS слота батча"
+    },
+    {
+      "position": 22,
+      "kind": "EXP",
+      "rating": "R+",
+      "pose": "",
+      "poseName": "exp-static-cling",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W21",
+          "name": "Lycra Shine",
+          "cls": "W",
+          "deg": "M"
+        },
+        {
+          "id": "CR-B05",
+          "name": "Underboob Crescent Shadow",
+          "cls": "B",
+          "deg": "M"
+        },
+        {
+          "id": "CR-U10",
+          "name": "Walk Home",
+          "cls": "U",
+          "deg": "M"
+        },
+        {
+          "id": "CR-I02",
+          "name": "Pillow Crease",
+          "cls": "I",
+          "deg": "L"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": "",
+      "exploratory": "EXP-слот: гипотеза названа в THESIS слота батча"
+    },
+    {
+      "position": 23,
+      "kind": "EXP",
+      "rating": "R+",
+      "pose": "",
+      "poseName": "exp-hair-over",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W25",
+          "name": "Apron Bib Swell",
+          "cls": "W",
+          "deg": "M"
+        },
+        {
+          "id": "CR-S14",
+          "name": "Sunburn Straps",
+          "cls": "S",
+          "deg": "M"
+        },
+        {
+          "id": "CR-E16",
+          "name": "Gi Lapel Crossed Wrong",
+          "cls": "E",
+          "deg": "M"
+        },
+        {
+          "id": "CR-D22",
+          "name": "Laugh Bounce",
+          "cls": "D",
+          "deg": "L"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": "",
+      "exploratory": "EXP-слот: гипотеза названа в THESIS слота батча"
+    },
+    {
+      "position": 24,
+      "kind": "EXP",
+      "rating": "R+",
+      "pose": "",
+      "poseName": "exp-handbra-geometry",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W28",
+          "name": "Splash-Side",
+          "cls": "W",
+          "deg": "L"
+        },
+        {
+          "id": "CR-C05",
+          "name": "Sit-Trap Hem",
+          "cls": "C",
+          "deg": "M"
+        },
+        {
+          "id": "CR-U06",
+          "name": "Car Door Catch",
+          "cls": "U",
+          "deg": "M"
+        },
+        {
+          "id": "CR-I08",
+          "name": "Love Bite Under Scarf",
+          "cls": "I",
+          "deg": "H"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": "",
+      "exploratory": "EXP-слот: гипотеза названа в THESIS слота батча"
+    }
+  ],
+  "ocRotation": {
+    "note": "заказ автора 2026-10-08: темы ОС из канона — Sentinel R+ (Vae), Prime magus R+ (Ana), Almost died there! R+ (Lyn); отдельны от основной темы батча",
+    "ocs": [
+      "Vae",
+      "Ana",
+      "Lyn"
+    ]
+  },
+  "racialCount": {
+    "note": "RAW-батч ручного письма: расовый каст не используется (как в T4-23/T4-24)"
+  },
+  "abPairs": [
+    {
+      "pair": "α",
+      "a": 16,
+      "b": 17,
+      "lead": "H1 камера: mid-shot vs close-на-текстуре (ISOLATION H1 поворот)"
+    },
+    {
+      "pair": "β",
+      "a": 18,
+      "b": 19,
+      "lead": "H2 плотность тегов: lean vs rich, заявки на одинаковых позициях"
+    },
+    {
+      "pair": "γ",
+      "a": 20,
+      "b": 21,
+      "lead": "H3 поза: токен erotic pose vs чистые поза-теги (реплика ISOLATION H2 в RAW)"
+    }
+  ],
+  "carrierStats": {
+    "note": "стеки назначены вручную по мере TRIAL; W-класс 25%, sheer 0%"
+  },
+  "windowSlugs": [],
+  "channelStats": {
+    "note": "RAW/данбуру: канал — тег-ран, проза отсутствует по приказу (T4-23 ORDER)"
+  },
+  "platform": "yodayo",
+  "laws": [
+    "24 слота: 3 OC + 21 мейн (12 тематических + 9 EXP)",
+    "TRIAL-меры M1-M7 (док VERDICT-MAP-T4-23-24-2026-10-08): без формульных тегов, прикрытие = рисуемый объект, механизм ≤2 слота, одно состояние на кадр, R+ на доказанных каналах, интимный масштаб сцены, греп повторов",
+    "R+-рецепт v1.4.0: hard-claim, noun-lock, bare-under позитивом, состояние ткани в первой половине тег-рана",
+    "milf-квота: 2/24 (Vae, Ana)"
+  ]
+}
