@@ -1217,6 +1217,9 @@ interface ContractPayload {
   slug: string
   theme: string
   contract: { slots?: ContractSlot[] } | null
+  /** Фред, 2026-10-08: фолбэк-контракт, синтезированный из шапок слотов батча
+   *  (RAW/EXP живут без contracts/T4-NN.json). */
+  synthesized?: boolean
 }
 
 /** Слепая структурная карточка (§10-поправка: машине не показывается заявка). */
@@ -1780,7 +1783,7 @@ function VlmFirstPassPanel() {
             <option value="">— батч —</option>
             {items.map((b) => (
               <option key={b.slug} value={b.slug}>
-                {b.slug}
+                {b.slug} · {b.title}
               </option>
             ))}
           </select>
@@ -2167,7 +2170,7 @@ function BatchReceiverPanel() {
     let filled = 0
     for (const s of slots) {
       const p = `P${String(s.position).padStart(2, '0')}`
-      claimed[s.rating] = (claimed[s.rating] ?? 0) + 1
+      if (s.rating) claimed[s.rating] = (claimed[s.rating] ?? 0) + 1
       const d = slotDraft(p)
       if (d.myTier) {
         filled += 1
@@ -2305,6 +2308,25 @@ function BatchReceiverPanel() {
             </div>
           ) : null}
         </div>
+
+        {/* Фред, 2026-10-08: приёмник не молчит — объясняет, почему пусто.
+            Раньше пик RAW/EXP-батча без контракта ронял панель в тишину. */}
+        {slug && !contract.loading && contract.error ? (
+          <div className="rounded-md border border-rose-500/30 bg-rose-500/5 px-3 py-2 text-xs text-rose-300">
+            {slug}: контракт не найден и батч не разобран — приёмнику нечего показать. Проверь, что файл батча на месте.
+          </div>
+        ) : null}
+        {slug && !contract.loading && !contract.error && slots.length === 0 ? (
+          <div className="rounded-md border border-amber-500/30 bg-amber-500/5 px-3 py-2 text-xs text-amber-200">
+            {slug}: слоты не найдены ни в контракте, ни в шапках батча — таблице нечем кормиться.
+          </div>
+        ) : null}
+        {slug && !contract.loading && !contract.error && contract.data?.synthesized && slots.length > 0 ? (
+          <div className="rounded-md border border-zinc-700 bg-zinc-900/60 px-3 py-2 text-[11px] text-zinc-400">
+            Контракта у {slug} нет — заявки (тир) и жанры прочитаны из шапок слотов самого батча.
+            A/B-атрибуция недоступна: пар в RAW/EXP-батче нет.
+          </div>
+        ) : null}
 
         {slug && slots.length > 0 ? (
           <>
