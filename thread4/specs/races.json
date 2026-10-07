@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0",
+  "version": "2.1.0",
   "born": "2026-09-19",
   "source": "3.2 POOLS_V8 race_pool R01-R15 + race_extension_v2 R16-R22 + Thread-4 author directives (2026-09-19)",
   "races": [
@@ -264,6 +264,170 @@
       "features": [],
       "status": "banned",
       "note": "AUTHOR TASTE BAN for Thread 4: 'orcs' belong to the 'ugly fantasy creature' register the author rejects. Not present in any 3.2 pool — listed here so the Thread 4 compiler can enforce the ban."
+    },
+    {
+      "id": "R23",
+      "name": "Shark-kin",
+      "status": "active",
+      "features": [
+        "dorsal fin at the spine",
+        "gill-slits at the ribs",
+        "shark tail fin",
+        "teeth flash in smile"
+      ],
+      "note": "skin: slate-blue-grey accents on white base; wardrobe: swimwear with broken straps; light: gill-slits catch water"
+    },
+    {
+      "id": "R24",
+      "name": "Oni-kin",
+      "status": "active",
+      "features": [
+        "one or two blunt horns",
+        "crimson or jade skin blush",
+        "small tusks",
+        "diamond-pattern accents"
+      ],
+      "note": "wardrobe: kimono slipping off one shoulder; skin answers sake-warmth"
+    },
+    {
+      "id": "R25",
+      "name": "Slime-girl",
+      "status": "active",
+      "features": [
+        "translucent gel body",
+        "semi-liquid hair dripping slow",
+        "core-orb glowing inside",
+        "body holds shape by will"
+      ],
+      "note": "wardrobe: borrowed clothes dissolve at contact zones; light refracts through the gel"
+    },
+    {
+      "id": "R26",
+      "name": "Bee-kin",
+      "status": "active",
+      "features": [
+        "chitin antennae",
+        "four translucent wings",
+        "honeycomb-pattern accents",
+        "small sting-tail"
+      ],
+      "note": "skin: honey-gold; wardrobe: poofy collar and sleeves, striped; light: wings blur in sun"
+    },
+    {
+      "id": "R27",
+      "name": "Cow-kin",
+      "status": "active",
+      "features": [
+        "cow horns small and curved",
+        "cow ears sideways",
+        "bell collar",
+        "tail with a tuft",
+        "spot patches on skin"
+      ],
+      "note": "wardrobe: overalls with the flap undone; the bell rings at every step"
+    },
+    {
+      "id": "R28",
+      "name": "Sheep-kin",
+      "status": "active",
+      "features": [
+        "spiral curled horns",
+        "wool fleece at shoulders and hips",
+        "droopy ears"
+      ],
+      "note": "skin: warm cream; wardrobe: knit that sheds wool fluff; fleece peeks where the cloth ends"
+    },
+    {
+      "id": "R29",
+      "name": "Mouse-kin",
+      "status": "active",
+      "features": [
+        "round oversized ears",
+        "thin long tail",
+        "small front teeth"
+      ],
+      "note": "skin: soft grey or cream; wardrobe: oversized hoodies slipping off; the tail curls around the thigh"
+    },
+    {
+      "id": "R30",
+      "name": "Frog-kin",
+      "status": "active",
+      "features": [
+        "wide glossy eyes",
+        "webbed fingers",
+        "subtle throat sac",
+        "green skin patches"
+      ],
+      "note": "wardrobe: rainwear; skin glossy-wet by default; light: water beads everywhere"
+    },
+    {
+      "id": "R31",
+      "name": "Flower-kin",
+      "status": "active",
+      "features": [
+        "petal crown or petal skirt",
+        "vine laces winding the limbs",
+        "pollen glow dust",
+        "leaf veins on skin"
+      ],
+      "note": "wardrobe: petals fall off at movement; vines tighten where tied; scent counts as light"
+    },
+    {
+      "id": "R32",
+      "name": "Golem-kin",
+      "status": "active",
+      "features": [
+        "glowing seam-cracks in smooth clay skin",
+        "moss patches",
+        "heavy slow build"
+      ],
+      "note": "wardrobe: cloth worn like blankets; the cracks warm the fabric from inside"
+    },
+    {
+      "id": "R33",
+      "name": "Ghost-kin",
+      "status": "active",
+      "features": [
+        "semi-transparent lower body",
+        "cold blue glow",
+        "tail-taper instead of legs",
+        "passes through cloth"
+      ],
+      "note": "wardrobe: fabric phases through her where she wills; the visible/invisible edge is the claim zone"
+    },
+    {
+      "id": "R34",
+      "name": "Phoenix-kin",
+      "status": "active",
+      "features": [
+        "flame-feather accents on shoulders",
+        "ember eyes",
+        "wings of fire that shed sparks"
+      ],
+      "note": "wardrobe: cloth singes at the wing-roots; feathers regrow on touch; light: her own fire"
+    },
+    {
+      "id": "R35",
+      "name": "Arachne-kin",
+      "status": "active",
+      "features": [
+        "small chitin legs at the lower back",
+        "spinneret",
+        "extra subtle eye-glints",
+        "silk thread from fingertips"
+      ],
+      "note": "upper body human; silk as wardrobe; legs hold the pose like a chair — never horror register"
+    },
+    {
+      "id": "R36",
+      "name": "Tanuki-kin",
+      "status": "active",
+      "features": [
+        "round soft ears",
+        "big striped fluffy tail",
+        "raccoon-mask blush patch"
+      ],
+      "note": "wardrobe: leaf-magic over classic apron; the tail is the extra guest under every hem"
     }
   ],
   "directives": {

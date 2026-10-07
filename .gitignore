@@ -69,3 +69,9 @@ chemodan/
 .zscripts/
 /download/*.tar
 tool-results/
+
+# Issue #22: мусор
+dev-*.log
+.dev-server.log
+*.tsbuildinfo
+tmp-research-data.txt

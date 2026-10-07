@@ -362,7 +362,7 @@ export function compileBatch(theme: string, options: CompileOptions = {}): Batch
 
   function assignCore4(rating: 'R+' | 'X', position: number): SlotPlan['carriers'] {
     const groupsNeeded = ['FABRIC', 'BODY', 'POSITION', 'PHYSICS'] as const
-    const recipe = recipes.tiers[rating === 'R+' ? 'RPLUS' : 'X']
+    const recipe = recipes!.tiers[rating === 'R+' ? 'RPLUS' : 'X']
     const prefer = recipe?.carrier_classes ?? []
     const out: SlotPlan['carriers'] = []
     let sheerInPrompt = 0
@@ -404,7 +404,7 @@ export function compileBatch(theme: string, options: CompileOptions = {}): Batch
 
   function assignTierCarriers(rating: 'R' | 'PG-13'): SlotPlan['carriers'] {
     const key = rating === 'R' ? 'R' : 'PG13'
-    const recipe = recipes.tiers[key]
+    const recipe = recipes!.tiers[key]
     const prefer = recipe?.carrier_classes ?? ['S', 'E', 'W', 'B']
     const pool = lruPickBatch(prefer.flatMap((c) => byClass[c] ?? []), carrierUsage)
     return pool.slice(0, 3).map((c: Carrier) => {
@@ -421,7 +421,7 @@ export function compileBatch(theme: string, options: CompileOptions = {}): Batch
   const closers = lruPick(CLOSER_CLASSES.map((id) => ({ id })), usage.closers, rng)
   const witnesses = lruPick(WITNESS_TYPES.map((id) => ({ id })), usage.witnesses, rng)
   const registers: SlotPlan['register'][] = []
-  const regPlan = ['student', 'young', 'milf']
+  const regPlan = ['student', 'young', 'milf'] as const
   // balanced registers: exact thirds of 24, no register > 50%
   for (let i = 0; i < LAWS.slotsTotal; i++) registers.push(regPlan[i % 3])
   const shuffledRegisters = rng.shuffle(registers)
@@ -762,6 +762,9 @@ export function contractMarkdown(c: BatchContract): string {
   lines.push(`# ${c.slug} «${c.theme}» — КОНТРАКТ`)
   lines.push('')
   lines.push(`**Скомпилировано**: ${c.createdAt.slice(0, 10)} · сид ${c.seed} · окно ротации: ${c.windowSlugs.length ? c.windowSlugs.join(' + ') : 'чистый лист'}`)
+  lines.push('')
+  /* Issue #21: авто-компилятор/писец — experimental/low-trust (вердикт автора 2026-10-02) */
+  lines.push('**СТАТУС: experimental / low-trust** — авто-скелет требует ручной переработки писцом (закон письма, вердикт T4-12; Issue #21).')
   lines.push('')
   lines.push('## Экспозиция — как и что решено')
   lines.push('')

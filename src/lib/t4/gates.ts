@@ -39,7 +39,7 @@ export interface GatesResult {
  *  Залп 2: +1 warn (ab-single-variable). Вердикт автора 2026-09-27:
  *  +1 warn (theme-presence), -1 engine-rent (движки одноразовые),
  *  +1 warn (garment-family, U8 «осторожно») → 22. */
-export const GATES_TOTAL = 22
+export const GATES_TOTAL = 24
 
 /* ------------------------------------------------------------------ */
 /* Batch file parsing                                                  */
@@ -269,6 +269,7 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
   {
     const f: string[] = []
     const floors = recipes?.eternal_floors ?? {}
+    const milfSlots = new Set<number>()
     for (const s of batch.slots) {
       const neg = s.neg.toLowerCase()
       for (const term of floors.genital_lock ?? []) {
@@ -307,11 +308,10 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
           break
         }
       }
-      // maturity tags (N30): milf is ALWAYS banned in POS; adult woman /
-      // mature female are warn-level (batch-wide MILF skew receipt)
-      if (/\b(milf|milfs)\b/i.test(s.pos)) {
-        f.push(`P${s.position}: тег зрелости в POS («milf») — N30: зрелость только нарративом`)
-      }
+      // maturity tags (N30 + поправка автора 2026-10-03 «милф разрешён,
+      // но не везде»): milf-токен в POS легален, но квота — треть батча
+      // (8/24); сверх квоты — hard fail. Проверка квоты — после цикла.
+      if (/\b(milf|milfs)\b/i.test(s.pos)) milfSlots.add(s.position)
       // XXX never — УЛУЧШЕНО (аудит V3): word-boundary вместо подстроки —
       // «amusement» больше не рождает ложный «semen»
       const posLow = s.pos.toLowerCase()
@@ -322,6 +322,13 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
           break
         }
       }
+    }
+    // N30-поправка 2026-10-03: milf разрешён, но не везде — квота треть батча
+    const milfCap = Math.ceil(batch.slots.length / 3)
+    if (milfSlots.size > milfCap) {
+      f.push(
+        `milf-токен в ${milfSlots.size} слотах (${[...milfSlots].map((n) => 'P' + String(n).padStart(2, '0')).join(', ')}) > ${milfCap} — N30-поправка: милф разрешён, но не везде`
+      )
     }
     hard('floors', f)
   }
@@ -1126,6 +1133,46 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
     warn('theme-presence', f)
   }
 
+  /* ---------------- 9e-2. original-character-coverage (warn — Issue #24) ---
+     U1 (вердикт автора 2026-09-27) в ручном потоке: «original character» —
+     тег POS каждого не-OC слота; защита от данбуру-дрейфа (ram → Re:Zero).
+     normalizePos исполняет его только для авто-писца — руки Чарли гейт
+     теперь проверяет. Исключение: героинь-батчи (маркер HEROINE-BATCH: yes
+     в шапке — ORDER v2: тег рисует «оригинального персонажа» вместо героини). */
+  {
+    const f: string[] = []
+    const heroineBatch = /HEROINE-BATCH:\s*yes/i.test(file)
+    if (heroineBatch) {
+      f.unshift('HEROINE-BATCH: yes — U1 действует только на OC-слоты (ORDER v2, вердикт T4-17); не-OC слоты исключены')
+    } else {
+      for (const s of batch.slots) {
+        if (s.genre === 'OC') continue
+        const firstPeriod = s.pos.indexOf('.')
+        const tagBlock = (firstPeriod > 0 ? s.pos.slice(0, firstPeriod) : s.pos).toLowerCase()
+        if (!/\boriginal character\b/.test(tagBlock)) {
+          f.push(`P${s.position}: нет original character в тег-блоке — U1 в ручном потоке (Issue #24)`)
+        }
+      }
+    }
+    warn('original-character-coverage', f)
+  }
+
+  /* ---------------- 9e-3. artist-leak (warn — Issue #24, U3 в ручном потоке)
+     artist-теги = PH-утечка (T4-11 P06): имя художника в POS зовёт его стиль
+     чужого рисования. Правило policy.writer_rules.artist_ban руками Чарли
+     гейт теперь проверяет. */
+  {
+    const f: string[] = []
+    for (const s of batch.slots) {
+      const firstPeriod = s.pos.indexOf('.')
+      const tagBlock = (firstPeriod > 0 ? s.pos.slice(0, firstPeriod) : s.pos)
+      if (/\bartist\b|\bart by\b|\bdrawn by\b|\bpainted by\b/i.test(tagBlock)) {
+        f.push(`P${s.position}: artist-подобный токен в тег-блоке — artist_ban, PH-утечка (Issue #24, U3)`)
+      }
+    }
+    warn('artist-leak', f)
+  }
+
   /* ---------------- 9e. garment-family (warn, U8 «внедрить, но осторожно») --- */
   {
     const f: string[] = []
@@ -1427,6 +1474,10 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
           .filter((r) => r.level === 'hard' && r.verdict === 'FAIL')
           .map((r) => r.gate),
         warns: receipts.filter((r) => r.level === 'warn' && r.verdict === 'WARN').length,
+        warnNames: receipts.filter((r) => r.level === 'warn' && r.verdict === 'WARN').map((r) => r.gate),
+        /* полный слепок прогона — еда для Retirement Protocol (Issue #18):
+           закон, ни разу не поймавший ловушку, — кандидат на отставку */
+        receipts: receipts.map((r) => ({ gate: r.gate, level: r.level, verdict: r.verdict })),
       }
     )
   }

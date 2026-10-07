@@ -32,6 +32,9 @@ import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
+import { Badge } from '@/components/ui/badge'
+import { Switch } from '@/components/ui/switch'
+import { Slider } from '@/components/ui/slider'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import {
   ApiError,
@@ -361,6 +364,261 @@ function SpecsTab() {
 /* Tab: Сборка (компилятор контрактов)                                 */
 /* ------------------------------------------------------------------ */
 
+/* ------------------------------------------------------------------ */
+/* Черновик контракта: авторский бриф БЕЗ компиляции (низкое доверие   */
+/* к авто-входам — Issue #21; номер присваивается автоматически).       */
+/* ------------------------------------------------------------------ */
+
+const OC_RATINGS = ['PG-13', 'R', 'R+', 'X'] as const
+
+function DraftComposer() {
+  const meta = useApi<{ nextSlug: string; races: { id: string; name: string }[] }>(
+    '/api/t4/contract-draft'
+  )
+  const [theme, setTheme] = useState('')
+  const [oc, setOc] = useState([
+    { theme: '', rating: 'R+', wishes: '' },
+    { theme: '', rating: 'R+', wishes: '' },
+    { theme: '', rating: 'R+', wishes: '' },
+  ])
+  const [mainWishes, setMainWishes] = useState('')
+  const [speciesOn, setSpeciesOn] = useState(true)
+  const [speciesCount, setSpeciesCount] = useState(10)
+  const [speciesList, setSpeciesList] = useState<string[]>([])
+  const [xSlots, setXSlots] = useState(0)
+  const [abPairs, setAbPairs] = useState(3)
+  const [rehab, setRehab] = useState(true)
+  const [busy, setBusy] = useState(false)
+  const [saved, setSaved] = useState<string | null>(null)
+  const [err, setErr] = useState<string | null>(null)
+
+  function setOcRow(i: number, patch: Partial<{ theme: string; rating: string; wishes: string }>) {
+    setOc((rows) => rows.map((r, j) => (j === i ? { ...r, ...patch } : r)))
+  }
+  function toggleSpecies(id: string) {
+    setSpeciesList((l) => (l.includes(id) ? l.filter((x) => x !== id) : [...l, id]))
+  }
+
+  async function save() {
+    setBusy(true)
+    setSaved(null)
+    setErr(null)
+    try {
+      const res = await postJson<{ ok: boolean; slug: string }>('/api/t4/contract-draft', {
+        theme,
+        ocThemes: oc,
+        mainWishes,
+        speciesOn,
+        speciesCount,
+        speciesList,
+        xSlots,
+        abPairs,
+        rehab,
+        engine: 'per-theme',
+      })
+      setSaved(res.slug)
+      setTheme('')
+      setOc([
+        { theme: '', rating: 'R+', wishes: '' },
+        { theme: '', rating: 'R+', wishes: '' },
+        { theme: '', rating: 'R+', wishes: '' },
+      ])
+      setMainWishes('')
+      meta.reload()
+    } catch (e) {
+      setErr(e instanceof ApiError ? e.message : 'Сеть недоступна — черновик не сохранён')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const races = meta.data?.races ?? []
+
+  return (
+    <Panel
+      title={`Черновик контракта — без компиляции · номер ${meta.data?.nextSlug ?? 'T4-??'}`}
+      icon={<PenLine className="size-4" />}
+    >
+      <div className="space-y-4">
+        <p className="text-xs leading-relaxed text-zinc-500">
+          Авторский бриф: тема, три темы для ОС с рейтингами, пожелания и раскладка.
+          Номер присваивается автоматически. Компилятор этот файл не читает —
+          бриф забирает писец (закон письма, DoD v1).
+        </p>
+
+        <div className="space-y-1.5">
+          <p className="text-[11px] uppercase tracking-wider text-zinc-500">Тема батча</p>
+          <Input
+            value={theme}
+            onChange={(e) => setTheme(e.target.value)}
+            placeholder="Например: MAIN CHARACTER SYNDROME…"
+            className="border-zinc-800 bg-zinc-950"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <p className="text-[11px] uppercase tracking-wider text-zinc-500">Три темы для ОС + рейтинг</p>
+          {oc.map((row, i) => (
+            <div key={i} className="flex flex-wrap items-center gap-2">
+              <Badge variant="outline" className="w-14 justify-center border-fuchsia-800/60 text-fuchsia-400">
+                OC-{i + 1}
+              </Badge>
+              <Input
+                value={row.theme}
+                onChange={(e) => setOcRow(i, { theme: e.target.value })}
+                placeholder="Тема ОС…"
+                className="min-w-40 flex-1 border-zinc-800 bg-zinc-950"
+              />
+              <div className="flex gap-1">
+                {OC_RATINGS.map((r) => (
+                  <button
+                    key={r}
+                    onClick={() => setOcRow(i, { rating: r })}
+                    className={cn(
+                      'rounded-md border px-2 py-1 font-mono text-[11px] transition-colors',
+                      row.rating === r
+                        ? 'border-fuchsia-500/60 bg-fuchsia-500/15 text-fuchsia-300'
+                        : 'border-zinc-800 bg-zinc-900 text-zinc-500 hover:text-zinc-300'
+                    )}
+                  >
+                    {r}
+                  </button>
+                ))}
+              </div>
+              <Input
+                value={row.wishes}
+                onChange={(e) => setOcRow(i, { wishes: e.target.value })}
+                placeholder="Пожелания к ОС…"
+                className="min-w-40 flex-1 border-zinc-800 bg-zinc-950 text-xs"
+              />
+            </div>
+          ))}
+        </div>
+
+        <div className="space-y-1.5">
+          <p className="text-[11px] uppercase tracking-wider text-zinc-500">
+            Пожелания к основной теме
+          </p>
+          <Textarea
+            value={mainWishes}
+            onChange={(e) => setMainWishes(e.target.value)}
+            placeholder="Акценты, реюз героинь, зоны, настроение…"
+            className="min-h-16 border-zinc-800 bg-zinc-950 text-sm"
+          />
+        </div>
+
+        <div className="grid gap-3 rounded-lg border border-zinc-800/80 bg-zinc-900/40 p-3 sm:grid-cols-2">
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-xs text-zinc-300">Кины (Species)</span>
+            <Switch checked={speciesOn} onCheckedChange={setSpeciesOn} />
+          </div>
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-xs text-zinc-300">Сколько киновых слотов</span>
+            <span className="w-8 text-right font-mono text-xs text-amber-400">{speciesCount}</span>
+            <Slider
+              value={[speciesCount]}
+              onValueChange={(v) => setSpeciesCount(v[0] ?? speciesCount)}
+              min={0}
+              max={21}
+              step={1}
+              className="w-28"
+              disabled={!speciesOn}
+            />
+          </div>
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-xs text-zinc-300">X-слоты</span>
+            <div className="flex gap-1">
+              {[0, 1, 2].map((n) => (
+                <button
+                  key={n}
+                  onClick={() => setXSlots(n)}
+                  className={cn(
+                    'rounded-md border px-2.5 py-1 font-mono text-[11px] transition-colors',
+                    xSlots === n
+                      ? 'border-rose-500/60 bg-rose-500/15 text-rose-300'
+                      : 'border-zinc-800 bg-zinc-900 text-zinc-500 hover:text-zinc-300'
+                  )}
+                >
+                  {n}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-xs text-zinc-300">A/B-пары</span>
+            <div className="flex gap-1">
+              {[0, 1, 2, 3].map((n) => (
+                <button
+                  key={n}
+                  onClick={() => setAbPairs(n)}
+                  className={cn(
+                    'rounded-md border px-2.5 py-1 font-mono text-[11px] transition-colors',
+                    abPairs === n
+                      ? 'border-emerald-500/60 bg-emerald-500/15 text-emerald-300'
+                      : 'border-zinc-800 bg-zinc-900 text-zinc-500 hover:text-zinc-300'
+                  )}
+                >
+                  {n}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-xs text-zinc-300">REHAB-добор каналов</span>
+            <Switch checked={rehab} onCheckedChange={setRehab} />
+          </div>
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-xs text-zinc-300">Движок</span>
+            <Badge variant="outline" className="border-zinc-700 font-mono text-[11px] text-zinc-400">
+              per-theme (одноразовый)
+            </Badge>
+          </div>
+        </div>
+
+        {speciesOn && races.length > 0 && (
+          <div className="space-y-2">
+            <p className="text-[11px] uppercase tracking-wider text-zinc-500">
+              Какие кины — отмечай любимых ({speciesList.length} выбрано)
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {races.map((r) => (
+                <button
+                  key={r.id}
+                  onClick={() => toggleSpecies(r.id)}
+                  className={cn(
+                    'rounded-full border px-2.5 py-1 text-[11px] transition-colors',
+                    speciesList.includes(r.id)
+                      ? 'border-fuchsia-500/60 bg-fuchsia-500/15 text-fuchsia-300'
+                      : 'border-zinc-800 bg-zinc-900/60 text-zinc-500 hover:border-zinc-700 hover:text-zinc-300'
+                  )}
+                >
+                  {r.name}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div className="flex items-center gap-3">
+          <Button
+            onClick={save}
+            disabled={busy || theme.trim() === ''}
+            className="bg-gradient-to-r from-amber-500 to-fuchsia-600 font-medium text-zinc-950 hover:from-amber-400 hover:to-fuchsia-500"
+          >
+            {busy ? 'Сохраняю…' : `Сохранить черновик ${meta.data?.nextSlug ?? ''}`}
+          </Button>
+          {saved ? (
+            <span className="flex items-center gap-1 text-xs text-emerald-400">
+              <Check className="size-3.5" /> черновик {saved} записан — в thread4/drafts/
+            </span>
+          ) : null}
+          {err ? <span className="text-xs text-rose-400">{err}</span> : null}
+        </div>
+      </div>
+    </Panel>
+  )
+}
+
 function CompileTab() {
   const [theme, setTheme] = useState('')
   const [engine, setEngine] = useState('')
@@ -459,12 +717,18 @@ function CompileTab() {
 
   return (
     <div className="space-y-6">
+      <DraftComposer />
       <Panel title="Компилятор батча" icon={<FlaskConical className="size-4" />}>
         <div className="space-y-3">
           <p className="text-xs leading-relaxed text-zinc-500">
             Тема от автора → слот-план 24 промпта (21 мейн + 3 OC — вердикт T4-02): жанры,
             рейтинги по рецептуре, назначенные носители, позы, палитры, расы, регистры.
             Диверсия назначается ДО письма. Контракт = экспозиция для автора + закон для писца.
+          </p>
+          <p className="rounded border border-amber-900/50 bg-amber-950/30 px-3 py-2 text-[11px] leading-relaxed text-amber-400">
+            Статус: experimental / low-trust (Issue #21). Авто-скелет и авто-писец дают черновик,
+            требующий обязательной ручной переработки писцом — закон письма (вердикт T4-12).
+            Качество измеряет вердикт автора после рендера, не FIRST RUN CLEAN (Issue #20).
           </p>
           <Textarea
             value={theme}
@@ -2577,24 +2841,60 @@ function ArchiveTab() {
 
 export default function Home() {
   const [tab, setTab] = useState<TabId>('state')
+  const state = useApi<{ batches?: unknown[]; events?: number; glass?: { chain?: { ok?: boolean; events?: number } } }>(
+    '/api/t4/state'
+  )
+  const chain = state.data?.glass?.chain
+  const deliveredCount = Array.isArray(state.data?.batches) ? state.data?.batches.length : null
+  const eventsCount = state.data?.events ?? chain?.events ?? null
 
   return (
     <div className="flex min-h-screen flex-col bg-zinc-950 text-zinc-100">
-      <header className="sticky top-0 z-40 border-b border-zinc-800/80 bg-zinc-950/85 backdrop-blur">
+      <header className="sticky top-0 z-40 border-b border-zinc-800/80 bg-gradient-to-b from-zinc-900 via-zinc-950/95 to-zinc-950/90 backdrop-blur">
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6">
           <div className="flex items-center justify-between gap-4 py-3.5">
             <div className="flex items-center gap-3">
-              <div className="flex size-8 items-center justify-center rounded-md border border-amber-500/40 bg-amber-500/10">
-                <span className="font-mono text-sm font-bold text-amber-400">4</span>
+              <div className="relative flex size-10 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500 via-rose-500 to-fuchsia-600 shadow-lg shadow-fuchsia-950/40">
+                <span className="font-mono text-base font-bold text-zinc-950">4</span>
+                <span className="absolute -right-0.5 -top-0.5 size-2 animate-ping rounded-full bg-fuchsia-400" />
               </div>
               <div>
-                <div className="text-sm font-semibold tracking-tight">THREAD 4</div>
-                <div className="text-[11px] text-zinc-500">конвейер промпт-батчей · Tsubaki.2 Pro → Yodayo</div>
+                <div className="bg-gradient-to-r from-amber-300 via-rose-300 to-fuchsia-300 bg-clip-text text-base font-bold tracking-tight text-transparent">
+                  THREAD 4
+                </div>
+                <div className="text-[11px] text-zinc-500">
+                  конвейер промпт-батчей · Tsubaki.2 Pro → Yodayo
+                </div>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="size-2 animate-pulse rounded-full bg-emerald-500" />
-              <span className="hidden text-[11px] text-zinc-500 sm:inline">append-only летопись · хеш-цепь · стеклянная пушка</span>
+            <div className="flex flex-wrap items-center justify-end gap-1.5">
+              {deliveredCount != null ? (
+                <Badge variant="outline" className="gap-1 border-amber-800/50 bg-amber-500/5 text-amber-300">
+                  <Sparkles className="size-3" /> сдано {deliveredCount}
+                </Badge>
+              ) : null}
+              {eventsCount != null ? (
+                <Badge variant="outline" className="gap-1 border-fuchsia-800/50 bg-fuchsia-500/5 text-fuchsia-300">
+                  <ScrollText className="size-3" /> событий {eventsCount}
+                </Badge>
+              ) : null}
+              <Badge
+                variant="outline"
+                className={cn(
+                  'gap-1',
+                  chain?.ok
+                    ? 'border-emerald-800/50 bg-emerald-500/5 text-emerald-300'
+                    : 'border-rose-800/50 bg-rose-500/5 text-rose-300'
+                )}
+              >
+                <span
+                  className={cn(
+                    'size-1.5 rounded-full',
+                    chain?.ok ? 'animate-pulse bg-emerald-500' : 'bg-rose-500'
+                  )}
+                />
+                {chain?.ok ? 'цепь цела' : 'цепь!'}
+              </Badge>
             </div>
           </div>
           <ScrollArea className="whitespace-nowrap pb-px">
@@ -2606,7 +2906,7 @@ export default function Home() {
                   className={cn(
                     'flex shrink-0 items-center gap-1.5 rounded-md border-b-2 px-3 py-1.5 text-xs font-medium transition-colors',
                     tab === t.id
-                      ? 'border-amber-500 text-amber-300'
+                      ? 'border-fuchsia-500 text-amber-300'
                       : 'border-transparent text-zinc-500 hover:text-zinc-300'
                   )}
                 >
@@ -2617,6 +2917,10 @@ export default function Home() {
             </div>
             <ScrollBar orientation="horizontal" className="h-1" />
           </ScrollArea>
+        </div>
+        {/* нить: анимированная градиентная нить под шапкой — пряжа треда */}
+        <div className="h-[2px] w-full overflow-hidden">
+          <div className="h-full w-1/3 animate-[thread-slide_6s_linear_infinite] bg-gradient-to-r from-transparent via-fuchsia-500 to-transparent" />
         </div>
       </header>
 

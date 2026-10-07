@@ -22,7 +22,6 @@ import { getDeliveryStats, getPolicy, specInventory } from '../src/lib/t4/specs'
 import { buildReaperDraft } from '../src/lib/t4/reaper'
 import { scanSource } from '../src/lib/t4/hygiene'
 import { writeText } from '../src/lib/t4/fsutil'
-import path from 'node:path'
 
 const cmd = process.argv[2] ?? ''
 
@@ -33,6 +32,9 @@ function printGates(result: NonNullable<ReturnType<typeof runGates>>) {
     for (const f of r.findings.slice(0, 5)) console.log(`       ${f}`)
   }
   console.log(`\nrun #${result.runIndex} · hard ${result.hardPass ? 'PASS' : 'FAIL'}${result.firstRunClean ? ' · FIRST RUN CLEAN' : ''}`)
+  /* Issue #20: FRC — согласие гейтов с текстом, не качество.
+     Единственный честный сигнал качества — вердикт автора после рендера. */
+  console.log('  (FRC = гейты согласны с текстом; качество измеряет вердикт автора после рендера — Issue #20)')
 }
 
 async function main() {
@@ -213,6 +215,56 @@ async function main() {
     return
   }
 
+  if (cmd === 'shore-merge') {
+    /* Решение аудита V3 №5 (Issue #16): слияние берегов одной командой.
+       fetch → union лога (дедуп по id) → bootstrap цепи → verify → отчёт.
+       Пуш после слияния — осознанное действие оператора. */
+    const { execSync } = await import('node:child_process')
+    try {
+      execSync('git fetch origin', { stdio: 'pipe' })
+    } catch {
+      console.error('shore-merge: git fetch не удался — нет сети или origin; продолжаю только с локальным логом')
+    }
+    let remoteRaw = ''
+    try {
+      remoteRaw = execSync('git show origin/main:thread4/events/log.jsonl', { encoding: 'utf8' })
+    } catch {
+      console.log('shore-merge: удалённого лога нет — слияние не требуется, локальный лог уже главный')
+      return
+    }
+    const localLines = fs.readFileSync('thread4/events/log.jsonl', 'utf8').split('\n').filter(Boolean).map((l) => l.trim())
+    const remoteLines = remoteRaw.split('\n').filter(Boolean).map((l) => l.trim())
+    const seen = new Set<string>()
+    const merged: Array<{ at: string; line: string }> = []
+    let dupes = 0
+    for (const line of [...localLines, ...remoteLines]) {
+      try {
+        const obj = JSON.parse(line) as { id?: string; at?: string }
+        const key = obj.id ?? line
+        if (seen.has(key)) {
+          dupes += 1
+          continue
+        }
+        seen.add(key)
+        merged.push({ at: obj.at ?? '', line: line.trim() })
+      } catch {
+        /* битая строка не переносится — гвард рождения такие не пропускал */
+      }
+    }
+    merged.sort((a, b) => (a.at < b.at ? -1 : a.at > b.at ? 1 : 0))
+    writeText('thread4/events/log.jsonl', merged.map((m) => m.line).join('\n') + '\n')
+    const rebuilt = bootstrapChain()
+    const v = verifyChain()
+    const localOnly = localLines.filter((l) => !remoteLines.includes(l)).length
+    const remoteOnly = remoteLines.filter((l) => !localLines.includes(l)).length
+    console.log(`shore-merge: локальных новых ${localOnly}, удалённых новых ${remoteOnly}, дублей снято ${dupes}`)
+    console.log(`shore-merge: лог ${merged.length} событий, цепь ${rebuilt.links} звеньев, head ${rebuilt.head.slice(0, 10)}`)
+    console.log(`shore-merge: verify — ${v.ok ? 'ЦЕЛА' : 'СЛОМАНА: ' + v.problems.join('; ')}`)
+    console.log('shore-merge: следующее — осознанный git add thread4/events && git commit && git push')
+    process.exit(v.ok ? 0 : 1)
+    return
+  }
+
   if (cmd === 'reaper') {
     /* Залп 2 «Рефлекс»: жнец собирает ДРАФТ-отставки по каналам, движкам и OC.
        Ни одного события, ни одного удаления — доклад автору, выстрел за ним (§10). */
@@ -236,7 +288,7 @@ async function main() {
           .readFileSync(qPath, 'utf8')
           .split('\n')
           .filter(Boolean)
-          .map((l, i) => ({ n: i + 1, ...(JSON.parse(l) as Record<string, unknown>) }))
+          .map((l, i): { n: number } & Record<string, unknown> => ({ n: i + 1, ...(JSON.parse(l) as Record<string, unknown>) }))
       : []
     const act = process.argv[3]
     if (!act) {

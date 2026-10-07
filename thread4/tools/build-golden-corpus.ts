@@ -35,7 +35,7 @@ function main(): void {
   const flush = (): void => {
     if (!cur) return
     const tiers = cur.tiersRaw.match(/(PG-?13|R\+|RPLUS|X|XXX|R)/gi) ?? []
-    const delivered = tiers.length > 0 ? normTier(tiers[0]) : ''
+    const delivered = tiers.length > 0 ? normTier(tiers[0] ?? '') : ''
     const claim = tiers.length > 1 ? normTier(tiers[tiers.length - 1]) : ''
     const body = cur.body.join('\n').trim()
     if (!body || !delivered || !claim) {
