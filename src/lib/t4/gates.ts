@@ -66,7 +66,10 @@ export interface ParsedBatch {
   slots: ParsedSlot[]
 }
 
-const GENRES = ['OC', 'NICHE', 'VOLT', 'EXQUISITE'] as const
+/* EXP — первый: шапка «EXP · VOLT · — · R+» парсится как EXP (оверлей поверх
+ * 24-слотового закона, приказ-уточнение автора 2026-10-08: 9 EXP отдельно
+ * от 21 тематического мейна, без темы — чистые болванки для тестов). */
+const GENRES = ['EXP', 'OC', 'NICHE', 'VOLT', 'EXQUISITE'] as const
 
 /* genreOf экспортирован вместе с tierOf для фолбэк-контрактов приёмника
  * (Фред, 2026-10-08) — один парсер шапок слотов на все потребители. */
@@ -257,13 +260,21 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
   /* ---------------- 1. structure (hard) ---------------- */
   {
     const f: string[] = []
-    if (batch.slots.length !== LAWS.slotsTotal) {
-      f.push(`слотов ${batch.slots.length}, ожидается ${LAWS.slotsTotal} (${LAWS.ocSlots} OC + ${LAWS.mainsTotal} мейнов — вердикт T4-02)`)
-    }
-    const mains = batch.slots.filter((s) => s.genre !== 'OC')
+    /* EXP-оверлей (приказ-уточнение автора 2026-10-08): до LAWS.expSlotsMax
+     * слотов жанра EXP поверх 24-слотового закона — отдельно от мейнов.
+     * 24-слотовый закон для тематической части (3 OC + 21 мейн) не меняется. */
+    const expSlots = batch.slots.filter((s) => s.genre === 'EXP')
+    const expMax = LAWS.expSlotsMax ?? 9
+    const mains = batch.slots.filter((s) => s.genre !== 'OC' && s.genre !== 'EXP')
     const ocSlots = batch.slots.filter((s) => s.genre === 'OC')
+    if (batch.slots.length !== LAWS.slotsTotal + expSlots.length) {
+      f.push(`слотов ${batch.slots.length}, ожидается ${LAWS.slotsTotal} + EXP-оверлей (${LAWS.ocSlots} OC + ${LAWS.mainsTotal} мейнов — вердикт T4-02; EXP-слотов ${expSlots.length}, отдельно от мейнов — приказ 2026-10-08)`)
+    }
+    if (expSlots.length > expMax) {
+      f.push(`EXP-оверлей ${expSlots.length} > ${expMax} слотов (law.expSlotsMax — «9 лишних слотов под всякие гадости», приказ автора)`)
+    }
     if (ocSlots.length !== LAWS.ocSlots) f.push(`OC-слотов ${ocSlots.length}, ожидается ${LAWS.ocSlots}`)
-    if (mains.length !== LAWS.mainsTotal) f.push(`мейнов ${mains.length}, ожидается ${LAWS.mainsTotal}`)
+    if (mains.length !== LAWS.mainsTotal) f.push(`тематических мейнов ${mains.length}, ожидается ${LAWS.mainsTotal} (EXP-оверлей не входит — приказ 2026-10-08)`)
     for (const s of batch.slots) {
       if (s.pos === '') f.push(`P${s.position}: пустой POS`)
       if (s.neg === '') f.push(`P${s.position}: пустой NEG`)
@@ -639,10 +650,10 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
     const palIds = batch.slots
       .map((s) => (/\b(P\d{1,3}_[A-Z_]+)\b/.exec(s.header) ?? [])[0])
       .filter(Boolean)
-    if (poseIds.length === LAWS.slotsTotal && palIds.length !== LAWS.slotsTotal) {
-      f.push(`слотов с палитрой в шапке: ${palIds.length}/${LAWS.slotsTotal}`)
+    if (poseIds.length === batch.slots.length && palIds.length !== batch.slots.length) {
+      f.push(`слотов с палитрой в шапке: ${palIds.length}/${batch.slots.length}`)
     }
-    if (palIds.length >= LAWS.slotsTotal && new Set(palIds).size < LAWS.slotsTotal) {
+    if (palIds.length >= batch.slots.length && new Set(palIds).size < batch.slots.length) {
       f.push('палитры не уникальны в батче')
     }
     hard('diversity', f)
@@ -750,7 +761,10 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
         f.push(`P${s.position}: NICHE без свидетеля в кадре (mirror/glass/monitor/phone/gauge…) — свидетель держит невозможное`)
       }
     }
-    if (nicheSlots.length === 0 && batch.slots.length === LAWS.slotsTotal) {
+    const themedMainsCount = batch.slots.filter(
+      (s) => s.genre !== 'OC' && s.genre !== 'EXP'
+    ).length
+    if (nicheSlots.length === 0 && themedMainsCount === LAWS.mainsTotal) {
       f.push('NICHE-слотов нет — жанровая структура батча сломана')
     }
     warn('niche-legibility', f)

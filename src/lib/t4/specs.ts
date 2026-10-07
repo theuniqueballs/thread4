@@ -375,6 +375,11 @@ export interface PolicySpec {
     signalMin: Record<string, number>
     abPairsMin: number
     abPairsMax: number
+    /* Приказ-уточнение автора 2026-10-08 (T4-25): EXP-оверлей — до N слотов
+     * ПОВЕРХ 24-слотового закона, отдельно от 21 тематического мейна;
+     * EXP-слоты могут быть без темы (чистые болванки для тестов). */
+    expSlotsMax?: number
+    exp_overlay_note?: string
   }
   channels: Record<string, unknown>
   engines: Record<string, unknown>
