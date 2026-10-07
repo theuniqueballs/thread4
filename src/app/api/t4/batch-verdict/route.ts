@@ -9,7 +9,8 @@ import { NextResponse } from 'next/server'
 import path from 'node:path'
 
 import { appendEvent, readEvents } from '@/lib/t4/events'
-import { CONTRACTS_DIR, readJson } from '@/lib/t4/fsutil'
+import { BATCHES_DIR, CONTRACTS_DIR, readJson, readText } from '@/lib/t4/fsutil'
+import { extractBatchTitle } from '@/lib/t4/gates'
 import { TIER_RANK as TIERS } from '@/lib/t4/verdicts'
 
 export const dynamic = 'force-dynamic'
@@ -64,7 +65,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'bad json' }, { status: 400 })
   }
   const slug = (body.slug ?? '').trim()
-  if (!/^T4-\d{2}$/.test(slug)) {
+  /* Фред, 2026-10-08: суффиксные слаги разрешены — вердикты по EXP-батчам
+   * (T4-20-EXP и родня) раньше отбивались 400-й на этом же чеке. */
+  if (!/^T4-\d{2}(?:[-.][A-Za-z0-9]+)*$/.test(slug)) {
     return NextResponse.json({ error: 'slug required (T4-NN)' }, { status: 400 })
   }
   const rawSlots = Array.isArray(body.slots) ? body.slots : []
@@ -178,7 +181,18 @@ export async function POST(req: Request) {
   )
 
   const prose = String(body.prose ?? '').trim().slice(0, 2000)
-  const theme = contract?.theme ?? ''
+  /* Фред, 2026-10-08: тема без контракта (RAW T4-23/24, EXP) — из меты
+   * батча или его H1, чтобы запись вердикта не была безымянной. */
+  const batchMeta = readJson<{ title?: string; theme?: string }>(
+    path.join(BATCHES_DIR, `${slug}.json`)
+  )
+  const batchMd = readText(path.join(BATCHES_DIR, `${slug}.md`))
+  const theme =
+    contract?.theme ||
+    (batchMeta?.title && batchMeta.title !== slug ? batchMeta.title : '') ||
+    batchMeta?.theme ||
+    (batchMd ? extractBatchTitle(batchMd) : '') ||
+    ''
   const scoreText = Object.entries(claimed)
     .map(([t, n]) => `${t} ${delivered[t] ?? 0}/${n}`)
     .join(' · ')

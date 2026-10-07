@@ -68,7 +68,9 @@ export interface ParsedBatch {
 
 const GENRES = ['OC', 'NICHE', 'VOLT', 'EXQUISITE'] as const
 
-function genreOf(meta: string): string {
+/* genreOf экспортирован вместе с tierOf для фолбэк-контрактов приёмника
+ * (Фред, 2026-10-08) — один парсер шапок слотов на все потребители. */
+export function genreOf(meta: string): string {
   const u = meta.toUpperCase()
   for (const g of GENRES) {
     if (new RegExp(`\\b${g}\\b`).test(u)) return g
@@ -76,9 +78,20 @@ function genreOf(meta: string): string {
   return ''
 }
 
+/* Тайтл батча из H1. Два формата:
+ *  - легаси:  # THREAD 4 … Batch T4-NN «TITLE»
+ *  - современный: # T4-NN «TITLE» — БАТЧ (RAW / данбуру-формат, ЭКСПЕРИМЕНТАЛЬНЫЙ…)
+ * Фикс Фреда 2026-10-08: второй формат не матчился — RAW-батчи T4-23/T4-24
+ * уехали в delivery с title=slug ( Issue-ремонт «нет названия»). */
+export function extractBatchTitle(text: string): string {
+  const legacy = /#\s*THREAD 4[^\n]*?Batch\s+(T4-\d+)[^\n]*?["«]([^"»]+)["»]/i.exec(text)
+  if (legacy) return legacy[2].trim()
+  const modern = /^#\s*T4-[\dA-Za-z.-]+\s*["«]([^"»]+)["»]/m.exec(text)
+  return modern ? modern[1].trim() : ''
+}
+
 export function parseBatch(slug: string, text: string): ParsedBatch {
-  const titleMatch = /#\s*THREAD 4[^\n]*?Batch\s+(T4-\d+)[^\n]*?["«]([^"»]+)["»]/i.exec(text)
-  const title = titleMatch ? titleMatch[2] : ''
+  const title = extractBatchTitle(text)
   const slots: ParsedSlot[] = []
   const slotRe = /^P(\d{1,2})\s*—\s*(.+)$/gm
   const marks: { pos: number; n: number; anchor: string }[] = []
@@ -124,8 +137,10 @@ export function parseBatch(slug: string, text: string): ParsedBatch {
 /* ------------------------------------------------------------------ */
 
 /* TIER_ORDER импортируется из ./verdicts — единая копия порядка тиров (Залп 2) */
-
-function tierOf(meta: string): string {
+/* tierOf экспортирован для фолбэк-контрактов приёмника (Фред, 2026-10-08):
+ * RAW/EXP-батчи живут без contracts/T4-NN.json — тир заявки читается из
+ * шапки слота «(OC · Sue · R+)» тем же парсером, что и в гейтах. */
+export function tierOf(meta: string): string {
   const u = meta.toUpperCase()
   // order matters: XXX before X, R+ before R («R+ ·» — \b after '+' never fires)
   if (/\bXXX\b/.test(u)) return 'XXX'

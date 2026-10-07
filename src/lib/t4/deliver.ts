@@ -63,6 +63,12 @@ export function deliverBatch(slug: string): DeliverResult | null {
     spread?: { rating: string; count: number }[]
   }>(path.join(CONTRACTS_DIR, `${slug}.json`))
   const title = parsed.title || contract?.theme || slug
+  /* Фред, 2026-10-08: RAW-батчи сдаются без контракта — theme/engine больше
+   * не пустеют: тема берётся из H1 батча, движок помечается по формату.
+   * (Ремонт «нет названия у T4-23/T4-24»: delivery писал title=slug.) */
+  const rawFormat = /^#\s*T4-[\dA-Za-z.-]+[^\n]*\bRAW\b/m.test(text0)
+  const theme = contract?.theme || parsed.title || ''
+  const engine = contract?.engine || (rawFormat ? 'raw-danbooru' : '')
 
   /* oc.appeared — ростер финален только при сдаче (рекомпиляции не считаются) */
   const ocRoster = (contract?.slots ?? [])
@@ -123,8 +129,8 @@ export function deliverBatch(slug: string): DeliverResult | null {
     slug,
     title,
     date: new Date().toISOString(),
-    theme: contract?.theme ?? '',
-    engine: contract?.engine ?? '',
+    theme,
+    engine,
     hardPass: result.hardPass,
     firstRunClean: result.firstRunClean,
     sha10: result.sha10,
@@ -137,8 +143,8 @@ export function deliverBatch(slug: string): DeliverResult | null {
     {
       slug,
       title,
-      theme: contract?.theme ?? '',
-      engine: contract?.engine ?? '',
+      theme,
+      engine,
       hardPass: true,
       firstRunClean: result.firstRunClean,
       sha10: result.sha10,
