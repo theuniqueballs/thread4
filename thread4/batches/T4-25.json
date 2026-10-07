@@ -7,7 +7,7 @@
   "hardPass": true,
   "firstRunClean": false,
   "sha10": "f5b8cc4ac9",
-  "run": 5,
+  "run": 4,
   "receipts": [
     {
       "gate": "structure",
