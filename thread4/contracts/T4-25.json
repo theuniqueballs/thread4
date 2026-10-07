@@ -9,11 +9,11 @@
   "spread": [
     {
       "rating": "R",
-      "count": 4
+      "count": 7
     },
     {
       "rating": "R+",
-      "count": 20
+      "count": 26
     }
   ],
   "slots": [
@@ -32,26 +32,22 @@
         {
           "id": "CR-W13",
           "name": "Sitting-Crease",
-          "cls": "W",
-          "deg": "L"
+          "cls": "W"
         },
         {
           "id": "CR-B04",
           "name": "Apex Contour",
-          "cls": "B",
-          "deg": "M"
+          "cls": "B"
         },
         {
           "id": "CR-U17",
           "name": "Shared Kitchen",
-          "cls": "U",
-          "deg": "M"
+          "cls": "U"
         },
         {
           "id": "CR-M04",
           "name": "Window Glass",
-          "cls": "M",
-          "deg": "H"
+          "cls": "M"
         }
       ],
       "lead": "",
@@ -73,26 +69,22 @@
         {
           "id": "CR-W15",
           "name": "Leather Mold",
-          "cls": "W",
-          "deg": "M"
+          "cls": "W"
         },
         {
           "id": "CR-S03",
           "name": "Collarbone Hollow Pendant",
-          "cls": "S",
-          "deg": "L"
+          "cls": "S"
         },
         {
           "id": "CR-E25",
           "name": "Cuff Lost Button",
-          "cls": "E",
-          "deg": "L"
+          "cls": "E"
         },
         {
           "id": "CR-D12",
           "name": "Breaststroke Push",
-          "cls": "D",
-          "deg": "M"
+          "cls": "D"
         }
       ],
       "lead": "",
@@ -110,7 +102,28 @@
       "palette": "",
       "paletteName": "",
       "kinetics": [],
-      "carriers": [],
+      "carriers": [
+        {
+          "id": "CR-W03",
+          "name": "Side-Seam Strain",
+          "cls": "W"
+        },
+        {
+          "id": "CR-B19",
+          "name": "Dome At Quarter-Turn",
+          "cls": "B"
+        },
+        {
+          "id": "CR-U03",
+          "name": "Post-Shower Tee",
+          "cls": "U"
+        },
+        {
+          "id": "CR-D02",
+          "name": "Stair Bounce",
+          "cls": "D"
+        }
+      ],
       "lead": "",
       "register": "oc-theme",
       "closer": ""
@@ -118,6 +131,7 @@
     {
       "position": 4,
       "kind": "VOLT",
+      "oc": "",
       "rating": "R+",
       "pose": "",
       "poseName": "nno-window-sill",
@@ -129,26 +143,22 @@
         {
           "id": "CR-W01",
           "name": "Taut Weave",
-          "cls": "W",
-          "deg": "M"
+          "cls": "W"
         },
         {
           "id": "CR-B02",
           "name": "Shape Through Cold Cloth",
-          "cls": "B",
-          "deg": "H"
+          "cls": "B"
         },
         {
           "id": "CR-U13",
           "name": "Hotel Robe",
-          "cls": "U",
-          "deg": "M"
+          "cls": "U"
         },
         {
           "id": "CR-M04",
           "name": "Window Glass",
-          "cls": "M",
-          "deg": "H"
+          "cls": "M"
         }
       ],
       "lead": "",
@@ -158,6 +168,7 @@
     {
       "position": 5,
       "kind": "VOLT",
+      "oc": "",
       "rating": "R+",
       "pose": "",
       "poseName": "nno-tape-dress-code",
@@ -169,26 +180,22 @@
         {
           "id": "CR-W06",
           "name": "Sweat-Damp Spine",
-          "cls": "W",
-          "deg": "M"
+          "cls": "W"
         },
         {
           "id": "CR-C14",
           "name": "Paddleboard Wobble",
-          "cls": "C",
-          "deg": "M"
+          "cls": "C"
         },
         {
           "id": "CR-L07",
           "name": "Strapless War",
-          "cls": "L",
-          "deg": "M"
+          "cls": "L"
         },
         {
           "id": "CR-D06",
           "name": "Table Flattening",
-          "cls": "D",
-          "deg": "M"
+          "cls": "D"
         }
       ],
       "lead": "",
@@ -198,6 +205,7 @@
     {
       "position": 6,
       "kind": "VOLT",
+      "oc": "",
       "rating": "R+",
       "pose": "",
       "poseName": "nno-dog-door",
@@ -209,26 +217,22 @@
         {
           "id": "CR-W02",
           "name": "Stretched Buttonholes",
-          "cls": "W",
-          "deg": "M"
+          "cls": "W"
         },
         {
           "id": "CR-B03",
           "name": "Peaks Through Dry Knit",
-          "cls": "B",
-          "deg": "H"
+          "cls": "B"
         },
         {
           "id": "CR-U08",
           "name": "Quick-Change Screen",
-          "cls": "U",
-          "deg": "H"
+          "cls": "U"
         },
         {
           "id": "CR-M16",
           "name": "Measuring Tape",
-          "cls": "M",
-          "deg": "M"
+          "cls": "M"
         }
       ],
       "lead": "",
@@ -238,6 +242,7 @@
     {
       "position": 7,
       "kind": "VOLT",
+      "oc": "",
       "rating": "R+",
       "pose": "",
       "poseName": "nno-bubble-wrap",
@@ -249,26 +254,22 @@
         {
           "id": "CR-W18",
           "name": "Towel Nap",
-          "cls": "W",
-          "deg": "M"
+          "cls": "W"
         },
         {
           "id": "CR-B28",
           "name": "Padding Defeated",
-          "cls": "B",
-          "deg": "H"
+          "cls": "B"
         },
         {
           "id": "CR-U19",
           "name": "Yukata Morning",
-          "cls": "U",
-          "deg": "M"
+          "cls": "U"
         },
         {
           "id": "CR-I05",
           "name": "Belt Line",
-          "cls": "I",
-          "deg": "L"
+          "cls": "I"
         }
       ],
       "lead": "",
@@ -278,6 +279,7 @@
     {
       "position": 8,
       "kind": "VOLT",
+      "oc": "",
       "rating": "R+",
       "pose": "",
       "poseName": "nno-wind-corridor",
@@ -289,26 +291,22 @@
         {
           "id": "CR-W22",
           "name": "Denim Stress-White",
-          "cls": "W",
-          "deg": "M"
+          "cls": "W"
         },
         {
           "id": "CR-C12",
           "name": "Leather Squeak",
-          "cls": "C",
-          "deg": "L"
+          "cls": "C"
         },
         {
           "id": "CR-E28",
           "name": "Hoodie Zipper",
-          "cls": "E",
-          "deg": "L"
+          "cls": "E"
         },
         {
           "id": "CR-M12",
           "name": "Backpack Chest Strap",
-          "cls": "M",
-          "deg": "M"
+          "cls": "M"
         }
       ],
       "lead": "",
@@ -318,6 +316,7 @@
     {
       "position": 9,
       "kind": "VOLT",
+      "oc": "",
       "rating": "R+",
       "pose": "",
       "poseName": "nno-scanner-cabin",
@@ -329,26 +328,22 @@
         {
           "id": "CR-W19",
           "name": "Jersey Rumple",
-          "cls": "W",
-          "deg": "L"
+          "cls": "W"
         },
         {
           "id": "CR-C10",
           "name": "Boyshort Bisection",
-          "cls": "C",
-          "deg": "M"
+          "cls": "C"
         },
         {
           "id": "CR-U17",
           "name": "Shared Kitchen",
-          "cls": "U",
-          "deg": "M"
+          "cls": "U"
         },
         {
           "id": "CR-I05",
           "name": "Belt Line",
-          "cls": "I",
-          "deg": "L"
+          "cls": "I"
         }
       ],
       "lead": "",
@@ -358,6 +353,7 @@
     {
       "position": 10,
       "kind": "VOLT",
+      "oc": "",
       "rating": "R+",
       "pose": "",
       "poseName": "nno-sprinkler-park",
@@ -369,26 +365,22 @@
         {
           "id": "CR-W16",
           "name": "Silk Drape",
-          "cls": "W",
-          "deg": "L"
+          "cls": "W"
         },
         {
           "id": "CR-B26",
           "name": "Side-Lie Contact Read",
-          "cls": "B",
-          "deg": "M"
+          "cls": "B"
         },
         {
           "id": "CR-E02",
           "name": "Bra Strap Escaped Boat Neck",
-          "cls": "E",
-          "deg": "M"
+          "cls": "E"
         },
         {
           "id": "CR-D11",
           "name": "Volleyball Spike",
-          "cls": "D",
-          "deg": "H"
+          "cls": "D"
         }
       ],
       "lead": "",
@@ -398,6 +390,7 @@
     {
       "position": 11,
       "kind": "NICHE",
+      "oc": "",
       "rating": "R",
       "pose": "",
       "poseName": "nno-midnight-laundromat",
@@ -409,35 +402,32 @@
         {
           "id": "CR-W20",
           "name": "Chairback Print",
-          "cls": "W",
-          "deg": "L"
+          "cls": "W"
         },
         {
           "id": "CR-C07",
           "name": "Saddle Overflow",
-          "cls": "C",
-          "deg": "M"
+          "cls": "C"
         },
         {
           "id": "CR-U04",
           "name": "Borrowed Too-Small",
-          "cls": "U",
-          "deg": "M"
+          "cls": "U"
         },
         {
           "id": "CR-I06",
           "name": "Bikini Pale Borders",
-          "cls": "I",
-          "deg": "M"
+          "cls": "I"
         }
       ],
       "lead": "",
-      "register": "young",
+      "register": "student",
       "closer": ""
     },
     {
       "position": 12,
       "kind": "NICHE",
+      "oc": "",
       "rating": "R",
       "pose": "",
       "poseName": "nno-roommate-drawer",
@@ -449,35 +439,32 @@
         {
           "id": "CR-W29",
           "name": "Pleat-Set",
-          "cls": "W",
-          "deg": "L"
+          "cls": "W"
         },
         {
           "id": "CR-B12",
           "name": "Waist Carve",
-          "cls": "B",
-          "deg": "L"
+          "cls": "B"
         },
         {
           "id": "CR-U15",
           "name": "Door-Knock Gown",
-          "cls": "U",
-          "deg": "H"
+          "cls": "U"
         },
         {
           "id": "CR-I04",
           "name": "Sock Rings",
-          "cls": "I",
-          "deg": "L"
+          "cls": "I"
         }
       ],
       "lead": "",
-      "register": "young",
+      "register": "student",
       "closer": ""
     },
     {
       "position": 13,
       "kind": "NICHE",
+      "oc": "",
       "rating": "R",
       "pose": "",
       "poseName": "nno-fitting-room-hostage",
@@ -489,35 +476,32 @@
         {
           "id": "CR-W30",
           "name": "Cold-Stiff Drape",
-          "cls": "W",
-          "deg": "L"
+          "cls": "W"
         },
         {
           "id": "CR-S08",
           "name": "Back Dimples",
-          "cls": "S",
-          "deg": "L"
+          "cls": "S"
         },
         {
           "id": "CR-L02",
           "name": "Lace Under Blazer",
-          "cls": "L",
-          "deg": "M"
+          "cls": "L"
         },
         {
           "id": "CR-D15",
           "name": "Motorcycle Thrum",
-          "cls": "D",
-          "deg": "M"
+          "cls": "D"
         }
       ],
       "lead": "",
-      "register": "young",
+      "register": "student",
       "closer": ""
     },
     {
       "position": 14,
       "kind": "NICHE",
+      "oc": "",
       "rating": "R",
       "pose": "",
       "poseName": "nno-cheer-spare",
@@ -529,35 +513,32 @@
         {
           "id": "CR-W04",
           "name": "Ribbing Stress-Bands",
-          "cls": "W",
-          "deg": "M"
+          "cls": "W"
         },
         {
           "id": "CR-C11",
           "name": "Whale Tail",
-          "cls": "C",
-          "deg": "H"
+          "cls": "C"
         },
         {
           "id": "CR-U09",
           "name": "Fitting Room Curtain",
-          "cls": "U",
-          "deg": "M"
+          "cls": "U"
         },
         {
           "id": "CR-D26",
           "name": "Swing Apex",
-          "cls": "D",
-          "deg": "M"
+          "cls": "D"
         }
       ],
       "lead": "",
-      "register": "young",
+      "register": "student",
       "closer": ""
     },
     {
       "position": 15,
       "kind": "EXQUISITE",
+      "oc": "",
       "rating": "R+",
       "pose": "",
       "poseName": "nno-living-exhibit",
@@ -569,26 +550,22 @@
         {
           "id": "CR-W24",
           "name": "Suit-Seat Taut",
-          "cls": "W",
-          "deg": "M"
+          "cls": "W"
         },
         {
           "id": "CR-S19",
           "name": "Open-Back Field",
-          "cls": "S",
-          "deg": "M"
+          "cls": "S"
         },
         {
           "id": "CR-L13",
           "name": "Hem-Length Game",
-          "cls": "L",
-          "deg": "M"
+          "cls": "L"
         },
         {
           "id": "CR-I03",
           "name": "Sheet's Hip Line",
-          "cls": "I",
-          "deg": "L"
+          "cls": "I"
         }
       ],
       "lead": "",
@@ -597,7 +574,341 @@
     },
     {
       "position": 16,
+      "kind": "VOLT",
+      "oc": "",
+      "rating": "R+",
+      "pose": "",
+      "poseName": "nno-hot-wash",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W23",
+          "name": "Elastic Bite",
+          "cls": "W"
+        },
+        {
+          "id": "CR-A01",
+          "name": "Seam Pressed Flat",
+          "cls": "A"
+        },
+        {
+          "id": "CR-U05",
+          "name": "Laundry Day",
+          "cls": "U"
+        },
+        {
+          "id": "CR-D05",
+          "name": "Forward-Lean Deepening",
+          "cls": "D"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 17,
+      "kind": "VOLT",
+      "oc": "",
+      "rating": "R+",
+      "pose": "",
+      "poseName": "nno-seatbelt-lock",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W11",
+          "name": "Worn-Thin At The Strap",
+          "cls": "W"
+        },
+        {
+          "id": "CR-S04",
+          "name": "First Inch Of Cleavage",
+          "cls": "S"
+        },
+        {
+          "id": "CR-E04",
+          "name": "Back Zipper",
+          "cls": "E"
+        },
+        {
+          "id": "CR-M01",
+          "name": "Seatbelt Diagonal",
+          "cls": "M"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 18,
+      "kind": "VOLT",
+      "oc": "",
+      "rating": "R+",
+      "pose": "",
+      "poseName": "nno-safety-line",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W12",
+          "name": "Threadbare Tee",
+          "cls": "W"
+        },
+        {
+          "id": "CR-B13",
+          "name": "Hip Flare",
+          "cls": "B"
+        },
+        {
+          "id": "CR-L03",
+          "name": "Double-Strap Cross",
+          "cls": "L"
+        },
+        {
+          "id": "CR-D04",
+          "name": "Overhead Reach Lift",
+          "cls": "D"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 19,
+      "kind": "VOLT",
+      "oc": "",
+      "rating": "R+",
+      "pose": "",
+      "poseName": "nno-model-noshow",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W10",
+          "name": "Sheer Panel",
+          "cls": "W"
+        },
+        {
+          "id": "CR-S02",
+          "name": "Bare Shoulder Slope",
+          "cls": "S"
+        },
+        {
+          "id": "CR-U07",
+          "name": "Seamstress Fitting",
+          "cls": "U"
+        },
+        {
+          "id": "CR-D01",
+          "name": "Full Drop Mid-Sway",
+          "cls": "D"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 20,
+      "kind": "VOLT",
+      "oc": "",
+      "rating": "R+",
+      "pose": "",
+      "poseName": "nno-escalator-comb",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W17",
+          "name": "Open-Weave Light",
+          "cls": "W"
+        },
+        {
+          "id": "CR-C06",
+          "name": "Staircase Arithmetic",
+          "cls": "C"
+        },
+        {
+          "id": "CR-F04",
+          "name": "Under-Branch Crawl",
+          "cls": "F"
+        },
+        {
+          "id": "CR-D07",
+          "name": "Pendulum Lag",
+          "cls": "D"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 21,
+      "kind": "EXQUISITE",
+      "oc": "",
+      "rating": "R+",
+      "pose": "",
+      "poseName": "nno-glass-house-tray",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W23",
+          "name": "Elastic Bite",
+          "cls": "W"
+        },
+        {
+          "id": "CR-S06",
+          "name": "Sideboob Skin",
+          "cls": "S"
+        },
+        {
+          "id": "CR-E05",
+          "name": "Wrap Gap",
+          "cls": "E"
+        },
+        {
+          "id": "CR-D08",
+          "name": "Aftershock",
+          "cls": "D"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 22,
+      "kind": "NICHE",
+      "oc": "",
+      "rating": "R",
+      "pose": "",
+      "poseName": "nno-videocall-courier",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-U01",
+          "name": "Mid-Change",
+          "cls": "U"
+        },
+        {
+          "id": "CR-B15",
+          "name": "Calf In Boot",
+          "cls": "B"
+        },
+        {
+          "id": "CR-E08",
+          "name": "One-Side Untuck",
+          "cls": "E"
+        },
+        {
+          "id": "CR-I09",
+          "name": "Collar Transfer",
+          "cls": "I"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 23,
+      "kind": "NICHE",
+      "oc": "",
+      "rating": "R",
+      "pose": "",
+      "poseName": "nno-mosquito-hunt",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-U18",
+          "name": "Apron Over Nightgown",
+          "cls": "U"
+        },
+        {
+          "id": "CR-H04",
+          "name": "Goosebumps On Spill",
+          "cls": "H"
+        },
+        {
+          "id": "CR-F07",
+          "name": "Mirror Arch",
+          "cls": "F"
+        },
+        {
+          "id": "CR-D10",
+          "name": "Jump-Rope Double Beat",
+          "cls": "D"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 24,
+      "kind": "NICHE",
+      "oc": "",
+      "rating": "R",
+      "pose": "",
+      "poseName": "nno-broken-heel",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-A06",
+          "name": "Yoga Deep Lunge",
+          "cls": "A"
+        },
+        {
+          "id": "CR-F08",
+          "name": "Jukebox Hip-Shot",
+          "cls": "F"
+        },
+        {
+          "id": "CR-D07",
+          "name": "Pendulum Lag",
+          "cls": "D"
+        },
+        {
+          "id": "CR-H06",
+          "name": "Ear-Tips Burning",
+          "cls": "H"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 25,
       "kind": "EXP",
+      "oc": "",
       "rating": "R+",
       "pose": "",
       "poseName": "exp-cam-a-mid",
@@ -609,42 +920,39 @@
         {
           "id": "CR-W05",
           "name": "Static Cling",
-          "cls": "W",
-          "deg": "L"
+          "cls": "W"
         },
         {
           "id": "CR-B06",
           "name": "Sideboob Curve",
-          "cls": "B",
-          "deg": "M"
+          "cls": "B"
         },
         {
           "id": "CR-E14",
           "name": "Collar Askew",
-          "cls": "E",
-          "deg": "M"
+          "cls": "E"
         },
         {
           "id": "CR-D17",
           "name": "Dance Dip",
-          "cls": "D",
-          "deg": "H"
+          "cls": "D"
         }
       ],
       "lead": "",
-      "register": "student",
+      "register": "exp-blank",
       "closer": "",
+      "exploratory": "EXP-слот (болванка без темы): гипотеза названа в THESIS слота батча",
       "ab": {
         "pair": "α",
         "half": "A",
-        "withSlot": 17,
-        "lead": "camera-mid-vs-texture-close"
-      },
-      "exploratory": "EXP-слот: гипотеза названа в THESIS слота батча"
+        "withSlot": 26,
+        "lead": "H1 камера: mid-shot vs close-на-текстуре (ISOLATION H1 поворот)"
+      }
     },
     {
-      "position": 17,
+      "position": 26,
       "kind": "EXP",
+      "oc": "",
       "rating": "R+",
       "pose": "",
       "poseName": "exp-cam-b-texture",
@@ -656,42 +964,39 @@
         {
           "id": "CR-W05",
           "name": "Static Cling",
-          "cls": "W",
-          "deg": "L"
+          "cls": "W"
         },
         {
           "id": "CR-B06",
           "name": "Sideboob Curve",
-          "cls": "B",
-          "deg": "M"
+          "cls": "B"
         },
         {
           "id": "CR-E14",
           "name": "Collar Askew",
-          "cls": "E",
-          "deg": "M"
+          "cls": "E"
         },
         {
           "id": "CR-D17",
           "name": "Dance Dip",
-          "cls": "D",
-          "deg": "H"
+          "cls": "D"
         }
       ],
       "lead": "",
-      "register": "student",
+      "register": "exp-blank",
       "closer": "",
+      "exploratory": "EXP-слот (болванка без темы): гипотеза названа в THESIS слота батча",
       "ab": {
         "pair": "α",
         "half": "B",
-        "withSlot": 16,
-        "lead": "camera-mid-vs-texture-close"
-      },
-      "exploratory": "EXP-слот: гипотеза названа в THESIS слота батча"
+        "withSlot": 25,
+        "lead": "H1 камера: mid-shot vs close-на-текстуре (ISOLATION H1 поворот)"
+      }
     },
     {
-      "position": 18,
+      "position": 27,
       "kind": "EXP",
+      "oc": "",
       "rating": "R+",
       "pose": "",
       "poseName": "exp-tags-a-lean",
@@ -703,42 +1008,39 @@
         {
           "id": "CR-W14",
           "name": "Velvet Press-Mark",
-          "cls": "W",
-          "deg": "L"
+          "cls": "W"
         },
         {
           "id": "CR-B09",
           "name": "Backlit Silhouette",
-          "cls": "B",
-          "deg": "M"
+          "cls": "B"
         },
         {
           "id": "CR-U02",
           "name": "Half-Buttoned Morning",
-          "cls": "U",
-          "deg": "M"
+          "cls": "U"
         },
         {
           "id": "CR-D09",
           "name": "Jog Rhythm",
-          "cls": "D",
-          "deg": "H"
+          "cls": "D"
         }
       ],
       "lead": "",
-      "register": "student",
+      "register": "exp-blank",
       "closer": "",
+      "exploratory": "EXP-слот (болванка без темы): гипотеза названа в THESIS слота батча",
       "ab": {
         "pair": "β",
         "half": "A",
-        "withSlot": 19,
-        "lead": "tag-density-lean-vs-rich"
-      },
-      "exploratory": "EXP-слот: гипотеза названа в THESIS слота батча"
+        "withSlot": 28,
+        "lead": "H2 плотность тегов: lean vs rich, заявки на одинаковых позициях"
+      }
     },
     {
-      "position": 19,
+      "position": 28,
       "kind": "EXP",
+      "oc": "",
       "rating": "R+",
       "pose": "",
       "poseName": "exp-tags-b-rich",
@@ -750,42 +1052,39 @@
         {
           "id": "CR-W14",
           "name": "Velvet Press-Mark",
-          "cls": "W",
-          "deg": "L"
+          "cls": "W"
         },
         {
           "id": "CR-B09",
           "name": "Backlit Silhouette",
-          "cls": "B",
-          "deg": "M"
+          "cls": "B"
         },
         {
           "id": "CR-U02",
           "name": "Half-Buttoned Morning",
-          "cls": "U",
-          "deg": "M"
+          "cls": "U"
         },
         {
           "id": "CR-D09",
           "name": "Jog Rhythm",
-          "cls": "D",
-          "deg": "H"
+          "cls": "D"
         }
       ],
       "lead": "",
-      "register": "student",
+      "register": "exp-blank",
       "closer": "",
+      "exploratory": "EXP-слот (болванка без темы): гипотеза названа в THESIS слота батча",
       "ab": {
         "pair": "β",
         "half": "B",
-        "withSlot": 18,
-        "lead": "tag-density-lean-vs-rich"
-      },
-      "exploratory": "EXP-слот: гипотеза названа в THESIS слота батча"
+        "withSlot": 27,
+        "lead": "H2 плотность тегов: lean vs rich, заявки на одинаковых позициях"
+      }
     },
     {
-      "position": 20,
+      "position": 29,
       "kind": "EXP",
+      "oc": "",
       "rating": "R+",
       "pose": "",
       "poseName": "exp-pose-a-token",
@@ -797,42 +1096,39 @@
         {
           "id": "CR-W26",
           "name": "Wind-Press",
-          "cls": "W",
-          "deg": "H"
+          "cls": "W"
         },
         {
           "id": "CR-C08",
           "name": "Office Tilt",
-          "cls": "C",
-          "deg": "M"
+          "cls": "C"
         },
         {
           "id": "CR-E22",
           "name": "Thigh-High Roll",
-          "cls": "E",
-          "deg": "L"
+          "cls": "E"
         },
         {
           "id": "CR-D20",
           "name": "Waking Stretch",
-          "cls": "D",
-          "deg": "M"
+          "cls": "D"
         }
       ],
       "lead": "",
-      "register": "student",
+      "register": "exp-blank",
       "closer": "",
+      "exploratory": "EXP-слот (болванка без темы): гипотеза названа в THESIS слота батча",
       "ab": {
         "pair": "γ",
         "half": "A",
-        "withSlot": 21,
-        "lead": "pose-token-vs-pose-words"
-      },
-      "exploratory": "EXP-слот: гипотеза названа в THESIS слота батча"
+        "withSlot": 30,
+        "lead": "H3 поза: токен erotic pose vs чистые поза-теги (реплика ISOLATION H2 в RAW)"
+      }
     },
     {
-      "position": 21,
+      "position": 30,
       "kind": "EXP",
+      "oc": "",
       "rating": "R+",
       "pose": "",
       "poseName": "exp-pose-b-words",
@@ -844,42 +1140,39 @@
         {
           "id": "CR-W26",
           "name": "Wind-Press",
-          "cls": "W",
-          "deg": "H"
+          "cls": "W"
         },
         {
           "id": "CR-C08",
           "name": "Office Tilt",
-          "cls": "C",
-          "deg": "M"
+          "cls": "C"
         },
         {
           "id": "CR-E22",
           "name": "Thigh-High Roll",
-          "cls": "E",
-          "deg": "L"
+          "cls": "E"
         },
         {
           "id": "CR-D20",
           "name": "Waking Stretch",
-          "cls": "D",
-          "deg": "M"
+          "cls": "D"
         }
       ],
       "lead": "",
-      "register": "student",
+      "register": "exp-blank",
       "closer": "",
+      "exploratory": "EXP-слот (болванка без темы): гипотеза названа в THESIS слота батча",
       "ab": {
         "pair": "γ",
         "half": "B",
-        "withSlot": 20,
-        "lead": "pose-token-vs-pose-words"
-      },
-      "exploratory": "EXP-слот: гипотеза названа в THESIS слота батча"
+        "withSlot": 29,
+        "lead": "H3 поза: токен erotic pose vs чистые поза-теги (реплика ISOLATION H2 в RAW)"
+      }
     },
     {
-      "position": 22,
+      "position": 31,
       "kind": "EXP",
+      "oc": "",
       "rating": "R+",
       "pose": "",
       "poseName": "exp-static-cling",
@@ -891,36 +1184,33 @@
         {
           "id": "CR-W21",
           "name": "Lycra Shine",
-          "cls": "W",
-          "deg": "M"
+          "cls": "W"
         },
         {
           "id": "CR-B05",
           "name": "Underboob Crescent Shadow",
-          "cls": "B",
-          "deg": "M"
+          "cls": "B"
         },
         {
           "id": "CR-U10",
           "name": "Walk Home",
-          "cls": "U",
-          "deg": "M"
+          "cls": "U"
         },
         {
           "id": "CR-I02",
           "name": "Pillow Crease",
-          "cls": "I",
-          "deg": "L"
+          "cls": "I"
         }
       ],
       "lead": "",
-      "register": "student",
+      "register": "exp-blank",
       "closer": "",
-      "exploratory": "EXP-слот: гипотеза названа в THESIS слота батча"
+      "exploratory": "EXP-слот (болванка без темы): гипотеза названа в THESIS слота батча"
     },
     {
-      "position": 23,
+      "position": 32,
       "kind": "EXP",
+      "oc": "",
       "rating": "R+",
       "pose": "",
       "poseName": "exp-hair-over",
@@ -932,36 +1222,33 @@
         {
           "id": "CR-W25",
           "name": "Apron Bib Swell",
-          "cls": "W",
-          "deg": "M"
+          "cls": "W"
         },
         {
           "id": "CR-S14",
           "name": "Sunburn Straps",
-          "cls": "S",
-          "deg": "M"
+          "cls": "S"
         },
         {
           "id": "CR-E16",
           "name": "Gi Lapel Crossed Wrong",
-          "cls": "E",
-          "deg": "M"
+          "cls": "E"
         },
         {
           "id": "CR-D22",
           "name": "Laugh Bounce",
-          "cls": "D",
-          "deg": "L"
+          "cls": "D"
         }
       ],
       "lead": "",
-      "register": "student",
+      "register": "exp-blank",
       "closer": "",
-      "exploratory": "EXP-слот: гипотеза названа в THESIS слота батча"
+      "exploratory": "EXP-слот (болванка без темы): гипотеза названа в THESIS слота батча"
     },
     {
-      "position": 24,
+      "position": 33,
       "kind": "EXP",
+      "oc": "",
       "rating": "R+",
       "pose": "",
       "poseName": "exp-handbra-geometry",
@@ -973,32 +1260,28 @@
         {
           "id": "CR-W28",
           "name": "Splash-Side",
-          "cls": "W",
-          "deg": "L"
+          "cls": "W"
         },
         {
           "id": "CR-C05",
           "name": "Sit-Trap Hem",
-          "cls": "C",
-          "deg": "M"
+          "cls": "C"
         },
         {
           "id": "CR-U06",
           "name": "Car Door Catch",
-          "cls": "U",
-          "deg": "M"
+          "cls": "U"
         },
         {
           "id": "CR-I08",
           "name": "Love Bite Under Scarf",
-          "cls": "I",
-          "deg": "H"
+          "cls": "I"
         }
       ],
       "lead": "",
-      "register": "student",
+      "register": "exp-blank",
       "closer": "",
-      "exploratory": "EXP-слот: гипотеза названа в THESIS слота батча"
+      "exploratory": "EXP-слот (болванка без темы): гипотеза названа в THESIS слота батча"
     }
   ],
   "ocRotation": {
@@ -1010,30 +1293,30 @@
     ]
   },
   "racialCount": {
-    "note": "RAW-батч ручного письма: расовый каст не используется (как в T4-23/T4-24)"
+    "note": "RAW/данбуру: расовый каст не назначается (T4-23 ORDER) — слайс-жизненные мейны"
   },
   "abPairs": [
     {
       "pair": "α",
-      "a": 16,
-      "b": 17,
+      "a": 25,
+      "b": 26,
       "lead": "H1 камера: mid-shot vs close-на-текстуре (ISOLATION H1 поворот)"
     },
     {
       "pair": "β",
-      "a": 18,
-      "b": 19,
+      "a": 27,
+      "b": 28,
       "lead": "H2 плотность тегов: lean vs rich, заявки на одинаковых позициях"
     },
     {
       "pair": "γ",
-      "a": 20,
-      "b": 21,
+      "a": 29,
+      "b": 30,
       "lead": "H3 поза: токен erotic pose vs чистые поза-теги (реплика ISOLATION H2 в RAW)"
     }
   ],
   "carrierStats": {
-    "note": "стеки назначены вручную по мере TRIAL; W-класс 25%, sheer 0%"
+    "note": "стеки назначены вручную по мере TRIAL; EXP-оверлей — 9 слотов поверх 24-слотового закона (приказ 2026-10-08)"
   },
   "windowSlugs": [],
   "channelStats": {
@@ -1041,9 +1324,10 @@
   },
   "platform": "yodayo",
   "laws": [
-    "24 слота: 3 OC + 21 мейн (12 тематических + 9 EXP)",
+    "24-слотовый закон (3 OC + 21 мейн, вердикт T4-02) + EXP-оверлей ≤9 слотов ПОВЕРХ, отдельно от мейнов (law.expSlotsMax — приказ-уточнение автора 2026-10-08: 21 тематический мейн + 9 EXP без темы)",
+    "Спред мейнов канона T4-23/policy: R+×14 · R×7 (12 VOLT R+ · 7 NICHE R · 2 EXQUISITE R+)",
     "TRIAL-меры M1-M7 (док VERDICT-MAP-T4-23-24-2026-10-08): без формульных тегов, прикрытие = рисуемый объект, механизм ≤2 слота, одно состояние на кадр, R+ на доказанных каналах, интимный масштаб сцены, греп повторов",
     "R+-рецепт v1.4.0: hard-claim, noun-lock, bare-under позитивом, состояние ткани в первой половине тег-рана",
-    "milf-квота: 2/24 (Vae, Ana)"
+    "milf-квота: 2/33 (Vae, Ana); EXP-слоты — чистые болванки без темы (приказ), гипотезы H1-H6 в THESIS"
   ]
 }
