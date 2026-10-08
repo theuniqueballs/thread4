@@ -46,7 +46,7 @@ const slots = batch.slots.map((s) => {
   return {
     position: s.position,
     kind: s.genre,
-    oc: s.oc ?? '',
+    oc: s.genre === 'OC' ? (s.meta.split('·')[1] ?? '').trim() : '',
     rating: s.meta.includes('R+') ? 'R+' : s.meta.includes('PG-13') ? 'PG-13' : /\bR\b/.test(s.meta) ? 'R' : s.meta.includes('X') ? 'X' : '',
     pose: '',
     poseName: s.anchor,
