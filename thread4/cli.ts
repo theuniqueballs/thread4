@@ -372,16 +372,17 @@ async function main() {
     // статa доставки (рекомендация Claude №2, external.review 2026-09-23;
     // v0.2.0 — вердикт T4-05: 13 → 18 каналов)
     const dstats = inv.find((s) => s.id === 'delivery-stats')
-    check('стата доставки в инвентаре (19 каналов, v0.5.0: contact-physics рождён, X изъят)', dstats?.count === 19 && dstats?.version === '0.5.0')
+    check('стата доставки в инвентаре (21 канал, v0.6.0: tape-only live — rehab успех, handbra-open-palms + underwear-as-outfit рождены, oc-rplus воскрешён)', dstats?.count === 21 && dstats?.version === '0.6.0')
     {
       const { getRatingRecipes, getRatingTechniques, getDeliveryStats } = await import('../src/lib/t4/specs')
       const rt = getRatingTechniques()
       const rr = getRatingRecipes()
       const ds = getDeliveryStats()
-      check('каналы доставки v0.4.0: wet-sheer+подача 5 доставлено, cameltoe 0/15, OC R+ 0/9 (retired), площадка-оракул 69/69',
+      check('каналы доставки v0.6.0: wet-sheer+подача 5 доставлено, cameltoe 0/15 (dead), OC R+ 1/12 (воскрешён P01+tape), оракул 69/69',
         ds?.channels.find((c) => c.id === 'wet-sheer-delivery')?.delivered === 5 &&
         ds?.channels.find((c) => c.id === 'cameltoe')?.delivered === 0 &&
-        ds?.channels.find((c) => c.id === 'oc-rplus')?.delivered === 0 &&
+        ds?.channels.find((c) => c.id === 'oc-rplus')?.delivered === 1 &&
+        ds?.channels.find((c) => c.id === 'oc-rplus')?.status === 'candidate' &&
         ds?.channels.find((c) => c.id === 'platform-tier-oracle')?.delivered === 69)
       check('maturity law: n<3 каналы — candidate, не live (внешний вердикт №3)',
         ['threadbare-sheer', 'named-underlayer-display', 'breast-environment-contact'].every(
@@ -460,8 +461,10 @@ async function main() {
         return gs.size >= 4
       })
       check('core-4 groups on every R+/X slot (мех из carriers.json)', groupsOk)
-      check('contract channelStats: dead-каналы видимы, дауншифт погасил dead-claim (рефлекс)',
-        (c1.channelStats?.dead ?? []).includes('oc-rplus') && (c1.channelStats?.deadClaims?.length ?? 0) === 0)
+      check('contract channelStats: dead-каналы видимы (cameltoe), oc-rplus воскрешён P01 — не в dead, дауншифт погас, deadClaims 0 (рефлекс)',
+        (c1.channelStats?.dead ?? []).includes('cameltoe') &&
+        !(c1.channelStats?.dead ?? []).includes('oc-rplus') &&
+        (c1.channelStats?.deadClaims?.length ?? 0) === 0)
     }
     check('racial count 10 (на мейнах)', c1.slots.filter((s) => s.race).length === 10)
     check('races only on mains', c1.slots.slice(0, 3).every((s) => !s.race))
