@@ -1,0 +1,1333 @@
+{
+  "slug": "T4-26",
+  "theme": "THE OTHER VERSION",
+  "engine": "THE OTHER VERSION",
+  "engineLaw": "одноразовый движок: у всего в этом мире есть вторая версия — версия для своих, версия на скорость, версия навыворот; каждый кадр — момент, когда в объектив попала именно другая версия. Носитель закона — конкретный предмет кадра. После батча утилизируется",
+  "engineWhy": "тема-реакция (законы №17/№18 из манифеста автора P17 T4-25): VOLT-слоты показывают «другую версию» через тело в моменте, NICHE — через невозможный мир вокруг героини",
+  "seed": 1791475796053,
+  "createdAt": "2026-10-08T16:09:56.053Z",
+  "spread": [
+    {
+      "rating": "R+",
+      "count": 0
+    },
+    {
+      "rating": "R",
+      "count": 33
+    }
+  ],
+  "slots": [
+    {
+      "position": 1,
+      "kind": "OC",
+      "oc": "",
+      "rating": "R",
+      "pose": "",
+      "poseName": "tov-lua-megamare",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W07",
+          "name": "Plastered Wet Shirt",
+          "cls": "W"
+        },
+        {
+          "id": "CR-B08",
+          "name": "Weight-Line",
+          "cls": "B"
+        },
+        {
+          "id": "CR-D14",
+          "name": "Equestrian Canter",
+          "cls": "D"
+        },
+        {
+          "id": "CR-F04",
+          "name": "Under-Branch Crawl",
+          "cls": "F"
+        }
+      ],
+      "lead": "",
+      "register": "oc",
+      "closer": ""
+    },
+    {
+      "position": 2,
+      "kind": "OC",
+      "oc": "",
+      "rating": "R",
+      "pose": "",
+      "poseName": "tov-ana-allforone",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W16",
+          "name": "Silk Drape",
+          "cls": "W"
+        },
+        {
+          "id": "CR-S04",
+          "name": "First Inch Of Cleavage",
+          "cls": "S"
+        },
+        {
+          "id": "CR-E24",
+          "name": "Glove Peel",
+          "cls": "E"
+        },
+        {
+          "id": "CR-D03",
+          "name": "Quarter-Turn Lead",
+          "cls": "D"
+        }
+      ],
+      "lead": "",
+      "register": "oc",
+      "closer": ""
+    },
+    {
+      "position": 3,
+      "kind": "OC",
+      "oc": "",
+      "rating": "R",
+      "pose": "",
+      "poseName": "tov-ash-spectre",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W01",
+          "name": "Taut Weave",
+          "cls": "W"
+        },
+        {
+          "id": "CR-B04",
+          "name": "Apex Contour",
+          "cls": "B"
+        },
+        {
+          "id": "CR-F07",
+          "name": "Mirror Arch",
+          "cls": "F"
+        },
+        {
+          "id": "CR-M08",
+          "name": "Doorframe Squeeze",
+          "cls": "M"
+        }
+      ],
+      "lead": "",
+      "register": "oc",
+      "closer": ""
+    },
+    {
+      "position": 4,
+      "kind": "VOLT",
+      "oc": "",
+      "rating": "R",
+      "pose": "",
+      "poseName": "tov-aquarium-night",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W07",
+          "name": "Plastered Wet Shirt",
+          "cls": "W"
+        },
+        {
+          "id": "CR-B04",
+          "name": "Apex Contour",
+          "cls": "B"
+        },
+        {
+          "id": "CR-U06",
+          "name": "Car Door Catch",
+          "cls": "U"
+        },
+        {
+          "id": "CR-M04",
+          "name": "Window Glass",
+          "cls": "M"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 5,
+      "kind": "VOLT",
+      "oc": "",
+      "rating": "R",
+      "pose": "",
+      "poseName": "tov-cat-sling",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W04",
+          "name": "Ribbing Stress-Bands",
+          "cls": "W"
+        },
+        {
+          "id": "CR-B06",
+          "name": "Sideboob Curve",
+          "cls": "B"
+        },
+        {
+          "id": "CR-E05",
+          "name": "Wrap Gap",
+          "cls": "E"
+        },
+        {
+          "id": "CR-M12",
+          "name": "Backpack Chest Strap",
+          "cls": "M"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 6,
+      "kind": "VOLT",
+      "oc": "",
+      "rating": "R",
+      "pose": "",
+      "poseName": "tov-pool-break",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W01",
+          "name": "Taut Weave",
+          "cls": "W"
+        },
+        {
+          "id": "CR-B04",
+          "name": "Apex Contour",
+          "cls": "B"
+        },
+        {
+          "id": "CR-F12",
+          "name": "Pool-Table Reach",
+          "cls": "F"
+        },
+        {
+          "id": "CR-M03",
+          "name": "Table Edge",
+          "cls": "M"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 7,
+      "kind": "VOLT",
+      "oc": "",
+      "rating": "R",
+      "pose": "",
+      "poseName": "tov-bike-tank",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W04",
+          "name": "Ribbing Stress-Bands",
+          "cls": "W"
+        },
+        {
+          "id": "CR-B05",
+          "name": "Underboob Crescent Shadow",
+          "cls": "B"
+        },
+        {
+          "id": "CR-F04",
+          "name": "Under-Branch Crawl",
+          "cls": "F"
+        },
+        {
+          "id": "CR-D15",
+          "name": "Motorcycle Thrum",
+          "cls": "D"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 8,
+      "kind": "VOLT",
+      "oc": "",
+      "rating": "R",
+      "pose": "",
+      "poseName": "tov-sarong-wrap",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W03",
+          "name": "Side-Seam Strain",
+          "cls": "W"
+        },
+        {
+          "id": "CR-B02",
+          "name": "Shape Through Cold Cloth",
+          "cls": "B"
+        },
+        {
+          "id": "CR-E29",
+          "name": "Sarong Knot",
+          "cls": "E"
+        },
+        {
+          "id": "CR-D04",
+          "name": "Overhead Reach Lift",
+          "cls": "D"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 9,
+      "kind": "VOLT",
+      "oc": "",
+      "rating": "R",
+      "pose": "",
+      "poseName": "tov-stage-tape",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W19",
+          "name": "Jersey Rumple",
+          "cls": "W"
+        },
+        {
+          "id": "CR-S05",
+          "name": "Underboob Shadow-Line",
+          "cls": "S"
+        },
+        {
+          "id": "CR-E03",
+          "name": "Off-Shoulder Ride",
+          "cls": "E"
+        },
+        {
+          "id": "CR-D03",
+          "name": "Quarter-Turn Lead",
+          "cls": "D"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 10,
+      "kind": "VOLT",
+      "oc": "",
+      "rating": "R",
+      "pose": "",
+      "poseName": "tov-washi-grid",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W29",
+          "name": "Pleat-Set",
+          "cls": "W"
+        },
+        {
+          "id": "CR-S04",
+          "name": "First Inch Of Cleavage",
+          "cls": "S"
+        },
+        {
+          "id": "CR-F07",
+          "name": "Mirror Arch",
+          "cls": "F"
+        },
+        {
+          "id": "CR-M05",
+          "name": "Counter Reach",
+          "cls": "M"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 11,
+      "kind": "VOLT",
+      "oc": "",
+      "rating": "R",
+      "pose": "",
+      "poseName": "tov-paint-jersey",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W19",
+          "name": "Jersey Rumple",
+          "cls": "W"
+        },
+        {
+          "id": "CR-S06",
+          "name": "Sideboob Skin",
+          "cls": "S"
+        },
+        {
+          "id": "CR-F07",
+          "name": "Mirror Arch",
+          "cls": "F"
+        },
+        {
+          "id": "CR-I05",
+          "name": "Belt Line",
+          "cls": "I"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 12,
+      "kind": "VOLT",
+      "oc": "",
+      "rating": "R",
+      "pose": "",
+      "poseName": "tov-haul-press",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W02",
+          "name": "Stretched Buttonholes",
+          "cls": "W"
+        },
+        {
+          "id": "CR-B01",
+          "name": "Points Against Weave",
+          "cls": "B"
+        },
+        {
+          "id": "CR-U06",
+          "name": "Car Door Catch",
+          "cls": "U"
+        },
+        {
+          "id": "CR-M05",
+          "name": "Counter Reach",
+          "cls": "M"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 13,
+      "kind": "VOLT",
+      "oc": "",
+      "rating": "R",
+      "pose": "",
+      "poseName": "tov-white-legend",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W21",
+          "name": "Lycra Shine",
+          "cls": "W"
+        },
+        {
+          "id": "CR-C04",
+          "name": "Wedgie Line",
+          "cls": "C"
+        },
+        {
+          "id": "CR-E01",
+          "name": "Tank Strap Fallen",
+          "cls": "E"
+        },
+        {
+          "id": "CR-I03",
+          "name": "Sheet's Hip Line",
+          "cls": "I"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 14,
+      "kind": "VOLT",
+      "oc": "",
+      "rating": "R",
+      "pose": "",
+      "poseName": "tov-yukata-shift",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W02",
+          "name": "Stretched Buttonholes",
+          "cls": "W"
+        },
+        {
+          "id": "CR-B03",
+          "name": "Peaks Through Dry Knit",
+          "cls": "B"
+        },
+        {
+          "id": "CR-E15",
+          "name": "Kimono Summer",
+          "cls": "E"
+        },
+        {
+          "id": "CR-D05",
+          "name": "Forward-Lean Deepening",
+          "cls": "D"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 15,
+      "kind": "VOLT",
+      "oc": "",
+      "rating": "R",
+      "pose": "",
+      "poseName": "tov-pole-class",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W06",
+          "name": "Sweat-Damp Spine",
+          "cls": "W"
+        },
+        {
+          "id": "CR-B06",
+          "name": "Sideboob Curve",
+          "cls": "B"
+        },
+        {
+          "id": "CR-F07",
+          "name": "Mirror Arch",
+          "cls": "F"
+        },
+        {
+          "id": "CR-D18",
+          "name": "Spin Flare",
+          "cls": "D"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 16,
+      "kind": "NICHE",
+      "oc": "",
+      "rating": "R",
+      "pose": "",
+      "poseName": "tov-laundry-rain",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-U05",
+          "name": "Laundry Day",
+          "cls": "U"
+        },
+        {
+          "id": "CR-C06",
+          "name": "Staircase Arithmetic",
+          "cls": "C"
+        },
+        {
+          "id": "CR-E01",
+          "name": "Tank Strap Fallen",
+          "cls": "E"
+        },
+        {
+          "id": "CR-I04",
+          "name": "Sock Rings",
+          "cls": "I"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 17,
+      "kind": "NICHE",
+      "oc": "",
+      "rating": "R",
+      "pose": "",
+      "poseName": "tov-mirror-back",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-L02",
+          "name": "Lace Under Blazer",
+          "cls": "L"
+        },
+        {
+          "id": "CR-S02",
+          "name": "Bare Shoulder Slope",
+          "cls": "S"
+        },
+        {
+          "id": "CR-E07",
+          "name": "Robe Drift",
+          "cls": "E"
+        },
+        {
+          "id": "CR-D07",
+          "name": "Pendulum Lag",
+          "cls": "D"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 18,
+      "kind": "NICHE",
+      "oc": "",
+      "rating": "R",
+      "pose": "",
+      "poseName": "tov-side-gravity",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W30",
+          "name": "Cold-Stiff Drape",
+          "cls": "W"
+        },
+        {
+          "id": "CR-C04",
+          "name": "Wedgie Line",
+          "cls": "C"
+        },
+        {
+          "id": "CR-F05",
+          "name": "Chair Straddle",
+          "cls": "F"
+        },
+        {
+          "id": "CR-I03",
+          "name": "Sheet's Hip Line",
+          "cls": "I"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 19,
+      "kind": "NICHE",
+      "oc": "",
+      "rating": "R",
+      "pose": "",
+      "poseName": "tov-flying-books",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-U07",
+          "name": "Seamstress Fitting",
+          "cls": "U"
+        },
+        {
+          "id": "CR-B03",
+          "name": "Peaks Through Dry Knit",
+          "cls": "B"
+        },
+        {
+          "id": "CR-F04",
+          "name": "Under-Branch Crawl",
+          "cls": "F"
+        },
+        {
+          "id": "CR-I04",
+          "name": "Sock Rings",
+          "cls": "I"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 20,
+      "kind": "NICHE",
+      "oc": "",
+      "rating": "R",
+      "pose": "",
+      "poseName": "tov-puddle-city",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W08",
+          "name": "Wet Hemline",
+          "cls": "W"
+        },
+        {
+          "id": "CR-B10",
+          "name": "Profile Curve",
+          "cls": "B"
+        },
+        {
+          "id": "CR-E07",
+          "name": "Robe Drift",
+          "cls": "E"
+        },
+        {
+          "id": "CR-D01",
+          "name": "Full Drop Mid-Sway",
+          "cls": "D"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 21,
+      "kind": "NICHE",
+      "oc": "",
+      "rating": "R",
+      "pose": "",
+      "poseName": "tov-door-beach",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W16",
+          "name": "Silk Drape",
+          "cls": "W"
+        },
+        {
+          "id": "CR-S02",
+          "name": "Bare Shoulder Slope",
+          "cls": "S"
+        },
+        {
+          "id": "CR-E05",
+          "name": "Wrap Gap",
+          "cls": "E"
+        },
+        {
+          "id": "CR-D01",
+          "name": "Full Drop Mid-Sway",
+          "cls": "D"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 22,
+      "kind": "NICHE",
+      "oc": "",
+      "rating": "R",
+      "pose": "",
+      "poseName": "tov-balloon-moon",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-U02",
+          "name": "Half-Buttoned Morning",
+          "cls": "U"
+        },
+        {
+          "id": "CR-B06",
+          "name": "Sideboob Curve",
+          "cls": "B"
+        },
+        {
+          "id": "CR-F02",
+          "name": "M-Sit",
+          "cls": "F"
+        },
+        {
+          "id": "CR-D02",
+          "name": "Stair Bounce",
+          "cls": "D"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 23,
+      "kind": "EXQUISITE",
+      "oc": "",
+      "rating": "R",
+      "pose": "",
+      "poseName": "tov-venus-cast",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W01",
+          "name": "Taut Weave",
+          "cls": "W"
+        },
+        {
+          "id": "CR-B04",
+          "name": "Apex Contour",
+          "cls": "B"
+        },
+        {
+          "id": "CR-F03",
+          "name": "Backbend Offer",
+          "cls": "F"
+        },
+        {
+          "id": "CR-M03",
+          "name": "Table Edge",
+          "cls": "M"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 24,
+      "kind": "EXQUISITE",
+      "oc": "",
+      "rating": "R",
+      "pose": "",
+      "poseName": "tov-obi-sarashi",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W03",
+          "name": "Side-Seam Strain",
+          "cls": "W"
+        },
+        {
+          "id": "CR-B07",
+          "name": "Cleavage End-Shadow",
+          "cls": "B"
+        },
+        {
+          "id": "CR-E05",
+          "name": "Wrap Gap",
+          "cls": "E"
+        },
+        {
+          "id": "CR-I05",
+          "name": "Belt Line",
+          "cls": "I"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 25,
+      "kind": "EXP",
+      "oc": "",
+      "rating": "R",
+      "pose": "",
+      "poseName": "exp-neghyg-a-old",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W07",
+          "name": "Plastered Wet Shirt",
+          "cls": "W"
+        },
+        {
+          "id": "CR-B01",
+          "name": "Points Against Weave",
+          "cls": "B"
+        },
+        {
+          "id": "CR-U03",
+          "name": "Post-Shower Tee",
+          "cls": "U"
+        },
+        {
+          "id": "CR-D03",
+          "name": "Quarter-Turn Lead",
+          "cls": "D"
+        }
+      ],
+      "lead": "",
+      "register": "exp-blank",
+      "closer": "",
+      "exploratory": "EXP-слот (болванка без темы): гипотеза названа в THESIS слота батча",
+      "ab": {
+        "pair": "δ",
+        "half": "A",
+        "withSlot": 26,
+        "lead": "H7 NEG-смежность (закон №14): старый NEG (nipples exposed, areola) vs v1.5.0-чистый — тот же кадр фонтана"
+      }
+    },
+    {
+      "position": 26,
+      "kind": "EXP",
+      "oc": "",
+      "rating": "R",
+      "pose": "",
+      "poseName": "exp-neghyg-b-clean",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W07",
+          "name": "Plastered Wet Shirt",
+          "cls": "W"
+        },
+        {
+          "id": "CR-B02",
+          "name": "Shape Through Cold Cloth",
+          "cls": "B"
+        },
+        {
+          "id": "CR-U03",
+          "name": "Post-Shower Tee",
+          "cls": "U"
+        },
+        {
+          "id": "CR-D03",
+          "name": "Quarter-Turn Lead",
+          "cls": "D"
+        }
+      ],
+      "lead": "",
+      "register": "exp-blank",
+      "closer": "",
+      "exploratory": "EXP-слот (болванка без темы): гипотеза названа в THESIS слота батча",
+      "ab": {
+        "pair": "δ",
+        "half": "B",
+        "withSlot": 25,
+        "lead": "H7 NEG-смежность (закон №14): старый NEG (nipples exposed, areola) vs v1.5.0-чистый — тот же кадр фонтана"
+      }
+    },
+    {
+      "position": 27,
+      "kind": "EXP",
+      "oc": "",
+      "rating": "R",
+      "pose": "",
+      "poseName": "exp-natural-a-with",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W20",
+          "name": "Chairback Print",
+          "cls": "W"
+        },
+        {
+          "id": "CR-B03",
+          "name": "Peaks Through Dry Knit",
+          "cls": "B"
+        },
+        {
+          "id": "CR-U06",
+          "name": "Car Door Catch",
+          "cls": "U"
+        },
+        {
+          "id": "CR-M05",
+          "name": "Counter Reach",
+          "cls": "M"
+        }
+      ],
+      "lead": "",
+      "register": "exp-blank",
+      "closer": "",
+      "exploratory": "EXP-слот (болванка без темы): гипотеза названа в THESIS слота батча",
+      "ab": {
+        "pair": "ε",
+        "half": "A",
+        "withSlot": 28,
+        "lead": "H8 NATURAL-протокол (закон №15): кластер тегов веса/мягкости vs чистый пресс — тот же кадр багажника"
+      }
+    },
+    {
+      "position": 28,
+      "kind": "EXP",
+      "oc": "",
+      "rating": "R",
+      "pose": "",
+      "poseName": "exp-natural-b-plain",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W20",
+          "name": "Chairback Print",
+          "cls": "W"
+        },
+        {
+          "id": "CR-B07",
+          "name": "Cleavage End-Shadow",
+          "cls": "B"
+        },
+        {
+          "id": "CR-U06",
+          "name": "Car Door Catch",
+          "cls": "U"
+        },
+        {
+          "id": "CR-M05",
+          "name": "Counter Reach",
+          "cls": "M"
+        }
+      ],
+      "lead": "",
+      "register": "exp-blank",
+      "closer": "",
+      "exploratory": "EXP-слот (болванка без темы): гипотеза названа в THESIS слота батча",
+      "ab": {
+        "pair": "ε",
+        "half": "B",
+        "withSlot": 27,
+        "lead": "H8 NATURAL-протокол (закон №15): кластер тегов веса/мягкости vs чистый пресс — тот же кадр багажника"
+      }
+    },
+    {
+      "position": 29,
+      "kind": "EXP",
+      "oc": "",
+      "rating": "R",
+      "pose": "",
+      "poseName": "exp-braless-a-token",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W04",
+          "name": "Ribbing Stress-Bands",
+          "cls": "W"
+        },
+        {
+          "id": "CR-B03",
+          "name": "Peaks Through Dry Knit",
+          "cls": "B"
+        },
+        {
+          "id": "CR-E01",
+          "name": "Tank Strap Fallen",
+          "cls": "E"
+        },
+        {
+          "id": "CR-D20",
+          "name": "Waking Stretch",
+          "cls": "D"
+        }
+      ],
+      "lead": "",
+      "register": "exp-blank",
+      "closer": "",
+      "exploratory": "EXP-слот (болванка без темы): гипотеза названа в THESIS слота батча",
+      "ab": {
+        "pair": "ζ",
+        "half": "A",
+        "withSlot": 30,
+        "lead": "H9 braless-токен (закон №16): braless + nothing underneath vs только фраза — та же утренняя растяжка"
+      }
+    },
+    {
+      "position": 30,
+      "kind": "EXP",
+      "oc": "",
+      "rating": "R",
+      "pose": "",
+      "poseName": "exp-braless-b-phrase",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W04",
+          "name": "Ribbing Stress-Bands",
+          "cls": "W"
+        },
+        {
+          "id": "CR-B07",
+          "name": "Cleavage End-Shadow",
+          "cls": "B"
+        },
+        {
+          "id": "CR-E01",
+          "name": "Tank Strap Fallen",
+          "cls": "E"
+        },
+        {
+          "id": "CR-D20",
+          "name": "Waking Stretch",
+          "cls": "D"
+        }
+      ],
+      "lead": "",
+      "register": "exp-blank",
+      "closer": "",
+      "exploratory": "EXP-слот (болванка без темы): гипотеза названа в THESIS слота батча",
+      "ab": {
+        "pair": "ζ",
+        "half": "B",
+        "withSlot": 29,
+        "lead": "H9 braless-токен (закон №16): braless + nothing underneath vs только фраза — та же утренняя растяжка"
+      }
+    },
+    {
+      "position": 31,
+      "kind": "EXP",
+      "oc": "",
+      "rating": "R",
+      "pose": "",
+      "poseName": "exp-handbra-foam",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W06",
+          "name": "Sweat-Damp Spine",
+          "cls": "W"
+        },
+        {
+          "id": "CR-S06",
+          "name": "Sideboob Skin",
+          "cls": "S"
+        },
+        {
+          "id": "CR-E03",
+          "name": "Off-Shoulder Ride",
+          "cls": "E"
+        },
+        {
+          "id": "CR-I02",
+          "name": "Pillow Crease",
+          "cls": "I"
+        }
+      ],
+      "lead": "",
+      "register": "exp-blank",
+      "closer": "",
+      "exploratory": "EXP-слот (болванка без темы): гипотеза названа в THESIS слота батча"
+    },
+    {
+      "position": 32,
+      "kind": "EXP",
+      "oc": "",
+      "rating": "R",
+      "pose": "",
+      "poseName": "exp-underwear-convention",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-L02",
+          "name": "Lace Under Blazer",
+          "cls": "L"
+        },
+        {
+          "id": "CR-S01",
+          "name": "Zettai Ryouiki",
+          "cls": "S"
+        },
+        {
+          "id": "CR-E07",
+          "name": "Robe Drift",
+          "cls": "E"
+        },
+        {
+          "id": "CR-I06",
+          "name": "Bikini Pale Borders",
+          "cls": "I"
+        }
+      ],
+      "lead": "",
+      "register": "exp-blank",
+      "closer": "",
+      "exploratory": "EXP-слот (болванка без темы): гипотеза названа в THESIS слота батча"
+    },
+    {
+      "position": 33,
+      "kind": "EXP",
+      "oc": "",
+      "rating": "R",
+      "pose": "",
+      "poseName": "exp-wetsheer-fullchain",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W08",
+          "name": "Wet Hemline",
+          "cls": "W"
+        },
+        {
+          "id": "CR-B02",
+          "name": "Shape Through Cold Cloth",
+          "cls": "B"
+        },
+        {
+          "id": "CR-F03",
+          "name": "Backbend Offer",
+          "cls": "F"
+        },
+        {
+          "id": "CR-D05",
+          "name": "Forward-Lean Deepening",
+          "cls": "D"
+        }
+      ],
+      "lead": "",
+      "register": "exp-blank",
+      "closer": "",
+      "exploratory": "EXP-слот (болванка без темы): гипотеза названа в THESIS слота батча"
+    }
+  ],
+  "ocRotation": {
+    "note": "заказ автора 2026-10-08: темы ОС — MEGAMARE (Lua), All for One из MHA (Ana), Spectre Ghost (Ash); отдельны от основной темы батча; каждая OC-тема несёт канал-канон (формула oc-rplus из карты T4-25)",
+    "ocs": [
+      "Lua",
+      "Ana",
+      "Ash"
+    ]
+  },
+  "racialCount": {
+    "note": "RAW/данбуру: расовый каст не назначается (T4-23 ORDER) — слайс-жизненные мейны"
+  },
+  "abPairs": [
+    {
+      "pair": "δ",
+      "a": 25,
+      "b": 26,
+      "lead": "H7 NEG-смежность (закон №14): старый NEG (nipples exposed, areola) vs v1.5.0-чистый — тот же кадр фонтана"
+    },
+    {
+      "pair": "ε",
+      "a": 27,
+      "b": 28,
+      "lead": "H8 NATURAL-протокол (закон №15): кластер тегов веса/мягкости vs чистый пресс — тот же кадр багажника"
+    },
+    {
+      "pair": "ζ",
+      "a": 29,
+      "b": 30,
+      "lead": "H9 braless-токен (закон №16): braless + nothing underneath vs только фраза — та же утренняя растяжка"
+    }
+  ],
+  "carrierStats": {
+    "note": "стеки назначены вручную по TRIAL-2 (M8-M14): каждый R+ слот = 1 FABRIC(W) + 1 BODY + 1 POSITION + 1 PHYSICS; EXP-оверлей — 9 слотов поверх 24-слотового закона",
+    "wSharePct": 21
+  },
+  "windowSlugs": [],
+  "channelStats": {
+    "note": "RAW/данбуру: канал — тег-ран, проза отсутствует по приказу (T4-23 ORDER). R+ только на живых каналах (M13): tape ×2, contact ×7, натяжение ×2, handbra ×3, pantyline ×1, wet-sheer только EXP ι"
+  },
+  "platform": "yodayo",
+  "laws": [
+    "24-слотовый закон (3 OC + 21 мейн, вердикт T4-02) + EXP-оверлей ≤9 слотов ПОВЕРХ, отдельно от мейнов (law.expSlotsMax — приказ-уточнение автора 2026-10-08)",
+    "Спред мейнов канона T4-23/policy: R+×14 · R×7 (12 VOLT R+ · 7 NICHE R · 2 EXQUISITE R+)",
+    "TRIAL-2 (вердикт T4-25, законы №13-19): M8 NATURAL · M9 NEG-гигиена (рецепт v1.5.0) · M10 braless-токен + паразит-гигиена · M11 VOLT-телесность · M12 NICHE-мир (быт запрещён) · M13 R+ только на живых каналах · M14 смерть гипотез H3/H4",
+    "Milf-квота N30: 1/33 (Ana); X-слоты изъяты (вердикт «эччи > порно»)"
+  ]
+}
