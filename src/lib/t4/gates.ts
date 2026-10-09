@@ -1473,6 +1473,72 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
     warn('salience-chain', f)
   }
 
+  /* ------------- 13. raw-plus (hard — приказ-миграция №23, ввод с T4-27) ---- */
+  {
+    /* RAW+ = Danbooru-скелет (закон №20) + PH-наработки тегами: палитра
+     * (sd_fragment + SATURATED ANCHOR), face-блок, квалити-цвет — БЕЗ прозы.
+     * Приказ автора 2026-10-09 (вердикт T4-26, проза): «нужно переключить
+     * всё собранное - под RAW… палитры под каждый промпт… забери оттуда
+     * концепцию аниме-лиц и сочной цветовки… картинки стали блеклей».
+     * Гейт активен ТОЛЬКО для батчей с маркером RAW+ в H1 — RAW-батчи
+     * T4-23…T4-26 проходят по старым правилам (спек raw-plus.json v1.0.0).
+     * Слоты с маркером ⚗ (§10) — умышленные нарушители ради гипотезы
+     * (μ-B голый RAW против блеклости, λ-B без света-на-зоне против
+     * X-границы №21): их нарушения — квитанцией warn, не блоком. */
+    const rawPlus = /^#\s*T4-[^\n]*RAW\+/m.test(file)
+    if (rawPlus) {
+      const rp = readJson<{
+        abPairs?: { pair: string; a: number; b: number }[]
+        slots?: { position: number; palette?: string }[]
+      }>(path.join(CONTRACTS_DIR, `${batch.slug}.json`))
+      /* B-половинка наследует палитру A: тот же кадр — палитра одна
+       * (спек raw-plus.inheritance), в шапке B-половинки id не повторяется */
+      const inheritsFrom = new Map<number, number>()
+      for (const p of rp?.abPairs ?? []) inheritsFrom.set(p.b, p.a)
+      const paletteByPos = new Map<number, string>()
+      for (const s of rp?.slots ?? []) if (s.palette) paletteByPos.set(s.position, s.palette)
+      const resolvePalette = (pos: number, header: string): string => {
+        const own = (/\b(P\d{1,3}_[A-Z_]+)\b/.exec(header) ?? [])[0]
+        if (own) return own
+        const donor = inheritsFrom.get(pos)
+        return donor ? paletteByPos.get(donor) ?? '' : ''
+      }
+      const f: string[] = []
+      const expl: string[] = []
+      const LIGHT_RE =
+        /light|glow|sun|moon|star|neon|spot|backlit|rim|dawn|dusk|beam|halo|luminous|caustic|floodlight|shimmer|glare|flare|glint/i
+      const palCount: Record<string, number> = {}
+      for (const s of batch.slots) {
+        const pal = resolvePalette(s.position, s.header)
+        if (pal) palCount[pal] = (palCount[pal] ?? 0) + 1
+        const isExpl = s.header.includes('⚗')
+        const slotF: string[] = []
+        if (!pal) slotF.push('палитра не назначена (нет в шапке, нет наследования по abPairs — specs/raw-plus.json, закон №23)')
+        if (!/stylized 2D anime face/i.test(s.pos)) slotF.push('нет face-блока (stylized 2D anime face — M17, приказ «концепция аниме-лиц»)')
+        if (!/\bsmall nose\b/i.test(s.pos) || !/\bsmall mouth\b/i.test(s.pos)) slotF.push('face-блок неполный (anime eyes (цвет), small nose, small mouth — M17)')
+        if (!LIGHT_RE.test(s.pos)) slotF.push('нет света-на-зоне: ни одного светового слова в POS (закон №21 — X-граница плоской натяжки, «блеклость»)')
+        if (!/masterpiece/i.test(s.pos) || !/best quality/i.test(s.pos) || !/anime artstyle/i.test(s.pos)) slotF.push('нет финальных квалити-тегов (masterpiece, best quality, anime artstyle)')
+        if (!/washed-out/i.test(s.neg) || !/faded colors/i.test(s.neg) || !/low contrast/i.test(s.neg)) slotF.push('нет ANTI-WASH в NEG (washed-out, faded colors, low contrast — Five Locks)')
+        if (slotF.length === 0) continue
+        if (isExpl) {
+          expl.push(`EXPLORATORY ⚗ (§10, квитанция): P${s.position}: ${slotF.join(' · ')}`)
+        } else {
+          f.push(`P${s.position}: ${slotF.join(' · ')}`)
+        }
+      }
+      /* батч-уровень: закон №23 — ≥7 палитр, ни одна чаще 3 раз (C066/C067) */
+      const distinct = Object.keys(palCount).length
+      if (distinct < 7) f.push(`палитр в батче ${distinct} < 7 (C066 — закон №23)`)
+      for (const [pal, n] of Object.entries(palCount)) {
+        if (n > 3) f.push(`палитра ${pal} использована ${n} раз > 3 (C067 — закон №23)`)
+      }
+      hard('raw-plus', f)
+      if (expl.length > 0) {
+        receipts.push({ gate: 'raw-plus-exploratory', level: 'warn', verdict: 'WARN', findings: expl })
+      }
+    }
+  }
+
   /* ---------------- receipt + event ---------------- */
   const sha10 = crypto.createHash('sha256').update(file).digest('hex').slice(0, 10)
   const priorRuns = readEvents().filter(
