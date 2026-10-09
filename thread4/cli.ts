@@ -368,22 +368,23 @@ async function main() {
     const tech = inv.find((s) => s.id === 'rating-techniques')
     check('техника-карта в инвентаре (>=100 приёмов)', (tech?.count ?? 0) >= 100)
     const recipes = inv.find((s) => s.id === 'rating-recipes')
-    check('рецепт v1.5.0 (X Cut hold + §9-септима + закон №14 NEG-смежности: through_fabric без nipple-терминов в контр-NEG)', recipes?.version === '1.5.0')
+    check('рецепт v1.6.0 (закон №14 подтверждён δ + №20 чистых рук: braless-токен изъят + №21 плоская натяжка X-риск)', recipes?.version === '1.6.0')
     // статa доставки (рекомендация Claude №2, external.review 2026-09-23;
     // v0.2.0 — вердикт T4-05: 13 → 18 каналов)
     const dstats = inv.find((s) => s.id === 'delivery-stats')
-    check('стата доставки в инвентаре (21 канал, v0.6.0: tape-only live — rehab успех, handbra-open-palms + underwear-as-outfit рождены, oc-rplus воскрешён)', dstats?.count === 21 && dstats?.version === '0.6.0')
+    check('стата доставки в инвентаре (23 канала, v0.7.0: tape-only канон 4/4, handbra live 4/4, wet-sheer воскрешён, fabric-tension + pantyline-lower рождены)', dstats?.count === 23 && dstats?.version === '0.7.0')
     {
       const { getRatingRecipes, getRatingTechniques, getDeliveryStats } = await import('../src/lib/t4/specs')
       const rt = getRatingTechniques()
       const rr = getRatingRecipes()
       const ds = getDeliveryStats()
-      check('каналы доставки v0.6.0: wet-sheer+подача 5 доставлено, cameltoe 0/15 (dead), OC R+ 1/12 (воскрешён P01+tape), оракул 69/69',
-        ds?.channels.find((c) => c.id === 'wet-sheer-delivery')?.delivered === 5 &&
+      check('каналы доставки v0.7.0: wet-sheer+подача 8 доставлено (воскрешен конфигурацией §9-цепи), cameltoe 0/15 (dead), OC R+ 2/12 (P02+handbra), handbra live 4/4, оракул 159/159',
+        ds?.channels.find((c) => c.id === 'wet-sheer-delivery')?.delivered === 8 &&
         ds?.channels.find((c) => c.id === 'cameltoe')?.delivered === 0 &&
-        ds?.channels.find((c) => c.id === 'oc-rplus')?.delivered === 1 &&
-        ds?.channels.find((c) => c.id === 'oc-rplus')?.status === 'candidate' &&
-        ds?.channels.find((c) => c.id === 'platform-tier-oracle')?.delivered === 69)
+        ds?.channels.find((c) => c.id === 'oc-rplus')?.delivered === 2 &&
+        ds?.channels.find((c) => c.id === 'handbra-open-palms')?.status === 'live' &&
+        ds?.channels.find((c) => c.id === 'handbra-open-palms')?.delivered === 4 &&
+        ds?.channels.find((c) => c.id === 'platform-tier-oracle')?.delivered === 159)
       check('maturity law: n<3 каналы — candidate, не live (внешний вердикт №3)',
         ['threadbare-sheer', 'named-underlayer-display', 'breast-environment-contact'].every(
           (id) => ds?.channels.find((c) => c.id === id)?.status === 'candidate'
@@ -556,9 +557,10 @@ async function main() {
       const chPolicy = getPolicy().channels as { rehab_channels?: string[]; rehab_quota_per_batch?: number }
       const rehab = chPolicy.rehab_channels ?? []
       const targets = c1.slots.filter((s) => s.targetChannel)
+      const effQuota = Math.min(chPolicy.rehab_quota_per_batch ?? 0, rehab.length || 1)
       check(
-        `rehab-добор: ${chPolicy.rehab_quota_per_batch} R+ слота несут targetChannel из policy`,
-        targets.length === (chPolicy.rehab_quota_per_batch ?? 0) &&
+        `rehab-добор: min(квота ${chPolicy.rehab_quota_per_batch}, rehab ${rehab.length}) = ${effQuota} R+ слота несут targetChannel из policy (карта T4-26: wet-sheer воскрешён — выведен из rehab; остался dry-sheer)`,
+        targets.length === effQuota &&
           targets.every((s) => rehab.includes(String(s.targetChannel)))
       )
       // НИША-50 (вердикт автора): каждый NICHE-слот несёт архетип, ротация без повторов
