@@ -1,5 +1,5 @@
 {
- "version": "1.5.0",
+ "version": "1.6.0",
  "born": "2026-09-19",
  "reforged": "2026-09-21 (v1.2.0) — RENDER verdict T4-03 (author's eye on 24 renders): R 7/7 ✅, X 2/2 ✅, R+ 1/15 ❌ («еле-еле» P10), OC R+ 0/3 ❌. v1.1.0 made claims prompt-honest but put the weight on cameltoe/tape — tags the renderer will not draw. v1.2.0 is built from what the renders actually did: the edge reads through WET/SEE-THROUGH thin fabric with NO underlayer; cameltoe is flavor, never the claim. 2026-09-21 (v1.3.0) — техника-карта автора (rating-techniques.json v1.0.0): X counter_neg расширен блоком X Cut hold (блок 9: + penis, cum, uncensored, spread legs, nude lower body); закон суммы факторов (блок 8) и слой-карта живут в техника-карте и гейтятся отдельно (technique-layers) | 2026-10-08 (v1.5.0) — вердикт T4-25 (закон №14 NEG-смежности): through_fabric counter_neg разгружен от nipple-терминов.",
  "source": "author's tier table (2026-09-19) + 3.2 CARRIER_LIBRARY science + Claude-thread N30/N31 empirics + author's rating-techniques table (2026-09-21, X Cut hold блок 9)",
@@ -179,7 +179,6 @@
      ],
      "bare_under_marker": [
       "nothing underneath",
-      "braless",
       "no bra",
       "without underlayer",
       "worn without a bra",
@@ -196,7 +195,8 @@
       "close on"
      ],
      "framing_note": "Кадрирование заявки живёт ТЕГОМ в тег-блоке (§9-септима, правило 2) — salience-chain звено LEGIBILITY.",
-     "counter_neg_note": "v1.5.0 (вердикт T4-25, закон №14 «NEG-смежности», приказ автора P33: «нужно слегка пересмотреть то, как именно пишется негатив. Мне кажется часть проблемы лежит в нём»): nipple-термины (nipples exposed, areola) УДАЛЕНЫ из контр-NEG through_fabric — они гасят саму clothed-заявку (квитанции: P04 «негатив попортил картинку… даже намёков на возможные сосочки»; P25/P29/P32 «слабое очертание / без явного соска»). NEG замыкает СЛОЙ (обнажение), а не СТУПЕНЬ (сосок через ткань — это сама заявка). X-границу держат naked breasts + topless + exposed genitals; проверяется EXP-парой δ батча T4-26."
+     "counter_neg_note": "v1.5.0 (вердикт T4-25, закон №14 «NEG-смежности», приказ автора P33: «нужно слегка пересмотреть то, как именно пишется негатив. Мне кажется часть проблемы лежит в нём»): nipple-термины (nipples exposed, areola) УДАЛЕНЫ из контр-NEG through_fabric — они гасят саму clothed-заявку (квитанции: P04 «негатив попортил картинку… даже намёков на возможные сосочки»; P25/P29/P32 «слабое очертание / без явного соска»). NEG замыкает СЛОЙ (обнажение), а не СТУПЕНЬ (сосок через ткань — это сама заявка). X-границу держат naked breasts + topless + exposed genitals; проверяется EXP-парой δ батча T4-26.",
+     "bare_under_marker_note": "ζ-пара T4-26 (P29 vs P30): токен braless слегка ГАСИТ заявку («еле видны» vs «видны более отчётливо») — из стандарта изъят (закон №20 «чистых рук», ревизия №16); bare-under утверждается ТОЛЬКО фразой: nothing underneath / worn without a bra / no bra / unlined."
     },
     "on_skin": {
      "hard": [
@@ -360,9 +360,12 @@
    "3+ layers on a zone = the renderer picks a modest combination (PG-13/R)",
    "signal tags at the TAIL of the tag-run render weak — claims sit in the first ~12 tags",
    "opaque structured fabrics (jeans/denim/leather/velvet/sweatpants/breeches/suit) never carry an edge",
-   "R+ delivery is stochastic (~1/8 even when lawful): the gate enforces the best-odds construct, the author re-rolls"
+   "R+ delivery is stochastic (~1/8 even when lawful): the gate enforces the best-odds construct, the author re-rolls",
+   "meta-layers mute the claim (T4-26 δ/ε/ζ, 3/3 pairs): NEG blocks suppress adjacent signals, tag-clusters occupy the tag-run without adding, tokens (braless) slightly mute — the claim is steered by SCENE DESCRIPTION (contact, geometry, fabric state, light on the zone), never by meta-layers (закон №20 «чистых рук»)",
+   "flat tension = X-risk (T4-26 P08/P22 both X, P04 on the edge): fabric stretched tight across the chest WITHOUT light-on-zone and the full §9 chain overshoots into X ('nipples drawn ON the clothes') — the cure is constructive (light on the zone, weak see-through, named garment), NEVER negative (закон №14 forbids nipple-gating NEG) — закон №21"
   ],
-  "meta": "VLM holistic grading OVER-READS the edge tier (VLM said 8/12 R+, the author's eye said 1/15) — edge-tier verdicts belong to the author; the VLM loop may verify scene/structure, never the edge itself"
+  "meta": "VLM holistic grading OVER-READS the edge tier (VLM said 8/12 R+, the author's eye said 1/15) — edge-tier verdicts belong to the author; the VLM loop may verify scene/structure, never the edge itself",
+  "changelog_v1_6_0": "2026-10-09, вердикт T4-26 «THE OTHER VERSION» (карта CAUSAL-MAP-T4-26): (1) закон №20 «чистых рук» — δ (старый NEG гасит: «еле видны» vs «сильно видны», P25/P26), ε (NATURAL-кластер −1 к чистому контакт-описанию, P27/P28), ζ (braless-токен −1 к фразе, P29/P30) — все три A/B-пары решил чистый вариант; (2) закон №21 плоской натяжки — P08/P22 X-перелёты без света-на-зоне, P04 на грани; выжившие P14/P33 = натяжка+свет+вещь; (3) braless-токен изъят из bare_under_marker (ζ-ревизия №16); (4) закон №14 NEG-смежности ПОДТВЕРЖДЁН дифференциалом δ — в конституцию без оговорок."
  },
  "changelog_v1_4_0": "2026-09-23, вердикт T4-05 (§9-септима): (1) through_fabric — bare-underMarker обязателен в POS («nothing underneath / braless»): NEG-лока мало, рендерер рисует лифчик ПОВЕРХ него (P07); (2) through_fabric — framing_tag обязателен (close-up / cowboy shot / upper body): кадрирование живёт тегом, не прозой; (3) R+/X — pose_risk LOW/MID только (RENDER LAW v1.3.0): HIGH-поза × R+ = амплификатор мутаций (P04 дрейф · P22 мутация · P17 недолёт); (4) danbooru homonyms — только составными (P08: aurora → aurora_(arknights)).",
  "changelog_v1_5_0": "2026-10-08, вердикт T4-25 «NO NORMAL OPTIONS»: (1) through_fabric.counter_neg — убраны «nipples exposed», «areola» (закон №14 NEG-смежности: NEG запрещает слой, а не ступень; старый список через гейт rating-recipe ЗАСТАВЛЯЛ гасить clothed-заявку — P04 погиб с «ничё не видно»); (2) X-граница тира через через-ткань заявки теперь на naked breasts/topless/exposed genitals. Гипотезу проверяет EXP-пара δ (H7) батча T4-26: тот же кадр, старый NEG vs новый."
