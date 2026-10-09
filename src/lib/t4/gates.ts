@@ -1361,6 +1361,14 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
       'robe', 'kimono', 'yukata', 'sheet', 'towel', 'halter', 'tunic', 'apron', 'qipao', 'cheongsam',
       'sweater', 'gi', 'nightshirt',
     ]
+    /* Фред 2026-10-10 (T4-27 ξ): нижние заявки (visible pantyline) живут на
+     * именованном низе — LOWER_LIGHT из noun-lock; без него салиенс-гейт
+     * рвал звено OBJECT на каждом pantyline-слоте (канал pantyline-lower
+     * официально живёт в delivery-stats v0.7.0 — гейт обязан его видеть) */
+    const LOWER_LIGHT_SAL = [
+      'skirt', 'shorts', 'pants', 'trousers', 'leggings', 'tights',
+      'pantyhose', 'sarong', 'wrap', 'boyshorts',
+    ]
     const X_SIGNALS = ['topless', 'bare breasts', 'exposed breasts', 'nsfw', 'nude', 'naked']
     const POSE_VERBS = 'standing|kneel|sitting|leaning|climb|slide|stretch|arch|bend|turn|twirl|float|stride|spiral|hang|curl|lean|reach|prone|crouch|drape|sprawl|recline|straddl|waltz|handstand|cartwheel|pli|sprint|jump|bounce|balance|extend|lock|draw|halt'
     const LOWER_COVERS_SC = ['skirt', 'dress', 'cloak', 'cape', 'coat', 'apron', 'tied at waist', 'tied at the waist', 'shirt tied', 'waist wrap', 'sarong', 'long shirt', 'peplum']
@@ -1384,7 +1392,7 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
       const upperClaim = ['nipples through clothing', 'clothed nipples', 'see-through', 'taped nipples', 'topless with tape', 'handbra'].find((c) => tagBlock.includes(c))
       const lowerClaim = ['visible pantyline', 'pantyline'].find((c) => tagBlock.includes(c))
       const xClaim = X_SIGNALS.find((c) => tagBlock.includes(c))
-      const garmentTag = tags.find((t) => UPPER_LIGHT.some((g) => new RegExp(`\\b${g}\\b`).test(t)))
+      const garmentTag = tags.find((t) => UPPER_LIGHT.some((g) => new RegExp(`\\b${g}\\b`).test(t)) || LOWER_LIGHT_SAL.some((g) => new RegExp(`\\b${g}\\b`).test(t)))
       const onSkin = upperClaim === 'taped nipples' || upperClaim === 'topless with tape' || upperClaim === 'handbra'
       const objOk = isX
         ? Boolean(xClaim)
