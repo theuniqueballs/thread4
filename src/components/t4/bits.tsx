@@ -122,17 +122,19 @@ export function StatCard({
   loading?: boolean
 }) {
   return (
-    <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-4">
+    <div className="group rounded-lg border border-zinc-800 bg-zinc-900 p-4 transition-colors hover:border-zinc-700">
       <div className="flex items-center justify-between gap-2">
         <span className="text-xs font-medium uppercase tracking-wide text-zinc-500">{label}</span>
-        {icon ? <span className="text-zinc-600">{icon}</span> : null}
+        {icon ? <span className="text-zinc-600 transition-colors group-hover:text-amber-500/70">{icon}</span> : null}
       </div>
       {loading ? (
         <Skeleton className="mt-3 h-7 w-14 bg-zinc-800" />
       ) : (
         <div className="mt-2 text-2xl font-semibold tabular-nums text-zinc-100">{value}</div>
       )}
-      {hint ? <div className="mt-1 text-xs text-zinc-600">{hint}</div> : null}
+      {hint ? (
+        <div className="mt-1 text-xs text-zinc-600 transition-colors group-hover:text-zinc-500">{hint}</div>
+      ) : null}
     </div>
   )
 }

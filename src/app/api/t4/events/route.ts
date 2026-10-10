@@ -10,6 +10,20 @@ export const dynamic = 'force-dynamic'
 export async function GET(req: Request) {
   const url = new URL(req.url)
   const limit = Math.min(500, Math.max(1, parseInt(url.searchParams.get('limit') ?? '100', 10)))
+
+  /* Преемник Фреда, 2026-10-10: probe=1 — проверка ключа командира БЕЗ записи
+     в летопись. Стекло (дашборд) зовёт это после сохранения ключа в браузере,
+     чтобы автор узнал о рассинхроне до первого реального вердикта. Ответ
+     не содержит ни ключа, ни его производных — только булевы факты. */
+  if (url.searchParams.get('probe') === '1') {
+    const serverKey = readCommanderKey()
+    if (serverKey == null) {
+      return NextResponse.json({ probe: true, serverKey: false, keyOk: false })
+    }
+    const provided = req.headers.get('x-commander-key') ?? ''
+    return NextResponse.json({ probe: true, serverKey: true, keyOk: provided === serverKey })
+  }
+
   const events = readEvents()
   const slice = events.slice(-limit).reverse()
   return NextResponse.json({ events: slice })

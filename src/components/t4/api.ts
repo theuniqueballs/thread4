@@ -148,6 +148,70 @@ export interface DeliverResponse {
 }
 
 /* ------------------------------------------------------------------ */
+/* Commander key (browser half of Залп 1 «Правда»)                    */
+/* ------------------------------------------------------------------ */
+
+/** Преемник Фреда, 2026-10-10: ключ командира в браузере.
+ *
+ * Серверный замок — ~/.t4/commander.key на машине ядра (Залп 1). Браузерная
+ * половина хранит копию в localStorage и прикладывает её заголовком
+ * x-commander-key на мутации летописи (/api/t4/events POST). Ключ НЕ попадает
+ * в URL, в логи консоли и в репо; из UI — только в поле «Стекло → Ключ
+ * командира» и в память вкладки.
+ */
+const COMMANDER_KEY_STORAGE = 't4-commander-key'
+
+export function getCommanderKey(): string {
+  try {
+    return window.localStorage.getItem(COMMANDER_KEY_STORAGE) ?? ''
+  } catch {
+    return ''
+  }
+}
+
+export function setCommanderKey(key: string): void {
+  try {
+    const v = key.trim()
+    if (v === '') window.localStorage.removeItem(COMMANDER_KEY_STORAGE)
+    else window.localStorage.setItem(COMMANDER_KEY_STORAGE, v)
+  } catch {
+    /* приватный режим браузера — ключ не переживает перезагрузку */
+  }
+}
+
+export function clearCommanderKey(): void {
+  try {
+    window.localStorage.removeItem(COMMANDER_KEY_STORAGE)
+  } catch {
+    /* нет доступа — нет и ключа */
+  }
+}
+
+/** Заголовки для мутаций летописи: ключ, если браузер его хранит. */
+export function commanderHeaders(): Record<string, string> {
+  const key = getCommanderKey()
+  return key === '' ? {} : { 'x-commander-key': key }
+}
+
+export interface CommanderProbe {
+  probe: true
+  /** серверный замок существует (~/.t4/commander.key на месте) */
+  serverKey: boolean
+  /** присланный браузерный ключ совпал с серверным */
+  keyOk: boolean
+}
+
+/** Проверка ключа без записи в летопись (GET ?probe=1, Залп 1 не трогается). */
+export async function probeCommanderKey(): Promise<CommanderProbe> {
+  const res = await fetch('/api/t4/events?probe=1', {
+    cache: 'no-store',
+    headers: commanderHeaders(),
+  })
+  if (!res.ok) throw new ApiError(`HTTP ${res.status}`, res.status)
+  return (await res.json()) as CommanderProbe
+}
+
+/* ------------------------------------------------------------------ */
 /* Fetch primitives                                                    */
 /* ------------------------------------------------------------------ */
 
@@ -172,10 +236,14 @@ export async function fetchJson<T>(path: string): Promise<T> {
   return (await res.json()) as T
 }
 
-export async function postJson<T>(path: string, body: unknown): Promise<T> {
+export async function postJson<T>(
+  path: string,
+  body: unknown,
+  extraHeaders: Record<string, string> = {}
+): Promise<T> {
   const res = await fetch(path, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...extraHeaders },
     body: JSON.stringify(body),
   })
   if (!res.ok) {
