@@ -1258,7 +1258,7 @@ function QuickVerdict({ slug }: { slug: string }) {
 }
 
 function BatchesTab() {
-  const list = useApi<{ items: { slug: string; title: string; date: string }[] }>('/api/t4/batches')
+  const list = useApi<{ items: { slug: string; title: string; date: string; rebuildOf?: string }[] }>('/api/t4/batches')
   const [slug, setSlug] = useState<string | null>(null)
   const [query, setQuery] = useState('')
   const detail = useApi<{
@@ -1313,6 +1313,14 @@ function BatchesTab() {
                 >
                   <span className="flex min-w-0 items-center gap-2">
                     <Mono>{b.slug}</Mono>
+                    {b.rebuildOf ? (
+                      <span
+                        title={`перестройка ${b.rebuildOf} — окно ротации с источником не конфликтует (rebuildOf)`}
+                        className="shrink-0 rounded border border-cyan-500/40 bg-cyan-500/10 px-1.5 py-0.5 font-mono text-[10px] text-cyan-300"
+                      >
+                        ↻ {b.rebuildOf}
+                      </span>
+                    ) : null}
                     <span className="truncate text-xs text-zinc-300">{b.title}</span>
                   </span>
                   <span className="shrink-0 text-[11px] text-zinc-600">{formatDate(b.date)}</span>
@@ -2360,6 +2368,8 @@ interface BatchVerdictRecord {
   id: string
   at: string
   slug: string
+  mode?: 'light' | 'full'
+  verdict?: string
   summary: string
   scoreboard: {
     slots?: number
@@ -2387,6 +2397,8 @@ function BatchReceiverPanel() {
   const [note, setNote] = useState<string | null>(null)
   const [expanded, setExpanded] = useState<string | null>(null)
   const [curlCopied, setCurlCopied] = useState(false)
+  const [lightVerdict, setLightVerdict] = useState<string | null>(null)
+  const [lightProse, setLightProse] = useState('')
   const batches = useApi<{ items: { slug: string; title: string }[] }>('/api/t4/batches')
   const contract = useApi<ContractPayload>(slug ? `/api/t4/contracts/${slug}` : null)
   const records = useApi<{ records: BatchVerdictRecord[] }>('/api/t4/batch-verdict')
@@ -2524,6 +2536,30 @@ function BatchReceiverPanel() {
     }
   }
 
+  async function submitLight() {
+    if (busy || !slug || !lightVerdict) return
+    setBusy(true)
+    setNote(null)
+    try {
+      const res = await postJson<{ ok: boolean; verdict?: string }>(
+        '/api/t4/batch-verdict',
+        { slug, mode: 'light', verdict: lightVerdict, prose: lightProse.trim() }
+      )
+      setNote(
+        res.ok
+          ? `Лёгкий вердикт ${slug} записан (${res.verdict ?? lightVerdict}) — батч-уровень, без по-слотовой разметки.`
+          : 'Не записано'
+      )
+      setLightVerdict(null)
+      setLightProse('')
+      records.reload()
+    } catch (e) {
+      setNote(e instanceof ApiError ? `API: ${e.message}` : 'Сеть недоступна')
+    } finally {
+      setBusy(false)
+    }
+  }
+
   function downloadJson() {
     const payload = buildPayload()
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' })
@@ -2596,11 +2632,62 @@ function BatchReceiverPanel() {
           ) : null}
         </div>
 
+        {slug ? (
+          <div className="rounded-md border border-zinc-800 bg-zinc-900/40 p-3">
+            <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2">
+              <p className="text-[11px] font-medium uppercase tracking-wider text-zinc-400">
+                Лёгкий путь — батч-уровень
+              </p>
+              <p className="text-[11px] text-zinc-600">
+                без по-слотовой разметки · контракт не нужен · точный путь ниже
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {[
+                { id: 'keep', label: 'Зашёл — держим курс', tone: 'border-emerald-600/60 bg-emerald-600/15 text-emerald-300' },
+                { id: 'mixed', label: 'Местами — половина решает', tone: 'border-amber-500/60 bg-amber-500/15 text-amber-200' },
+                { id: 'rework', label: 'Мимо — переделать', tone: 'border-rose-500/60 bg-rose-500/15 text-rose-300' },
+              ].map((v) => (
+                <button
+                  key={v.id}
+                  onClick={() => setLightVerdict(lightVerdict === v.id ? null : v.id)}
+                  className={cn(
+                    'rounded-md border px-2.5 py-1.5 text-xs font-medium transition-colors',
+                    lightVerdict === v.id
+                      ? v.tone
+                      : 'border-zinc-800 bg-zinc-950 text-zinc-400 hover:border-zinc-700 hover:text-zinc-200'
+                  )}
+                  aria-pressed={lightVerdict === v.id}
+                >
+                  {v.label}
+                </button>
+              ))}
+            </div>
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <input
+                value={lightProse}
+                onChange={(e) => setLightProse(e.target.value)}
+                placeholder="Пара слов по желанию: «мокрый шёлк решил всё, кроме P07»…"
+                className="h-9 min-w-0 flex-1 rounded-md border border-zinc-800 bg-zinc-950 px-2.5 text-sm text-zinc-200 placeholder:text-zinc-600"
+                aria-label="Проза лёгкого вердикта"
+              />
+              <Button
+                onClick={submitLight}
+                disabled={busy || !lightVerdict}
+                className="bg-amber-600 text-zinc-50 hover:bg-amber-500 disabled:opacity-40"
+              >
+                {busy ? 'Записываю…' : 'Записать лёгкий вердикт'}
+              </Button>
+            </div>
+          </div>
+        ) : null}
+
         {/* Фред, 2026-10-08: приёмник не молчит — объясняет, почему пусто.
             Раньше пик RAW/EXP-батча без контракта ронял панель в тишину. */}
         {slug && !contract.loading && contract.error ? (
           <div className="rounded-md border border-rose-500/30 bg-rose-500/5 px-3 py-2 text-xs text-rose-300">
-            {slug}: контракт не найден и батч не разобран — приёмнику нечего показать. Проверь, что файл батча на месте.
+            {slug}: контракт не найден и батч не разобран — по-слотовой таблице нечего показать.
+            Лёгкий путь выше работает без контракта.
           </div>
         ) : null}
         {slug && !contract.loading && !contract.error && slots.length === 0 ? (
@@ -2877,6 +2964,20 @@ function BatchReceiverPanel() {
                   >
                     <span className="flex min-w-0 items-center gap-2">
                       <Mono>{r.slug}</Mono>
+                      {r.mode === 'light' ? (
+                        <span
+                          className={cn(
+                            'shrink-0 rounded border px-1.5 py-0.5 text-[10px] font-medium',
+                            r.verdict === 'keep'
+                              ? 'border-emerald-600/50 text-emerald-400'
+                              : r.verdict === 'rework'
+                                ? 'border-rose-500/50 text-rose-400'
+                                : 'border-amber-500/50 text-amber-300'
+                          )}
+                        >
+                          лёгкий
+                        </span>
+                      ) : null}
                       <span className="truncate text-xs text-zinc-400">{r.summary.slice(0, 110)}</span>
                     </span>
                     <span className="shrink-0 text-[11px] text-zinc-600">{formatDate(r.at)}</span>

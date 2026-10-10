@@ -10,10 +10,11 @@
 |---|---|
 | `src/app/` | Next.js дашборд (http://127.0.0.1:3000): Состояние, Сборка, Батчи, Куча, Стекло… |
 | `src/lib/t4/` | Ядро: компилятор, писец, 24 гейта, летопись с хеш-цепью, жнец, delivery |
-| `thread4/cli.ts` | CLI: `seed · compile · scribe · check · deliver · void · shore-merge · reaper · verify · selftest` |
+| `thread4/cli.ts` | CLI: `seed · compile · scribe · check · deliver · void · drift · shore-merge · reaper · verify · selftest` |
+| `thread4/tools/` | RAW-эра: `gen-rawplus.ts` (контракт-план: кины №3 + hair/eye E3 + echo F13 + окно), `kin-block.ts` (расовый тег-блок), `drift-report.ts`, разовые генераторы контрактов |
 | `thread4/` | Данные и законы (единая точка истины): |
 | `thread4/specs/` | Спеки: policy.json, oc-canon.json, recipes, carriers, НИША-50, facts |
-| `thread4/batches/` | Сданные батчи T4-01…T4-19 (T4-06/T4-10 void) |
+| `thread4/batches/` | Сданные батчи T4-01…T4-27.2-EXP (28 файлов; T4-06/T4-10 void) |
 | `thread4/contracts/` | Контракты компилятора (экспериментальные, low-trust — Issue #21) |
 | `thread4/events/` | Летопись log.jsonl + хеш-цепь chain.jsonl (append-only) |
 | `thread4/verdicts/` | Вердикт-артефакты приёмки |
@@ -27,9 +28,18 @@
 
 ```
 bun x next dev -p 3000 -H 127.0.0.1   # дашборд, loopback-only
-bun thread4/cli.ts selftest            # 50/50
+bun thread4/cli.ts selftest            # 63/63
 bun thread4/cli.ts verify              # цепь летописи
+bun thread4/tools/gen-rawplus.ts --demo  # сухой план RAW+ (кины + hair/eye + echo)
 ```
 
 Законы обновляются только вердиктом автора (§10). Качество батча измеряет вердикт
 автора после рендера — не FIRST RUN CLEAN (Issue #20).
+
+## Окно ротации и ребилды (вопрос №30)
+
+Окно = последние 3 сданных батча: позы/палитры окна не повторяются (защита от
+усталости). Ребилд — перестройка сданного батча с одной переменной — объявляется
+в контракте полем `rebuildOf` (слаг источника): окно с источником не
+конфликтует, переиспользование материала и есть смысл перестройки. Остальные
+члены окна конфликтуют как обычно — ребилд не освобождает от ротации.
