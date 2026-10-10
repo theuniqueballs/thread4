@@ -375,6 +375,8 @@ async function main() {
     check('carriers == 280', carriers?.count === 280)
     const poses = inv.find((s) => s.id === 'poses')
     check('poses == 240', poses?.count === 240)
+    const hairEye = inv.find((s) => s.id === 'hair-eye-library')
+    check('библиотека hair/eye (E3, A5P3F): 31 hair + 20 eye + подсказки A5P2', hairEye?.count === 51 && hairEye?.version === '1.0.0')
 
     // техника-карта (таблица автора, 2026-09-21)
     const tech = inv.find((s) => s.id === 'rating-techniques')
@@ -619,6 +621,70 @@ async function main() {
         'window-гейт: перестройка проходит окно (переиспользование источника ≠ конфликт ротации)',
         g272?.receipts.find((r) => r.gate === 'window')?.verdict === 'PASS'
       )
+    }
+
+    // RAW+ генератор (кины в конвейер, закон №3 + A5: hair/eye E3, echo F13)
+    {
+      const { planRawPlus } = await import('./tools/gen-rawplus')
+      const law2 = getPolicy().law
+      const demo = { slug: 'T4-98', theme: 'SELFTEST RAW+ KIN ECHO', seed: 4242, windowSlugs: ['T4-27'], ocAppearances: {} as Record<string, number> }
+      const p1 = planRawPlus(demo)
+      check(
+        `gen-rawplus: ${law2.slotsTotal} слотов по закону (${law2.ocSlots} OC + ${law2.mainsTotal} мейн)`,
+        p1.slots.length === law2.slotsTotal &&
+          p1.slots.slice(0, law2.ocSlots).every((s) => s.kind === 'OC')
+      )
+      check(
+        'gen-rawplus: спред мейнов из policy (NICHE R ×7 + R+ мейны ×14)',
+        p1.slots.filter((s) => s.kind === 'NICHE').length === law2.nicheCount &&
+          p1.slots.filter((s) => s.kind !== 'OC' && s.rating === 'R+').length === law2.rplusMains
+      )
+      const kinSlots = p1.slots.filter((s) => s.race)
+      check(
+        `gen-rawplus: расовый каст ${law2.racialDefault} на мейнах — уникальные расы, POS+anti-shield NEG у каждой`,
+        kinSlots.length === law2.racialDefault &&
+          new Set(kinSlots.map((s) => s.race)).size === kinSlots.length &&
+          kinSlots.every((s) => (s.kinPos ?? '').length > 0 && (s.kinNeg ?? '').length > 0) &&
+          kinSlots.every((s) => s.position > law2.ocSlots)
+      )
+      const c27 = JSON.parse(
+        (await import('node:fs')).readFileSync('thread4/contracts/T4-27.json', 'utf-8')
+      ) as { slots: { palette?: string }[] }
+      const windowPals = new Set(c27.slots.map((s) => s.palette).filter(Boolean))
+      check(
+        'gen-rawplus: 24 уникальные палитры, ни одна в окне ротации (T4-27 исключён)',
+        new Set(p1.slots.map((s) => s.palette)).size === law2.slotsTotal &&
+          p1.slots.every((s) => !windowPals.has(s.palette))
+      )
+      const mains = p1.slots.filter((s) => s.kind !== 'OC')
+      check(
+        'gen-rawplus: hair анти-дрейф соседей + 12+ различных на мейнах (E3)',
+        mains.every((s, i) => i === 0 || s.hair !== mains[i - 1].hair) &&
+          new Set(mains.map((s) => s.hair)).size >= 12
+      )
+      check(
+        'gen-rawplus: OC несут канон hair/eyes (канон старше библиотеки)',
+        p1.slots.slice(0, law2.ocSlots).every((s) => s.hairEyeFrom === 'canon' && s.hair.length > 0 && s.eyes.length > 0)
+      )
+      check(
+        'gen-rawplus: echo-мотивы 2-3, арка 3 явки, мутация 1 spatial + 1 narrative/atmospheric (F13)',
+        p1.echoMotifs.length >= 2 && p1.echoMotifs.length <= 3 &&
+          p1.echoMotifs.every(
+            (m) => m.appearances.length === 3 && m.appearances.every((a) => a.mutation.length === 2)
+          )
+      )
+      const { getCarriers: gc } = await import('../src/lib/t4/specs')
+      const cs = gc()
+      const mechOf = (cls: string) => cs?.class_defs?.[cls]?.mech ?? '?'
+      check(
+        `gen-rawplus: стеки core-4 — ${law2.core4Groups} мех-группы на каждом слоте`,
+        p1.slots.every((s) => {
+          const g = new Set(s.carriers.map((c) => mechOf(c.cls)))
+          return s.carriers.length >= law2.core4Groups && g.size >= law2.core4Groups
+        })
+      )
+      const p2 = planRawPlus(demo)
+      check('gen-rawplus: детерминизм (тот же сид → тот же план)', JSON.stringify(p1.slots) === JSON.stringify(p2.slots))
     }
 
     console.log(`\nselftest: ${ok} pass, ${fail} fail`)

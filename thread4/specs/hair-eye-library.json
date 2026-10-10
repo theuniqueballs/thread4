@@ -1,0 +1,53 @@
+{
+  "id": "hair-eye-library",
+  "name": "Библиотека волос/глаз (E3 — независимо от палитры)",
+  "version": "1.0.0",
+  "born": "2026-10-11",
+  "source": "порт A5P3F §III-C-2 (правило E3): бинды палитра→hair/eye из A5P2 удалены как закон, сохранены как подсказки ~50%; палитра ведает настроением/светом, hair/eye — идентичностью персонажа. Эволюция A5: v3 (A5P1B) PALETTE-DRIVEN COLORING → v7 (A5P2) PALETTE-HAIR BINDING → A5P3A E3 DECOUPLE (финальная форма). Нюанс счёта: A5P3F объявлял «30 цветов» волос, но в списке 31 — список сохранён дословно (31 hair + 20 eye). Для RAW+: hair/eye теги живут в идентификационном сегменте POS; OC-слоты берут канон (oc-canon hair/eyes — канон всегда старше библиотеки); лица — M17 face-блок (anime eyes (цвет), small nose, small mouth).",
+  "hair": [
+    "black", "white", "silver", "platinum-white", "blonde", "golden",
+    "copper", "red", "crimson", "burgundy", "auburn", "brown",
+    "dark-brown", "chestnut", "chocolate", "ash-brown", "pale-green",
+    "teal", "emerald", "sage", "mint", "ice-blue", "sky-blue", "navy",
+    "violet", "lavender", "pink", "dusty-pink", "rose", "peach", "orange"
+  ],
+  "eyes": [
+    "black", "grey", "silver", "gold", "amber", "hazel", "green",
+    "emerald", "teal", "blue", "pale-blue", "sky-blue", "violet", "red",
+    "dark-red", "pink", "copper-green", "sea-glass", "pearl-grey",
+    "heterochromia"
+  ],
+  "suggestions": {
+    "note": "старые бинды A5P2 — подсказки, не правила: следовать ~50% слотов, отклоняться ~50% (E3, поддерживает разнообразие против монохромного каста). Таблица дана для A5-палитр; для палитр T4 мостик строит подсказку из цветовых токенов (dominant→hair, secondary→eyes) — tools/gen-rawplus.ts",
+    "a5_bindings": [
+      { "palette": "Frost Glass", "hair": "white", "eyes": "pale-blue" },
+      { "palette": "Candle Wax", "hair": "golden", "eyes": "amber" },
+      { "palette": "Dust Bloom", "hair": "dusty-pink", "eyes": "green" },
+      { "palette": "Wine Cellar", "hair": "burgundy", "eyes": "dark-red" },
+      { "palette": "Amber Ladder", "hair": "copper", "eyes": "hazel" },
+      { "palette": "Midnight Brass", "hair": "silver", "eyes": "blue" },
+      { "palette": "Observatory", "hair": "white", "eyes": "pale-blue" },
+      { "palette": "Forge Ember", "hair": "red", "eyes": "amber" },
+      { "palette": "Hospital Ghost", "hair": "pale-green", "eyes": "grey" },
+      { "palette": "Storm Surge", "hair": "teal", "eyes": "gold" },
+      { "palette": "Feral Earth", "hair": "brown", "eyes": "green" },
+      { "palette": "Blood Stage", "hair": "crimson", "eyes": "amber" },
+      { "palette": "Ice Breath", "hair": "ice-blue", "eyes": "silver" },
+      { "palette": "Salt Sky", "hair": "blonde", "eyes": "sky-blue" },
+      { "palette": "Mud Field", "hair": "dark-brown", "eyes": "amber" },
+      { "palette": "Tattoo Ink", "hair": "black", "eyes": "hazel" },
+      { "palette": "Rain Street", "hair": "silver", "eyes": "blue" },
+      { "palette": "Lighthouse", "hair": "blonde", "eyes": "green" },
+      { "palette": "Garden Soil", "hair": "auburn", "eyes": "brown" },
+      { "palette": "Neon Veins", "hair": "pink", "eyes": "violet" },
+      { "palette": "Obsidian Tide", "hair": "black", "eyes": "teal" }
+    ]
+  },
+  "rules": {
+    "e3": "hair/eye выбираются НЕЗАВИСИМО от палитры: палитра — настроение/свет, hair/eye — идентичность персонажа",
+    "oc_canon_wins": "OC-слот несёт канонные hair/eyes из oc-canon.json; библиотека — для мейнов",
+    "anti_drift": "соседние слоты не несут один цвет волос (доктрина против монохрома); цель на батч — 12+ различных цветов волос из 21 мейна",
+    "suggestion_share": "~50% слотов следуют подсказке палитры, ~50% отклоняются (поддержка разнообразия)",
+    "face_block": "цвет глаз входит в M17 face-блок: anime eyes (цвет); цвет волос — тегом в идентификационном сегменте"
+  }
+}

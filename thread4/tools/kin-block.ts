@@ -18,7 +18,7 @@
  */
 import fs from 'node:fs'
 
-interface RaceEntry {
+export interface RaceEntry {
   id: string
   name: string
   features: string[]
@@ -29,7 +29,7 @@ interface RaceEntry {
 /** Прицельный anti-shield NEG по семействам — доказанные NEG-сеты живых батчей
  *  (T4-15: fox/cat/elf/harpy) + консервативные расширения. Ключ — маркер
  *  семейства в имени расы. */
-const FAMILY_SHIELD: { marker: RegExp; neg: string[] }[] = [
+export const FAMILY_SHIELD: { marker: RegExp; neg: string[] }[] = [
   { marker: /kitsune|fox/i, neg: ['human ears', 'dog ears', 'cat ears', 'no tail', 'multiple tails'] },
   { marker: /cat/i, neg: ['human ears', 'dog ears', 'fox ears', 'no tail', 'round pupils'] },
   { marker: /wolf/i, neg: ['human ears', 'dog ears', 'fox ears', 'no tail'] },
@@ -50,7 +50,7 @@ const FAMILY_SHIELD: { marker: RegExp; neg: string[] }[] = [
 ]
 
 /** anti-shield, выведенный из features, когда семейство не опознано. */
-function shieldFromFeatures(features: string[]): string[] {
+export function shieldFromFeatures(features: string[]): string[] {
   const out: string[] = []
   const all = features.join(' ').toLowerCase()
   if (/ears?\b/.test(all)) out.push('human ears')
@@ -63,7 +63,7 @@ function shieldFromFeatures(features: string[]): string[] {
 }
 
 /** POS-токены вида из имени: «Kitsune (fox-kin)» → fox girl, kitsune. */
-function posTokensFromName(name: string): string[] {
+export function posTokensFromName(name: string): string[] {
   const paren = /\((.+?)\)/.exec(name)?.[1] ?? ''
   const core = name.replace(/\s*\(.*\)\s*/, '').trim()
   const out = new Set<string>()
@@ -87,7 +87,7 @@ function posTokensFromName(name: string): string[] {
   return [...out]
 }
 
-function buildBlock(r: RaceEntry) {
+export function buildBlock(r: RaceEntry) {
   const family = FAMILY_SHIELD.find((f) => f.marker.test(r.name))
   const shield = family ? family.neg : shieldFromFeatures(r.features)
   const tokens = posTokensFromName(r.name)
@@ -106,12 +106,23 @@ function buildBlock(r: RaceEntry) {
   }
 }
 
+/** Пул юзабельных рас из спеки (active + gold; баны и Human исключаются
+ *  по месту). Экспорт — для RAW+ генератора (кины в конвейер, закон №3). */
+export function loadRaces(specPath = 'thread4/specs/races.json'): RaceEntry[] {
+  const spec = JSON.parse(fs.readFileSync(specPath, 'utf-8')) as { races: RaceEntry[] }
+  return spec.races.filter(
+    (r) =>
+      (r.status === 'active' || r.status === 'gold') &&
+      r.name.toLowerCase() !== 'human'
+  )
+}
+
 function main() {
   const args = process.argv.slice(2)
   const asJson = args.includes('--json')
   const ids = args.filter((a) => !a.startsWith('--'))
-  const spec = JSON.parse(fs.readFileSync('thread4/specs/races.json', 'utf-8')) as {
-    races: RaceEntry[]
+  const spec = { races: JSON.parse(fs.readFileSync('thread4/specs/races.json', 'utf-8')).races } as {
+    races: { id: string; name: string; status: string }[]
   }
   const pool = spec.races.filter((r) => r.status === 'active' || r.status === 'gold')
 
@@ -155,4 +166,4 @@ function main() {
   console.log('\n(квота рас в батче — приказ автора на сборке, §10; блок = механика закона №3)')
 }
 
-main()
+if (import.meta.main) main()

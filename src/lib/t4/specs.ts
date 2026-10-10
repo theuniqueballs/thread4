@@ -155,6 +155,19 @@ export interface RaceSpec {
   races: Race[]
 }
 
+/* -------------------- hair/eye library (порт A5P3F E3) ------------- */
+
+export interface HairEyeLibrarySpec {
+  version: string
+  hair: string[]
+  eyes: string[]
+  suggestions: {
+    note: string
+    a5_bindings: { palette: string; hair: string; eyes: string }[]
+  }
+  rules: Record<string, string>
+}
+
 /* -------------------------- rating recipes ------------------------- */
 
 export interface TierRecipe {
@@ -420,6 +433,12 @@ export function getOCCanon(): OCCanonSpec | null {
 export function getRaces(): RaceSpec | null {
   return load<RaceSpec>('races.json')
 }
+
+/** Библиотека волос/глаз (E3, A5P3F §III-C-2): hair/eye независимо от
+ *  палитры; старые бинды A5P2 — подсказки ~50%. Для RAW+ генератора. */
+export function getHairEyeLibrary(): HairEyeLibrarySpec | null {
+  return load<HairEyeLibrarySpec>('hair-eye-library.json')
+}
 export function getRatingRecipes(): RatingRecipesSpec | null {
   return load<RatingRecipesSpec>('rating-recipes.json')
 }
@@ -509,6 +528,8 @@ export function specInventory(): { id: string; name: string; count: number; vers
   if (o) out.push({ id: 'oc-canon', name: 'OC канон', count: Object.keys(o.ocs).length, version: o.canon_version })
   const r = getRaces()
   if (r) out.push({ id: 'races', name: 'Расы', count: r.races.length, version: r.version })
+  const he = getHairEyeLibrary()
+  if (he) out.push({ id: 'hair-eye-library', name: 'Библиотека волос/глаз (E3)', count: he.hair.length + he.eyes.length, version: he.version })
   const rr = getRatingRecipes()
   if (rr) out.push({ id: 'rating-recipes', name: 'Рейтинг-рецепты', count: Object.keys(rr.tiers).length, version: rr.version })
   const rt = getRatingTechniques()
