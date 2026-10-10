@@ -52,9 +52,12 @@ function nextSlug(): string {
 }
 
 export async function GET() {
+  // 2026-10-11: gold-расы (авторские: R17 jellyfish, R20 harpy) возвращены в
+  // пикер — компилятор их всегда включал (compiler.ts: active || gold), а
+  // фильтр «active» их молча выкидывал из UI. Статус уезжает на фронт для ★.
   const races = (getRaces()?.races ?? [])
-    .filter((r) => r.status === 'active')
-    .map((r) => ({ id: r.id, name: r.name }))
+    .filter((r) => r.status === 'active' || r.status === 'gold')
+    .map((r) => ({ id: r.id, name: r.name, status: r.status }))
   return NextResponse.json({ nextSlug: nextSlug(), races })
 }
 

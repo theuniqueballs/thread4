@@ -38,7 +38,9 @@ export interface GatesResult {
 /** Всего гейтов в прогоне (state-панель читает отсюда — одна истина).
  *  Залп 2: +1 warn (ab-single-variable). Вердикт автора 2026-09-27:
  *  +1 warn (theme-presence), -1 engine-rent (движки одноразовые),
- *  +1 warn (garment-family, U8 «осторожно») → 22. */
+ *  +1 warn (garment-family, U8 «осторожно») → 22.
+ *  RAW-эра: +1 warn salience-chain v2 (§9-секста/септима) и +1 hard
+ *  raw-plus (приказ-миграция №23, ввод с T4-27) → 24. */
 export const GATES_TOTAL = 24
 
 /* ------------------------------------------------------------------ */

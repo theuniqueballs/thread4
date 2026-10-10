@@ -1,7 +1,7 @@
 {
-  "version": "2.1.0",
+  "version": "2.1.1",
   "born": "2026-09-19",
-  "source": "3.2 POOLS_V8 race_pool R01-R15 + race_extension_v2 R16-R22 + Thread-4 author directives (2026-09-19)",
+  "source": "3.2 POOLS_V8 race_pool R01-R15 + race_extension_v2 R16-R22 + Thread-4 extensions R23-R36 + author directives — инвентарь: 34 active · 2 gold (R17 jellyfish-kin, R20 harpy-kin) · 4 banned (BAN-01..04 dwarves/goblins/trolls/orcs) = 40 записей (2.1.1: source-строка догнала фактический состав)",
   "races": [
     {
       "id": "R01",

@@ -4,7 +4,7 @@
   "source": "3.2 OC_CANON.yaml (THREAD 3.0 format, canon v1.7.1)",
   "canon_version": "2.1.0",
   "usage_policy": "Tarot / element / zodiac fields below are REGISTRY DATA for the author's own\nseries (Rider-Waite-style card prompts, zodiac prompts). They are NOT batch\nmaterial. Without the author's explicit per-request direction, NO card, sign,\nor ability symbolism may appear in any batch prompt — not in POS, not in NEG,\nnot in theses, palettes, or prompt naming. Batch prompts use the OC's\nAPPEARANCE and origin-continuity motifs only. Card/zodiac assignments stay\nhere so the author can look them up for HIS series.",
-  "selection_rule": "────────────────────────────────────────────────────\nPer session: author selects 3 of the 16 active OCs by vibe/theme fit.\nNo forced rotation schedule — author's call each time.",
+  "selection_rule": "────────────────────────────────────────────────────\nPer session: author selects 3 of the 19 active OCs by vibe/theme fit.\nNo forced rotation schedule — author's call each time.\n(2026-10-11: 16 → 19 — счётчик застыл в сентябре, канон вырос до 19.)",
   "ocs": {
     "Sue": {
       "name": "Sue",

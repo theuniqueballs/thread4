@@ -193,6 +193,18 @@ async function main() {
     return
   }
 
+  if (cmd === 'drift') {
+    /* Тег-дрейф счётчик (2026-10-11, преемник): REPORT, не гейт — наследник
+     * motif_noun_counts 3.2, первый шаг ULTIMATE DICE для тег-стеков RAW-эры. */
+    const rest = process.argv.slice(3)
+    if (rest.length === 0) {
+      console.error('usage: drift T4-NN [--min N] [--top N] [--json]')
+      process.exit(1)
+    }
+    await import('./tools/drift-report').then((m) => m.run(rest))
+    return
+  }
+
   if (cmd === 'chain') {
     /* Залп 1 «Правда»: rebase хеш-цепи поверх текущего лога (объявленная операция) */
     const r = bootstrapChain()

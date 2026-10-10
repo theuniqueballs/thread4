@@ -98,13 +98,21 @@ export function deliverBatch(slug: string): DeliverResult | null {
       `- Сдача: прогон #${result.runIndex}, hard PASS${result.firstRunClean ? ' · FIRST RUN CLEAN' : ''} (sha10 ${result.sha10}). Движок: ${contract?.engine ?? '—'}.`
     )
     // Залп 2: спред и число слотов читаются из контракта/политики — шаблон
-    // больше не застывшая строка с чужими числами (аудит MD-1)
+    // больше не застывшая строка с чужими числами (аудит MD-1).
+    // Поправка 2026-10-11 (преемник): штамп врал для ручных сборок без контракта —
+    // печатал «спред из контракта; расовый каст…» при null (T4-23/T4-24 уносят
+    // поправку ниже). Теперь: нет контракта → честная строка ручной сборки;
+    // расовый каст упоминается только когда реально назначен (RAW-эра не назначает).
     const spreadText = (contract?.spread ?? [])
       .map((s) => `${s.rating}×${s.count}`)
       .join(' · ')
-    wl.push(
-      `- Структура: ${contract?.slots?.length ?? LAWS.slotsTotal} слот(ов) — ${spreadText || 'спред из контракта'}; расовый каст на мейнах, регистры третями.`
-    )
+    const racial = (contract?.slots ?? []).filter(
+      (s) => Boolean((s as { race?: string } | undefined)?.race)
+    ).length
+    const structureText = contract
+      ? `${contract.slots?.length ?? LAWS.slotsTotal} слот(ов) — ${spreadText || 'спред см. в контракте'}${racial > 0 ? `; расовый каст ${racial} на мейнах` : ''}`
+      : `${LAWS.slotsTotal} слот(ов) — ручная сборка RAW-эры, контракта нет; спред и состав — шапка батча`
+    wl.push(`- Структура: ${structureText}.`)
     if (exploratory.length > 0) {
       wl.push(
         `- EXPLORATORY-слоты (§10): P${exploratory.map((s) => s.position).join(', P')} — эксперимент против нежёсткого закона назван здесь: см. THESIS слота; вердикт автора решает, станет ли рецептом.`
