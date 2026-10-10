@@ -126,3 +126,48 @@
   0% { transform: translateX(-100%); }
   100% { transform: translateX(400%); }
 }
+
+/* THREAD 4: появление контента вкладки — тихий подъём, не мигание */
+@keyframes t4-fade-up {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.t4-tab-enter {
+  animation: t4-fade-up 0.22s ease-out;
+}
+
+/* THREAD 4: тонкий скроллбар для длинных списков (класс t4-scroll).
+ * Класс висел на панелях с webDevReview #2, но стиля не было — теперь есть:
+ * zinc-под thumb, янтарное тепло под ховером, прозрачный трек. */
+.t4-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #3f3f46 transparent;
+}
+.t4-scroll::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.t4-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.t4-scroll::-webkit-scrollbar-thumb {
+  background: #3f3f46;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+.t4-scroll::-webkit-scrollbar-thumb:hover {
+  background: #52525b;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+/* Уважение к пользователю: без движения — контент без анимаций */
+@media (prefers-reduced-motion: reduce) {
+  .t4-tab-enter {
+    animation: none;
+  }
+  .animate-\[thread-slide_6s_linear_infinite\] {
+    animation: none;
+  }
+}

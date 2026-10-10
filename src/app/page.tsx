@@ -78,9 +78,11 @@ import { MarkdownView } from '@/components/t4/markdown'
 import { SpecView } from '@/components/t4/spec-renderers'
 import { TIER_RANK } from '@/lib/t4/verdicts'
 import {
+  buildDiffMarkdown,
   diffTokens,
   parseBatchMd,
   stackIds,
+  type BatchMd,
   type SlotMd,
   type TokenDiff,
 } from '@/lib/t4/batch-md'
@@ -1298,7 +1300,7 @@ function CopyBtn({ text, label, title }: { text: string; label: string; title: s
       onClick={go}
       title={title}
       className={cn(
-        'inline-flex shrink-0 items-center gap-1 rounded-md border px-1.5 py-0.5 text-[10px] font-medium leading-4 transition-colors',
+        'inline-flex shrink-0 items-center gap-1 rounded-md border px-1.5 py-0.5 text-[10px] font-medium leading-4 transition-all outline-none focus-visible:ring-1 focus-visible:ring-amber-500/60 active:scale-95',
         done
           ? 'border-emerald-600/50 bg-emerald-600/10 text-emerald-400'
           : 'border-zinc-700/70 bg-zinc-800/50 text-zinc-400 hover:border-amber-500/50 hover:text-amber-300'
@@ -1318,6 +1320,20 @@ function BatchesTab() {
   const [aSlug, setASlug] = useState('')
   const [bSlug, setBSlug] = useState('')
   const detail = useApi<BatchDetailData>(slug ? `/api/t4/batches/${slug}` : null)
+  /* «/» — фокус в поиск, классика; слушатель живёт только пока вкладка смонтирована */
+  const searchRef = useRef<HTMLInputElement>(null)
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.key !== '/' || e.metaKey || e.ctrlKey || e.altKey) return
+      const t = e.target as HTMLElement | null
+      if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable)) return
+      e.preventDefault()
+      searchRef.current?.focus()
+      searchRef.current?.select()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
 
   const items = list.data?.items ?? []
   const receipts = detail.data?.receipts ?? []
@@ -1393,13 +1409,18 @@ function BatchesTab() {
         ) : (
           <div className="space-y-2">
             <div className="relative">
-              <Search className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-zinc-600" />
+              <Search className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-zinc-600 transition-colors focus-within:text-amber-400/60" />
               <Input
+                ref={searchRef}
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder={`Поиск: слаг или тема · ${items.length} батчей…`}
-                className="h-8 border-zinc-800 bg-zinc-950 pl-8 text-xs"
+                title="«/» — фокус в поиск"
+                className="h-8 border-zinc-800 bg-zinc-950 pl-8 pr-10 text-xs transition-colors focus-visible:border-amber-500/50"
               />
+              <kbd className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 rounded border border-zinc-700 bg-zinc-800 px-1 font-mono text-[10px] leading-4 text-zinc-500">
+                /
+              </kbd>
             </div>
             {mode === 'compare' ? (
               <p className="px-1 text-[11px] leading-relaxed text-zinc-600">
@@ -1518,12 +1539,35 @@ function loadRenderProgress(slug: string): string[] {
   }
 }
 
+/** Единая точка записи трекера рендера — режим Просмотра и Сравнение
+ *  пишут одни и те же ключи, счётчики не расходятся. */
+function saveRenderProgress(slug: string, ids: string[]) {
+  window.localStorage.setItem(`t4-render-progress-${slug}`, JSON.stringify(ids))
+}
+
+/** Слот «отрендерен в паре»: отмечен в сторах всех сторон, где он есть
+ *  (рендер пары — тот же слот из A и из B под одним сидом). */
+function loadPairDone(aSlug: string, bSlug: string, a: BatchMd, b: BatchMd): string[] {
+  const aStore = aSlug !== '' ? new Set(loadRenderProgress(aSlug)) : new Set<string>()
+  const bStore = bSlug !== '' ? new Set(loadRenderProgress(bSlug)) : new Set<string>()
+  const done: string[] = []
+  const seen = new Set<string>()
+  for (const s of [...a.slots, ...b.slots]) {
+    if (seen.has(s.id)) continue
+    seen.add(s.id)
+    const inA = !a.slots.some((x) => x.id === s.id) || aStore.has(s.id)
+    const inB = !b.slots.some((x) => x.id === s.id) || bStore.has(s.id)
+    if (inA && inB) done.push(s.id)
+  }
+  return done
+}
+
 function SlotStrip({ slug, markdown }: { slug: string; markdown: string }) {
   const parsed = useMemo(() => parseBatchMd(markdown), [markdown])
   const [doneIds, setDoneIds] = useState<string[]>(() => loadRenderProgress(slug))
 
   useEffect(() => {
-    window.localStorage.setItem(`t4-render-progress-${slug}`, JSON.stringify(doneIds))
+    saveRenderProgress(slug, doneIds)
   }, [slug, doneIds])
 
   if (!parsed) return null
@@ -1592,7 +1636,7 @@ function SlotStrip({ slug, markdown }: { slug: string; markdown: string }) {
         </div>
       }
     >
-      <p className="pb-1 text-[11px] leading-relaxed text-zinc-600">
+      <p className="pb-1 text-[11px] leading-relaxed text-zinc-500">
         рендер 1 кадр/промпт: ⧉ копирует POS и NEG слота раздельно — вставляй в поля PixAI/Tsubaki
         по очереди; галочка отмечает отрендеренное — счётчик живёт в этом браузере и переживает
         перезагрузку.
@@ -1705,6 +1749,53 @@ function BatchCompare({
    *  суде автора), но с одного клика можно утянуть базу. */
   const [copySide, setCopySide] = useState<'a' | 'b'>('b')
 
+  /* Трекер рендера пары: чекбокс строки отмечает слот в ОБОИХ сторонах
+   *  (те же ключи, что трекер режима Просмотра — счётчики едины). Пара
+   *  меняется — память перечитывается (присвоение при рендере, не эффект:
+   *  реакт-линт запрещает set-state-in-effect). */
+  const [pairKey, setPairKey] = useState('')
+  const [pairDone, setPairDone] = useState<string[]>([])
+  const ready = parsedA != null && parsedB != null && a !== '' && b !== '' && a !== b
+  const curPair = ready ? `${a}::${b}` : ''
+  if (curPair !== pairKey) {
+    setPairKey(curPair)
+    setPairDone(curPair === '' ? [] : loadPairDone(a, b, parsedA!, parsedB!))
+  }
+
+  function togglePairDone(id: string) {
+    const willDone = !pairDone.includes(id)
+    setPairDone((cur) => (willDone ? [...cur, id] : cur.filter((x) => x !== id)))
+    /* пишем только стороны, где слот есть; ключи те же, что в Просмотре */
+    for (const [slug, parsed] of [
+      [a, parsedA],
+      [b, parsedB],
+    ] as const) {
+      if (!parsed || !parsed.slots.some((s) => s.id === id)) continue
+      const cur = loadRenderProgress(slug)
+      saveRenderProgress(slug, willDone ? (cur.includes(id) ? cur : [...cur, id]) : cur.filter((x) => x !== id))
+    }
+  }
+
+  /* Счётчики прогресса пары — те же числа, что трекер Просмотра каждой стороны */
+  const aTotal = parsedA?.slots.length ?? 0
+  const bTotal = parsedB?.slots.length ?? 0
+  const aDoneN = a !== '' && aTotal > 0 ? loadRenderProgress(a).length : 0
+  const bDoneN = b !== '' && bTotal > 0 ? loadRenderProgress(b).length : 0
+  const pairDoneSet = new Set(pairDone)
+
+  /* Дифф-документ пары — квиток одним файлом (сгенерировано buildDiffMarkdown,
+   *  тот же разбор, что на экране). */
+  function downloadDiff() {
+    if (!ready || !parsedA || !parsedB) return
+    const md = buildDiffMarkdown(a, b, parsedA, parsedB)
+    const url = URL.createObjectURL(new Blob([md], { type: 'text/markdown;charset=utf-8' }))
+    const el = document.createElement('a')
+    el.href = url
+    el.download = `diff-${a}_to_${b}.md`
+    el.click()
+    URL.revokeObjectURL(url)
+  }
+
   /* Слоты, выровненные по позиции: объединение id обеих сторон. */
   const rows = useMemo(() => {
     const map = new Map<string, { id: string; a?: SlotMd; b?: SlotMd }>()
@@ -1786,7 +1877,7 @@ function BatchCompare({
               onClick={() => setCopySide(side)}
               aria-pressed={copySide === side}
               className={cn(
-                'rounded-[5px] px-2 py-1 text-[11px] font-medium uppercase tracking-wide transition-colors',
+                'rounded-[5px] px-2 py-1 text-[11px] font-medium uppercase tracking-wide transition-all active:scale-95',
                 copySide === side
                   ? side === 'a'
                     ? 'bg-amber-500/15 text-amber-300'
@@ -1798,10 +1889,21 @@ function BatchCompare({
             </button>
           ))}
         </div>
+        <button
+          type="button"
+          onClick={downloadDiff}
+          disabled={!ready}
+          title="Скачать дифф пары одним .md-документом — та же перестройка, что на экране, файлом"
+          className="inline-flex shrink-0 items-center gap-1 rounded-md border border-zinc-700/70 bg-zinc-800/50 px-1.5 py-1 text-[10px] font-medium leading-4 text-zinc-400 transition-all outline-none hover:border-amber-500/50 hover:text-amber-300 focus-visible:ring-1 focus-visible:ring-amber-500/60 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          <Download className="size-3" />
+          дифф .md
+        </button>
       </div>
-      <p className="text-[11px] leading-relaxed text-zinc-600">
-        роза — убрано из A · изумруд — добавлено в B · цинк — общее (в порядке B). Чтение диффа —
-        глазами, не верой: это разбор текста промпта, а не рендера.
+      <p className="text-[11px] leading-relaxed text-zinc-500">
+        роза — убрано из A · изумруд — добавлено в B · цинк — общее (в порядке B). Чекбокс строки
+        отмечает слот отрендеренным в обеих сторонах — счётчики те же, что трекер Просмотра.
+        Чтение диффа — глазами, не верой: это разбор текста промпта, а не рендера.
       </p>
 
       {loading || detailA.loading || detailB.loading ? (
@@ -1820,6 +1922,12 @@ function BatchCompare({
           <div className="flex flex-wrap items-center gap-1.5">
             <Chip tone="zinc">A: {parsedA.slots.length} слотов</Chip>
             <Chip tone="zinc">B: {parsedB.slots.length}</Chip>
+            <Chip tone={aDoneN >= aTotal && aTotal > 0 ? 'emerald' : aDoneN > 0 ? 'amber' : 'zinc'}>
+              рендер A {aDoneN}/{aTotal}
+            </Chip>
+            <Chip tone={bDoneN >= bTotal && bTotal > 0 ? 'emerald' : bDoneN > 0 ? 'amber' : 'zinc'}>
+              рендер B {bDoneN}/{bTotal}
+            </Chip>
             {stats.onlyA > 0 ? <Chip tone="rose">только в A: {stats.onlyA}</Chip> : null}
             {stats.onlyB > 0 ? <Chip tone="emerald">новых в B: {stats.onlyB}</Chip> : null}
             <Chip tone="amber">POS +{stats.posAdd} · −{stats.posRem}</Chip>
@@ -1839,7 +1947,14 @@ function BatchCompare({
           ) : null}
           <div className="space-y-1.5">
             {rows.map((r) => (
-              <SlotDiff key={r.id} a={r.a} b={r.b} copySide={copySide} />
+              <SlotDiff
+                key={r.id}
+                a={r.a}
+                b={r.b}
+                copySide={copySide}
+                done={pairDoneSet.has(r.id)}
+                onToggleDone={() => togglePairDone(r.id)}
+              />
             ))}
           </div>
         </>
@@ -1859,8 +1974,21 @@ function MetaChip({ va, vb }: { va: string; vb: string }) {
 }
 
 /** Одна строка сравнения: шапка (свёрнуто/развернуто) + тело диффа.
- *  copySide — сторона для ⧉POS/⧉NEG: обе есть — выбранная, одна — она сама. */
-function SlotDiff({ a, b, copySide }: { a?: SlotMd; b?: SlotMd; copySide: 'a' | 'b' }) {
+ *  copySide — сторона для ⧉POS/⧉NEG: обе есть — выбранная, одна — она сама.
+ *  done/onToggleDone — трекер рендера пары: чекбокс отмечает слот в обеих сторонах. */
+function SlotDiff({
+  a,
+  b,
+  copySide,
+  done,
+  onToggleDone,
+}: {
+  a?: SlotMd
+  b?: SlotMd
+  copySide: 'a' | 'b'
+  done?: boolean
+  onToggleDone?: () => void
+}) {
   /* null = авто: развёрнуто, если есть структурная перестройка */
   const [open, setOpen] = useState<boolean | null>(null)
   const dP: TokenDiff = diffTokens(a?.pos ?? '', b?.pos ?? '')
@@ -1887,10 +2015,23 @@ function SlotDiff({ a, b, copySide }: { a?: SlotMd; b?: SlotMd; copySide: 'a' | 
     <div
       className={cn(
         'rounded-md border transition-colors',
-        onlyIn ? 'border-zinc-800 bg-zinc-900/30' : 'border-zinc-800 bg-zinc-900/60'
+        done
+          ? 'border-emerald-800/50 bg-emerald-950/20 hover:border-emerald-700/50'
+          : onlyIn
+            ? 'border-zinc-800 bg-zinc-900/30 hover:border-zinc-700/80'
+            : 'border-zinc-800 bg-zinc-900/60 hover:border-zinc-700/80'
       )}
     >
       <div className="flex items-center gap-1 px-2 py-1.5 sm:px-3">
+        {onToggleDone ? (
+          <Checkbox
+            checked={done ?? false}
+            onCheckedChange={onToggleDone}
+            aria-label={`${a?.id ?? b?.id ?? ''} отрендерен в паре`}
+            title={done ? `Снять отметку ${a?.id ?? b?.id ?? ''} (обе стороны)` : `Отметить ${a?.id ?? b?.id ?? ''} отрендеренным в обеих сторонах`}
+            className="size-3.5 shrink-0 rounded-[4px] border-zinc-700 bg-zinc-900 transition-colors hover:border-emerald-500/60 data-[state=checked]:border-emerald-500 data-[state=checked]:bg-emerald-500 data-[state=checked]:text-zinc-950"
+          />
+        ) : null}
         <button
           type="button"
           onClick={() => setOpen(!(open ?? structural))}
@@ -1900,13 +2041,15 @@ function SlotDiff({ a, b, copySide }: { a?: SlotMd; b?: SlotMd; copySide: 'a' | 
           <ChevronRight
             className={cn('size-3.5 shrink-0 text-zinc-600 transition-transform', expanded && 'rotate-90')}
           />
-          <Mono>{a?.id ?? b?.id}</Mono>
+          <Mono className={done ? 'text-emerald-300/80' : undefined}>{a?.id ?? b?.id}</Mono>
           {a && b && a.slug !== b.slug ? (
             <span className="truncate text-[11px] text-zinc-500">
               {a.slug} <span className="text-amber-500/70">→</span> {b.slug}
             </span>
           ) : (
-            <span className="truncate text-[11px] text-zinc-400">{(a ?? b)?.slug}</span>
+            <span className={cn('truncate text-[11px]', done ? 'text-zinc-600' : 'text-zinc-400')}>
+              {(a ?? b)?.slug}
+            </span>
           )}
           {onlyIn === 'A' ? <Chip tone="rose">только в A</Chip> : null}
           {onlyIn === 'B' ? <Chip tone="emerald">новый в B</Chip> : null}
@@ -3901,7 +4044,7 @@ export default function Home() {
                   onClick={() => setTab(t.id)}
                   title={`${t.label} · клавиша ${(i + 1) % 10}`}
                   className={cn(
-                    'flex shrink-0 items-center gap-1.5 rounded-md border-b-2 px-3 py-1.5 text-xs font-medium transition-all',
+                    'flex shrink-0 items-center gap-1.5 rounded-md border-b-2 px-3 py-1.5 text-xs font-medium transition-all outline-none focus-visible:ring-1 focus-visible:ring-amber-500/50',
                     tab === t.id
                       ? 'border-fuchsia-500 bg-zinc-800/40 text-amber-300'
                       : 'border-transparent text-zinc-500 hover:bg-zinc-800/40 hover:text-zinc-300'
@@ -3930,16 +4073,20 @@ export default function Home() {
       </header>
 
       <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-6 sm:px-6">
-        {tab === 'state' ? <StateTab /> : null}
-        {tab === 'constitution' ? <DocsTab /> : null}
-        {tab === 'specs' ? <SpecsTab /> : null}
-        {tab === 'compile' ? <CompileTab /> : null}
-        {tab === 'batches' ? <BatchesTab /> : null}
-        {tab === 'events' ? <EventsTab /> : null}
-        {tab === 'verdicts' ? <VerdictsTab /> : null}
-        {tab === 'glass' ? <GlassTab /> : null}
-        {tab === 'vault' ? <VaultTab /> : null}
-        {tab === 'archive' ? <ArchiveTab /> : null}
+        {/* key={tab}: смена вкладки — тихий подъём контента (t4-tab-enter),
+            *  состав вкладок не меняется — рефетч не чаще прежнего условного рендера */}
+        <div key={tab} className="t4-tab-enter">
+          {tab === 'state' ? <StateTab /> : null}
+          {tab === 'constitution' ? <DocsTab /> : null}
+          {tab === 'specs' ? <SpecsTab /> : null}
+          {tab === 'compile' ? <CompileTab /> : null}
+          {tab === 'batches' ? <BatchesTab /> : null}
+          {tab === 'events' ? <EventsTab /> : null}
+          {tab === 'verdicts' ? <VerdictsTab /> : null}
+          {tab === 'glass' ? <GlassTab /> : null}
+          {tab === 'vault' ? <VaultTab /> : null}
+          {tab === 'archive' ? <ArchiveTab /> : null}
+        </div>
       </main>
 
       <footer className="mt-auto border-t border-zinc-800/80 bg-zinc-950 pb-[env(safe-area-inset-bottom)]">
@@ -3948,10 +4095,12 @@ export default function Home() {
           <span className="flex items-center gap-3">
             <span className="hidden items-center gap-1 md:flex">
               клавиши
-              <kbd className="rounded border border-zinc-700 bg-zinc-800 px-1 font-mono text-[10px] text-zinc-400">1</kbd>
+              <kbd className="rounded border border-b-2 border-zinc-700 bg-gradient-to-b from-zinc-800 to-zinc-900 px-1 font-mono text-[10px] text-zinc-400 shadow-sm">1</kbd>
               –
-              <kbd className="rounded border border-zinc-700 bg-zinc-800 px-1 font-mono text-[10px] text-zinc-400">0</kbd>
-              — вкладки
+              <kbd className="rounded border border-b-2 border-zinc-700 bg-gradient-to-b from-zinc-800 to-zinc-900 px-1 font-mono text-[10px] text-zinc-400 shadow-sm">0</kbd>
+              — вкладки ·
+              <kbd className="rounded border border-b-2 border-zinc-700 bg-gradient-to-b from-zinc-800 to-zinc-900 px-1 font-mono text-[10px] text-zinc-400 shadow-sm">/</kbd>
+              — поиск
             </span>
             <span className="font-mono">гейты — см. Состояние · салиенс + noun-lock + коллизия · приёмник батча · сейф</span>
           </span>
