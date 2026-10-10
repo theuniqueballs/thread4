@@ -50,6 +50,7 @@ export const FAMILY_SHIELD: { marker: RegExp; neg: string[] }[] = [
   { marker: /frog/i, neg: ['human ears', 'separate fingers', 'normal eyes'] },
   { marker: /flower|petal|plant|vine/i, neg: ['no petals', 'no vines', 'plain human skin'] },
   { marker: /salamander|flame|ember/i, neg: ['no crest', 'no embers', 'normal skin texture'] },
+  { marker: /porcelain|doll|bisque|ball-?joint/i, neg: ['normal human skin', 'no joints', 'subsurface glow'] },
 ]
 
 /** anti-shield, выведенный из features, когда семейство не опознано. */
