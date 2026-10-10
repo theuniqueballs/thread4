@@ -106,6 +106,9 @@ export interface SlotPlan {
   pinned?: string[]
   /** rehab-добор (Залп 3): канал доставки, который этот слот пытается оживить */
   targetChannel?: string
+  /** rehab-добор: конфигурация оживления из delivery-stats (закон №21/№14-чепи) —
+   *  писец обязан строить кадр по этой конфигурации, не по голому имени канала */
+  targetChannelNote?: string
   /** НИША-50: архетип невозможного композиции (ротация без повторов в батче) */
   arch?: string
 }
@@ -130,6 +133,12 @@ export interface BatchContract {
   abPairs: { pair: string; a: number; b: number; lead: string }[]
   /** author_pin (Залп 2): каналы, назначенные вопреки статистике — прицел автора */
   authorPin?: string[]
+  /** Пожелания автора к мейнам (draft → контракт, §10): закон энергии батча —
+   *  писец вплетает в каждый слот; приходит из черновика UI автора */
+  authorWishes?: string
+  /** Провенанс черновика UI (drafts/T4-NN-draft.json) — контракт скомпилирован
+   *  из авторского брифа, не из головы генератора */
+  draftRef?: string
   carrierStats: {
     wSharePct: number
     sheerRplusPct: number

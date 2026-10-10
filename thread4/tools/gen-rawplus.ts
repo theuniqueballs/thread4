@@ -34,14 +34,16 @@ import path from 'node:path'
 
 import { windowOthersFor } from '../../src/lib/t4/gates'
 import { foldState, readEvents } from '../../src/lib/t4/events'
-import { CONTRACTS_DIR, readJson, writeJson, writeText } from '../../src/lib/t4/fsutil'
+import { CONTRACTS_DIR, DRAFTS_DIR, readJson, writeJson, writeText } from '../../src/lib/t4/fsutil'
 import {
   getCarriers,
   getDeliveryStats,
   getHairEyeLibrary,
+  getNicheArchetypes,
   getOCCanon,
   getPalettes,
   getPolicy,
+  getPoses,
 } from '../../src/lib/t4/specs'
 import { buildBlock, loadRaces, type RaceEntry } from './kin-block'
 
@@ -186,6 +188,8 @@ export interface RawPlusSlot {
   position: number
   kind: 'OC' | 'NICHE' | 'VOLT' | 'EXQUISITE'
   oc?: string
+  /** тема ОС из брифа автора (позиция → тема; §10: тема автора в слоте) */
+  ocTheme?: string
   rating: 'PG-13' | 'R' | 'R+' | 'X'
   race?: string
   raceId?: string
@@ -203,7 +207,18 @@ export interface RawPlusSlot {
   hair: string
   eyes: string
   hairEyeFrom: 'canon' | 'suggestion' | 'library'
+  lead: string
   register: string
+  closer: string
+  /** НИША/движок: объект-свидетель (гейт требует в кадре) */
+  witness?: string
+  /** НИША-50: архетип невозможного */
+  arch?: string
+  /** A/B-пара (§10): один канал, разная подача */
+  ab?: { pair: string; half: 'A' | 'B'; withSlot: number; lead: string }
+  /** rehab-добор: канал + конфиг оживления из delivery-stats */
+  targetChannel?: string
+  targetChannelNote?: string
   echo?: string[]
 }
 
@@ -224,10 +239,54 @@ export interface PlanOptions {
   ocOrder?: string[]
   exquisite?: number
   rebuildOf?: string
+  /** Авторский бриф из UI (drafts/T4-NN-draft.json): виды, темы ОС,
+   *  пожелания, abPairs, rehab — перекрывают умолчания по §10. */
+  draft?: DraftBrief
   /** Живое состояние (main) или синтетика (selftest). Чистая функция. */
   windowSlugs: string[]
   ocAppearances: Record<string, number>
 }
+
+/* ------------------------------------------------------------------ */
+/* Черновик UI автора — бриф контракта (Issue #21: входы low-trust       */
+/* не компилируются сами — писец собирает по письменному брифу)          */
+/* ------------------------------------------------------------------ */
+
+export interface DraftBrief {
+  slug: string
+  theme: string
+  ocThemes: { theme: string; rating: string; wishes?: string; position: number }[]
+  mainWishes: string
+  species?: { on: boolean; count: number; list: string[] }
+  xSlots: number
+  abPairs: number
+  rehab: boolean
+  engine: string
+}
+
+/** Читает черновик по слагу (drafts/T4-NN-draft.json); null — нет файла. */
+export function readDraft(slug: string): DraftBrief | null {
+  const p = path.join(DRAFTS_DIR, `${slug}-draft.json`)
+  if (!fs.existsSync(p)) return null
+  try {
+    return JSON.parse(fs.readFileSync(p, 'utf-8')) as DraftBrief
+  } catch {
+    return null
+  }
+}
+
+/* Списки компилятора (compiler.ts — единственный источник; здесь —
+   те же константы для заполнения плана слота) */
+const LEAD_ZONES = [
+  'hands', 'throat', 'collarbone', 'breasts', 'waist', 'hips', 'seat',
+  'thighs', 'hamstrings', 'nape', 'cheeks', 'shoulders', 'back',
+]
+const CLOSER_CLASSES = ['dialogue', 'long-fused', 'fragment-pair', 'image-close', 'action-close']
+const WITNESS_TYPES = [
+  'mirror', 'shop glass', 'security monitor', 'door gap', 'propped phone',
+  'traffic mirror', 'level gauge', 'window pane', 'wet street', 'elevator brass',
+  'photo frame', 'spoon', 'watch face', 'car hood', 'fountain edge',
+]
 
 /* ------------------------------------------------------------------ */
 /* Ядро плана                                                          */
@@ -273,15 +332,14 @@ export function planRawPlus(opts: PlanOptions): RawPlusPlan {
     ocPicks = [...opts.ocOrder]
   }
   if (ocPicks.length < law.ocSlots) {
-    const rest = rng.shuffle(
-      ocNames
-        .filter((n) => !ocPicks.includes(n))
-        .sort(
-          (a, b) =>
-            (opts.ocAppearances[a] ?? 0) - (opts.ocAppearances[b] ?? 0) ||
-            a.localeCompare(b)
-        )
-    )
+    /* ротация по served: наименее обслуженные вперёд (T4-27-традиция);
+     * перемешивание ДО стабильной сортировки — равные по served расы/имена
+     * получают случайный порядок, но приоритет счётчика не разрушается
+     * (фикс: раньше shuffle шёл ПОСЛЕ sort и рвал приоритет — брифы автора
+     * получали давно обслуженных OC вместо свежих) */
+    const rest = rng
+      .shuffle(ocNames.filter((n) => !ocPicks.includes(n)))
+      .sort((a, b) => (opts.ocAppearances[a] ?? 0) - (opts.ocAppearances[b] ?? 0))
     ocPicks = [...ocPicks, ...rest.slice(0, law.ocSlots - ocPicks.length)]
   }
   ocPicks = ocPicks.slice(0, law.ocSlots)
@@ -314,13 +372,44 @@ export function planRawPlus(opts: PlanOptions): RawPlusPlan {
     ;[laid[bad], laid[swapWith]] = [laid[swapWith], laid[bad]]
   }
 
-  /* --- расовый каст: N уникальных рас на мейнах (закон №3) --- */
-  const raceQuota = Math.max(0, opts.races ?? law.racialDefault)
-  const racePool = rng.shuffle(loadRaces())
-  if (raceQuota > racePool.length) {
-    throw new Error(`квота рас ${raceQuota} > пула ${racePool.length}`)
+  /* --- расовый каст: N уникальных рас на мейнах (закон №3) ---
+   * Черновик автора (§10): список видов важнее квоты — бриф задаёт
+   * КОНКРЕТНЫЕ расы; ротация из пула — только fallback без брифа. */
+  const draftSpecies = opts.draft?.species
+  const allRaces = loadRaces()
+  let raceQuota: number
+  let pickedRaces: RaceEntry[]
+  if (draftSpecies?.on && draftSpecies.list?.length) {
+    const byId = new Map(allRaces.map((r) => [r.id, r]))
+    const wanted: RaceEntry[] = []
+    for (const id of draftSpecies.list) {
+      const r = byId.get(id)
+      if (!r) throw new Error(`черновик: раса ${id} не найдена в races.json — проверь список видов`)
+      wanted.push(r)
+    }
+    if (wanted.length !== draftSpecies.list.length) {
+      throw new Error(`черновик: дубликаты видов в списке (${draftSpecies.list.join(', ')})`)
+    }
+    raceQuota = wanted.length
+    pickedRaces = rng.shuffle(wanted)
+    if (raceQuota > law.mainsTotal) {
+      throw new Error(`черновик: видов ${raceQuota} > мейнов ${law.mainsTotal} — каждый вид должен получить слот`)
+    }
+  } else {
+    raceQuota = Math.max(0, opts.races ?? law.racialDefault)
+    const racePool = rng.shuffle(allRaces)
+    if (raceQuota > racePool.length) {
+      throw new Error(`квота рас ${raceQuota} > пула ${racePool.length}`)
+    }
+    pickedRaces = racePool.slice(0, raceQuota)
   }
-  const pickedRaces: RaceEntry[] = racePool.slice(0, raceQuota)
+  /* X-слоты изъяты из плана (вердикт автора 2026-09-27, law.x_note);
+   * черновик с X > 0 без авторского пина — отказ: генератор не вправе */
+  if ((opts.draft?.xSlots ?? 0) > 0) {
+    throw new Error(
+      `черновик: xSlots=${opts.draft?.xSlots} — X-слоты изъяты из плана (вердикт 2026-09-27 «хорошее эччи намного лучше любого порно»); возвращение — только авторский пин`
+    )
+  }
   /* NICHE — природный носитель расы (гейт ниши требует расу-работу + свидетеля);
      распределяем: не менее половины квоты на NICHE, остальные по мейнам */
   const mainPositions = Array.from({ length: law.mainsTotal }, (_, i) => law.ocSlots + 1 + i)
@@ -358,6 +447,13 @@ export function planRawPlus(opts: PlanOptions): RawPlusPlan {
     }
   }
   const mechs = [...mechToCarriers.keys()].filter((m) => (mechToCarriers.get(m)?.length ?? 0) > 0)
+  /* sheer-семья (гейт diversity: ≤2 sheer-носителей на R+ слот, кадры ≤40%) */
+  const sheerFamilyIds = new Set<string>(
+    (Object.values(carriersSpec?.classes ?? {}) as { id: string; sheer_family?: boolean }[][])
+      .flat()
+      .filter((c) => c?.sheer_family)
+      .map((c) => c.id)
+  )
   const seenStacks = new Set<string>()
   const stackFor = (): { id: string; name: string; cls: string }[] => {
     for (let attempt = 0; attempt < 10; attempt++) {
@@ -372,6 +468,45 @@ export function planRawPlus(opts: PlanOptions): RawPlusPlan {
     return rng.shuffle(mechs).slice(0, law.core4Groups).map((g) => rng.pick(mechToCarriers.get(g)!))
   }
 
+  /* --- спайн слотов: позы, кинетика, LEAD-зоны, клоузеры, свидетели,
+   *  архетипы НИШИ, регистры третями — план больше не болванка,
+   *  писец получает назначенный спайн (закон 24 позы/24 палитры) --- */
+  const posesSpec = getPoses()
+  if (!posesSpec) throw new Error('poses.json отсутствует — генератору нужен пул поз')
+  /* позы окна: чужие PL-иды исключаются (окно — позы тоже, не только палитры) */
+  const windowPoses = new Set<string>()
+  for (const w of windowOthers) {
+    const wc = readJson<{ slots: { pose?: string }[] }>(path.join(CONTRACTS_DIR, `${w}.json`))
+    for (const s of wc?.slots ?? []) if (s.pose) windowPoses.add(s.pose)
+  }
+  const posePool = rng.shuffle(posesSpec.poses.filter((p) => !windowPoses.has(p.id)))
+  if (posePool.length < law.slotsTotal) {
+    throw new Error(`поз вне окна мало: ${posePool.length} < ${law.slotsTotal}`)
+  }
+  const chosenPoses = posePool.slice(0, law.slotsTotal)
+  const poolsSpec = readJson<{ sections: Record<string, { id: string; name?: string }[]> }>(
+    path.join(process.cwd(), 'thread4', 'specs', 'pools.json')
+  )
+  const kPool = rng.shuffle(poolsSpec?.sections?.kinetics_k ?? []).map((k) => k.id)
+  const archPool = rng.shuffle(getNicheArchetypes()?.archetypes ?? []).map((a) => a.id)
+  const witnessPool = rng.shuffle(WITNESS_TYPES)
+  const closerPool = rng.shuffle(CLOSER_CLASSES)
+  const registers: ('student' | 'young' | 'milf')[] = ['student', 'young', 'milf']
+  const leadPool = rng.shuffle(LEAD_ZONES)
+  let leadIdx = 0
+  let closerIdx = 0
+  let kIdx = 0
+  let archIdx = 0
+  let witnessIdx = 0
+
+  /* --- OC-темы из брифа (позиция → тема + рейтинг; wishes — в THESIS писца) --- */
+  const draftOcThemes = new Map<number, { theme: string; rating: string; wishes?: string }>()
+  for (const t of opts.draft?.ocThemes ?? []) {
+    if (t.position >= 1 && t.position <= law.ocSlots) {
+      draftOcThemes.set(t.position, { theme: t.theme, rating: t.rating, wishes: t.wishes })
+    }
+  }
+
   /* --- слоты --- */
   const slots: RawPlusSlot[] = []
   for (let i = 0; i < law.slotsTotal; i++) {
@@ -380,22 +515,29 @@ export function planRawPlus(opts: PlanOptions): RawPlusPlan {
     if (i < law.ocSlots) {
       const name = ocPicks[i]
       const canon = ocCanon?.ocs[name]
+      const pose = chosenPoses[i]
+      const ocBrief = draftOcThemes.get(position)
       slots.push({
         position,
         kind: 'OC',
         oc: name,
-        rating: ocRating,
-        pose: '',
-        poseName: `${opts.slug.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-oc${position}`,
-        poseRisk: '',
+        ...(ocBrief
+          ? { ocTheme: ocBrief.theme + (ocBrief.wishes ? ` — автор: ${ocBrief.wishes}` : '') }
+          : {}),
+        rating: ocBrief?.rating === 'R+' || ocBrief?.rating === 'R' ? (ocBrief.rating as 'R' | 'R+') : ocRating,
+        pose: pose.id,
+        poseName: pose.name,
+        poseRisk: pose.risk,
         palette: palette.id,
         paletteName: palette.name,
-        kinetics: [],
+        kinetics: kPool.length ? [kPool[kIdx++ % kPool.length]] : [],
         carriers: stackFor(),
         hair: canon?.hair ?? '',
         eyes: canon?.eyes ?? '',
         hairEyeFrom: 'canon',
+        lead: leadPool[leadIdx++ % leadPool.length],
         register: 'oc',
+        closer: closerPool[closerIdx++ % closerPool.length],
       })
       continue
     }
@@ -424,6 +566,8 @@ export function planRawPlus(opts: PlanOptions): RawPlusPlan {
       from = 'library'
     }
     prevHair = hair
+    const pose = chosenPoses[i]
+    const isNiche = kind === 'NICHE'
     slots.push({
       position,
       kind,
@@ -435,28 +579,121 @@ export function planRawPlus(opts: PlanOptions): RawPlusPlan {
             kinPos: kin?.pos,
             kinNeg: kin?.neg,
             kinHook: kin?.hook,
-            ...(kind === 'NICHE'
+            ...(isNiche
               ? { witnessHint: 'свидетель в кадре обязателен (mirror/glass/monitor/phone/gauge…)' }
               : {}),
           }
         : {}),
-      pose: '',
-      poseName: `${opts.slug.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-p${String(position).padStart(2, '0')}`,
-      poseRisk: '',
+      pose: pose.id,
+      poseName: pose.name,
+      poseRisk: pose.risk,
       palette: palette.id,
       paletteName: palette.name,
-      kinetics: [],
+      kinetics: kPool.length ? [kPool[kIdx++ % kPool.length]] : [],
       carriers: stackFor(),
       hair,
       eyes,
       hairEyeFrom: from,
-      register: 'student',
+      lead: leadPool[leadIdx % leadPool.length],
+      register: registers[Math.floor(mainIdx / (law.mainsTotal / 3))] ?? 'student',
+      closer: closerPool[closerIdx++ % closerPool.length],
+      /* НИША-50: архетип невозможного + свидетель — ротация без повторов */
+      ...(isNiche
+        ? {
+            arch: archPool[archIdx++ % archPool.length],
+            witness: witnessPool[witnessIdx++ % witnessPool.length],
+          }
+        : {}),
     })
+    leadIdx++
   }
   const distinctHair = new Set(slots.filter((s) => s.kind !== 'OC').map((s) => s.hair)).size
   report.push(
     `hair/eye: ${followed} по подсказке палитры · ${deviated} независимо (E3 ~50/50); различных волос на мейнах ${distinctHair}/${law.mainsTotal}`
   )
+
+  /* --- A/B-пары (§10-поправка): один канал доставки (LEAD-зона общая),
+   *  разная подача; стек B = стек A с ОДНОЙ заменой носителя той же
+   *  мех-группы (diff по id = 2 — гейт ab-single-variable). Пары — только
+   *  VOLT R+: NICHE занята невозможным, EXQUISITE — ультра своего жанра. --- */
+  const clsToMech = (cls: string) => carriersSpec?.class_defs?.[cls]?.mech ?? '?'
+  const abPairs: { pair: string; a: number; b: number; lead: string }[] = []
+  {
+    const voltPositions = slots.filter((s) => s.kind === 'VOLT' && s.rating === 'R+').map((s) => s.position)
+    const wanted = Math.max(
+      law.abPairsMin,
+      Math.min(opts.draft?.abPairs ?? law.abPairsMin, law.abPairsMax)
+    )
+    const letters = ['κ', 'λ', 'μ', 'ν', 'ξ']
+    const zones = rng.shuffle(LEAD_ZONES)
+    let cursor = 0
+    for (let pi = 0; pi < wanted && cursor + 1 < voltPositions.length; pi++) {
+      const aPos = voltPositions[cursor]
+      const bPos = voltPositions[cursor + 1]
+      cursor += 2
+      const sa = slots.find((s) => s.position === aPos)!
+      const sb = slots.find((s) => s.position === bPos)!
+      for (let attempt = 0; attempt < 12; attempt++) {
+        const stack = sa.carriers.map((c) => ({ ...c }))
+        const swapIdx = Math.floor(rng.next() * stack.length)
+        const group = mechToCarriers.get(clsToMech(stack[swapIdx].cls)) ?? []
+        const alt = rng.pick(group.filter((c) => c.id !== stack[swapIdx].id))
+        if (!alt) continue
+        stack[swapIdx] = { id: alt.id, name: alt.name, cls: alt.cls }
+        const sig = stack.map((c) => c.id).sort().join('+')
+        if (seenStacks.has(sig)) continue
+        seenStacks.add(sig)
+        sb.carriers = stack
+        break
+      }
+      const lead = zones[pi % zones.length]
+      sa.ab = { pair: letters[pi], half: 'A', withSlot: bPos, lead }
+      sb.ab = { pair: letters[pi], half: 'B', withSlot: aPos, lead }
+      /* LEAD-зона пары общая — перекрывает индивидуальные лиды половин */
+      sa.lead = lead
+      sb.lead = lead
+      abPairs.push({ pair: letters[pi], a: aPos, b: bPos, lead })
+    }
+    if (abPairs.length > 0) {
+      report.push(
+        `A/B-пары §10: ${abPairs.map((p) => `${p.pair} P${p.a}↔P${p.b} (${p.lead})`).join(' · ')} — один канал, разная подача, одна замена носителя в стеке B`
+      )
+    }
+  }
+
+  /* --- rehab-добор (Залп 3): слоты несут канал реанимации с конфигом
+   *  оживления из delivery-stats (закон №21 свет-на-зоне, §9-цепь, №14
+   *  чистый NEG) — не голое имя канала, а проверенная конфигурация. --- */
+  if (opts.draft?.rehab) {
+    const policyChannels = getPolicy().channels as { rehab_channels?: string[]; rehab_quota_per_batch?: number } | undefined
+    const dsChannels = getDeliveryStats()?.channels ?? []
+    const dsRehab = dsChannels.filter((c) => c.status === 'rehab')
+    /* порядок доверия: policy-список вперёд, потом ds-rehab с известными
+     *  конфигами оживления (карта T4-26: dry-sheer §9-цепь; wet-sheer-flat
+     *  чистый NEG + натяжение + свет-на-зоне); static-cling/underlayer —
+     *  похоронены вердиктами, в добор не идут */
+    const trustOrder = [...(policyChannels?.rehab_channels ?? []), 'wet-sheer-flat', 'static-cling', 'underlayer']
+    const quota = Math.max(1, Math.min(policyChannels?.rehab_quota_per_batch ?? 2, 4))
+    const chosen: typeof dsRehab = []
+    for (const id of trustOrder) {
+      const ch = dsRehab.find((c) => c.id === id)
+      if (ch && !chosen.includes(ch)) chosen.push(ch)
+      if (chosen.length >= quota) break
+    }
+    const voltFree = slots.filter((s) => s.kind === 'VOLT' && !s.ab)
+    chosen.forEach((ch, i) => {
+      const target = voltFree[i]
+      if (!target) return
+      target.targetChannel = ch.id
+      const note = (ch as { note?: string }).note
+      if (note) target.targetChannelNote = String(note).slice(0, 420)
+    })
+    if (chosen.length > 0) {
+      report.push(
+        `rehab-добор: ${chosen.map((c) => c.id).join(', ')} — конфигурация оживления в targetChannelNote слота (Залп 3, закон №21 + §9-цепь)`
+      )
+    }
+  }
 
   /* --- echo-мотивы: 2-3, арка трёх актов, мутации из разных групп --- */
   const echoCount = Math.max(2, Math.min(opts.echo ?? 3, 3))
@@ -523,6 +760,8 @@ export function planRawPlus(opts: PlanOptions): RawPlusPlan {
     engineWhy:
       'кины потеряны в RAW-миграции с T4-23 по небрежности генераторов (закон №3 не отменялся); практики A5 (hair/eye библиотека, echo-мотивы) не доехали в спеки RAW-эры — возвращены по приказу автора 2026-10-11',
     ...(opts.rebuildOf ? { rebuildOf: opts.rebuildOf } : {}),
+    ...(opts.draft?.mainWishes ? { authorWishes: opts.draft.mainWishes } : {}),
+    ...(opts.draft ? { draftRef: `thread4/drafts/${opts.draft.slug ?? opts.slug}-draft.json` } : {}),
     seed: opts.seed ?? Date.now(),
     createdAt: new Date().toISOString(),
     spread,
@@ -530,6 +769,7 @@ export function planRawPlus(opts: PlanOptions): RawPlusPlan {
       position: s.position,
       kind: s.kind,
       ...(s.oc ? { oc: s.oc } : {}),
+      ...(s.ocTheme ? { ocTheme: s.ocTheme } : {}),
       rating: s.rating,
       ...(s.race
         ? { race: s.race, raceId: s.raceId, kinPos: s.kinPos, kinNeg: s.kinNeg, ...(s.witnessHint ? { witnessHint: s.witnessHint } : {}) }
@@ -544,7 +784,14 @@ export function planRawPlus(opts: PlanOptions): RawPlusPlan {
       hair: s.hair,
       eyes: s.eyes,
       hairEyeFrom: s.hairEyeFrom,
+      lead: s.lead,
       register: s.register,
+      closer: s.closer,
+      ...(s.witness ? { witness: s.witness } : {}),
+      ...(s.arch ? { arch: s.arch } : {}),
+      ...(s.ab ? { ab: s.ab } : {}),
+      ...(s.targetChannel ? { targetChannel: s.targetChannel } : {}),
+      ...(s.targetChannelNote ? { targetChannelNote: s.targetChannelNote } : {}),
       ...(s.echo ? { echo: s.echo } : {}),
     })),
     ocRotation: ocPicks.map((n) => ({ name: n, served: opts.ocAppearances[n] ?? 0 })),
@@ -557,18 +804,35 @@ export function planRawPlus(opts: PlanOptions): RawPlusPlan {
       distinctHairOnMains: distinctHair,
     },
     echoMotifs,
-    abPairs: [] as unknown[],
-    carrierStats: { wSharePct: wShare },
+    abPairs,
+    carrierStats: {
+      wSharePct: wShare,
+      sheerRplusPct: Math.round(
+        (slots.filter((s) => s.rating === 'R+' && s.carriers.some((c) => sheerFamilyIds.has(c.id))).length /
+          Math.max(1, slots.filter((s) => s.rating === 'R+').length)) *
+          100
+      ),
+      wCapPct: law.wCapPct,
+      sheerFrameCapPct: law.sheerFrameCapPct,
+    },
     windowSlugs: opts.windowSlugs,
-    channelStats: { note: 'RAW+ генератор: каналы доставки назначает сборщик по технике-карте' },
+    channelStats: {
+      version: getDeliveryStats()?.version ?? '—',
+      live: (getDeliveryStats()?.channels ?? []).filter((c) => c.status === 'live').map((c) => c.id),
+      candidate: (getDeliveryStats()?.channels ?? []).filter((c) => c.status === 'candidate').map((c) => c.id),
+      dead: (getDeliveryStats()?.channels ?? []).filter((c) => c.status === 'dead').map((c) => c.id),
+      deadClaims: [] as { zone: string; channel: string; evidence: string }[],
+    },
     platform: 'yodayo',
     laws: [
       `${law.slotsTotal}-слотовый закон (${law.ocSlots} OC + ${law.mainsTotal} мейн)`,
       `спред мейнов: R+×${law.rplusMains} · R×${law.nicheCount} (NICHE R · VOLT R+ · EXQUISITE R+)`,
-      `расовый каст ${raceQuota} на мейнах (policy.law.racialDefault; закон №3 «race as mechanism»)`,
+      `расовый каст ${raceQuota} на мейнах (закон №3 «race as mechanism»)`,
       'hair/eye E3: канон для OC, библиотека для мейнов, подсказка палитры ~50%',
       'echo-мотивы F13: 2-3, арка I→II→III, мутация 1 spatial + 1 narrative/atmospheric',
       `стеки core-4: ${law.core4Groups} мех-группы из ${mechs.length} на каждом слоте`,
+      ...(opts.draft?.rehab ? ['rehab-добор (Залп 3): 2 слота несут конфиг оживления канала'] : []),
+      ...(opts.draft ? ['провенанс: черновик UI автора (drafts/) — контракт скомпилирован из брифа §10'] : []),
     ],
   }
 
@@ -668,9 +932,12 @@ function main() {
         '',
         '  bun thread4/tools/gen-rawplus.ts T4-28 "THEME NAME" [--seed N] [--races N] [--echo 2|3]',
         '                                     [--oc A,B,C] [--exquisite N] [--rebuild-of T4-NN] [--dry] [--force]',
+        '  bun thread4/tools/gen-rawplus.ts --from-draft T4-28 [--seed N] [--dry] [--force]',
         '  bun thread4/tools/gen-rawplus.ts --demo',
         '',
         'Квота рас — из policy.law.racialDefault (закон №3); перебивается --races на приказе автора (§10).',
+        '--from-draft — контракт из авторского брифа UI (drafts/T4-NN-draft.json): виды списком,',
+        '  темы ОС по позициям, пожелания, abPairs, rehab — перекрывают умолчания (§10).',
       ].join('\n')
     )
     return
@@ -684,9 +951,25 @@ function main() {
 
   let slug: string
   let theme: string
+  let draft: DraftBrief | null = null
   if (has('--demo')) {
     slug = 'T4-DEMO'
     theme = 'DEMO — песочница генератора (сухой план)'
+  } else if (has('--from-draft')) {
+    /* черновик UI автора — бриф главнее флагов (§10) */
+    slug = flag('--from-draft') ?? ''
+    if (!/^T4-[\dA-Za-z.-]+$/.test(slug)) {
+      console.error('--from-draft T4-NN — слаг обязателен')
+      process.exit(1)
+    }
+    draft = readDraft(slug)
+    if (!draft) {
+      console.error(`черновик drafts/${slug}-draft.json не найден — создай бриф в UI или руками`)
+      process.exit(1)
+    }
+    theme = draft.theme
+    console.log(`бриф автора: «${theme}» · ОС-тем ${draft.ocThemes.length} · видов ${draft.species?.on ? draft.species.list.length : 0} · abPairs ${draft.abPairs} · rehab ${draft.rehab ? 'да' : 'нет'}`)
+    if (draft.mainWishes) console.log(`пожелания: ${draft.mainWishes}`)
   } else {
     slug = args[0]
     theme = args[1] ?? ''
@@ -720,6 +1003,7 @@ function main() {
     ...(ocOrder ? { ocOrder } : {}),
     ...(exquisite !== undefined ? { exquisite } : {}),
     ...(rebuildOf ? { rebuildOf } : {}),
+    ...(draft ? { draft } : {}),
     windowSlugs: state.windowSlugs,
     ocAppearances: state.ocAppearances,
   })

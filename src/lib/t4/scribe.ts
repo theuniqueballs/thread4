@@ -308,6 +308,11 @@ function slotFrame(slot: SlotPlan, ctx: ScribeCtx): string {
       `A/B-ПАРА ${slot.ab.pair} — половина ${slot.ab.half}, пара с P${String(slot.ab.withSlot).padStart(2, '0')} (§10-поправка): LEAD-зона одна (${slot.ab.lead}) — ЗАЯВКА ОДИНАКОВАЯ (тот же механизм доставки: wet/sheer через именованную тонкую светлую вещь на этой зоне), ПОДАЧА РАЗНАЯ (поза/камера/свет назначены разные — не выравнивай их). Вердикт приёмника атрибутирует канал доставки, а не случай.`
     )
   }
+  if (slot.targetChannel) {
+    lines.push(
+      `REHAB target channel: ${slot.targetChannel} (добор по вердикту автора — сделай заявку этого канала доставки главным сигналом кадра)${slot.targetChannelNote ? `\nREHAB CONFIG (проверенная конфигурация оживления — строй кадр ПО НЕЙ, не по голому имени канала): ${slot.targetChannelNote}` : ''}`
+    )
+  }
   if (slot.rating === 'R+') {
     lines.push(`TECHNIQUE MAP (блок 8 — сумма слоёв): 3+ R-сигнала через 2+ слоя — заявка (слой 1) + состояние ткани (слой 4) + ≥1 кадровый тег (слой 2: from below / close-up / bent over / back arch; или слой 3: seductive smile / bedroom eyes / fanservice). Ловушки — не пиши: covering breasts, hair covering breasts, almost naked, torn clothes, clothes pull, bath/onsen, undressing. Супрессоры — не пиши: standing+shy, magazine cover, fashion editorial.`)
   }
@@ -461,6 +466,10 @@ function assembleBatch(
   const L: string[] = []
   L.push(`# THREAD 4 — Batch ${c.slug}: "${title}"`)
   L.push('')
+  if (c.authorWishes) {
+    L.push(`**ПРИКАЗ АВТОРА** (draft → контракт, §10): ${c.authorWishes}`)
+    L.push('')
+  }
   L.push(ctx.batchThesis.trim())
   L.push('')
   if (ctx.themeKeywords.length > 0) {
@@ -665,10 +674,13 @@ export async function scribeBatch(
 
   /* ---- call 0: batch spine (title, thesis, acts) ---- */
   say('Шаг 1/4: закон батча, название, три акта…')
+  const wishesBlock = contract.authorWishes
+    ? `\nAUTHOR'S WISHES (приказ автора этому батчу — закон энергии §10, виден в каждом кадре, не только в шапке): ${contract.authorWishes}`
+    : ''
   const spineRaw = await chat(
     zai,
     systemPrompt(),
-    `BATCH ${slug} «${theme}». THE THEME IS THE LAW.\n\nInvent a ONE-BATCH ENGINE for this theme (3.2-традиция, одноразовый): a physical law SPECIFIC to this theme that bends fabric, light, physics and wardrobe in every frame — not a generic style. The engine lives for this batch only. Return EXACTLY, nothing else:\nENGINE: <2-4 words, name of the engine>\nLAW: <1-2 sentences: the physical law and how the wardrobe obeys it>\nTHEME-KEYWORDS: <5-8 English tag-safe words from the THEME itself — objects, places, states, materials that can appear inside tags and prose (NOT style words)>\nTHESIS: <one paragraph, 90-140 words: the batch's ONE law, physical and testable in-frame, how the THEME (not the engine) is delivered across the 24 frames, and how the three acts escalate it>\nACT I: <WIDE sub-theme name, 2-5 words — each act must hold VERY different pictures>\nACT II: <WIDE sub-theme name>\nACT III: <WIDE sub-theme name>`,
+    `BATCH ${slug} «${theme}». THE THEME IS THE LAW.${wishesBlock}\n\nInvent a ONE-BATCH ENGINE for this theme (3.2-традиция, одноразовый): a physical law SPECIFIC to this theme that bends fabric, light, physics and wardrobe in every frame — not a generic style. The engine lives for this batch only. Return EXACTLY, nothing else:\nENGINE: <2-4 words, name of the engine>\nLAW: <1-2 sentences: the physical law and how the wardrobe obeys it>\nTHEME-KEYWORDS: <5-8 English tag-safe words from the THEME itself — objects, places, states, materials that can appear inside tags and prose (NOT style words)>\nTHESIS: <one paragraph, 90-140 words: the batch's ONE law, physical and testable in-frame, how the THEME (not the engine) is delivered across the 24 frames, and how the three acts escalate it>\nACT I: <WIDE sub-theme name, 2-5 words — each act must hold VERY different pictures>\nACT II: <WIDE sub-theme name>\nACT III: <WIDE sub-theme name>`,
     log
   )
   const engineName = (/^ENGINE:\s*(.+)$/m.exec(spineRaw)?.[1] ?? 'per-theme').trim().slice(0, 60)
@@ -708,7 +720,7 @@ export async function scribeBatch(
   for (let i = 0; i < contract.slots.length; i += chunkSize) {
     chunks.push(contract.slots.slice(i, i + chunkSize))
   }
-    const batchLawBlock = `BATCH ${slug} «${title}» — theme: ${theme}\nENGINE (одноразовый, ваш): ${ctx.engineName} — ${ctx.engineLaw}\nBATCH THESIS (yours, keep it): ${ctx.batchThesis}\nTHEME-KEYWORDS (weave ≥1 into EVERY slot's tags or prose — the theme must be VISIBLE in the frame, not in the header): ${ctx.themeKeywords.join(', ') || '—'}\nGENRE PLAN: ${contract.slots.filter((s) => s.kind === 'NICHE').length} NICHE (R) · ${contract.slots.filter((s) => s.kind === 'VOLT' || s.kind === 'EXQUISITE').length} VOLT/EXQUISITE (R+ incl. 3 OC) · ${contract.slots.filter((s) => s.rating === 'X').length} X`
+    const batchLawBlock = `BATCH ${slug} «${title}» — theme: ${theme}${contract.authorWishes ? `\nAUTHOR'S WISHES (приказ автора — закон энергии этого батча): ${contract.authorWishes}` : ''}\nENGINE (одноразовый, ваш): ${ctx.engineName} — ${ctx.engineLaw}\nBATCH THESIS (yours, keep it): ${ctx.batchThesis}\nTHEME-KEYWORDS (weave ≥1 into EVERY slot's tags or prose — the theme must be VISIBLE in the frame, not in the header): ${ctx.themeKeywords.join(', ') || '—'}\nGENRE PLAN: ${contract.slots.filter((s) => s.kind === 'NICHE').length} NICHE (R) · ${contract.slots.filter((s) => s.kind === 'VOLT' || s.kind === 'EXQUISITE').length} VOLT/EXQUISITE (R+ incl. 3 OC) · ${contract.slots.filter((s) => s.rating === 'X').length} X`
 
   for (let ci = 0; ci < chunks.length; ci++) {
     const chunk = chunks[ci]
