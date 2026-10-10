@@ -1,0 +1,1333 @@
+{
+  "slug": "T4-28",
+  "theme": "Dead on the inside",
+  "engine": "per-theme raw-plus",
+  "engineLaw": "RAW+ сборка (№23) + расовый тег-блок (закон №3, kin-block: POS-теги + anti-shield NEG + свет/гардеробные хуки) + hair/eye из библиотеки E3 (A5P3F: независимо от палитры, подсказка ~50%) + echo-мотивы F13 (2-3 на батч, арка трёх актов, мутация ≥2 параметров из разных групп) + палитры вне окна ротации",
+  "engineWhy": "кины потеряны в RAW-миграции с T4-23 по небрежности генераторов (закон №3 не отменялся); практики A5 (hair/eye библиотека, echo-мотивы) не доехали в спеки RAW-эры — возвращены по приказу автора 2026-10-11",
+  "authorWishes": "Сексуально, круто и ебануто круто. Постарайся прям на 500% нахуй",
+  "draftRef": "thread4/drafts/T4-28-draft.json",
+  "seed": 281012,
+  "createdAt": "2026-10-10T22:53:15.498Z",
+  "spread": [
+    {
+      "rating": "R+",
+      "count": 17
+    },
+    {
+      "rating": "R",
+      "count": 7
+    }
+  ],
+  "slots": [
+    {
+      "position": 1,
+      "kind": "OC",
+      "oc": "Doe",
+      "ocTheme": "Phantom Assasin",
+      "rating": "R+",
+      "pose": "PL174",
+      "poseName": "Sit-Up Crunch",
+      "poseRisk": "MID",
+      "palette": "P10_ARCTIC_WHITE",
+      "paletteName": "Arctic White",
+      "kinetics": [
+        "K05"
+      ],
+      "carriers": [
+        {
+          "id": "CR-W03",
+          "name": "Side-Seam Strain",
+          "cls": "W"
+        },
+        {
+          "id": "CR-G09",
+          "name": "Elevator Brass",
+          "cls": "G"
+        },
+        {
+          "id": "CR-F04",
+          "name": "Under-Branch Crawl",
+          "cls": "F"
+        },
+        {
+          "id": "CR-I01",
+          "name": "Bra Release Lines",
+          "cls": "I"
+        }
+      ],
+      "hair": "shoulder-length wavy lavender hair, side-swept bangs",
+      "eyes": "expressive golden-yellow eyes (not glowing), light purple eyeliner",
+      "hairEyeFrom": "canon",
+      "lead": "collarbone",
+      "register": "oc",
+      "closer": "dialogue"
+    },
+    {
+      "position": 2,
+      "kind": "OC",
+      "oc": "Noa",
+      "ocTheme": "Caught changing",
+      "rating": "R+",
+      "pose": "PL28",
+      "poseName": "Kneel Arch Back",
+      "poseRisk": "HIGH",
+      "palette": "P40_VOID_MONOCHROME_RED",
+      "paletteName": "Void Monochrome Red",
+      "kinetics": [
+        "K84"
+      ],
+      "carriers": [
+        {
+          "id": "CR-G01",
+          "name": "Low Third",
+          "cls": "G"
+        },
+        {
+          "id": "CR-S11",
+          "name": "Sweat Track",
+          "cls": "S"
+        },
+        {
+          "id": "CR-D25",
+          "name": "Trampoline Amplitude",
+          "cls": "D"
+        },
+        {
+          "id": "CR-E32",
+          "name": "Petticoat Drop",
+          "cls": "E"
+        }
+      ],
+      "hair": "long deep copper-red hair in a loose side braid, stray strands at the temples, with a small cute bow at the end of the braid",
+      "eyes": "sharp emerald-green eyes with golden flecks",
+      "hairEyeFrom": "canon",
+      "lead": "hands",
+      "register": "oc",
+      "closer": "image-close"
+    },
+    {
+      "position": 3,
+      "kind": "OC",
+      "oc": "Ama",
+      "ocTheme": "Alt-Girl Mayhem",
+      "rating": "R+",
+      "pose": "PL101",
+      "poseName": "Fence Hop-Down",
+      "poseRisk": "MID",
+      "palette": "P53_OPULENT_DECADENCE",
+      "paletteName": "Opulent Decadence",
+      "kinetics": [
+        "K128"
+      ],
+      "carriers": [
+        {
+          "id": "CR-E31",
+          "name": "Seam Giving",
+          "cls": "E"
+        },
+        {
+          "id": "CR-H04",
+          "name": "Goosebumps On Spill",
+          "cls": "H"
+        },
+        {
+          "id": "CR-B29",
+          "name": "Window Reflection",
+          "cls": "B"
+        },
+        {
+          "id": "CR-W22",
+          "name": "Denim Stress-White",
+          "cls": "W"
+        }
+      ],
+      "hair": "long flowing lavender-white hair, waist-length, drifting like spores in water — under it, a large white-lavender mushroom cap worn as a wide hat, lavender gill lines underneath",
+      "eyes": "deep violet eyes, wide with wonder, faint spore-glint",
+      "hairEyeFrom": "canon",
+      "lead": "throat",
+      "register": "oc",
+      "closer": "long-fused"
+    },
+    {
+      "position": 4,
+      "kind": "VOLT",
+      "rating": "R+",
+      "pose": "PL94",
+      "poseName": "Pool-Exit Push-Up",
+      "poseRisk": "HIGH",
+      "palette": "P37_BLOOD_MOON",
+      "paletteName": "Blood Moon",
+      "kinetics": [
+        "K130"
+      ],
+      "carriers": [
+        {
+          "id": "CR-W11",
+          "name": "Worn-Thin At The Strap",
+          "cls": "W"
+        },
+        {
+          "id": "CR-A12",
+          "name": "Cross-Legged Wrap",
+          "cls": "A"
+        },
+        {
+          "id": "CR-E01",
+          "name": "Tank Strap Fallen",
+          "cls": "E"
+        },
+        {
+          "id": "CR-D27",
+          "name": "Cheer Herkie",
+          "cls": "D"
+        }
+      ],
+      "hair": "ash-brown",
+      "eyes": "sea-glass",
+      "hairEyeFrom": "library",
+      "lead": "waist",
+      "register": "student",
+      "closer": "action-close",
+      "ab": {
+        "pair": "κ",
+        "half": "A",
+        "withSlot": 5,
+        "lead": "waist"
+      }
+    },
+    {
+      "position": 5,
+      "kind": "VOLT",
+      "rating": "R+",
+      "pose": "PL11",
+      "poseName": "Mid-Turn",
+      "poseRisk": "LOW",
+      "palette": "P33_VOID_PRISM",
+      "paletteName": "Void Prism",
+      "kinetics": [
+        "K64"
+      ],
+      "carriers": [
+        {
+          "id": "CR-W11",
+          "name": "Worn-Thin At The Strap",
+          "cls": "W"
+        },
+        {
+          "id": "CR-A12",
+          "name": "Cross-Legged Wrap",
+          "cls": "A"
+        },
+        {
+          "id": "CR-F02",
+          "name": "M-Sit",
+          "cls": "F"
+        },
+        {
+          "id": "CR-D27",
+          "name": "Cheer Herkie",
+          "cls": "D"
+        }
+      ],
+      "hair": "violet",
+      "eyes": "pink",
+      "hairEyeFrom": "library",
+      "lead": "waist",
+      "register": "student",
+      "closer": "fragment-pair",
+      "ab": {
+        "pair": "κ",
+        "half": "B",
+        "withSlot": 4,
+        "lead": "waist"
+      },
+      "echo": [
+        "textural",
+        "compositional"
+      ]
+    },
+    {
+      "position": 6,
+      "kind": "NICHE",
+      "rating": "R",
+      "race": "Gargoyle-kin",
+      "raceId": "R18",
+      "kinPos": "gargoyle girl, gargoyle, small stone horns rough-textured, stone patches at the forearm",
+      "kinNeg": "no horns",
+      "witnessHint": "свидетель в кадре обязателен (mirror/glass/monitor/phone/gauge…)",
+      "pose": "PL58",
+      "poseName": "Deep Squat Present",
+      "poseRisk": "HIGH",
+      "palette": "P85_ULTRAMARINE_HOUR",
+      "paletteName": "Ultramarine Hour",
+      "kinetics": [
+        "K02"
+      ],
+      "carriers": [
+        {
+          "id": "CR-L15",
+          "name": "Pinafore Crossing",
+          "cls": "L"
+        },
+        {
+          "id": "CR-H09",
+          "name": "Heat-Slick Sheen",
+          "cls": "H"
+        },
+        {
+          "id": "CR-M01",
+          "name": "Seatbelt Diagonal",
+          "cls": "M"
+        },
+        {
+          "id": "CR-B18",
+          "name": "Small-Of-Back Scoop",
+          "cls": "B"
+        }
+      ],
+      "hair": "navy",
+      "eyes": "blue",
+      "hairEyeFrom": "suggestion",
+      "lead": "waist",
+      "register": "student",
+      "closer": "dialogue",
+      "witness": "car hood",
+      "arch": "N36"
+    },
+    {
+      "position": 7,
+      "kind": "VOLT",
+      "rating": "R+",
+      "race": "Bunny-kin",
+      "raceId": "R12",
+      "kinPos": "bunny girl, bunny, ears long-upright, tail round",
+      "kinNeg": "human ears, cat ears, no tail",
+      "pose": "PL200",
+      "poseName": "Raised-Knee Doorway Lean",
+      "poseRisk": "MID",
+      "palette": "P71_HABIT_UMBER",
+      "paletteName": "Habit Umber",
+      "kinetics": [
+        "K07"
+      ],
+      "carriers": [
+        {
+          "id": "CR-D03",
+          "name": "Quarter-Turn Lead",
+          "cls": "D"
+        },
+        {
+          "id": "CR-W06",
+          "name": "Sweat-Damp Spine",
+          "cls": "W"
+        },
+        {
+          "id": "CR-E08",
+          "name": "One-Side Untuck",
+          "cls": "E"
+        },
+        {
+          "id": "CR-H01",
+          "name": "Blush Flood",
+          "cls": "H"
+        }
+      ],
+      "hair": "emerald",
+      "eyes": "grey",
+      "hairEyeFrom": "library",
+      "lead": "shoulders",
+      "register": "student",
+      "closer": "image-close",
+      "ab": {
+        "pair": "λ",
+        "half": "A",
+        "withSlot": 8,
+        "lead": "shoulders"
+      },
+      "echo": [
+        "gaze"
+      ]
+    },
+    {
+      "position": 8,
+      "kind": "VOLT",
+      "rating": "R+",
+      "pose": "PL179",
+      "poseName": "Ring-Rope Rebound",
+      "poseRisk": "HIGH",
+      "palette": "P96_GRIMOIRE_AND_JAM",
+      "paletteName": "Grimoire and Jam",
+      "kinetics": [
+        "K77"
+      ],
+      "carriers": [
+        {
+          "id": "CR-D03",
+          "name": "Quarter-Turn Lead",
+          "cls": "D"
+        },
+        {
+          "id": "CR-W06",
+          "name": "Sweat-Damp Spine",
+          "cls": "W"
+        },
+        {
+          "id": "CR-F05",
+          "name": "Chair Straddle",
+          "cls": "F"
+        },
+        {
+          "id": "CR-H01",
+          "name": "Blush Flood",
+          "cls": "H"
+        }
+      ],
+      "hair": "white",
+      "eyes": "copper-green",
+      "hairEyeFrom": "library",
+      "lead": "shoulders",
+      "register": "student",
+      "closer": "long-fused",
+      "ab": {
+        "pair": "λ",
+        "half": "B",
+        "withSlot": 7,
+        "lead": "shoulders"
+      }
+    },
+    {
+      "position": 9,
+      "kind": "VOLT",
+      "rating": "R+",
+      "pose": "PL157",
+      "poseName": "Waltz-Box Solo",
+      "poseRisk": "MID",
+      "palette": "P102_CONFIDANT_BRASS",
+      "paletteName": "Confidant Brass",
+      "kinetics": [
+        "K115"
+      ],
+      "carriers": [
+        {
+          "id": "CR-W09",
+          "name": "Rain-Sag Sweater",
+          "cls": "W"
+        },
+        {
+          "id": "CR-D12",
+          "name": "Breaststroke Push",
+          "cls": "D"
+        },
+        {
+          "id": "CR-A03",
+          "name": "High-Cut Edge",
+          "cls": "A"
+        },
+        {
+          "id": "CR-E28",
+          "name": "Hoodie Zipper",
+          "cls": "E"
+        }
+      ],
+      "hair": "navy",
+      "eyes": "green",
+      "hairEyeFrom": "suggestion",
+      "lead": "cheeks",
+      "register": "student",
+      "closer": "action-close",
+      "ab": {
+        "pair": "μ",
+        "half": "A",
+        "withSlot": 11,
+        "lead": "cheeks"
+      },
+      "echo": [
+        "textural",
+        "compositional"
+      ]
+    },
+    {
+      "position": 10,
+      "kind": "NICHE",
+      "rating": "R",
+      "race": "Frog-kin",
+      "raceId": "R30",
+      "kinPos": "frog girl, frog, wide glossy eyes, webbed fingers, subtle throat sac",
+      "kinNeg": "human ears, separate fingers, normal eyes",
+      "witnessHint": "свидетель в кадре обязателен (mirror/glass/monitor/phone/gauge…)",
+      "pose": "PL05",
+      "poseName": "Arms Overhead",
+      "poseRisk": "MID",
+      "palette": "P94_TROLLBRIDGE_DUSK",
+      "paletteName": "Trollbridge Dusk",
+      "kinetics": [
+        "K79"
+      ],
+      "carriers": [
+        {
+          "id": "CR-D23",
+          "name": "Shiver Ripple",
+          "cls": "D"
+        },
+        {
+          "id": "CR-E08",
+          "name": "One-Side Untuck",
+          "cls": "E"
+        },
+        {
+          "id": "CR-B04",
+          "name": "Apex Contour",
+          "cls": "B"
+        },
+        {
+          "id": "CR-W22",
+          "name": "Denim Stress-White",
+          "cls": "W"
+        }
+      ],
+      "hair": "teal",
+      "eyes": "emerald",
+      "hairEyeFrom": "library",
+      "lead": "shoulders",
+      "register": "student",
+      "closer": "fragment-pair",
+      "witness": "watch face",
+      "arch": "N39"
+    },
+    {
+      "position": 11,
+      "kind": "VOLT",
+      "rating": "R+",
+      "race": "Jellyfish-kin",
+      "raceId": "R17",
+      "kinPos": "jellyfish girl, jellyfish, bell-hood translucent at the crown, tendril-strands at the nape",
+      "kinNeg": "human ears, hair tentacles removed",
+      "pose": "PL166",
+      "poseName": "Bike Kickstand Lean-Off",
+      "poseRisk": "MID",
+      "palette": "P30_VOID_SMOKE",
+      "paletteName": "Void Smoke",
+      "kinetics": [
+        "K104"
+      ],
+      "carriers": [
+        {
+          "id": "CR-W09",
+          "name": "Rain-Sag Sweater",
+          "cls": "W"
+        },
+        {
+          "id": "CR-D12",
+          "name": "Breaststroke Push",
+          "cls": "D"
+        },
+        {
+          "id": "CR-S18",
+          "name": "Choker Line",
+          "cls": "S"
+        },
+        {
+          "id": "CR-E28",
+          "name": "Hoodie Zipper",
+          "cls": "E"
+        }
+      ],
+      "hair": "white",
+      "eyes": "grey",
+      "hairEyeFrom": "suggestion",
+      "lead": "cheeks",
+      "register": "young",
+      "closer": "dialogue",
+      "ab": {
+        "pair": "μ",
+        "half": "B",
+        "withSlot": 9,
+        "lead": "cheeks"
+      }
+    },
+    {
+      "position": 12,
+      "kind": "NICHE",
+      "rating": "R",
+      "race": "Golem-kin",
+      "raceId": "R32",
+      "kinPos": "golem girl, golem, glowing seam-cracks in smooth clay skin, moss patches, heavy slow build",
+      "kinNeg": "no wings",
+      "witnessHint": "свидетель в кадре обязателен (mirror/glass/monitor/phone/gauge…)",
+      "pose": "PL87",
+      "poseName": "Rail Vault",
+      "poseRisk": "HIGH",
+      "palette": "P58_INDUSTRIAL_DUST",
+      "paletteName": "Industrial Dust",
+      "kinetics": [
+        "K08"
+      ],
+      "carriers": [
+        {
+          "id": "CR-F08",
+          "name": "Jukebox Hip-Shot",
+          "cls": "F"
+        },
+        {
+          "id": "CR-M07",
+          "name": "Cello Embrace",
+          "cls": "M"
+        },
+        {
+          "id": "CR-B07",
+          "name": "Cleavage End-Shadow",
+          "cls": "B"
+        },
+        {
+          "id": "CR-G10",
+          "name": "Strap Bow Bokeh",
+          "cls": "G"
+        }
+      ],
+      "hair": "ash-brown",
+      "eyes": "gold",
+      "hairEyeFrom": "suggestion",
+      "lead": "hamstrings",
+      "register": "young",
+      "closer": "image-close",
+      "witness": "level gauge",
+      "arch": "N47"
+    },
+    {
+      "position": 13,
+      "kind": "NICHE",
+      "rating": "R",
+      "race": "Kitsune (fox-kin)",
+      "raceId": "R03",
+      "kinPos": "kitsune, fox girl, fox, ears perked-small, ears mid-tilt, tail single smoke-grey",
+      "kinNeg": "human ears, dog ears, cat ears, no tail, multiple tails",
+      "witnessHint": "свидетель в кадре обязателен (mirror/glass/monitor/phone/gauge…)",
+      "pose": "PL09",
+      "poseName": "Side Curl",
+      "poseRisk": "LOW",
+      "palette": "P76_IRON_TIDE",
+      "paletteName": "Iron Tide",
+      "kinetics": [
+        "K66"
+      ],
+      "carriers": [
+        {
+          "id": "CR-H09",
+          "name": "Heat-Slick Sheen",
+          "cls": "H"
+        },
+        {
+          "id": "CR-W14",
+          "name": "Velvet Press-Mark",
+          "cls": "W"
+        },
+        {
+          "id": "CR-C13",
+          "name": "Rail's Cold Kiss",
+          "cls": "C"
+        },
+        {
+          "id": "CR-M06",
+          "name": "Guitar Body",
+          "cls": "M"
+        }
+      ],
+      "hair": "golden",
+      "eyes": "pearl-grey",
+      "hairEyeFrom": "library",
+      "lead": "nape",
+      "register": "young",
+      "closer": "long-fused",
+      "witness": "wet street",
+      "arch": "N35"
+    },
+    {
+      "position": 14,
+      "kind": "EXQUISITE",
+      "rating": "R+",
+      "pose": "PL141",
+      "poseName": "Fan-Snap Open",
+      "poseRisk": "MID",
+      "palette": "P86_PRUSSIAN_BOTTLE",
+      "paletteName": "Prussian Bottle",
+      "kinetics": [
+        "K93"
+      ],
+      "carriers": [
+        {
+          "id": "CR-E24",
+          "name": "Glove Peel",
+          "cls": "E"
+        },
+        {
+          "id": "CR-B09",
+          "name": "Backlit Silhouette",
+          "cls": "B"
+        },
+        {
+          "id": "CR-G10",
+          "name": "Strap Bow Bokeh",
+          "cls": "G"
+        },
+        {
+          "id": "CR-D20",
+          "name": "Waking Stretch",
+          "cls": "D"
+        }
+      ],
+      "hair": "red",
+      "eyes": "amber",
+      "hairEyeFrom": "library",
+      "lead": "collarbone",
+      "register": "young",
+      "closer": "action-close",
+      "echo": [
+        "gaze"
+      ]
+    },
+    {
+      "position": 15,
+      "kind": "NICHE",
+      "rating": "R",
+      "race": "Shark-kin",
+      "raceId": "R23",
+      "kinPos": "shark girl, shark, dorsal fin at the spine, gill-slits at the ribs, shark tail fin",
+      "kinNeg": "human ears, no tail, no fins",
+      "witnessHint": "свидетель в кадре обязателен (mirror/glass/monitor/phone/gauge…)",
+      "pose": "PL93",
+      "poseName": "Cartwheel Frame",
+      "poseRisk": "HIGH",
+      "palette": "P68_INK_AND_GOLD",
+      "paletteName": "Ink and Gold",
+      "kinetics": [
+        "K72"
+      ],
+      "carriers": [
+        {
+          "id": "CR-D01",
+          "name": "Full Drop Mid-Sway",
+          "cls": "D"
+        },
+        {
+          "id": "CR-W01",
+          "name": "Taut Weave",
+          "cls": "W"
+        },
+        {
+          "id": "CR-L02",
+          "name": "Lace Under Blazer",
+          "cls": "L"
+        },
+        {
+          "id": "CR-B25",
+          "name": "Apex Leading The Lean",
+          "cls": "B"
+        }
+      ],
+      "hair": "ice-blue",
+      "eyes": "teal",
+      "hairEyeFrom": "library",
+      "lead": "hands",
+      "register": "young",
+      "closer": "fragment-pair",
+      "witness": "elevator brass",
+      "arch": "N15"
+    },
+    {
+      "position": 16,
+      "kind": "VOLT",
+      "rating": "R+",
+      "pose": "PL23",
+      "poseName": "Robe Slip",
+      "poseRisk": "MID",
+      "palette": "P43_OCEAN_DEEP_PRISM",
+      "paletteName": "Ocean Deep Prism",
+      "kinetics": [
+        "K89"
+      ],
+      "carriers": [
+        {
+          "id": "CR-W23",
+          "name": "Elastic Bite",
+          "cls": "W"
+        },
+        {
+          "id": "CR-G02",
+          "name": "Top-Down Shaft",
+          "cls": "G"
+        },
+        {
+          "id": "CR-D08",
+          "name": "Aftershock",
+          "cls": "D"
+        },
+        {
+          "id": "CR-U19",
+          "name": "Yukata Morning",
+          "cls": "U"
+        }
+      ],
+      "hair": "black",
+      "eyes": "pale-blue",
+      "hairEyeFrom": "library",
+      "lead": "throat",
+      "register": "young",
+      "closer": "dialogue",
+      "targetChannel": "dry-sheer",
+      "targetChannelNote": "Сквозь-ткань заявка без состояния ткани (wet clothes / see-through / threadbare) не несёт edge. Мёртвые ткани (джинсы/бархат/кожа/свитпаны/бриджи/костюм) заявку не несут никогда. Уточнение v0.2.0: плотная сухая ≠ истёртая сухая — threadbare-sheer жив отдельным каналом. T4-25: 0/5 за батч. Карта T4-25 (закон №13): R+ доставляет только физика КОНТАКТА; прозрачность без прикосновения — 0/7 за батч по всему sheer-семейст"
+    },
+    {
+      "position": 17,
+      "kind": "VOLT",
+      "rating": "R+",
+      "race": "Elf",
+      "raceId": "R02",
+      "kinPos": "elf, e1 long-pointed swept-back, e2 short-pointed, e3 single-left-asymmetric",
+      "kinNeg": "human ears, no ears, drooping ears, fox ears",
+      "pose": "PL116",
+      "poseName": "Hammock Belly-Reach",
+      "poseRisk": "MID",
+      "palette": "P05_FOREST_MIST",
+      "paletteName": "Forest Mist",
+      "kinetics": [
+        "K173"
+      ],
+      "carriers": [
+        {
+          "id": "CR-G11",
+          "name": "Over-Shoulder Mirror",
+          "cls": "G"
+        },
+        {
+          "id": "CR-W21",
+          "name": "Lycra Shine",
+          "cls": "W"
+        },
+        {
+          "id": "CR-D05",
+          "name": "Forward-Lean Deepening",
+          "cls": "D"
+        },
+        {
+          "id": "CR-S08",
+          "name": "Back Dimples",
+          "cls": "S"
+        }
+      ],
+      "hair": "chestnut",
+      "eyes": "violet",
+      "hairEyeFrom": "library",
+      "lead": "breasts",
+      "register": "young",
+      "closer": "image-close",
+      "targetChannel": "wet-sheer-flat",
+      "targetChannelNote": "Состояние ткани без подачи — «выглядит эротично, но ничего эротического не делает». Салиенс-цепочка рвётся на INTERPRETATION: сигнал присутствует, но не прочитывается.",
+      "echo": [
+        "gaze"
+      ]
+    },
+    {
+      "position": 18,
+      "kind": "NICHE",
+      "rating": "R",
+      "race": "Mushroom-kin",
+      "raceId": "R21",
+      "kinPos": "mushroom girl, mushroom, cap-frill at the crown, spore-freckles glowing faint",
+      "kinNeg": "no wings",
+      "witnessHint": "свидетель в кадре обязателен (mirror/glass/monitor/phone/gauge…)",
+      "pose": "PL113",
+      "poseName": "Tub Rim Arm-Drape",
+      "poseRisk": "MID",
+      "palette": "P28_VOID_BONE",
+      "paletteName": "Void Bone",
+      "kinetics": [
+        "K135"
+      ],
+      "carriers": [
+        {
+          "id": "CR-G04",
+          "name": "Macro Escape",
+          "cls": "G"
+        },
+        {
+          "id": "CR-I12",
+          "name": "Inside-Out Shirt",
+          "cls": "I"
+        },
+        {
+          "id": "CR-W03",
+          "name": "Side-Seam Strain",
+          "cls": "W"
+        },
+        {
+          "id": "CR-A01",
+          "name": "Seam Pressed Flat",
+          "cls": "A"
+        }
+      ],
+      "hair": "copper",
+      "eyes": "dark-red",
+      "hairEyeFrom": "library",
+      "lead": "back",
+      "register": "milf",
+      "closer": "long-fused",
+      "witness": "propped phone",
+      "arch": "N29"
+    },
+    {
+      "position": 19,
+      "kind": "VOLT",
+      "rating": "R+",
+      "race": "Ram-demon",
+      "raceId": "R06",
+      "kinPos": "ram-demon, horns half-curl, horns single-spiral, horns small-buds",
+      "kinNeg": "no horns, human ears",
+      "pose": "PL32",
+      "poseName": "Stretch Reach",
+      "poseRisk": "LOW",
+      "palette": "P73_VERMEIL_SMOKE",
+      "paletteName": "Vermeil Smoke",
+      "kinetics": [
+        "K163"
+      ],
+      "carriers": [
+        {
+          "id": "CR-H08",
+          "name": "Denied Arch",
+          "cls": "H"
+        },
+        {
+          "id": "CR-I08",
+          "name": "Love Bite Under Scarf",
+          "cls": "I"
+        },
+        {
+          "id": "CR-C04",
+          "name": "Wedgie Line",
+          "cls": "C"
+        },
+        {
+          "id": "CR-W08",
+          "name": "Wet Hemline",
+          "cls": "W"
+        }
+      ],
+      "hair": "blonde",
+      "eyes": "silver",
+      "hairEyeFrom": "library",
+      "lead": "waist",
+      "register": "milf",
+      "closer": "action-close"
+    },
+    {
+      "position": 20,
+      "kind": "VOLT",
+      "rating": "R+",
+      "race": "Moth-kin",
+      "raceId": "R16",
+      "kinPos": "moth girl, moth, antennae feathered-curved, dust-scales at the collarbone, wings small-dusted (cloak-fold)",
+      "kinNeg": "human arms, no wings, no antennae",
+      "pose": "PL127",
+      "poseName": "Sidesaddle Bike-Sit",
+      "poseRisk": "MID",
+      "palette": "P38_VOID_BLOOD_ACCENT",
+      "paletteName": "Void Blood Accent",
+      "kinetics": [
+        "K91"
+      ],
+      "carriers": [
+        {
+          "id": "CR-A09",
+          "name": "Jeans Fly Line",
+          "cls": "A"
+        },
+        {
+          "id": "CR-W06",
+          "name": "Sweat-Damp Spine",
+          "cls": "W"
+        },
+        {
+          "id": "CR-I16",
+          "name": "Garter Dents",
+          "cls": "I"
+        },
+        {
+          "id": "CR-G10",
+          "name": "Strap Bow Bokeh",
+          "cls": "G"
+        }
+      ],
+      "hair": "black",
+      "eyes": "red",
+      "hairEyeFrom": "suggestion",
+      "lead": "seat",
+      "register": "milf",
+      "closer": "fragment-pair",
+      "echo": [
+        "textural"
+      ]
+    },
+    {
+      "position": 21,
+      "kind": "VOLT",
+      "rating": "R+",
+      "race": "Mouse-kin",
+      "raceId": "R29",
+      "kinPos": "mouse girl, mouse, round oversized ears, thin long tail, small front teeth",
+      "kinNeg": "human ears, no tail",
+      "pose": "PL01",
+      "poseName": "Neutral Stand",
+      "poseRisk": "LOW",
+      "palette": "P59_RAINY_WINDOW",
+      "paletteName": "Rainy Window",
+      "kinetics": [
+        "K121"
+      ],
+      "carriers": [
+        {
+          "id": "CR-E26",
+          "name": "Camisole Peek",
+          "cls": "E"
+        },
+        {
+          "id": "CR-W08",
+          "name": "Wet Hemline",
+          "cls": "W"
+        },
+        {
+          "id": "CR-H12",
+          "name": "Shiver At Strap Slide",
+          "cls": "H"
+        },
+        {
+          "id": "CR-C10",
+          "name": "Boyshort Bisection",
+          "cls": "C"
+        }
+      ],
+      "hair": "dark-brown",
+      "eyes": "black",
+      "hairEyeFrom": "library",
+      "lead": "cheeks",
+      "register": "milf",
+      "closer": "dialogue",
+      "echo": [
+        "compositional"
+      ]
+    },
+    {
+      "position": 22,
+      "kind": "VOLT",
+      "rating": "R+",
+      "race": "Porcelain-doll",
+      "raceId": "R15",
+      "kinPos": "porcelain-doll, bisque skin with seams at joints, ball-joint elbows-and-knees, painted blush fixed",
+      "kinNeg": "normal human skin, no joints, subsurface glow",
+      "pose": "PL185",
+      "poseName": "Tub-Rim Knee-Perch",
+      "poseRisk": "HIGH",
+      "palette": "P18_EARTH_WARM",
+      "paletteName": "Earth Warm",
+      "kinetics": [
+        "K127"
+      ],
+      "carriers": [
+        {
+          "id": "CR-W29",
+          "name": "Pleat-Set",
+          "cls": "W"
+        },
+        {
+          "id": "CR-M13",
+          "name": "Life Jacket",
+          "cls": "M"
+        },
+        {
+          "id": "CR-G04",
+          "name": "Macro Escape",
+          "cls": "G"
+        },
+        {
+          "id": "CR-E12",
+          "name": "Last Button",
+          "cls": "E"
+        }
+      ],
+      "hair": "copper",
+      "eyes": "gold",
+      "hairEyeFrom": "suggestion",
+      "lead": "thighs",
+      "register": "milf",
+      "closer": "image-close"
+    },
+    {
+      "position": 23,
+      "kind": "NICHE",
+      "rating": "R",
+      "race": "Harpy-kin (wing-armed)",
+      "raceId": "R20",
+      "kinPos": "harpy girl, harpy, wing-armed, feathered forearms to the wrist, flight-feathers at the shoulder-blades",
+      "kinNeg": "human arms, human hands, no wings",
+      "witnessHint": "свидетель в кадре обязателен (mirror/glass/monitor/phone/gauge…)",
+      "pose": "PL75",
+      "poseName": "Under-Chin Cup",
+      "poseRisk": "LOW",
+      "palette": "P19_CINDER_SKY",
+      "paletteName": "Cinder Sky",
+      "kinetics": [
+        "K100"
+      ],
+      "carriers": [
+        {
+          "id": "CR-W13",
+          "name": "Sitting-Crease",
+          "cls": "W"
+        },
+        {
+          "id": "CR-E07",
+          "name": "Robe Drift",
+          "cls": "E"
+        },
+        {
+          "id": "CR-H05",
+          "name": "Upper-Chest Flush",
+          "cls": "H"
+        },
+        {
+          "id": "CR-M06",
+          "name": "Guitar Body",
+          "cls": "M"
+        }
+      ],
+      "hair": "brown",
+      "eyes": "red",
+      "hairEyeFrom": "library",
+      "lead": "shoulders",
+      "register": "milf",
+      "closer": "long-fused",
+      "witness": "window pane",
+      "arch": "N13"
+    },
+    {
+      "position": 24,
+      "kind": "VOLT",
+      "rating": "R+",
+      "pose": "PL213",
+      "poseName": "Ear-Tip Burn Turn",
+      "poseRisk": "LOW",
+      "palette": "P57_SUNSET_ON_WATER",
+      "paletteName": "Sunset on Water",
+      "kinetics": [
+        "K73"
+      ],
+      "carriers": [
+        {
+          "id": "CR-G08",
+          "name": "Fisheye Curve",
+          "cls": "G"
+        },
+        {
+          "id": "CR-E11",
+          "name": "Waistband Roll",
+          "cls": "E"
+        },
+        {
+          "id": "CR-A08",
+          "name": "Post-Dive Panel",
+          "cls": "A"
+        },
+        {
+          "id": "CR-D17",
+          "name": "Dance Dip",
+          "cls": "D"
+        }
+      ],
+      "hair": "golden",
+      "eyes": "gold",
+      "hairEyeFrom": "suggestion",
+      "lead": "hips",
+      "register": "milf",
+      "closer": "action-close"
+    }
+  ],
+  "ocRotation": [
+    {
+      "name": "Doe",
+      "served": 2
+    },
+    {
+      "name": "Noa",
+      "served": 2
+    },
+    {
+      "name": "Ama",
+      "served": 2
+    }
+  ],
+  "racialCount": 14,
+  "hairEye": {
+    "source": "specs/hair-eye-library.json (E3, A5P3F §III-C-2)",
+    "ocCanonWins": true,
+    "suggestionFollowed": 7,
+    "suggestionDeviated": 14,
+    "distinctHairOnMains": 15
+  },
+  "echoMotifs": [
+    {
+      "type": "textural",
+      "motif": "материальная пара (inside)",
+      "appearances": [
+        {
+          "slot": 5,
+          "act": "I — откровение",
+          "mutation": [
+            "палитра сцены смещается по спектру",
+            "направление света поворачивается"
+          ]
+        },
+        {
+          "slot": 9,
+          "act": "II — развитие",
+          "mutation": [
+            "палитра сцены смещается по спектру",
+            "температура света меняется"
+          ]
+        },
+        {
+          "slot": 20,
+          "act": "III — финал",
+          "mutation": [
+            "окружение/локация меняется",
+            "взгляд/выражение меняет отношение к мотиву"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "compositional",
+      "motif": "геометрия кадра (inside)",
+      "appearances": [
+        {
+          "slot": 5,
+          "act": "I — откровение",
+          "mutation": [
+            "камера меняет дистанцию/ракурс",
+            "взгляд/выражение меняет отношение к мотиву"
+          ]
+        },
+        {
+          "slot": 9,
+          "act": "II — развитие",
+          "mutation": [
+            "палитра сцены смещается по спектру",
+            "роль мотива в кадре меняется"
+          ]
+        },
+        {
+          "slot": 21,
+          "act": "III — финал",
+          "mutation": [
+            "палитра сцены смещается по спектру",
+            "состояние одежды эволюционирует"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "gaze",
+      "motif": "направление взгляда (inside)",
+      "appearances": [
+        {
+          "slot": 7,
+          "act": "I — откровение",
+          "mutation": [
+            "палитра сцены смещается по спектру",
+            "время суток сдвигается"
+          ]
+        },
+        {
+          "slot": 14,
+          "act": "II — развитие",
+          "mutation": [
+            "камера меняет дистанцию/ракурс",
+            "взгляд/выражение меняет отношение к мотиву"
+          ]
+        },
+        {
+          "slot": 17,
+          "act": "III — финал",
+          "mutation": [
+            "палитра сцены смещается по спектру",
+            "роль мотива в кадре меняется"
+          ]
+        }
+      ]
+    }
+  ],
+  "abPairs": [
+    {
+      "pair": "κ",
+      "a": 4,
+      "b": 5,
+      "lead": "waist"
+    },
+    {
+      "pair": "λ",
+      "a": 7,
+      "b": 8,
+      "lead": "shoulders"
+    },
+    {
+      "pair": "μ",
+      "a": 9,
+      "b": 11,
+      "lead": "cheeks"
+    }
+  ],
+  "carrierStats": {
+    "wSharePct": 20,
+    "sheerRplusPct": 35,
+    "wCapPct": 45,
+    "sheerFrameCapPct": 40
+  },
+  "windowSlugs": [
+    "T4-26",
+    "T4-27",
+    "T4-27.2-EXP"
+  ],
+  "channelStats": {
+    "version": "0.7.0",
+    "live": [
+      "wet-sheer-delivery",
+      "x-coverage-block",
+      "r-geometry",
+      "tape-only",
+      "contact-physics",
+      "handbra-open-palms"
+    ],
+    "candidate": [
+      "threadbare-sheer",
+      "named-underlayer-display",
+      "breast-environment-contact",
+      "oc-rplus",
+      "underwear-as-outfit",
+      "fabric-tension",
+      "pantyline-lower"
+    ],
+    "dead": [
+      "cameltoe"
+    ],
+    "deadClaims": []
+  },
+  "platform": "yodayo",
+  "laws": [
+    "24-слотовый закон (3 OC + 21 мейн)",
+    "спред мейнов: R+×14 · R×7 (NICHE R · VOLT R+ · EXQUISITE R+)",
+    "расовый каст 14 на мейнах (закон №3 «race as mechanism»)",
+    "hair/eye E3: канон для OC, библиотека для мейнов, подсказка палитры ~50%",
+    "echo-мотивы F13: 2-3, арка I→II→III, мутация 1 spatial + 1 narrative/atmospheric",
+    "стеки core-4: 4 мех-группы из 5 на каждом слоте",
+    "rehab-добор (Залп 3): 2 слота несут конфиг оживления канала",
+    "провенанс: черновик UI автора (drafts/) — контракт скомпилирован из брифа §10"
+  ]
+}
