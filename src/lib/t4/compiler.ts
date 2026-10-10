@@ -116,6 +116,10 @@ export interface BatchContract {
   engine: string
   engineLaw: string
   engineWhy: string
+  /** Ребилд-декларация (вопрос №30 → приказ автора 2026-10-11): слаг
+   * батча-источника, чей материал сознательно переиспользуется. Окно
+   * ротации с источником не конфликтует (gates.windowOthersFor). */
+  rebuildOf?: string
   seed: number
   createdAt: string
   spread: { rating: string; count: number }[]

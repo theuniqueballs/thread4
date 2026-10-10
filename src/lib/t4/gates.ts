@@ -231,6 +231,20 @@ const TECH_SHEER_RE = /\bsee-through\b/
 /* Gate runner                                                         */
 /* ------------------------------------------------------------------ */
 
+/** Окно ротации для проверки батча: себя и объявленный rebuildOf-источник
+ * исключаем (вопрос №30, приказ автора 2026-10-11). Ребилд переиспользует
+ * материал источника по дизайну — позы/палитры источника не конфликт;
+ * остальные члены окна конфликтуют как обычно: ребилд не освобождает
+ * от ротации. Экспорт — для генераторов контрактов (планируют палитры/позы
+ * вне окна) и selftest-квитанции. */
+export function windowOthersFor(
+  batchSlug: string,
+  windowSlugs: string[],
+  rebuildOf?: string
+): string[] {
+  return windowSlugs.filter((w) => w !== batchSlug && w !== rebuildOf)
+}
+
 export function runGates(slug: string, dryRun = false): GatesResult | null {
   const file = readText(path.join(BATCHES_DIR, `${slug}.md`))
   if (file == null) return null
@@ -245,6 +259,11 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
       poseName?: string
       carriers: { id: string }[]
     }[]
+    /** Ребилд-декларация (вопрос №30 → приказ автора 2026-10-11): слаг
+     * батча-источника, чей материал сознательно переиспользуется. Окно
+     * ротации с источником не конфликтует — переиспользование и есть
+     * смысл ребилда (тот же состав, одна переменная). */
+    rebuildOf?: string
   }>(path.join(CONTRACTS_DIR, `${slug}.json`))
   const recipes = getRatingRecipes()
   const bans = getBans()
@@ -667,8 +686,14 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
     const state = foldState(readEvents())
     if (state.windowSlugs.length > 0 && contract) {
       // повторная сдача (v2): батч не конфликтует сам с собой — своё окно
-      // исключается (событие batch.delivered уже внесло слаг в окно)
-      const windowOthers = state.windowSlugs.filter((w) => w !== batch.slug)
+      // исключается (событие batch.delivered уже внесло слаг в окно);
+      // rebuildOf (вопрос №30): источник ребилда исключается так же —
+      // переиспользование палитр/поз источника и есть смысл перестройки
+      const windowOthers = windowOthersFor(
+        batch.slug,
+        state.windowSlugs,
+        contract.rebuildOf
+      )
       const myPoses = new Set(
         batch.slots.map((s) => (/\bPL\d{1,3}\b/.exec(s.header) ?? [])[0]).filter(Boolean)
       )

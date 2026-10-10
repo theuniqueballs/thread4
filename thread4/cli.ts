@@ -600,6 +600,27 @@ async function main() {
       check('guard рождения: author-verdict без confidence отвергается (Issue #4 Кенни)', confThrew)
     }
 
+    // Ребилды (вопрос №30 → приказ автора 2026-10-11): окно знает rebuildOf
+    {
+      const { windowOthersFor, runGates } = await import('../src/lib/t4/gates')
+      check(
+        'window-гейт: rebuildOf-источник исключается из окна, чужие остаются',
+        JSON.stringify(windowOthersFor('B2', ['A', 'B1', 'B2'], 'B1')) === JSON.stringify(['A'])
+      )
+      const contract272 = JSON.parse(
+        (await import('node:fs')).readFileSync('thread4/contracts/T4-27.2-EXP.json', 'utf-8')
+      )
+      check(
+        'контракт перестройки объявляет rebuildOf источника (провенанс)',
+        contract272.rebuildOf === 'T4-27'
+      )
+      const g272 = runGates('T4-27.2-EXP', true)
+      check(
+        'window-гейт: перестройка проходит окно (переиспользование источника ≠ конфликт ротации)',
+        g272?.receipts.find((r) => r.gate === 'window')?.verdict === 'PASS'
+      )
+    }
+
     console.log(`\nselftest: ${ok} pass, ${fail} fail`)
     process.exit(fail === 0 ? 0 : 1)
   }
