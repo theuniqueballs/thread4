@@ -3,10 +3,11 @@
 /**
  * THREAD 4 — dashboard (the / route).
  * Dark atelier: zinc surfaces, amber accent, rose for verdicts/X, emerald
- * for gates. No blue, no indigo. Single-page tabbed SPA — no routing.
+ * for gates. No blue, no indigo. Single-page tabbed SPA — вкладки
+ * адресованы хэшем (#batches…), адрес — единственный источник правды.
  */
 
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react'
 import {
   Activity,
   Archive as ArchiveIcon,
@@ -35,6 +36,7 @@ import {
   ShieldCheck,
   Sparkles,
   Stamp,
+  TrendingUp,
   Upload,
 } from 'lucide-react'
 
@@ -2924,7 +2926,7 @@ function RadarHypoRow({
                   </Chip>
                 ) : null}
               </div>
-              <p className="mt-1 line-clamp-3 text-[11px] leading-relaxed text-zinc-500" title={half.thesis}>
+              <p className="mt-1 line-clamp-3 text-[11px] leading-relaxed text-zinc-400" title={half.thesis}>
                 {half.thesis}
               </p>
             </div>
@@ -3161,7 +3163,7 @@ function TrialRadarPanel() {
                         <span className="ml-auto shrink-0 font-mono text-[10px] text-amber-300/70">{l.ref}</span>
                       ) : null}
                     </div>
-                    <p className="mt-1 line-clamp-3 text-[11px] leading-relaxed text-zinc-500" title={l.note}>
+                    <p className="mt-1 line-clamp-3 text-[11px] leading-relaxed text-zinc-400" title={l.note}>
                       {l.note}
                     </p>
                   </div>
@@ -4404,12 +4406,141 @@ function BatchReceiverPanel() {
   )
 }
 
+/* ------------------------------------------------------------------ */
+/* Вердикты — тренд тиров: батч-вердикты одной полосой (глаз автора)   */
+/* ------------------------------------------------------------------ */
+
+/* Порядок тиров в столбике: R+ сверху (награда читается первой),
+ *  X — фундамент промахов. Цвета — язык дашборда: роза = вердикт/жар,
+ *  янтарь = R, цинк = мягче/промах. */
+const TREND_TIER_STYLE: Record<string, string> = {
+  'R+': 'bg-rose-500',
+  R: 'bg-amber-500',
+  'PG-13': 'bg-zinc-400',
+  X: 'bg-zinc-700',
+}
+
+/* Доля R+ по «глазу автора» — одна цифра качества на батч. */
+function verdictRplusShare(rec: BatchVerdictRecord): number | null {
+  const d = rec.scoreboard?.delivered
+  if (!d) return null
+  const total = Object.values(d).reduce((s, n) => s + n, 0)
+  if (total <= 0) return null
+  return Math.round(((d['R+'] ?? 0) / total) * 100)
+}
+
+function VerdictTrendPanel() {
+  const records = useApi<{ records: BatchVerdictRecord[] }>('/api/t4/batch-verdict')
+
+  /* Хронология: старые слева — полоса читается как путь эпохи. */
+  const list = useMemo(
+    () => [...(records.data?.records ?? [])].sort((a, b) => a.at.localeCompare(b.at)),
+    [records.data]
+  )
+
+  const firstShare = list.length > 0 ? verdictRplusShare(list[0]) : null
+  const lastShare = list.length > 0 ? verdictRplusShare(list[list.length - 1]) : null
+
+  return (
+    <Panel title="Тренд вердиктов · глаз автора по эпохе" icon={<TrendingUp className="size-4" />}>
+      {records.loading ? (
+        <SkeletonBlock lines={6} />
+      ) : records.error ? (
+        <ErrorNote text="Вердиктная летопись недоступна" hint="API приёмника батча не отвечает — записи лежат в событиях" />
+      ) : list.length === 0 ? (
+        <EmptyState
+          title="Батч-вердиктов пока нет"
+          hint="Первая запись приёмника (Вердикты → приёмник батча) положит сюда первый столбик."
+        />
+      ) : (
+        <>
+          <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1.5">
+            <Chip tone="rose">{list.length} батчей с вердиктом</Chip>
+            {firstShare != null && lastShare != null ? (
+              <Chip tone={lastShare >= firstShare ? 'emerald' : 'amber'}>
+                R+ доля: {firstShare}% → {lastShare}%
+              </Chip>
+            ) : null}
+            <span className="ml-auto flex items-center gap-2.5 text-[9px] text-zinc-600">
+              {Object.entries(TREND_TIER_STYLE).map(([t, cls]) => (
+                <span key={t} className="flex items-center gap-1">
+                  <span aria-hidden className={cn('size-2 rounded-[2px]', cls)} />
+                  {t}
+                </span>
+              ))}
+            </span>
+          </div>
+          <div className="t4-scroll -mx-1 overflow-x-auto px-1 pb-1">
+            <div className="flex min-w-max items-stretch gap-2 sm:gap-2.5">
+              {list.map((rec) => {
+                const d = rec.scoreboard?.delivered ?? {}
+                const total = Object.values(d).reduce((s, n) => s + n, 0)
+                const share = verdictRplusShare(rec)
+                const cd = rec.scoreboard?.claimDelta
+                return (
+                  <button
+                    key={rec.id}
+                    type="button"
+                    onClick={() => navigateToSlot(rec.slug, 'P01')}
+                    title={`${rec.slug} · ${formatDate(rec.at)}${rec.summary ? `\n${rec.summary.slice(0, 400)}` : ''}\n\nКлик — открыть батч в Батчах.`}
+                    className="group/col flex w-14 shrink-0 flex-col items-center gap-1.5 rounded-md border border-zinc-800/70 bg-zinc-950/50 px-1.5 pb-1.5 pt-2 transition-all outline-none hover:-translate-y-px hover:border-amber-500/40 hover:bg-amber-500/[0.03] focus-visible:ring-1 focus-visible:ring-amber-500/60 active:scale-95"
+                  >
+                    <span className="font-mono text-[9px] text-zinc-500 transition-colors group-hover/col:text-amber-300">
+                      {rec.slug.replace('T4-', '')}
+                    </span>
+                    <span className="flex h-20 w-7 flex-col overflow-hidden rounded-sm bg-zinc-800/60 ring-1 ring-inset ring-zinc-700/50">
+                      {total > 0 ? (
+                        (Object.keys(TREND_TIER_STYLE) as const)
+                          .filter((t) => (d[t] ?? 0) > 0)
+                          .map((t) => (
+                            <span
+                              key={t}
+                              aria-hidden
+                              style={{ flexGrow: d[t] ?? 0 }}
+                              className={cn('w-full transition-[flex-grow] duration-500', TREND_TIER_STYLE[t])}
+                            />
+                          ))
+                      ) : (
+                        <span className="m-auto font-mono text-[9px] text-zinc-600">—</span>
+                      )}
+                    </span>
+                    <span className="font-mono text-[10px] font-bold text-rose-300/90">
+                      {share != null ? `${share}%` : '—'}
+                    </span>
+                    {cd != null ? (
+                      <span className="flex items-center gap-1 font-mono text-[9px] leading-none">
+                        {cd.up > 0 ? <span className="text-emerald-400">↑{cd.up}</span> : null}
+                        {cd.down > 0 ? <span className="text-rose-400/90">↓{cd.down}</span> : null}
+                        {cd.up === 0 && cd.down === 0 ? <span className="text-zinc-600">=0</span> : null}
+                      </span>
+                    ) : (
+                      <span className="text-[9px] leading-none text-zinc-700">·</span>
+                    )}
+                    <span className="text-[9px] leading-none text-zinc-600">{formatDate(rec.at).slice(0, 5)}</span>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+          <p className="mt-3 text-[11px] leading-relaxed text-zinc-500">
+            Столбик — распределение тиров батча по глазу автора (R+ сверху, высота — доля);
+            процент — доля R+; ↑↓ — расхождения с заявкой контракта (заявка ↔ сдано). Клик по
+            столбику открывает батч. Когда придёт вердикт пары T4-27 ↔ T4-27.2-EXP — здесь
+            встанут два столбика рядом, и H13 BODY-SPECTRUM решится глазом.
+          </p>
+        </>
+      )}
+    </Panel>
+  )
+}
+
 function VerdictsTab() {
   return (
     <div className="space-y-6">
       <TrialRadarPanel />
       <VlmFirstPassPanel />
       <BatchReceiverPanel />
+      <VerdictTrendPanel />
     </div>
   )
 }
@@ -4613,8 +4744,43 @@ function ArchiveTab() {
 /* Root                                                                */
 /* ------------------------------------------------------------------ */
 
+/* Хэш — адрес вкладки (#batches, #verdicts…): живёт в URL, переживает
+ *  перезагрузку и делится ссылкой; назад/вперёд браузера ходят по
+ *  вкладкам. Вкладка — ПРОИЗВОДНОЕ от адреса (useSyncExternalStore:
+ *  серверный снапшот пуст — гидратация без расхождения, после неё
+ *  адрес читается живьём); навигация = событие адреса (pushState сам
+ *  не стреляет hashchange — стреляем сами). Неверный хэш молча
+ *  игнорируется (дефолт — Состояние). */
+function subscribeHash(onStoreChange: () => void): () => void {
+  window.addEventListener('hashchange', onStoreChange)
+  return () => window.removeEventListener('hashchange', onStoreChange)
+}
+
+function getHashSnapshot(): string {
+  return window.location.hash
+}
+
+function getHashServerSnapshot(): string {
+  return ''
+}
+
+function tabFromHashValue(hash: string): TabId | null {
+  const h = decodeURIComponent(hash.replace(/^#/, ''))
+  return TABS.some((t) => t.id === h) ? (h as TabId) : null
+}
+
 export default function Home() {
-  const [tab, setTab] = useState<TabId>('state')
+  const hash = useSyncExternalStore(subscribeHash, getHashSnapshot, getHashServerSnapshot)
+  const tab = tabFromHashValue(hash) ?? 'state'
+
+  /* Единая точка навигации: адрес вперёд (pushState) + событие адреса —
+   *  вкладка перерисуется сама, история браузера хранит путь по вкладкам. */
+  function goTab(id: TabId) {
+    if (tabFromHashValue(window.location.hash) === id) return
+    window.history.pushState(null, '', `#${id}`)
+    window.dispatchEvent(new HashChangeEvent('hashchange'))
+  }
+
   const state = useApi<{ batches?: unknown[]; events?: number; glass?: { chain?: { ok?: boolean; events?: number } } }>(
     '/api/t4/state'
   )
@@ -4634,16 +4800,16 @@ export default function Home() {
       )
         return
       const idx = '1234567890'.indexOf(e.key)
-      if (idx >= 0 && idx < TABS.length) setTab(TABS[idx].id)
+      if (idx >= 0 && idx < TABS.length) goTab(TABS[idx].id)
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [])
 
   /* Глубокая навигация (радар TRIAL-3 → слот): дом только переключает
-   *  вкладку — батч открывает BatchesTab, скроллит SlotStrip. */
+   *  вкладку (адрес следует) — батч открывает BatchesTab, скроллит SlotStrip. */
   useEffect(() => {
-    const off = subscribeSlotNav(() => setTab('batches'))
+    const off = subscribeSlotNav(() => goTab('batches'))
     return off
   }, [])
 
@@ -4701,8 +4867,8 @@ export default function Home() {
               {TABS.map((t, i) => (
                 <button
                   key={t.id}
-                  onClick={() => setTab(t.id)}
-                  title={`${t.label} · клавиша ${(i + 1) % 10}`}
+                  onClick={() => goTab(t.id)}
+                  title={`${t.label} · клавиша ${(i + 1) % 10} · адрес #${t.id}`}
                   className={cn(
                     'flex shrink-0 items-center gap-1.5 rounded-md border-b-2 px-3 py-1.5 text-xs font-medium transition-all outline-none focus-visible:ring-1 focus-visible:ring-amber-500/50',
                     tab === t.id
@@ -4760,7 +4926,9 @@ export default function Home() {
               <kbd className="rounded border border-b-2 border-zinc-700 bg-gradient-to-b from-zinc-800 to-zinc-900 px-1 font-mono text-[10px] text-zinc-400 shadow-sm">0</kbd>
               — вкладки ·
               <kbd className="rounded border border-b-2 border-zinc-700 bg-gradient-to-b from-zinc-800 to-zinc-900 px-1 font-mono text-[10px] text-zinc-400 shadow-sm">/</kbd>
-              — поиск
+              — поиск ·
+              <kbd className="rounded border border-b-2 border-zinc-700 bg-gradient-to-b from-zinc-800 to-zinc-900 px-1 font-mono text-[10px] text-zinc-400 shadow-sm">#</kbd>
+              — адрес вкладки
             </span>
             <span className="font-mono">гейты — см. Состояние · салиенс + noun-lock + коллизия · приёмник батча · сейф</span>
           </span>
