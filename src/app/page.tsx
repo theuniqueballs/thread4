@@ -13,8 +13,10 @@ import {
   BookOpen,
   Boxes,
   Check,
+  ChevronDown,
   ChevronRight,
   Copy,
+  Crosshair,
   Download,
   FileText,
   FlaskConical,
@@ -24,6 +26,7 @@ import {
   KeyRound,
   Layers,
   PenLine,
+  Radar,
   RotateCcw,
   ScanEye,
   ScrollText,
@@ -80,9 +83,12 @@ import { TIER_RANK } from '@/lib/t4/verdicts'
 import {
   buildDiffMarkdown,
   diffTokens,
+  extractHypotheses,
+  extractTrialLaws,
   parseBatchMd,
   stackIds,
   type BatchMd,
+  type Hypothesis,
   type SlotMd,
   type TokenDiff,
 } from '@/lib/t4/batch-md'
@@ -94,6 +100,12 @@ import {
   restoreSnapshot,
   type VaultMeta,
 } from '@/components/t4/vault'
+import {
+  clearPendingSlotNav,
+  navigateToSlot,
+  pendingSlotNav,
+  subscribeSlotNav,
+} from '@/components/t4/nav'
 
 /* ------------------------------------------------------------------ */
 /* Tab model                                                           */
@@ -1315,11 +1327,22 @@ function CopyBtn({ text, label, title }: { text: string; label: string; title: s
 function BatchesTab() {
   const list = useApi<{ items: BatchRow[] }>('/api/t4/batches')
   const [mode, setMode] = useState<'view' | 'compare'>('view')
-  const [slug, setSlug] = useState<string | null>(null)
+  /* ленивый инициализатор (не эффект): вкладка монтируется ПОСЛЕ события
+   *  глубокой навигации — sticky-намерение уже лежит в шине, батч открыт */
+  const [slug, setSlug] = useState<string | null>(() => pendingSlotNav()?.slug ?? null)
   const [query, setQuery] = useState('')
   const [aSlug, setASlug] = useState('')
   const [bSlug, setBSlug] = useState('')
   const detail = useApi<BatchDetailData>(slug ? `/api/t4/batches/${slug}` : null)
+  /* живой подписчик: радар кликнут при смонтированной вкладке — открываем
+   *  батч прямо здесь (setState в обработчике события, не в теле эффекта) */
+  useEffect(() => {
+    const off = subscribeSlotNav((intent) => {
+      setMode('view')
+      setSlug(intent.slug)
+    })
+    return off
+  }, [])
   /* «/» — фокус в поиск, классика; слушатель живёт только пока вкладка смонтирована */
   const searchRef = useRef<HTMLInputElement>(null)
   useEffect(() => {
@@ -1545,6 +1568,19 @@ function saveRenderProgress(slug: string, ids: string[]) {
   window.localStorage.setItem(`t4-render-progress-${slug}`, JSON.stringify(ids))
 }
 
+/* -------- Глубокая навигация «радар → слот» (шина t4/nav) ----------- */
+
+/** Скролл к строке слота + янтарная вспышка. Модульная функция без
+ *  реакт-состояния — её зовут и живой подписчик SlotStrip, и эффект,
+ *  разбирающий sticky-намерение при позднем монтаже. */
+function focusSlotRow(slug: string, slotId: string) {
+  const el = document.getElementById(`slot-${slug}-${slotId}`)
+  if (!el) return
+  el.scrollIntoView({ block: 'center', behavior: 'smooth' })
+  el.classList.add('t4-slot-flash')
+  window.setTimeout(() => el.classList.remove('t4-slot-flash'), 3200)
+}
+
 /** Слот «отрендерен в паре»: отмечен в сторах всех сторон, где он есть
  *  (рендер пары — тот же слот из A и из B под одним сидом). */
 function loadPairDone(aSlug: string, bSlug: string, a: BatchMd, b: BatchMd): string[] {
@@ -1569,6 +1605,25 @@ function SlotStrip({ slug, markdown }: { slug: string; markdown: string }) {
   useEffect(() => {
     saveRenderProgress(slug, doneIds)
   }, [slug, doneIds])
+
+  /* Глубокая навигация (радар TRIAL-3 → слот): живой подписчик скроллит
+   *  сразу; поздно смонтировавшийся трекер разбирает sticky-намерение,
+   *  когда разбор батча уже готов (маркдаун приезжает асинхронно). */
+  useEffect(() => {
+    const off = subscribeSlotNav((intent) => {
+      if (intent.slug !== slug) return
+      focusSlotRow(slug, intent.slotId)
+    })
+    return off
+  }, [slug])
+
+  useEffect(() => {
+    const intent = pendingSlotNav()
+    if (!intent || intent.slug !== slug) return
+    clearPendingSlotNav()
+    const t = window.setTimeout(() => focusSlotRow(slug, intent.slotId), 90)
+    return () => window.clearTimeout(t)
+  }, [parsed, slug])
 
   if (!parsed) return null
 
@@ -1685,6 +1740,7 @@ function SlotStrip({ slug, markdown }: { slug: string; markdown: string }) {
         return (
           <div
             key={s.id}
+            id={`slot-${slug}-${s.id}`}
             className={cn(
               'flex items-center gap-2 rounded-md border px-2.5 py-1.5 transition-colors',
               isDone
@@ -2610,6 +2666,442 @@ function AuthorVisionRow({ slug }: { slug: string }) {
       </div>
       {done ? <p className="mt-1.5 text-[11px] text-emerald-400">{done}</p> : null}
     </div>
+  )
+}
+
+/* ------------------------------------------------------------------ */
+/* Панель 0 (webDevReview #5): TRIAL-3 радар — законы и EXP-гипотезы   */
+/* под вердиктом. Живой момент: T4-27 + T4-27.2-EXP закрывают M15-M20  */
+/* → конституция; радар держит всю программу триала в одном месте —   */
+/* статусы едят трекер рендера (Слоты) и записи приёмника (КУЧА ниже). */
+/* ------------------------------------------------------------------ */
+
+/** Статус гипотезы: куда двигается рука автора. */
+type HypoStatus = 'render' | 'verdict' | 'done'
+
+function TrialStatusPill({ status, rendered, total }: { status: HypoStatus; rendered: number; total: number }) {
+  const map: Record<HypoStatus, { cls: string; dot: string; label: string }> = {
+    render: {
+      cls: 'border-zinc-700/70 bg-zinc-800/50 text-zinc-400',
+      dot: 'bg-zinc-500',
+      label: `ждёт рендер · ${rendered}/${total}`,
+    },
+    verdict: {
+      cls: 'border-amber-500/30 bg-amber-500/10 text-amber-300',
+      dot: 'bg-amber-400',
+      label: 'отрендерена — ждёт вердикт',
+    },
+    done: {
+      cls: 'border-emerald-600/30 bg-emerald-600/10 text-emerald-400',
+      dot: 'bg-emerald-500',
+      label: 'вердикт записан',
+    },
+  }
+  const m = map[status]
+  return (
+    <span className={cn('inline-flex items-center gap-1.5 rounded-md border px-2 py-0.5 text-[10px] font-medium', m.cls)}>
+      <span className={cn('size-1.5 rounded-full', m.dot)} />
+      {m.label}
+    </span>
+  )
+}
+
+/** ↑↓ тиров пары по глазу автора: чья половинка доставила выше. */
+function tierDeltaLabel(ta?: string, tb?: string): string {
+  if (!ta || !tb) return ''
+  const va = TIER_RANK[ta] ?? -1
+  const vb = TIER_RANK[tb] ?? -1
+  if (va < 0 || vb < 0) return ''
+  if (va > vb) return 'A выше'
+  if (va < vb) return 'B выше'
+  return 'A = B'
+}
+
+/** Чип слота с глубокой навигацией: клик — Батчи → батч → строка слота. */
+function SlotNavChip({
+  slug,
+  slotId,
+  side,
+  alchemy,
+}: {
+  slug: string
+  slotId: string
+  side: 'A' | 'B' | ''
+  alchemy: boolean
+}) {
+  return (
+    <button
+      type="button"
+      onClick={(e) => {
+        e.stopPropagation()
+        navigateToSlot(slug, slotId)
+      }}
+      title={`${slotId} · ${side ? `половинка ${side}` : 'одиночка'} — открыть строку слота в Батчах${alchemy ? ' · ⚗ осознанный нарушитель' : ''}`}
+      className={cn(
+        'inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 font-mono text-[10px] leading-4 transition-all hover:border-amber-500/50 hover:text-amber-300 active:scale-95',
+        alchemy
+          ? 'border-fuchsia-500/30 bg-fuchsia-500/10 text-fuchsia-300/90'
+          : 'border-zinc-700/70 bg-zinc-800/50 text-zinc-300'
+      )}
+    >
+      {slotId}
+      {side ? <span className="font-sans text-[9px] text-zinc-500">{side}</span> : null}
+      {alchemy ? <span aria-hidden>⚗</span> : null}
+    </button>
+  )
+}
+
+/** Строка гипотезы: шапка-кнопка (грек/H-ид/закон/чипы/статус) + раскрытие
+ *  с тезисами половинок, POS-дельтой и тирами вердикта. */
+function RadarHypoRow({
+  h,
+  effSlug,
+  rendered,
+  record,
+  tierByPos,
+  open,
+  onToggle,
+}: {
+  h: Hypothesis
+  effSlug: string
+  rendered: Set<string>
+  record: BatchVerdictRecord | null
+  tierByPos: Map<string, string>
+  open: boolean
+  onToggle: () => void
+}) {
+  const halves: { half: NonNullable<Hypothesis['a']>; side: 'A' | 'B' | '' }[] =
+    h.kind === 'pair'
+      ? [
+          { half: h.a, side: 'A' as const },
+          { half: h.b, side: 'B' as const },
+        ]
+      : [{ half: h.single, side: '' }]
+  const present = halves.filter((x) => x.half != null) as { half: NonNullable<Hypothesis['a']>; side: 'A' | 'B' | '' }[]
+  const doneCount = present.filter((x) => rendered.has(x.half.slotId)).length
+  const status: HypoStatus = record
+    ? 'done'
+    : doneCount === present.length && doneCount > 0
+      ? 'verdict'
+      : 'render'
+  const tierA = h.a ? tierByPos.get(h.a.slotId) : undefined
+  const tierB = h.b ? tierByPos.get(h.b.slotId) : undefined
+  const tierSingle = h.single ? tierByPos.get(h.single.slotId) : undefined
+  const delta = record && h.kind === 'pair' ? tierDeltaLabel(tierA, tierB) : ''
+  const dP = h.kind === 'pair' && h.a && h.b ? diffTokens(h.a.pos, h.b.pos) : null
+
+  return (
+    <div className="rounded-md border border-zinc-800 bg-zinc-950/60 transition-colors hover:border-zinc-700/80">
+      <div
+        role="button"
+        tabIndex={0}
+        aria-expanded={open}
+        aria-label={`Гипотеза ${h.greek}${h.hid ? ` (${h.hid})` : ''} — ${h.title || 'EXP'}`}
+        onClick={onToggle}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault()
+            onToggle()
+          }
+        }}
+        className="flex cursor-pointer select-none flex-wrap items-center gap-2 px-3 py-2 transition-colors hover:bg-zinc-900/70"
+      >
+        <span
+          className={cn(
+            'flex size-6 shrink-0 items-center justify-center rounded-md border font-mono text-xs',
+            h.kind === 'pair'
+              ? 'border-amber-500/30 bg-amber-500/10 text-amber-300'
+              : 'border-zinc-700 bg-zinc-800/60 text-zinc-300'
+          )}
+        >
+          {h.greek}
+        </span>
+        {h.hid ? <Chip tone="amber">{h.hid}</Chip> : null}
+        <span className="min-w-0 basis-24 text-xs font-medium text-zinc-200">
+          {h.title || (h.kind === 'pair' ? 'A/B-пара' : 'одиночка')}
+        </span>
+        {h.lawNo ? (
+          <span className="rounded border border-zinc-800 bg-zinc-900/60 px-1.5 font-mono text-[10px] text-zinc-500">
+            закон №{h.lawNo}
+          </span>
+        ) : null}
+        <span className="ml-auto flex flex-wrap items-center gap-1.5">
+          {present.map(({ half, side }) => (
+            <SlotNavChip key={half.slotId} slug={effSlug} slotId={half.slotId} side={side} alchemy={half.alchemy} />
+          ))}
+          {record && h.kind === 'pair' && tierA && tierB ? (
+            <Chip tone="emerald" className="font-mono">
+              {tierA} ↔ {tierB}
+            </Chip>
+          ) : null}
+          {record && h.kind === 'single' && tierSingle ? (
+            <Chip tone="emerald" className="font-mono">
+              {tierSingle}
+            </Chip>
+          ) : null}
+          {delta && delta !== 'A = B' ? <Chip tone="emerald">{delta}</Chip> : null}
+          <TrialStatusPill status={status} rendered={doneCount} total={present.length} />
+          <ChevronDown className={cn('size-3.5 shrink-0 text-zinc-600 transition-transform', open && 'rotate-180')} />
+        </span>
+      </div>
+      {open ? (
+        <div className="space-y-2 border-t border-zinc-800/70 px-3 py-2.5">
+          {present.map(({ half, side }) => (
+            <div key={half.slotId} className="rounded-md border border-zinc-800/70 bg-zinc-950/50 px-2.5 py-2">
+              <div className="flex flex-wrap items-center gap-1.5">
+                <Mono>{half.slotId}</Mono>
+                <span className="font-mono text-[10px] text-zinc-500">{half.slotSlug}</span>
+                {side ? (
+                  <Chip tone={side === 'A' ? 'amber' : 'emerald'}>
+                    {h.greek}-{side}
+                  </Chip>
+                ) : (
+                  <Chip>{h.greek} · одиночка</Chip>
+                )}
+                {half.alchemy ? <Chip tone="rose">⚗ осознанный нарушитель</Chip> : null}
+                {record && tierByPos.get(half.slotId) ? (
+                  <Chip tone="emerald" className="font-mono">
+                    глаз автора: {tierByPos.get(half.slotId)}
+                  </Chip>
+                ) : null}
+              </div>
+              <p className="mt-1 line-clamp-3 text-[11px] leading-relaxed text-zinc-500" title={half.thesis}>
+                {half.thesis}
+              </p>
+            </div>
+          ))}
+          {dP ? (
+            <div className="flex flex-wrap items-center gap-2 text-[11px] text-zinc-500">
+              <span>POS A→B:</span>
+              <Chip tone="amber">+{dP.added.length}</Chip>
+              <Chip tone="rose">−{dP.removed.length}</Chip>
+              <span className="text-zinc-600">разница половинок — ровно одна переменная (§10)</span>
+            </div>
+          ) : null}
+          {record ? (
+            <p className="text-[11px] text-emerald-400/80">
+              вердикт записан {formatDate(record.at)} — тиры половинок выше; A/B-атрибуция решает судьбу закона.
+            </p>
+          ) : (
+            <p className="text-[11px] text-zinc-600">
+              рендер пары — тот же слот из A и из B под одним сидом; галочки трекера (Слоты) двигают статус.
+            </p>
+          )}
+        </div>
+      ) : null}
+    </div>
+  )
+}
+
+function TrialRadarPanel() {
+  const batches = useApi<{ items: { slug: string; title: string }[] }>('/api/t4/batches')
+  const records = useApi<{ records: BatchVerdictRecord[] }>('/api/t4/batch-verdict')
+  const [slug, setSlug] = useState('')
+  const [open, setOpen] = useState<string | null>(null)
+  const items = batches.data?.items ?? []
+  /* дефолт — новейший батч (сегодня T4-27.2-EXP, живая пара момента) */
+  const effSlug = slug !== '' ? slug : items[0]?.slug ?? ''
+  const detail = useApi<BatchDetailData>(effSlug !== '' ? `/api/t4/batches/${effSlug}` : null)
+  const parsed = useMemo(() => (detail.data ? parseBatchMd(detail.data.markdown) : null), [detail.data])
+  const ownLaws = useMemo(() => (detail.data ? extractTrialLaws(detail.data.markdown) : []), [detail.data])
+  const hypos = useMemo(
+    () => (parsed && detail.data ? extractHypotheses(detail.data.markdown, parsed) : []),
+    [parsed, detail.data]
+  )
+  /* трекер рендера — та же черновая память, что Слоты и Сравнение.
+   *  Читается прямым вычислением (не useMemo): чтение localStorage —
+   *  нечистое, реактовский компилятор такое memo не сохраняет; массив
+   *  мал (десятки id) — на каждый рендер не жалко. */
+  const rendered = effSlug !== '' ? new Set(loadRenderProgress(effSlug)) : new Set<string>()
+  const record = (records.data?.records ?? []).find((r) => r.slug === effSlug) ?? null
+  const tierByPos = new Map<string, string>()
+  for (const s of record?.slots ?? []) if (s.myTier) tierByPos.set(s.position, s.myTier)
+
+  /* H13 BODY-SPECTRUM: перестройка — тот же T4-NN базой под другим слагом;
+   *  карта пары видна, когда вторая сторона несёт BODY-SPECTRUM в файле. */
+  const base = effSlug.match(/^T4-\d+/)?.[0] ?? ''
+  const pairOther =
+    base !== '' ? items.find((i) => i.slug !== effSlug && i.slug.startsWith(base)) : undefined
+  const pairOtherDetail = useApi<BatchDetailData>(pairOther ? `/api/t4/batches/${pairOther.slug}` : null)
+  const isRebuild = effSlug !== base && effSlug !== ''
+  const pairA = isRebuild ? (pairOther?.slug ?? '') : effSlug
+  const pairB = isRebuild ? effSlug : (pairOther?.slug ?? '')
+  const otherParsed = useMemo(
+    () => (pairOtherDetail.data ? parseBatchMd(pairOtherDetail.data.markdown) : null),
+    [pairOtherDetail.data]
+  )
+  /* перестройка (T4-27.2-EXP) не повторяет список законов родителя —
+   *  радар берёт их из стороны пары (источник подписан) */
+  const otherLaws = useMemo(
+    () => (pairOtherDetail.data ? extractTrialLaws(pairOtherDetail.data.markdown) : []),
+    [pairOtherDetail.data]
+  )
+  const laws = ownLaws.length > 0 ? ownLaws : otherLaws
+  const lawSource = ownLaws.length > 0 ? '' : pairOther?.slug ?? ''
+  const h13 =
+    pairOther && pairOtherDetail.data?.markdown &&
+    (pairOtherDetail.data.markdown.includes('BODY-SPECTRUM') ||
+      detail.data?.markdown?.includes('BODY-SPECTRUM'))
+      ? {
+          a: pairA,
+          b: pairB,
+          aDone: loadRenderProgress(pairA).length,
+          bDone: loadRenderProgress(pairB).length,
+          aTotal: (isRebuild ? otherParsed?.slots.length : parsed?.slots.length) ?? 0,
+          bTotal: (isRebuild ? parsed?.slots.length : otherParsed?.slots.length) ?? 0,
+          verdictB: (records.data?.records ?? []).some((r) => r.slug === pairB),
+        }
+      : null
+
+  const loading = batches.loading || (effSlug !== '' && detail.loading)
+
+  return (
+    <Panel
+      title="TRIAL-3 · радар законов"
+      icon={<Radar className="size-4" />}
+      action={
+        <select
+          value={slug}
+          onChange={(e) => {
+            setSlug(e.target.value)
+            setOpen(null)
+          }}
+          aria-label="Батч радара TRIAL-3"
+          className="h-8 max-w-[220px] rounded-md border border-zinc-800 bg-zinc-950 px-2 text-xs text-zinc-200 focus-visible:outline-none focus-visible:border-amber-500/50"
+        >
+          {items.map((i) => (
+            <option key={i.slug} value={i.slug}>
+              {i.slug}
+            </option>
+          ))}
+        </select>
+      }
+    >
+      {loading ? (
+        <SkeletonBlock lines={6} />
+      ) : !detail.data ? (
+        <EmptyState
+          title="Батч не читается"
+          hint="Радар берёт программу триала из файла батча — выбери другой слаг."
+        />
+      ) : (
+        <div className="space-y-4">
+          <p className="text-xs leading-relaxed text-zinc-500">
+            T4-27 закрывает цикл TRIAL-3: вердикт автора переводит законы{' '}
+            <span className="font-mono text-amber-300/80">M15-M20</span> в конституцию, а A/B-пары
+            EXP решают судьбу кандидатов. Радар собирает законы, гипотезы и статусы в одном месте:
+            статусы едят трекер рендера (вкладка Батчи → Слоты) и записи приёмника (панель ниже).
+          </p>
+
+          {laws.length > 0 ? (
+            <div>
+              <p className="mb-1.5 flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-wider text-zinc-600">
+                Законы триала · {laws.length}
+                {lawSource !== '' ? (
+                  <span className="font-mono normal-case text-zinc-700">из {lawSource}</span>
+                ) : null}
+              </p>
+              <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                {laws.map((l) => (
+                  <div
+                    key={l.id}
+                    className="rounded-md border border-zinc-800 bg-zinc-950/60 px-3 py-2 transition-colors hover:border-zinc-700"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="rounded border border-fuchsia-500/30 bg-fuchsia-500/10 px-1.5 font-mono text-[10px] text-fuchsia-300">
+                        {l.id}
+                      </span>
+                      <span className="min-w-0 truncate text-xs font-medium text-zinc-200">{l.name}</span>
+                      {l.ref ? (
+                        <span className="ml-auto shrink-0 font-mono text-[10px] text-amber-300/70">{l.ref}</span>
+                      ) : null}
+                    </div>
+                    <p className="mt-1 line-clamp-3 text-[11px] leading-relaxed text-zinc-500" title={l.note}>
+                      {l.note}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : null}
+
+          {hypos.length > 0 ? (
+            <div>
+              <p className="mb-1.5 flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-wider text-zinc-600">
+                EXP-программа · {hypos.length}
+                <span className="font-mono normal-case text-zinc-700">
+                  {hypos.filter((x) => x.kind === 'pair').length} пары +{' '}
+                  {hypos.filter((x) => x.kind === 'single').length} одиночки
+                </span>
+              </p>
+              <div className="space-y-1.5">
+                {hypos.map((h) => (
+                  <RadarHypoRow
+                    key={h.greek}
+                    h={h}
+                    effSlug={effSlug}
+                    rendered={rendered}
+                    record={record}
+                    tierByPos={tierByPos}
+                    open={open === h.greek}
+                    onToggle={() => setOpen(open === h.greek ? null : h.greek)}
+                  />
+                ))}
+              </div>
+            </div>
+          ) : (
+            <EmptyState
+              title="В этом батче нет EXP-слотов"
+              hint="Радар читает маркеры гипотез из THESIS EXP-слотов — выбери батч с программой (T4-25 и новее)."
+            />
+          )}
+
+          {h13 ? (
+            <div className="rounded-md border border-fuchsia-500/40 bg-fuchsia-500/5 px-3 py-2.5">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="rounded border border-fuchsia-500/30 bg-fuchsia-500/10 px-1.5 font-mono text-[10px] text-fuchsia-300">
+                  H13
+                </span>
+                <span className="text-xs font-medium text-zinc-200">BODY-SPECTRUM — названное тело против дефолта</span>
+                <span className="font-mono text-[10px] text-zinc-500">перестройка · единственная переменная — тело</span>
+              </div>
+              <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                <SlotNavChip slug={h13.a} slotId="P01" side="A" alchemy={false} />
+                <span className="font-mono text-[10px] text-zinc-500">
+                  рендер {h13.aDone}/{h13.aTotal}
+                </span>
+                <span className="text-zinc-700" aria-hidden>
+                  ↔
+                </span>
+                <SlotNavChip slug={h13.b} slotId="P01" side="B" alchemy={false} />
+                <span className="font-mono text-[10px] text-zinc-500">
+                  рендер {h13.bDone}/{h13.bTotal}
+                </span>
+                <span className="ml-auto">
+                  <TrialStatusPill
+                    status={h13.verdictB ? 'done' : h13.bDone > 0 && h13.bDone >= h13.bTotal && h13.bTotal > 0 ? 'verdict' : 'render'}
+                    rendered={h13.bDone}
+                    total={h13.bTotal}
+                  />
+                </span>
+              </div>
+              <p className="mt-1.5 text-[11px] leading-relaxed text-zinc-500">
+                «назови тело, или рендер решит за тебя» — тот же состав, что сторона A; разница только
+                в теле. Решает глаз автора на рендере B против A; держит — закон в TASTE (форма, не
+                возраст — N30) и приказ «охуенный прорыв в промптостроении» закрыт. Чипы ведут к
+                первым строкам обеих сторон, полный разбор — Сравнение A↔B.
+              </p>
+            </div>
+          ) : null}
+
+          <p className="flex flex-wrap items-center gap-1.5 border-t border-zinc-800/60 pt-2 text-[11px] text-zinc-600">
+            <Crosshair className="size-3" />
+            чипы слотов — глубокие ссылки: открывают батч, скроллят к строке и вспыхивают её.
+            Места по-прежнему пусты? Стекло помнит цикл автора.
+          </p>
+        </div>
+      )}
+    </Panel>
   )
 }
 
@@ -3755,6 +4247,7 @@ function BatchReceiverPanel() {
 function VerdictsTab() {
   return (
     <div className="space-y-6">
+      <TrialRadarPanel />
       <VlmFirstPassPanel />
       <BatchReceiverPanel />
     </div>
@@ -3985,6 +4478,13 @@ export default function Home() {
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
+  }, [])
+
+  /* Глубокая навигация (радар TRIAL-3 → слот): дом только переключает
+   *  вкладку — батч открывает BatchesTab, скроллит SlotStrip. */
+  useEffect(() => {
+    const off = subscribeSlotNav(() => setTab('batches'))
+    return off
   }, [])
 
   return (

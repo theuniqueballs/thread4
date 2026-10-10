@@ -162,6 +162,25 @@
   background-clip: padding-box;
 }
 
+/* THREAD 4: вспышка строки слота после глубокой ссылки (радар → Батчи).
+ * Янтарное кольцо два раза — глаз автора находит строку без поиска. */
+@keyframes t4-slot-flash-kf {
+  0% {
+    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.5);
+    border-color: rgba(245, 158, 11, 0.75);
+  }
+  70% {
+    box-shadow: 0 0 0 7px rgba(245, 158, 11, 0.08);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0);
+  }
+}
+.t4-slot-flash {
+  animation: t4-slot-flash-kf 1.5s ease-out 2;
+  border-color: rgba(245, 158, 11, 0.6);
+}
+
 /* Уважение к пользователю: без движения — контент без анимаций */
 @media (prefers-reduced-motion: reduce) {
   .t4-tab-enter {
@@ -169,5 +188,9 @@
   }
   .animate-\[thread-slide_6s_linear_infinite\] {
     animation: none;
+  }
+  .t4-slot-flash {
+    animation: none;
+    border-color: rgba(245, 158, 11, 0.6);
   }
 }
