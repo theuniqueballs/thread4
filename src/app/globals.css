@@ -181,6 +181,42 @@
   border-color: rgba(245, 158, 11, 0.6);
 }
 
+/* THREAD 4: шиммер полосы прогресса в пути (янтарная занятость дышит);
+ *  на 100% полоса становится изумрудной — шиммер снимается классом.
+ *  Наложение ::after, не background: сама полоса несёт свой градиент. */
+@keyframes t4-shimmer-kf {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.t4-shimmer {
+  position: relative;
+}
+.t4-shimmer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(
+    100deg,
+    rgba(255, 255, 255, 0) 30%,
+    rgba(255, 255, 255, 0.28) 50%,
+    rgba(255, 255, 255, 0) 70%
+  );
+  background-size: 200% 100%;
+  animation: t4-shimmer-kf 2.4s linear infinite;
+}
+
+/* THREAD 4: янтарная точка «ждёт вердикт» дышит — рука автора находит
+ *  её без поиска (пилюля статуса радара). */
+@keyframes t4-pulse-kf {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.45; transform: scale(1.35); }
+}
+.t4-pulse {
+  animation: t4-pulse-kf 1.8s ease-in-out infinite;
+}
+
 /* Уважение к пользователю: без движения — контент без анимаций */
 @media (prefers-reduced-motion: reduce) {
   .t4-tab-enter {
@@ -192,5 +228,14 @@
   .t4-slot-flash {
     animation: none;
     border-color: rgba(245, 158, 11, 0.6);
+  }
+  .t4-shimmer {
+    position: relative;
+  }
+  .t4-shimmer::after {
+    animation: none;
+  }
+  .t4-pulse {
+    animation: none;
   }
 }

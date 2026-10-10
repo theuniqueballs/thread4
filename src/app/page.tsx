@@ -15,6 +15,7 @@ import {
   Check,
   ChevronDown,
   ChevronRight,
+  ChevronsUpDown,
   Copy,
   Crosshair,
   Download,
@@ -82,6 +83,7 @@ import { SpecView } from '@/components/t4/spec-renderers'
 import { TIER_RANK } from '@/lib/t4/verdicts'
 import {
   buildDiffMarkdown,
+  buildTrialRadarMarkdown,
   diffTokens,
   extractHypotheses,
   extractTrialLaws,
@@ -1811,6 +1813,9 @@ function BatchCompare({
    *  реакт-линт запрещает set-state-in-effect). */
   const [pairKey, setPairKey] = useState('')
   const [pairDone, setPairDone] = useState<string[]>([])
+  /* Фильтр строк: 33 слота — «P25» или хвост слага находит строку быстрее
+   *  скролла; пустой фильтр — все строки (как раньше). */
+  const [slotQuery, setSlotQuery] = useState('')
   const ready = parsedA != null && parsedB != null && a !== '' && b !== '' && a !== b
   const curPair = ready ? `${a}::${b}` : ''
   if (curPair !== pairKey) {
@@ -1863,6 +1868,18 @@ function BatchCompare({
     }
     return [...map.values()].sort((x, y) => x.id.localeCompare(y.id))
   }, [parsedA, parsedB])
+
+  /* Фильтр: позиция или слаг любой стороны; регистр не важен. */
+  const visibleRows = useMemo(() => {
+    const q = slotQuery.trim().toLowerCase()
+    if (q === '') return rows
+    return rows.filter(
+      (r) =>
+        r.id.toLowerCase().includes(q) ||
+        r.a?.slug.toLowerCase().includes(q) ||
+        r.b?.slug.toLowerCase().includes(q)
+    )
+  }, [rows, slotQuery])
 
   const stats = useMemo(() => {
     let posAdd = 0
@@ -1955,6 +1972,28 @@ function BatchCompare({
           <Download className="size-3" />
           дифф .md
         </button>
+        <div className="relative shrink-0">
+          <Search className="pointer-events-none absolute left-2 top-1/2 size-3 -translate-y-1/2 text-zinc-600" />
+          <input
+            value={slotQuery}
+            onChange={(e) => setSlotQuery(e.target.value)}
+            placeholder="P25 / slug"
+            aria-label="Фильтр строк сравнения: позиция или слаг"
+            title="Фильтр строк: позиция (P25) или слаг любой стороны; пусто — все строки"
+            className="h-6 w-36 rounded-md border border-zinc-800 bg-zinc-950 pl-7 pr-6 text-[11px] text-zinc-300 placeholder:text-zinc-600 focus-visible:outline-none focus-visible:border-amber-500/50"
+          />
+          {slotQuery !== '' ? (
+            <button
+              type="button"
+              onClick={() => setSlotQuery('')}
+              aria-label="Сбросить фильтр строк"
+              title="Сбросить фильтр"
+              className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded text-zinc-600 transition-colors hover:text-amber-300"
+            >
+              <RotateCcw className="size-3" />
+            </button>
+          ) : null}
+        </div>
       </div>
       <p className="text-[11px] leading-relaxed text-zinc-500">
         роза — убрано из A · изумруд — добавлено в B · цинк — общее (в порядке B). Чекбокс строки
@@ -1978,6 +2017,11 @@ function BatchCompare({
           <div className="flex flex-wrap items-center gap-1.5">
             <Chip tone="zinc">A: {parsedA.slots.length} слотов</Chip>
             <Chip tone="zinc">B: {parsedB.slots.length}</Chip>
+            {slotQuery.trim() !== '' ? (
+              <Chip tone="amber">
+                фильтр: {visibleRows.length} из {rows.length}
+              </Chip>
+            ) : null}
             <Chip tone={aDoneN >= aTotal && aTotal > 0 ? 'emerald' : aDoneN > 0 ? 'amber' : 'zinc'}>
               рендер A {aDoneN}/{aTotal}
             </Chip>
@@ -2002,16 +2046,23 @@ function BatchCompare({
             </p>
           ) : null}
           <div className="space-y-1.5">
-            {rows.map((r) => (
-              <SlotDiff
-                key={r.id}
-                a={r.a}
-                b={r.b}
-                copySide={copySide}
-                done={pairDoneSet.has(r.id)}
-                onToggleDone={() => togglePairDone(r.id)}
+            {visibleRows.length === 0 ? (
+              <EmptyState
+                title="Фильтр ничего не нашёл"
+                hint={`«${slotQuery.trim()}» не встречается ни в позиции, ни в слаге — сбрось фильтр или попробуй короче.`}
               />
-            ))}
+            ) : (
+              visibleRows.map((r) => (
+                <SlotDiff
+                  key={r.id}
+                  a={r.a}
+                  b={r.b}
+                  copySide={copySide}
+                  done={pairDoneSet.has(r.id)}
+                  onToggleDone={() => togglePairDone(r.id)}
+                />
+              ))
+            )}
           </div>
         </>
       )}
@@ -2700,7 +2751,10 @@ function TrialStatusPill({ status, rendered, total }: { status: HypoStatus; rend
   const m = map[status]
   return (
     <span className={cn('inline-flex items-center gap-1.5 rounded-md border px-2 py-0.5 text-[10px] font-medium', m.cls)}>
-      <span className={cn('size-1.5 rounded-full', m.dot)} />
+      {/* янтарная точка «ждёт вердикт» пульсирует — рука автора должна
+       *  найти её без поиска (reduced-motion гасит через глобальный
+       *  animate-pulse не гасится — потому своя проверка ниже) */}
+      <span className={cn('size-1.5 rounded-full', m.dot, status === 'verdict' && 't4-pulse')} />
       {m.label}
     </span>
   )
@@ -2791,7 +2845,12 @@ function RadarHypoRow({
   const dP = h.kind === 'pair' && h.a && h.b ? diffTokens(h.a.pos, h.b.pos) : null
 
   return (
-    <div className="rounded-md border border-zinc-800 bg-zinc-950/60 transition-colors hover:border-zinc-700/80">
+    <div
+      className={cn(
+        'rounded-md border bg-zinc-950/60 transition-colors hover:border-zinc-700/80',
+        open ? 'border-amber-500/25 bg-amber-500/[0.02]' : 'border-zinc-800'
+      )}
+    >
       <div
         role="button"
         tabIndex={0}
@@ -2897,6 +2956,9 @@ function TrialRadarPanel() {
   const batches = useApi<{ items: { slug: string; title: string }[] }>('/api/t4/batches')
   const records = useApi<{ records: BatchVerdictRecord[] }>('/api/t4/batch-verdict')
   const [slug, setSlug] = useState('')
+  /* 'ALL' — режим «развернуть всё» (кнопка в шапке EXP-программы);
+   *  клик по строке в этом режиме сворачивает остальные — аккордеон
+   *  остаётся одно-открытым, кнопка вернёт всё сразу. */
   const [open, setOpen] = useState<string | null>(null)
   const items = batches.data?.items ?? []
   /* дефолт — новейший батч (сегодня T4-27.2-EXP, живая пара момента) */
@@ -2955,26 +3017,66 @@ function TrialRadarPanel() {
 
   const loading = batches.loading || (effSlug !== '' && detail.loading)
 
+  /* Сводка триала файлом — те же законы/гипотезы/статусы, что на экране
+   *  (buildTrialRadarMarkdown — чистая функция, её же зовёт CLI-инструмент). */
+  function downloadTrial() {
+    if (!detail.data) return
+    const md = buildTrialRadarMarkdown({
+      slug: effSlug,
+      title: detail.data.title,
+      lawSource: lawSource !== '' ? lawSource : undefined,
+      laws,
+      hypos,
+      rendered: [...rendered],
+      verdictRecord: record != null,
+      pair: h13 ?? undefined,
+    })
+    const url = URL.createObjectURL(new Blob([md], { type: 'text/markdown;charset=utf-8' }))
+    const el = document.createElement('a')
+    el.href = url
+    el.download = `trial-${effSlug}.md`
+    el.click()
+    URL.revokeObjectURL(url)
+  }
+
+  /* Полоса прогресса рендера батча — те же числа, что трекер Слотов:
+   *  янтарь с шиммером в пути, изумруд на 100%. */
+  const renderTotal = parsed?.slots.length ?? 0
+  const renderDone = [...rendered].length
+  const renderPct = renderTotal > 0 ? Math.min(100, Math.round((renderDone / renderTotal) * 100)) : 0
+
   return (
     <Panel
       title="TRIAL-3 · радар законов"
       icon={<Radar className="size-4" />}
       action={
-        <select
-          value={slug}
-          onChange={(e) => {
-            setSlug(e.target.value)
-            setOpen(null)
-          }}
-          aria-label="Батч радара TRIAL-3"
-          className="h-8 max-w-[220px] rounded-md border border-zinc-800 bg-zinc-950 px-2 text-xs text-zinc-200 focus-visible:outline-none focus-visible:border-amber-500/50"
-        >
-          {items.map((i) => (
-            <option key={i.slug} value={i.slug}>
-              {i.slug}
-            </option>
-          ))}
-        </select>
+        <div className="flex items-center gap-1.5">
+          <select
+            value={slug}
+            onChange={(e) => {
+              setSlug(e.target.value)
+              setOpen(null)
+            }}
+            aria-label="Батч радара TRIAL-3"
+            className="h-8 max-w-[220px] rounded-md border border-zinc-800 bg-zinc-950 px-2 text-xs text-zinc-200 focus-visible:outline-none focus-visible:border-amber-500/50"
+          >
+            {items.map((i) => (
+              <option key={i.slug} value={i.slug}>
+                {i.slug}
+              </option>
+            ))}
+          </select>
+          <button
+            type="button"
+            onClick={downloadTrial}
+            disabled={loading || !detail.data}
+            title="Скачать сводку триала одним .md — законы, гипотезы, тезисы и статусы; тот же файл даёт CLI-инструмент"
+            className="inline-flex shrink-0 items-center gap-1 rounded-md border border-zinc-700/70 bg-zinc-800/50 px-1.5 py-1 text-[10px] font-medium leading-4 text-zinc-400 transition-all outline-none hover:border-amber-500/50 hover:text-amber-300 focus-visible:ring-1 focus-visible:ring-amber-500/60 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            <Download className="size-3" />
+            .md
+          </button>
+        </div>
       }
     >
       {loading ? (
@@ -2993,6 +3095,42 @@ function TrialRadarPanel() {
             статусы едят трекер рендера (вкладка Батчи → Слоты) и записи приёмника (панель ниже).
           </p>
 
+          {/* Полоса момента: рендер батча + вердикт — глаз автора видит
+           *  одну строку вместо сверки счётчиков по панелям. */}
+          <div className="rounded-md border border-zinc-800/80 bg-zinc-950/60 px-3 py-2">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
+              <span className="text-[10px] uppercase tracking-wider text-zinc-600">момент</span>
+              <Chip tone={renderDone >= renderTotal && renderTotal > 0 ? 'emerald' : renderDone > 0 ? 'amber' : 'zinc'}>
+                рендер {renderDone}/{renderTotal}
+              </Chip>
+              <Chip tone={record ? 'emerald' : 'zinc'}>{record ? 'вердикт записан' : 'вердикт ждёт'}</Chip>
+              {h13 ? (
+                <Chip tone="rose">
+                  H13: {h13.a} {h13.aDone}/{h13.aTotal} ↔ {h13.b} {h13.bDone}/{h13.bTotal}
+                </Chip>
+              ) : null}
+              <span className="ml-auto font-mono text-[10px] text-zinc-600">{renderPct}%</span>
+            </div>
+            <div
+              className="mt-2 h-1 overflow-hidden rounded-full bg-zinc-800/80"
+              role="progressbar"
+              aria-label="Прогресс рендера батча"
+              aria-valuenow={renderDone}
+              aria-valuemin={0}
+              aria-valuemax={renderTotal}
+            >
+              <div
+                style={{ width: `${renderPct}%` }}
+                className={cn(
+                  'h-full rounded-full transition-[width] duration-500',
+                  renderPct >= 100
+                    ? 'bg-gradient-to-r from-emerald-600 to-emerald-400'
+                    : 't4-shimmer bg-gradient-to-r from-amber-600 via-amber-500 to-amber-400'
+                )}
+              />
+            </div>
+          </div>
+
           {laws.length > 0 ? (
             <div>
               <p className="mb-1.5 flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-wider text-zinc-600">
@@ -3005,8 +3143,15 @@ function TrialRadarPanel() {
                 {laws.map((l) => (
                   <div
                     key={l.id}
-                    className="rounded-md border border-zinc-800 bg-zinc-950/60 px-3 py-2 transition-colors hover:border-zinc-700"
+                    title={l.note}
+                    className="relative rounded-md border border-zinc-800 bg-zinc-950/60 px-3 py-2 transition-all duration-200 hover:-translate-y-px hover:border-zinc-700 hover:shadow-md hover:shadow-zinc-950/60"
                   >
+                    {/* фуксиевая волосинка сверху — законы выделяются из
+                     *  общего цинкового фона сетки */}
+                    <span
+                      aria-hidden
+                      className="absolute inset-x-3 top-0 h-px bg-gradient-to-r from-fuchsia-500/50 via-fuchsia-500/15 to-transparent"
+                    />
                     <div className="flex items-center gap-2">
                       <span className="rounded border border-fuchsia-500/30 bg-fuchsia-500/10 px-1.5 font-mono text-[10px] text-fuchsia-300">
                         {l.id}
@@ -3033,6 +3178,21 @@ function TrialRadarPanel() {
                   {hypos.filter((x) => x.kind === 'pair').length} пары +{' '}
                   {hypos.filter((x) => x.kind === 'single').length} одиночки
                 </span>
+                <button
+                  type="button"
+                  onClick={() => setOpen(open === 'ALL' ? null : 'ALL')}
+                  aria-pressed={open === 'ALL'}
+                  title={open === 'ALL' ? 'Свернуть все гипотезы' : 'Развернуть все гипотезы сразу — вся программа перед вердиктом'}
+                  className={cn(
+                    'ml-auto inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 font-mono text-[10px] normal-case leading-4 transition-all outline-none hover:border-amber-500/50 hover:text-amber-300 focus-visible:ring-1 focus-visible:ring-amber-500/60 active:scale-95',
+                    open === 'ALL'
+                      ? 'border-amber-500/40 bg-amber-500/10 text-amber-300'
+                      : 'border-zinc-700/70 bg-zinc-800/50 text-zinc-500'
+                  )}
+                >
+                  <ChevronsUpDown className="size-3" />
+                  {open === 'ALL' ? 'свернуть всё' : 'развернуть всё'}
+                </button>
               </p>
               <div className="space-y-1.5">
                 {hypos.map((h) => (
@@ -3043,7 +3203,7 @@ function TrialRadarPanel() {
                     rendered={rendered}
                     record={record}
                     tierByPos={tierByPos}
-                    open={open === h.greek}
+                    open={open === 'ALL' || open === h.greek}
                     onToggle={() => setOpen(open === h.greek ? null : h.greek)}
                   />
                 ))}
