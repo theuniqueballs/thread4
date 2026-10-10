@@ -812,7 +812,10 @@ export async function scribeBatch(
    *  prop-geometry (якоря контакта), simcheck (близнецы внутри батча).
    *  Один круг; если полировка роняет hard — ОТКАТ: черновик важнее. ---- */
   let polished = 0
-  if (options.polish !== false) {
+  if (options.polish !== false && result.hardPass) {
+    /* полировка только поверх hard PASS: черновик с hard FAIL сначала
+     * ремонтируется (или сдаётся автору с квитанциями), полировка
+     * поверх поломанного — трата круга LLM впустую */
     const POLISH_GATES = new Set(['noun-lock', 'claim-visibility', 'prop-geometry', 'simcheck'])
     const warnFindings = result.receipts.filter(
       (r) => r.level === 'warn' && r.verdict === 'WARN' && POLISH_GATES.has(r.gate)
