@@ -92,7 +92,7 @@ export function Panel({
   return (
     <section
       className={cn(
-        'group rounded-lg border border-zinc-800 bg-zinc-900 p-4 transition-colors hover:border-zinc-700 sm:p-6',
+        'group rounded-lg border border-zinc-800 bg-zinc-900 p-4 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.03)] transition-colors hover:border-zinc-700 sm:p-6',
         className
       )}
     >

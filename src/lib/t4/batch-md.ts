@@ -343,6 +343,145 @@ export function extractHypotheses(md: string, batch: BatchMd): Hypothesis[] {
 }
 
 /* ------------------------------------------------------------------ */
+/* Сводка триала (.md) — экспорт радара                                */
+/* ------------------------------------------------------------------ */
+
+/** Данные экспорта сводки триала: те же законы/гипотезы/статусы, что
+ *  радар показывает на экране. rendered и verdictRecord приносит вызывающий
+ *  (дашборд — трекер localStorage + приёмник; CLI — лог событий,
+ *  трекер браузера ему недоступен — честная пометка в шапке). */
+export interface TrialRadarExport {
+  slug: string
+  title: string
+  /** законы взяты из стороны пары (перестройка не повторяет список) */
+  lawSource?: string
+  laws: TrialLaw[]
+  hypos: Hypothesis[]
+  /** id слотов, отрендеренных по трекеру дашборда */
+  rendered: string[]
+  /** вердикт автора по батчу записан (render.verdict · author-batch) */
+  verdictRecord: boolean
+  /** трекер рендера недоступен (CLI) — в шапке будет честная пометка */
+  renderedUnknown?: boolean
+  /** H13 BODY-SPECTRUM: карта пары, если обе стороны известны */
+  pair?: {
+    a: string
+    b: string
+    aRendered: number
+    aTotal: number
+    bRendered: number
+    bTotal: number
+    verdictB: boolean
+  }
+}
+
+/** Строка статуса половинки/гипотезы — те же три состояния, что пилюля
+ *  радара: ждёт рендер → отрендерена — ждёт вердикт → вердикт записан. */
+function hypoStatusLabel(allRendered: boolean, some: number, total: number, verdict: boolean): string {
+  if (verdict) return 'вердикт записан'
+  if (allRendered && total > 0) return 'отрендерена — ждёт вердикт'
+  return `ждёт рендер · ${some}/${total}`
+}
+
+/** Сводка триала одним .md-файлом: шапка со статусами, законы M1x,
+ *  EXP-программа с тезисами половинок и POS-дельтой пар. Чистая функция,
+ *  без DOM — кнопка радара и tools/trial-export.ts дают идентичный файл
+ *  (одна правда, как у диффа и рендер-листов). */
+export function buildTrialRadarMarkdown(x: TrialRadarExport): string {
+  const L: string[] = []
+  const pairs = x.hypos.filter((h) => h.kind === 'pair').length
+  const singles = x.hypos.filter((h) => h.kind === 'single').length
+
+  L.push(`# THREAD 4 · сводка триала · ${x.slug}`)
+  L.push('')
+  L.push(`${x.slug} · ${x.title || '—'}`)
+  if (x.lawSource) L.push(`законы триала — из ${x.lawSource} (перестройка не повторяет список родителя)`)
+  L.push(
+    `законов: ${x.laws.length} · гипотез: ${x.hypos.length} (${pairs} ${pairs === 1 ? 'пара' : 'пары'} + ${singles} ${singles === 1 ? 'одиночка' : 'одиночек'})`
+  )
+  if (x.renderedUnknown) {
+    L.push(`трекер рендера живёт в браузере автора — статусы рендера ниже не заполнены`)
+    L.push(`вердикт: ${x.verdictRecord ? 'записан (render.verdict · author-batch)' : 'ждёт'}`)
+  } else {
+    L.push(
+      `рендер по трекеру: ${x.rendered.length} слотов отмечено · вердикт: ${x.verdictRecord ? 'записан (render.verdict · author-batch)' : 'ждёт'}`
+    )
+  }
+  L.push(`сгенерировано ${new Date().toLocaleString('ru-RU')}`)
+  L.push('')
+  L.push('---')
+  L.push('')
+
+  if (x.laws.length > 0) {
+    L.push(`## Законы триала · ${x.laws.length}`)
+    L.push('')
+    for (const l of x.laws) {
+      L.push(`- **${l.id} ${l.name}**${l.ref ? ` (${l.ref})` : ''} — ${l.note}`)
+    }
+    L.push('')
+  }
+
+  if (x.hypos.length > 0) {
+    L.push(`## EXP-программа · ${x.hypos.length}`)
+    L.push('')
+    for (const h of x.hypos) {
+      const head = `${h.greek}${h.hid ? ` (${h.hid})` : ''} · ${h.title || (h.kind === 'pair' ? 'A/B-пара' : 'одиночка')}`
+      L.push(`### ${head}${h.lawNo ? ` · закон №${h.lawNo}` : ''} — ${h.kind === 'pair' ? 'пара' : 'одиночка'}`)
+      L.push('')
+      const halves: { half: NonNullable<Hypothesis['a']>; side: 'A' | 'B' | '' }[] =
+        h.kind === 'pair'
+          ? [
+              { half: h.a, side: 'A' as const },
+              { half: h.b, side: 'B' as const },
+            ]
+          : [{ half: h.single, side: '' }]
+      const present = halves.filter((xh) => xh.half != null) as typeof halves
+      for (const { half, side } of present) {
+        const mark = half.alchemy ? ' · ⚗ осознанный нарушитель' : ''
+        const rend = x.rendered.includes(half.slotId) ? 'отрендерен' : 'ждёт рендер'
+        L.push(
+          `${side ? `${side} · ` : ''}${half.slotId} ${half.slotSlug}${mark} — ${rend}`
+        )
+        L.push(`  тезис: ${half.thesis}`)
+      }
+      if (h.kind === 'pair' && h.a && h.b) {
+        const d = diffTokens(h.a.pos, h.b.pos)
+        if (d.added.length + d.removed.length === 0) {
+          L.push(`POS A→B: без изменений`)
+        } else {
+          L.push(`POS A→B: +${d.added.length} · −${d.removed.length} (общих ${d.kept.length})`)
+          for (const t of d.added) L.push(`  + ${t}`)
+          for (const t of d.removed) L.push(`  − ${t}`)
+        }
+      }
+      const some = present.filter(({ half }) => x.rendered.includes(half.slotId)).length
+      L.push(
+        `статус: ${hypoStatusLabel(some === present.length && some > 0, some, present.length, x.verdictRecord)}`
+      )
+      L.push('')
+    }
+  }
+
+  if (x.pair) {
+    const p = x.pair
+    L.push(`## H13 · BODY-SPECTRUM — названное тело против дефолта`)
+    L.push('')
+    L.push(
+      `${p.a} (рендер ${p.aRendered}/${p.aTotal}) ↔ ${p.b} (рендер ${p.bRendered}/${p.bTotal}) · вердикт B: ${p.verdictB ? 'записан' : 'ждёт'}`
+    )
+    L.push(
+      `перестройка: тот же состав, единственная переменная — тело; решает глаз автора на рендере B против A.`
+    )
+    L.push('')
+  }
+
+  L.push('---')
+  L.push('')
+  L.push(`сводка читается файлом под руку: рендер-листы и дифф пары лежат рядом (download/); статус рендера живёт в трекере дашборда.`)
+  return L.join('\n')
+}
+
+/* ------------------------------------------------------------------ */
 /* Дифф-документ A→B (.md)                                             */
 /* ------------------------------------------------------------------ */
 
