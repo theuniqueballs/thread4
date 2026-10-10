@@ -40,7 +40,7 @@ interface SlotAxes {
   kind: string
 }
 
-interface Appearance extends SlotAxes {}
+type Appearance = SlotAxes
 
 interface FormulaRepeat {
   carriers: string[]
