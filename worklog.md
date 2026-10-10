@@ -2142,3 +2142,76 @@ Stage Summary:
 - Key data: delivery-stats v0.7.0 has 23 channels (live: wet-sheer 8, r-geometry 19, x-coverage-block 7, tape-only 4, contact-physics 8, handbra 4; dead: cameltoe; candidate: oc-rplus 2, fabric-tension 2, pantyline-lower 0, underwear-as-outfit 1; oracle 159/159); policy v1.5.0 = all numbers (24 slots, R+14/R7/X0 mains, EXP≤9 overlay, interleave, paletteRotation, rehab=[dry-sheer]); RAW+ profile v1.0.0 with hard gate
 - Open items: all GitHub Issues #1-#32 closed (0 open); parked author questions: light-gate for EXP rebuilds (#30, now with live precedent T4-27.2-EXP), NICHE.md v1.2 doctrine refresh (still teaches dead ARCH·DEVICE vs canon ARCH·LAW·PROOF — ISSUES-FRED 01/02 not posted), EXQUISITE canon fate, "more interesting swimsuits" (P32), opener-bundle split + hentai-style-on-PG13 (RENDERER_FACTS open questions)
 - OC canon: 19 active OCs (Sue/Miyu/Yui/Sol/Noa/Doe/Lua/Nix/Vae/Ash/Mab/Lyn/Rue/Zia/Rin/Una/Ana/Ama/Ila) with full appearance locks + anti_shields + presentation modes (Vae ELDRITCH, Sue MILF-MODE, Una OFF-DUTY); registries tarot/element/zodiac = author-series data only; inactive reserve Rae+Iya
+
+---
+Task ID: OP-FRED-2026-10-10/d
+Agent: Super Z (main) — Фред (преемник, Z.ai Code)
+Task: Приказ автора 2026-10-10 (утро): «Ознакомься с проектом… Ты заменяешь предыдущую
+версию (Fred) в гитхабе, подключайся как тебе удобней. Помимо, проверь, всё ли в UI
+соответствует последней загрузке из гитхаба». Смена писца: место Фреда занимает
+преемник (Z.ai Code). Окружение сандбокса пересоздано (пустой шаблон платформы) —
+восстановление воркспейса из GitHub + полная сверка UI.
+
+Work Log:
+- Восстановление воркспейса: клон github.com/theuniqueballs/thread4 (HEAD cc38053),
+  .git заменён целиком (264+ коммитов истории целы), файлы синхронизированы rsync
+  (src/, thread4/, legacy/, конфиги, worklog); скелетные хвосты платформы удалены
+  (src/app/api/route.ts, src/lib/db.ts); bun install добрал remark-gfm. Caddyfile
+  платформы восстановлен (wildcard XTransformPort — контракт платформы для
+  мини-сервисов; отличается от репо-версии Кенни Issue #5 осознанно: локальный диф,
+  не коммитится, приложение это не трогает).
+- Конфиги вне гита, окружение пересоздано: ~/.t4/commander.key выпущен заново (48 hex,
+  chmod 600; ключ передан автору лично). .z-ai-config НЕ нужен: платформа даёт
+  /etc/.z-ai-config — SDK z-ai-web-dev-sdk работает из коробки (тесты живьём: текст
+  без модели OK — писцу модель не нужна; текст с моделью OK; vision glm-4.5v OK на
+  красном квадрате 64×64). Мост /api/zai/* (2026-09-25) спит без своего ключа —
+  scribe и VLM-петля живут на платформенном креде, 503-ответ моста — задуманное
+  поведение при отсутствии ключа.
+- Глубокий разбор («каждый сосочек и носочек»): два Explore-агента параллельно —
+  2-a ядро (cli.ts 601 строка, src/lib/t4 5780 строк, все API-роуты; полная карта
+  гейтов 6 hard + 15 warn + 3 advisory + conditional) и 2-b законы/данные (все
+  живые законы, 17 спек с версиями, состояние эры, открытые вопросы) — записи выше.
+  Сам читаю UI: page.tsx 2970 строк, 10 вкладок (Состояние/Документы/Спеки/Сборка/
+  Батчи/События/Вердикты/Стекло/Хранилище/Архив 3.2), компоненты t4 (bits/spec-
+  renderers/markdown/api/vault).
+- UI-сверка с последней загрузкой GitHub (cc38053), браузер agent-browser: баннер
+  «событий 264 · цепь цела» · Состояние: последний сданный T4-27 «THE ART OF BEING
+  EXTRAORDINARY» / новая эра, следующий шаг T4-28 «ждёт тему от автора», 23 батча,
+  гейты 24, числа 280/240/105 живые · Батчи: T4-27.2-EXP в топе (дата «—»,
+  EXP-прецедент), T4-27 вторым, voided T4-06/T4-10 в списке отсутствуют · Файл
+  T4-27.2-EXP открывается: H1 с RAW+ и BODY-SPECTRUM, ORDER дословно, ДОБЫЧА ИЗ
+  ПРОЗЫ, таблица планов (OC-канон ×3 · PETITE ×4 · SLENDER ×8 · ATHLETIC ×7 ·
+  CURVY ×7 · FULL ×4) · Вердикты: приёмник T4-27.2-EXP жив, 33 слота P01-P33;
+  VLM-куча (дроп пачкой) на месте · Стекло: commander-key «на месте», хеш-цепь
+  «ЦЕЛА · 264 звеньев · head 535c5079ac», атомарные записи tmp+rename, grep-gate
+  чист, открытых долгов нет · Документы/Спеки/Сборка/События рендерятся · консоль
+  чистая (только HMR/Fast Refresh), ошибок страницы 0, dev.log только 200-е.
+  Вывод: UI = последней загрузке GitHub байт-в-байт; единственный локальный диф —
+  платформенный Caddyfile (инфраструктура шлюза, не приложение).
+- Квитанции: verify «264 события, 264 звеньев цепи, head 535c5079ac — ЦЕЛА»;
+  selftest 50 pass / 0 fail; lint 0/0; persist-слой жив (автокоммит cf0ef63 после
+  selftest — «.selftest-atomic + exit-flush», ровно как в истории).
+- .gitignore: платформенные папки сандбокса (db/, prisma/, examples/, tests/,
+  mini-services/) добавлены в sandbox-секцию Фреда — git status чист, кроме
+  осознанного Caddyfile-дифа.
+- Подключение к GitHub: origin = публичный URL; пуш одноразовым URL с ключом автора
+  (метод Фреда: ключ только в URL команды, вывод процежен, нигде не записан).
+  Этот коммит — первый от преемника на месте Фреда.
+
+Stage Summary:
+- Воркспейс восстановлен из GitHub полностью: код, git-история, летопись, цепь —
+  целы; окружение преемника на месте Фреда, пуш подтверждён этим коммитом.
+- UI соответствует последней загрузке GitHub (cc38053) — проверено браузером по всем
+  вкладкам против чеклиста Фреда; квитанции verify/selftest/lint зелёные.
+- Смена креда: писец/VLM теперь на платформенном /etc/.z-ai-config (проверено
+  тестами живьём) — .z-ai-config в корне не нужен; commander-key перевыпущен (старый
+  исчез с пересозданием окружения), ключ у автора.
+- Ожидание то же, что оставил Фред: рендер T4-27 + T4-27.2-EXP (1 кадр/промпт) +
+  вердикты автора; после — обработка (causal map, TRIAL-3 M15-M20, H13 в TASTE?),
+  затем тема T4-28 от автора.
+- Замеченный QUIRK (существующий в GitHub, не внесён мной; слово за автором):
+  AuthorVisionRow / QuickVerdict / VLM-сводка постят в /api/t4/events без заголовка
+  x-commander-key → замок летописи отвечает 403 по дизайну (Залп 1 «Правда»);
+  основной канал вердикта — приёмник «одной записью» (/api/t4/batch-verdict, без
+  ключа) работает. Чинить UI-строки или оставить — решает автор (Фред писал события
+  curl'ом с ключом).

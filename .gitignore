@@ -75,3 +75,12 @@ dev-*.log
 .dev-server.log
 *.tsbuildinfo
 tmp-research-data.txt
+
+# Fred (преемник, 2026-10-10): платформенные папки этого сандбокса —
+# дефолтный скелет платформы, к треду отношения не имеют (db/prisma —
+# платформенная БД, thread4 файловый; examples/tests — платформенные демо)
+db/
+prisma/
+examples/
+tests/
+mini-services/
