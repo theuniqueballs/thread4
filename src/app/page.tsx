@@ -19,9 +19,11 @@ import {
   FlaskConical,
   Heart,
   History,
+  KeyRound,
   PenLine,
   ScanEye,
   ScrollText,
+  Search,
   ShieldCheck,
   Sparkles,
   Stamp,
@@ -41,9 +43,14 @@ import {
   asArray,
   asRecord,
   asStr,
+  clearCommanderKey,
+  commanderHeaders,
   formatDate,
+  getCommanderKey,
   isNotFound,
   postJson,
+  probeCommanderKey,
+  setCommanderKey,
   useApi,
   type CompilePayload,
   type DeliverResponse,
@@ -78,6 +85,23 @@ import {
 /* Tab model                                                           */
 /* ------------------------------------------------------------------ */
 
+/** Преемник Фреда, 2026-10-10: человеческое объяснение отказа замка Залпа 1
+ *  для любой мутации летописи из UI. 403 = ключ не совпал/не приложен,
+ *  503 = на сервере нет замка вовсе. Всё остальное — как было. */
+function ledgerWriteError(e: unknown): string {
+  if (e instanceof ApiError) {
+    if (e.status === 403) {
+      return getCommanderKey() === ''
+        ? 'ключ командира не сохранён в браузере — Стекло → «Ключ командира»'
+        : 'ключ командира не совпал — проверь его в Стекле (сервер: ~/.t4/commander.key)'
+    }
+    if (e.status === 503) return 'на сервере нет замка (~/.t4/commander.key) — летопись залочена'
+    if (isNotFound(e)) return 'API недоступен'
+    return e.message
+  }
+  return 'Не удалось записать'
+}
+
 type TabId =
   | 'state'
   | 'constitution'
@@ -106,6 +130,133 @@ const TABS: { id: TabId; label: string; icon: React.ReactNode }[] = [
 /* ------------------------------------------------------------------ */
 /* Tab: Стекло (Залп 3) — здоровье хрупкого, объявленное честно        */
 /* ------------------------------------------------------------------ */
+
+/* ------------------------------------------------------------------ */
+/* Стекло → ключ командира (браузерная половина замка Залпа 1)         */
+/* ------------------------------------------------------------------ */
+
+function CommanderKeyPanel() {
+  const [input, setInput] = useState('')
+  // ленивый инициализатор, не эффект: вкладка монтируется по клику — SSR-прохода нет,
+  // а правило линтера (set-state-in-effect) требует читать localStorage здесь
+  const [saved, setSaved] = useState<string | null>(() => getCommanderKey() || null)
+  const [probe, setProbe] = useState<
+    { state: 'idle' } | { state: 'busy' } | { state: 'ok'; serverKey: boolean; keyOk: boolean } | { state: 'err'; msg: string }
+  >({ state: 'idle' })
+
+  async function save() {
+    setCommanderKey(input)
+    setSaved(getCommanderKey() || null)
+    setProbe({ state: 'idle' })
+  }
+
+  async function erase() {
+    clearCommanderKey()
+    setInput('')
+    setSaved(null)
+    setProbe({ state: 'idle' })
+  }
+
+  async function test() {
+    setProbe({ state: 'busy' })
+    try {
+      const p = await probeCommanderKey()
+      setProbe({ state: 'ok', serverKey: p.serverKey, keyOk: p.keyOk })
+    } catch (e) {
+      setProbe({ state: 'err', msg: e instanceof Error ? e.message : 'нет ответа' })
+    }
+  }
+
+  const probeText =
+    probe.state === 'busy'
+      ? 'проверяю…'
+      : probe.state === 'ok'
+        ? probe.serverKey
+          ? probe.keyOk
+            ? 'ключ совпал — летопись откроется на запись'
+            : 'ключ НЕ совпал — сверься с ~/.t4/commander.key на сервере'
+          : 'на сервере нет замка (~/.t4/commander.key) — сначала создай его'
+        : probe.state === 'err'
+          ? `не достучался: ${probe.msg}`
+          : null
+
+  return (
+    <Panel title="Ключ командира — браузер" icon={<KeyRound className="size-4" />}>
+      <div className="space-y-3">
+        <p className="text-xs leading-relaxed text-zinc-500">
+          Замок летописи двусторонний (Залп 1 «Правда»): серверная половина —{' '}
+          <code className="text-amber-300">~/.t4/commander.key</code> на машине ядра, браузерная —
+          здесь. Ключ хранится в localStorage этого браузера, уходит только заголовком на запись
+          в <code className="text-amber-300">/api/t4/events</code> и нигде не светится: ни в URL,
+          ни в репо. Без него быстрые вердикты и VLM-сводки упираются в 403.
+        </p>
+        <div className="flex flex-wrap items-center gap-2">
+          <Input
+            type="password"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder={saved ? 'сохранён — вводи новый для замены' : 'вставь ключ командира…'}
+            className="h-8 min-w-52 flex-1 border-zinc-800 bg-zinc-950 font-mono text-xs"
+            autoComplete="off"
+            spellCheck={false}
+          />
+          <Button
+            onClick={save}
+            disabled={input.trim() === ''}
+            size="sm"
+            className="bg-amber-500 text-zinc-950 hover:bg-amber-400 disabled:opacity-40"
+          >
+            Сохранить
+          </Button>
+          <Button
+            onClick={test}
+            size="sm"
+            variant="outline"
+            className="border-zinc-700 bg-zinc-900 text-zinc-300 hover:border-amber-500/40 hover:text-amber-200"
+          >
+            Проверить
+          </Button>
+          {saved ? (
+            <Button
+              onClick={erase}
+              size="sm"
+              variant="outline"
+              className="border-zinc-800 bg-zinc-900 text-zinc-500 hover:border-rose-500/40 hover:text-rose-300"
+            >
+              Стереть
+            </Button>
+          ) : null}
+        </div>
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
+          <span className="text-zinc-500">
+            состояние:{' '}
+            {saved ? (
+              <span className="font-medium text-emerald-400">
+                сохранён в браузере · {saved.length} симв.
+              </span>
+            ) : (
+              <span className="font-medium text-amber-400">не сохранён — запись залочена (403)</span>
+            )}
+          </span>
+          {probeText ? (
+            <span
+              className={cn(
+                'font-medium',
+                probe.state === 'ok'
+                  ? probe.serverKey && probe.keyOk
+                    ? 'text-emerald-400'
+                    : 'text-rose-400'
+                  : 'text-zinc-400'
+              )}
+            >
+              проверка: {probeText}
+            </span>
+          ) : null}
+        </div>
+      </div>
+    </Panel>
+  )
+}
 
 function GlassTab() {
   const { data, error, loading } = useApi<Record<string, unknown>>('/api/t4/state')
@@ -140,7 +291,7 @@ function GlassTab() {
         ) : (
           <div>
             {row(
-              'commander-key',
+              'commander-key (сервер)',
               glass.commanderKey === true ? 'на месте' : 'ОТСУТСТВУЕТ — замок',
               glass.commanderKey === true ? 'ok' : 'bad'
             )}
@@ -171,10 +322,12 @@ function GlassTab() {
         )}
       </Panel>
 
+      <CommanderKeyPanel />
+
       <Panel title="Как лечить стекло" icon={<Stamp className="size-4" />}>
         <div className="space-y-2 text-xs text-zinc-400">
           <p>· Обрыв питания — не страшно: записи атомарны, а истина лежит в git. Восстановление: git bundle + сейф браузера (Хранилище) + лог.</p>
-          <p>· Сервер залочен (commander-key нет) — создай <code className="text-amber-300">~/.t4/commander.key</code>, состояние появится здесь зелёным.</p>
+          <p>· Сервер залочен (commander-key нет) — создай <code className="text-amber-300">~/.t4/commander.key</code>, состояние появится здесь зелёным; затем сохрани копию ключа в панели выше — и пиши вердикты прямо из браузера.</p>
           <p>· Цепь сломана — значит, летопись правили руками. Это громкий детектор, а не баг: разберись, кто и что правил, потом <code className="text-amber-300">bun thread4/cli.ts verify --heal</code>.</p>
           <p>· Внешний доступ к треду — только через read-key (см. границу чтения выше), не молчанием.</p>
         </div>
@@ -217,9 +370,21 @@ function StateTab() {
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
             <StatCard label="Батчи" value={asStr(counts.batches) || '0'} />
             <StatCard label="События" value={asStr(counts.events) || '0'} />
-            <StatCard label="Носители" value={asStr(counts.carriers) || '—'} hint="спека не читается — ДЕЙСТВУЙ" />
-            <StatCard label="Позы" value={asStr(counts.poses) || '—'} hint="спека не читается — ДЕЙСТВУЙ" />
-            <StatCard label="Палитры" value={asStr(counts.palettes) || '—'} hint="спека не читается — ДЕЙСТВУЙ" />
+            <StatCard
+              label="Носители"
+              value={asStr(counts.carriers) || '—'}
+              hint={asStr(counts.carriers) ? 'carriers.json читается' : 'спека не читается — ДЕЙСТВУЙ'}
+            />
+            <StatCard
+              label="Позы"
+              value={asStr(counts.poses) || '—'}
+              hint={asStr(counts.poses) ? 'poses.json читается' : 'спека не читается — ДЕЙСТВУЙ'}
+            />
+            <StatCard
+              label="Палитры"
+              value={asStr(counts.palettes) || '—'}
+              hint={asStr(counts.palettes) ? 'palettes.json читается' : 'спека не читается — ДЕЙСТВУЙ'}
+            />
           </div>
         )}
       </Panel>
@@ -1002,17 +1167,21 @@ function QuickVerdict({ slug }: { slug: string }) {
       .filter(Boolean)
       .join('\n\n')
     try {
-      await postJson('/api/t4/events', {
-        type: 'render.verdict',
-        summary: `${slug}: ${vLabel}${issues.length > 0 ? ` · ${issues.join(', ')}` : ''}${text.trim() ? ` — ${text.trim().slice(0, 90)}` : ''}`,
-        data: { slug, verdict, tags: issues, prose, source: 'author-batch' },
-      })
+      await postJson(
+        '/api/t4/events',
+        {
+          type: 'render.verdict',
+          summary: `${slug}: ${vLabel}${issues.length > 0 ? ` · ${issues.join(', ')}` : ''}${text.trim() ? ` — ${text.trim().slice(0, 90)}` : ''}`,
+          data: { slug, verdict, tags: issues, prose, source: 'author-batch' },
+        },
+        commanderHeaders()
+      )
       setNote('Вердикт записан в лог — он кормит правки закона и вкус.')
       setVerdict(null)
       setIssues([])
       setText('')
     } catch (e) {
-      setNote(e instanceof ApiError && isNotFound(e) ? 'API недоступен' : 'Не удалось записать')
+      setNote(ledgerWriteError(e))
     } finally {
       setBusy(false)
     }
@@ -1024,6 +1193,12 @@ function QuickVerdict({ slug }: { slug: string }) {
         <p className="text-xs leading-relaxed text-zinc-500">
           Один клик — и вердикт в логе событий: он кодируется в право (T4-02 уже стал законом 24 слотов).
         </p>
+        {getCommanderKey() === '' ? (
+          <p className="rounded-md border border-amber-500/25 bg-amber-500/5 px-2.5 py-1.5 text-[11px] leading-relaxed text-amber-200/80">
+            ключ командира не сохранён в этом браузере — запись залочена (403). Один раз сохрани его
+            в Стекле → «Ключ командира», и эта кнопка оживёт.
+          </p>
+        ) : null}
         <div className="flex flex-wrap gap-2">
           {QUICK_VERDICTS.map((v) => (
             <button
@@ -1080,6 +1255,7 @@ function QuickVerdict({ slug }: { slug: string }) {
 function BatchesTab() {
   const list = useApi<{ items: { slug: string; title: string; date: string }[] }>('/api/t4/batches')
   const [slug, setSlug] = useState<string | null>(null)
+  const [query, setQuery] = useState('')
   const detail = useApi<{
     slug: string
     title: string
@@ -1090,6 +1266,16 @@ function BatchesTab() {
   const items = list.data?.items ?? []
   const receipts = detail.data?.receipts ?? []
 
+  /* Преемник Фреда, 2026-10-10: 29+ батчей — поиск по слагу/теме быстрее
+   *  скролла; искомый батч подсвечивается, выбор не сбрасывается. */
+  const visible = useMemo(() => {
+    const q = query.trim().toLowerCase()
+    if (q === '') return items
+    return items.filter(
+      (b) => b.slug.toLowerCase().includes(q) || b.title.toLowerCase().includes(q)
+    )
+  }, [items, query])
+
   return (
     <div className="space-y-4">
       <Panel title="Батчи" icon={<FileText className="size-4" />}>
@@ -1098,25 +1284,41 @@ function BatchesTab() {
         ) : items.length === 0 ? (
           <EmptyState title="Батчей пока нет" hint="Собери контракт во вкладке «Сборка» и жми «Писец» — черновик появится здесь с квитанциями гейтов." />
         ) : (
-          <div className="grid gap-1.5">
-            {items.map((b) => (
-              <button
-                key={b.slug}
-                onClick={() => setSlug(slug === b.slug ? null : b.slug)}
-                className={cn(
-                  'flex items-center justify-between gap-3 rounded-md border px-3 py-2 text-left transition-colors',
-                  slug === b.slug
-                    ? 'border-amber-500/50 bg-amber-500/10'
-                    : 'border-zinc-800 bg-zinc-900/60 hover:border-zinc-700'
-                )}
-              >
-                <span className="flex min-w-0 items-center gap-2">
-                  <Mono>{b.slug}</Mono>
-                  <span className="truncate text-xs text-zinc-300">{b.title}</span>
-                </span>
-                <span className="shrink-0 text-[11px] text-zinc-600">{formatDate(b.date)}</span>
-              </button>
-            ))}
+          <div className="space-y-2">
+            <div className="relative">
+              <Search className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-zinc-600" />
+              <Input
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder={`Поиск: слаг или тема · ${items.length} батчей…`}
+                className="h-8 border-zinc-800 bg-zinc-950 pl-8 text-xs"
+              />
+            </div>
+            <div className="grid gap-1.5">
+              {visible.map((b) => (
+                <button
+                  key={b.slug}
+                  onClick={() => setSlug(slug === b.slug ? null : b.slug)}
+                  className={cn(
+                    'flex items-center justify-between gap-3 rounded-md border px-3 py-2 text-left outline-none transition-colors',
+                    slug === b.slug
+                      ? 'border-amber-500/50 bg-amber-500/10'
+                      : 'border-zinc-800 bg-zinc-900/60 hover:border-zinc-700 focus-visible:border-amber-500/50'
+                  )}
+                >
+                  <span className="flex min-w-0 items-center gap-2">
+                    <Mono>{b.slug}</Mono>
+                    <span className="truncate text-xs text-zinc-300">{b.title}</span>
+                  </span>
+                  <span className="shrink-0 text-[11px] text-zinc-600">{formatDate(b.date)}</span>
+                </button>
+              ))}
+              {visible.length === 0 ? (
+                <p className="px-1 py-3 text-center text-xs text-zinc-600">
+                  ничего не нашлось — «{query.trim()}» ни в одном слаге/теме
+                </p>
+              ) : null}
+            </div>
           </div>
         )}
       </Panel>
@@ -1163,29 +1365,101 @@ function EventsTab() {
   const { data, error, loading } = useApi<{ events: { id: string; at: string; type: string; summary: string }[] }>(
     '/api/t4/events?limit=200'
   )
+  const [typeFilter, setTypeFilter] = useState('')
+  const [query, setQuery] = useState('')
+
   const events = data?.events ?? []
 
+  /* Преемник Фреда, 2026-10-10: типы со счётчиками — летопись длинная,
+   *  а вердикты/события батчей автор ищет по делу, а не скроллом. */
+  const typeCounts = useMemo(() => {
+    const m = new Map<string, number>()
+    for (const e of events) m.set(e.type, (m.get(e.type) ?? 0) + 1)
+    return [...m.entries()].sort((a, b) => b[1] - a[1])
+  }, [events])
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase()
+    return events.filter((e) => {
+      if (typeFilter !== '' && e.type !== typeFilter) return false
+      if (q !== '' && !e.summary.toLowerCase().includes(q) && !e.id.toLowerCase().includes(q)) return false
+      return true
+    })
+  }, [events, typeFilter, query])
+
+  /* Точка таймлайна красится по типу — как TypeBadge: вердикт=роза,
+   *  гейт=изумруд, батч=амбер, закон=цинк, внешка=тил. */
+  const dotTone = (type: string): string => {
+    const t = type.toLowerCase()
+    if (t.includes('verdict')) return 'bg-rose-500'
+    if (t.includes('gate')) return 'bg-emerald-500'
+    if (t.includes('batch')) return 'bg-amber-500'
+    if (t.includes('law')) return 'bg-zinc-400'
+    if (t.includes('external')) return 'bg-teal-400'
+    return 'bg-zinc-500'
+  }
+
   return (
-    <Panel title="Лог событий (append-only)" icon={<History className="size-4" />} bodyClassName="max-h-[75vh] overflow-y-auto t4-scroll">
+    <Panel title="Лог событий (append-only)" icon={<History className="size-4" />} bodyClassName="space-y-3">
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="relative min-w-44 flex-1">
+          <Search className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-zinc-600" />
+          <Input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Поиск по летописи: слаг, слово, id события…"
+            className="h-8 border-zinc-800 bg-zinc-950 pl-8 text-xs"
+          />
+        </div>
+        <select
+          value={typeFilter}
+          onChange={(e) => setTypeFilter(e.target.value)}
+          aria-label="Фильтр по типу события"
+          className="h-8 rounded-md border border-zinc-800 bg-zinc-950 px-2 text-xs text-zinc-300 outline-none transition-colors hover:border-zinc-700 focus-visible:border-amber-500/50"
+        >
+          <option value="">все типы · {events.length}</option>
+          {typeCounts.map(([t, n]) => (
+            <option key={t} value={t}>
+              {t} · {n}
+            </option>
+          ))}
+        </select>
+        {typeFilter !== '' || query.trim() !== '' ? (
+          <button
+            onClick={() => {
+              setTypeFilter('')
+              setQuery('')
+            }}
+            className="rounded-md border border-zinc-800 bg-zinc-900 px-2 py-1 text-[11px] text-zinc-500 transition-colors hover:border-zinc-700 hover:text-zinc-300"
+          >
+            сбросить · {filtered.length}
+          </button>
+        ) : null}
+      </div>
       {loading ? (
         <SkeletonBlock lines={8} />
       ) : error ? (
         <ErrorNote text="Лог недоступен" hint="ядро ещё не подключено" />
       ) : events.length === 0 ? (
         <EmptyState title="Событий пока нет" hint="Первое событие — рождение эпохи — в log.jsonl." />
+      ) : filtered.length === 0 ? (
+        <EmptyState title="Ничего не нашлось" hint="Смени фильтр или запрос — летопись append-only, ничего не пропало." />
       ) : (
-        <div className="relative space-y-0 pl-4">
-          <div className="absolute bottom-2 left-[7px] top-2 w-px bg-zinc-800" />
-          {events.map((e, i) => (
-            <div key={e.id ?? i} className="relative py-2.5 pl-5">
-              <span className="absolute left-[-2px] top-[15px] size-[9px] rounded-full border-2 border-zinc-950 bg-amber-500" />
-              <div className="flex flex-wrap items-center gap-2">
-                <TypeBadge type={e.type} />
-                <span className="text-xs text-zinc-600">{formatDate(e.at)}</span>
+        <div className="t4-scroll max-h-[70vh] overflow-y-auto">
+          <div className="relative space-y-0 pl-4">
+            <div className="absolute bottom-2 left-[7px] top-2 w-px bg-zinc-800" />
+            {filtered.map((e, i) => (
+              <div key={e.id ?? i} className="relative rounded-sm py-2.5 pl-5 pr-2 transition-colors hover:bg-zinc-900/40">
+                <span className={cn('absolute left-[-2px] top-[15px] size-[9px] rounded-full border-2 border-zinc-950', dotTone(e.type))} />
+                <div className="flex flex-wrap items-center gap-2">
+                  <TypeBadge type={e.type} />
+                  <span className="font-mono text-[10px] text-zinc-700">{e.id}</span>
+                  <span className="text-xs text-zinc-600">{formatDate(e.at)}</span>
+                </div>
+                <div className="mt-1 text-sm leading-relaxed text-zinc-300">{e.summary}</div>
               </div>
-              <div className="mt-1 text-sm leading-relaxed text-zinc-300">{e.summary}</div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       )}
     </Panel>
@@ -1430,22 +1704,26 @@ function AuthorVisionRow({ slug }: { slug: string }) {
     setBusy(true)
     setDone('')
     try {
-      await postJson('/api/t4/events', {
-        type: 'render.verdict',
-        summary: `${slug}${pos.trim() ? ` ${pos.trim().toUpperCase()}` : ''}: ${tier} — author-vision (${confidence})${note.trim() ? ` · ${note.trim().slice(0, 80)}` : ''}`,
-        data: {
-          slug,
-          verdict: tier,
-          position: pos.trim() ? pos.trim().toUpperCase() : undefined,
-          prose: note.trim(),
-          source: 'author',
-          confidence,
+      await postJson(
+        '/api/t4/events',
+        {
+          type: 'render.verdict',
+          summary: `${slug}${pos.trim() ? ` ${pos.trim().toUpperCase()}` : ''}: ${tier} — author-vision (${confidence})${note.trim() ? ` · ${note.trim().slice(0, 80)}` : ''}`,
+          data: {
+            slug,
+            verdict: tier,
+            position: pos.trim() ? pos.trim().toUpperCase() : undefined,
+            prose: note.trim(),
+            source: 'author',
+            confidence,
+          },
         },
-      })
+        commanderHeaders()
+      )
       setDone(`вердикт записан (source=author, ${confidence}) — летопись видит твой глаз`)
       setNote('')
-    } catch {
-      setDone('не записалось — проверь, жив ли сервер и есть ли commander-key')
+    } catch (e) {
+      setDone(ledgerWriteError(e))
     } finally {
       setBusy(false)
     }
@@ -1708,14 +1986,18 @@ function VlmFirstPassPanel() {
     if (!slug || journal.length === 0) return
     setSummaryNote(null)
     try {
-      await postJson('/api/t4/events', {
-        type: 'note',
-        summary: `VLM-сводка ${slug}: прогонов ${journal.length}/${slots.length} — флаги: ок ${journalFlags.ok ?? 0} · мутация ${journalFlags.mutation ?? 0} · дрейф ${journalFlags.drift ?? 0} · не прогонял ${journalFlags.skipped ?? 0}${remaining > 0 ? ` · осталось ${remaining}` : ' · батч покрыт'}`,
-        data: { slug, kind: 'vlm-summary', runs: journal.length, total: slots.length, flags: journalFlags, positions: journal.map((j) => j.position) },
-      })
+      await postJson(
+        '/api/t4/events',
+        {
+          type: 'note',
+          summary: `VLM-сводка ${slug}: прогонов ${journal.length}/${slots.length} — флаги: ок ${journalFlags.ok ?? 0} · мутация ${journalFlags.mutation ?? 0} · дрейф ${journalFlags.drift ?? 0} · не прогонял ${journalFlags.skipped ?? 0}${remaining > 0 ? ` · осталось ${remaining}` : ' · батч покрыт'}`,
+          data: { slug, kind: 'vlm-summary', runs: journal.length, total: slots.length, flags: journalFlags, positions: journal.map((j) => j.position) },
+        },
+        commanderHeaders()
+      )
       setSummaryNote('Сводка записана в лог событий (note).')
-    } catch {
-      setSummaryNote('Не удалось записать сводку.')
+    } catch (e) {
+      setSummaryNote(ledgerWriteError(e))
     }
   }
 

@@ -1,23 +1,31 @@
+# Issue #5 (Кенни, 2026-09-26): XTransformPort зажат до единственного порта —
+# произвольный port-forward на весь loopback был лишней поверхностью.
+# Граница чтения (glass.readBoundary) зависит и от этого слоя.
+#
+# Преемник Фреда, 2026-10-10: этот сандбокс платформа выдаёт с wildcard —
+# XTransformPort=* нужен её мини-сервисам (пример: websocket на отдельном
+# порту). Замок Issue #5 остаётся нормой для собственной машины автора;
+# Стекло (glass.readBoundary) читает фактический файл и объявляет правду.
 :81 {
-	@transform_port_query {
-		query XTransformPort=*
-	}
+        @transform_port_query {
+                query XTransformPort=*
+        }
 
-	handle @transform_port_query {
-		reverse_proxy localhost:{query.XTransformPort} {
-			header_up Host {host}
-			header_up X-Forwarded-For {remote_host}
-			header_up X-Forwarded-Proto {scheme}
-			header_up X-Real-IP {remote_host}
-		}
-	}
+        handle @transform_port_query {
+                reverse_proxy localhost:{query.XTransformPort} {
+                        header_up Host {host}
+                        header_up X-Forwarded-For {remote_host}
+                        header_up X-Forwarded-Proto {scheme}
+                        header_up X-Real-IP {remote_host}
+                }
+        }
 
-	handle {
-		reverse_proxy localhost:3000 {
-			header_up Host {host}
-			header_up X-Forwarded-For {remote_host}
-			header_up X-Forwarded-Proto {scheme}
-			header_up X-Real-IP {remote_host}
-		}
-	}
+        handle {
+                reverse_proxy localhost:3000 {
+                        header_up Host {host}
+                        header_up X-Forwarded-For {remote_host}
+                        header_up X-Forwarded-Proto {scheme}
+                        header_up X-Real-IP {remote_host}
+                }
+        }
 }
