@@ -29,8 +29,12 @@ for (const slug of slugs) {
   }
   const meta = (s: (typeof parsed.slots)[number]) =>
     [s.kind, s.who, s.rating, s.pose, s.palette, s.rehab].filter(Boolean).join(' · ')
+  /* шапка батча уже несёт слаг («# T4-27 «…»») — не дублируем его в строке */
+  let titleBody = parsed.title
+  if (titleBody.startsWith(slug)) titleBody = titleBody.slice(slug.length).trim()
+  const titleLine = titleBody !== '' ? ` — ${titleBody}` : ''
   const lines: string[] = [
-    `THREAD 4 · рендер-лист · ${slug}${parsed.title ? ` — ${parsed.title}` : ''}`,
+    `THREAD 4 · рендер-лист · ${slug}${titleLine}`,
     `${parsed.slots.length} слота · сгенерировано ${new Date().toLocaleString('ru-RU')}`,
     '',
   ]
