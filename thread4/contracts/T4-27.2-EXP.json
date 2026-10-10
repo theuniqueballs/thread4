@@ -1,0 +1,1335 @@
+{
+  "slug": "T4-27.2-EXP",
+  "theme": "THE ART OF BEING EXTRAORDINARY",
+  "engine": "THE ART OF BEING EXTRAORDINARY (BODY-SPECTRUM)",
+  "engineLaw": "одноразовый движок T4-27 сохранён + новый слой BODY-SPECTRUM: план тела 3-5 тегами в идентификационном сегменте + NEG-защита от дрейфа в дефолт; регистр передаётся формой (petite/slender→студентка, athletic/curvy→молодая, full→милф), возраст не тегируется (N30); интерлив тел — соседние слоты разные планы; A/B-пары — один план в обеих половинках",
+  "engineWhy": "фидбек автора по рендеру T4-27 (2026-10-10): «тела у них относительно одинаковые» — при RAW-миграции №20 умер телесный слой прозы (регистры зрелости LEAD-строк, mature woman/full-figured/wide hips/soft waist T4-08, slim elegant/thick toned thighs T4-17, curvy build T4-21, канон body_type ОС); RAW+ №23 вернул палитры/лицо/свет, но не тела. Лечение — теги формы, не возраста (N30: взрослые теги перекашивают батч)",
+  "seed": 1791631605627,
+  "createdAt": "2026-10-10T11:26:45.627Z",
+  "spread": [
+    {
+      "rating": "R+",
+      "count": 25
+    },
+    {
+      "rating": "R",
+      "count": 8
+    }
+  ],
+  "slots": [
+    {
+      "position": 1,
+      "kind": "OC",
+      "oc": "Vae",
+      "rating": "R+",
+      "pose": "",
+      "poseName": "aob-vae-warlord",
+      "poseRisk": "",
+      "palette": "P35_VOID_EMBER",
+      "paletteName": "P35_VOID_EMBER",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W23",
+          "name": "Elastic Bite",
+          "cls": "W"
+        },
+        {
+          "id": "CR-B08",
+          "name": "Weight-Line",
+          "cls": "B"
+        },
+        {
+          "id": "CR-E07",
+          "name": "Robe Drift",
+          "cls": "E"
+        },
+        {
+          "id": "CR-D01",
+          "name": "Full Drop Mid-Sway",
+          "cls": "D"
+        }
+      ],
+      "lead": "",
+      "register": "oc",
+      "closer": ""
+    },
+    {
+      "position": 2,
+      "kind": "OC",
+      "oc": "Sue",
+      "rating": "R+",
+      "pose": "",
+      "poseName": "aob-sue-battleangel",
+      "poseRisk": "",
+      "palette": "P54_ART_DECO_PLATINUM",
+      "paletteName": "P54_ART_DECO_PLATINUM",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W21",
+          "name": "Lycra Shine",
+          "cls": "W"
+        },
+        {
+          "id": "CR-B04",
+          "name": "Apex Contour",
+          "cls": "B"
+        },
+        {
+          "id": "CR-E05",
+          "name": "Wrap Gap",
+          "cls": "E"
+        },
+        {
+          "id": "CR-D04",
+          "name": "Overhead Reach Lift",
+          "cls": "D"
+        }
+      ],
+      "lead": "",
+      "register": "oc",
+      "closer": ""
+    },
+    {
+      "position": 3,
+      "kind": "OC",
+      "oc": "Zia",
+      "rating": "R+",
+      "pose": "",
+      "poseName": "aob-zia-cyberpsycho",
+      "poseRisk": "",
+      "palette": "P03_CYBER_ASH",
+      "paletteName": "P03_CYBER_ASH",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W04",
+          "name": "Ribbing Stress-Bands",
+          "cls": "W"
+        },
+        {
+          "id": "CR-B01",
+          "name": "Points Against Weave",
+          "cls": "B"
+        },
+        {
+          "id": "CR-E04",
+          "name": "Back Zipper",
+          "cls": "E"
+        },
+        {
+          "id": "CR-M03",
+          "name": "Table Edge",
+          "cls": "M"
+        }
+      ],
+      "lead": "",
+      "register": "oc",
+      "closer": ""
+    },
+    {
+      "position": 4,
+      "kind": "VOLT",
+      "oc": "",
+      "rating": "R+",
+      "pose": "",
+      "poseName": "aob-letterpress",
+      "poseRisk": "",
+      "palette": "P46_INK_WASH",
+      "paletteName": "P46_INK_WASH",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W13",
+          "name": "Sitting-Crease",
+          "cls": "W"
+        },
+        {
+          "id": "CR-B05",
+          "name": "Underboob Crescent Shadow",
+          "cls": "B"
+        },
+        {
+          "id": "CR-U07",
+          "name": "Seamstress Fitting",
+          "cls": "U"
+        },
+        {
+          "id": "CR-D06",
+          "name": "Table Flattening",
+          "cls": "D"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 5,
+      "kind": "NICHE",
+      "oc": "",
+      "rating": "R",
+      "pose": "",
+      "poseName": "aob-walking-block",
+      "poseRisk": "",
+      "palette": "P64_SUNRISE_INDIGO",
+      "paletteName": "P64_SUNRISE_INDIGO",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W30",
+          "name": "Cold-Stiff Drape",
+          "cls": "W"
+        },
+        {
+          "id": "CR-B12",
+          "name": "Waist Carve",
+          "cls": "B"
+        },
+        {
+          "id": "CR-U10",
+          "name": "Walk Home",
+          "cls": "U"
+        },
+        {
+          "id": "CR-I04",
+          "name": "Sock Rings",
+          "cls": "I"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 6,
+      "kind": "VOLT",
+      "oc": "",
+      "rating": "R+",
+      "pose": "",
+      "poseName": "aob-fencing-touche",
+      "poseRisk": "",
+      "palette": "P15_INDUSTRIAL_STEEL",
+      "paletteName": "P15_INDUSTRIAL_STEEL",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W29",
+          "name": "Pleat-Set",
+          "cls": "W"
+        },
+        {
+          "id": "CR-S05",
+          "name": "Underboob Shadow-Line",
+          "cls": "S"
+        },
+        {
+          "id": "CR-E03",
+          "name": "Off-Shoulder Ride",
+          "cls": "E"
+        },
+        {
+          "id": "CR-D03",
+          "name": "Quarter-Turn Lead",
+          "cls": "D"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 7,
+      "kind": "NICHE",
+      "oc": "",
+      "rating": "R",
+      "pose": "",
+      "poseName": "aob-library-tide",
+      "poseRisk": "",
+      "palette": "P50_GLASS_AURORA",
+      "paletteName": "P50_GLASS_AURORA",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W16",
+          "name": "Silk Drape",
+          "cls": "W"
+        },
+        {
+          "id": "CR-B07",
+          "name": "Cleavage End-Shadow",
+          "cls": "B"
+        },
+        {
+          "id": "CR-F09",
+          "name": "Legs-Up-Wall",
+          "cls": "F"
+        },
+        {
+          "id": "CR-I03",
+          "name": "Sheet's Hip Line",
+          "cls": "I"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 8,
+      "kind": "VOLT",
+      "oc": "",
+      "rating": "R+",
+      "pose": "",
+      "poseName": "aob-baker-flour",
+      "poseRisk": "",
+      "palette": "P89_THRESHOLD_GOLD",
+      "paletteName": "P89_THRESHOLD_GOLD",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W25",
+          "name": "Apron Bib Swell",
+          "cls": "W"
+        },
+        {
+          "id": "CR-B05",
+          "name": "Underboob Crescent Shadow",
+          "cls": "B"
+        },
+        {
+          "id": "CR-E06",
+          "name": "Towel Fold",
+          "cls": "E"
+        },
+        {
+          "id": "CR-D08",
+          "name": "Aftershock",
+          "cls": "D"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 9,
+      "kind": "NICHE",
+      "oc": "",
+      "rating": "R",
+      "pose": "",
+      "poseName": "aob-sideways-elevator",
+      "poseRisk": "",
+      "palette": "P62_PLATINUM_VOID",
+      "paletteName": "P62_PLATINUM_VOID",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W17",
+          "name": "Open-Weave Light",
+          "cls": "W"
+        },
+        {
+          "id": "CR-B11",
+          "name": "Navel Dip",
+          "cls": "B"
+        },
+        {
+          "id": "CR-U08",
+          "name": "Quick-Change Screen",
+          "cls": "U"
+        },
+        {
+          "id": "CR-D02",
+          "name": "Stair Bounce",
+          "cls": "D"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 10,
+      "kind": "VOLT",
+      "oc": "",
+      "rating": "R+",
+      "pose": "",
+      "poseName": "aob-marathon-finish",
+      "poseRisk": "",
+      "palette": "P41_SUNSET_DRIFT",
+      "paletteName": "P41_SUNSET_DRIFT",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W07",
+          "name": "Plastered Wet Shirt",
+          "cls": "W"
+        },
+        {
+          "id": "CR-B09",
+          "name": "Backlit Silhouette",
+          "cls": "B"
+        },
+        {
+          "id": "CR-U10",
+          "name": "Walk Home",
+          "cls": "U"
+        },
+        {
+          "id": "CR-D09",
+          "name": "Jog Rhythm",
+          "cls": "D"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 11,
+      "kind": "EXQUISITE",
+      "oc": "",
+      "rating": "R+",
+      "pose": "",
+      "poseName": "aob-ballet-barre",
+      "poseRisk": "",
+      "palette": "P47_PORCELAIN_LACQUER",
+      "paletteName": "P47_PORCELAIN_LACQUER",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W21",
+          "name": "Lycra Shine",
+          "cls": "W"
+        },
+        {
+          "id": "CR-S03",
+          "name": "Collarbone Hollow Pendant",
+          "cls": "S"
+        },
+        {
+          "id": "CR-F03",
+          "name": "Backbend Offer",
+          "cls": "F"
+        },
+        {
+          "id": "CR-M03",
+          "name": "Table Edge",
+          "cls": "M"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 12,
+      "kind": "VOLT",
+      "oc": "",
+      "rating": "R+",
+      "pose": "",
+      "poseName": "aob-greenhouse-graft",
+      "poseRisk": "",
+      "palette": "P93_GLASS_BELL_JAR",
+      "paletteName": "P93_GLASS_BELL_JAR",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W28",
+          "name": "Splash-Side",
+          "cls": "W"
+        },
+        {
+          "id": "CR-B06",
+          "name": "Sideboob Curve",
+          "cls": "B"
+        },
+        {
+          "id": "CR-E09",
+          "name": "Vent Gust Flip",
+          "cls": "E"
+        },
+        {
+          "id": "CR-M05",
+          "name": "Counter Reach",
+          "cls": "M"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 13,
+      "kind": "NICHE",
+      "oc": "",
+      "rating": "R",
+      "pose": "",
+      "poseName": "aob-winter-window",
+      "poseRisk": "",
+      "palette": "P32_VOID_ICE",
+      "paletteName": "P32_VOID_ICE",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W30",
+          "name": "Cold-Stiff Drape",
+          "cls": "W"
+        },
+        {
+          "id": "CR-C13",
+          "name": "Rail's Cold Kiss",
+          "cls": "C"
+        },
+        {
+          "id": "CR-E01",
+          "name": "Tank Strap Fallen",
+          "cls": "E"
+        },
+        {
+          "id": "CR-D07",
+          "name": "Pendulum Lag",
+          "cls": "D"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 14,
+      "kind": "VOLT",
+      "oc": "",
+      "rating": "R+",
+      "pose": "",
+      "poseName": "aob-cheer-regionals",
+      "poseRisk": "",
+      "palette": "P88_COBALT_ROAD",
+      "paletteName": "P88_COBALT_ROAD",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W19",
+          "name": "Jersey Rumple",
+          "cls": "W"
+        },
+        {
+          "id": "CR-S06",
+          "name": "Sideboob Skin",
+          "cls": "S"
+        },
+        {
+          "id": "CR-E08",
+          "name": "One-Side Untuck",
+          "cls": "E"
+        },
+        {
+          "id": "CR-D10",
+          "name": "Jump-Rope Double Beat",
+          "cls": "D"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 15,
+      "kind": "NICHE",
+      "oc": "",
+      "rating": "R",
+      "pose": "",
+      "poseName": "aob-laundry-sails",
+      "poseRisk": "",
+      "palette": "P90_FAIRY_LAUNDRY",
+      "paletteName": "P90_FAIRY_LAUNDRY",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W26",
+          "name": "Wind-Press",
+          "cls": "W"
+        },
+        {
+          "id": "CR-B10",
+          "name": "Profile Curve",
+          "cls": "B"
+        },
+        {
+          "id": "CR-U05",
+          "name": "Laundry Day",
+          "cls": "U"
+        },
+        {
+          "id": "CR-I05",
+          "name": "Belt Line",
+          "cls": "I"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 16,
+      "kind": "VOLT",
+      "oc": "",
+      "rating": "R+",
+      "pose": "",
+      "poseName": "aob-masquerade-masks",
+      "poseRisk": "",
+      "palette": "P51_RAIN_STAINED_GLASS",
+      "paletteName": "P51_RAIN_STAINED_GLASS",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W16",
+          "name": "Silk Drape",
+          "cls": "W"
+        },
+        {
+          "id": "CR-B02",
+          "name": "Shape Through Cold Cloth",
+          "cls": "B"
+        },
+        {
+          "id": "CR-E07",
+          "name": "Robe Drift",
+          "cls": "E"
+        },
+        {
+          "id": "CR-M08",
+          "name": "Doorframe Squeeze",
+          "cls": "M"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 17,
+      "kind": "NICHE",
+      "oc": "",
+      "rating": "R",
+      "pose": "",
+      "poseName": "aob-star-market",
+      "poseRisk": "",
+      "palette": "P22_VOID_INDIGO",
+      "paletteName": "P22_VOID_INDIGO",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W17",
+          "name": "Open-Weave Light",
+          "cls": "W"
+        },
+        {
+          "id": "CR-B07",
+          "name": "Cleavage End-Shadow",
+          "cls": "B"
+        },
+        {
+          "id": "CR-F02",
+          "name": "M-Sit",
+          "cls": "F"
+        },
+        {
+          "id": "CR-D02",
+          "name": "Stair Bounce",
+          "cls": "D"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 18,
+      "kind": "VOLT",
+      "oc": "",
+      "rating": "R+",
+      "pose": "",
+      "poseName": "aob-standard-sash",
+      "poseRisk": "",
+      "palette": "P66_DUSK_VERMILION",
+      "paletteName": "P66_DUSK_VERMILION",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W01",
+          "name": "Taut Weave",
+          "cls": "W"
+        },
+        {
+          "id": "CR-S04",
+          "name": "First Inch Of Cleavage",
+          "cls": "S"
+        },
+        {
+          "id": "CR-L06",
+          "name": "Strapless Vigilance",
+          "cls": "L"
+        },
+        {
+          "id": "CR-D05",
+          "name": "Forward-Lean Deepening",
+          "cls": "D"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 19,
+      "kind": "NICHE",
+      "oc": "",
+      "rating": "R",
+      "pose": "",
+      "poseName": "aob-gravity-well",
+      "poseRisk": "",
+      "palette": "P20_VOID_PRISM",
+      "paletteName": "P20_VOID_PRISM",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W05",
+          "name": "Static Cling",
+          "cls": "W"
+        },
+        {
+          "id": "CR-B08",
+          "name": "Weight-Line",
+          "cls": "B"
+        },
+        {
+          "id": "CR-F09",
+          "name": "Legs-Up-Wall",
+          "cls": "F"
+        },
+        {
+          "id": "CR-D07",
+          "name": "Pendulum Lag",
+          "cls": "D"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 20,
+      "kind": "EXQUISITE",
+      "oc": "",
+      "rating": "R+",
+      "pose": "",
+      "poseName": "aob-ikebana-tokonoma",
+      "poseRisk": "",
+      "palette": "P52_MEIJI_DUSK",
+      "paletteName": "P52_MEIJI_DUSK",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W29",
+          "name": "Pleat-Set",
+          "cls": "W"
+        },
+        {
+          "id": "CR-B04",
+          "name": "Apex Contour",
+          "cls": "B"
+        },
+        {
+          "id": "CR-F06",
+          "name": "Tide-Pool Squat",
+          "cls": "F"
+        },
+        {
+          "id": "CR-M03",
+          "name": "Table Edge",
+          "cls": "M"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 21,
+      "kind": "VOLT",
+      "oc": "",
+      "rating": "R+",
+      "pose": "",
+      "poseName": "aob-observatory-sill",
+      "poseRisk": "",
+      "palette": "P27_VOID_STARLIGHT",
+      "paletteName": "P27_VOID_STARLIGHT",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W26",
+          "name": "Wind-Press",
+          "cls": "W"
+        },
+        {
+          "id": "CR-B09",
+          "name": "Backlit Silhouette",
+          "cls": "B"
+        },
+        {
+          "id": "CR-E01",
+          "name": "Tank Strap Fallen",
+          "cls": "E"
+        },
+        {
+          "id": "CR-M04",
+          "name": "Window Glass",
+          "cls": "M"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 22,
+      "kind": "VOLT",
+      "oc": "",
+      "rating": "R+",
+      "pose": "",
+      "poseName": "aob-canvas-model",
+      "poseRisk": "",
+      "palette": "P74_HONEY_STATIC",
+      "paletteName": "P74_HONEY_STATIC",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W20",
+          "name": "Chairback Print",
+          "cls": "W"
+        },
+        {
+          "id": "CR-B06",
+          "name": "Sideboob Curve",
+          "cls": "B"
+        },
+        {
+          "id": "CR-E10",
+          "name": "Barstool Ride",
+          "cls": "E"
+        },
+        {
+          "id": "CR-M10",
+          "name": "Hug Crush",
+          "cls": "M"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 23,
+      "kind": "VOLT",
+      "oc": "",
+      "rating": "R+",
+      "pose": "",
+      "poseName": "aob-onsen-dash",
+      "poseRisk": "",
+      "palette": "P87_ICE_SHEET_FIRSTLIGHT",
+      "paletteName": "P87_ICE_SHEET_FIRSTLIGHT",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W08",
+          "name": "Wet Hemline",
+          "cls": "W"
+        },
+        {
+          "id": "CR-B02",
+          "name": "Shape Through Cold Cloth",
+          "cls": "B"
+        },
+        {
+          "id": "CR-E07",
+          "name": "Robe Drift",
+          "cls": "E"
+        },
+        {
+          "id": "CR-D01",
+          "name": "Full Drop Mid-Sway",
+          "cls": "D"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 24,
+      "kind": "VOLT",
+      "oc": "",
+      "rating": "R+",
+      "pose": "",
+      "poseName": "aob-dj-sunrise",
+      "poseRisk": "",
+      "palette": "P56_AURORA_BOREALIS_NIGHT",
+      "paletteName": "P56_AURORA_BOREALIS_NIGHT",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W21",
+          "name": "Lycra Shine",
+          "cls": "W"
+        },
+        {
+          "id": "CR-B11",
+          "name": "Navel Dip",
+          "cls": "B"
+        },
+        {
+          "id": "CR-E09",
+          "name": "Vent Gust Flip",
+          "cls": "E"
+        },
+        {
+          "id": "CR-M03",
+          "name": "Table Edge",
+          "cls": "M"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 25,
+      "kind": "EXP",
+      "oc": "",
+      "rating": "R+",
+      "pose": "",
+      "poseName": "aob-crate-anchored",
+      "poseRisk": "",
+      "palette": "P12_AUTUMN_RUST",
+      "paletteName": "P12_AUTUMN_RUST",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W12",
+          "name": "Threadbare Tee",
+          "cls": "W"
+        },
+        {
+          "id": "CR-B04",
+          "name": "Apex Contour",
+          "cls": "B"
+        },
+        {
+          "id": "CR-E08",
+          "name": "One-Side Untuck",
+          "cls": "E"
+        },
+        {
+          "id": "CR-D06",
+          "name": "Table Flattening",
+          "cls": "D"
+        }
+      ],
+      "lead": "",
+      "register": "exp-blank",
+      "closer": "",
+      "exploratory": "EXP-слот (болванка без темы): гипотеза названа в THESIS слота батча",
+      "ab": {
+        "pair": "κ",
+        "half": "A",
+        "withSlot": 26,
+        "lead": "H10 опорная геометрия (закон №24, кандидат): полные M18-теги опоры vs без них — тот же кадр фруктового ящика; план тела один в обеих половинках (curvy) — вторая переменная запрещена"
+      }
+    },
+    {
+      "position": 26,
+      "kind": "EXP",
+      "oc": "",
+      "rating": "R+",
+      "pose": "",
+      "poseName": "aob-crate-plain",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W12",
+          "name": "Threadbare Tee",
+          "cls": "W"
+        },
+        {
+          "id": "CR-B04",
+          "name": "Apex Contour",
+          "cls": "B"
+        },
+        {
+          "id": "CR-E08",
+          "name": "One-Side Untuck",
+          "cls": "E"
+        },
+        {
+          "id": "CR-D06",
+          "name": "Table Flattening",
+          "cls": "D"
+        }
+      ],
+      "lead": "",
+      "register": "exp-blank",
+      "closer": "",
+      "exploratory": "EXP-слот (болванка без темы): гипотеза названа в THESIS слота батча",
+      "ab": {
+        "pair": "κ",
+        "half": "B",
+        "withSlot": 25,
+        "lead": "H10 опорная геометрия (закон №24, кандидат): полные M18-теги опоры vs без них — тот же кадр фруктового ящика; план тела один в обеих половинках (curvy) — вторая переменная запрещена"
+      }
+    },
+    {
+      "position": 27,
+      "kind": "EXP",
+      "oc": "",
+      "rating": "R+",
+      "pose": "",
+      "poseName": "aob-scarf-lit",
+      "poseRisk": "",
+      "palette": "P14_ROSE_GOLD",
+      "paletteName": "P14_ROSE_GOLD",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W16",
+          "name": "Silk Drape",
+          "cls": "W"
+        },
+        {
+          "id": "CR-B03",
+          "name": "Peaks Through Dry Knit",
+          "cls": "B"
+        },
+        {
+          "id": "CR-E05",
+          "name": "Wrap Gap",
+          "cls": "E"
+        },
+        {
+          "id": "CR-D04",
+          "name": "Overhead Reach Lift",
+          "cls": "D"
+        }
+      ],
+      "lead": "",
+      "register": "exp-blank",
+      "closer": "",
+      "exploratory": "EXP-слот (болванка без темы): гипотеза названа в THESIS слота батча",
+      "ab": {
+        "pair": "λ",
+        "half": "A",
+        "withSlot": 28,
+        "lead": "H11 свет-на-зоне (закон №21, X-граница плоской натяжки): слабый просвет + свет на зоне vs сильный просвет без света — тот же кадр галереи; план тела один (slender)"
+      }
+    },
+    {
+      "position": 28,
+      "kind": "EXP",
+      "oc": "",
+      "rating": "R+",
+      "pose": "",
+      "poseName": "aob-scarf-dark",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W16",
+          "name": "Silk Drape",
+          "cls": "W"
+        },
+        {
+          "id": "CR-B03",
+          "name": "Peaks Through Dry Knit",
+          "cls": "B"
+        },
+        {
+          "id": "CR-E05",
+          "name": "Wrap Gap",
+          "cls": "E"
+        },
+        {
+          "id": "CR-D04",
+          "name": "Overhead Reach Lift",
+          "cls": "D"
+        }
+      ],
+      "lead": "",
+      "register": "exp-blank",
+      "closer": "",
+      "exploratory": "EXP-слот (болванка без темы): гипотеза названа в THESIS слота батча",
+      "ab": {
+        "pair": "λ",
+        "half": "B",
+        "withSlot": 27,
+        "lead": "H11 свет-на-зоне (закон №21, X-граница плоской натяжки): слабый просвет + свет на зоне vs сильный просвет без света — тот же кадр галереи; план тела один (slender)"
+      }
+    },
+    {
+      "position": 29,
+      "kind": "EXP",
+      "oc": "",
+      "rating": "R+",
+      "pose": "",
+      "poseName": "aob-fountain-rawplus",
+      "poseRisk": "",
+      "palette": "P02_DAWN_AMBER",
+      "paletteName": "P02_DAWN_AMBER",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W07",
+          "name": "Plastered Wet Shirt",
+          "cls": "W"
+        },
+        {
+          "id": "CR-B01",
+          "name": "Points Against Weave",
+          "cls": "B"
+        },
+        {
+          "id": "CR-E01",
+          "name": "Tank Strap Fallen",
+          "cls": "E"
+        },
+        {
+          "id": "CR-D08",
+          "name": "Aftershock",
+          "cls": "D"
+        }
+      ],
+      "lead": "",
+      "register": "exp-blank",
+      "closer": "",
+      "exploratory": "EXP-слот (болванка без темы): гипотеза названа в THESIS слота батча",
+      "ab": {
+        "pair": "μ",
+        "half": "A",
+        "withSlot": 30,
+        "lead": "H12 RAW+ против блеклости (закон №23, приказ-миграция): RAW+ сборка (палитра+лицо+квалити) vs голый RAW T4-26 — тот же кадр фонтана; план тела один (athletic+medium)"
+      }
+    },
+    {
+      "position": 30,
+      "kind": "EXP",
+      "oc": "",
+      "rating": "R+",
+      "pose": "",
+      "poseName": "aob-fountain-raw",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W07",
+          "name": "Plastered Wet Shirt",
+          "cls": "W"
+        },
+        {
+          "id": "CR-B01",
+          "name": "Points Against Weave",
+          "cls": "B"
+        },
+        {
+          "id": "CR-E01",
+          "name": "Tank Strap Fallen",
+          "cls": "E"
+        },
+        {
+          "id": "CR-D08",
+          "name": "Aftershock",
+          "cls": "D"
+        }
+      ],
+      "lead": "",
+      "register": "exp-blank",
+      "closer": "",
+      "exploratory": "EXP-слот (болванка без темы): гипотеза названа в THESIS слота батча",
+      "ab": {
+        "pair": "μ",
+        "half": "B",
+        "withSlot": 29,
+        "lead": "H12 RAW+ против блеклости (закон №23, приказ-миграция): RAW+ сборка (палитра+лицо+квалити) vs голый RAW T4-26 — тот же кадр фонтана; план тела один (athletic+medium)"
+      }
+    },
+    {
+      "position": 31,
+      "kind": "EXP",
+      "oc": "",
+      "rating": "R",
+      "pose": "",
+      "poseName": "aob-gala-statement",
+      "poseRisk": "",
+      "palette": "P49_CINNABAR_DREAM",
+      "paletteName": "P49_CINNABAR_DREAM",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W23",
+          "name": "Elastic Bite",
+          "cls": "W"
+        },
+        {
+          "id": "CR-B12",
+          "name": "Waist Carve",
+          "cls": "B"
+        },
+        {
+          "id": "CR-L03",
+          "name": "Double-Strap Cross",
+          "cls": "L"
+        },
+        {
+          "id": "CR-I05",
+          "name": "Belt Line",
+          "cls": "I"
+        }
+      ],
+      "lead": "",
+      "register": "exp-blank",
+      "closer": "",
+      "exploratory": "EXP-слот (болванка без темы): гипотеза названа в THESIS слота батча"
+    },
+    {
+      "position": 32,
+      "kind": "EXP",
+      "oc": "",
+      "rating": "R+",
+      "pose": "",
+      "poseName": "aob-tennis-cooldown",
+      "poseRisk": "",
+      "palette": "P80_SALT_APPETITE",
+      "paletteName": "P80_SALT_APPETITE",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W21",
+          "name": "Lycra Shine",
+          "cls": "W"
+        },
+        {
+          "id": "CR-C16",
+          "name": "Tights Seat Wear",
+          "cls": "C"
+        },
+        {
+          "id": "CR-E04",
+          "name": "Back Zipper",
+          "cls": "E"
+        },
+        {
+          "id": "CR-D09",
+          "name": "Jog Rhythm",
+          "cls": "D"
+        }
+      ],
+      "lead": "",
+      "register": "exp-blank",
+      "closer": "",
+      "exploratory": "EXP-слот (болванка без темы): гипотеза названа в THESIS слота батча"
+    },
+    {
+      "position": 33,
+      "kind": "EXP",
+      "oc": "",
+      "rating": "R+",
+      "pose": "",
+      "poseName": "aob-concertmistress",
+      "poseRisk": "",
+      "palette": "P61_MONOCHROME_VIOLET",
+      "paletteName": "P61_MONOCHROME_VIOLET",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W10",
+          "name": "Sheer Panel",
+          "cls": "W"
+        },
+        {
+          "id": "CR-B09",
+          "name": "Backlit Silhouette",
+          "cls": "B"
+        },
+        {
+          "id": "CR-E03",
+          "name": "Off-Shoulder Ride",
+          "cls": "E"
+        },
+        {
+          "id": "CR-D03",
+          "name": "Quarter-Turn Lead",
+          "cls": "D"
+        }
+      ],
+      "lead": "",
+      "register": "exp-blank",
+      "closer": "",
+      "exploratory": "EXP-слот (болванка без темы): гипотеза названа в THESIS слота батча"
+    }
+  ],
+  "ocRotation": {
+    "note": "как в T4-27 (заказ автора): DEFEATED WARLORD (Vae) · BATTLE ANGELS — меха-мусуме (Sue) · CYBERPSYCHOSIS (Zia); НОВОЕ: канон-тела возвращены тегами (oc-canon body_type: Vae tall/curvy/hourglass/large/wide; Sue MILF-mode + soft waist + thick thighs; Zia FAM-A full-figured)",
+    "ocs": [
+      "Vae",
+      "Sue",
+      "Zia"
+    ]
+  },
+  "racialCount": {
+    "note": "RAW+/данбуру: расовый каст не назначается (T4-23 ORDER)"
+  },
+  "abPairs": [
+    {
+      "pair": "κ",
+      "a": 25,
+      "b": 26,
+      "lead": "H10 опорная геометрия (закон №24, кандидат): полные M18-теги опоры vs без них — тот же кадр фруктового ящика; план тела один в обеих половинках (curvy) — вторая переменная запрещена"
+    },
+    {
+      "pair": "λ",
+      "a": 27,
+      "b": 28,
+      "lead": "H11 свет-на-зоне (закон №21, X-граница плоской натяжки): слабый просвет + свет на зоне vs сильный просвет без света — тот же кадр галереи; план тела один (slender)"
+    },
+    {
+      "pair": "μ",
+      "a": 29,
+      "b": 30,
+      "lead": "H12 RAW+ против блеклости (закон №23, приказ-миграция): RAW+ сборка (палитра+лицо+квалити) vs голый RAW T4-26 — тот же кадр фонтана; план тела один (athletic+medium)"
+    }
+  ],
+  "carrierStats": {
+    "note": "стеки T4-27 сохранены (TRIAL-3 M15-M20); EXP-оверлей — 9 слотов поверх 24-слотового закона",
+    "wSharePct": 25
+  },
+  "windowSlugs": [],
+  "channelStats": {
+    "note": "каналы T4-27 сохранены; единственная новая переменная батча — BODY-SPECTRUM (план тела тегами + NEG-защита)"
+  },
+  "platform": "yodayo",
+  "laws": [
+    "24-слотовый закон (3 OC + 21 мейн) + EXP-оверлей ≤9 слотов ПОВЕРХ (law.expSlotsMax)",
+    "Спред мейнов канона T4-23/policy: R+×14 · R×7 (12 VOLT R+ · 7 NICHE R · 2 EXQUISITE R+)",
+    "TRIAL-3 (законы №20-24): M15 интерливинг · M16 палитры · M17 RAW+ сборка · M18 опорная геометрия · M19 X-граница · M20 NICHE-объект",
+    "BODY-SPECTRUM (новый слой T4-27.2): план тела тегами в идентификационном сегменте + NEG-защита; регистр формой, не возрастом (N30); интерлив тел (№22 на тела); A/B-пары — один план в обеих половинках",
+    "Закон №20 «чистых рук» (рецепт v1.6.0): braless-токен и NATURAL-кластер изъяты",
+    "Milf-квота N30: по тегу 1/33 (Sue, канон); по форме full-план 4/33 + OC P02/P03"
+  ]
+}
