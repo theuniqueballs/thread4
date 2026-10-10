@@ -2104,3 +2104,41 @@ Stage Summary:
   (лайт-гейт для EXP) остаётся за автором — теперь с живым прецедентом.
 - Ждём: рендер T4-27.2 (1 кадр/промпт) + вердикт автора; по итогам —
   H13 в TASTE или назад к чертежу; параллельно ждём вердикт по T4-27.
+
+---
+Task ID: 2-a
+Agent: Explore (engine analysis)
+Task: Deep analysis of THREAD 4 engine core (src/lib/t4, cli.ts, API routes)
+
+Work Log:
+- Read worklog.md head (Tasks 1, 2-a pool-parser) and tail (OP-FRED-2026-10-08/d → 2026-10-10/c): T4-27.2-EXP delivered, chain 264, awaiting author's render verdicts on T4-27/T4-27.2 (BODY-SPECTRUM hypothesis H13)
+- Read thread4/cli.ts (601 lines) in full: 16 commands — seed / compile [--pin] / recompile / scribe / check / gates / deliver / void / state / chain / verify [--heal] / shore-merge / reaper / corpus take|drop / grep-gate / selftest (50 checks)
+- Read all 12 src/lib/t4 modules (5780 lines): compiler 912, gates 1603, scribe 819, specs 529, events 412, reaper 222, persist 261, deliver 156, hygiene 64, vlm 76, fsutil 99, verdicts 26
+- Read all 15 src/app/api/t4 route files + both /api/zai bridge routes; verified log.jsonl ↔ chain.jsonl live format (264 events / 264 links, head 535c5079)
+- Enumerated every gate via grep on hard()/warn()/advisory() calls: 6 hard + 15 warn + 3 advisory fixed (GATES_TOTAL=24; the "22" comment is stale — raw-plus gate + salience-chain→warn added 2) + conditional raw-plus / rating-recipe-exploratory / raw-plus-exploratory receipts
+
+Stage Summary:
+- Core is event-sourced: append-only log.jsonl + sha256 hash chain (chain.jsonl, prefix-verified on EVERY append — tamper rejects the event); foldState derives batches, 3-batch rotation window, OC roster, voided slugs, debts; state is never hand-maintained
+- Pipeline: compile (deterministic mulberry32 seed = hash(slug+theme), diversity ASSIGNED from specs+policy via LRU window rotation, core-4 carriers, A/B pairs) → scribe (z-ai LLM writes ANCHOR/THESIS/POS per chunk, machine assembles Canon/Spine/Stack/NEG floors, dry-gate repair loop ≤2-4 rounds) → deliver (official gate.run, oc.appeared, WORKLOG append, batch.delivered, immediate git snapshot)
+- Learn loop: batch-verdict writes ONE render.verdict (source=author-batch) with scoreboard ↑↓ vs contract claims + A/B attribution; author prose ≥40 chars → corpus-queue → golden-corpus few-shots; delivery-stats/policy reflexes (oc-rplus downshift, rehab targets, X-slots removed) feed the next compile
+- Durability: atomic tmp+rename writes, debounced git snapshots (--ignore-removal, exit-flush, T4_PERSIST=off), recover scans reflog orphans; mutating POSTs (events, vault restore) require ~/.t4/commander.key; hygiene grep-gate keeps thread numbers out of code (П-2)
+- Gotchas: gates lean on regex heuristics (tierOf ordering, palette form P\d{1,3}_[A-Z_]+, noun-lock word boundaries vs «brazier»), selftest pins spec versions (must bump on every spec change), .z-ai-config is currently ABSENT (VLM + scribe will 503 until restored); SDK pattern: ZAI.create() → chat.completions.create({messages, thinking:disabled}) / createVision({model:'glm-4.5v', image_url data-URI})
+
+---
+Task ID: 2-b
+Agent: Explore (data & laws analysis)
+Task: Deep analysis of THREAD 4 data/laws layer (thread4/ folder: specs, contracts, batches, events, docs)
+
+Work Log:
+- Read worklog head/tail (Tasks 1, 2-a, OP-FRED sessions through 2026-10-10/c: T4-27 delivered, T4-27.2-EXP BODY-SPECTRUM assembled, chain 264)
+- Read all law docs fully: CONSTITUTION.md (12 § + §9-a…septima amendments + DoD v1), TASTE.md (canon/anti-canon + verdict-driven laws №1-24 + TRIAL-1/2/3), RENDERER_FACTS.md, NICHE.md v1.1 (А-Я doctrine, У = T4.2 НИША-50), ENGINE_FORGE.md (Forge 2.0 orthogonality), LIVING-NOTES.md (receipts T4-12…T4-27.2), RULES_CORE-ORIGINAL.md (era-N30 pre-constitution rules), ISSUES-FRED-2026-09-28.md (14 audit reports)
+- Inventoried all 17 specs/*.json (versions, top-level keys, counts) + parse_pools.py + PARSE_REPORT; deep-read policy v1.5.0, oc-canon (canon v2.1.0, 19 OCs), rating-recipes v1.6.0, rating-techniques v1.1.0 (108), raw-plus v1.0.0, delivery-stats v0.7.0 (23 channels), palettes (105), golden-corpus (24), niche-archetypes (N01-N50), races v2.1.1 (22+directives), carriers (280), poses (240), pools, engines (10), engine-forge, bans, facts
+- Analyzed data folders: batches/ (T4-27.2-EXP.md anatomy: ORDER→BODY-SPECTRUM→TRIAL→slot sections→WORKLOG; POS/NEG single-run format), contracts/ (json+md pair structure: machine half with slots/abPairs/laws vs human exposition), verdicts/ (T4-04 author verdict PH ground truth + VLM audits + T4-03 scoreboards), events/ (log.jsonl 264 events, 16 types; chain.jsonl hash chain 264/264), docs/ (3 audits + T4.2-GLASS-CANNON + CHEMODAN_MANIFEST + 3 verdict maps with questions), reaper/ (4 drafts, never fired), tools/ (8 scripts), corpus-queue, engines-archive
+- Cross-checked gate consumption in src/lib/t4 (gates.ts GATES_TOTAL=24, gate ids, Issue references #18-#24) and cli.ts commands (seed/compile/recompile/check/gates/deliver/scribe/state/selftest)
+
+Stage Summary:
+- Law hierarchy confirmed: CONSTITUTION (supreme, replaced-not-annotated via law.amended events) → TASTE receipts + verdict-driven laws №1-24 → typed specs (§2 one-source-of-truth) → append-only events as state; feedback (verdict events) is the only law-maker (§10); amendment = event with §/change/authority/spec-diff
+- Era state: chain 264/264 OK; 23 delivered batches (voided: T4-06/10/14/16/17; EXP rebuilds .md-only by precedent); waiting on author render verdicts for T4-27 (R+ 25/X 0, salience 0/25 record) AND T4-27.2-EXP (H13 BODY-SPECTRUM: "name the body or the renderer decides"); after verdicts: TRIAL-3 M15-M20 → constitution, T4-28 awaits theme
+- Key data: delivery-stats v0.7.0 has 23 channels (live: wet-sheer 8, r-geometry 19, x-coverage-block 7, tape-only 4, contact-physics 8, handbra 4; dead: cameltoe; candidate: oc-rplus 2, fabric-tension 2, pantyline-lower 0, underwear-as-outfit 1; oracle 159/159); policy v1.5.0 = all numbers (24 slots, R+14/R7/X0 mains, EXP≤9 overlay, interleave, paletteRotation, rehab=[dry-sheer]); RAW+ profile v1.0.0 with hard gate
+- Open items: all GitHub Issues #1-#32 closed (0 open); parked author questions: light-gate for EXP rebuilds (#30, now with live precedent T4-27.2-EXP), NICHE.md v1.2 doctrine refresh (still teaches dead ARCH·DEVICE vs canon ARCH·LAW·PROOF — ISSUES-FRED 01/02 not posted), EXQUISITE canon fate, "more interesting swimsuits" (P32), opener-bundle split + hentai-style-on-PG13 (RENDERER_FACTS open questions)
+- OC canon: 19 active OCs (Sue/Miyu/Yui/Sol/Noa/Doe/Lua/Nix/Vae/Ash/Mab/Lyn/Rue/Zia/Rin/Una/Ana/Ama/Ila) with full appearance locks + anti_shields + presentation modes (Vae ELDRITCH, Sue MILF-MODE, Una OFF-DUTY); registries tarot/element/zodiac = author-series data only; inactive reserve Rae+Iya
