@@ -68,6 +68,10 @@ export interface ScribeResult {
 export interface ScribeOptions {
   maxRepairRounds?: number // default 2
   chunkSize?: number // default 6
+  /** полирующий круг WARN-гейтов (noun-lock/claim-visibility/prop-geometry/
+   *  simcheck) после hard PASS — качество черновика до сдачи; откат
+   *  если полировка сломала hard (черновик важнее полировки) */
+  polish?: boolean // default true
   onLog?: (line: string) => void // live progress (CLI prints as it goes)
 }
 
@@ -207,13 +211,15 @@ function stripRaceParens(race?: string): string {
 }
 
 function canonLineOf(oc: OCLocks): string {
-  const parts: string[] = [`${oc.name} —`]
+  const parts: string[] = []
   if (oc.hair) parts.push(String(oc.hair).split('(')[0].trim())
   if (oc.eyes) parts.push(String(oc.eyes).split('(')[0].trim())
   if (oc.skin) parts.push(`${String(oc.skin).split('(')[0].trim()} skin`)
   const marks = Array.isArray(oc.signature_marks) ? (oc.signature_marks as unknown[]).map(String) : []
   for (const m of marks.slice(0, 4)) parts.push(m.split('(')[0].trim())
-  return parts.filter(Boolean).join(', ')
+  /* имя — тире — хвост: «Doe — лаванда…», не «Doe —, лаванда…» (пустой
+   *  сегмент после тире рождает мусорную запятую в Canon-строке) */
+  return `${oc.name} — ${parts.filter(Boolean).join(', ')}`
 }
 
 function canonTagHints(oc: OCLocks): string {
@@ -800,16 +806,68 @@ export async function scribeBatch(
 
   if (!result) throw new Error('гейты не прогнались')
 
+  /* ---- полирующий круг (качество до сдачи): WARN-гейты, которые чинятся
+   *  переписыванием слота — noun-lock (заявка на ИМЕНОВАННОЙ вещи),
+   *  claim-visibility (зона открыта камере, состояние ткани в начале рана),
+   *  prop-geometry (якоря контакта), simcheck (близнецы внутри батча).
+   *  Один круг; если полировка роняет hard — ОТКАТ: черновик важнее. ---- */
+  let polished = 0
+  if (options.polish !== false) {
+    const POLISH_GATES = new Set(['noun-lock', 'claim-visibility', 'prop-geometry', 'simcheck'])
+    const warnFindings = result.receipts.filter(
+      (r) => r.level === 'warn' && r.verdict === 'WARN' && POLISH_GATES.has(r.gate)
+    )
+    const failedPolish = new Set<number>()
+    for (const r of warnFindings) {
+      for (const fnd of r.findings) {
+        const m = /P(\d{1,2})/.exec(fnd)
+        if (m) {
+          const p = parseInt(m[1], 10)
+          if (p >= 1 && p <= contract.slots.length) failedPolish.add(p)
+        }
+      }
+    }
+    if (failedPolish.size > 0) {
+      say(`Шаг 3.5/4: полировка качества — WARN-гейты: слоты ${[...failedPolish].sort((a, b) => a - b).join(', ')}`)
+      const backup = markdown
+      const backupOutputs = new Map(outputs)
+      const repairSlots = contract.slots.filter((s) => failedPolish.has(s.position))
+      const repairUser = `${batchLawBlock}\n\nREWRITE THESE SLOTS — they carry WARN-level QUALITY findings (the batch already passed all HARD gates — do NOT introduce any new fabric/claim/underlayer that could break them). Keep the same anchor, pose, palette, canon and stack. Keep what worked, fix what is flagged. Same exact format.\n\n${repairSlots.map((s) => slotFrame(s, ctx)).join('\n\n')}\n\nQUALITY FINDINGS TO FIX:\n${warnFindings.flatMap((r) => r.findings.map((f) => `- [${r.gate}] ${f}`)).slice(0, 24).join('\n')}`
+      const raw = await chat(zai, systemPrompt(), repairUser, log)
+      for (const [n, o] of parseSlots(raw)) {
+        if (o.pos.trim()) outputs.set(n, o)
+      }
+      markdown = assembleBatch(ctx, outputs, title)
+      writeText(batchPath, markdown)
+      const after = runGates(slug, true)
+      if (after && after.hardPass) {
+        polished = failedPolish.size
+        result = after
+        say(`  · полировка: hard PASS удержан, WARN-слоты переписаны (${polished})`)
+      } else {
+        /* откат: полировка роняет hard — черновик до полировки сильнее */
+        outputs.clear()
+        for (const [k, v] of backupOutputs) outputs.set(k, v)
+        markdown = backup
+        writeText(batchPath, markdown)
+        const restored = runGates(slug, true)
+        if (restored) result = restored
+        say('  · полировка сломала hard — ОТКАТ к черновику до полировки (WARN-квитанции остаются автору)')
+      }
+    }
+  }
+
   /* ---- record + event ---- */
   say(`Шаг 4/4: черновик записан → batches/${slug}.md`)
   appendEvent(
     'scribe.drafted',
-    `${slug} «${title}»: авто-писец написал черновик — ${outputs.size}/${contract.slots.length} слотов, ремонт ${rounds} круг(а), гейты dry ${result.hardPass ? 'PASS' : 'FAIL'} (sha ${result.sha10})`,
+    `${slug} «${title}»: авто-писец написал черновик — ${outputs.size}/${contract.slots.length} слотов, ремонт ${rounds} круг(а), полировка ${polished} слот(ов), гейты dry ${result.hardPass ? 'PASS' : 'FAIL'} (sha ${result.sha10})`,
     {
       slug,
       title,
       slots: outputs.size,
       rounds,
+      polished,
       hardPass: result.hardPass,
       sha10: result.sha10,
       engine: contract.engine,
