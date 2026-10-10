@@ -203,7 +203,7 @@ export interface CommanderProbe {
 
 /** Проверка ключа без записи в летопись (GET ?probe=1, Залп 1 не трогается). */
 export async function probeCommanderKey(): Promise<CommanderProbe> {
-  const res = await fetch('/api/t4/events?probe=1', {
+  const res = await fetch(withGatewayPort('/api/t4/events?probe=1'), {
     cache: 'no-store',
     headers: commanderHeaders(),
   })
@@ -214,6 +214,21 @@ export async function probeCommanderKey(): Promise<CommanderProbe> {
 /* ------------------------------------------------------------------ */
 /* Fetch primitives                                                    */
 /* ------------------------------------------------------------------ */
+
+/**
+ * Платформенный шлюз песочницы (Caddy :81) отдаёт этот дашборд на чужом
+ * порту через ?XTransformPort=3100 — reverse_proxy localhost:{query}.
+ * Клиентские fetch обязаны нести тот же query, иначе шлюз ушлёт их
+ * дефолтному приложению (порт 3000). Прямой доступ (127.0.0.1:3100)
+ * запроса не несёт — пути остаются как есть. Табы ходят по хэшу (#),
+ * location.search не трогают — параметр живёт всю сессию вкладки.
+ */
+export function withGatewayPort(path: string): string {
+  if (typeof window === 'undefined') return path
+  const m = /[?&]XTransformPort=(\d+)/.exec(window.location.search)
+  if (m == null) return path
+  return `${path}${path.includes('?') ? '&' : '?'}XTransformPort=${m[1]}`
+}
 
 export class ApiError extends Error {
   status: number
@@ -231,7 +246,7 @@ export function isNotFound(err: unknown): boolean {
 }
 
 export async function fetchJson<T>(path: string): Promise<T> {
-  const res = await fetch(path, { cache: 'no-store' })
+  const res = await fetch(withGatewayPort(path), { cache: 'no-store' })
   if (!res.ok) throw new ApiError(`HTTP ${res.status}`, res.status)
   return (await res.json()) as T
 }
@@ -241,7 +256,7 @@ export async function postJson<T>(
   body: unknown,
   extraHeaders: Record<string, string> = {}
 ): Promise<T> {
-  const res = await fetch(path, {
+  const res = await fetch(withGatewayPort(path), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...extraHeaders },
     body: JSON.stringify(body),

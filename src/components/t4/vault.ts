@@ -10,6 +10,8 @@
  * было один раз открыть Workflow после сдачи — и снимок уже здесь.
  */
 
+import { withGatewayPort } from './api'
+
 export interface VaultBundle {
   savedAt: string
   counts?: Record<string, number>
@@ -61,7 +63,7 @@ function countBy(files: Record<string, string>, prefix: string, ext?: string): n
 
 /** Забрать бандл с сервера и положить в хранилище (дедуп по содержимому). */
 export async function cacheCurrentState(): Promise<VaultMeta | null> {
-  const res = await fetch('/api/t4/vault', { cache: 'no-store' })
+  const res = await fetch(withGatewayPort('/api/t4/vault'), { cache: 'no-store' })
   if (!res.ok) throw new Error(`vault API ${res.status}`)
   const bundle = (await res.json()) as VaultBundle
   const serialized = JSON.stringify(bundle)
@@ -126,7 +128,7 @@ export async function deleteSnapshot(key: string): Promise<void> {
 export async function restoreSnapshot(
   bundle: VaultBundle
 ): Promise<{ restored: string[]; skipped: string[]; mergedEvents: number }> {
-  const res = await fetch('/api/t4/vault', {
+  const res = await fetch(withGatewayPort('/api/t4/vault'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ savedAt: bundle.savedAt, files: bundle.files }),
