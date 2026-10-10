@@ -24,6 +24,7 @@ import {
   KeyRound,
   Layers,
   PenLine,
+  RotateCcw,
   ScanEye,
   ScrollText,
   Search,
@@ -38,6 +39,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
+import { Checkbox } from '@/components/ui/checkbox'
 import { Switch } from '@/components/ui/switch'
 import { Slider } from '@/components/ui/slider'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
@@ -481,7 +483,10 @@ function SpecsTab() {
   const spec = useApi<unknown>(current ? `/api/t4/specs/${current}` : null)
 
   return (
-    <div className="grid gap-4 lg:grid-cols-[260px_1fr]">
+    /* minmax(0,1fr): implicit auto-колонка раздувалась под min-content
+     * таблиц спеки (+190px на 390px, QA webDevReview #3) — таблицы внутри
+     * и так скроллятся своими overflow-x-auto контейнерами. */
+    <div className="grid grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-[260px_minmax(0,1fr)]">
       <Panel title="Спеки" icon={<Boxes className="size-4" />} bodyClassName="max-h-[70vh] overflow-y-auto t4-scroll">
         {list.loading ? (
           <SkeletonBlock lines={6} />
@@ -911,7 +916,7 @@ function CompileTab() {
             placeholder="Тема батча — например: «город, где усталость носит как меха»…"
             className="min-h-20 border-zinc-800 bg-zinc-950 text-sm"
           />
-          <div className="grid gap-2 sm:grid-cols-[180px_1fr]">
+          <div className="grid grid-cols-[minmax(0,1fr)] gap-2 sm:grid-cols-[180px_minmax(0,1fr)]">
             <Input
               value={engine}
               onChange={(e) => setEngine(e.target.value)}
@@ -927,7 +932,7 @@ function CompileTab() {
               Заказ OC — до трёх · имя из канона (пусто = ротация) · тема по желанию
             </p>
             {ocRows.map((row, i) => (
-              <div key={i} className="grid gap-2 sm:grid-cols-[180px_1fr]">
+              <div key={i} className="grid grid-cols-[minmax(0,1fr)] gap-2 sm:grid-cols-[180px_minmax(0,1fr)]">
                 <Input
                   value={row.name}
                   onChange={(e) =>
@@ -1402,13 +1407,16 @@ function BatchesTab() {
                 <span className="text-amber-300/80">B (перестройка)</span>; дальше клики заменяют B.
               </p>
             ) : null}
-            <div className="grid gap-1.5">
+            {/* minmax(0,1fr): колонка не раздувается под самую широкую строку —
+                * иначе «T4-27.2-EXP + EXP-путь + дата» на 390px раскачивает страницу
+                * вбок на 5px (QA webDevReview #3, мобильный обход). */}
+            <div className="grid grid-cols-[minmax(0,1fr)] gap-1.5">
               {visible.map((b) => (
                 <button
                   key={b.slug}
                   onClick={() => onRowClick(b.slug)}
                   className={cn(
-                    'flex items-center justify-between gap-3 rounded-md border px-3 py-2 text-left outline-none transition-colors',
+                    'group/batch flex min-w-0 items-center justify-between gap-3 rounded-md border px-3 py-2 text-left outline-none transition-colors',
                     mode === 'view' && slug === b.slug
                       ? 'border-amber-500/50 bg-amber-500/10'
                       : mode === 'compare' && (effA === b.slug || effB === b.slug)
@@ -1418,7 +1426,7 @@ function BatchesTab() {
                 >
                   <span className="flex min-w-0 items-center gap-2">
                     <Mono>{b.slug}</Mono>
-                    <span className="truncate text-xs text-zinc-300">{b.title}</span>
+                    <span className="truncate text-xs text-zinc-300 transition-colors group-hover/batch:text-zinc-100">{b.title}</span>
                   </span>
                   <span className="flex shrink-0 items-center gap-1.5">
                     {mode === 'compare' && effA === b.slug ? (
@@ -1431,7 +1439,12 @@ function BatchesTab() {
                         <Chip tone="amber">EXP-путь</Chip>
                       </span>
                     ) : null}
-                    <span className="text-[11px] text-zinc-600">{formatDate(b.date) || '—'}</span>
+                    <span
+                      className="whitespace-nowrap text-[11px] tabular-nums text-zinc-600 transition-colors group-hover/batch:text-zinc-400"
+                      title={b.date ? `${b.slug} · доставлен ${b.date}` : `${b.slug} · EXP-путь без даты`}
+                    >
+                      {formatDate(b.date) || '—'}
+                    </span>
                   </span>
                 </button>
               ))}
@@ -1472,7 +1485,12 @@ function BatchesTab() {
               <MarkdownView>{detail.data?.markdown ?? ''}</MarkdownView>
             )}
           </Panel>
-          {detail.data && !detail.loading ? <SlotStrip markdown={detail.data.markdown} /> : null}
+          {/* key=slug: трекер рендера перемонтируется на смену батча — ленивый
+           *  инициализатор перечитает свой localStorage без запрещённого
+           *  set-state-in-effect. */}
+          {detail.data && !detail.loading ? (
+            <SlotStrip key={slug} slug={slug ?? ''} markdown={detail.data.markdown} />
+          ) : null}
           <QuickVerdict slug={slug} />
         </>
       ) : null}
@@ -1484,40 +1502,179 @@ function BatchesTab() {
   )
 }
 
-/* -------- Слоты: компактная полоса копирования (режим просмотра) ------ */
+/* -------- Слоты: полоса рендера (трекер + копирование + манифест) ------ */
 
-function SlotStrip({ markdown }: { markdown: string }) {
+/** Черновая workflows-память: как приёмник батча и VLM-журнал, живёт в
+ *  localStorage браузера. Летопись не трогаем — «слот отрендерен» не событие
+ *  ядра, это счётчик руки автора. Ключ — по слагу батча. */
+function loadRenderProgress(slug: string): string[] {
+  try {
+    const raw = window.localStorage.getItem(`t4-render-progress-${slug}`)
+    if (!raw) return []
+    const v: unknown = JSON.parse(raw)
+    return Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string') : []
+  } catch {
+    return []
+  }
+}
+
+function SlotStrip({ slug, markdown }: { slug: string; markdown: string }) {
   const parsed = useMemo(() => parseBatchMd(markdown), [markdown])
+  const [doneIds, setDoneIds] = useState<string[]>(() => loadRenderProgress(slug))
+
+  useEffect(() => {
+    window.localStorage.setItem(`t4-render-progress-${slug}`, JSON.stringify(doneIds))
+  }, [slug, doneIds])
+
   if (!parsed) return null
+
+  const total = parsed.slots.length
+  const done = doneIds.length
+  const pct = total > 0 ? Math.round((done / total) * 100) : 0
+  const doneSet = new Set(doneIds)
+
+  function toggle(id: string) {
+    setDoneIds((cur) => (cur.includes(id) ? cur.filter((x) => x !== id) : [...cur, id]))
+  }
+
+  /* Копия «всё разом»: слоты пронумерованы шапками — очередь читается глазами. */
+  const allPos = parsed.slots.map((s) => `${s.id} · ${s.slug}\n${s.pos}`).join('\n\n')
+  const allNeg = parsed.slots.map((s) => `${s.id} · ${s.slug}\n${s.neg}`).join('\n\n')
+
+  /* Манифест рендера: файл-квиток под руку — рендерить можно и без дашборда. */
+  function downloadManifest() {
+    const meta = (s: (typeof parsed.slots)[number]) =>
+      [s.kind, s.who, s.rating, s.pose, s.palette, s.rehab].filter(Boolean).join(' · ')
+    /* шапка батча уже несёт слаг («# T4-27 «…»») — не дублируем его в строке */
+    let titleBody = parsed.title
+    if (titleBody.startsWith(slug)) titleBody = titleBody.slice(slug.length).trim()
+    const titleLine = titleBody !== '' ? ` — ${titleBody}` : ''
+    const lines = [
+      `THREAD 4 · рендер-лист · ${slug}${titleLine}`,
+      `${total} слота · экспорт из дашборда · ${new Date().toLocaleString('ru-RU')}`,
+      '',
+    ]
+    for (const s of parsed.slots) {
+      lines.push(`[${s.id}] ${s.slug}${meta(s) ? ` · ${meta(s)}` : ''}`)
+      lines.push(`POS: ${s.pos}`)
+      lines.push(`NEG: ${s.neg}`)
+      lines.push('')
+    }
+    const url = URL.createObjectURL(new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8' }))
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `render-list-${slug}.txt`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   return (
     <Panel
-      title={`Слоты · ${parsed.slots.length} промптов`}
+      title={`Слоты · ${total} промптов`}
       icon={<Layers className="size-4" />}
       bodyClassName="max-h-96 space-y-1 overflow-y-auto t4-scroll"
+      action={
+        <div className="flex items-center gap-1.5">
+          <Chip tone={done >= total && total > 0 ? 'emerald' : done > 0 ? 'amber' : 'zinc'}>
+            рендер {done}/{total}
+          </Chip>
+          {done > 0 ? (
+            <button
+              type="button"
+              onClick={() => setDoneIds([])}
+              title="Сбросить счётчик рендера этого батча (localStorage, летопись не трогается)"
+              className="inline-flex items-center gap-1 rounded-md border border-zinc-700/70 bg-zinc-800/50 px-1.5 py-0.5 text-[10px] font-medium leading-4 text-zinc-400 transition-colors hover:border-rose-500/50 hover:text-rose-300"
+            >
+              <RotateCcw className="size-3" />
+              сброс
+            </button>
+          ) : null}
+        </div>
+      }
     >
       <p className="pb-1 text-[11px] leading-relaxed text-zinc-600">
         рендер 1 кадр/промпт: ⧉ копирует POS и NEG слота раздельно — вставляй в поля PixAI/Tsubaki
-        по очереди.
+        по очереди; галочка отмечает отрендеренное — счётчик живёт в этом браузере и переживает
+        перезагрузку.
       </p>
-      {parsed.slots.map((s) => (
+      <div className="flex flex-wrap items-center gap-1.5 pb-1.5">
         <div
-          key={s.id}
-          className="flex items-center gap-2 rounded-md border border-zinc-800/70 bg-zinc-950/60 px-2.5 py-1.5 transition-colors hover:border-zinc-700"
+          className="h-1.5 min-w-24 flex-1 overflow-hidden rounded-full bg-zinc-800"
+          role="progressbar"
+          aria-valuenow={done}
+          aria-valuemin={0}
+          aria-valuemax={total}
+          aria-label={`Отрендерено ${done} из ${total} слотов`}
         >
-          <Mono>{s.id}</Mono>
-          {s.kind ? <Chip tone="zinc">{s.kind}</Chip> : null}
-          {s.who ? <Chip tone="zinc">{s.who}</Chip> : null}
-          {s.rating ? (
-            <span className="shrink-0 font-mono text-[11px] text-amber-300/80">{s.rating}</span>
-          ) : null}
-          <span className="min-w-0 flex-1 truncate text-[11px] text-zinc-400">
-            {s.slug}
-            {s.palette ? <span className="text-zinc-600"> · {s.palette}</span> : null}
-          </span>
-          <CopyBtn text={s.pos} label="POS" title={`Скопировать POS ${s.id} (${s.slug})`} />
-          <CopyBtn text={s.neg} label="NEG" title={`Скопировать NEG ${s.id} (${s.slug})`} />
+          <div
+            className={cn(
+              'h-full rounded-full transition-all duration-500',
+              done >= total && total > 0
+                ? 'bg-emerald-500'
+                : 'bg-gradient-to-r from-amber-500 to-amber-300'
+            )}
+            style={{ width: `${pct}%` }}
+          />
         </div>
-      ))}
+        <CopyBtn
+          text={allPos}
+          label="все POS"
+          title={`Скопировать POS всех ${total} слотов — пронумерованные шапками P01…`}
+        />
+        <CopyBtn
+          text={allNeg}
+          label="все NEG"
+          title={`Скопировать NEG всех ${total} слотов — пронумерованные шапками P01…`}
+        />
+        <button
+          type="button"
+          onClick={downloadManifest}
+          title="Скачать рендер-лист .txt — все слоты с POS/NEG одним файлом"
+          className="inline-flex shrink-0 items-center gap-1 rounded-md border border-zinc-700/70 bg-zinc-800/50 px-1.5 py-0.5 text-[10px] font-medium leading-4 text-zinc-400 transition-colors hover:border-amber-500/50 hover:text-amber-300"
+        >
+          <Download className="size-3" />
+          .txt
+        </button>
+      </div>
+      {parsed.slots.map((s) => {
+        const isDone = doneSet.has(s.id)
+        return (
+          <div
+            key={s.id}
+            className={cn(
+              'flex items-center gap-2 rounded-md border px-2.5 py-1.5 transition-colors',
+              isDone
+                ? 'border-emerald-700/50 bg-emerald-950/30 hover:border-emerald-600/50'
+                : 'border-zinc-800/70 bg-zinc-950/60 hover:border-zinc-700'
+            )}
+          >
+            <Checkbox
+              checked={isDone}
+              onCheckedChange={() => toggle(s.id)}
+              aria-label={`${s.id} отрендерен`}
+              title={isDone ? `Снять отметку ${s.id}` : `Отметить ${s.id} отрендеренным`}
+              className="size-3.5 rounded-[4px] border-zinc-700 bg-zinc-900 transition-colors hover:border-emerald-500/60 data-[state=checked]:border-emerald-500 data-[state=checked]:bg-emerald-500 data-[state=checked]:text-zinc-950"
+            />
+            <Mono className={isDone ? 'text-emerald-300/80' : undefined}>{s.id}</Mono>
+            {s.kind ? <Chip tone="zinc">{s.kind}</Chip> : null}
+            {s.who ? <Chip tone="zinc">{s.who}</Chip> : null}
+            {s.rating ? (
+              <span className="shrink-0 font-mono text-[11px] text-amber-300/80">{s.rating}</span>
+            ) : null}
+            <span
+              className={cn(
+                'min-w-0 flex-1 truncate text-[11px] transition-colors',
+                isDone ? 'text-zinc-600' : 'text-zinc-400'
+              )}
+            >
+              {s.slug}
+              {s.palette ? <span className="text-zinc-600"> · {s.palette}</span> : null}
+            </span>
+            <CopyBtn text={s.pos} label="POS" title={`Скопировать POS ${s.id} (${s.slug})`} />
+            <CopyBtn text={s.neg} label="NEG" title={`Скопировать NEG ${s.id} (${s.slug})`} />
+          </div>
+        )
+      })}
     </Panel>
   )
 }
@@ -1543,6 +1700,10 @@ function BatchCompare({
   const detailB = useApi<BatchDetailData>(b !== '' ? `/api/t4/batches/${b}` : null)
   const parsedA = useMemo(() => (detailA.data ? parseBatchMd(detailA.data.markdown) : null), [detailA.data])
   const parsedB = useMemo(() => (detailB.data ? parseBatchMd(detailB.data.markdown) : null), [detailB.data])
+  /* Сторона копирования ⧉POS/⧉NEG в строках: рендер пары — это тот же слот
+   *  из A и из B под одним сидом; по умолчанию копируем B (перестройка на
+   *  суде автора), но с одного клика можно утянуть базу. */
+  const [copySide, setCopySide] = useState<'a' | 'b'>('b')
 
   /* Слоты, выровненные по позиции: объединение id обеих сторон. */
   const rows = useMemo(() => {
@@ -1612,6 +1773,31 @@ function BatchCompare({
             <option key={i.slug} value={i.slug}>{i.slug} · {i.title}</option>
           ))}
         </select>
+        <div
+          className="flex shrink-0 rounded-md border border-zinc-800 bg-zinc-950 p-0.5"
+          role="group"
+          aria-label="Сторона копирования POS/NEG в строках"
+          title="⧉POS/⧉NEG в строках ниже копируют эту сторону (слот есть только с одной — копируется она)"
+        >
+          {(['a', 'b'] as const).map((side) => (
+            <button
+              key={side}
+              type="button"
+              onClick={() => setCopySide(side)}
+              aria-pressed={copySide === side}
+              className={cn(
+                'rounded-[5px] px-2 py-1 text-[11px] font-medium uppercase tracking-wide transition-colors',
+                copySide === side
+                  ? side === 'a'
+                    ? 'bg-amber-500/15 text-amber-300'
+                    : 'bg-emerald-600/15 text-emerald-400'
+                  : 'text-zinc-600 hover:text-zinc-300'
+              )}
+            >
+              ⧉ из {side}
+            </button>
+          ))}
+        </div>
       </div>
       <p className="text-[11px] leading-relaxed text-zinc-600">
         роза — убрано из A · изумруд — добавлено в B · цинк — общее (в порядке B). Чтение диффа —
@@ -1653,7 +1839,7 @@ function BatchCompare({
           ) : null}
           <div className="space-y-1.5">
             {rows.map((r) => (
-              <SlotDiff key={r.id} a={r.a} b={r.b} />
+              <SlotDiff key={r.id} a={r.a} b={r.b} copySide={copySide} />
             ))}
           </div>
         </>
@@ -1672,8 +1858,9 @@ function MetaChip({ va, vb }: { va: string; vb: string }) {
   return <Chip tone="amber">{`${va} → ${vb}`}</Chip>
 }
 
-/** Одна строка сравнения: шапка (свёрнуто/развернуто) + тело диффа. */
-function SlotDiff({ a, b }: { a?: SlotMd; b?: SlotMd }) {
+/** Одна строка сравнения: шапка (свёрнуто/развернуто) + тело диффа.
+ *  copySide — сторона для ⧉POS/⧉NEG: обе есть — выбранная, одна — она сама. */
+function SlotDiff({ a, b, copySide }: { a?: SlotMd; b?: SlotMd; copySide: 'a' | 'b' }) {
   /* null = авто: развёрнуто, если есть структурная перестройка */
   const [open, setOpen] = useState<boolean | null>(null)
   const dP: TokenDiff = diffTokens(a?.pos ?? '', b?.pos ?? '')
@@ -1691,8 +1878,10 @@ function SlotDiff({ a, b }: { a?: SlotMd; b?: SlotMd }) {
   const expanded = open ?? structural
   const onlyIn = !b ? 'A' : !a ? 'B' : null
   const nChanges = dP.added.length + dP.removed.length + dN.added.length + dN.removed.length
-  const copyPos = (b ?? a)?.pos ?? ''
-  const copyNeg = (b ?? a)?.neg ?? ''
+  const src = a && b ? (copySide === 'a' ? a : b) : (a ?? b)
+  const srcSide = a && b ? (copySide === 'a' ? 'A' : 'B') : onlyIn
+  const copyPos = src?.pos ?? ''
+  const copyNeg = src?.neg ?? ''
 
   return (
     <div
@@ -1734,8 +1923,16 @@ function SlotDiff({ a, b }: { a?: SlotMd; b?: SlotMd }) {
           </span>
         </button>
         <div className="flex shrink-0 items-center gap-1">
-          <CopyBtn text={copyPos} label="POS" title={`Скопировать POS ${(b ?? a)?.id ?? ''} (${(b ?? a)?.slug ?? ''})`} />
-          <CopyBtn text={copyNeg} label="NEG" title={`Скопировать NEG ${(b ?? a)?.id ?? ''} (${(b ?? a)?.slug ?? ''})`} />
+          <CopyBtn
+            text={copyPos}
+            label={`POS·${srcSide}`}
+            title={`Скопировать POS ${(b ?? a)?.id ?? ''} со стороны ${srcSide} (${src?.slug ?? ''}) — сторона меняется тумблером «⧉ из»`}
+          />
+          <CopyBtn
+            text={copyNeg}
+            label={`NEG·${srcSide}`}
+            title={`Скопировать NEG ${(b ?? a)?.id ?? ''} со стороны ${srcSide} (${src?.slug ?? ''}) — сторона меняется тумблером «⧉ из»`}
+          />
         </div>
       </div>
       {expanded ? (
@@ -2494,7 +2691,7 @@ function VlmFirstPassPanel() {
           «не прогонял». Потом «Вшить в приёмник»: флаги + PH + ориентиры уедут сами, тир ставишь ты.
         </p>
 
-        <div className="grid gap-3 sm:grid-cols-[1fr_170px]">
+        <div className="grid grid-cols-[minmax(0,1fr)] gap-3 sm:grid-cols-[minmax(0,1fr)_170px]">
           <div
             onDragOver={(e) => {
               e.preventDefault()
@@ -2536,7 +2733,7 @@ function VlmFirstPassPanel() {
               setSlug(e.target.value)
               setFlagNote(null)
             }}
-            className="h-10 rounded-md border border-zinc-800 bg-zinc-950 px-2 text-sm text-zinc-200"
+            className="h-10 w-full min-w-0 rounded-md border border-zinc-800 bg-zinc-950 px-2 text-sm text-zinc-200"
             aria-label="Батч"
           >
             <option value="">— батч —</option>
@@ -3033,14 +3230,14 @@ function BatchReceiverPanel() {
           одной записью» кладёт весь батч одним render.verdict (slots + scoreboard + A/B-атрибуция).
         </p>
 
-        <div className="grid gap-3 sm:grid-cols-[200px_1fr]">
+        <div className="grid grid-cols-[minmax(0,1fr)] gap-3 sm:grid-cols-[200px_minmax(0,1fr)]">
           <select
             value={slug}
             onChange={(e) => {
               setSlug(e.target.value)
               setNote(null)
             }}
-            className="h-9 rounded-md border border-zinc-800 bg-zinc-950 px-2 text-sm text-zinc-200"
+            className="h-9 w-full min-w-0 rounded-md border border-zinc-800 bg-zinc-950 px-2 text-sm text-zinc-200"
             aria-label="Батч приёмника"
           >
             <option value="">— выбери батч —</option>
@@ -3565,7 +3762,7 @@ function ArchiveTab() {
   const items = useMemo(() => list.data?.items ?? [], [list.data])
 
   return (
-    <div className="grid gap-4 lg:grid-cols-[280px_1fr]">
+    <div className="grid grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-[280px_minmax(0,1fr)]">
       <Panel title="Субстрат N12–N29" icon={<ArchiveIcon className="size-4" />} bodyClassName="max-h-[70vh] overflow-y-auto t4-scroll">
         {list.loading ? (
           <SkeletonBlock lines={8} />
@@ -3629,6 +3826,24 @@ export default function Home() {
   const deliveredCount = Array.isArray(state.data?.batches) ? state.data?.batches.length : null
   const eventsCount = state.data?.events ?? chain?.events ?? null
 
+  /* Клавиши 1–0 — вкладки под пальцы (автор живёт в дашборде, десять
+   *  вкладок — десять клавиш). В полях ввода не мешаем: там цифры — текст. */
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.metaKey || e.ctrlKey || e.altKey) return
+      const t = e.target as HTMLElement | null
+      if (
+        t &&
+        (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable)
+      )
+        return
+      const idx = '1234567890'.indexOf(e.key)
+      if (idx >= 0 && idx < TABS.length) setTab(TABS[idx].id)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
+
   return (
     <div className="flex min-h-screen flex-col bg-zinc-950 text-zinc-100">
       <header className="sticky top-0 z-40 border-b border-zinc-800/80 bg-gradient-to-b from-zinc-900 via-zinc-950/95 to-zinc-950/90 backdrop-blur">
@@ -3680,19 +3895,28 @@ export default function Home() {
           </div>
           <ScrollArea className="whitespace-nowrap pb-px">
             <div className="flex gap-1 pb-2">
-              {TABS.map((t) => (
+              {TABS.map((t, i) => (
                 <button
                   key={t.id}
                   onClick={() => setTab(t.id)}
+                  title={`${t.label} · клавиша ${(i + 1) % 10}`}
                   className={cn(
-                    'flex shrink-0 items-center gap-1.5 rounded-md border-b-2 px-3 py-1.5 text-xs font-medium transition-colors',
+                    'flex shrink-0 items-center gap-1.5 rounded-md border-b-2 px-3 py-1.5 text-xs font-medium transition-all',
                     tab === t.id
-                      ? 'border-fuchsia-500 text-amber-300'
-                      : 'border-transparent text-zinc-500 hover:text-zinc-300'
+                      ? 'border-fuchsia-500 bg-zinc-800/40 text-amber-300'
+                      : 'border-transparent text-zinc-500 hover:bg-zinc-800/40 hover:text-zinc-300'
                   )}
                 >
                   {t.icon}
                   {t.label}
+                  <span
+                    className={cn(
+                      'hidden rounded border border-zinc-700/70 bg-zinc-800/60 px-1 font-mono text-[9px] leading-4 text-zinc-500 sm:inline-block',
+                      tab === t.id && 'border-fuchsia-500/30 text-amber-300/70'
+                    )}
+                  >
+                    {(i + 1) % 10}
+                  </span>
                 </button>
               ))}
             </div>
@@ -3721,7 +3945,16 @@ export default function Home() {
       <footer className="mt-auto border-t border-zinc-800/80 bg-zinc-950 pb-[env(safe-area-inset-bottom)]">
         <div className="mx-auto flex w-full max-w-7xl flex-wrap items-center justify-between gap-2 px-4 py-4 text-[11px] text-zinc-600 sm:px-6">
           <span>THREAD 4 · закон 24 слотов · Super Z × Автор</span>
-          <span className="font-mono">гейты — см. Состояние · салиенс + noun-lock + коллизия · приёмник батча · сейф</span>
+          <span className="flex items-center gap-3">
+            <span className="hidden items-center gap-1 md:flex">
+              клавиши
+              <kbd className="rounded border border-zinc-700 bg-zinc-800 px-1 font-mono text-[10px] text-zinc-400">1</kbd>
+              –
+              <kbd className="rounded border border-zinc-700 bg-zinc-800 px-1 font-mono text-[10px] text-zinc-400">0</kbd>
+              — вкладки
+            </span>
+            <span className="font-mono">гейты — см. Состояние · салиенс + noun-lock + коллизия · приёмник батча · сейф</span>
+          </span>
         </div>
       </footer>
     </div>
