@@ -8,6 +8,8 @@
  *   bun thread4/cli.ts gates T4-01   # официальный прогон гейтов (gate.run в лог)
  *   bun thread4/cli.ts deliver T4-01 # официальный прогон + сдача батча
  *   bun thread4/cli.ts scribe T4-01  # авто-писец: черновик батча по контракту (LLM)
+ *   bun thread4/cli.ts drift T4-NN      # тег-дрейф отчёт (REPORT, не гейт)
+ *   bun thread4/cli.ts stack T4-NN      # концепты стеков против истории (REPORT)
  *   bun thread4/cli.ts state
  *   bun thread4/cli.ts selftest      # compiler + gates smoke test
  */
@@ -202,6 +204,19 @@ async function main() {
       process.exit(1)
     }
     await import('./tools/drift-report').then((m) => m.run(rest))
+    return
+  }
+
+  if (cmd === 'stack') {
+    /* Концепт-валидатор стеков (2026-10-11, преемник): REPORT, не гейт —
+     * порт ULTIMATE DICE §44 из архива A5: сигнатуры поза+палитра+сет
+     * носителей по истории сдач, §56D мутация-на-возврате, rebuildOf-метка. */
+    const rest = process.argv.slice(3)
+    if (rest.length === 0) {
+      console.error('usage: stack T4-NN [--depth N] [--top N] [--json]')
+      process.exit(1)
+    }
+    await import('./tools/stack-report').then((m) => m.run(rest))
     return
   }
 
@@ -687,11 +702,51 @@ async function main() {
       check('gen-rawplus: детерминизм (тот же сид → тот же план)', JSON.stringify(p1.slots) === JSON.stringify(p2.slots))
     }
 
+    // Концепт-валидатор стеков (ULTIMATE DICE §44 из архива A5 → RAW-эра)
+    {
+      const { buildReport } = await import('./tools/stack-report')
+      const r272 = buildReport('T4-27.2-EXP', 8)
+      check(
+        'stack-report: история = 8 батчей ПОСЛЕДНЕЙ сдачи, ретро-аудит только по прошлому (T4-27 в хвосте)',
+        r272.history.length === 8 && r272.history.at(-1) === 'T4-27' && !r272.history.includes('T4-27.2-EXP')
+      )
+      check(
+        'stack-report: полные повторы концепта (поза+палитра+стек) вне rebuildOf — 0 у T4-27.2-EXP',
+        r272.repeats.length === 0
+      )
+      check(
+        'stack-report: переиспользование источника ребилда помечено, не считается грехом (33 стека из T4-27)',
+        r272.rebuildReuse.length === 33 && r272.rebuildReuse.every((x) => x.from.every((a) => a.slug === 'T4-27'))
+      )
+      check(
+        'stack-report: дубли формул внутри батча распознают A/B-пары (одна переменная — закон №12)',
+        r272.inBatchDuplicates.length === 3 && r272.inBatchDuplicates.every((d) => d.abPair)
+      )
+      check(
+        'stack-report: возвраты палитр из-за окна несут мутацию стека (§56D: ≥1 ось на возврате)',
+        r272.paletteReturns.length === 22 &&
+          r272.paletteReturns.every((p) => p.carriersMutated && !p.inWindow)
+      )
+      check(
+        'stack-report: носители-любимцы считаются по истории (топ ≥ 2 использований)',
+        (r272.carrierFavorites[0]?.uses ?? 0) >= 2
+      )
+      const r26 = buildReport('T4-26', 8)
+      check(
+        'stack-report: переименованный T4-18 пропускается с меткой, история без него',
+        r26.skipped.includes('T4-18') && !r26.history.includes('T4-18')
+      )
+      check(
+        'stack-report: RAW-поворот честен — T4-26 без палитр (0 с палитрой), стеки на месте (33)',
+        r26.coverage.withPalette === 0 && r26.coverage.withStack === 33
+      )
+    }
+
     console.log(`\nselftest: ${ok} pass, ${fail} fail`)
     process.exit(fail === 0 ? 0 : 1)
   }
 
-  console.log('commands: seed | compile "theme" [engine] [oc1,oc2,oc3] [--pin x,y] | recompile T4-NN "theme" | scribe T4-NN | check T4-NN | gates T4-NN | deliver T4-NN | void T4-NN "reason" | state | chain | verify [--heal] | reaper | grep-gate | corpus | selftest')
+  console.log('commands: seed | compile "theme" [engine] [oc1,oc2,oc3] [--pin x,y] | recompile T4-NN "theme" | scribe T4-NN | check T4-NN | gates T4-NN | deliver T4-NN | void T4-NN "reason" | state | drift T4-NN | stack T4-NN | chain | verify [--heal] | reaper | grep-gate | corpus | selftest')
 }
 
 main().catch((e) => {
