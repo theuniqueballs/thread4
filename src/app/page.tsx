@@ -73,6 +73,15 @@ import { MarkdownView } from '@/components/t4/markdown'
 import { SpecView } from '@/components/t4/spec-renderers'
 import { TIER_RANK } from '@/lib/t4/verdicts'
 import {
+  BatchCompare,
+  SlotStrip,
+  TrialRadarPanel,
+  type BatchDetailData,
+  type BatchRow,
+  type BatchVerdictRecord,
+} from '@/components/t4/batch-ui'
+import { pendingSlotNav, subscribeSlotNav } from '@/components/t4/nav'
+import {
   cacheCurrentState,
   deleteSnapshot,
   getSnapshot,
@@ -472,7 +481,9 @@ function SpecsTab() {
   const spec = useApi<unknown>(current ? `/api/t4/specs/${current}` : null)
 
   return (
-    <div className="grid gap-4 lg:grid-cols-[260px_1fr]">
+    <div className="grid grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-[260px_minmax(0,1fr)]">
+      {/* minmax(0,1fr): грид-трек без него раздувается под контент — на 390px
+       *  страница уезжала вбок на 190px (QA webDevReview #6, мобильный обход) */}
       <Panel title="Спеки" icon={<Boxes className="size-4" />} bodyClassName="max-h-[70vh] overflow-y-auto t4-scroll">
         {list.loading ? (
           <SkeletonBlock lines={6} />
@@ -1259,15 +1270,38 @@ function QuickVerdict({ slug }: { slug: string }) {
 }
 
 function BatchesTab() {
-  const list = useApi<{ items: { slug: string; title: string; date: string; rebuildOf?: string }[] }>('/api/t4/batches')
-  const [slug, setSlug] = useState<string | null>(null)
+  const list = useApi<{ items: BatchRow[] }>('/api/t4/batches')
+  const [mode, setMode] = useState<'view' | 'compare'>('view')
+  /* ленивый инициализатор (не эффект): вкладка монтируется ПОСЛЕ события
+   *  глубокой навигации — sticky-намерение уже лежит в шине, батч открыт */
+  const [slug, setSlug] = useState<string | null>(() => pendingSlotNav()?.slug ?? null)
   const [query, setQuery] = useState('')
-  const detail = useApi<{
-    slug: string
-    title: string
-    markdown: string
-    receipts: { gate: string; level: string; verdict: string; findings: string[] }[]
-  }>(slug ? `/api/t4/batches/${slug}` : null)
+  const [aSlug, setASlug] = useState('')
+  const [bSlug, setBSlug] = useState('')
+  const detail = useApi<BatchDetailData>(slug ? `/api/t4/batches/${slug}` : null)
+  /* живой подписчик: радар кликнут при смонтированной вкладке — открываем
+   *  батч прямо здесь (setState в обработчике события, не в теле эффекта) */
+  useEffect(() => {
+    const off = subscribeSlotNav((intent) => {
+      setMode('view')
+      setSlug(intent.slug)
+    })
+    return off
+  }, [])
+  /* «/» — фокус в поиск, классика; слушатель живёт только пока вкладка смонтирована */
+  const searchRef = useRef<HTMLInputElement>(null)
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.key !== '/' || e.metaKey || e.ctrlKey || e.altKey) return
+      const t = e.target as HTMLElement | null
+      if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable)) return
+      e.preventDefault()
+      searchRef.current?.focus()
+      searchRef.current?.select()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
 
   const items = list.data?.items ?? []
   const receipts = detail.data?.receipts ?? []
@@ -1282,9 +1316,60 @@ function BatchesTab() {
     )
   }, [items, query])
 
+  /* Ленивый дефолт пары вместо эффекта (реакт-линт: без setState в эффекте):
+   *  пустая пара = два последних батча, старее → новее; сегодня это ровно
+   *  T4-27 ↔ T4-27.2-EXP, живой вопрос H13. */
+  const effA = aSlug !== '' ? aSlug : items.length >= 2 ? items[1].slug : (items[0]?.slug ?? '')
+  const effB = bSlug !== '' ? bSlug : items.length >= 2 ? items[0].slug : ''
+
+  function onRowClick(s: string) {
+    if (mode === 'view') {
+      setSlug(slug === s ? null : s)
+      return
+    }
+    if (aSlug === '') setASlug(s)
+    else if (bSlug === '') setBSlug(s)
+    else setBSlug(s)
+  }
+
   return (
     <div className="space-y-4">
-      <Panel title="Батчи" icon={<FileText className="size-4" />}>
+      <Panel
+        title="Батчи"
+        icon={<FileText className="size-4" />}
+        action={
+          <div className="flex rounded-md border border-zinc-800 bg-zinc-950 p-0.5" role="tablist" aria-label="Режим вкладки Батчи">
+            <button
+              type="button"
+              role="tab"
+              aria-selected={mode === 'view'}
+              onClick={() => setMode('view')}
+              className={cn(
+                'rounded-[5px] px-2.5 py-1 text-[11px] font-medium transition-colors',
+                mode === 'view'
+                  ? 'bg-amber-500/15 text-amber-300'
+                  : 'text-zinc-500 hover:text-zinc-300'
+              )}
+            >
+              Просмотр
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={mode === 'compare'}
+              onClick={() => setMode('compare')}
+              className={cn(
+                'rounded-[5px] px-2.5 py-1 text-[11px] font-medium transition-colors',
+                mode === 'compare'
+                  ? 'bg-amber-500/15 text-amber-300'
+                  : 'text-zinc-500 hover:text-zinc-300'
+              )}
+            >
+              Сравнение A↔B
+            </button>
+          </div>
+        }
+      >
         {list.loading ? (
           <SkeletonBlock lines={3} />
         ) : items.length === 0 ? (
@@ -1292,24 +1377,40 @@ function BatchesTab() {
         ) : (
           <div className="space-y-2">
             <div className="relative">
-              <Search className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-zinc-600" />
+              <Search className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-zinc-600 transition-colors focus-within:text-amber-400/60" />
               <Input
+                ref={searchRef}
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder={`Поиск: слаг или тема · ${items.length} батчей…`}
-                className="h-8 border-zinc-800 bg-zinc-950 pl-8 text-xs"
+                title="«/» — фокус в поиск"
+                className="h-8 border-zinc-800 bg-zinc-950 pl-8 pr-10 text-xs transition-colors focus-visible:border-amber-500/50"
               />
+              <kbd className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 rounded border border-zinc-700 bg-zinc-800 px-1 font-mono text-[10px] leading-4 text-zinc-500">
+                /
+              </kbd>
             </div>
-            <div className="grid gap-1.5">
+            {mode === 'compare' ? (
+              <p className="px-1 text-[11px] leading-relaxed text-zinc-600">
+                клик по батчу заполняет пару: сначала <span className="text-amber-300/80">A (база)</span>, затем{' '}
+                <span className="text-amber-300/80">B (перестройка)</span>; дальше клики заменяют B.
+              </p>
+            ) : null}
+            {/* minmax(0,1fr): колонка не раздувается под самую широкую строку —
+             *  иначе «T4-27.2-EXP + EXP-путь + дата» на 390px раскачивает страницу
+             *  вбок на 5px (QA webDevReview #3, мобильный обход). */}
+            <div className="grid grid-cols-[minmax(0,1fr)] gap-1.5">
               {visible.map((b) => (
                 <button
                   key={b.slug}
-                  onClick={() => setSlug(slug === b.slug ? null : b.slug)}
+                  onClick={() => onRowClick(b.slug)}
                   className={cn(
-                    'flex items-center justify-between gap-3 rounded-md border px-3 py-2 text-left outline-none transition-colors',
-                    slug === b.slug
+                    'group/batch flex min-w-0 items-center justify-between gap-3 rounded-md border px-3 py-2 text-left outline-none transition-colors',
+                    mode === 'view' && slug === b.slug
                       ? 'border-amber-500/50 bg-amber-500/10'
-                      : 'border-zinc-800 bg-zinc-900/60 hover:border-zinc-700 focus-visible:border-amber-500/50'
+                      : mode === 'compare' && (effA === b.slug || effB === b.slug)
+                        ? 'border-amber-500/50 bg-amber-500/10'
+                        : 'border-zinc-800 bg-zinc-900/60 hover:border-zinc-700 focus-visible:border-amber-500/50'
                   )}
                 >
                   <span className="flex min-w-0 items-center gap-2">
@@ -1322,11 +1423,29 @@ function BatchesTab() {
                         ↻ {b.rebuildOf}
                       </span>
                     ) : null}
-                    <span className="truncate text-xs text-zinc-300" title={b.title}>
+                    <span className="truncate text-xs text-zinc-300 transition-colors group-hover/batch:text-zinc-100" title={b.title}>
                       {b.title}
                     </span>
                   </span>
-                  <span className="shrink-0 text-[11px] text-zinc-600">{formatDate(b.date)}</span>
+                  <span className="flex shrink-0 items-center gap-1.5">
+                    {mode === 'compare' && effA === b.slug ? (
+                      <Chip tone="amber">A</Chip>
+                    ) : mode === 'compare' && effB === b.slug ? (
+                      <Chip tone="emerald">B</Chip>
+                    ) : null}
+                    {!b.date ? (
+                      <span title="EXP-путь: без гейт-доставки — даты нет (прецедент T4-20.x)">
+                        <Chip tone="amber">EXP-путь</Chip>
+                      </span>
+                    ) : (
+                      <span
+                        className="whitespace-nowrap text-[11px] tabular-nums text-zinc-600 transition-colors group-hover/batch:text-zinc-400"
+                        title={b.date ? `${b.slug} · доставлен ${b.date}` : `${b.slug} · EXP-путь без даты`}
+                      >
+                        {formatDate(b.date) || '—'}
+                      </span>
+                    )}
+                  </span>
                 </button>
               ))}
               {visible.length === 0 ? (
@@ -1339,7 +1458,7 @@ function BatchesTab() {
         )}
       </Panel>
 
-      {slug ? (
+      {mode === 'view' && slug ? (
         <>
           {receipts.length > 0 ? (
             <Panel title={`Гейты · ${slug}`} icon={<Activity className="size-4" />}>
@@ -1366,8 +1485,18 @@ function BatchesTab() {
               <MarkdownView>{detail.data?.markdown ?? ''}</MarkdownView>
             )}
           </Panel>
+          {/* key=slug: трекер рендера перемонтируется на смену батча — ленивый
+           *  инициализатор перечитает свой localStorage без запрещённого
+           *  set-state-in-effect. */}
+          {detail.data && !detail.loading ? (
+            <SlotStrip key={slug} slug={slug ?? ''} markdown={detail.data.markdown} />
+          ) : null}
           <QuickVerdict slug={slug} />
         </>
+      ) : null}
+
+      {mode === 'compare' ? (
+        <BatchCompare items={items} a={effA} b={effB} onA={setASlug} onB={setBSlug} loading={list.loading} />
       ) : null}
     </div>
   )
@@ -2033,7 +2162,9 @@ function VlmFirstPassPanel() {
           «не прогонял». Потом «Вшить в приёмник»: флаги + PH + ориентиры уедут сами, тир ставишь ты.
         </p>
 
-        <div className="grid gap-3 sm:grid-cols-[1fr_170px]">
+        {/* minmax(0,1fr): селект «— батч —» с длинными опциями раздувает
+         *  авто-трек — Вердикты +34px на 390px (QA webDevReview #6) */}
+        <div className="grid grid-cols-[minmax(0,1fr)] gap-3 sm:grid-cols-[minmax(0,1fr)_170px]">
           <div
             onDragOver={(e) => {
               e.preventDefault()
@@ -2367,32 +2498,6 @@ function VlmFirstPassPanel() {
 /* Панель 2: Приёмник батча — одна запись на батч                      */
 /* ------------------------------------------------------------------ */
 
-interface BatchVerdictRecord {
-  id: string
-  at: string
-  slug: string
-  mode?: 'light' | 'full'
-  verdict?: string
-  summary: string
-  scoreboard: {
-    slots?: number
-    claimed?: Record<string, number>
-    delivered?: Record<string, number>
-    claimDelta?: { up: number; down: number }
-    platformDelta?: { up: number; down: number }
-    vlmFlags?: Record<string, number>
-  } | null
-  slots: {
-    position: string
-    claim?: string
-    myTier?: string
-    yodayoTier?: string
-    ph?: string
-    vlmFlag?: string
-    note?: string
-  }[]
-}
-
 function BatchReceiverPanel() {
   const [slug, setSlug] = useState('')
   const [draft, setDraft] = useState<ReceiverDraft>({ slots: {}, prose: '', updatedAt: '' })
@@ -2600,7 +2705,7 @@ function BatchReceiverPanel() {
           одной записью» кладёт весь батч одним render.verdict (slots + scoreboard + A/B-атрибуция).
         </p>
 
-        <div className="grid gap-3 sm:grid-cols-[200px_1fr]">
+        <div className="grid grid-cols-[minmax(0,1fr)] gap-3 sm:grid-cols-[200px_minmax(0,1fr)]">
           <select
             value={slug}
             onChange={(e) => {
@@ -3049,6 +3154,9 @@ function BatchReceiverPanel() {
 function VerdictsTab() {
   return (
     <div className="space-y-6">
+      {/* Панель 0: TRIAL-радар — порт из fred-legacy (Фред, webDevReview #5):
+       *  законы триала + EXP-гипотезы + статусы под вердиктом. */}
+      <TrialRadarPanel />
       <VlmFirstPassPanel />
       <BatchReceiverPanel />
     </div>
@@ -3271,6 +3379,31 @@ export default function Home() {
     setTab(id)
     document.getElementById(`t4-tab-${id}`)?.focus()
   }
+  /* Клавиши 1–0 — вкладки под пальцы (автор живёт в дашборде, десять
+   *  вкладок — десять клавиш; порт из fred-legacy). В полях ввода
+   *  не мешаем: там цифры — текст. */
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.metaKey || e.ctrlKey || e.altKey) return
+      const t = e.target as HTMLElement | null
+      if (
+        t &&
+        (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable)
+      )
+        return
+      const idx = '1234567890'.indexOf(e.key)
+      if (idx >= 0 && idx < TABS.length) setTab(TABS[idx].id)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
+  /* Глубокая навигация (радар TRIAL-3 → слот, порт из fred-legacy):
+   *  дом только переключает вкладку — батч открывает BatchesTab,
+   *  скроллит к строке и вспыхивает её SlotStrip. */
+  useEffect(() => {
+    const off = subscribeSlotNav(() => setTab('batches'))
+    return off
+  }, [])
   const state = useApi<{ batches?: unknown[]; events?: number; glass?: { chain?: { ok?: boolean; events?: number } } }>(
     '/api/t4/state'
   )
