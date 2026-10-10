@@ -1,0 +1,53 @@
+{
+  "slug": "T4-28",
+  "kind": "draft",
+  "status": "draft — без компиляции (Issue #21: авто-входы low-trust; это письменный бриф писцу)",
+  "createdAt": "2026-10-10T22:34:16.976Z",
+  "theme": "Dead on the inside",
+  "ocThemes": [
+    {
+      "theme": "Phantom Assasin",
+      "rating": "R+",
+      "wishes": "",
+      "position": 1
+    },
+    {
+      "theme": "Caught changing",
+      "rating": "R+",
+      "wishes": "",
+      "position": 2
+    },
+    {
+      "theme": "Alt-Girl Mayhem",
+      "rating": "R+",
+      "wishes": "",
+      "position": 3
+    }
+  ],
+  "mainWishes": "Сексуально, круто и ебануто круто. Постарайся прям на 500% нахуй",
+  "species": {
+    "on": true,
+    "count": 14,
+    "list": [
+      "R02",
+      "R06",
+      "R12",
+      "R15",
+      "R16",
+      "R18",
+      "R17",
+      "R20",
+      "R23",
+      "R30",
+      "R29",
+      "R32",
+      "R21",
+      "R03"
+    ]
+  },
+  "xSlots": 0,
+  "abPairs": 3,
+  "rehab": true,
+  "engine": "per-theme",
+  "notes": ""
+}
