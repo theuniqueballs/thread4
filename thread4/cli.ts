@@ -798,17 +798,17 @@ async function main() {
         })()
       )
       check(
-        'batch-md: токен-дифф — общее/добавлено/убрано считаются точно',
+        'batch-md: токен-дифф — общее/добавлено/убрано считаются точно (разделитель — запятая)',
         (() => {
-          const d = diffTokens('a b c d', 'a c d e')
+          const d = diffTokens('a, b, c, d', 'a, c, d, e')
           return d.kept.join(',') === 'a,c,d' && d.added.join(',') === 'e' && d.removed.join(',') === 'b'
         })()
       )
       check(
-        'batch-md: скобко-осознанный дифф не режет составные теги (Cecaelia (upper))',
+        'batch-md: скобко-осознанный дифф не режет составные теги (запятая внутри скобок)',
         (() => {
-          const d = diffTokens('cecaelia (upper) tail', 'cecaelia (upper) fins')
-          return d.kept.join(' ').includes('cecaelia (upper)') && d.added.join(',') === 'fins' && d.removed.join(',') === 'tail'
+          const d = diffTokens('cecaelia (upper), tail', 'cecaelia (upper), fins')
+          return d.kept.join(',') === 'cecaelia (upper)' && d.added.join(',') === 'fins' && d.removed.join(',') === 'tail'
         })()
       )
       const laws27 = extractTrialLaws(md27)
@@ -841,7 +841,7 @@ async function main() {
       const diffMd = buildDiffMarkdown('T4-27', 'T4-27.2-EXP', p27!, p272!)
       check('batch-md: дифф-документ пары — обе шапки + статистика POS', diffMd.includes('# THREAD 4 · дифф перестройки') && diffMd.includes('T4-27.2-EXP') && diffMd.includes('POS +'))
       const trialMd = buildTrialRadarMarkdown({ slug: 'T4-27', title: p27!.title, laws: laws27, hypos: h27, rendered: [], verdictRecord: false })
-      check('batch-md: сводка триала — шапка + законы + гипотезы', trialMd.includes('TRIAL') && trialMd.includes('M15') && trialMd.includes('κ'))
+      check('batch-md: сводка триала — шапка + законы + гипотезы', trialMd.includes('сводка триала') && trialMd.includes('M15') && trialMd.includes('κ'))
       check(
         'batch-md: стеки читаются из Stack-секции (core-4)',
         (() => {
