@@ -410,7 +410,7 @@ function EnginesView({ spec, filter }: { spec: unknown; filter: string }) {
 
   return (
     <div className="t4-scroll max-h-96 space-y-4 overflow-y-auto pr-1">
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
         {filtered.map((e) => {
           const name = pickStr(e.rec, 'name', 'id', 'title') || humanizeKey(e.key)
           const version = pickStr(e.rec, 'version', 'generation', 'gen')
@@ -506,7 +506,7 @@ function OcCanonView({ spec, filter }: { spec: unknown; filter: string }) {
 
   return (
     <div className="t4-scroll max-h-96 space-y-4 overflow-y-auto pr-1">
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
         {filtered.map((oc) => {
           const name = pickStr(oc.rec, 'name', 'id', 'title') || humanizeKey(oc.key)
           const role = pickStr(oc.rec, 'role', 'archetype', 'type', 'summary')
@@ -573,7 +573,7 @@ function RatingRecipesView({ spec, filter }: { spec: unknown; filter: string }) 
 
   return (
     <div className="space-y-6">
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
         {filteredKeys.map((key) => {
           const t = asRecord(tiers[key])
           const signals = pickStrArray(t, 'signals')
