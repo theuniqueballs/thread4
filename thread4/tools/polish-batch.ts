@@ -81,7 +81,8 @@ function splitSlots(md: string): { head: string; slots: SlotSection[]; tail: str
 }
 
 async function chat(zai: Awaited<ReturnType<typeof ZAI.create>>, system: string, user: string): Promise<string> {
-  for (let attempt = 0; attempt <= 2; attempt++) {
+  let lastErr: unknown = null
+  for (let attempt = 0; attempt <= 6; attempt++) {
     try {
       const completion = await zai.chat.completions.create({
         messages: [
@@ -92,21 +93,26 @@ async function chat(zai: Awaited<ReturnType<typeof ZAI.create>>, system: string,
       })
       return String(completion.choices[0]?.message?.content ?? '')
     } catch (e) {
-      if (attempt === 2) throw e
-      await new Promise((r) => setTimeout(r, 1200))
+      lastErr = e
+      /* 429 — уважительно ждём: 5с → 12с → 25с → 45с → 70с → 100с */
+      await new Promise((r) => setTimeout(r, 5000 + attempt * attempt * 4500))
     }
   }
-  return ''
+  throw lastErr
 }
 
-const SYSTEM = `You are the polish scribe of THREAD 4 — an ecchi prompt-batch forge. You rewrite INDIVIDUAL slots of a finished draft to fix QUALITY findings, never breaking the hard-won structure. Laws you must obey in every rewrite:
-- POS opens with the identification tags, carries the claim EARLY in the tag run (the renderer reads the head of the run strongest), ends with the face-block (stylized 2D anime face, anime eyes (color), small nose, small mouth) and quality tail (Masterpiece, best quality, anime artstyle).
-- Through-fabric claims REQUIRE a NAMED thin garment NOUN (blouse/tee/crop top/shirt/knit/swimsuit/leotard/sheet/towel/slip) + the fabric state (wet clothes / see-through) + "nothing underneath" asserted POSITIVELY + light ON the zone (law 21) + a camera tag (close-up / from below).
-- Lower claims (visible pantyline) live ONLY on named lower garments (skirt/shorts/leggings) that are OPEN to camera; if the zone is closed by the garment, MOVE the claim to the chest instead.
-- CONTRAST: one light/white garment or explicit light falling on the claim zone — a wet dark fabric without light is a dead blob.
-- INTERPRETATION: the claim must be WANTED — a micro-expression (half-lidded eyes, seductive smile, bedroom eyes) reads the delivery.
-- NO duplicate prose: never reuse sentences from other slots of this batch (twins are a quality failure).
-- Keep the slot's anchor, pose, palette, canon, stack and genre EXACTLY as given. Keep it 150-300 words of POS.
+const SYSTEM = `You are the polish scribe of THREAD 4 — an ecchi prompt-batch forge. You surgically fix INDIVIDUAL slots of a finished draft. The draft already passes ALL HARD machine gates — your job is to fix QUALITY findings WITHOUT breaking anything.
+
+THE TAG RUN IS SACRED: everything before the first period of the POS is the machine-checked tag run. Keep it byte-for-byte UNLESS a finding explicitly says to add/change a garment noun there. All claims, ratings and recipe signals live in the tag run — losing one fails the batch.
+
+RULES OF THE REWRITE:
+- THE CLAIM SET IS FROZEN: keep every claim tag that is already in the tag run (nipples through clothing / clothed nipples / see-through / visible pantyline / extreme fanservice — whichever are present stay present; add none above R+). NEVER write: bare breasts, topless, exposed nipples, nude — these are above-tier (X) and fail the batch instantly.
+- If the finding says the claim is not locked to a NAMED garment: add the garment NOUN into the tag run (blouse/tee/crop top/shirt/knit/swimsuit/leotard/slip/sheet/towel for top claims; skirt/shorts/leggings for lower claims) right next to the fabric state tags.
+- If the finding says the claim zone is closed (skirt/dress blocks a lower claim): MOVE the claim to the chest (see-through + named thin top) instead of opening the lower zone.
+- DUPLICATE PROSE (twins): rewrite the prose sentences so they share NO sentence skeleton with any other slot. The theme words may repeat; the SENTENCES may not. Vary rhythm, imagery and syntax.
+- CONTRAST: name one light source falling ON the claim zone (law 21) — a lamp, a window, a screen glow, a headlight.
+- INTERPRETATION: one micro-expression reading the claim (half-lidded eyes, seductive smile, bedroom eyes).
+- Keep the slot's anchor, pose, palette, canon, stack and genre EXACTLY as given. POS total 150-300 words.
 Return EXACTLY:
 THESIS: <one sentence>
 POS:
@@ -148,21 +154,20 @@ async function main() {
     .filter((r) => r.level === 'warn' && r.verdict === 'WARN')
     .reduce((n, r) => n + r.findings.length, 0)
 
-  /* поражённые слоты из WARN-квитанций полируемых гейтов */
+  /* поражённые слоты из WARN-квитанций полируемых гейтов; simcheck-строка
+   * несёт МНОГО слотов (P7≈P8 · P7≈P12 …) — собираем все, не только первый */
   const failed = new Map<number, string[]>()
   for (const r of before.receipts) {
     if (r.level !== 'warn' || r.verdict !== 'WARN' || !POLISH_GATES.has(r.gate)) continue
     for (const fnd of r.findings) {
-      const m = /P(\d{1,2})/.exec(fnd)
-      if (m) {
+      for (const m of fnd.matchAll(/P(\d{1,2})/g)) {
         const p = parseInt(m[1], 10)
         if (!failed.has(p)) failed.set(p, [])
         failed.get(p)!.push(`[${r.gate}] ${fnd}`)
       }
     }
   }
-  /* simcheck-близнецы без P-номера: находки без слота — перепишем
-     худших кандидатов по J-мере нельзя (номера скрыты), пропускаем */
+  /* simcheck-близнецы все именаются слотами; лишний мусор-комментарий снят */
 
   if (failed.size === 0) {
     console.log(`${slug}: WARN-квитаций полируемых гейтов нет — полировать нечего (${warnBefore} прочих WARN остаются автору)`)
@@ -202,6 +207,9 @@ ${(failed.get(pos) ?? []).map((f) => `- ${f}`).join('\n')}
 
 Rewrite the slot so every finding is fixed. Keep the anchor word «${section.header.replace(/^P\d{2}\s+—\s/, '').split(/\s+\(/)[0]}» if it still fits.`
     const raw = await chat(zai, SYSTEM, user)
+    /* троттлинг между слотами: лимит апстрима дышит перегрузками,
+     * серия из 10 рерайтов подряд его ломает (429 в середине серии) */
+    await new Promise((r) => setTimeout(r, 7000))
     const thesisM = /^THESIS:\s*(.+)$/m.exec(raw)
     const posM = /\nPOS:\s*\n+([\s\S]+?)$/m.exec(raw)
     if (!thesisM || !posM) {
@@ -244,18 +252,53 @@ Rewrite the slot so every finding is fixed. Keep the anchor word «${section.hea
       .filter((r) => r.level === 'warn' && r.verdict === 'WARN')
       .reduce((n, r) => n + r.findings.length, 0)
     console.log(`\nполировка: hard PASS удержан · WARN ${warnBefore} → ${warnAfter} · переписано ${polishedCount}`)
-  } else {
-    /* откат: полировка уронила hard — черновик важнее; печатаем ПОЧЕМУ,
-     * чтобы следующий круг полировки знал, что именно роняет LLM */
-    const hardFails = (after?.receipts ?? []).filter((r) => r.level === 'hard' && r.verdict === 'FAIL')
-    for (const r of hardFails.slice(0, 3)) {
-      for (const fnd of r.findings.slice(0, 4)) console.log(`  · [${r.gate}] ${fnd}`)
+    return
+  }
+  /* послотовый откат: рерайты, уронившие hard, возвращаются из бэкапа;
+   * чистые рерайты СОХРАНЯЮТСЯ (полный откат хоронил бы 9 слотов из-за 1) */
+  const failSlots = new Set<number>()
+  const hardFails = (after?.receipts ?? []).filter((r) => r.level === 'hard' && r.verdict === 'FAIL')
+  for (const r of hardFails) {
+    for (const fnd of r.findings) {
+      for (const m of fnd.matchAll(/P(\d{1,2})/g)) failSlots.add(parseInt(m[1], 10))
     }
+  }
+  for (const r of hardFails.slice(0, 3)) {
+    for (const fnd of r.findings.slice(0, 4)) console.log(`  · [${r.gate}] ${fnd}`)
+  }
+  if (failSlots.size === 0) {
+    /* батч-уровневый провал без слота — полный откат */
     fs.writeFileSync(mdPath, backup, 'utf-8')
     const restored = runGates(slug, true)
+    console.log(`\nполировка уронила hard безымянно — полный ОТКАТ (hard ${restored?.hardPass ? 'PASS' : 'FAIL'})`)
+    return
+  }
+  const backupLinesArr = backup.split('\n')
+  const backupParsed = splitSlots(backup)
+  let merged = linesOut
+  /* от высоких позиций к низким: splice не рвёт диапазоны ниже */
+  for (const p of [...failSlots].sort((a, b) => b - a)) {
+    const bs = backupParsed.slots.find((s) => s.position === p)
+    if (!bs) continue
+    const ps = splitSlots(merged.join('\n')).slots.find((s) => s.position === p)
+    if (!ps) continue
+    const restore = backupLinesArr.slice(bs.start, bs.end)
+    merged = [...merged.slice(0, ps.start), ...restore, ...merged.slice(ps.end)]
+    console.log(`  · P${String(p).padStart(2, '0')}: рерайт уронил hard — восстановлен из бэкапа`)
+  }
+  fs.writeFileSync(mdPath, merged.join('\n'), 'utf-8')
+  const restored = runGates(slug, true)
+  if (restored?.hardPass) {
+    const warnAfter = restored.receipts
+      .filter((r) => r.level === 'warn' && r.verdict === 'WARN')
+      .reduce((n, r) => n + r.findings.length, 0)
     console.log(
-      `\nполировка уронила hard — ОТКАТ к исходному черновику (hard ${restored?.hardPass ? 'PASS' : 'FAIL'} восстановлен)`
+      `\nпослотовый откат: hard PASS · WARN ${warnBefore} → ${warnAfter} · чистых рерайтов сохранено ${polishedCount - failSlots.size}`
     )
+  } else {
+    fs.writeFileSync(mdPath, backup, 'utf-8')
+    const full = runGates(slug, true)
+    console.log(`\nпослотовый откат не спас — полный ОТКАТ (hard ${full?.hardPass ? 'PASS' : 'FAIL'})`)
   }
 }
 
