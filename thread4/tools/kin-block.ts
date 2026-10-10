@@ -47,6 +47,9 @@ export const FAMILY_SHIELD: { marker: RegExp; neg: string[] }[] = [
   { marker: /jellyfish/i, neg: ['human ears', 'hair tentacles removed'] },
   { marker: /shark/i, neg: ['human ears', 'no tail', 'no fins'] },
   { marker: /slime/i, neg: ['solid skin', 'opaque body'] },
+  { marker: /frog/i, neg: ['human ears', 'separate fingers', 'normal eyes'] },
+  { marker: /flower|petal|plant|vine/i, neg: ['no petals', 'no vines', 'plain human skin'] },
+  { marker: /salamander|flame|ember/i, neg: ['no crest', 'no embers', 'normal skin texture'] },
 ]
 
 /** anti-shield, выведенный из features, когда семейство не опознано. */
@@ -59,6 +62,11 @@ export function shieldFromFeatures(features: string[]): string[] {
   if (/wing/.test(all)) out.push('no wings')
   if (/tentacle/.test(all)) out.push('no tentacles')
   if (/pupil/.test(all)) out.push('round pupils')
+  if (/webbed/.test(all)) out.push('separate fingers')
+  if (/glossy|wide eyes/.test(all)) out.push('normal eyes')
+  if (/petal|vine|pollen/.test(all)) out.push('no petals, no vines')
+  if (/crest|ember|fire/.test(all)) out.push('no crest, no embers')
+  if (/scales?|fin/.test(all)) out.push('no scales')
   return out
 }
 
