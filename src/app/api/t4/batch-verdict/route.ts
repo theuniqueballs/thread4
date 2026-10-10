@@ -15,6 +15,15 @@ import { TIER_RANK as TIERS } from '@/lib/t4/verdicts'
 
 export const dynamic = 'force-dynamic'
 
+/** Лёгкий вердикт-путь (приказ автора, раунд 2026-10-11): батч-уровень
+ *  БЕЗ по-слотовой разметки — одна запись, три исхода, проза по желанию.
+ *  Работает для любого батча (контракт не нужен — тема из меты/H1). */
+export const LIGHT_VERDICTS: Record<string, string> = {
+  keep: 'зашёл — держим курс',
+  mixed: 'местами — половина решает',
+  rework: 'мимо — переделать',
+}
+
 export interface BatchVerdictSlotInput {
   position: string // P01..P24
   claim?: string // заявка контракта (R+/R/X)
@@ -58,6 +67,9 @@ export async function POST(req: Request) {
     slug?: string
     slots?: BatchVerdictSlotInput[]
     prose?: string
+    /** Лёгкий путь: батч-уровень без по-слотовой разметки */
+    mode?: string
+    verdict?: string
   }
   try {
     body = await req.json()
@@ -70,6 +82,41 @@ export async function POST(req: Request) {
   if (!/^T4-\d{2}(?:[-.][A-Za-z0-9]+)*$/.test(slug)) {
     return NextResponse.json({ error: 'slug required (T4-NN)' }, { status: 400 })
   }
+
+  /* --- лёгкий путь: одна запись, никаких слотов --- */
+  if (body.mode === 'light') {
+    const verdict = String(body.verdict ?? '').trim()
+    if (!(verdict in LIGHT_VERDICTS)) {
+      return NextResponse.json(
+        { error: `verdict required (${Object.keys(LIGHT_VERDICTS).join(' | ')})` },
+        { status: 400 }
+      )
+    }
+    const prose = String(body.prose ?? '').trim().slice(0, 2000)
+    const batchMetaL = readJson<{ title?: string; theme?: string }>(
+      path.join(BATCHES_DIR, `${slug}.json`)
+    )
+    const batchMdL = readText(path.join(BATCHES_DIR, `${slug}.md`))
+    const contractL = readJson<{ theme?: string }>(path.join(CONTRACTS_DIR, `${slug}.json`))
+    const themeL =
+      contractL?.theme ||
+      (batchMetaL?.title && batchMetaL.title !== slug ? batchMetaL.title : '') ||
+      batchMetaL?.theme ||
+      (batchMdL ? extractBatchTitle(batchMdL) : '') ||
+      ''
+    const label = LIGHT_VERDICTS[verdict]
+    const summaryL = `${slug}${themeL ? ` «${themeL}»` : ''} ЛЕГКИЙ ВЕРДИКТ (батч-уровень, без по-слотовой разметки): ${label}${prose ? ` — ${prose.slice(0, 140)}` : ''}`
+    const evtL = appendEvent('render.verdict', summaryL, {
+      slug,
+      source: 'author-batch',
+      mode: 'light',
+      verdict,
+      title: themeL,
+      prose,
+    })
+    return NextResponse.json({ ok: true, event: evtL, light: true, verdict: label })
+  }
+
   const rawSlots = Array.isArray(body.slots) ? body.slots : []
   if (rawSlots.length === 0) {
     return NextResponse.json({ error: 'slots required (одна запись на батч)' }, { status: 400 })
@@ -201,6 +248,7 @@ export async function POST(req: Request) {
   const evt = appendEvent('render.verdict', summary, {
     slug,
     source: 'author-batch',
+    mode: 'full',
     title: theme,
     slots,
     scoreboard,
@@ -224,14 +272,19 @@ export async function GET() {
         e.type === 'render.verdict' &&
         (e.data as { source?: string } | undefined)?.source === 'author-batch'
     )
-    .map((e) => ({
-      id: e.id,
-      at: e.at,
-      slug: String((e.data as { slug?: string })?.slug ?? ''),
-      summary: e.summary,
-      scoreboard: (e.data as { scoreboard?: unknown })?.scoreboard ?? null,
-      slots: (e.data as { slots?: unknown })?.slots ?? [],
-    }))
+    .map((e) => {
+      const d = e.data as { slug?: string; mode?: string; verdict?: string }
+      return {
+        id: e.id,
+        at: e.at,
+        slug: String(d?.slug ?? ''),
+        mode: d?.mode === 'light' ? 'light' : 'full',
+        verdict: d?.verdict ?? '',
+        summary: e.summary,
+        scoreboard: (e.data as { scoreboard?: unknown })?.scoreboard ?? null,
+        slots: (e.data as { slots?: unknown })?.slots ?? [],
+      }
+    })
     .reverse()
   return NextResponse.json({ records })
 }
