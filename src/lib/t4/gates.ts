@@ -1256,14 +1256,18 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
     const isBoilerplate = (s: string) =>
       /masterpiece|best quality|anime artstyle/.test(s) ||
       /her face is rendered in stylized/.test(s)
-    const sentencesOf = (batchParsed: ParsedBatch) =>
+    /* предложение несёт слот-источник: раньше flat-массив индексировался
+     * как batch.slots[i] — рассинхрон (предложений ≠ слотов) рождал
+     * «P?≈P?» и безымянные близнецы, которые нечем было чинить */
+    const sentencesOf = (batchParsed: ParsedBatch): { slot: number; text: string }[] =>
       batchParsed.slots.flatMap((s) =>
         s.pos
           .split(/[.!?]\s+/)
           .map((x) => x.trim().toLowerCase())
           .filter((x) => x.length > 40 && !isBoilerplate(x))
+          .map((x) => ({ slot: s.position, text: x }))
       )
-    const mySentences = new Set(sentencesOf(batch))
+    const mySentences = new Set(sentencesOf(batch).map((x) => x.text))
     // ВНУТРИ-батчевый сход (вердикт-диагноз 2026-09-24: T4-07 P01/P02 —
     // дословные близнецы «the read of her nipples through the damp weave»
     // в одном файле; cross-batch simcheck их не видит)
@@ -1271,9 +1275,9 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
     const intra: string[] = []
     for (let i = 0; i < mine.length; i++) {
       for (let j = i + 1; j < mine.length; j++) {
-        const jj = jaccard(words(mine[i]), words(mine[j]))
+        const jj = jaccard(words(mine[i].text), words(mine[j].text))
         if (jj > 0.75) {
-          intra.push(`P${batch.slots[i]?.position ?? '?'}≈P${batch.slots[j]?.position ?? '?'}: «${mine[i].slice(0, 60)}…» (J=${jj.toFixed(2)})`)
+          intra.push(`P${mine[i].slot}≈P${mine[j].slot}: «${mine[i].text.slice(0, 60)}…» (J=${jj.toFixed(2)})`)
         }
       }
     }
@@ -1288,7 +1292,7 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
       const wSentences = sentencesOf(wBatch)
       for (const mineS of mySentences) {
         for (const theirs of wSentences) {
-          const j = jaccard(words(mineS), words(theirs))
+          const j = jaccard(words(mineS), words(theirs.text))
           if (j > 0.7) {
             f.push(`похоже на ${w}: «${mineS.slice(0, 60)}…» (J=${j.toFixed(2)})`)
           }

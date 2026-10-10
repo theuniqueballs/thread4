@@ -245,7 +245,12 @@ Rewrite the slot so every finding is fixed. Keep the anchor word «${section.hea
       .reduce((n, r) => n + r.findings.length, 0)
     console.log(`\nполировка: hard PASS удержан · WARN ${warnBefore} → ${warnAfter} · переписано ${polishedCount}`)
   } else {
-    /* откат: полировка уронила hard — черновик важнее */
+    /* откат: полировка уронила hard — черновик важнее; печатаем ПОЧЕМУ,
+     * чтобы следующий круг полировки знал, что именно роняет LLM */
+    const hardFails = (after?.receipts ?? []).filter((r) => r.level === 'hard' && r.verdict === 'FAIL')
+    for (const r of hardFails.slice(0, 3)) {
+      for (const fnd of r.findings.slice(0, 4)) console.log(`  · [${r.gate}] ${fnd}`)
+    }
     fs.writeFileSync(mdPath, backup, 'utf-8')
     const restored = runGates(slug, true)
     console.log(
