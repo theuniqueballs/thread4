@@ -207,3 +207,141 @@ export function diffTokens(a: string, b: string): TokenDiff {
 export function stackIds(stack: string): string[] {
   return stack.split('+').map((s) => s.trim()).filter(Boolean)
 }
+
+/* ------------------------------------------------------------------ */
+/* Дифф-документ A→B (.md)                                             */
+/* ------------------------------------------------------------------ */
+
+/** Строка меты слота одним куском (для слотов с одной стороны). */
+function metaLine(s: SlotMd): string {
+  return [s.kind, s.who, s.rating, s.pose, s.palette, s.rehab].filter(Boolean).join(' · ')
+}
+
+/** Изменённые мета-поля A→B со стрелками (зеркало MetaChip дашборда). */
+function metaChanges(x: SlotMd, y: SlotMd): string[] {
+  const fields: [keyof SlotMd, string][] = [
+    ['kind', 'жанр'],
+    ['who', 'кто'],
+    ['rating', 'рейтинг'],
+    ['pose', 'поза'],
+    ['palette', 'палитра'],
+    ['rehab', 'REHAB'],
+  ]
+  const out: string[] = []
+  for (const [k, label] of fields) {
+    const va = x[k] as string
+    const vb = y[k] as string
+    if (va !== vb) out.push(`${label}: ${va || '—'} → ${vb || '—'}`)
+  }
+  return out
+}
+
+/** Дифф-документ перестройки A→B: тот же разбор, что в Сравнении дашборда,
+ *  но одним .md-файлом — квиток пары под руку (кнопка «дифф .md» и
+ *  tools/diff-export.ts). Чистая функция, без DOM — инструмент и ядро
+ *  могут звать её без браузера. */
+export function buildDiffMarkdown(aSlug: string, bSlug: string, a: BatchMd, b: BatchMd): string {
+  /* выравнивание по позициям — объединение id обеих сторон */
+  const map = new Map<string, { id: string; a?: SlotMd; b?: SlotMd }>()
+  for (const s of a.slots) map.set(s.id, { id: s.id, a: s })
+  for (const s of b.slots) {
+    const cur = map.get(s.id)
+    if (cur) cur.b = s
+    else map.set(s.id, { id: s.id, b: s })
+  }
+  const rows = [...map.values()].sort((x, y) => x.id.localeCompare(y.id))
+
+  let posAdd = 0
+  let posRem = 0
+  let negAdd = 0
+  let negRem = 0
+  let onlyA = 0
+  let onlyB = 0
+  const perSlot: { id: string; add: number; rem: number }[] = []
+  for (const r of rows) {
+    if (r.a && !r.b) {
+      onlyA++
+      continue
+    }
+    if (!r.a && r.b) {
+      onlyB++
+      continue
+    }
+    const dP = diffTokens(r.a!.pos, r.b!.pos)
+    const dN = diffTokens(r.a!.neg, r.b!.neg)
+    posAdd += dP.added.length
+    posRem += dP.removed.length
+    negAdd += dN.added.length
+    negRem += dN.removed.length
+    perSlot.push({ id: r.id, add: dP.added.length, rem: dP.removed.length })
+  }
+  perSlot.sort((x, y) => y.add + y.rem - (x.add + x.rem))
+  const top = perSlot.filter((p) => p.add + p.rem > 0).slice(0, 3)
+
+  const L: string[] = []
+  L.push(`# THREAD 4 · дифф перестройки · ${aSlug} → ${bSlug}`)
+  L.push('')
+  L.push(`A (база): ${aSlug} · ${a.title || '—'} · ${a.slots.length} слотов`)
+  L.push(`B (перестройка): ${bSlug} · ${b.title || '—'} · ${b.slots.length} слотов`)
+  L.push('')
+  L.push(
+    `POS +${posAdd} · −${posRem} · NEG +${negAdd} · −${negRem}` +
+      (onlyA + onlyB > 0 ? ` · только в A: ${onlyA} · новых в B: ${onlyB}` : '')
+  )
+  if (top.length > 0) {
+    L.push(`самые перестроенные (POS): ${top.map((t) => `${t.id} +${t.add}/−${t.rem}`).join(' · ')}`)
+  }
+  L.push(`дифф текста промптов, не рендеров · сгенерировано ${new Date().toLocaleString('ru-RU')}`)
+  L.push('')
+  L.push('---')
+  L.push('')
+
+  for (const r of rows) {
+    const { a: x, b: y } = r
+    if (x && !y) {
+      L.push(`## ${x.id} · ${x.slug}`)
+      L.push('')
+      const m = metaLine(x)
+      L.push(`только в A${m ? ` · ${m}` : ''}`)
+      L.push(`POS (A): ${x.pos}`)
+      L.push(`NEG (A): ${x.neg}`)
+      L.push('')
+      continue
+    }
+    if (!x && y) {
+      L.push(`## ${y.id} · ${y.slug}`)
+      L.push('')
+      const m = metaLine(y)
+      L.push(`новый в B${m ? ` · ${m}` : ''}`)
+      L.push(`POS (B): ${y.pos}`)
+      L.push(`NEG (B): ${y.neg}`)
+      L.push('')
+      continue
+    }
+    const dP = diffTokens(x!.pos, y!.pos)
+    const dN = diffTokens(x!.neg, y!.neg)
+    const slugLine = x!.slug !== y!.slug ? `${x!.slug} → ${y!.slug}` : x!.slug
+    L.push(`## ${x!.id} · ${slugLine}`)
+    L.push('')
+    for (const m of metaChanges(x!, y!)) L.push(m)
+    if (x!.stack !== y!.stack) L.push(`Stack: ${x!.stack || '—'} → ${y!.stack || '—'}`)
+    if (x!.thesis !== y!.thesis && y!.thesis) L.push(`тезис B: ${y!.thesis}`)
+    if (x!.canon !== y!.canon && y!.canon) L.push(`канон B: ${y!.canon}`)
+    if (dP.added.length + dP.removed.length === 0) {
+      L.push('POS: без изменений')
+    } else {
+      L.push(`POS +${dP.added.length}/−${dP.removed.length} (общих ${dP.kept.length}):`)
+      for (const t of dP.added) L.push(`  + ${t}`)
+      for (const t of dP.removed) L.push(`  − ${t}`)
+    }
+    if (dN.added.length + dN.removed.length === 0) {
+      L.push('NEG: без изменений')
+    } else {
+      L.push(`NEG +${dN.added.length}/−${dN.removed.length} (общих ${dN.kept.length}):`)
+      for (const t of dN.added) L.push(`  + ${t}`)
+      for (const t of dN.removed) L.push(`  − ${t}`)
+    }
+    L.push('')
+  }
+  return L.join('\n')
+}

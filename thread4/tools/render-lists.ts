@@ -18,7 +18,8 @@ if (slugs.length === 0) {
 const outDir = '/home/z/my-project/download'
 for (const slug of slugs) {
   const md = readText(path.join('thread4', 'batches', `${slug}.md`))
-  if (md === '') {
+  if (!md) {
+    /* readText: null — файла нет (проверка «=== ''» пропускала null молча) */
     console.log(`${slug}: файла нет — пропуск`)
     continue
   }

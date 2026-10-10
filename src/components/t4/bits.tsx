@@ -49,7 +49,9 @@ export function EmptyState({
         className
       )}
     >
-      <div className="text-zinc-600">{icon ?? <Inbox className="size-6" />}</div>
+      <div className="flex size-10 items-center justify-center rounded-lg border border-zinc-800 bg-zinc-900/80 text-zinc-600">
+        {icon ?? <Inbox className="size-5" />}
+      </div>
       <div className="text-sm font-medium text-zinc-400">{title}</div>
       {hint ? <div className="max-w-md text-xs leading-relaxed text-zinc-600">{hint}</div> : null}
     </div>
@@ -90,14 +92,16 @@ export function Panel({
   return (
     <section
       className={cn(
-        'rounded-lg border border-zinc-800 bg-zinc-900 p-4 sm:p-6',
+        'group rounded-lg border border-zinc-800 bg-zinc-900 p-4 transition-colors hover:border-zinc-700 sm:p-6',
         className
       )}
     >
       {title != null ? (
         <header className="mb-4 flex items-center justify-between gap-3">
           <h2 className="flex items-center gap-2 text-sm font-semibold tracking-tight text-zinc-200">
-            {icon ? <span className="text-amber-500">{icon}</span> : null}
+            {icon ? (
+              <span className="text-amber-500 transition-colors group-hover:text-amber-400">{icon}</span>
+            ) : null}
             {title}
           </h2>
           {action}
