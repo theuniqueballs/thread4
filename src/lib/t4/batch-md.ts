@@ -209,6 +209,140 @@ export function stackIds(stack: string): string[] {
 }
 
 /* ------------------------------------------------------------------ */
+/* TRIAL-3 радар: законы M1x и EXP-гипотезы батча                      */
+/* ------------------------------------------------------------------ */
+
+/** Закон триала, как он записан в шапке батча («M15 интерливинг…»). */
+export interface TrialLaw {
+  /** «M15» */
+  id: string
+  /** «интерливинг» */
+  name: string
+  /** «закон №22» — ссылка на конституцию, если названа */
+  ref: string
+  /** скобка + первые слова пояснения (обрезано, полный текст — в title UI) */
+  note: string
+}
+
+/** Половинка A/B-пары (или одиночная гипотеза) — слот и его тезис. */
+export interface HypothesisHalf {
+  slotId: string
+  slotSlug: string
+  thesis: string
+  /** ⚗ — осознанный нарушитель (λ-B, μ-B) */
+  alchemy: boolean
+  /** POS слота — для диффа половинок прямо в радаре */
+  pos: string
+}
+
+/** EXP-гипотеза батча: пара κ/λ/μ (A/B) или одиночка ν/ξ/ρ. */
+export interface Hypothesis {
+  /** греческая буква программы */
+  greek: string
+  kind: 'pair' | 'single'
+  /** «H10» (может не быть у одиночек) */
+  hid: string
+  /** номер закона из тезиса («24»), если назван */
+  lawNo: string
+  /** короткое имя: «опорная геометрия» / «underwear-ДОБОР» */
+  title: string
+  a?: HypothesisHalf
+  b?: HypothesisHalf
+  single?: HypothesisHalf
+}
+
+const LAW_HEAD_RE = /^\s*\d+\.\s+\*\*(M\d+)\s+([^*]+?)\s*\*\*\s*(?:\(([^)]*)\))?\s*:?\s*/
+const LAW_REF_RE = /закон\s*№\s*\d+/
+/* NB: \b после греческой буквы не существует (\b — ASCII-граница, буква
+ * не-ASCII) — поэтому lookahead (?![A-Za-z0-9]), а не \b. */
+const HYPO_PAIR_RE = /^EXP\s+([κλμνξρ])-(A|B)(?![A-Za-z0-9])\s*·?\s*(H\d+)?\s*(.*)$/u
+const HYPO_SINGLE_RE = /^EXP\s+single\s*·\s*([κλμνξρ])(?![A-Za-z0-9])\s*(H\d+)?\s*(.*)$/u
+const HYPO_LAW_RE = /закон\s*№\s*(\d+)/
+const ALCHEMY_ROW_RE = /^P(\d+)\s+—\s+\S+\s+\(.*\)\s*⚗/
+
+/** Законы триала из шапки батча: нумерованный список «1. **M15 …** (…)»
+ *  с продолжениями-отступами. Чистая функция — зовут и дашборд, и ядро. */
+export function extractTrialLaws(md: string): TrialLaw[] {
+  if (!md) return []
+  const lines = md.split('\n')
+  const laws: TrialLaw[] = []
+  for (let i = 0; i < lines.length; i++) {
+    const m = lines[i].match(LAW_HEAD_RE)
+    if (!m) continue
+    /* продолжение закона — строки с отступом до следующей структурной строки */
+    const cont: string[] = []
+    for (let j = i + 1; j < lines.length && /^\s+\S/.test(lines[j]); j++) cont.push(lines[j].trim())
+    const body = collapse(cont.join(' '))
+    const refMatch = `${m[3] ?? ''} ${body}`.match(LAW_REF_RE)
+    const note = [m[3] ?? '', body].filter(Boolean).join(' — ')
+    laws.push({
+      id: m[1],
+      name: collapse(m[2]),
+      ref: refMatch ? refMatch[0] : '',
+      note: collapse(note).slice(0, 160),
+    })
+    i += cont.length
+  }
+  return laws
+}
+
+/** Короткое имя гипотезы: текст до первой скобки/тире/двоеточия. */
+function hypoTitle(rest: string): string {
+  return collapse(rest.split(/[(—:]/)[0])
+}
+
+/** EXP-программа батча: THESIS слотов несут маркеры «EXP κ-A · H10 …»
+ *  (формат стабилен с T4-25). Половинки одной буквы склеиваются в пару;
+ *  ⚗-марки ловятся по строке шапки слота. */
+export function extractHypotheses(md: string, batch: BatchMd): Hypothesis[] {
+  if (!md || batch.slots.length === 0) return []
+  const alchemy = new Set<string>()
+  for (const line of md.split('\n')) {
+    const m = line.match(ALCHEMY_ROW_RE)
+    if (m) alchemy.add(`P${m[1].padStart(2, '0')}`)
+  }
+  const out = new Map<string, Hypothesis>()
+  for (const s of batch.slots) {
+    if (s.kind !== 'EXP' || !s.thesis) continue
+    const half: HypothesisHalf = {
+      slotId: s.id,
+      slotSlug: s.slug,
+      thesis: s.thesis,
+      alchemy: alchemy.has(s.id),
+      pos: s.pos,
+    }
+    const lawNo = s.thesis.match(HYPO_LAW_RE)?.[1] ?? ''
+    const pair = s.thesis.match(HYPO_PAIR_RE)
+    const single = pair ? null : s.thesis.match(HYPO_SINGLE_RE)
+    if (pair) {
+      const h = out.get(pair[1]) ?? {
+        greek: pair[1],
+        kind: 'pair' as const,
+        hid: pair[3] ?? '',
+        lawNo,
+        title: hypoTitle(pair[4] ?? ''),
+      }
+      if (pair[2] === 'A') h.a = half
+      else h.b = half
+      if (pair[3]) h.hid = pair[3]
+      out.set(pair[1], h)
+      continue
+    }
+    if (single) {
+      out.set(single[1], {
+        greek: single[1],
+        kind: 'single',
+        hid: single[2] ?? '',
+        lawNo,
+        title: hypoTitle(single[3] ?? ''),
+        single: half,
+      })
+    }
+  }
+  return [...out.values()]
+}
+
+/* ------------------------------------------------------------------ */
 /* Дифф-документ A→B (.md)                                             */
 /* ------------------------------------------------------------------ */
 
