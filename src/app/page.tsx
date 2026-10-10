@@ -13,13 +13,16 @@ import {
   BookOpen,
   Boxes,
   Check,
+  ChevronRight,
   Copy,
   Download,
   FileText,
   FlaskConical,
+  GitCompare,
   Heart,
   History,
   KeyRound,
+  Layers,
   PenLine,
   ScanEye,
   ScrollText,
@@ -72,6 +75,13 @@ import {
 import { MarkdownView } from '@/components/t4/markdown'
 import { SpecView } from '@/components/t4/spec-renderers'
 import { TIER_RANK } from '@/lib/t4/verdicts'
+import {
+  diffTokens,
+  parseBatchMd,
+  stackIds,
+  type SlotMd,
+  type TokenDiff,
+} from '@/lib/t4/batch-md'
 import {
   cacheCurrentState,
   deleteSnapshot,
@@ -1252,16 +1262,57 @@ function QuickVerdict({ slug }: { slug: string }) {
   )
 }
 
+/* ------------------------------------------------------------------ */
+/* Tab: Батчи — просмотр файла + сравнение A↔B (webDevReview #2)        */
+/* ------------------------------------------------------------------ */
+
+type BatchRow = { slug: string; title: string; date: string }
+
+interface BatchDetailData {
+  slug: string
+  title: string
+  markdown: string
+  receipts: { gate: string; level: string; verdict: string; findings: string[] }[]
+}
+
+/** Кнопка-копия с честной обратной связью (галочка 1.2с). */
+function CopyBtn({ text, label, title }: { text: string; label: string; title: string }) {
+  const [done, setDone] = useState(false)
+  async function go() {
+    try {
+      await navigator.clipboard.writeText(text)
+      setDone(true)
+      setTimeout(() => setDone(false), 1200)
+    } catch {
+      /* тихо: как остальные копирующие кнопки дашборда */
+    }
+  }
+  return (
+    <button
+      type="button"
+      onClick={go}
+      title={title}
+      className={cn(
+        'inline-flex shrink-0 items-center gap-1 rounded-md border px-1.5 py-0.5 text-[10px] font-medium leading-4 transition-colors',
+        done
+          ? 'border-emerald-600/50 bg-emerald-600/10 text-emerald-400'
+          : 'border-zinc-700/70 bg-zinc-800/50 text-zinc-400 hover:border-amber-500/50 hover:text-amber-300'
+      )}
+    >
+      {done ? <Check className="size-3" /> : <Copy className="size-3" />}
+      {label}
+    </button>
+  )
+}
+
 function BatchesTab() {
-  const list = useApi<{ items: { slug: string; title: string; date: string }[] }>('/api/t4/batches')
+  const list = useApi<{ items: BatchRow[] }>('/api/t4/batches')
+  const [mode, setMode] = useState<'view' | 'compare'>('view')
   const [slug, setSlug] = useState<string | null>(null)
   const [query, setQuery] = useState('')
-  const detail = useApi<{
-    slug: string
-    title: string
-    markdown: string
-    receipts: { gate: string; level: string; verdict: string; findings: string[] }[]
-  }>(slug ? `/api/t4/batches/${slug}` : null)
+  const [aSlug, setASlug] = useState('')
+  const [bSlug, setBSlug] = useState('')
+  const detail = useApi<BatchDetailData>(slug ? `/api/t4/batches/${slug}` : null)
 
   const items = list.data?.items ?? []
   const receipts = detail.data?.receipts ?? []
@@ -1276,9 +1327,60 @@ function BatchesTab() {
     )
   }, [items, query])
 
+  /* Ленивый дефолт пары вместо эффекта (реакт-линт: без setState в эффекте):
+   * пустая пара = два последних батча, старее → новее; сегодня это ровно
+   * T4-27 ↔ T4-27.2-EXP, живой вопрос H13. */
+  const effA = aSlug !== '' ? aSlug : items.length >= 2 ? items[1].slug : (items[0]?.slug ?? '')
+  const effB = bSlug !== '' ? bSlug : items.length >= 2 ? items[0].slug : ''
+
+  function onRowClick(s: string) {
+    if (mode === 'view') {
+      setSlug(slug === s ? null : s)
+      return
+    }
+    if (aSlug === '') setASlug(s)
+    else if (bSlug === '') setBSlug(s)
+    else setBSlug(s)
+  }
+
   return (
     <div className="space-y-4">
-      <Panel title="Батчи" icon={<FileText className="size-4" />}>
+      <Panel
+        title="Батчи"
+        icon={<FileText className="size-4" />}
+        action={
+          <div className="flex rounded-md border border-zinc-800 bg-zinc-950 p-0.5" role="tablist" aria-label="Режим вкладки Батчи">
+            <button
+              type="button"
+              role="tab"
+              aria-selected={mode === 'view'}
+              onClick={() => setMode('view')}
+              className={cn(
+                'rounded-[5px] px-2.5 py-1 text-[11px] font-medium transition-colors',
+                mode === 'view'
+                  ? 'bg-amber-500/15 text-amber-300'
+                  : 'text-zinc-500 hover:text-zinc-300'
+              )}
+            >
+              Просмотр
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={mode === 'compare'}
+              onClick={() => setMode('compare')}
+              className={cn(
+                'rounded-[5px] px-2.5 py-1 text-[11px] font-medium transition-colors',
+                mode === 'compare'
+                  ? 'bg-amber-500/15 text-amber-300'
+                  : 'text-zinc-500 hover:text-zinc-300'
+              )}
+            >
+              Сравнение A↔B
+            </button>
+          </div>
+        }
+      >
         {list.loading ? (
           <SkeletonBlock lines={3} />
         ) : items.length === 0 ? (
@@ -1294,23 +1396,43 @@ function BatchesTab() {
                 className="h-8 border-zinc-800 bg-zinc-950 pl-8 text-xs"
               />
             </div>
+            {mode === 'compare' ? (
+              <p className="px-1 text-[11px] leading-relaxed text-zinc-600">
+                клик по батчу заполняет пару: сначала <span className="text-amber-300/80">A (база)</span>, затем{' '}
+                <span className="text-amber-300/80">B (перестройка)</span>; дальше клики заменяют B.
+              </p>
+            ) : null}
             <div className="grid gap-1.5">
               {visible.map((b) => (
                 <button
                   key={b.slug}
-                  onClick={() => setSlug(slug === b.slug ? null : b.slug)}
+                  onClick={() => onRowClick(b.slug)}
                   className={cn(
                     'flex items-center justify-between gap-3 rounded-md border px-3 py-2 text-left outline-none transition-colors',
-                    slug === b.slug
+                    mode === 'view' && slug === b.slug
                       ? 'border-amber-500/50 bg-amber-500/10'
-                      : 'border-zinc-800 bg-zinc-900/60 hover:border-zinc-700 focus-visible:border-amber-500/50'
+                      : mode === 'compare' && (effA === b.slug || effB === b.slug)
+                        ? 'border-amber-500/50 bg-amber-500/10'
+                        : 'border-zinc-800 bg-zinc-900/60 hover:border-zinc-700 focus-visible:border-amber-500/50'
                   )}
                 >
                   <span className="flex min-w-0 items-center gap-2">
                     <Mono>{b.slug}</Mono>
                     <span className="truncate text-xs text-zinc-300">{b.title}</span>
                   </span>
-                  <span className="shrink-0 text-[11px] text-zinc-600">{formatDate(b.date)}</span>
+                  <span className="flex shrink-0 items-center gap-1.5">
+                    {mode === 'compare' && effA === b.slug ? (
+                      <Chip tone="amber">A</Chip>
+                    ) : mode === 'compare' && effB === b.slug ? (
+                      <Chip tone="emerald">B</Chip>
+                    ) : null}
+                    {!b.date ? (
+                      <span title="EXP-путь: без гейт-доставки — даты нет (прецедент T4-20.x)">
+                        <Chip tone="amber">EXP-путь</Chip>
+                      </span>
+                    ) : null}
+                    <span className="text-[11px] text-zinc-600">{formatDate(b.date) || '—'}</span>
+                  </span>
                 </button>
               ))}
               {visible.length === 0 ? (
@@ -1323,7 +1445,7 @@ function BatchesTab() {
         )}
       </Panel>
 
-      {slug ? (
+      {mode === 'view' && slug ? (
         <>
           {receipts.length > 0 ? (
             <Panel title={`Гейты · ${slug}`} icon={<Activity className="size-4" />}>
@@ -1350,8 +1472,363 @@ function BatchesTab() {
               <MarkdownView>{detail.data?.markdown ?? ''}</MarkdownView>
             )}
           </Panel>
+          {detail.data && !detail.loading ? <SlotStrip markdown={detail.data.markdown} /> : null}
           <QuickVerdict slug={slug} />
         </>
+      ) : null}
+
+      {mode === 'compare' ? (
+        <BatchCompare items={items} a={effA} b={effB} onA={setASlug} onB={setBSlug} loading={list.loading} />
+      ) : null}
+    </div>
+  )
+}
+
+/* -------- Слоты: компактная полоса копирования (режим просмотра) ------ */
+
+function SlotStrip({ markdown }: { markdown: string }) {
+  const parsed = useMemo(() => parseBatchMd(markdown), [markdown])
+  if (!parsed) return null
+  return (
+    <Panel
+      title={`Слоты · ${parsed.slots.length} промптов`}
+      icon={<Layers className="size-4" />}
+      bodyClassName="max-h-96 space-y-1 overflow-y-auto t4-scroll"
+    >
+      <p className="pb-1 text-[11px] leading-relaxed text-zinc-600">
+        рендер 1 кадр/промпт: ⧉ копирует POS и NEG слота раздельно — вставляй в поля PixAI/Tsubaki
+        по очереди.
+      </p>
+      {parsed.slots.map((s) => (
+        <div
+          key={s.id}
+          className="flex items-center gap-2 rounded-md border border-zinc-800/70 bg-zinc-950/60 px-2.5 py-1.5 transition-colors hover:border-zinc-700"
+        >
+          <Mono>{s.id}</Mono>
+          {s.kind ? <Chip tone="zinc">{s.kind}</Chip> : null}
+          {s.who ? <Chip tone="zinc">{s.who}</Chip> : null}
+          {s.rating ? (
+            <span className="shrink-0 font-mono text-[11px] text-amber-300/80">{s.rating}</span>
+          ) : null}
+          <span className="min-w-0 flex-1 truncate text-[11px] text-zinc-400">
+            {s.slug}
+            {s.palette ? <span className="text-zinc-600"> · {s.palette}</span> : null}
+          </span>
+          <CopyBtn text={s.pos} label="POS" title={`Скопировать POS ${s.id} (${s.slug})`} />
+          <CopyBtn text={s.neg} label="NEG" title={`Скопировать NEG ${s.id} (${s.slug})`} />
+        </div>
+      ))}
+    </Panel>
+  )
+}
+
+/* -------- Сравнение A↔B: послотовый дифф двух батчей ------------------ */
+
+function BatchCompare({
+  items,
+  a,
+  b,
+  onA,
+  onB,
+  loading,
+}: {
+  items: BatchRow[]
+  a: string
+  b: string
+  onA: (s: string) => void
+  onB: (s: string) => void
+  loading: boolean
+}) {
+  const detailA = useApi<BatchDetailData>(a !== '' ? `/api/t4/batches/${a}` : null)
+  const detailB = useApi<BatchDetailData>(b !== '' ? `/api/t4/batches/${b}` : null)
+  const parsedA = useMemo(() => (detailA.data ? parseBatchMd(detailA.data.markdown) : null), [detailA.data])
+  const parsedB = useMemo(() => (detailB.data ? parseBatchMd(detailB.data.markdown) : null), [detailB.data])
+
+  /* Слоты, выровненные по позиции: объединение id обеих сторон. */
+  const rows = useMemo(() => {
+    const map = new Map<string, { id: string; a?: SlotMd; b?: SlotMd }>()
+    for (const s of parsedA?.slots ?? []) map.set(s.id, { id: s.id, a: s })
+    for (const s of parsedB?.slots ?? []) {
+      const cur = map.get(s.id)
+      if (cur) cur.b = s
+      else map.set(s.id, { id: s.id, b: s })
+    }
+    return [...map.values()].sort((x, y) => x.id.localeCompare(y.id))
+  }, [parsedA, parsedB])
+
+  const stats = useMemo(() => {
+    let posAdd = 0
+    let posRem = 0
+    let negAdd = 0
+    let negRem = 0
+    let onlyA = 0
+    let onlyB = 0
+    const perSlot: { id: string; add: number; rem: number }[] = []
+    for (const r of rows) {
+      if (r.a && !r.b) {
+        onlyA++
+        continue
+      }
+      if (!r.a && r.b) {
+        onlyB++
+        continue
+      }
+      const dP = diffTokens(r.a!.pos, r.b!.pos)
+      const dN = diffTokens(r.a!.neg, r.b!.neg)
+      posAdd += dP.added.length
+      posRem += dP.removed.length
+      negAdd += dN.added.length
+      negRem += dN.removed.length
+      perSlot.push({ id: r.id, add: dP.added.length, rem: dP.removed.length })
+    }
+    perSlot.sort((x, y) => y.add + y.rem - (x.add + x.rem))
+    return {
+      posAdd,
+      posRem,
+      negAdd,
+      negRem,
+      onlyA,
+      onlyB,
+      top: perSlot.filter((p) => p.add + p.rem > 0).slice(0, 3),
+    }
+  }, [rows])
+
+  const selectCls =
+    'h-8 max-w-[220px] rounded-md border border-zinc-800 bg-zinc-950 px-2 text-xs text-zinc-200 focus-visible:outline-none focus-visible:border-amber-500/50'
+
+  return (
+    <Panel title="Сравнение A↔B — что перестроено, слот к слоту" icon={<GitCompare className="size-4" />} bodyClassName="space-y-3">
+      <div className="flex flex-wrap items-center gap-2">
+        <select value={a} onChange={(e) => onA(e.target.value)} aria-label="Батч A (база)" className={selectCls}>
+          <option value="">— A · база —</option>
+          {items.map((i) => (
+            <option key={i.slug} value={i.slug}>{i.slug} · {i.title}</option>
+          ))}
+        </select>
+        <span className="text-zinc-600" aria-hidden>→</span>
+        <select value={b} onChange={(e) => onB(e.target.value)} aria-label="Батч B (перестройка)" className={selectCls}>
+          <option value="">— B · перестройка —</option>
+          {items.map((i) => (
+            <option key={i.slug} value={i.slug}>{i.slug} · {i.title}</option>
+          ))}
+        </select>
+      </div>
+      <p className="text-[11px] leading-relaxed text-zinc-600">
+        роза — убрано из A · изумруд — добавлено в B · цинк — общее (в порядке B). Чтение диффа —
+        глазами, не верой: это разбор текста промпта, а не рендера.
+      </p>
+
+      {loading || detailA.loading || detailB.loading ? (
+        <SkeletonBlock lines={4} />
+      ) : a === '' || b === '' ? (
+        <EmptyState
+          title="Выбери пару"
+          hint="A — база (что было), B — перестройка (что стало). По умолчанию — два последних батча."
+        />
+      ) : a === b ? (
+        <ErrorNote text="A и B — один и тот же батч" hint="дифф пустой по определению; выбери пару разных." />
+      ) : !parsedA || !parsedB ? (
+        <ErrorNote text="Батч не распарсился" hint="формат файла отличается от канона «P0X — … (мета)» — глянь файл руками." />
+      ) : (
+        <>
+          <div className="flex flex-wrap items-center gap-1.5">
+            <Chip tone="zinc">A: {parsedA.slots.length} слотов</Chip>
+            <Chip tone="zinc">B: {parsedB.slots.length}</Chip>
+            {stats.onlyA > 0 ? <Chip tone="rose">только в A: {stats.onlyA}</Chip> : null}
+            {stats.onlyB > 0 ? <Chip tone="emerald">новых в B: {stats.onlyB}</Chip> : null}
+            <Chip tone="amber">POS +{stats.posAdd} · −{stats.posRem}</Chip>
+            <Chip tone="amber">NEG +{stats.negAdd} · −{stats.negRem}</Chip>
+          </div>
+          {stats.top.length > 0 ? (
+            <p className="text-[11px] leading-relaxed text-zinc-500">
+              самые перестроенные (POS):{' '}
+              {stats.top.map((t, i) => (
+                <span key={t.id}>
+                  {i > 0 ? ' · ' : ''}
+                  <span className="font-mono text-amber-300/90">{t.id}</span>
+                  <span className="text-zinc-600"> +{t.add}/−{t.rem}</span>
+                </span>
+              ))}
+            </p>
+          ) : null}
+          <div className="space-y-1.5">
+            {rows.map((r) => (
+              <SlotDiff key={r.id} a={r.a} b={r.b} />
+            ))}
+          </div>
+        </>
+      )}
+    </Panel>
+  )
+}
+
+/** Чип мета-поля A→B: одинаково — цинк, появилось в B — изумруд,
+ *  исчезло из A — роза, поменялось — янтарь со стрелкой. */
+function MetaChip({ va, vb }: { va: string; vb: string }) {
+  if (va === '' && vb === '') return null
+  if (va === vb) return <Chip tone="zinc">{va}</Chip>
+  if (vb === '') return <Chip tone="rose">{`${va} —`}</Chip>
+  if (va === '') return <Chip tone="emerald">{vb}</Chip>
+  return <Chip tone="amber">{`${va} → ${vb}`}</Chip>
+}
+
+/** Одна строка сравнения: шапка (свёрнуто/развернуто) + тело диффа. */
+function SlotDiff({ a, b }: { a?: SlotMd; b?: SlotMd }) {
+  /* null = авто: развёрнуто, если есть структурная перестройка */
+  const [open, setOpen] = useState<boolean | null>(null)
+  const dP: TokenDiff = diffTokens(a?.pos ?? '', b?.pos ?? '')
+  const dN: TokenDiff = diffTokens(a?.neg ?? '', b?.neg ?? '')
+  const stackA = a ? stackIds(a.stack) : []
+  const stackB = b ? stackIds(b.stack) : []
+  const stackChanged = Boolean(a && b && a.stack !== b.stack)
+  const metaChanged = Boolean(
+    a && b && (a.kind !== b.kind || a.who !== b.who || a.rating !== b.rating || a.pose !== b.pose || a.palette !== b.palette)
+  )
+  const thesisChanged = Boolean(a && b && a.thesis !== b.thesis)
+  const canonChanged = Boolean(a && b && a.canon !== b.canon)
+  const structural =
+    dP.added.length + dP.removed.length + dN.added.length + dN.removed.length > 0 || stackChanged || metaChanged
+  const expanded = open ?? structural
+  const onlyIn = !b ? 'A' : !a ? 'B' : null
+  const nChanges = dP.added.length + dP.removed.length + dN.added.length + dN.removed.length
+  const copyPos = (b ?? a)?.pos ?? ''
+  const copyNeg = (b ?? a)?.neg ?? ''
+
+  return (
+    <div
+      className={cn(
+        'rounded-md border transition-colors',
+        onlyIn ? 'border-zinc-800 bg-zinc-900/30' : 'border-zinc-800 bg-zinc-900/60'
+      )}
+    >
+      <div className="flex items-center gap-1 px-2 py-1.5 sm:px-3">
+        <button
+          type="button"
+          onClick={() => setOpen(!(open ?? structural))}
+          aria-expanded={expanded}
+          className="flex min-w-0 flex-1 items-center gap-2 text-left outline-none focus-visible:ring-1 focus-visible:ring-amber-500/50"
+        >
+          <ChevronRight
+            className={cn('size-3.5 shrink-0 text-zinc-600 transition-transform', expanded && 'rotate-90')}
+          />
+          <Mono>{a?.id ?? b?.id}</Mono>
+          {a && b && a.slug !== b.slug ? (
+            <span className="truncate text-[11px] text-zinc-500">
+              {a.slug} <span className="text-amber-500/70">→</span> {b.slug}
+            </span>
+          ) : (
+            <span className="truncate text-[11px] text-zinc-400">{(a ?? b)?.slug}</span>
+          )}
+          {onlyIn === 'A' ? <Chip tone="rose">только в A</Chip> : null}
+          {onlyIn === 'B' ? <Chip tone="emerald">новый в B</Chip> : null}
+          {thesisChanged && !structural ? <Chip tone="zinc">тезис изменён</Chip> : null}
+          <span
+            className={cn(
+              'ml-auto shrink-0 font-mono text-[10px]',
+              nChanges > 0 ? 'text-amber-400/90' : 'text-zinc-600'
+            )}
+          >
+            {nChanges > 0
+              ? `+${dP.added.length + dN.added.length}/−${dP.removed.length + dN.removed.length}`
+              : 'без изм.'}
+          </span>
+        </button>
+        <div className="flex shrink-0 items-center gap-1">
+          <CopyBtn text={copyPos} label="POS" title={`Скопировать POS ${(b ?? a)?.id ?? ''} (${(b ?? a)?.slug ?? ''})`} />
+          <CopyBtn text={copyNeg} label="NEG" title={`Скопировать NEG ${(b ?? a)?.id ?? ''} (${(b ?? a)?.slug ?? ''})`} />
+        </div>
+      </div>
+      {expanded ? (
+        <div className="space-y-2.5 border-t border-zinc-800/70 px-2 py-2.5 sm:px-3">
+          <div className="flex flex-wrap items-center gap-1.5">
+            {a && b ? (
+              <>
+                <MetaChip va={a.kind} vb={b.kind} />
+                <MetaChip va={a.who} vb={b.who} />
+                <MetaChip va={a.rating} vb={b.rating} />
+                <MetaChip va={a.pose} vb={b.pose} />
+                <MetaChip va={a.palette} vb={b.palette} />
+                {a.rehab || b.rehab ? <Chip tone="amber">{a.rehab || b.rehab}</Chip> : null}
+              </>
+            ) : (
+              (a ?? b) && (
+                <>
+                  {(a ?? b)!.kind ? <Chip tone={onlyIn === 'B' ? 'emerald' : 'zinc'}>{(a ?? b)!.kind}</Chip> : null}
+                  {(a ?? b)!.who ? <Chip tone="zinc">{(a ?? b)!.who}</Chip> : null}
+                  {(a ?? b)!.rating ? <Chip tone="amber">{(a ?? b)!.rating}</Chip> : null}
+                  {(a ?? b)!.palette ? <Chip tone="zinc">{(a ?? b)!.palette}</Chip> : null}
+                </>
+              )
+            )}
+          </div>
+          {stackChanged && a && b ? (
+            <p className="text-[11px] leading-relaxed text-zinc-500">
+              <span className="text-zinc-600">Stack A:</span>{' '}
+              <span className="font-mono text-rose-300/80">{stackA.join(' + ') || '—'}</span>
+              {' → '}
+              <span className="text-zinc-600">B:</span>{' '}
+              <span className="font-mono text-emerald-400/90">{stackB.join(' + ') || '—'}</span>
+            </p>
+          ) : null}
+          {thesisChanged && b ? (
+            <p className="line-clamp-2 text-[11px] leading-relaxed text-zinc-500" title={b.thesis}>
+              <span className="text-zinc-600">тезис B:</span> {b.thesis}
+            </p>
+          ) : null}
+          {canonChanged && b && b.canon ? (
+            <p className="line-clamp-2 text-[11px] leading-relaxed text-zinc-500" title={b.canon}>
+              <span className="text-zinc-600">канон B:</span> {b.canon}
+            </p>
+          ) : null}
+          <DiffChips label="POS" d={dP} />
+          <DiffChips label="NEG" d={dN} />
+        </div>
+      ) : null}
+    </div>
+  )
+}
+
+/** Поток тегов одного поля: общее (цинк) + добавлено (изумруд), убрано (роза). */
+function DiffChips({ label, d }: { label: 'POS' | 'NEG'; d: TokenDiff }) {
+  if (d.kept.length === 0 && d.added.length === 0 && d.removed.length === 0) {
+    return <p className="text-[11px] text-zinc-600">{label}: пусто в обоих</p>
+  }
+  const tone = (kind: 'kept' | 'added' | 'removed') =>
+    cn(
+      'inline-block max-w-[240px] truncate rounded border px-1.5 py-0.5 text-[11px] leading-4 sm:max-w-[420px]',
+      kind === 'kept' && 'border-zinc-800 bg-zinc-900 text-zinc-500',
+      kind === 'added' && 'border-emerald-600/40 bg-emerald-600/10 text-emerald-400',
+      kind === 'removed' && 'border-rose-500/30 bg-rose-500/5 text-rose-300/80 line-through'
+    )
+  return (
+    <div className="space-y-1">
+      <div className="flex items-center gap-1.5">
+        <span className="font-mono text-[10px] uppercase tracking-wider text-zinc-600">{label}</span>
+        {d.added.length + d.removed.length > 0 ? (
+          <span className="font-mono text-[10px] text-amber-400/90">
+            +{d.added.length} · −{d.removed.length}
+          </span>
+        ) : (
+          <span className="text-[10px] text-zinc-600">без изменений</span>
+        )}
+      </div>
+      <div className="flex flex-wrap gap-1">
+        {d.kept.map((t, i) => (
+          <span key={`k${i}`} className={tone('kept')} title={t}>{t}</span>
+        ))}
+        {d.added.map((t, i) => (
+          <span key={`a${i}`} className={tone('added')} title={t}>{t}</span>
+        ))}
+      </div>
+      {d.removed.length > 0 ? (
+        <div className="flex flex-wrap gap-1">
+          <span className="mr-0.5 font-mono text-[10px] uppercase leading-5 tracking-wider text-zinc-600">
+            убрано из A
+          </span>
+          {d.removed.map((t, i) => (
+            <span key={`r${i}`} className={tone('removed')} title={t}>{t}</span>
+          ))}
+        </div>
       ) : null}
     </div>
   )

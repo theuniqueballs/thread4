@@ -84,3 +84,7 @@ prisma/
 examples/
 tests/
 mini-services/
+
+# Преемник Фреда, 2026-10-10 (webDevReview #2): скриншоты QA-браузера —
+# бинарный балласт по духу Issue #6 (гит = механизм); живут в download/
+/download/*.png
