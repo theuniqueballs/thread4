@@ -732,6 +732,64 @@ async function main() {
       )
       const p2 = planRawPlus(demo)
       check('gen-rawplus: детерминизм (тот же сид → тот же план)', JSON.stringify(p1.slots) === JSON.stringify(p2.slots))
+      /* бриф автора из UI (draft → контракт, §10): виды списком, OC-темы,
+       * abPairs, rehab — квитанции компиляции брифа */
+      const draftBrief = {
+        slug: 'T4-98',
+        theme: 'SELFTEST DRAFT BRIEF',
+        ocThemes: [{ theme: 'Draft Theme One', rating: 'R+', position: 1 }],
+        mainWishes: 'проверка брифа: круто и ещё круче',
+        species: { on: true, count: 2, list: ['R02', 'R06'] },
+        xSlots: 0,
+        abPairs: 3,
+        rehab: true,
+        engine: 'per-theme',
+      }
+      const p3 = planRawPlus({ ...demo, draft: draftBrief })
+      const kin3 = p3.slots.filter((s) => s.race)
+      check(
+        'gen-rawplus: бриф — виды ТОЧНО списком автора (§10), не ротацией пула',
+        kin3.length === 2 &&
+          new Set(kin3.map((s) => s.raceId)).size === 2 &&
+          kin3.every((s) => ['R02', 'R06'].includes(s.raceId ?? ''))
+      )
+      const oc1 = p3.slots[0]
+      check(
+        'gen-rawplus: бриф — OC-тема по позиции + рейтинг из брифа',
+        (oc1.ocTheme ?? '').includes('Draft Theme One') && oc1.rating === 'R+'
+      )
+      const c3 = p3.contract as { authorWishes?: string; abPairs: { a: number; b: number }[] }
+      check(
+        'gen-rawplus: бриф — пожелания автора едут в контракт (authorWishes)',
+        (c3.authorWishes ?? '').includes('круче')
+      )
+      check(
+        'gen-rawplus: бриф — abPairs по счёту брифа, стек пар = одна замена носителя',
+        c3.abPairs.length === 3 &&
+          c3.abPairs.every((p) => {
+            const sa = p3.slots.find((s) => s.position === p.a)
+            const sb = p3.slots.find((s) => s.position === p.b)
+            if (!sa || !sb) return false
+            const d = new Set([...sa.carriers.map((x) => x.id), ...sb.carriers.map((x) => x.id)])
+            const inter = sa.carriers.filter((x) => sb.carriers.some((y) => y.id === x.id)).length
+            return d.size === sa.carriers.length + 1 && inter === sa.carriers.length - 1
+          })
+      )
+      check(
+        'gen-rawplus: бриф — rehab несёт конфиг оживления (Залп 3)',
+        p3.slots.some((s) => s.targetChannel && (s.targetChannelNote ?? '').length > 0)
+      )
+      check(
+        'gen-rawplus: спайн полон — позы PL/лиды/клоузеры/регистры назначены (не болванки)',
+        p3.slots.every((s) => /^PL\d+$/.test(s.pose)) &&
+          p3.slots.every((s) => s.lead.length > 0) &&
+          p3.slots.every((s) => s.closer.length > 0) &&
+          p3.slots.filter((s) => s.kind === 'NICHE').every((s) => (s.arch ?? '').length > 0 && (s.witness ?? '').length > 0)
+      )
+      check(
+        'gen-rawplus: регистры мейнов третями (student/young/milf — N30 формой, не тегами)',
+        ['student', 'young', 'milf'].every((r) => p3.slots.filter((s) => s.register === r).length === 7)
+      )
     }
 
     // Концепт-валидатор стеков (ULTIMATE DICE §44 из архива A5 → RAW-эра)
