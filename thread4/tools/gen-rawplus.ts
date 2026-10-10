@@ -46,6 +46,7 @@ import {
   getPoses,
 } from '../../src/lib/t4/specs'
 import { buildBlock, loadRaces, type RaceEntry } from './kin-block'
+import { DICE_TOTAL, archiveSignatures, diceInstructions, rollBatch } from './dice'
 
 /* ------------------------------------------------------------------ */
 /* RNG — детерминизм плана (тот же алгоритм, что и компилятор)         */
@@ -214,6 +215,11 @@ export interface RawPlusSlot {
   witness?: string
   /** НИША-50: архетип невозможного */
   arch?: string
+  /** ULTIMATE DICE (A5P6 §3 → RAW-эра): сигнатура скелета «A3·B5·C2·D7·E1» —
+   *  уникальна внутри батча, межбатчевая дисциплина через dice-archive */
+  diceSig?: string
+  /** инструкции кубиков для писца (порядок id/подача одежды/тема/свет/ритм) */
+  dice?: string
   /** A/B-пара (§10): один канал, разная подача */
   ab?: { pair: string; half: 'A' | 'B'; withSlot: number; lead: string }
   /** rehab-добор: канал + конфиг оживления из delivery-stats */
@@ -695,6 +701,25 @@ export function planRawPlus(opts: PlanOptions): RawPlusPlan {
     }
   }
 
+  /* --- ULTIMATE DICE (A5P6 §3 → RAW-эра, приказ автора 2026-10-12):
+   *  5 костей структурной рандомизации — порядок идентификации, подача
+   *  одежды, интеграция темы, свет, ритм прозы; сигнатуры уникальны
+   *  внутри батча, межбатчевая дисциплина — обход dice-archive (§6) --- */
+  const diceRoll = rollBatch(
+    (opts.seed ?? Date.now()) ^ 0x5eed,
+    slots.map((s) => s.position),
+    { avoidArchive: true }
+  )
+  for (const s of slots) {
+    const roll = diceRoll.byPosition.get(s.position)
+    if (!roll) continue
+    s.diceSig = diceRoll.signatures.get(s.position) ?? ''
+    s.dice = diceInstructions(roll)
+  }
+  report.push(
+    `ULTIMATE DICE: ${DICE_TOTAL} костей × ${slots.length} слотов — сигнатуры скелетов уникальны в батче (${diceRoll.rerolls} перебросов: архив + внутри-батчевые коллизии)`
+  )
+
   /* --- echo-мотивы: 2-3, арка трёх актов, мутации из разных групп --- */
   const echoCount = Math.max(2, Math.min(opts.echo ?? 3, 3))
   const echoTypes = rng.shuffle(ECHO_TYPES).slice(0, echoCount)
@@ -789,6 +814,8 @@ export function planRawPlus(opts: PlanOptions): RawPlusPlan {
       closer: s.closer,
       ...(s.witness ? { witness: s.witness } : {}),
       ...(s.arch ? { arch: s.arch } : {}),
+      ...(s.diceSig ? { diceSig: s.diceSig } : {}),
+      ...(s.dice ? { dice: s.dice } : {}),
       ...(s.ab ? { ab: s.ab } : {}),
       ...(s.targetChannel ? { targetChannel: s.targetChannel } : {}),
       ...(s.targetChannelNote ? { targetChannelNote: s.targetChannelNote } : {}),
@@ -1024,6 +1051,10 @@ function main() {
   }
   writeJson(jsonPath, plan.contract)
   writeText(mdPath, planMarkdown(plan))
+  /* межбатчевая дисциплина кубиков (A5P6 §6): сигнатуры батча — в архив,
+   *  следующий батч их обойдёт — скелеты не повторяются между батчами */
+  const sigs = plan.slots.map((s) => s.diceSig).filter(Boolean) as string[]
+  if (sigs.length > 0) archiveSignatures(slug, theme, sigs)
   console.log(`\nконтракт: ${jsonPath} + ${mdPath}`)
   console.log('дальше: сборка батча по плану (кины в POS/NEG, hair/eye в идентификацию, echo по аркам), затем check → deliver')
 }

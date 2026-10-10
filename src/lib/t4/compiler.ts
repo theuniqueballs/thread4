@@ -111,6 +111,10 @@ export interface SlotPlan {
   targetChannelNote?: string
   /** НИША-50: архетип невозможного композиции (ротация без повторов в батче) */
   arch?: string
+  /** ULTIMATE DICE (A5P6 §3 → RAW-эра): сигнатура скелета «A3·B5·C2·D7·E1» */
+  diceSig?: string
+  /** инструкции кубиков: порядок id / подача одежды / тема / свет / ритм */
+  dice?: string
 }
 
 export interface BatchContract {

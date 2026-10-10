@@ -790,6 +790,31 @@ async function main() {
         'gen-rawplus: регистры мейнов третями (student/young/milf — N30 формой, не тегами)',
         ['student', 'young', 'milf'].every((r) => p3.slots.filter((s) => s.register === r).length === 7)
       )
+      /* ULTIMATE DICE (A5P6 §3 → RAW-эра): 5 костей, сигнатуры уникальны
+       * в батче, межбатчевая дисциплина через dice-archive */
+      const diceSigs = p3.slots.map((s) => s.diceSig ?? '').filter(Boolean)
+      check(
+        'dice: каждый слот несёт сигнатуру скелета (A·B·C·D·E)',
+        diceSigs.length === law2.slotsTotal && diceSigs.every((s) => /^[A-E]\d·[A-E]\d·[A-E]\d·[A-E]\d·[A-E]\d$/.test(s))
+      )
+      check(
+        'dice: скелеты уникальны в батче (два слота не делят структуру)',
+        new Set(diceSigs).size === law2.slotsTotal
+      )
+      check(
+        'dice: инструкции кубиков едут в контракт (писец обязывается)',
+        p3.slots.every((s) => (s.dice ?? '').length > 40)
+      )
+      const { rollBatch: rb, usedSignatures } = await import('./tools/dice')
+      const usedBefore = usedSignatures()
+      const rollA = rb(777, [1, 2, 3, 4, 5, 6], { avoidArchive: true })
+      const freshSigs = [...rollA.signatures.values()].filter((s) => !usedBefore.has(s))
+      check(
+        'dice: межбатчевая дисциплина — новый бросок обходит архив сигнатур',
+        freshSigs.length === 6
+      )
+      const rollB = rb(777, [1, 2, 3, 4, 5, 6], { avoidArchive: true })
+      check('dice: детерминизм (тот же сид → тот же бросок)', JSON.stringify([...rollA.signatures.values()]) === JSON.stringify([...rollB.signatures.values()]))
     }
 
     // Концепт-валидатор стеков (ULTIMATE DICE §44 из архива A5 → RAW-эра)
