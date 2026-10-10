@@ -774,6 +774,83 @@ async function main() {
       )
     }
 
+    // Порт fred-legacy (2026-10-12): парсер .md-батчей + диффы + триал-разбор
+    {
+      const { parseBatchMd, diffTokens, extractTrialLaws, extractHypotheses, buildDiffMarkdown, buildTrialRadarMarkdown, stackIds } = await import('../src/lib/t4/batch-md')
+      const { readText } = await import('../src/lib/t4/fsutil')
+      const path = await import('node:path')
+      const md27 = readText(path.join('thread4', 'batches', 'T4-27.md')) ?? ''
+      const md272 = readText(path.join('thread4', 'batches', 'T4-27.2-EXP.md')) ?? ''
+      const p27 = parseBatchMd(md27)
+      const p272 = parseBatchMd(md272)
+      check('batch-md: T4-27 парсится — 33 слота, шапка на месте', p27 != null && p27.slots.length === 33 && p27.title.includes('T4-27'))
+      check('batch-md: T4-27.2-EXP парсится — 33 слота, перестройка', p272 != null && p272.slots.length === 33 && p272.title.includes('BODY-SPECTRUM'))
+      check(
+        'batch-md: мета эры RAW+ — kind/rating/палитра из скобки (P01 T4-27)',
+        p27?.slots[0]?.kind === 'OC' && p27?.slots[0]?.palette.startsWith('P') === true && p27?.slots[0]?.pos.length > 0
+      )
+      check(
+        'batch-md: эра прозы — PL-позы и R+/R на месте (T4-08)',
+        (() => {
+          const md08 = readText(path.join('thread4', 'batches', 'T4-08.md'))
+          const p08 = md08 ? parseBatchMd(md08) : null
+          return p08 != null && p08.slots.length === 24 && p08.slots.some((s) => s.pose.startsWith('PL'))
+        })()
+      )
+      check(
+        'batch-md: токен-дифф — общее/добавлено/убрано считаются точно',
+        (() => {
+          const d = diffTokens('a b c d', 'a c d e')
+          return d.kept.join(',') === 'a,c,d' && d.added.join(',') === 'e' && d.removed.join(',') === 'b'
+        })()
+      )
+      check(
+        'batch-md: скобко-осознанный дифф не режет составные теги (Cecaelia (upper))',
+        (() => {
+          const d = diffTokens('cecaelia (upper) tail', 'cecaelia (upper) fins')
+          return d.kept.join(' ').includes('cecaelia (upper)') && d.added.join(',') === 'fins' && d.removed.join(',') === 'tail'
+        })()
+      )
+      const laws27 = extractTrialLaws(md27)
+      const h27 = extractHypotheses(md27, p27!)
+      const h272 = extractHypotheses(md272, p272!)
+      check('batch-md: законы TRIAL-3 из T4-27 — 6 (M15-M20)', laws27.length === 6 && laws27[0]?.id === 'M15' && laws27[5]?.id === 'M20')
+      check(
+        'batch-md: EXP-гипотезы T4-27 — пары κ/λ/μ + одиночки ν/ξ/ρ (грек-lookahead, не \\b)',
+        h27.filter((x) => x.kind === 'pair').length === 3 && h27.filter((x) => x.kind === 'single').length === 3 && h27.some((x) => x.greek === 'κ' && x.a && x.b)
+      )
+      check(
+        'batch-md: ⚗ осознанные нарушители распознаются в EXP-половинках (λ-B, μ-B)',
+        (() => {
+          const lam = h272.find((x) => x.greek === 'λ') ?? h27.find((x) => x.greek === 'λ')
+          const mu = h272.find((x) => x.greek === 'μ') ?? h27.find((x) => x.greek === 'μ')
+          return Boolean(lam?.b?.alchemy) && Boolean(mu?.b?.alchemy)
+        })()
+      )
+      check(
+        'batch-md: дифф перестройки — POS +116 тегов в T4-27.2-EXP (тело против дефолта)',
+        (() => {
+          let add = 0
+          for (const b of p272!.slots) {
+            const a = p27!.slots.find((s) => s.id === b.id)
+            add += diffTokens(a?.pos ?? '', b.pos).added.length
+          }
+          return add === 116
+        })()
+      )
+      const diffMd = buildDiffMarkdown('T4-27', 'T4-27.2-EXP', p27!, p272!)
+      check('batch-md: дифф-документ пары — обе шапки + статистика POS', diffMd.includes('# THREAD 4 · дифф перестройки') && diffMd.includes('T4-27.2-EXP') && diffMd.includes('POS +'))
+      const trialMd = buildTrialRadarMarkdown({ slug: 'T4-27', title: p27!.title, laws: laws27, hypos: h27, rendered: [], verdictRecord: false })
+      check('batch-md: сводка триала — шапка + законы + гипотезы', trialMd.includes('TRIAL') && trialMd.includes('M15') && trialMd.includes('κ'))
+      check(
+        'batch-md: стеки читаются из Stack-секции (core-4)',
+        (() => {
+          const withStack = p27?.slots.filter((s) => s.stack.length > 0) ?? []
+          return withStack.length >= 30 && stackIds(withStack[0].stack).length >= 2
+        })()
+      )
+    }
+
     console.log(`\nselftest: ${ok} pass, ${fail} fail`)
     process.exit(fail === 0 ? 0 : 1)
   }
