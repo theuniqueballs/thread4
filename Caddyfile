@@ -1,13 +1,10 @@
-# Issue #5 (Кенни, 2026-09-26): XTransformPort зажат до единственного порта —
-# произвольный port-forward на весь loopback был лишней поверхностью.
-# Граница чтения (glass.readBoundary) зависит и от этого слоя.
 :81 {
 	@transform_port_query {
-		query XTransformPort=3000
+		query XTransformPort=*
 	}
 
 	handle @transform_port_query {
-		reverse_proxy localhost:3000 {
+		reverse_proxy localhost:{query.XTransformPort} {
 			header_up Host {host}
 			header_up X-Forwarded-For {remote_host}
 			header_up X-Forwarded-Proto {scheme}
