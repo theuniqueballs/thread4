@@ -10,6 +10,9 @@
  *   bun thread4/cli.ts scribe T4-01  # авто-писец: черновик батча по контракту (LLM)
  *   bun thread4/cli.ts drift T4-NN      # тег-дрейф отчёт (REPORT, не гейт)
  *   bun thread4/cli.ts stack T4-NN      # концепты стеков против истории (REPORT)
+ *   bun thread4/cli.ts lists T4-NN ...  # рендер-листы .txt в download/ (порт fred-legacy)
+ *   bun thread4/cli.ts diff A B         # дифф пары батчей .md в download/ (порт fred-legacy)
+ *   bun thread4/cli.ts trial [T4-NN...] # сводка триала .md в download/ (порт fred-legacy)
  *   bun thread4/cli.ts state
  *   bun thread4/cli.ts selftest      # compiler + gates smoke test
  */
@@ -217,6 +220,35 @@ async function main() {
       process.exit(1)
     }
     await import('./tools/stack-report').then((m) => m.run(rest))
+    return
+  }
+
+  if (cmd === 'lists') {
+    /* Рендер-листы .txt (порт fred-legacy, 2026-10-12): те же файлы, что
+     *  кнопка «.txt» в Слотах — но из репо, для автора руками. */
+    const rest = process.argv.slice(3)
+    if (rest.length === 0) {
+      console.error('usage: lists T4-NN [T4-NN …]')
+      process.exit(1)
+    }
+    await import('./tools/render-lists').then((m) => m.run(rest))
+    return
+  }
+
+  if (cmd === 'diff') {
+    /* Дифф пары .md (порт fred-legacy): A — база, B — перестройка. */
+    const rest = process.argv.slice(3)
+    if (rest.length !== 2) {
+      console.error('usage: diff <A-база> <B-перестройка>')
+      process.exit(1)
+    }
+    await import('./tools/diff-export').then((m) => m.run(rest))
+    return
+  }
+
+  if (cmd === 'trial') {
+    /* Сводка триала .md (порт fred-legacy): без аргументов — живая пара момента. */
+    await import('./tools/trial-export').then((m) => m.run(process.argv.slice(3)))
     return
   }
 
