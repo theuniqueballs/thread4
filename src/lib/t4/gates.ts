@@ -1018,6 +1018,11 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
       'sundress', 'nightgown', 'gown', 'robe', 'kimono', 'yukata', 'sheet',
       'towel', 'halter', 'tunic', 'apron', 'qipao', 'cheongsam',
       'sweater', 'gi', 'nightshirt',
+      // именованные верхи эпохи RAW+ (T4-04/05/07/20 доказали в сданных
+      // батчах; словарь гейта отставал от практики писца — «crop top»
+      // не опознавался, ложная квитанция noun-lock)
+      'crop top', 'tank top', 'tube top', 'wrap top', 'halter top',
+      'jersey', 'pullover', 'bodystocking', 'fishnet top',
     ]
     const LOWER_LIGHT = [
       'skirt', 'shorts', 'pants', 'trousers', 'leggings', 'tights',
