@@ -9,7 +9,7 @@
 | Путь | Что это |
 |---|---|
 | `src/app/` | Next.js дашборд (http://127.0.0.1:3000): Состояние, Сборка, Батчи, Куча, Стекло… |
-| `src/lib/t4/` | Ядро: компилятор, писец, 22 гейта, летопись с хеш-цепью, жнец, delivery |
+| `src/lib/t4/` | Ядро: компилятор, писец, 24 гейта, летопись с хеш-цепью, жнец, delivery |
 | `thread4/cli.ts` | CLI: `seed · compile · scribe · check · deliver · void · shore-merge · reaper · verify · selftest` |
 | `thread4/` | Данные и законы (единая точка истины): |
 | `thread4/specs/` | Спеки: policy.json, oc-canon.json, recipes, carriers, НИША-50, facts |

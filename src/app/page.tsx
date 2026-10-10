@@ -537,7 +537,7 @@ function SpecsTab() {
 const OC_RATINGS = ['PG-13', 'R', 'R+', 'X'] as const
 
 function DraftComposer() {
-  const meta = useApi<{ nextSlug: string; races: { id: string; name: string }[] }>(
+  const meta = useApi<{ nextSlug: string; races: { id: string; name: string; status?: string }[] }>(
     '/api/t4/contract-draft'
   )
   const [theme, setTheme] = useState('')
@@ -743,20 +743,25 @@ function DraftComposer() {
         {speciesOn && races.length > 0 && (
           <div className="space-y-2">
             <p className="text-[11px] uppercase tracking-wider text-zinc-500">
-              Какие кины — отмечай любимых ({speciesList.length} выбрано)
+              Какие кины — отмечай любимых ({speciesList.length} выбрано · ★ — золото автора)
             </p>
             <div className="flex flex-wrap gap-1.5">
               {races.map((r) => (
                 <button
                   key={r.id}
                   onClick={() => toggleSpecies(r.id)}
+                  title={r.status === 'gold' ? 'золотая раса автора' : undefined}
+                  aria-label={r.status === 'gold' ? `${r.name} — золотая раса автора` : r.name}
                   className={cn(
                     'rounded-full border px-2.5 py-1 text-[11px] transition-colors',
                     speciesList.includes(r.id)
                       ? 'border-fuchsia-500/60 bg-fuchsia-500/15 text-fuchsia-300'
-                      : 'border-zinc-800 bg-zinc-900/60 text-zinc-500 hover:border-zinc-700 hover:text-zinc-300'
+                      : r.status === 'gold'
+                        ? 'border-amber-500/40 bg-amber-500/10 text-amber-300/90 hover:border-amber-400/70 hover:text-amber-200'
+                        : 'border-zinc-800 bg-zinc-900/60 text-zinc-500 hover:border-zinc-700 hover:text-zinc-300'
                   )}
                 >
+                  {r.status === 'gold' ? '★ ' : ''}
                   {r.name}
                 </button>
               ))}
