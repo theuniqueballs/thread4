@@ -1282,7 +1282,9 @@ export function TrialRadarPanel() {
                   <span className="font-mono normal-case text-zinc-700">из {lawSource}</span>
                 ) : null}
               </p>
-              <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+              {/* minmax(0,1fr): трек без него раздувается — Вердикты +34px на
+               *  390px (QA webDevReview #6, мобильный обход) */}
+              <div className="grid grid-cols-[minmax(0,1fr)] gap-2 sm:grid-cols-2 lg:grid-cols-3">
                 {laws.map((l) => (
                   <div
                     key={l.id}
