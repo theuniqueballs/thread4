@@ -357,7 +357,7 @@ function StateTab() {
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <StatCard label="Эпоха" value={asStr(rec.era) || 'THREAD 4'} hint="чистый лист" />
             <StatCard label="Последний батч" value={asStr(rec.lastBatch) || '—'} hint="новая эра, имена с нуля" />
-            <StatCard label="Следующий шаг" value={asStr(rec.nextStep) || 'T4-01'} hint="ждёт тему от автора" />
+            <StatCard label="Следующий шаг" value={asStr(rec.nextStep) || 'T4-01'} hint="тема от автора · план: gen-rawplus T4-28" />
             <StatCard label="Гейты" value={asStr(rec.gateHealth) || '—'} hint="hard / warn / advisory" />
           </div>
         )}
@@ -428,13 +428,14 @@ function DocsTab() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2" role="group" aria-label="Документы эпохи">
         {DOCS.map((d) => (
           <button
             key={d.id}
             onClick={() => setDoc(d.id)}
+            aria-pressed={doc === d.id}
             className={cn(
-              'rounded-md border px-3 py-1.5 text-xs font-medium transition-colors',
+              'rounded-md border px-3 py-1.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-500/60',
               doc === d.id
                 ? 'border-amber-500/50 bg-amber-500/10 text-amber-300'
                 : 'border-zinc-800 bg-zinc-900 text-zinc-400 hover:border-zinc-700 hover:text-zinc-200'
@@ -1321,7 +1322,9 @@ function BatchesTab() {
                         ↻ {b.rebuildOf}
                       </span>
                     ) : null}
-                    <span className="truncate text-xs text-zinc-300">{b.title}</span>
+                    <span className="truncate text-xs text-zinc-300" title={b.title}>
+                      {b.title}
+                    </span>
                   </span>
                   <span className="shrink-0 text-[11px] text-zinc-600">{formatDate(b.date)}</span>
                 </button>
@@ -2978,7 +2981,9 @@ function BatchReceiverPanel() {
                           лёгкий
                         </span>
                       ) : null}
-                      <span className="truncate text-xs text-zinc-400">{r.summary.slice(0, 110)}</span>
+                      <span className="truncate text-xs text-zinc-400" title={r.summary}>
+                        {r.summary}
+                      </span>
                     </span>
                     <span className="shrink-0 text-[11px] text-zinc-600">{formatDate(r.at)}</span>
                   </button>
@@ -3251,6 +3256,21 @@ function ArchiveTab() {
 
 export default function Home() {
   const [tab, setTab] = useState<TabId>('state')
+  /* клавиатура табов (WAI-ARIA tabs): ←/→ циклично, Home/End — края;
+     фокус следует за выбором (roving tabindex) */
+  function onTabKey(e: React.KeyboardEvent) {
+    const idx = TABS.findIndex((t) => t.id === tab)
+    let next = -1
+    if (e.key === 'ArrowRight') next = (idx + 1) % TABS.length
+    else if (e.key === 'ArrowLeft') next = (idx - 1 + TABS.length) % TABS.length
+    else if (e.key === 'Home') next = 0
+    else if (e.key === 'End') next = TABS.length - 1
+    if (next < 0) return
+    e.preventDefault()
+    const id = TABS[next].id
+    setTab(id)
+    document.getElementById(`t4-tab-${id}`)?.focus()
+  }
   const state = useApi<{ batches?: unknown[]; events?: number; glass?: { chain?: { ok?: boolean; events?: number } } }>(
     '/api/t4/state'
   )
@@ -3308,13 +3328,17 @@ export default function Home() {
             </div>
           </div>
           <ScrollArea className="whitespace-nowrap pb-px">
-            <div className="flex gap-1 pb-2">
+            <div className="flex gap-1 pb-2" role="tablist" aria-label="Разделы мастерской" onKeyDown={onTabKey}>
               {TABS.map((t) => (
                 <button
                   key={t.id}
+                  id={`t4-tab-${t.id}`}
+                  role="tab"
+                  aria-selected={tab === t.id}
+                  tabIndex={tab === t.id ? 0 : -1}
                   onClick={() => setTab(t.id)}
                   className={cn(
-                    'flex shrink-0 items-center gap-1.5 rounded-md border-b-2 px-3 py-1.5 text-xs font-medium transition-colors',
+                    'flex shrink-0 items-center gap-1.5 rounded-md border-b-2 px-3 py-1.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-500/60',
                     tab === t.id
                       ? 'border-fuchsia-500 text-amber-300'
                       : 'border-transparent text-zinc-500 hover:text-zinc-300'
@@ -3334,7 +3358,11 @@ export default function Home() {
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-6 sm:px-6">
+      <main
+        className="mx-auto w-full max-w-7xl flex-1 px-4 py-6 sm:px-6"
+        role="tabpanel"
+        aria-labelledby={`t4-tab-${tab}`}
+      >
         {tab === 'state' ? <StateTab /> : null}
         {tab === 'constitution' ? <DocsTab /> : null}
         {tab === 'specs' ? <SpecsTab /> : null}
@@ -3350,7 +3378,7 @@ export default function Home() {
       <footer className="mt-auto border-t border-zinc-800/80 bg-zinc-950 pb-[env(safe-area-inset-bottom)]">
         <div className="mx-auto flex w-full max-w-7xl flex-wrap items-center justify-between gap-2 px-4 py-4 text-[11px] text-zinc-600 sm:px-6">
           <span>THREAD 4 · закон 24 слотов · Super Z × Автор</span>
-          <span className="font-mono">гейты — см. Состояние · салиенс + noun-lock + коллизия · приёмник батча · сейф</span>
+          <span className="font-mono">гейты — см. Состояние · приёмник батча · сейф · drift/stack перед сдачей</span>
         </div>
       </footer>
     </div>
