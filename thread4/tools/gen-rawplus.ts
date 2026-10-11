@@ -276,6 +276,10 @@ export interface DraftBrief {
   mainWishes: string
   /** заметки автора к брифу — в контракт authorWishes (§10: бриф главнее) */
   notes?: string
+  /** тема-слова автора (отрисуемые теги): писец вплетает их в кадры
+   *  ПЕРВЫМИ, спайн дополняет хвост до 8 — точная привязка к теме
+   *  (ревью UI 2026-10-11: «точнее привязываться к теме») */
+  themeWords?: string[]
   species?: { on: boolean; count: number; list: string[] }
   xSlots: number
   abPairs: number
@@ -315,6 +319,11 @@ export function planRawPlus(opts: PlanOptions): RawPlusPlan {
   const law = getPolicy().law
   const rng = makeRng(opts.seed ?? Date.now())
   const report: string[] = []
+  if (opts.draft?.themeWords?.length) {
+    report.push(
+      `тема-слова автора: ${opts.draft.themeWords.join(', ')} — писец вплетает их в кадры первыми (точная привязка к теме)`
+    )
+  }
 
   /* --- окно ротации: палитры чужих контрактов исключаются (№30) --- */
   const windowOthers = windowOthersFor(opts.slug, opts.windowSlugs, opts.rebuildOf)
@@ -974,6 +983,9 @@ export function planRawPlus(opts: PlanOptions): RawPlusPlan {
     ...(opts.draft?.mainWishes || opts.draft?.notes
       ? { authorWishes: [opts.draft.mainWishes, opts.draft.notes].filter(Boolean).join(' · ') }
       : {}),
+    /* тема-слова автора: писец вплетает их ПЕРВЫМИ (точная привязка к
+     * теме — ревью UI 2026-10-11); спайн дополняет хвост до 8 */
+    ...(opts.draft?.themeWords?.length ? { themeWords: opts.draft.themeWords } : {}),
     ...(opts.draft ? { draftRef: `thread4/drafts/${opts.draft.slug ?? opts.slug}-draft.json` } : {}),
     seed: opts.seed ?? Date.now(),
     createdAt: new Date().toISOString(),

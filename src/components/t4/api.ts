@@ -191,6 +191,23 @@ export async function postJson<T>(
   return (await res.json()) as T
 }
 
+/** DELETE с телом ошибки наверх — симметрично postJson (удаление черновиков
+ *  из UI, ревью 2026-10-11: отказ 409 «уже собран» должен быть читаем). */
+export async function delJson<T>(path: string): Promise<T> {
+  const res = await fetch(withGatewayPort(path), { method: 'DELETE' })
+  if (!res.ok) {
+    let msg = `HTTP ${res.status}`
+    try {
+      const j = (await res.json()) as Record<string, unknown>
+      if (typeof j.error === 'string' && j.error.trim() !== '') msg = j.error
+    } catch {
+      /* тело не JSON — остаёмся с кодом */
+    }
+    throw new ApiError(msg, res.status)
+  }
+  return (await res.json()) as T
+}
+
 export interface ApiState<T> {
   data: T | null
   error: string | null

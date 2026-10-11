@@ -5,7 +5,21 @@
  * (кины, X, A/B, rehab) — UI сохраняет это как ЧЕРНОВИК с авто-номером.
  * Компилятор этот файл не читает (low-trust разделение, Issue #21):
  * черновик — письменный бриф для писца Чарли, а не машинный вход.
+ *
+ * 2026-10-11 (ревью UI по приказу автора «досмотри, чего нехватает»):
+ * - GET отдаёт СПИСОК черновиков (+ флаг «собран» — батч/контракт существует):
+ *   после сохранения бриф больше не исчезает из UI;
+ * - POST принимает ТЕМА-СЛОВА автора (themeWords — отрисуемые теги через
+ *   запятую): цепочка бриф → контракт → писец вплетает их в кадры ПЕРВЫМИ
+ *   (точная привязка к теме, спайн дополняет хвост);
+ * - DELETE (?slug=T4-NN) убирает несобранный черновик; собранный — отказ
+ *   (409): летопись/контракт не трогаем;
+ * - пикер кинов больше не предлагает Human (R01 — раса без признаков,
+ *   слот не тратит: T4-29-находка, генератор теперь пропускает его молча,
+ *   но список видов — источник истины и не должен врать).
  */
+import fs from 'node:fs'
+import path from 'node:path'
 import { NextResponse } from 'next/server'
 
 import { appendEvent } from '@/lib/t4/events'
@@ -24,6 +38,7 @@ interface DraftBody {
   theme?: string
   ocThemes?: OcTheme[]
   mainWishes?: string
+  themeWords?: string
   speciesOn?: boolean
   speciesCount?: number
   speciesList?: string[]
@@ -55,10 +70,44 @@ export async function GET() {
   // 2026-10-11: gold-расы (авторские: R17 jellyfish, R20 harpy) возвращены в
   // пикер — компилятор их всегда включал (compiler.ts: active || gold), а
   // фильтр «active» их молча выкидывал из UI. Статус уезжает на фронт для ★.
+  // Human (R01) — НЕ кин: признаков нет, слот не тратит (races.json note;
+  // генератор пропускает, бриф T4-29 это поймал) — из пикера убран, мейны
+  // без кина уже люди по умолчанию.
   const races = (getRaces()?.races ?? [])
-    .filter((r) => r.status === 'active' || r.status === 'gold')
+    .filter((r) => (r.status === 'active' || r.status === 'gold') && r.name.toLowerCase() !== 'human')
     .map((r) => ({ id: r.id, name: r.name, status: r.status }))
-  return NextResponse.json({ nextSlug: nextSlug(), races })
+  /* список черновиков — бриф не исчезает после сохранения (ревью UI
+   * 2026-10-11): слаг, тема, дата, кины, флаг «собран» (батч/контракт) */
+  const drafts = listFiles(DRAFTS_DIR, '.json').map((f) => {
+    const slug = f.base.replace(/-draft$/, '')
+    let meta: {
+      theme?: string
+      createdAt?: string
+      species?: { on?: boolean; count?: number; list?: string[] }
+      ocThemes?: unknown[]
+      abPairs?: number
+      xSlots?: number
+      themeWords?: string[]
+    } = {}
+    try {
+      meta = JSON.parse(fs.readFileSync(path.join(DRAFTS_DIR, f.name), 'utf-8')) as typeof meta
+    } catch {
+      /* битый черновик не должен ронять вкладку — показываем слаг без меты */
+    }
+    const assembled =
+      fs.existsSync(path.join(BATCHES_DIR, `${slug}.md`)) || fs.existsSync(path.join(CONTRACTS_DIR, `${slug}.json`))
+    return {
+      slug,
+      theme: meta.theme ?? '—',
+      createdAt: meta.createdAt ?? '',
+      kinCount: meta.species?.on ? (meta.species.list?.length ?? meta.species.count ?? 0) : 0,
+      ocCount: Array.isArray(meta.ocThemes) ? meta.ocThemes.filter((o) => (o as OcTheme).theme).length : 0,
+      abPairs: meta.abPairs ?? 0,
+      themeWords: Array.isArray(meta.themeWords) ? meta.themeWords : [],
+      assembled,
+    }
+  })
+  return NextResponse.json({ nextSlug: nextSlug(), races, drafts })
 }
 
 export async function POST(req: Request) {
@@ -81,6 +130,16 @@ export async function POST(req: Request) {
   }))
 
   const slug = nextSlug()
+  /* тема-слова автора (точная привязка к теме): отрисуемые теги через
+   * запятую — писец вплетает их в кадры ПЕРВЫМИ, спайн дополняет хвост
+   * до 8; каждое ≤40 знаков, не более 8 — гейт theme-presence меряет их
+   * в ≥60% слотов, поэтому слова должны быть тег-безопасными */
+  const themeWords = String(body.themeWords ?? '')
+    .split(',')
+    .map((w) => w.trim().toLowerCase())
+    .filter(Boolean)
+    .slice(0, 8)
+    .map((w) => w.slice(0, 40))
   const draft = {
     slug,
     kind: 'draft',
@@ -89,6 +148,7 @@ export async function POST(req: Request) {
     theme,
     ocThemes,
     mainWishes: String(body.mainWishes ?? '').trim(),
+    ...(themeWords.length > 0 ? { themeWords } : {}),
     species: {
       on: body.speciesOn === true,
       count: Number(body.speciesCount ?? 0) || 0,
@@ -121,6 +181,9 @@ export async function POST(req: Request) {
     `## Пожелания к основной теме`,
     draft.mainWishes || '—',
     '',
+    ...(themeWords.length > 0
+      ? ['## Тема-слова автора (отрисуемые — вплетаются в кадры первыми)', themeWords.join(', '), '']
+      : []),
     `## Раскладка от автора`,
     `- Кины (Species): ${draft.species.on ? `ON, ~${draft.species.count}` : 'OFF'}${draft.species.list.length ? ` — ${draft.species.list.join(', ')}` : ''}`,
     `- X-слоты: ${draft.xSlots}`,
@@ -134,9 +197,40 @@ export async function POST(req: Request) {
 
   appendEvent(
     'note',
-    `${slug}: черновик контракта создан автором через UI (без компиляции) — тема «${theme}», OC-тем: ${ocThemes.filter((o) => o.theme).length}, кины ${draft.species.on ? `ON ×${draft.species.count}` : 'OFF'}, X=${draft.xSlots}`,
+    `${slug}: черновик контракта создан автором через UI (без компиляции) — тема «${theme}», OC-тем: ${ocThemes.filter((o) => o.theme).length}, кины ${draft.species.on ? `ON ×${draft.species.count}` : 'OFF'}, X=${draft.xSlots}${themeWords.length > 0 ? `, тема-слова: ${themeWords.join('/')}` : ''}`,
     { slug, kind: 'contract-draft', source: 'author' }
   )
 
   return NextResponse.json({ ok: true, slug, draftPath: jsonPath })
+}
+
+export async function DELETE(req: Request) {
+  const slug = new URL(req.url).searchParams.get('slug') ?? ''
+  if (!/^T4-[\dA-Za-z.-]+$/.test(slug)) {
+    return NextResponse.json({ error: 'слаг обязателен: ?slug=T4-NN' }, { status: 400 })
+  }
+  /* собранный слог неприкосновенен: батч/контракт/летопись — не черновики */
+  if (
+    fs.existsSync(path.join(BATCHES_DIR, `${slug}.md`)) ||
+    fs.existsSync(path.join(CONTRACTS_DIR, `${slug}.json`))
+  ) {
+    return NextResponse.json({ error: `${slug} уже собран (батч/контракт существует) — летопись не трогаем` }, { status: 409 })
+  }
+  const jsonPath = path.join(DRAFTS_DIR, `${slug}-draft.json`)
+  const mdPath = path.join(DRAFTS_DIR, `${slug}-draft.md`)
+  if (!fs.existsSync(jsonPath)) {
+    return NextResponse.json({ error: `черновик ${slug} не найден` }, { status: 404 })
+  }
+  try {
+    fs.unlinkSync(jsonPath)
+    if (fs.existsSync(mdPath)) fs.unlinkSync(mdPath)
+  } catch {
+    return NextResponse.json({ error: 'файл черновика не удаляется — смотри права на drafts/' }, { status: 500 })
+  }
+  appendEvent('note', `${slug}: несобранный черновик убран автором из UI (контракт/батч не существовали)`, {
+    slug,
+    kind: 'contract-draft-removed',
+    source: 'author',
+  })
+  return NextResponse.json({ ok: true, slug })
 }

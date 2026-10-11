@@ -873,6 +873,17 @@ export async function scribeBatch(
     .map((s) => s.trim().toLowerCase())
     .filter(Boolean)
     .slice(0, 8)
+  /* ТЕМА-СЛОВА АВТОРА (точная привязка к теме — ревью UI 2026-10-11):
+   * контракт несёт themeWords из брифа — они идут ПЕРВЫМИ, спайн дополняет
+   * хвост до 8 (гейт theme-presence меряет итоговый список в ≥60% слотов);
+   * без контрактовых слов спайн остаётся единственным источником */
+  const authorThemeWords = (Array.isArray(contract.themeWords) ? contract.themeWords : [])
+    .map((w) => String(w).trim().toLowerCase())
+    .filter(Boolean)
+  if (authorThemeWords.length > 0) {
+    ctx.themeKeywords = [...new Set([...authorThemeWords, ...ctx.themeKeywords])].slice(0, 8)
+    say(`  · тема-слова автора первыми: ${authorThemeWords.join(', ')} (спайн дополняет хвост)`)
+  }
   /* TITLE IS THEME (вердикт автора 2026-09-27: «меняется название темы» —
      больше никогда): название батча = тема автора, без переименований */
   const title = theme
