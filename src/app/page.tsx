@@ -45,6 +45,7 @@ import {
   asStr,
   clearCommanderKey,
   commanderHeaders,
+  delJson,
   formatDate,
   getCommanderKey,
   isNotFound,
@@ -557,10 +558,25 @@ function SpecsTab() {
 
 const OC_RATINGS = ['PG-13', 'R', 'R+', 'X'] as const
 
+/* Черновик в списке (GET /api/t4/contract-draft, ревью UI 2026-10-11):
+ * бриф не исчезает после сохранения — видно, что собрано, что ждёт */
+interface DraftMeta {
+  slug: string
+  theme: string
+  createdAt: string
+  kinCount: number
+  ocCount: number
+  abPairs: number
+  themeWords: string[]
+  assembled: boolean
+}
+
 function DraftComposer() {
-  const meta = useApi<{ nextSlug: string; races: { id: string; name: string; status?: string }[] }>(
-    '/api/t4/contract-draft'
-  )
+  const meta = useApi<{
+    nextSlug: string
+    races: { id: string; name: string; status?: string }[]
+    drafts: DraftMeta[]
+  }>('/api/t4/contract-draft')
   const [theme, setTheme] = useState('')
   const [oc, setOc] = useState([
     { theme: '', rating: 'R+', wishes: '' },
@@ -568,6 +584,10 @@ function DraftComposer() {
     { theme: '', rating: 'R+', wishes: '' },
   ])
   const [mainWishes, setMainWishes] = useState('')
+  /* тема-слова автора — отрисуемые теги через запятую (точная привязка
+   * к теме: писец вплетает их в кадры ПЕРВЫМИ, гейт theme-presence
+   * меряет их в ≥60% слотов — ревью UI 2026-10-11) */
+  const [themeWordsRaw, setThemeWordsRaw] = useState('')
   const [speciesOn, setSpeciesOn] = useState(true)
   const [speciesCount, setSpeciesCount] = useState(10)
   const [speciesList, setSpeciesList] = useState<string[]>([])
@@ -577,6 +597,16 @@ function DraftComposer() {
   const [busy, setBusy] = useState(false)
   const [saved, setSaved] = useState<string | null>(null)
   const [err, setErr] = useState<string | null>(null)
+  /* удаление несобранного черновика: двухкликовое подтверждение —
+   * первый клик взводит «точно?», второй (в течение 4с) удаляет */
+  const [confirmDel, setConfirmDel] = useState<string | null>(null)
+  const [delErr, setDelErr] = useState<string | null>(null)
+  const [delBusy, setDelBusy] = useState<string | null>(null)
+
+  const themeWords = themeWordsRaw
+    .split(',')
+    .map((w) => w.trim().toLowerCase())
+    .filter(Boolean)
 
   function setOcRow(i: number, patch: Partial<{ theme: string; rating: string; wishes: string }>) {
     setOc((rows) => rows.map((r, j) => (j === i ? { ...r, ...patch } : r)))
@@ -594,6 +624,7 @@ function DraftComposer() {
         theme,
         ocThemes: oc,
         mainWishes,
+        themeWords: themeWordsRaw,
         speciesOn,
         speciesCount,
         speciesList,
@@ -610,11 +641,31 @@ function DraftComposer() {
         { theme: '', rating: 'R+', wishes: '' },
       ])
       setMainWishes('')
+      setThemeWordsRaw('')
       meta.reload()
     } catch (e) {
       setErr(e instanceof ApiError ? e.message : 'Сеть недоступна — черновик не сохранён')
     } finally {
       setBusy(false)
+    }
+  }
+
+  async function removeDraft(slug: string) {
+    if (confirmDel !== slug) {
+      setConfirmDel(slug)
+      window.setTimeout(() => setConfirmDel((cur) => (cur === slug ? null : cur)), 4000)
+      return
+    }
+    setConfirmDel(null)
+    setDelErr(null)
+    setDelBusy(slug)
+    try {
+      await delJson<{ ok: boolean }>(`/api/t4/contract-draft?slug=${encodeURIComponent(slug)}`)
+      meta.reload()
+    } catch (e) {
+      setDelErr(e instanceof ApiError ? e.message : `не удалось убрать ${slug}`)
+    } finally {
+      setDelBusy(null)
     }
   }
 
@@ -693,23 +744,72 @@ function DraftComposer() {
           />
         </div>
 
+        {/* Тема-слова автора — точная привязка к теме (ревью UI 2026-10-11):
+            отрисуемые теги через запятую; писец вплетает их в кадры первыми,
+            гейт theme-presence меряет ≥60% слотов; название темы в POS
+            запрещено законом №26 — привязка живёт через эти слова */}
+        <div className="space-y-1.5">
+          <p className="text-[11px] uppercase tracking-wider text-zinc-500">
+            Тема-слова — отрисуемые теги ({themeWords.length}/8)
+          </p>
+          <Input
+            value={themeWordsRaw}
+            onChange={(e) => setThemeWordsRaw(e.target.value)}
+            placeholder="Например: moonlight, floating hair, closed eyes, star particles…"
+            className="border-zinc-800 bg-zinc-950"
+            aria-label="Тема-слова автора — отрисуемые теги через запятую"
+          />
+          {themeWords.length > 0 ? (
+            <div className="flex flex-wrap gap-1.5 pt-1">
+              {themeWords.slice(0, 8).map((w) => (
+                <span
+                  key={w}
+                  className="rounded-full border border-emerald-500/40 bg-emerald-500/10 px-2 py-0.5 text-[11px] text-emerald-300"
+                >
+                  {w}
+                </span>
+              ))}
+              {themeWords.length > 8 ? (
+                <span className="text-[11px] text-zinc-500">лишние обрежутся до 8</span>
+              ) : null}
+            </div>
+          ) : (
+            <p className="text-[11px] leading-relaxed text-zinc-600">
+              Что рендерер должен НАРИСОВАТЬ, чтобы тема читалась в кадре. Пусто — писец выведет
+              слова из темы сам (спайн); заполнено — твои слова идут первыми, спайн дополняет хвост.
+            </p>
+          )}
+        </div>
+
         <div className="grid gap-3 rounded-lg border border-zinc-800/80 bg-zinc-900/40 p-3 sm:grid-cols-2">
           <div className="flex items-center justify-between gap-2">
             <span className="text-xs text-zinc-300">Кины (Species)</span>
             <Switch checked={speciesOn} onCheckedChange={setSpeciesOn} />
           </div>
           <div className="flex items-center justify-between gap-2">
-            <span className="text-xs text-zinc-300">Сколько киновых слотов</span>
-            <span className="w-8 text-right font-mono text-xs text-amber-400">{speciesCount}</span>
-            <Slider
-              value={[speciesCount]}
-              onValueChange={(v) => setSpeciesCount(v[0] ?? speciesCount)}
-              min={0}
-              max={21}
-              step={1}
-              className="w-28"
-              disabled={!speciesOn}
-            />
+            <span className="text-xs text-zinc-300">
+              Сколько кинов
+              <span className="text-zinc-500"> (если виды не отмечать)</span>
+            </span>
+            {speciesList.length > 0 ? (
+              <span className="font-mono text-[11px] text-fuchsia-300">
+                квота = {speciesList.length} отмеченных (список главнее)
+              </span>
+            ) : (
+              <>
+                <span className="w-8 text-right font-mono text-xs text-amber-400">{speciesCount}</span>
+                <Slider
+                  value={[speciesCount]}
+                  onValueChange={(v) => setSpeciesCount(v[0] ?? speciesCount)}
+                  min={0}
+                  max={21}
+                  step={1}
+                  className="w-28"
+                  disabled={!speciesOn}
+                  aria-label="Сколько киновых слотов при ротации пула"
+                />
+              </>
+            )}
           </div>
           <div className="flex items-center justify-between gap-2">
             <span className="text-xs text-zinc-300">X-слоты</span>
@@ -764,7 +864,8 @@ function DraftComposer() {
         {speciesOn && races.length > 0 && (
           <div className="space-y-2">
             <p className="text-[11px] uppercase tracking-wider text-zinc-500">
-              Какие кины — отмечай любимых ({speciesList.length} выбрано · ★ — золото автора)
+              Какие кины — отмечай любимых ({speciesList.length} выбрано · ★ — золото автора · люди —
+              мейны без кина, слот не тратят)
             </p>
             <div className="flex flex-wrap gap-1.5">
               {races.map((r) => (
@@ -805,6 +906,75 @@ function DraftComposer() {
           ) : null}
           {err ? <span className="text-xs text-rose-400">{err}</span> : null}
         </div>
+
+        {/* Черновики автора — бриф не исчезает после сохранения (ревью UI
+            2026-10-11): видно, что лежит в drafts/, что уже собрано; несобранное
+            можно убрать (собранное — летопись, кнопки нет) */}
+        {(meta.data?.drafts?.length ?? 0) > 0 && (
+          <div className="space-y-2 border-t border-zinc-800/80 pt-3">
+            <p className="text-[11px] uppercase tracking-wider text-zinc-500">
+              Черновики ({meta.data?.drafts.length}) — собранные ждут рендера, несобранные можно убрать
+            </p>
+            {delErr ? <p className="text-xs text-rose-400">{delErr}</p> : null}
+            <div className="max-h-72 space-y-1.5 overflow-y-auto pr-1">
+              {meta.data?.drafts.map((d) => (
+                <div
+                  key={d.slug}
+                  className="flex flex-wrap items-center gap-2 rounded-lg border border-zinc-800/80 bg-zinc-900/40 px-3 py-2"
+                >
+                  <Badge
+                    variant="outline"
+                    className={cn(
+                      'justify-center font-mono text-[11px]',
+                      d.assembled
+                        ? 'border-emerald-600/50 text-emerald-400'
+                        : 'border-amber-600/50 text-amber-400'
+                    )}
+                  >
+                    {d.slug}
+                  </Badge>
+                  <span className="min-w-0 flex-1 truncate text-sm text-zinc-200" title={d.theme}>
+                    «{d.theme}»
+                  </span>
+                  <span className="font-mono text-[11px] text-zinc-500">
+                    кины {d.kinCount} · ОС {d.ocCount} · A/B {d.abPairs}
+                  </span>
+                  {d.themeWords.length > 0 ? (
+                    <span
+                      className="max-w-40 truncate font-mono text-[11px] text-emerald-400/80"
+                      title={d.themeWords.join(', ')}
+                    >
+                      {d.themeWords.length} тема-слов
+                    </span>
+                  ) : null}
+                  <span className="text-[11px] text-zinc-600">{formatDate(d.createdAt)}</span>
+                  {d.assembled ? (
+                    <Badge
+                      variant="outline"
+                      className="border-emerald-700/60 font-mono text-[10px] text-emerald-400"
+                    >
+                      собран
+                    </Badge>
+                  ) : (
+                    <button
+                      onClick={() => removeDraft(d.slug)}
+                      disabled={delBusy === d.slug}
+                      className={cn(
+                        'rounded-md border px-2 py-1 font-mono text-[11px] transition-colors',
+                        confirmDel === d.slug
+                          ? 'border-rose-500/70 bg-rose-500/15 text-rose-300'
+                          : 'border-zinc-800 bg-zinc-900 text-zinc-500 hover:border-rose-500/40 hover:text-rose-300'
+                      )}
+                      aria-label={`Убрать несобранный черновик ${d.slug}`}
+                    >
+                      {delBusy === d.slug ? 'убираю…' : confirmDel === d.slug ? 'точно убрать?' : 'убрать'}
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </Panel>
   )
