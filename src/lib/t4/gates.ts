@@ -667,8 +667,24 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
       const sheerPct = Math.round((sheerFrames / rplusCount) * 100)
       if (sheerPct > 40) f.push(`sheer-кадры ${sheerPct}% > 40% R+ слотов (N28-ловушка)`)
     }
+    /* уникальность поз/палитр — с санкцией §10 для EXP-пар одной переменной
+     * (канон T4-25/27.2 «разница пар ровно одна»: половины делят кадр,
+     * различается только тон вещи — закон №27); дубль вне EXP-пар — мутон */
+    const dupOf = (idRe: RegExp) => {
+      const counts = new Map<string, { n: number; exp: number }>()
+      for (const s of batch.slots) {
+        const id = (idRe.exec(s.header) ?? [])[0]
+        if (!id) continue
+        const rec = counts.get(id) ?? { n: 0, exp: 0 }
+        rec.n++
+        if (/\(EXP ·/.test(s.header)) rec.exp++
+        counts.set(id, rec)
+      }
+      return [...counts.entries()].filter(([, r]) => r.n > 1 && r.exp !== r.n).map(([id]) => id)
+    }
     const poseIds = batch.slots.map((s) => (/\bPL\d{1,3}\b/.exec(s.header) ?? [])[0]).filter(Boolean)
-    if (new Set(poseIds).size !== poseIds.length) f.push('позы не уникальны в батче')
+    const poseDups = dupOf(/\bPL\d{1,3}\b/)
+    if (poseDups.length > 0) f.push(`позы не уникальны в батче: ${poseDups.join(', ')} (EXP-пары одной переменной — исключение §10)`)
     // palette ids are the underscore form (P77_LATE_MILK) — the bare P\d+ form
     // would catch the slot's own position marker (P01…) and never fail
     const palIds = batch.slots
@@ -677,8 +693,9 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
     if (poseIds.length === batch.slots.length && palIds.length !== batch.slots.length) {
       f.push(`слотов с палитрой в шапке: ${palIds.length}/${batch.slots.length}`)
     }
-    if (palIds.length >= batch.slots.length && new Set(palIds).size < batch.slots.length) {
-      f.push('палитры не уникальны в батче')
+    const palDups = dupOf(/\b(P\d{1,3}_[A-Z_]+)\b/)
+    if (palIds.length >= batch.slots.length && palDups.length > 0) {
+      f.push(`палитры не уникальны в батче: ${palDups.join(', ')} (EXP-пары — исключение §10)`)
     }
     hard('diversity', f)
   }

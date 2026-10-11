@@ -230,8 +230,9 @@ export interface RawPlusSlot {
   echo?: string[]
   /** Закон №27 (вердикт T4-28): тон несущей вещи на зоне заявки */
   fabricTone?: 'dark' | 'mid' | 'light'
-  /** EXP-гипотеза слота (вердикт T4-28: «не забывай про EXP промпты») */
-  exp?: { hypothesis: string; half?: 'A' | 'B'; pairWith?: number }
+  /** EXP-гипотеза слота (вердикт T4-28: «не забывай про EXP промпты»);
+   *  letter — греческая буква программы (маркер THESIS для радара) */
+  exp?: { hypothesis: string; half?: 'A' | 'B'; pairWith?: number; letter?: string }
 }
 
 export interface RawPlusPlan {
@@ -273,6 +274,8 @@ export interface DraftBrief {
   theme: string
   ocThemes: { theme: string; rating: string; wishes?: string; position: number }[]
   mainWishes: string
+  /** заметки автора к брифу — в контракт authorWishes (§10: бриф главнее) */
+  notes?: string
   species?: { on: boolean; count: number; list: string[] }
   xSlots: number
   abPairs: number
@@ -329,10 +332,16 @@ export function planRawPlus(opts: PlanOptions): RawPlusPlan {
     report.push(`ребилд-декларация: источник ${opts.rebuildOf} из окна исключён (переиспользование ≠ конфликт)`)
   }
 
-  /* --- палитры: 24 уникальные вне окна (+ EXP-болванки сверх закона) --- */
+  /* --- палитры: 24 уникальные вне окна (+ EXP-пары сверх закона —
+   * пара одной переменной делит ОДНУ палитру, нужно pairCount, не 2×pairCount) --- */
   const palettes = getPalettes()?.palettes ?? []
   const pool = rng.shuffle(palettes.filter((p) => !bannedPalettes.has(p.id)))
-  const expPlanCount = Math.max(0, Math.min(opts.exp ?? 2, law.expSlotsMax ?? 9))
+  const expWanted = Math.max(0, Math.min(opts.exp ?? 2, law.expSlotsMax ?? 9))
+  /* пары — ЧЁТНЫМ числом: одиночная болванка без пары ломает радар
+   * (pairWith указывал бы на чужую пару); 1 → 2 (минимальная пара),
+   * 3 → 2 (лишний хвост — обрезаем, не тасуем) */
+  const expPlanCount = expWanted === 0 ? 0 : Math.max(2, expWanted - (expWanted % 2))
+  const expPairCount = expPlanCount / 2
   if (pool.length < law.paletteDistinct + expPlanCount) {
     throw new Error(`палитр вне окна мало: ${pool.length} < ${law.paletteDistinct + expPlanCount} — расширь окно или палитры`)
   }
@@ -436,6 +445,14 @@ export function planRawPlus(opts: PlanOptions): RawPlusPlan {
     ...rng.shuffle(nichePositions).slice(0, Math.ceil(raceQuota / 2)),
     ...rng.shuffle(otherPositions).slice(0, Math.floor(raceQuota / 2)),
   ].sort((a, b) => a - b).slice(0, raceQuota)
+  /* тихая потеря видов: NICHE-посадок может не хватить под ceil(q/2) —
+   * раньше хвост списка молча выпадал (T4-28-бриф нёс 14 видов — граница);
+   * каждый заказанный вид обязан получить слот, потеря — ошибка, не тишина */
+  if (racePositions.length < raceQuota) {
+    throw new Error(
+      `расовый каст: посадочных мест ${racePositions.length} < видов ${raceQuota} — NICHE-слотов ${nichePositions.length} не хватает под половину квоты; сократи список видов`
+    )
+  }
   const raceByPosition = new Map<number, RaceEntry>()
   racePositions.forEach((p, i) => raceByPosition.set(p, pickedRaces[i]))
   if (raceQuota > 0) {
@@ -497,10 +514,10 @@ export function planRawPlus(opts: PlanOptions): RawPlusPlan {
     for (const s of wc?.slots ?? []) if (s.pose) windowPoses.add(s.pose)
   }
   const posePool = rng.shuffle(posesSpec.poses.filter((p) => !windowPoses.has(p.id)))
-  if (posePool.length < law.slotsTotal) {
-    throw new Error(`поз вне окна мало: ${posePool.length} < ${law.slotsTotal}`)
+  if (posePool.length < law.slotsTotal + expPairCount) {
+    throw new Error(`поз вне окна мало: ${posePool.length} < ${law.slotsTotal + expPairCount} (EXP-пары делят позу — pairCount, не 2×)`)
   }
-  const chosenPoses = posePool.slice(0, law.slotsTotal + expPlanCount)
+  const chosenPoses = posePool.slice(0, law.slotsTotal + expPairCount)
   const poolsSpec = readJson<{ sections: Record<string, { id: string; name?: string }[]> }>(
     path.join(process.cwd(), 'thread4', 'specs', 'pools.json')
   )
@@ -637,10 +654,12 @@ export function planRawPlus(opts: PlanOptions): RawPlusPlan {
   const abPairs: { pair: string; a: number; b: number; lead: string }[] = []
   {
     const voltPositions = slots.filter((s) => s.kind === 'VOLT' && s.rating === 'R+').map((s) => s.position)
-    const wanted = Math.max(
-      law.abPairsMin,
-      Math.min(opts.draft?.abPairs ?? law.abPairsMin, law.abPairsMax)
-    )
+    /* §10: бриф автора главнее — 0..3 пар из UI честны (пол 2 ломал приказ
+     * «одна пара» — молча рождал две); без брифа — минимум по policy */
+    const wanted =
+      opts.draft?.abPairs !== undefined
+        ? Math.max(0, Math.min(opts.draft.abPairs, law.abPairsMax))
+        : law.abPairsMin
     const letters = ['κ', 'λ', 'μ', 'ν', 'ξ']
     const zones = rng.shuffle(LEAD_ZONES)
     let cursor = 0
@@ -713,51 +732,63 @@ export function planRawPlus(opts: PlanOptions): RawPlusPlan {
   }
 
   /* --- EXP-оверлей (вердикт T4-28, проза: «не забывай про EXP промпты,
-   *  чтобы я тебе не напоминал про них каждый раз»): болванки ПОВЕРХ
-   *  24-слотового закона (policy expSlotsMax ≤ 9), по умолчанию 1 A/B-пара.
-   *  Открытая гипотеза по умолчанию — граница закона №27 (свет ткань ×
-   *  канал сосков): A — светлый полюс (covered/clothed + wet), B — тёмный
-   *  (through-заявка). Одна переменная, остальное — одинаково (T4-25-канон
-   *  EXP-пар). --exp 0 отключает явным приказом. --- */
+   *  чтобы я тебе не напоминал про них каждый раз»): пары ПОВЕРХ
+   *  24-слотового закона (policy expSlotsMax ≤ 9), по умолчанию 1 пара.
+   *  Открытая гипотеза — граница закона №27 (свет ткань × канал сосков).
+   *  ОДНА ПЕРЕМЕННАЯ (канон T4-25/27.2 «разница пар ровно одна»):
+   *  половины делят позу/палитру/кинатику/клоузер/стек/волосы/глаза —
+   *  различается ТОЛЬКО тон вещи (A — светлый полюс covered/wet,
+   *  B — тёмный через-ткань). Греческая буква пары — после ab-пар
+   *  (радар читает «EXP ν-A · …»). --exp 0 отключает явным приказом. --- */
   const expCount = expPlanCount
+  const expLetters = ['κ', 'λ', 'μ', 'ν', 'ξ', 'ρ'].slice(abPairs.length)
   if (expCount > 0) {
     const basePos = law.slotsTotal
-    const expPoses = posePool.slice(basePos, basePos + expCount)
-    const expPals = chosenPalettes.slice(basePos, basePos + expCount)
-    const sameHair = hairBag[(expCount + basePos) % hairBag.length]
-    const sameEyes = eyeBag[(expCount + basePos) % eyeBag.length]
-    for (let i = 0; i < expCount; i++) {
-      const half = i % 2 === 0 ? 'A' : 'B'
-      const dark = half === 'B'
-      slots.push({
-        position: basePos + i + 1,
+    const expPoses = chosenPoses.slice(basePos)
+    const expPals = chosenPalettes.slice(basePos, basePos + expPairCount)
+    for (let p = 0; p * 2 < expCount; p++) {
+      const aPos = basePos + p * 2 + 1
+      const bPos = aPos + 1
+      const pose = expPoses[p] ?? expPoses[0]
+      const pal = expPals[p] ?? expPals[0]
+      const hair = hairBag[(p + basePos) % hairBag.length]
+      const eyes = eyeBag[(p + basePos) % eyeBag.length]
+      const kinetics = kPool.length ? [kPool[(kIdx + p) % kPool.length]] : []
+      const closer = closerPool[(closerIdx + p) % closerPool.length]
+      const stack = stackFor()
+      const letter = expLetters[p % expLetters.length] ?? 'ρ'
+      const mkExp = (position: number, half: 'A' | 'B', tone: 'dark' | 'light'): RawPlusSlot => ({
+        position,
         kind: 'EXP',
         rating: 'R+',
-        pose: expPoses[i]?.id ?? expPoses[0]?.id ?? 'PL01',
-        poseName: expPoses[i]?.name ?? 'Neutral Stand',
-        poseRisk: expPoses[i]?.risk ?? 'LOW',
-        palette: expPals[i]?.id ?? 'P01',
-        paletteName: expPals[i]?.name ?? '',
-        kinetics: kPool.length ? [kPool[(kIdx + i) % kPool.length]] : [],
-        carriers: stackFor(),
-        hair: sameHair,
-        eyes: sameEyes,
+        pose: pose?.id ?? 'PL01',
+        poseName: pose?.name ?? 'Neutral Stand',
+        poseRisk: pose?.risk ?? 'LOW',
+        palette: pal?.id ?? 'P01',
+        paletteName: pal?.name ?? '',
+        kinetics: [...kinetics],
+        carriers: stack.map((c) => ({ ...c })),
+        hair,
+        eyes,
         hairEyeFrom: 'library',
         lead: 'chest',
         register: 'young',
-        closer: closerPool[(closerIdx + i) % closerPool.length],
-        fabricTone: dark ? 'dark' : 'light',
+        closer,
+        fabricTone: tone,
         exp: {
-          hypothesis: dark
-            ? 'закон №27, тёмный полюс: sheer DARK garment + через-ткань заявку (nipples through clothing + clothed nipples) — тьма гасит розовое, остаётся бугорок (P20/P08 T4-28 — обе R+)'
-            : 'закон №27, светлый полюс: wet LIGHT garment + covered/clothed nipples (БЕЗ through) — мокрая светлая ткань прилипла, бугорок без нарисованного соска (формула T4-26 17/25; P01/P02 T4-28 — R)',
-          half: expCount >= 2 ? half : undefined,
-          pairWith: expCount >= 2 ? (half === 'A' ? basePos + 2 : basePos + 1) : undefined,
+          hypothesis:
+            tone === 'dark'
+              ? 'закон №27, тёмный полюс: sheer DARK garment + через-ткань заявку (nipples through clothing + clothed nipples) — тьма гасит розовое, остаётся бугорок (P20/P08 T4-28 — обе R+)'
+              : 'закон №27, светлый полюс: wet LIGHT garment + covered/clothed nipples (БЕЗ through) — мокрая светлая ткань прилипла, бугорок без нарисованного соска (формула T4-26 17/25; P01/P02 T4-28 — R)',
+          half,
+          pairWith: half === 'A' ? bPos : aPos,
+          letter,
         },
       })
+      slots.push(mkExp(aPos, 'A', 'light'), mkExp(bPos, 'B', 'dark'))
     }
     report.push(
-      `EXP-оверлей: ${expCount} болванки (A/B граница закона №27 — тон ткани × канал сосков; вердикт T4-28 «не забывай про EXP промпты», policy expSlotsMax ${law.expSlotsMax})`
+      `EXP-оверлей: ${expPairCount} пар(ы) — ${slots.filter((s) => s.kind === 'EXP').map((s) => `P${String(s.position).padStart(2, '0')}(${s.exp?.letter}-${s.exp?.half})`).join(' + ')} — одна переменная (тон вещи × канал №27): поза/палитра/стек/дайс делится парой (вердикт T4-28 «не забывай про EXP промпты», policy expSlotsMax ${law.expSlotsMax})`
     )
   }
 
@@ -776,17 +807,30 @@ export function planRawPlus(opts: PlanOptions): RawPlusPlan {
     s.diceSig = diceRoll.signatures.get(s.position) ?? ''
     s.dice = diceInstructions(roll)
   }
+  /* EXP-пары — ОДИН скелет на пару (одна переменная: тон вещи; половина B
+   * наследует кости A — эксперимент чище, T4-27.2-канон «план identical»);
+   * уникальность скелетов — для мейнов, EXP-пара — осознанное клонирование */
+  for (const s of slots) {
+    if (s.kind === 'EXP' && s.exp?.half === 'B' && s.exp.pairWith) {
+      const a = slots.find((x) => x.position === s.exp!.pairWith)
+      if (a) {
+        s.diceSig = a.diceSig
+        s.dice = a.dice
+      }
+    }
+  }
   report.push(
-    `ULTIMATE DICE: ${DICE_TOTAL} костей × ${slots.length} слотов — сигнатуры скелетов уникальны в батче (${diceRoll.rerolls} перебросов: архив + внутри-батчевые коллизии)`
+    `ULTIMATE DICE: ${DICE_TOTAL} костей × ${slots.length} слотов — сигнатуры скелетов уникальны в батче, кроме EXP-пар одной переменной (${diceRoll.rerolls} перебросов: архив + внутри-батчевые коллизии)`
   )
 
   /* --- Закон №27 (вердикт T4-28 «бугорок да, розовое нет»): тон несущей
    *  вещи на R+-слотах — ротацией dark/mid/light (dark ≥ 1/3: through-заявка
    *  живёт только на тёмном; светлых ≤ 3 — кластерный кап гейта и вердикт
    *  T4-26 «белая рубашка… хламит»). Писцу — тег-инструкция FABRIC TONE.
-   *  EXP-болванки не трогаем: их тон — часть гипотезы (A/B полюса №27). --- */
+   *  §10-пары получают тон НА ПАРУ: разный тон = разный канал (through vs
+   *  covered) = «одна заявка, разная подача» становится невыполнимой.
+   *  EXP-болванки не трогаем: их тон — часть гипотезы (полюса №27). --- */
   const rplusSlots = slots.filter((s) => s.rating === 'R+' && s.kind !== 'EXP')
-  const toneCycle: Array<'dark' | 'mid' | 'light'> = ['dark', 'mid', 'light']
   const darkCount = Math.max(1, Math.ceil(rplusSlots.length / 3))
   const lightCount = Math.min(3, Math.max(1, Math.floor(rplusSlots.length / 5)))
   const tonePlan: Array<'dark' | 'mid' | 'light'> = []
@@ -796,11 +840,36 @@ export function planRawPlus(opts: PlanOptions): RawPlusPlan {
     else tonePlan.push('mid')
   }
   rng.shuffle(tonePlan)
-  rplusSlots.forEach((s, i) => {
-    s.fabricTone = tonePlan[i] ?? 'mid'
-  })
+  /* пары первыми: одна единица плана — на обе половины */
+  let toneIdx = 0
+  const pairedDone = new Set<string>()
+  for (const s of rplusSlots) {
+    if (!s.ab || pairedDone.has(s.ab.pair)) continue
+    pairedDone.add(s.ab.pair)
+    const tone = tonePlan[toneIdx++] ?? 'mid'
+    for (const half of rplusSlots.filter((x) => x.ab?.pair === s.ab!.pair)) {
+      half.fabricTone = tone
+    }
+  }
+  for (const s of rplusSlots) {
+    if (s.ab) continue
+    s.fabricTone = tonePlan[toneIdx++] ?? 'mid'
+  }
+  /* квоты после парной раздачи (слотовых единиц): dark ≥ ⌈n/3⌉, light ≤ 3 */
+  const toneCount = (t: string) => rplusSlots.filter((s) => (s.fabricTone ?? 'mid') === t).length
+  const soloRplus = rplusSlots.filter((s) => !s.ab)
+  while (toneCount('dark') < Math.ceil(rplusSlots.length / 3)) {
+    const cand = soloRplus.find((s) => (s.fabricTone ?? 'mid') === 'mid')
+    if (!cand) break
+    cand.fabricTone = 'dark'
+  }
+  while (toneCount('light') > 3) {
+    const cand = soloRplus.find((s) => s.fabricTone === 'light')
+    if (!cand) break
+    cand.fabricTone = 'mid'
+  }
   report.push(
-    `ЗАКОН №27: тон вещи на ${rplusSlots.length} R+-слотах — dark ${tonePlan.filter((t) => t === 'dark').length} / mid ${tonePlan.filter((t) => t === 'mid').length} / light ${tonePlan.filter((t) => t === 'light').length} (through-заявка только на dark; кластер светлых ≤ 3 — вердикты T4-26/T4-28)${slots.some((s) => s.kind === 'EXP') ? ' + EXP-пара №27 (light/dark полюса)' : ''}`
+    `ЗАКОН №27: тон вещи на ${rplusSlots.length} R+-слотах — dark ${toneCount('dark')} / mid ${toneCount('mid')} / light ${toneCount('light')} (through-заявка только на dark; §10-пары — тон на пару; кластер светлых ≤ 3 — вердикты T4-26/T4-28)${slots.some((s) => s.kind === 'EXP') ? ' + EXP-пара №27 (light/dark полюса)' : ''}`
   )
 
   /* --- echo-мотивы: 2-3, арка трёх актов, мутации из разных групп --- */
@@ -868,7 +937,9 @@ export function planRawPlus(opts: PlanOptions): RawPlusPlan {
     engineWhy:
       'кины потеряны в RAW-миграции с T4-23 по небрежности генераторов (закон №3 не отменялся); практики A5 (hair/eye библиотека, echo-мотивы) не доехали в спеки RAW-эры — возвращены по приказу автора 2026-10-11',
     ...(opts.rebuildOf ? { rebuildOf: opts.rebuildOf } : {}),
-    ...(opts.draft?.mainWishes ? { authorWishes: opts.draft.mainWishes } : {}),
+    ...(opts.draft?.mainWishes || opts.draft?.notes
+      ? { authorWishes: [opts.draft.mainWishes, opts.draft.notes].filter(Boolean).join(' · ') }
+      : {}),
     ...(opts.draft ? { draftRef: `thread4/drafts/${opts.draft.slug ?? opts.slug}-draft.json` } : {}),
     seed: opts.seed ?? Date.now(),
     createdAt: new Date().toISOString(),
@@ -880,7 +951,7 @@ export function planRawPlus(opts: PlanOptions): RawPlusPlan {
       ...(s.ocTheme ? { ocTheme: s.ocTheme } : {}),
       rating: s.rating,
       ...(s.race
-        ? { race: s.race, raceId: s.raceId, kinPos: s.kinPos, kinNeg: s.kinNeg, ...(s.witnessHint ? { witnessHint: s.witnessHint } : {}) }
+        ? { race: s.race, raceId: s.raceId, kinPos: s.kinPos, kinNeg: s.kinNeg, ...(s.kinHook ? { kinHook: s.kinHook } : {}), ...(s.witnessHint ? { witnessHint: s.witnessHint } : {}) }
         : {}),
       pose: s.pose,
       poseName: s.poseName,
@@ -1095,11 +1166,23 @@ function main() {
     }
   }
 
-  const seed = flag('--seed') ? Number(flag('--seed')) : Date.now()
-  const races = flag('--races') ? Number(flag('--races')) : undefined
-  const exp = flag('--exp') ? Number(flag('--exp')) : undefined
-  const echo = flag('--echo') ? Number(flag('--echo')) : undefined
-  const exquisite = flag('--exquisite') ? Number(flag('--exquisite')) : undefined
+  /* числовые флаги — NaN-защита: «--exp abc» раньше тихо превращался в 0
+   * слайс + TypeError на palette.id; теперь — внятный отказ */
+  const numFlag = (name: string): number | undefined => {
+    const raw = flag(name)
+    if (raw === undefined) return undefined
+    const n = Number(raw)
+    if (!Number.isFinite(n)) {
+      console.error(`флаг ${name}: «${raw}» — не число`)
+      process.exit(1)
+    }
+    return n
+  }
+  const seed = numFlag('--seed') ?? Date.now()
+  const races = numFlag('--races')
+  const exp = numFlag('--exp')
+  const echo = numFlag('--echo')
+  const exquisite = numFlag('--exquisite')
   const rebuildOf = flag('--rebuild-of')
   const ocOrder = flag('--oc') ? flag('--oc')!.split(',').map((s) => s.trim()).filter(Boolean) : undefined
   const dry = has('--demo') || has('--dry')

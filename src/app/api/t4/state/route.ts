@@ -30,7 +30,7 @@ export async function GET() {
     era: 'THREAD 4',
     lastBatch: last ? `${last.slug}${last.title ? ` «${last.title}»` : ''}` : '— (эра только родилась)',
     nextStep,
-    gateHealth: `hard / warn / advisory — ${GATES_TOTAL} гейтов (закон 24 слотов)`,
+    gateHealth: `hard / warn / advisory — ${GATES_TOTAL} базовых гейтов + hard raw-plus на RAW+ батчах (№23/№25/№26/№27) — квитанций в прогоне 25–27`,
     gatesTotal: GATES_TOTAL,
     voidedSlugs: state.voidedSlugs,
     counts: {

@@ -82,12 +82,19 @@ function makeRng(seed: number): Rng {
 
 export interface SlotPlan {
   position: number // 1..21
-  kind: 'OC' | 'NICHE' | 'VOLT' | 'EXQUISITE'
+  kind: 'OC' | 'NICHE' | 'VOLT' | 'EXQUISITE' | 'EXP'
   oc?: string
   ocTheme?: string // author's OC theme/angle for this slot (optional)
   rating: 'PG-13' | 'R' | 'R+' | 'X'
   race?: string
   raceFeature?: string
+  /** кин-блок (закон №3, tools/kin-block.ts): POS-теги расы, anti-shield
+   *  NEG и свет/гардеробный хук — контракт несёт, писец обязан вплести
+   *  (webDevReview #8: поля были в контрактах T4-28+, но писец их не
+   *  читал — anti-shield не доезжал до батча) */
+  kinPos?: string
+  kinNeg?: string
+  kinHook?: string
   pose: string // PL id
   poseName: string
   poseRisk: string
@@ -119,8 +126,10 @@ export interface SlotPlan {
    *  назначает ротацией (dark/mid/light); through-заявка живёт только на dark */
   fabricTone?: 'dark' | 'mid' | 'light'
   /** EXP-слот (вердикт T4-28: «не забывай про EXP промпты»): болванка без
-   *  темы, 1-2 гипотезы на слот — тест закона/канала с A/B-половинкой */
-  exp?: { hypothesis: string; half?: 'A' | 'B'; pairWith?: number }
+   *  темы, 1-2 гипотезы на слот — тест закона/канала с A/B-половинкой;
+   *  letter — греческая буква программы (κλμνξρ), маркер THESIS для
+   *  ТРИАЛ-радара (batch-md.ts HYPO_PAIR_RE читает «EXP κ-A · H10») */
+  exp?: { hypothesis: string; half?: 'A' | 'B'; pairWith?: number; letter?: string }
 }
 
 export interface BatchContract {

@@ -1,5 +1,5 @@
 {
- "version": "1.8.0",
+ "version": "1.8.1",
  "born": "2026-09-19",
  "reforged": "2026-09-21 (v1.2.0) — RENDER verdict T4-03 (author's eye on 24 renders): R 7/7 ✅, X 2/2 ✅, R+ 1/15 ❌ («еле-еле» P10), OC R+ 0/3 ❌. v1.1.0 made claims prompt-honest but put the weight on cameltoe/tape — tags the renderer will not draw. v1.2.0 is built from what the renders actually did: the edge reads through WET/SEE-THROUGH thin fabric with NO underlayer; cameltoe is flavor, never the claim. 2026-09-21 (v1.3.0) — техника-карта автора (rating-techniques.json v1.0.0): X counter_neg расширен блоком X Cut hold (блок 9: + penis, cum, uncensored, spread legs, nude lower body); закон суммы факторов (блок 8) и слой-карта живут в техника-карте и гейтятся отдельно (technique-layers) | 2026-10-08 (v1.5.0) — вердикт T4-25 (закон №14 NEG-смежности): through_fabric counter_neg разгружен от nipple-терминов. | 2026-10-12 (v1.7.0) — авторский приказ из чата (ретро-фикс T4-28, закон №25 «NEG-гигиена»): banned_terms в NEG (15 терминов: visible pantyline, topless, exposed breasts, naked, nude, bare breasts, nsfw, nipples through clothing, clothed nipples, extreme fanservice, exposed genitals, vulva, pubic hair, sex, sexual act); X-блок удалён из универсальной сборки NEG; through_fabric counter_neg = подслой-лок (bra/camisole/bandeau/undershirt), nudity-слой снят; on_skin держит nipples exposed/areola + подслой; R/PG13 counter_neg без exposed genitals.",
  "source": "author's tier table (2026-09-19) + 3.2 CARRIER_LIBRARY science + Claude-thread N30/N31 empirics + author's rating-techniques table (2026-09-21, X Cut hold блок 9)",
@@ -126,10 +126,11 @@
       "bandeau",
       "undershirt"
      ],
-     "note": "RENDER LAW (T4-03, author's eye): the edge reads through ONE thin LIGHT garment (blouse/tee/shirt/knit/swimsuit/leotard/romper/slip) tagged wet clothes AND/OR see-through, with NO underlayer on the zone — the renderer draws the underlayer, not the edge, if one is named. cameltoe never rendered (0/N) — flavor only. Lower-zone claims are guarded by dead_fabrics_lower, chest claims by dead_fabrics_upper (the claim TARGET must be a sheer-able thin fabric). Delivery is stochastic (~1/8): build the best-odds frame, expect re-rolls",
+     "note": "RENDER LAW (T4-03 → №27-ревизия 2026-10-11): the edge reads through ONE thin garment (blouse/tee/shirt/knit/swimsuit/leotard/romper/slip) tagged wet clothes AND/OR see-through, with NO underlayer on the zone — the renderer draws the underlayer, not the edge, if one is named. Tone per law 27 (fabric_tone_law): through-claim only on DARK; light/mid — covered/clothed channel. cameltoe never rendered (0/N) — flavor only. Lower-zone claims are guarded by dead_fabrics_lower, chest claims by dead_fabrics_upper (the claim TARGET must be a sheer-able thin fabric). Delivery is stochastic (~1/8): build the best-odds frame, expect re-rolls",
      "required_state": [
       "wet clothes",
-      "see-through"
+      "see-through",
+      "breast clinging"
      ],
      "underlayer_block": [
       "bra",
@@ -470,5 +471,6 @@
   "why": "закон №20 «чистых рук» (δ T4-26: старый жирный NEG гасил заявки — «еле видны» vs «сильно видны»); nude-смежные термины в NEG глушат ecchi-энергию R+ слота; рендерер не генерирует X из R+/R-промптов (X=0 за всю RAW-эру при живом X-блоке — блок ничего не держал, только весил)."
  },
  "changelog_v1_7_0": "2026-10-12, авторский приказ из чата (ретро-фикс T4-28 «Dead on the inside» — проза в POS + мусорный NEG): (1) закон №25 «NEG-гигиена» — neg_law.banned_terms запрещены в NEG (X-блок удалён из universal сборки, вечные флооры без genital_lock); (2) through_fabric.counter_neg = bra/camisole/bandeau/undershirt (подслой-лок — единственная граница канала; nudity-слой снят: «руинишь картинки»); (3) on_skin.counter_neg = nipples exposed/areola + подслой; (4) R/PG13 counter_neg без exposed genitals; (5) RPLUS top-level counter_neg = nipples exposed/areola/подслой. Закон №14 «NEG-смежности» (v1.5.0) ПОДТВЕРЖДЁН автором расширенно: NEG лочит подслой, никогда — ступень и слой. X-граница — только конструктивно (закон №21).",
+ "changelog_v1_8_1": "2026-10-12, webDevReview #8 (инженерный аудит): (1) required_state through_fabric += breast clinging — светлая формула закона №27 (covered + clothed + clinging без wet) раньше валила hard rating-recipe на законопослушном слоте; (2) note очищен от легаси-«LIGHT garment» (противоречил №27: через-ткань теперь только тёмная); версия — единственная честная правка данных, остальное в коде гейта.",
  "changelog_v1_8_0": "2026-10-11, вердикт T4-28 (прозвище «волт разной степени», 4-5/10, 7 X-слайдов «слишком прорисованы соски»): (1) закон №27 «канал R+: бугорок да, розовое нет» — fabric_tone_law в through_fabric: through-заявка только на тёмной ткани, светлая/средняя — covered/clothed nipples + состояние ткани, «light on chest» запрещён на sheer/wet, кластер светлых несущих верхов ≤3; (2) canonical_danbooru — словарь каноничных тегов канала (ресёрч строгого списка 14 589: through/clothed-фразы — не теги); (3) signals += covered nipples, breast clinging; (4) finishers.leg_spread_panties (P22-квитанция). Прогоны: T4-28 P20/P08 — R+ на тёмной ткани, 7 X на светлой — матрица доказана глазом автора."
 }

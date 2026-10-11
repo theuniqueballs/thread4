@@ -165,8 +165,19 @@ async function main() {
   for (const r of before.receipts) {
     if (r.level !== 'warn' || r.verdict !== 'WARN' || !POLISH_GATES.has(r.gate)) continue
     for (const fnd of r.findings) {
-      for (const m of fnd.matchAll(/P(\d{1,2})/g)) {
-        const p = parseInt(m[1], 10)
+      /* simcheck — исключение: строка близнецов несёт ЗАКОННО несколько
+       * слотов (P7≈P8 · P7≈P12 — чинить надо обе стороны пары);
+       * прочие квитанции цитируют чужие слоты («P08/P20…») — ведущий P */
+      if (r.gate === 'simcheck') {
+        for (const m of fnd.matchAll(/P(\d{1,2})\b/g)) {
+          const p = parseInt(m[1], 10)
+          if (!failed.has(p)) failed.set(p, [])
+          failed.get(p)!.push(`[${r.gate}] ${fnd}`)
+        }
+      } else {
+        const lead = /^P(\d{1,2})\b/.exec(fnd)
+        if (!lead) continue
+        const p = parseInt(lead[1], 10)
         if (!failed.has(p)) failed.set(p, [])
         failed.get(p)!.push(`[${r.gate}] ${fnd}`)
       }
@@ -200,7 +211,15 @@ async function main() {
     const slot = contract.slots.find((s) => s.position === pos)
     if (!section || !slot) continue
     const paletteName = slot.paletteName ?? slot.palette
-    const user = `SLOT P${String(pos).padStart(2, '0')} · genre ${slot.kind} · rating ${slot.rating} · pose ${slot.pose} ${slot.poseName} · palette ${paletteName} · lead ${slot.lead}${slot.oc ? ` · OC ${slot.oc} (canon locks are law)` : ''}
+    const toneNote =
+      slot.fabricTone === 'dark'
+        ? ' · FABRIC TONE dark (закон №27: through-заявка разрешена — тьма гасит розовое)'
+        : slot.fabricTone === 'light'
+          ? ' · FABRIC TONE light (закон №27: through-заявка ЗАПРЕЩЕНА — только covered/clothed + wet clothes/see-through/breast clinging)'
+          : slot.fabricTone === 'mid'
+            ? ' · FABRIC TONE mid (закон №27: через-ткань только если цвет-слово тёмное; серо-семья — mid, не dark)'
+            : ''
+    const user = `SLOT P${String(pos).padStart(2, '0')} · genre ${slot.kind} · rating ${slot.rating} · pose ${slot.pose} ${slot.poseName} · palette ${paletteName} · lead ${slot.lead}${toneNote}${slot.oc ? ` · OC ${slot.oc} (canon locks are law)` : ''}
 
 CURRENT THESIS: ${section.thesis}
 
@@ -265,7 +284,8 @@ Rewrite the slot so every finding is fixed. Keep the anchor word «${section.hea
   const hardFails = (after?.receipts ?? []).filter((r) => r.level === 'hard' && r.verdict === 'FAIL')
   for (const r of hardFails) {
     for (const fnd of r.findings) {
-      for (const m of fnd.matchAll(/P(\d{1,2})/g)) failSlots.add(parseInt(m[1], 10))
+      const lead = /^P(\d{1,2})\b/.exec(fnd)
+      if (lead) failSlots.add(parseInt(lead[1], 10))
     }
   }
   for (const r of hardFails.slice(0, 3)) {

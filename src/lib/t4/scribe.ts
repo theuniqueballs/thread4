@@ -113,7 +113,7 @@ THE DELIVERY SHAPE (RAW+, закон №23 — приказ-миграция 202
 POS = ONE comma-separated TAG RUN ending with "masterpiece, best quality, anime artstyle."
 1. OPENER: anime style, ecchi anime style, original character, 1girl, solo,
 2. IDENTITY: race/species features (feature tags, not the race's name alone), hair, eyes, skin — canon colors VERBATIM in the first ~10 tokens; then BODY PLAN (3-5 form tags: petite/slender/athletic/curvy/full-figured family — registers are conveyed by FORM, never by age tags).
-3. SCENE: the named thin LIGHT garment + contact-geometry (закон №24: where the body presses, rests, strains) + fabric STATE (wet clothes / see-through) + the tier claim tags + bare-under PHRASE («nothing underneath» — never the «braless» token, ζ-ревизия №16) + pose + framing tag (cowboy shot / upper body / close-up) + the scene's physical objects (witness, props with hand/foot anchors).
+3. SCENE: the named thin garment (its TONE is assigned by FABRIC TONE below — law №27) + contact-geometry (закон №24: where the body presses, rests, strains) + fabric STATE (wet clothes / see-through / breast clinging) + the tier claim tags + bare-under PHRASE («nothing underneath» — never the «braless» token, ζ-ревизия №16) + pose + framing tag (cowboy shot / upper body / close-up) + the scene's physical objects (witness, props with hand/foot anchors).
 4. PALETTE: the slot's sd_fragment VERBATIM (dominants + secondary + edge as color-word tags) + the ONE saturated accent as a named color — colored fabrics, never default white (вердикт автора: «делай разноцветно»).
 5. FACE BLOCK as TAGS: stylized 2D anime face, anime eyes ([color], [expression]), small nose, small mouth,
 6. LIGHT ON THE CLAIM ZONE (закон №21): one light source falling ON the garment/zone the claim lives on — a glow word + the target.
@@ -125,7 +125,7 @@ THE RATING IS EARNED BY TAGS. Each slot names its tier and the REQUIRED signal t
 
 THE DICE LAW (Ultimate Dice, A5P6 §3 — updated 2026-10-12): every slot carries a dice signature (A·B·C·D·E — the rolled SKELETON: identification order, clothing delivery, theme integration, light style, tag-run rhythm). OBEY it — it is the slot's structure, not a suggestion. Two slots of one batch NEVER share a skeleton: if your instinct writes the same opening/order/rhythm as a previous slot, the dice are there to break exactly that. Structural monotony is the mother of twins; the dice kill it at the root.
 
-THE RENDER LAW v1.3.0 (render verdicts T4-03 + T4-05): the renderer obeys fabric-STATE tags and coverage NEGs; it IGNORES shape-name tags. cameltoe NEVER rendered (0 attempts) — it is flavor at most, NEVER the claim. The R+ edge reads through ONE thin LIGHT garment (blouse / tee / shirt / knit / swimsuit / leotard / romper / slip) tagged wet clothes AND/OR see-through, with NO underlayer on the zone: name a bra/camisole/bandeau under a sheer top and the renderer draws the UNDERLAYER and the tier dies to R. Opaque structured fabrics (jeans, denim, leather, velvet, sweatpants, breeches, suit) never carry an edge. Delivery is stochastic — build the best-odds frame; the claim tags sit before the environment tags. THE THREE §9-септима RULES (T4-05 verdict): (1) BARE-UNDER AS A POSITIVE — a NEG lock is NOT enough, the renderer draws the bra OVER it (P07 receipt): the POS itself must assert the bare underlayer in the TAG RUN («nothing underneath» / «worn without underlayer» — never the «braless» token, ζ-ревизия №16); (2) FRAMING AS A TAG — the claim's framing lives in the TAG BLOCK (close-up / cowboy shot / upper body / portrait), never only in prose; (3) NO DANBOORU HOMONYMS — words that are foreign character names (aurora → aurora_(arknights), P08 receipt: «пробежал персонаж») appear ONLY as compounds (aurora borealis sky), never standalone. POSE-RISK: R+/X slots carry only LOW/MID poses (HIGH × R+ = mutation amplifier: P04 drift, P22 mutation, P17 undershoot) — the contract assigns the pose, never override it toward acrobatics. NEVER close the claim zone: no shawl/scarf/arms crossed over the chest claim (P21 receipt: «the frame's one closed door» — a blocker kills the slot before render).
+THE RENDER LAW v1.3.0 (render verdicts T4-03 + T4-05): the renderer obeys fabric-STATE tags and coverage NEGs; it IGNORES shape-name tags. cameltoe NEVER rendered (0 attempts) — it is flavor at most, NEVER the claim. The R+ edge reads through ONE thin garment (blouse / tee / shirt / knit / swimsuit / leotard / romper / slip — tone per FABRIC TONE, закон №27) tagged wet clothes AND/OR see-through, with NO underlayer on the zone: name a bra/camisole/bandeau under a sheer top and the renderer draws the UNDERLAYER and the tier dies to R. Opaque structured fabrics (jeans, denim, leather, velvet, sweatpants, breeches, suit) never carry an edge. Delivery is stochastic — build the best-odds frame; the claim tags sit before the environment tags. THE THREE §9-септима RULES (T4-05 verdict): (1) BARE-UNDER AS A POSITIVE — a NEG lock is NOT enough, the renderer draws the bra OVER it (P07 receipt): the POS itself must assert the bare underlayer in the TAG RUN («nothing underneath» / «worn without underlayer» — never the «braless» token, ζ-ревизия №16); (2) FRAMING AS A TAG — the claim's framing lives in the TAG BLOCK (close-up / cowboy shot / upper body / portrait), never only in prose; (3) NO DANBOORU HOMONYMS — words that are foreign character names (aurora → aurora_(arknights), P08 receipt: «пробежал персонаж») appear ONLY as compounds (aurora borealis sky), never standalone. POSE-RISK: R+/X slots carry only LOW/MID poses (HIGH × R+ = mutation amplifier: P04 drift, P22 mutation, P17 undershoot) — the contract assigns the pose, never override it toward acrobatics. NEVER close the claim zone: no shawl/scarf/arms crossed over the chest claim (P21 receipt: «the frame's one closed door» — a blocker kills the slot before render).
 
 THE NIPPLE CHANNEL LAW (закон №27, вердикт T4-28 — авторское золото P20: «лучший способ отобразить соски: слегка видно, бугорок есть, розового цвета на кофте от них — нет»): the R+ edge is a BUMP WITHOUT COLOR. The renderer draws the NOUN a non-tag phrase leads with — «nipples through clothing» on a WET LIGHT/MID garment renders the pink THROUGH the fabric and the slot slides to X (7 receipts: P07/P09/P11/P14/P17/P19/P21, all X). RULES: (a) the through-claim («nipples through clothing» + «clothed nipples») rides ONLY a DARK garment (black / ink / midnight / charcoal / deep navy / oxblood — the color word IN the garment's tag; P08 ink-indigo and P20 black receipts, both R+); (b) on a LIGHT or MID garment (white / ash / rain-grey / moss / umber / prussian — anything not dark) the channel is «covered nipples» + «clothed nipples» + the fabric STATE (wet clothes / see-through / breast clinging) — the T4-26 formula that delivered 17/25: wet light cloth clinging, bump, no drawn nipple; (c) «light on chest» is FORBIDDEN on sheer or wet tops (P14/P17 receipts — X): the zone's light is a SCENE glow falling ON the garment, never a light «on the chest»; (d) fabric TONE rotates — never more than 3 light carrying tops per batch (T4-26 verdict: «белая рубашка… хламит»); the contract assigns this slot's garment tone — obey it.
 
@@ -282,6 +282,10 @@ function slotFrame(slot: SlotPlan, ctx: ScribeCtx): string {
     if (oc) lines.push(`canon (locks exact, as DESCRIPTOR tags — no name):\n${canonTagHints(oc)}`)
   } else {
     lines.push(`who: ${raceLine(ctx.races.get(slot.race ?? ''), slot.raceFeature)}`)
+    /* кин-блок (закон №3): теги расы в POS + хук — из контракта
+     * (раньше мёртвые поля: kinPos/kinHook не доходили до промпта) */
+    if (slot.kinPos) lines.push(`kin tags (race feature tags for the TAG RUN): ${slot.kinPos}`)
+    if (slot.kinHook) lines.push(`kin scene hook (race's light/wardrobe hook — use it if it serves the frame): ${slot.kinHook}`)
   }
   lines.push(`pose: ${slot.pose} ${slot.poseName} (risk ${slot.poseRisk}) — the pose is ASSIGNED, honor it, no standing default`)
   lines.push(`palette: ${paletteLine(ctx.palettes.get(slot.palette))}`)
@@ -326,10 +330,16 @@ function slotFrame(slot: SlotPlan, ctx: ScribeCtx): string {
   }
   if (recipe) {
     const hardSignals = recipe.signals_hard ?? []
-    lines.push(`REQUIRED rating signals — include ≥${recipe.signal_min} of these IN THE TAG BLOCK (before the environment tags): ${recipe.signals.slice(0, 14).join(', ')}`)
+    /* фильтр ловушек: в списке сигналов живут и X-● теги (almost naked,
+    * torn clothes — карта-таблица) — предлагать их писцу как «REQUIRED
+    * signals» значит приглашать в ловушку (9-b-аудит F19) */
+    const TRAP_RE =
+      /almost naked|torn clothes|clothes pull|covering breasts|hair covering|undressing|bath|onsen|braless|tight clothes/i
+    const offerSignals = recipe.signals.filter((s) => !TRAP_RE.test(s))
+    lines.push(`REQUIRED rating signals — include ≥${recipe.signal_min} of these IN THE TAG BLOCK (before the environment tags): ${offerSignals.slice(0, 14).join(', ')}`)
     if (hardSignals.length > 0) {
       lines.push(
-        `HARD CLAIM (RENDER LAW v1.3.0, render verdicts T4-03 + T4-05): ≥${recipe.hard_min ?? 1} RENDER-PROVEN claim in the tag block — ${hardSignals.join(', ')}. cameltoe is NOT a claim (0 renders ever — flavor only). Through-fabric claims REQUIRE the fabric state tags (wet clothes / see-through) on ONE thin LIGHT garment, NO underlayer on the zone — and the POS must assert the bare underlayer POSITIVELY in prose («nothing underneath» / «braless»: a NEG lock alone fails, the renderer draws the bra OVER it — P07 receipt). Frame the claim with a camera TAG (close-up / cowboy shot / upper body). Dead fabrics (jeans/denim/leather/velvet/sweatpants/breeches/suit) never carry the claim. NO danbooru homonyms standalone (aurora → aurora_(arknights) — only compounds). NEVER cross anything over the chest claim (shawl/arms = the frame's one closed door = dead slot, P21 receipt).`
+        `HARD CLAIM (RENDER LAW v1.3.0, render verdicts T4-03 + T4-05): ≥${recipe.hard_min ?? 1} RENDER-PROVEN claim in the tag block — ${hardSignals.join(', ')}. cameltoe is NOT a claim (0 renders ever — flavor only). Through-fabric claims REQUIRE the fabric state tags (wet clothes / see-through / breast clinging) on ONE thin garment (tone per FABRIC TONE — закон №27), NO underlayer on the zone — and the POS must assert the bare underlayer POSITIVELY in the TAG RUN («nothing underneath» / «worn without underlayer» — never the «braless» token, ζ-ревизия №16: a NEG lock alone fails, the renderer draws the bra OVER it — P07 receipt). Frame the claim with a camera TAG (close-up / cowboy shot / upper body). Dead fabrics (jeans/denim/leather/velvet/sweatpants/breeches/suit) never carry the claim. NO danbooru homonyms standalone (aurora → aurora_(arknights) — only compounds). NEVER cross anything over the chest claim (shawl/arms = the frame's one closed door = dead slot, P21 receipt).`
       )
       lines.push(
         `CLAIM ZONE = the lead zone (${slot.lead}), OPEN TO CAMERA, single layer + the claim target. Delivery is stochastic (~1/8): build the best-odds frame — the claim and its fabric state EARLY in the tag run (≤16th tag for mains, ≤22nd for OC), the same named garment carrying the claim. «Looks erotic but does nothing» is the failure this law kills.`
@@ -338,7 +348,11 @@ function slotFrame(slot: SlotPlan, ctx: ScribeCtx): string {
     lines.push(`tier boundary: do NOT use higher-tier signals (${higherTierSignals(slot.rating, ctx.recipes).join(', ')}) — the counter-negatives are added by the machine`)
   }
   /* Закон №27 (вердикт T4-28 — X-слайды «слишком прорисованы соски»):
-   * тон несущей вещи назначен контрактом; through-заявка — только dark. */
+   * тон несущей вещи назначен контрактом; through-заявка — только dark.
+   * Серо-семья (rain-grey/moss/umber/prussian) — СРЕДНЯЯ, не «тёмнеющая»:
+   * «prussian-dark» как подсказка валила гейт (prussian — светлая семья
+   * кластера, 5 из 7 X-слайдов T4-28 были серо-семейными) — средний тон
+   * держит covered-канал без исключений. */
   if (slot.rating === 'R+' || slot.rating === 'X') {
     const tone = slot.fabricTone ?? 'mid'
     const toneLaw =
@@ -346,19 +360,22 @@ function slotFrame(slot: SlotPlan, ctx: ScribeCtx): string {
         ? 'DARK garment — the through-claim («nipples through clothing» + «clothed nipples») is ALLOWED here: the darkness kills the pink, keeps the bump (P08/P20 receipts, both R+). Name the dark color IN the garment tag.'
         : tone === 'light'
           ? 'LIGHT garment — the through-claim is FORBIDDEN (7 X-receipts T4-28): the channel is «covered nipples» + «clothed nipples» + the fabric STATE (wet clothes / see-through / breast clinging) — wet cloth clinging, bump, NO drawn nipple. Never «light on chest».'
-          : 'MID garment — same as LIGHT: «covered nipples» + «clothed nipples» + fabric state; the through-claim only if the mid tone leans DARK (deep navy/prussian-dark) — when in doubt, no «through».'
+          : 'MID garment — same as LIGHT, NO exceptions: «covered nipples» + «clothed nipples» + fabric state; the grey family (rain-grey/moss/umber/prussian/rose-grey) is MID, not dark-leaning — 5 of the 7 T4-28 X-slides wore grey-family mids. When in doubt, no «through».'
     lines.push(`FABRIC TONE (закон №27, вердикт T4-28): ${tone.toUpperCase()} — ${toneLaw}`)
   }
   /* EXP-слоты (вердикт T4-28: «не забывай про EXP промпты»): чистая болванка
-   * без темы, гипотеза слота — в THESIS. */
+   * без темы, гипотеза слота — в THESIS. Маркер — канон радара
+   * (batch-md.ts HYPO_PAIR_RE): «EXP κ-A · H10 …» — греческая буква из
+   * контракта, иначе гипотеза НЕ попадает в ТРИАЛ-радар дашборда. */
   if (slot.exp) {
+    const letter = slot.exp.letter ?? 'α'
     lines.push(
-      `EXP SLOT (вердикт T4-28 — «не забывай про EXP промпты»): чистая болванка БЕЗ темы батча — тема-слота и движок НЕ применяются. Гипотеза: ${slot.exp.hypothesis}${slot.exp.half ? ` (половина ${slot.exp.half}${slot.exp.pairWith ? `, пара с P${String(slot.exp.pairWith).padStart(2, '0')}` : ''})` : ''}. THESIS MUST OPEN with "EXP ${slot.exp.half ?? 'α'}: <hypothesis>" — одна переменная отличает половины, всё остальное одинаково.`
+      `EXP SLOT (вердикт T4-28 — «не забывай про EXP промпты»): чистая болванка БЕЗ темы батча — тема-слота и движок НЕ применяются. Гипотеза: ${slot.exp.hypothesis}${slot.exp.half ? ` (половина ${slot.exp.half}${slot.exp.pairWith ? `, пара с P${String(slot.exp.pairWith).padStart(2, '0')}` : ''})` : ''}. THESIS MUST OPEN with "EXP ${letter}-${slot.exp.half ?? 'A'} · ${slot.exp.hypothesis.slice(0, 80)}" — одна переменная отличает половины, всё остальное одинаково (канон T4-27.2: «план identical»).`
     )
   }
   if (slot.ab) {
     lines.push(
-      `A/B-ПАРА ${slot.ab.pair} — половина ${slot.ab.half}, пара с P${String(slot.ab.withSlot).padStart(2, '0')} (§10-поправка): LEAD-зона одна (${slot.ab.lead}) — ЗАЯВКА ОДИНАКОВАЯ (тот же механизм доставки: wet/sheer через именованную тонкую светлую вещь на этой зоне), ПОДАЧА РАЗНАЯ (поза/камера/свет назначены разные — не выравнивай их). Вердикт приёмника атрибутирует канал доставки, а не случай.`
+      `A/B-ПАРА ${slot.ab.pair} — половина ${slot.ab.half}, пара с P${String(slot.ab.withSlot).padStart(2, '0')} (§10-поправка): LEAD-зона одна (${slot.ab.lead}) — ЗАЯВКА ОДИНАКОВАЯ (тот же механизм доставки: wet/sheer через именованную тонкую вещь на этой зоне — тон каждой половины назначен её FABRIC TONE, канал по закону №27), ПОДАЧА РАЗНАЯ (поза/камера/свет назначены разные — не выравнивай их). Вердикт приёмника атрибутирует канал доставки, а не случай.`
     )
   }
   if (slot.dice) {
@@ -467,6 +484,15 @@ function assembleNeg(slot: SlotPlan, out: ScribeSlotOutput, ctx: ScribeCtx): str
       terms.push(...(oc.anti_shield as unknown[]).map(String))
     }
   }
+  /* расовый anti-shield (kin-block, закон №3): kinNeg приходит с «no X»-
+   * префиксом из старого ручного формата — NEG сам негативен, префикс
+   * снимаем («no horns» → «horns»), иначе санитайзер выкинет весь щит */
+  if (slot.kinNeg) {
+    for (const t of slot.kinNeg.split(',')) {
+      const x = t.trim().replace(/^no\s+/i, '').trim()
+      if (x) terms.push(x)
+    }
+  }
   if (out.negExtra.trim()) {
     for (const t of out.negExtra.split(/[,;]+/)) {
       const x = t.trim()
@@ -572,7 +598,7 @@ function assembleBatch(
   const mains = c.slots.filter((s) => s.kind !== 'OC')
   const spread: Record<string, number> = {}
   for (const s of mains) spread[s.rating] = (spread[s.rating] ?? 0) + 1
-  L.push(`СТРУКТУРА (закон 24): ${c.slots.length} промпта = 3 OC (P01-P03) + 21 мейн (P04-P24) · спред мейнов ${Object.entries(spread).map(([r, n]) => `${r}×${n}`).join(' · ')} · расовый каст ${c.racialCount}/21 · регистры третями.`)
+  L.push(`СТРУКТУРА (закон 24): ${c.slots.length} промпта = ${c.slots.filter((s) => s.kind === 'OC').length} OC + ${c.slots.filter((s) => s.kind !== 'OC' && s.kind !== 'EXP').length} мейн${c.slots.some((s) => s.kind === 'EXP') ? ` + ${c.slots.filter((s) => s.kind === 'EXP').length} EXP-болванки (без темы)` : ''} · спред мейнов ${Object.entries(spread).map(([r, n]) => `${r}×${n}`).join(' · ')} · расовый каст ${c.racialCount}/${c.slots.filter((s) => s.kind !== 'OC').length} · регистры третями.`)
   L.push('RENDER PROTOCOL: RAW+ (закон №23) — чистые Danbooru-теги, БЕЗ прозы: палитра под каждый промпт + аниме-лицо тегом + квалити-цвет. Спайн назначен контрактом до первого слова; гейты читают те же числа.')
   L.push('')
   const acts = ctx.acts.length === 3 ? ctx.acts : ['ACT I', 'ACT II', 'ACT III']
@@ -848,7 +874,7 @@ export async function scribeBatch(
   for (let i = 0; i < contract.slots.length; i += chunkSize) {
     chunks.push(contract.slots.slice(i, i + chunkSize))
   }
-    const batchLawBlock = `BATCH ${slug} «${title}» — theme: ${theme}${contract.authorWishes ? `\nAUTHOR'S WISHES (приказ автора — закон энергии этого батча): ${contract.authorWishes}` : ''}\nENGINE (одноразовый, ваш): ${ctx.engineName} — ${ctx.engineLaw}\nBATCH THESIS (yours, keep it): ${ctx.batchThesis}\nTHEME-KEYWORDS (weave ≥1 into EVERY slot's tags or prose — the theme must be VISIBLE in the frame, not in the header): ${ctx.themeKeywords.join(', ') || '—'}\nGENRE PLAN: ${contract.slots.filter((s) => s.kind === 'NICHE').length} NICHE (R) · ${contract.slots.filter((s) => s.kind === 'VOLT' || s.kind === 'EXQUISITE').length} VOLT/EXQUISITE (R+ incl. 3 OC) · ${contract.slots.filter((s) => s.rating === 'X').length} X`
+    const batchLawBlock = `BATCH ${slug} «${title}» — theme: ${theme}${contract.authorWishes ? `\nAUTHOR'S WISHES (приказ автора — закон энергии этого батча): ${contract.authorWishes}` : ''}\nENGINE (одноразовый, ваш): ${ctx.engineName} — ${ctx.engineLaw}\nBATCH THESIS (yours, keep it): ${ctx.batchThesis}\nTHEME-KEYWORDS (weave ≥1 into EVERY slot's tags or prose — the theme must be VISIBLE in the frame, not in the header): ${ctx.themeKeywords.join(', ') || '—'}\nGENRE PLAN: ${contract.slots.filter((s) => s.kind === 'NICHE').length} NICHE (R) · ${contract.slots.filter((s) => s.kind === 'VOLT' || s.kind === 'EXQUISITE').length} VOLT/EXQUISITE (R+ incl. ${contract.slots.filter((s) => s.kind === 'OC' && s.rating === 'R+').length} OC) · ${contract.slots.filter((s) => s.rating === 'X').length} X${contract.slots.some((s) => s.kind === 'EXP') ? ` · ${contract.slots.filter((s) => s.kind === 'EXP').length} EXP (без темы)` : ''}`
 
   for (let ci = 0; ci < chunks.length; ci++) {
     const chunk = chunks[ci]
@@ -908,7 +934,9 @@ export async function scribeBatch(
     const failed = new Set<number>(missingSlots.map((s) => s.position))
     for (const r of hardFails) {
       for (const fnd of r.findings) {
-        const m = /P(\d{1,2})/.exec(fnd)
+        /* только ВЕДУЩИЙ P-номер находки: квитанции цитируют чужие слоты
+         * («P08/P20 — R+ только на тёмном») — они не SUBJECT ремонта */
+        const m = /^P(\d{1,2})\b/.exec(fnd)
         if (m) {
           const p = parseInt(m[1], 10)
           if (p >= 1 && p <= contract.slots.length) failed.add(p)
