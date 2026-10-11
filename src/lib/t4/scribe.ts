@@ -839,6 +839,16 @@ export async function scribeBatch(
   )
   const engineName = (/^ENGINE:\s*(.+)$/m.exec(spineRaw)?.[1] ?? 'per-theme').trim().slice(0, 60)
   const engineLawSpine = (/^LAW:\s*(.+)$/m.exec(spineRaw)?.[1] ?? '').trim().slice(0, 300)
+  /* наблюдаемость спайна (T4-29): парс помалкивал — фолбэк-акты прятали
+   * отказ/пересменку формата модели; сырой ответ теперь виден оператору
+   * до того, как батч соберётся без движка и темы */
+  if (engineName === 'per-theme' || engineLawSpine === '') {
+    say(
+      `  ⚠ спайн не распарсился (ENGINE/LAW не найдены) — движок фолбэк; сырой ответ (первые 400 знаков): ${spineRaw
+        .replace(/\s+/g, ' ')
+        .slice(0, 400)}`
+    )
+  }
   ctx.engineName = engineName
   ctx.engineLaw = engineLawSpine || contract.engineLaw
   /* утилизация: одноразовый движок уходит в архив вместе с батчем */
