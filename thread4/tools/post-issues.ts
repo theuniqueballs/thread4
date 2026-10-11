@@ -87,6 +87,10 @@ async function existingTitles(token: string): Promise<Set<string>> {
   return titles
 }
 
+/* Локальная декларация Bun API (tsc не знает глобала без @types/bun;
+ * скрипт живёт под рантаймом bun) */
+declare const Bun: { file(path: string): { text(): Promise<string> } }
+
 async function main(): Promise<void> {
   const args = process.argv.slice(2)
   const doPost = args.includes('--post')

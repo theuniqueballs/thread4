@@ -131,7 +131,7 @@ function main() {
   const asJson = args.includes('--json')
   const ids = args.filter((a) => !a.startsWith('--'))
   const spec = { races: JSON.parse(fs.readFileSync('thread4/specs/races.json', 'utf-8')).races } as {
-    races: { id: string; name: string; status: string }[]
+    races: RaceEntry[]
   }
   const pool = spec.races.filter((r) => r.status === 'active' || r.status === 'gold')
 
@@ -144,7 +144,7 @@ function main() {
     return
   }
 
-  const blocks = []
+  const blocks: { id: string; name: string; status: string; pos: string; neg: string; hook: string }[] = []
   for (const id of ids) {
     const r = spec.races.find((x) => x.id === id)
     if (!r) {

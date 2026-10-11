@@ -42,6 +42,7 @@ import {
   stackIds,
   type BatchMd,
   type Hypothesis,
+  type HypothesisHalf,
   type SlotMd,
   type TokenDiff,
 } from '@/lib/t4/batch-md'
@@ -219,6 +220,9 @@ export function SlotStrip({ slug, markdown }: { slug: string; markdown: string }
 
   if (!parsed) return null
 
+  /* константная ссылка после guard: TS не протаскивает narrowing в
+   * замыкания (downloadManifest и пр.) — p не «разнуливается» */
+  const p = parsed
   const total = parsed.slots.length
   const done = doneIds.length
   const pct = total > 0 ? Math.round((done / total) * 100) : 0
@@ -229,15 +233,15 @@ export function SlotStrip({ slug, markdown }: { slug: string; markdown: string }
   }
 
   /* Копия «всё разом»: слоты пронумерованы шапками — очередь читается глазами. */
-  const allPos = parsed.slots.map((s) => `${s.id} · ${s.slug}\n${s.pos}`).join('\n\n')
-  const allNeg = parsed.slots.map((s) => `${s.id} · ${s.slug}\n${s.neg}`).join('\n\n')
+  const allPos = p.slots.map((s) => `${s.id} · ${s.slug}\n${s.pos}`).join('\n\n')
+  const allNeg = p.slots.map((s) => `${s.id} · ${s.slug}\n${s.neg}`).join('\n\n')
 
   /* Манифест рендера: файл-квиток под руку — рендерить можно и без дашборда. */
   function downloadManifest() {
-    const meta = (s: (typeof parsed.slots)[number]) =>
+    const meta = (s: (typeof p.slots)[number]) =>
       [s.kind, s.who, s.rating, s.pose, s.palette, s.rehab].filter(Boolean).join(' · ')
     /* шапка батча уже несёт слаг («# T4-27 «…»») — не дублируем его в строке */
-    let titleBody = parsed.title
+    let titleBody = p.title
     if (titleBody.startsWith(slug)) titleBody = titleBody.slice(slug.length).trim()
     const titleLine = titleBody !== '' ? ` — ${titleBody}` : ''
     const lines = [
@@ -245,7 +249,7 @@ export function SlotStrip({ slug, markdown }: { slug: string; markdown: string }
       `${total} слота · экспорт из дашборда · ${new Date().toLocaleString('ru-RU')}`,
       '',
     ]
-    for (const s of parsed.slots) {
+    for (const s of p.slots) {
       lines.push(`[${s.id}] ${s.slug}${meta(s) ? ` · ${meta(s)}` : ''}`)
       lines.push(`POS: ${s.pos}`)
       lines.push(`NEG: ${s.neg}`)
@@ -973,14 +977,14 @@ function RadarHypoRow({
   open: boolean
   onToggle: () => void
 }) {
-  const halves: { half: NonNullable<Hypothesis['a']>; side: 'A' | 'B' | '' }[] =
+  const halves: { half: HypothesisHalf | undefined; side: 'A' | 'B' | '' }[] =
     h.kind === 'pair'
       ? [
           { half: h.a, side: 'A' as const },
           { half: h.b, side: 'B' as const },
         ]
       : [{ half: h.single, side: '' }]
-  const present = halves.filter((x) => x.half != null) as { half: NonNullable<Hypothesis['a']>; side: 'A' | 'B' | '' }[]
+  const present = halves.filter((x): x is { half: HypothesisHalf; side: 'A' | 'B' | '' } => x.half != null)
   const doneCount = present.filter((x) => rendered.has(x.half.slotId)).length
   const status: HypoStatus = record
     ? 'done'
@@ -1153,8 +1157,8 @@ export function TrialRadarPanel() {
       ? {
           a: pairA,
           b: pairB,
-          aDone: loadRenderProgress(pairA).length,
-          bDone: loadRenderProgress(pairB).length,
+          aRendered: loadRenderProgress(pairA).length,
+          bRendered: loadRenderProgress(pairB).length,
           aTotal: (isRebuild ? otherParsed?.slots.length : parsed?.slots.length) ?? 0,
           bTotal: (isRebuild ? parsed?.slots.length : otherParsed?.slots.length) ?? 0,
           verdictB: (records.data?.records ?? []).some((r) => r.slug === pairB),
@@ -1252,7 +1256,7 @@ export function TrialRadarPanel() {
               <Chip tone={record ? 'emerald' : 'zinc'}>{record ? 'вердикт записан' : 'вердикт ждёт'}</Chip>
               {h13 ? (
                 <Chip tone="rose">
-                  H13: {h13.a} {h13.aDone}/{h13.aTotal} ↔ {h13.b} {h13.bDone}/{h13.bTotal}
+                  H13: {h13.a} {h13.aRendered}/{h13.aTotal} ↔ {h13.b} {h13.bRendered}/{h13.bTotal}
                 </Chip>
               ) : null}
               <span className="ml-auto font-mono text-[10px] text-zinc-600">{renderPct}%</span>
@@ -1376,19 +1380,19 @@ export function TrialRadarPanel() {
               <div className="mt-2 flex flex-wrap items-center gap-1.5">
                 <SlotNavChip slug={h13.a} slotId="P01" side="A" alchemy={false} />
                 <span className="font-mono text-[10px] text-zinc-500">
-                  рендер {h13.aDone}/{h13.aTotal}
+                  рендер {h13.aRendered}/{h13.aTotal}
                 </span>
                 <span className="text-zinc-700" aria-hidden>
                   ↔
                 </span>
                 <SlotNavChip slug={h13.b} slotId="P01" side="B" alchemy={false} />
                 <span className="font-mono text-[10px] text-zinc-500">
-                  рендер {h13.bDone}/{h13.bTotal}
+                  рендер {h13.bRendered}/{h13.bTotal}
                 </span>
                 <span className="ml-auto">
                   <TrialStatusPill
-                    status={h13.verdictB ? 'done' : h13.bDone > 0 && h13.bDone >= h13.bTotal && h13.bTotal > 0 ? 'verdict' : 'render'}
-                    rendered={h13.bDone}
+                    status={h13.verdictB ? 'done' : h13.bRendered > 0 && h13.bRendered >= h13.bTotal && h13.bTotal > 0 ? 'verdict' : 'render'}
+                    rendered={h13.bRendered}
                     total={h13.bTotal}
                   />
                 </span>

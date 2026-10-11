@@ -51,6 +51,18 @@ export interface BatchMd {
  * якориться на конец строки нельзя. */
 const SLOT_HEADER_RE = /^P(\d+) — (\S+)\s+\((.*)\)/
 const SECTION_RE = /^(THESIS|Canon|Spine|Stack|POS|NEG|PROTOCOL|HEROINE-BATCH):/
+/* типизированные секции SlotMd: PROTOCOL/HEROINE-BATCH (и любые будущие)
+ * НЕ пишутся в слот — раньше `as typeof section` впихивал их фантомными
+ * ключами (cur['protocol']), теперь — явная карта известных секций */
+type SectionKey = 'thesis' | 'canon' | 'spine' | 'stack' | 'pos' | 'neg'
+const SECTION_MAP: Record<string, SectionKey> = {
+  THESIS: 'thesis',
+  Canon: 'canon',
+  Spine: 'spine',
+  Stack: 'stack',
+  POS: 'pos',
+  NEG: 'neg',
+}
 const KINDS = new Set(['OC', 'VOLT', 'NICHE', 'EXQUISITE', 'EXP'])
 const RATINGS = /^(R\+?|X|XXX|PG-?13)$/i
 
@@ -102,7 +114,7 @@ export function parseBatchMd(md: string): BatchMd | null {
   }
   const slots: SlotMd[] = []
   let cur: SlotMd | null = null
-  let section: 'thesis' | 'canon' | 'spine' | 'stack' | 'pos' | 'neg' | null = null
+  let section: SectionKey | null = null
 
   const flush = () => {
     if (cur) slots.push(cur)
@@ -130,7 +142,9 @@ export function parseBatchMd(md: string): BatchMd | null {
     if (!cur) continue
     const sm = line.match(SECTION_RE)
     if (sm) {
-      section = sm[1].toLowerCase() as typeof section
+      /* неизвестные секции (PROTOCOL:, HEROINE-BATCH:) — section = null:
+       * их строки не прилипают к предыдущей секции слота */
+      section = SECTION_MAP[sm[1]] ?? null
       /* Stack/THESIS/Canon пишутся с содержимым на той же строке
        * («Stack: CR-W23 + …»), POS/NEG — на следующих; хвост строки
        * не выбрасываем. */
@@ -428,14 +442,14 @@ export function buildTrialRadarMarkdown(x: TrialRadarExport): string {
       const head = `${h.greek}${h.hid ? ` (${h.hid})` : ''} · ${h.title || (h.kind === 'pair' ? 'A/B-пара' : 'одиночка')}`
       L.push(`### ${head}${h.lawNo ? ` · закон №${h.lawNo}` : ''} — ${h.kind === 'pair' ? 'пара' : 'одиночка'}`)
       L.push('')
-      const halves: { half: NonNullable<Hypothesis['a']>; side: 'A' | 'B' | '' }[] =
+      const halves: { half: HypothesisHalf | undefined; side: 'A' | 'B' | '' }[] =
         h.kind === 'pair'
           ? [
               { half: h.a, side: 'A' as const },
               { half: h.b, side: 'B' as const },
             ]
           : [{ half: h.single, side: '' }]
-      const present = halves.filter((xh) => xh.half != null) as typeof halves
+      const present = halves.filter((xh): xh is { half: HypothesisHalf; side: 'A' | 'B' | '' } => xh.half != null)
       for (const { half, side } of present) {
         const mark = half.alchemy ? ' · ⚗ осознанный нарушитель' : ''
         const rend = x.rendered.includes(half.slotId) ? 'отрендерен' : 'ждёт рендер'
