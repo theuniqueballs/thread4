@@ -403,24 +403,58 @@ export function planRawPlus(opts: PlanOptions): RawPlusPlan {
    * КОНКРЕТНЫЕ расы; ротация из пула — только fallback без брифа. */
   const draftSpecies = opts.draft?.species
   const allRaces = loadRaces()
+  /* R01 Human — раса без признаков («none — memorability from NR features»,
+   * races.json): кин-блок не собирает, слот не тратит (традиция компилятора
+   * и kin-block CLI). В списке автора читается как «в батче есть люди» —
+   * мейны без кина уже люди; сборку не роняет (бриф T4-29: 14 видов c R01). */
+  const humanIds = new Set(
+    (
+      JSON.parse(
+        fs.readFileSync(path.join(process.cwd(), 'thread4', 'specs', 'races.json'), 'utf-8')
+      ) as { races: { id: string; name: string }[] }
+    ).races
+      .filter((r) => r.name.toLowerCase() === 'human')
+      .map((r) => r.id)
+  )
   let raceQuota: number
   let pickedRaces: RaceEntry[]
   if (draftSpecies?.on && draftSpecies.list?.length) {
     const byId = new Map(allRaces.map((r) => [r.id, r]))
     const wanted: RaceEntry[] = []
+    const seen = new Set<string>()
+    let humans = 0
     for (const id of draftSpecies.list) {
+      if (humanIds.has(id)) {
+        humans++
+        continue
+      }
+      if (seen.has(id)) {
+        throw new Error(`черновик: дубликат вида ${id} в списке (${draftSpecies.list.join(', ')})`)
+      }
+      seen.add(id)
       const r = byId.get(id)
       if (!r) throw new Error(`черновик: раса ${id} не найдена в races.json — проверь список видов`)
       wanted.push(r)
     }
-    if (wanted.length !== draftSpecies.list.length) {
-      throw new Error(`черновик: дубликаты видов в списке (${draftSpecies.list.join(', ')})`)
+    if (humans > 0) {
+      report.push(
+        `вид ${[...humanIds].join('/')} (Human) в списке — раса без признаков, кин-слот не тратит (мейны без кина уже люди); кин-квота ${wanted.length} из ${draftSpecies.list.length}`
+      )
     }
     raceQuota = wanted.length
     pickedRaces = rng.shuffle(wanted)
     if (raceQuota > law.mainsTotal) {
       throw new Error(`черновик: видов ${raceQuota} > мейнов ${law.mainsTotal} — каждый вид должен получить слот`)
     }
+  } else if (draftSpecies?.on && draftSpecies.count > 0) {
+    /* бриф без списка, но со счётчиком (ползунок UI): счётчик — квота автора
+     * (раньше молча подменялся racialDefault — ползунок ничего не делал) */
+    raceQuota = Math.min(draftSpecies.count, allRaces.length)
+    if (raceQuota !== draftSpecies.count) {
+      report.push(`кинов ${draftSpecies.count} > пула ${allRaces.length} — квота урезана до ${raceQuota}`)
+    }
+    pickedRaces = rng.shuffle(allRaces).slice(0, raceQuota)
+    report.push(`кины по счётчику брифа: ${raceQuota} (ротация пула — список видов не задан)`)
   } else {
     raceQuota = Math.max(0, opts.races ?? law.racialDefault)
     const racePool = rng.shuffle(allRaces)
