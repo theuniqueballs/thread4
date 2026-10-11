@@ -1,0 +1,40 @@
+# Аудит THREAD4 (2026-10-12): первый CI-конвейер.
+# Приёмочные гейты проекта: lint 0 · tsc 0 · selftest (все PASS) ·
+# verify chain ЦЕЛА · build success. Права — read-only (least privilege).
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: install
+        run: bun install --frozen-lockfile
+
+      - name: lint
+        run: bun run lint
+
+      - name: typecheck
+        run: bun run typecheck
+
+      - name: selftest
+        run: bun run selftest
+
+      - name: verify (hash-chain)
+        run: bun run verify
+
+      - name: build
+        run: bun run build
