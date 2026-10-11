@@ -232,13 +232,19 @@ function extendChain(rawLine: string, id: string): void {
     }
   }
   if (stored.length !== links.length - 1) {
-    // дыра между цепью и логом (крах между двумя append) — достраиваем хвост честно
+    // дыра между цепью и логом (крах между двумя append) — достраиваем хвост честно.
+    // Аудит 2026-10-12: при stored.length === links.length (гонка двух процессов:
+    // событие уже в логе, звена ещё нет) хвост ПУСТ — прежний код писал пустую
+    // строку в chain.jsonl, оставляя событие без звена. Пустой хвост не пишем:
+    // следующее appendEvent достроит звено (хеш-цепь покроет лог целиком).
     const tail = links.slice(stored.length)
-    fs.appendFileSync(
-      CHAIN_LOG,
-      tail.map((l) => JSON.stringify(l)).join('\n') + '\n',
-      'utf-8'
-    )
+    if (tail.length > 0) {
+      fs.appendFileSync(
+        CHAIN_LOG,
+        tail.map((l) => JSON.stringify(l)).join('\n') + '\n',
+        'utf-8'
+      )
+    }
     return
   }
   const last = links[links.length - 1]
@@ -255,10 +261,25 @@ export interface ChainVerdict {
 
 /** Проверка целостности: эталон (log) vs хранимая цепь. */
 export function verifyChain(): ChainVerdict {
-  const { links } = computeChainOverLog()
+  const { links, rawLines } = computeChainOverLog()
   const stored = readChain()
   const problems: string[] = []
   if (stored.length === 0) problems.push('цепь отсутствует — запусти: bun thread4/cli.ts chain')
+  /* Аудит 2026-10-12: цепь хранит БАЙТЫ, но fold (readEvents) молча теряет
+   * не-JSON строки — состояние расходится с летописью без тревоги. Теперь
+   * verify видит бит-рот лога (цепь при этом может быть «ЦЕЛА»). */
+  let unparseable = 0
+  for (const l of rawLines) {
+    try {
+      JSON.parse(l)
+    } catch {
+      unparseable += 1
+    }
+  }
+  if (unparseable > 0)
+    problems.push(
+      `${unparseable} строк(и) лога не парсятся как JSON — fold их молча теряет (восстановление: vault/git; chain хранит байты)`
+    )
   const n = Math.min(stored.length, links.length)
   for (let i = 0; i < n; i++) {
     if (stored[i].hash !== links[i].hash) {
@@ -379,8 +400,12 @@ export function foldState(events: T4Event[]): T4DerivedState {
     }
   }
 
+  /* Аудит 2026-10-12: void выводит батч из окна ротации — CLI void пишет
+   * «в ротации не участвует», а fold держал закрытый батч в окне: гейт
+   * window проверял повторы против мёртвого батча. */
   const delivered = [...batches.values()]
     .filter((b) => b.deliveredAt != null)
+    .filter((b) => !voidedSlugs.includes(b.slug))
     .sort((a, b) => (a.deliveredAt! < b.deliveredAt! ? -1 : 1))
   const windowSlugs = delivered.slice(-3).map((b) => b.slug)
 
@@ -400,11 +425,15 @@ export function foldState(events: T4Event[]): T4DerivedState {
   }
 }
 
-/** Next batch number: max+1 среди НЕ закрытых (void) слагов. */
-export function nextBatchNumber(batches: BatchRecord[], voidedSlugs: string[] = []): number {
+/** Next batch number: max+1 по ВСЕМ известным слагам.
+ *  Аудит 2026-10-12: void-номера больше НЕ переиспользуются. Раньше
+ *  nextBatchNumber пропускал void (по прозе «в нумерации не участвует»):
+ *  после void ПОСЛЕДНЕГО батча следующая компиляция получила бы тот же
+ *  номер и молча ПЕРЕЗАПИСАЛА бы контракт закрытого батча — провенанс
+ *  жил бы только в git-истории. Номер занят навсегда. */
+export function nextBatchNumber(batches: BatchRecord[]): number {
   let max = 0
   for (const b of batches) {
-    if (voidedSlugs.includes(b.slug)) continue
     const m = /^T4-(\d+)$/.exec(b.slug)
     if (m) max = Math.max(max, parseInt(m[1], 10))
   }

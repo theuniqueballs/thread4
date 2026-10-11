@@ -22,7 +22,7 @@ import { deliverBatch } from '../src/lib/t4/deliver'
 import { scribeBatch } from '../src/lib/t4/scribe'
 import fs from 'node:fs'
 import path from 'node:path'
-import { appendEvent, bootstrapChain, foldState, healChainTail, readEvents, verifyChain } from '../src/lib/t4/events'
+import { appendEvent, bootstrapChain, foldState, healChainTail, nextBatchNumber, readEvents, verifyChain, type T4Event } from '../src/lib/t4/events'
 import { getDeliveryStats, getPolicy, specInventory } from '../src/lib/t4/specs'
 import { buildReaperDraft } from '../src/lib/t4/reaper'
 import { scanSource } from '../src/lib/t4/hygiene'
@@ -155,10 +155,10 @@ async function main() {
     }
     appendEvent(
       'batch.void',
-      `${slug} закрыт по приказу автора: ${reason}. Контракт остаётся в архиве как провенанс; в нумерации и ротации не участвует.`,
+      `${slug} закрыт по приказу автора: ${reason}. Контракт остаётся в архиве как провенанс; из окна ротации исключён; номер не переиспользуется (аудит 2026-10-12).`,
       { slug, reason }
     )
-    console.log(`void: ${slug} закрыт (${reason})`)
+    console.log(`void: ${slug} закрыт (${reason}) — из окна ротации исключён, номер закреплён навсегда`)
     return
   }
 
@@ -981,6 +981,35 @@ async function main() {
           return withStack.length >= 30 && stackIds(withStack[0].stack).length >= 2
         })()
       )
+    }
+
+    // Аудит 2026-10-12: регрессии целостности летописи и окна ротации
+    {
+      const mk = (at: string, type: string, data: Record<string, unknown>): T4Event => ({
+        id: at.replace(/[^0-9]/g, ''),
+        at,
+        type,
+        summary: type,
+        data,
+      })
+      const st = foldState([
+        mk('2026-01-01T00:00:01Z', 'batch.compiled', { slug: 'T4-91', theme: 'a' }),
+        mk('2026-01-01T00:00:02Z', 'batch.delivered', { slug: 'T4-91' }),
+        mk('2026-01-01T00:00:03Z', 'batch.compiled', { slug: 'T4-92', theme: 'b' }),
+        mk('2026-01-01T00:00:04Z', 'batch.delivered', { slug: 'T4-92' }),
+        mk('2026-01-01T00:00:05Z', 'batch.void', { slug: 'T4-91' }),
+        mk('2026-01-01T00:00:06Z', 'batch.compiled', { slug: 'T4-93', theme: 'c' }),
+        mk('2026-01-01T00:00:07Z', 'batch.delivered', { slug: 'T4-93' }),
+      ])
+      check(
+        'окно ротации: void-батч покидает окно (заявлено в cli void — консистентность fold)',
+        !st.windowSlugs.includes('T4-91') && st.windowSlugs.join(',') === 'T4-92,T4-93'
+      )
+      check(
+        'нумерация: void-номер не переиспользуется (провенанс контракта неприкосновенен)',
+        nextBatchNumber(st.batches) === 94
+      )
+      check('нумерация: чистый лист стартует с T4-01', nextBatchNumber([]) === 1)
     }
 
     console.log(`\nselftest: ${ok} pass, ${fail} fail`)

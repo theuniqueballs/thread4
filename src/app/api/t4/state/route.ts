@@ -19,8 +19,9 @@ export async function GET() {
   const palettes = inv.find((s) => s.id === 'palettes')
   const delivered = state.batches.filter((b) => b.deliveredAt)
   const last = delivered[delivered.length - 1]
-  // следующий номер — по максимальному НЕзакрытому слагу (T4-06 void не считается)
-  const nextNum = nextBatchNumber(state.batches, state.voidedSlugs)
+  // следующий номер — max+1 по всем слагам (аудит 2026-10-12: void-номера
+  // НЕ переиспользуются — провенанс закрытого батча неприкосновенен)
+  const nextNum = nextBatchNumber(state.batches)
   const nextStep =
     delivered.length === 0
       ? `T4-${String(nextNum).padStart(2, '0')} — ждёт тему от автора`
