@@ -1573,6 +1573,20 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
         'sex', 'sexual act',
       ]
       const palCount: Record<string, number> = {}
+      /* закон №27 «канал R+: бугорок да, розовое нет» (вердикт T4-28,
+       * глаз автора: P20-золото «бугорок есть, розового нет» ↔ 7 X-слайдов
+       * «слишком прорисованы соски» — все с through-заявкой на МОКРОЙ
+       * светлой/средней ткани). Ресёрч danbooru (строгий список 14 589):
+       * «nipples through clothing» и «light on chest» — НЕ теги; рендерер
+       * рисует ведущее существительное. Тёмная ткань гасит розовое
+       * (P08 ink-indigo, P20 black — обе R+), светлая — проступает (X). */
+      const DARK_TONE =
+        /\b(black|ink|midnight|charcoal|espresso|dark navy|deep navy|oxblood|void|sumi)\b/i
+      const GARMENT_RE =
+        /\b(blouse|tee|t-shirt|shirt|knit|cardigan|leotard|bodysuit|swimsuit|bikini|romper|slip|dress|sundress|nightgown|gown|robe|kimono|yukata|sheet|towel|halter|tunic|apron|qipao|cheongsam|sweater|gi|nightshirt|crop top|tank top|top)\b/i
+      const LIGHT_FAMILY =
+        /\b(white|ash|cream|ivory|pale|pastel|linen|chalk|silver|grey|gray|moss|umber|prussian|rose|blush|sand|wheat|oat|pearl|fog|rain|salt)\b/i
+      const lightCarryingTops: number[] = []
       /* закон №26 «тема — не тег» (авторский приказ из чата 2026-10-12:
        * «зачем ты в позитиве всегда пишешь название темы… буквально всё,
        * что ты там пишешь, переходит на сам рендер»): название темы батча
@@ -1621,6 +1635,36 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
           }
           if (titleHit) slotF.push(`закон №26: название темы в POS (${titleHit}) — всё из позитива уходит в рендер, тайтл-тег травит кадр; тема через отрисуемое (закон/палитра/свет/объекты/лицо)`)
         }
+        /* закон №27: through-заявка — только на ТЁМНОЙ вещи; «light on chest»
+         * запрещён на sheer/wet (квитанции P14/P17 — X). Порог: тон вещи
+         * определяет её цвет-слово; без цвет-слова — не dark (безопасный
+         * дефолт: through запрещён). */
+        const posTags27 = s.pos
+          .toLowerCase()
+          .split(/,|\./)
+          .map((t) => t.trim())
+        const garmentTag27 = posTags27.find((t) => GARMENT_RE.test(t))
+        const garmentDark = garmentTag27 ? DARK_TONE.test(garmentTag27) : false
+        const garmentLightFam = garmentTag27 ? LIGHT_FAMILY.test(garmentTag27) : false
+        const posLower27 = s.pos.toLowerCase()
+        const throughClaim27 = posLower27.includes('nipples through clothing')
+        const lightOnChest = posLower27.includes('light on chest')
+        const wetSheer = posLower27.includes('wet clothes') || posLower27.includes('see-through')
+        if (tierOf(s.meta) === 'R+') {
+          if (throughClaim27 && !garmentDark) {
+            slotF.push(
+              `закон №27: through-заявка «nipples through clothing» на не-тёмной вещи${garmentTag27 ? ` («${garmentTag27}»)` : ' (цвет вещи не назван)'} — розовое проступит, слот скатится в X (7 квитанций T4-28; P08/P20 — R+ только на тёмном); канал светлой/средней ткани: covered nipples + clothed nipples + wet clothes/see-through/breast clinging`
+            )
+          }
+          if (lightOnChest && wetSheer) {
+            slotF.push(
+              'закон №27: «light on chest» на sheer/wet верхе — прямой X-усилитель (квитанции P14/P17): свет на зоне — glow сцены на вещь, не «свет на груди»'
+            )
+          }
+          if (garmentLightFam && (throughClaim27 || posLower27.includes('clothed nipples') || posLower27.includes('covered nipples')) && wetSheer) {
+            lightCarryingTops.push(s.position)
+          }
+        }
         /* закон №25: авторский бан-лист NEG (X-слоты держат coverage-блок — их исключаем) */
         if (tierOf(s.meta) !== 'X') {
           for (const t of NEG_BAN) {
@@ -1640,6 +1684,14 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
       if (distinct < 7) f.push(`палитр в батче ${distinct} < 7 (C066 — закон №23)`)
       for (const [pal, n] of Object.entries(palCount)) {
         if (n > 3) f.push(`палитра ${pal} использована ${n} раз > 3 (C067 — закон №23)`)
+      }
+      /* батч-уровень: закон №27 — кластер светлых несущих верхов ≤3
+       * (вердикт T4-26: «белая рубашка… хламит» + T4-28: 7 светлых мокрых
+       * верхов подряд — и X-слайды, и визуальная жвачка). */
+      if (lightCarryingTops.length > 3) {
+        f.push(
+          `закон №27: светлых несущих верхов с заявкой ${lightCarryingTops.length} > 3 (P${lightCarryingTops.map((p) => String(p).padStart(2, '0')).join('/P')}) — тон вещи ротацией dark/mid/light, светлый кластер рушит и канал (X-слайды), и разнообразие кадра (вердикты T4-26/T4-28)`
+        )
       }
       hard('raw-plus', f)
       if (expl.length > 0) {

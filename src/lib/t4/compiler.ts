@@ -115,6 +115,12 @@ export interface SlotPlan {
   diceSig?: string
   /** инструкции кубиков: порядок id / подача одежды / тема / свет / ритм */
   dice?: string
+  /** Закон №27 (вердикт T4-28): тон несущей вещи на зоне заявки — контракт
+   *  назначает ротацией (dark/mid/light); through-заявка живёт только на dark */
+  fabricTone?: 'dark' | 'mid' | 'light'
+  /** EXP-слот (вердикт T4-28: «не забывай про EXP промпты»): болванка без
+   *  темы, 1-2 гипотезы на слот — тест закона/канала с A/B-половинкой */
+  exp?: { hypothesis: string; half?: 'A' | 'B'; pairWith?: number }
 }
 
 export interface BatchContract {

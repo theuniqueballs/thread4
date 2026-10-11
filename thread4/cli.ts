@@ -670,21 +670,52 @@ async function main() {
       )
     }
 
+    // Закон №27 «канал R+: бугорок да, розовое нет» (вердикт T4-28,
+    // 2026-10-11): доказательная пара — гейт ловит ИСТОРИЮ (7 X-слайдов
+    // автора: through-заявка на мокрой светлой/средней ткани), золото
+    // P20/P08 (тёмная ткань + through) не задето — ложных срабатываний нет.
+    {
+      const g28 = runGates('T4-28', true)
+      const rp28 = g28?.receipts.find((r) => r.gate === 'raw-plus')
+      const f27 = (rp28?.findings ?? []).filter((x) => x.includes('закон №27'))
+      check(
+        `закон №27: гейт ловит исторический X-слайд T4-28 — 7 слотов автора (${f27.length} находок), вердикт истины`,
+        rp28?.verdict === 'FAIL' && f27.length >= 7
+      )
+      check(
+        'закон №27: P20/P08 (тёмная ткань + through-заявка — золото автора) чисты, ложных срабатываний нет',
+        !(rp28?.findings ?? []).some((x) => /^P(08|20):/.test(x))
+      )
+    }
+
     // RAW+ генератор (кины в конвейер, закон №3 + A5: hair/eye E3, echo F13)
     {
       const { planRawPlus } = await import('./tools/gen-rawplus')
       const law2 = getPolicy().law
       const demo = { slug: 'T4-98', theme: 'SELFTEST RAW+ KIN ECHO', seed: 4242, windowSlugs: ['T4-27'], ocAppearances: {} as Record<string, number> }
       const p1 = planRawPlus(demo)
+      const expDemo = p1.slots.filter((s) => s.kind === 'EXP')
+      const thematic = p1.slots.filter((s) => s.kind !== 'EXP')
       check(
-        `gen-rawplus: ${law2.slotsTotal} слотов по закону (${law2.ocSlots} OC + ${law2.mainsTotal} мейн)`,
-        p1.slots.length === law2.slotsTotal &&
-          p1.slots.slice(0, law2.ocSlots).every((s) => s.kind === 'OC')
+        `gen-rawplus: ${law2.slotsTotal} слотов по закону (${law2.ocSlots} OC + ${law2.mainsTotal} мейн) + EXP-оверлей`,
+        thematic.length === law2.slotsTotal &&
+          thematic.slice(0, law2.ocSlots).every((s) => s.kind === 'OC')
       )
       check(
-        'gen-rawplus: спред мейнов из policy (NICHE R ×7 + R+ мейны ×14)',
+        'gen-rawplus: EXP-оверлей — 2 A/B-болванки №27 по умолчанию (вердикт T4-28 «не забывай про EXP промпты»)',
+        expDemo.length === 2 &&
+          expDemo.every((s) => s.rating === 'R+' && s.exp && s.fabricTone) &&
+          expDemo[0].fabricTone === 'light' &&
+          expDemo[1].fabricTone === 'dark' &&
+          expDemo[0].exp?.half === 'A' &&
+          expDemo[1].exp?.half === 'B' &&
+          expDemo[0].exp?.pairWith === expDemo[1].position &&
+          expDemo[0].hair === expDemo[1].hair
+      )
+      check(
+        'gen-rawplus: спред мейнов из policy (NICHE R ×7 + R+ мейны ×14) — EXP отдельно',
         p1.slots.filter((s) => s.kind === 'NICHE').length === law2.nicheCount &&
-          p1.slots.filter((s) => s.kind !== 'OC' && s.rating === 'R+').length === law2.rplusMains
+          p1.slots.filter((s) => s.kind !== 'OC' && s.kind !== 'EXP' && s.rating === 'R+').length === law2.rplusMains
       )
       const kinSlots = p1.slots.filter((s) => s.race)
       check(
@@ -699,15 +730,26 @@ async function main() {
       ) as { slots: { palette?: string }[] }
       const windowPals = new Set(c27.slots.map((s) => s.palette).filter(Boolean))
       check(
-        'gen-rawplus: 24 уникальные палитры, ни одна в окне ротации (T4-27 исключён)',
-        new Set(p1.slots.map((s) => s.palette)).size === law2.slotsTotal &&
+        'gen-rawplus: 24 уникальные палитры + EXP-болванки, ни одна в окне ротации (T4-27 исключён)',
+        new Set(p1.slots.map((s) => s.palette)).size === law2.slotsTotal + expDemo.length &&
           p1.slots.every((s) => !windowPals.has(s.palette))
       )
-      const mains = p1.slots.filter((s) => s.kind !== 'OC')
+      const mains = p1.slots.filter((s) => s.kind !== 'OC' && s.kind !== 'EXP')
       check(
-        'gen-rawplus: hair анти-дрейф соседей + 12+ различных на мейнах (E3)',
+        'gen-rawplus: hair анти-дрейф соседей + 12+ различных на мейнах (E3; EXP-пара — одна девка, вне проверки)',
         mains.every((s, i) => i === 0 || s.hair !== mains[i - 1].hair) &&
           new Set(mains.map((s) => s.hair)).size >= 12
+      )
+      const toneCounts = {
+        dark: thematic.filter((s) => s.rating === 'R+' && s.fabricTone === 'dark').length,
+        mid: thematic.filter((s) => s.rating === 'R+' && s.fabricTone === 'mid').length,
+        light: thematic.filter((s) => s.rating === 'R+' && s.fabricTone === 'light').length,
+      }
+      check(
+        `gen-rawplus: закон №27 — тон вещи на R+-слотах: dark ≥1/3 (${toneCounts.dark}), светлых ≤3 (${toneCounts.light}), все R+ имеют тон`,
+        thematic.filter((s) => s.rating === 'R+').every((s) => s.fabricTone) &&
+          toneCounts.dark >= Math.ceil(thematic.filter((s) => s.rating === 'R+').length / 3) &&
+          toneCounts.light <= 3
       )
       check(
         'gen-rawplus: OC несут канон hair/eyes (канон старше библиотеки)',

@@ -19,6 +19,8 @@
  *     --echo 2|3      echo-мотивов на батч (по умолчанию 3; F13: 2-3)
  *     --oc A,B,C      заказ OC (по умолчанию — ротация по served-счётчику)
  *     --exquisite N   EXQUISITE-слотов в R+ пуле (по умолчанию policy)
+ *     --exp N         EXP-болванок поверх 24 (по умолчанию 2 — вердикт T4-28
+ *                     «не забывай про EXP промпты»; 0 — отключить приказом)
  *     --rebuild-of T4-NN  ребилд-декларация: окно не конфликтует с источником
  *     --dry           только напечатать план, файлы не писать
  *     --force         перезаписать существующий контракт
@@ -187,7 +189,7 @@ export interface EchoPlan {
 
 export interface RawPlusSlot {
   position: number
-  kind: 'OC' | 'NICHE' | 'VOLT' | 'EXQUISITE'
+  kind: 'OC' | 'NICHE' | 'VOLT' | 'EXQUISITE' | 'EXP'
   oc?: string
   /** тема ОС из брифа автора (позиция → тема; §10: тема автора в слоте) */
   ocTheme?: string
@@ -226,6 +228,10 @@ export interface RawPlusSlot {
   targetChannel?: string
   targetChannelNote?: string
   echo?: string[]
+  /** Закон №27 (вердикт T4-28): тон несущей вещи на зоне заявки */
+  fabricTone?: 'dark' | 'mid' | 'light'
+  /** EXP-гипотеза слота (вердикт T4-28: «не забывай про EXP промпты») */
+  exp?: { hypothesis: string; half?: 'A' | 'B'; pairWith?: number }
 }
 
 export interface RawPlusPlan {
@@ -248,6 +254,10 @@ export interface PlanOptions {
   /** Авторский бриф из UI (drafts/T4-NN-draft.json): виды, темы ОС,
    *  пожелания, abPairs, rehab — перекрывают умолчания по §10. */
   draft?: DraftBrief
+  /** EXP-слоты поверх 24 (policy expSlotsMax ≤ 9; вердикт T4-28:
+   *  «не забывай про EXP промпты» — по умолчанию 1 A/B-пара = 2 болванки;
+   *  0 — отключить явным приказом). Гипотеза — из открытых триалов. */
+  exp?: number
   /** Живое состояние (main) или синтетика (selftest). Чистая функция. */
   windowSlugs: string[]
   ocAppearances: Record<string, number>
@@ -319,13 +329,14 @@ export function planRawPlus(opts: PlanOptions): RawPlusPlan {
     report.push(`ребилд-декларация: источник ${opts.rebuildOf} из окна исключён (переиспользование ≠ конфликт)`)
   }
 
-  /* --- палитры: 24 уникальные вне окна --- */
+  /* --- палитры: 24 уникальные вне окна (+ EXP-болванки сверх закона) --- */
   const palettes = getPalettes()?.palettes ?? []
   const pool = rng.shuffle(palettes.filter((p) => !bannedPalettes.has(p.id)))
-  if (pool.length < law.paletteDistinct) {
-    throw new Error(`палитр вне окна мало: ${pool.length} < ${law.paletteDistinct} — расширь окно или палитры`)
+  const expPlanCount = Math.max(0, Math.min(opts.exp ?? 2, law.expSlotsMax ?? 9))
+  if (pool.length < law.paletteDistinct + expPlanCount) {
+    throw new Error(`палитр вне окна мало: ${pool.length} < ${law.paletteDistinct + expPlanCount} — расширь окно или палитры`)
   }
-  const chosenPalettes = pool.slice(0, law.slotsTotal)
+  const chosenPalettes = pool.slice(0, law.slotsTotal + expPlanCount)
 
   /* --- OC: канон + ротация по served --- */
   const ocCanon = getOCCanon()
@@ -489,7 +500,7 @@ export function planRawPlus(opts: PlanOptions): RawPlusPlan {
   if (posePool.length < law.slotsTotal) {
     throw new Error(`поз вне окна мало: ${posePool.length} < ${law.slotsTotal}`)
   }
-  const chosenPoses = posePool.slice(0, law.slotsTotal)
+  const chosenPoses = posePool.slice(0, law.slotsTotal + expPlanCount)
   const poolsSpec = readJson<{ sections: Record<string, { id: string; name?: string }[]> }>(
     path.join(process.cwd(), 'thread4', 'specs', 'pools.json')
   )
@@ -701,6 +712,55 @@ export function planRawPlus(opts: PlanOptions): RawPlusPlan {
     }
   }
 
+  /* --- EXP-оверлей (вердикт T4-28, проза: «не забывай про EXP промпты,
+   *  чтобы я тебе не напоминал про них каждый раз»): болванки ПОВЕРХ
+   *  24-слотового закона (policy expSlotsMax ≤ 9), по умолчанию 1 A/B-пара.
+   *  Открытая гипотеза по умолчанию — граница закона №27 (свет ткань ×
+   *  канал сосков): A — светлый полюс (covered/clothed + wet), B — тёмный
+   *  (through-заявка). Одна переменная, остальное — одинаково (T4-25-канон
+   *  EXP-пар). --exp 0 отключает явным приказом. --- */
+  const expCount = expPlanCount
+  if (expCount > 0) {
+    const basePos = law.slotsTotal
+    const expPoses = posePool.slice(basePos, basePos + expCount)
+    const expPals = chosenPalettes.slice(basePos, basePos + expCount)
+    const sameHair = hairBag[(expCount + basePos) % hairBag.length]
+    const sameEyes = eyeBag[(expCount + basePos) % eyeBag.length]
+    for (let i = 0; i < expCount; i++) {
+      const half = i % 2 === 0 ? 'A' : 'B'
+      const dark = half === 'B'
+      slots.push({
+        position: basePos + i + 1,
+        kind: 'EXP',
+        rating: 'R+',
+        pose: expPoses[i]?.id ?? expPoses[0]?.id ?? 'PL01',
+        poseName: expPoses[i]?.name ?? 'Neutral Stand',
+        poseRisk: expPoses[i]?.risk ?? 'LOW',
+        palette: expPals[i]?.id ?? 'P01',
+        paletteName: expPals[i]?.name ?? '',
+        kinetics: kPool.length ? [kPool[(kIdx + i) % kPool.length]] : [],
+        carriers: stackFor(),
+        hair: sameHair,
+        eyes: sameEyes,
+        hairEyeFrom: 'library',
+        lead: 'chest',
+        register: 'young',
+        closer: closerPool[(closerIdx + i) % closerPool.length],
+        fabricTone: dark ? 'dark' : 'light',
+        exp: {
+          hypothesis: dark
+            ? 'закон №27, тёмный полюс: sheer DARK garment + через-ткань заявку (nipples through clothing + clothed nipples) — тьма гасит розовое, остаётся бугорок (P20/P08 T4-28 — обе R+)'
+            : 'закон №27, светлый полюс: wet LIGHT garment + covered/clothed nipples (БЕЗ through) — мокрая светлая ткань прилипла, бугорок без нарисованного соска (формула T4-26 17/25; P01/P02 T4-28 — R)',
+          half: expCount >= 2 ? half : undefined,
+          pairWith: expCount >= 2 ? (half === 'A' ? basePos + 2 : basePos + 1) : undefined,
+        },
+      })
+    }
+    report.push(
+      `EXP-оверлей: ${expCount} болванки (A/B граница закона №27 — тон ткани × канал сосков; вердикт T4-28 «не забывай про EXP промпты», policy expSlotsMax ${law.expSlotsMax})`
+    )
+  }
+
   /* --- ULTIMATE DICE (A5P6 §3 → RAW-эра, приказ автора 2026-10-12):
    *  5 костей структурной рандомизации — порядок идентификации, подача
    *  одежды, интеграция темы, свет, ритм прозы; сигнатуры уникальны
@@ -718,6 +778,27 @@ export function planRawPlus(opts: PlanOptions): RawPlusPlan {
   }
   report.push(
     `ULTIMATE DICE: ${DICE_TOTAL} костей × ${slots.length} слотов — сигнатуры скелетов уникальны в батче (${diceRoll.rerolls} перебросов: архив + внутри-батчевые коллизии)`
+  )
+
+  /* --- Закон №27 (вердикт T4-28 «бугорок да, розовое нет»): тон несущей
+   *  вещи на R+-слотах — ротацией dark/mid/light (dark ≥ 1/3: through-заявка
+   *  живёт только на тёмном; светлых ≤ 3 — кластерный кап гейта и вердикт
+   *  T4-26 «белая рубашка… хламит»). Писцу — тег-инструкция FABRIC TONE.
+   *  EXP-болванки не трогаем: их тон — часть гипотезы (A/B полюса №27). --- */
+  const rplusSlots = slots.filter((s) => s.rating === 'R+' && s.kind !== 'EXP')
+  const toneCycle: Array<'dark' | 'mid' | 'light'> = ['dark', 'mid', 'light']
+  const darkCount = Math.max(1, Math.ceil(rplusSlots.length / 3))
+  const tonePlan: Array<'dark' | 'mid' | 'light'> = []
+  for (let i = 0; i < rplusSlots.length; i++) {
+    if (i < darkCount) tonePlan.push('dark')
+    else tonePlan.push(toneCycle[(i - darkCount) % 2 === 0 ? 1 : 2])
+  }
+  rng.shuffle(tonePlan)
+  rplusSlots.forEach((s, i) => {
+    s.fabricTone = tonePlan[i] ?? 'mid'
+  })
+  report.push(
+    `ЗАКОН №27: тон вещи на ${rplusSlots.length} R+-слотах — dark ${tonePlan.filter((t) => t === 'dark').length} / mid ${tonePlan.filter((t) => t === 'mid').length} / light ${tonePlan.filter((t) => t === 'light').length} (through-заявка только на dark; кластер светлых ≤ 3 — вердикты T4-26/T4-28)`
   )
 
   /* --- echo-мотивы: 2-3, арка трёх актов, мутации из разных групп --- */
@@ -816,6 +897,8 @@ export function planRawPlus(opts: PlanOptions): RawPlusPlan {
       ...(s.arch ? { arch: s.arch } : {}),
       ...(s.diceSig ? { diceSig: s.diceSig } : {}),
       ...(s.dice ? { dice: s.dice } : {}),
+      ...(s.fabricTone ? { fabricTone: s.fabricTone } : {}),
+      ...(s.exp ? { exp: s.exp } : {}),
       ...(s.ab ? { ab: s.ab } : {}),
       ...(s.targetChannel ? { targetChannel: s.targetChannel } : {}),
       ...(s.targetChannelNote ? { targetChannelNote: s.targetChannelNote } : {}),
@@ -957,7 +1040,7 @@ function main() {
       [
         'gen-rawplus — RAW+ генератор контрактов (кины + hair/eye E3 + echo F13 + окно)',
         '',
-        '  bun thread4/tools/gen-rawplus.ts T4-28 "THEME NAME" [--seed N] [--races N] [--echo 2|3]',
+        '  bun thread4/tools/gen-rawplus.ts T4-28 "THEME NAME" [--seed N] [--races N] [--echo 2|3] [--exp N]',
         '                                     [--oc A,B,C] [--exquisite N] [--rebuild-of T4-NN] [--dry] [--force]',
         '  bun thread4/tools/gen-rawplus.ts --from-draft T4-28 [--seed N] [--dry] [--force]',
         '  bun thread4/tools/gen-rawplus.ts --demo',
@@ -1012,6 +1095,7 @@ function main() {
 
   const seed = flag('--seed') ? Number(flag('--seed')) : Date.now()
   const races = flag('--races') ? Number(flag('--races')) : undefined
+  const exp = flag('--exp') ? Number(flag('--exp')) : undefined
   const echo = flag('--echo') ? Number(flag('--echo')) : undefined
   const exquisite = flag('--exquisite') ? Number(flag('--exquisite')) : undefined
   const rebuildOf = flag('--rebuild-of')
@@ -1026,6 +1110,7 @@ function main() {
     theme,
     seed,
     ...(races !== undefined ? { races } : {}),
+    ...(exp !== undefined ? { exp } : {}),
     ...(echo !== undefined ? { echo } : {}),
     ...(ocOrder ? { ocOrder } : {}),
     ...(exquisite !== undefined ? { exquisite } : {}),
