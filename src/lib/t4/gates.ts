@@ -9,7 +9,7 @@
 import crypto from 'node:crypto'
 import path from 'node:path'
 
-import { BATCHES_DIR, CONTRACTS_DIR, readJson, readText } from './fsutil'
+import { assertSafeSlug, BATCHES_DIR, CONTRACTS_DIR, readJson, readText } from './fsutil'
 import { appendEvent, foldState, readEvents } from './events'
 import { getBans, getCarriers, getOCCanon, getRaces, getRatingRecipes, getRatingTechniques, type TechniqueEntry } from './specs'
 import { LAWS } from './compiler'
@@ -249,6 +249,10 @@ export function windowOthersFor(
 }
 
 export function runGates(slug: string, dryRun = false): GatesResult | null {
+  /* defense-in-depth (аудит 2026-10-12): slug идёт в path.join ниже и
+   * в window-гейте на contracts/ — без валидации path traversal был
+   * возможен из любого нового вызывающего (CLI/скрипты/роуты). */
+  assertSafeSlug(slug)
   const file = readText(path.join(BATCHES_DIR, `${slug}.md`))
   if (file == null) return null
 

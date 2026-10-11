@@ -26,7 +26,7 @@ import { appendEvent, bootstrapChain, foldState, healChainTail, nextBatchNumber,
 import { getDeliveryStats, getPolicy, specInventory } from '../src/lib/t4/specs'
 import { buildReaperDraft } from '../src/lib/t4/reaper'
 import { scanSource } from '../src/lib/t4/hygiene'
-import { writeText } from '../src/lib/t4/fsutil'
+import { isSafeSlug, writeText } from '../src/lib/t4/fsutil'
 
 const cmd = process.argv[2] ?? ''
 
@@ -164,8 +164,10 @@ async function main() {
 
   if (cmd === 'check' || cmd === 'gates' || cmd === 'deliver') {
     const slug = process.argv[3]
-    if (!slug) {
-      console.error(`usage: ${cmd} T4-01`)
+    /* аудит 2026-10-12: slug шёл в path.join без валидации — у кромки CLI
+     * отбиваем traversal до вызова ядра (ядро валидирует независимо) */
+    if (!slug || !isSafeSlug(slug)) {
+      console.error(`usage: ${cmd} T4-NN[/суффикс] (только буквы/цифры/точка/дефис)`)
       process.exit(1)
     }
     if (cmd === 'deliver') {
@@ -1010,6 +1012,12 @@ async function main() {
         nextBatchNumber(st.batches) === 94
       )
       check('нумерация: чистый лист стартует с T4-01', nextBatchNumber([]) === 1)
+      const { isSafeSlug } = await import('../src/lib/t4/fsutil')
+      check(
+        'slug-гвард: легальные слаги T4-29 / T4-27.2-EXP проходят, ../ и абсолютные пути — нет',
+        isSafeSlug('T4-29') && isSafeSlug('T4-27.2-EXP') &&
+        !isSafeSlug('../etc/passwd') && !isSafeSlug('/etc/passwd') && !isSafeSlug('T4-..') && !isSafeSlug('T4-a/b')
+      )
     }
 
     console.log(`\nselftest: ${ok} pass, ${fail} fail`)

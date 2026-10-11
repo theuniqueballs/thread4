@@ -5,7 +5,7 @@
  */
 import path from 'node:path'
 
-import { BATCHES_DIR, CONTRACTS_DIR, readJson, readText, writeJson, writeText } from './fsutil'
+import { assertSafeSlug, BATCHES_DIR, CONTRACTS_DIR, readJson, readText, writeJson, writeText } from './fsutil'
 import { appendEvent, readEvents } from './events'
 import { parseBatch, runGates, type GatesResult } from './gates'
 import { LAWS } from './compiler'
@@ -20,6 +20,9 @@ export interface DeliverResult {
 }
 
 export function deliverBatch(slug: string): DeliverResult | null {
+  /* defense-in-depth (аудит 2026-10-12): deliver ПИШЕТ batches/${slug}.md
+   * и .json — без валидации slug это была запись за пределы каталога. */
+  assertSafeSlug(slug)
   const text0 = readText(path.join(BATCHES_DIR, `${slug}.md`))
   if (text0 == null) return null
 

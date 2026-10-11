@@ -19,8 +19,11 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'bad json' }, { status: 400 })
   }
   const slug = (body.slug ?? '').trim()
-  if (!/^T4-\d{2}$/.test(slug)) {
-    return NextResponse.json({ error: 'slug expected: T4-NN' }, { status: 400 })
+  /* аудит 2026-10-12: регэксп расширен до суффиксных слагов (T4-27.2-EXP и
+   * родня EXP/RAW легальны — раньше API отбивал их 400-й); [A-Za-z0-9]
+   * после разделителя исключает '..' и любые разделители пути */
+  if (!/^T4-\d{2}(?:[-.][A-Za-z0-9]+)*$/.test(slug)) {
+    return NextResponse.json({ error: 'slug expected: T4-NN[-suffix]' }, { status: 400 })
   }
 
   if (body.deliver) {

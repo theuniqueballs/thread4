@@ -71,6 +71,22 @@ export function writeText(p: string, content: string): void {
   scheduleSnapshot(`write:${path.relative(process.cwd(), p)}`)
 }
 
+/** Слаг батча: T4- + алфанумерика/точка/дефис/суффиксы (T4-27.2-EXP), БЕЗ
+ *  разделителей пути. Аудит 2026-10-12: cli check/gates/deliver и ядро
+ *  (runGates/deliverBatch) передавали slug в path.join без валидации —
+ *  defense-in-depth на краю ядра (API-край уже валидировал). */
+export function isSafeSlug(slug: string): boolean {
+  return /^T4-[A-Za-z0-9]([A-Za-z0-9.-]{0,30}[A-Za-z0-9])?$/.test(slug)
+}
+
+export function assertSafeSlug(slug: string): void {
+  if (!isSafeSlug(slug)) {
+    throw new Error(
+      `bad slug ${JSON.stringify(slug.slice(0, 40))}: ожидается T4-NN[/суффикс] — только буквы/цифры/точка/дефис, без разделителей пути`
+    )
+  }
+}
+
 /** Ключ командира: строка из ~/.t4/commander.key или null, если ключа нет. */
 export function readCommanderKey(): string | null {
   const raw = readText(COMMANDER_KEY)
