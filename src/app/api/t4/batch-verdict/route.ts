@@ -123,7 +123,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true, event: evtL, light: true, verdict: label })
   }
 
-  const rawSlots = Array.isArray(body.slots) ? body.slots : []
+  const rawSlots = Array.isArray(body.slots) ? body.slots.slice(0, 60) : []
   if (rawSlots.length === 0) {
     return NextResponse.json({ error: 'slots required (одна запись на батч)' }, { status: 400 })
   }

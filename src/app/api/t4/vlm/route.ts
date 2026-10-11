@@ -40,7 +40,15 @@ export async function POST(req: Request) {
   if (!b64 || b64.length < 100) {
     return NextResponse.json({ error: 'imageBase64 required' }, { status: 400 })
   }
+  /* аудит 2026-10-12: капа тела + allowlist типа — безлимитный base64 и
+   * произвольный mimeType шли прямо в data:-URL промпта VLM */
+  if (b64.length > 10_000_000) {
+    return NextResponse.json({ error: 'image too large (base64 ≤ 10M символов)' }, { status: 413 })
+  }
   const mimeType = body.mimeType ?? 'image/png'
+  if (!/^image\/(png|jpe?g|webp|gif)$/.test(mimeType)) {
+    return NextResponse.json({ error: 'mimeType: image/png|jpeg|webp|gif' }, { status: 400 })
+  }
 
   try {
     const zai = await ZAI.create()

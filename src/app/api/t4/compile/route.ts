@@ -30,6 +30,11 @@ export async function POST(req: Request) {
   if (!theme) {
     return NextResponse.json({ error: 'theme required' }, { status: 400 })
   }
+  /* аудит 2026-10-12: капы входа — тема течёт в контракт, летопись и
+   * промпты писца; безлимитная тема = раздувание летописи и токенов */
+  if (theme.length > 500) {
+    return NextResponse.json({ error: 'theme too long (≤500 символов)' }, { status: 413 })
+  }
   // author's OC themes: keep only sane string→string pairs (≤300 chars each)
   const ocThemes: Record<string, string> = {}
   if (body.ocThemes && typeof body.ocThemes === 'object' && !Array.isArray(body.ocThemes)) {
@@ -42,14 +47,16 @@ export async function POST(req: Request) {
   }
   try {
     const contract = compileBatch(theme, {
-      ocOrders: Array.isArray(body.ocOrders) ? body.ocOrders : undefined,
+      ocOrders: Array.isArray(body.ocOrders)
+        ? body.ocOrders.map(String).map((s) => s.trim()).filter(Boolean).slice(0, 8).map((s) => s.slice(0, 60))
+        : undefined,
       ocThemes: Object.keys(ocThemes).length > 0 ? ocThemes : undefined,
-      engine: typeof body.engine === 'string' && body.engine.trim() ? body.engine.trim() : undefined,
+      engine: typeof body.engine === 'string' && body.engine.trim() ? body.engine.trim().slice(0, 80) : undefined,
       exquisite: typeof body.exquisite === 'number' ? body.exquisite : undefined,
       exploratory: typeof body.exploratory === 'number' ? body.exploratory : undefined,
       // прицел автора (Залп 2, policy.author_pin): назначения вопреки статистике
       authorPin: Array.isArray(body.authorPin)
-        ? body.authorPin.map(String).map((s) => s.trim()).filter(Boolean)
+        ? body.authorPin.map(String).map((s) => s.trim()).filter(Boolean).slice(0, 12).map((s) => s.slice(0, 120))
         : undefined,
     })
     return NextResponse.json({

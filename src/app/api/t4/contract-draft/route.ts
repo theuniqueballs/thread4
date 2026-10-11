@@ -127,6 +127,12 @@ export async function POST(req: Request) {
   if (theme === '') {
     return NextResponse.json({ error: 'тема обязательна' }, { status: 400 })
   }
+  /* аудит 2026-10-12: капы брифа — тема/пожелания/заметки идут в файлы
+   * черновика и событие note в летопись (4000-гвард summary рвалась
+   * нечитаемой 422-й на дальнем краю) */
+  if (theme.length > 300) {
+    return NextResponse.json({ error: 'тема длиннее 300 символов' }, { status: 413 })
+  }
   const ocThemes = (body.ocThemes ?? []).slice(0, 3).map((o, i) => ({
     theme: String(o.theme ?? '').trim(),
     rating: RATINGS.has(String(o.rating)) ? String(o.rating) : 'R+',
@@ -152,7 +158,7 @@ export async function POST(req: Request) {
     createdAt: new Date().toISOString(),
     theme,
     ocThemes,
-    mainWishes: String(body.mainWishes ?? '').trim(),
+    mainWishes: String(body.mainWishes ?? '').trim().slice(0, 2000),
     ...(themeWords.length > 0 ? { themeWords } : {}),
     species: {
       on: body.speciesOn === true,
@@ -163,7 +169,7 @@ export async function POST(req: Request) {
     abPairs: Math.max(0, Math.min(3, Number(body.abPairs ?? 0) || 0)),
     rehab: body.rehab === true,
     engine: String(body.engine ?? 'per-theme'),
-    notes: String(body.notes ?? '').trim(),
+    notes: String(body.notes ?? '').trim().slice(0, 1000),
   }
 
   const jsonPath = `${DRAFTS_DIR}/${slug}-draft.json`
