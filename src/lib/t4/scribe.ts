@@ -100,7 +100,7 @@ interface ScribeCtx {
 /* ------------------------------------------------------------------ */
 
 const GOLD_EXAMPLE = `P04 — aob-letterpress (VOLT · P46_INK_WASH · R+)
-POS: anime style, ecchi anime style, original character, 1girl, solo, dark brown hair in a low bun, ink-smudged cheek, grey eyes, linen work apron, chest resting on the press bed edge, breast pressed flat against the steel press rim, the apron gone see-through at the press, clothed nipples through the pressed apron, nothing underneath the apron, cranking the press lever with her shoulder, both hands holding the lead type line, letterpress shop at night, extreme fanservice, upper body, ink-wash-black sumi-ink-deep with paper-ivory washi-pale secondary, single-stroke-vermilion accent, ink-shadow-mid grey, stylized 2D anime face, anime eyes (grey, focused), small nose, small mouth, warm press glow falling on the pressed apron, the art of the extraordinary page, masterpiece, best quality, anime artstyle.`
+POS: anime style, ecchi anime style, original character, 1girl, solo, dark brown hair in a low bun, ink-smudged cheek, grey eyes, linen work apron, chest resting on the press bed edge, breast pressed flat against the steel press rim, the apron gone see-through at the press, clothed nipples through the pressed apron, nothing underneath the apron, cranking the press lever with her shoulder, both hands holding the lead type line, letterpress shop at night, extreme fanservice, upper body, ink-wash-black sumi-ink-deep with paper-ivory washi-pale secondary, single-stroke-vermilion accent, ink-shadow-mid grey, stylized 2D anime face, anime eyes (grey, focused), small nose, small mouth, warm press glow falling on the pressed apron, masterpiece, best quality, anime artstyle.`
 
 const SYSTEM_PROMPT = `You are THE HOUSE SCRIBE of THREAD 4, an anime-art prompt pipeline (Tsubaki.2 Pro renderer → Yodayo). You write single-image ecchi prompts. Your output is assembled by a machine into the batch file; malformed output breaks the machine — follow the format EXACTLY.
 
@@ -112,9 +112,9 @@ POS = ONE comma-separated TAG RUN ending with "masterpiece, best quality, anime 
 4. PALETTE: the slot's sd_fragment VERBATIM (dominants + secondary + edge as color-word tags) + the ONE saturated accent as a named color — colored fabrics, never default white (вердикт автора: «делай разноцветно»).
 5. FACE BLOCK as TAGS: stylized 2D anime face, anime eyes ([color], [expression]), small nose, small mouth,
 6. LIGHT ON THE CLAIM ZONE (закон №21): one light source falling ON the garment/zone the claim lives on — a glow word + the target.
-7. THEME PHRASE: one compact hyphen-free phrase-tag of the batch theme for THIS slot, then: masterpiece, best quality, anime artstyle.
+7. THEME AS DRAWABLES ONLY (закон №26): the theme reaches THIS frame ONLY through what a renderer can DRAW — the batch's physical-law tags, palette/light tags, scene objects, and the face's expression tags. The theme TITLE never appears in POS — not as a phrase, not as a word-run, not paraphrased (author's order, T4-28: «буквально всё, что в позитиве, уходит в рендер» — an abstract title tag poisons the picture). No poetic abstraction tags: «study weight», «waltz decay», «phantom strain» are prose, not drawables. Then close: masterpiece, best quality, anime artstyle.
 
-NO PROSE. NO SENTENCES. NO DIALOGUE. NO MONOLOGUE. If it cannot be DRAWN as nouns in a tag, it does not exist in POS (author's order, T4-28 retro-fix: «неописуемая проза… ты нихуя не нарисуешь»). Phrase-tags ARE legal (contact geometry, light falls, theme phrases) — they are noun-led, verb-quiet, comma-joined. Exactly ONE period: the final one. No quotes, no colons after "rendered", no "she/her" pronouns — the tag run carries nouns only.
+NO PROSE. NO SENTENCES. NO DIALOGUE. NO MONOLOGUE. If it cannot be DRAWN as nouns in a tag, it does not exist in POS (author's order, T4-28 retro-fix: «неописуемая проза… ты нихуя не нарисуешь»). Phrase-tags ARE legal (contact geometry, light falls) — they are noun-led, verb-quiet, comma-joined, and every noun names a DRAWABLE thing. Exactly ONE period: the final one. No quotes, no colons after "rendered", no "she/her" pronouns — the tag run carries nouns only.
 
 THE RATING IS EARNED BY TAGS. Each slot names its tier and the REQUIRED signal tags — include AT LEAST the stated minimum in the TAG RUN, and NEVER include signal tags of a higher tier (overclaim fails the gate).
 
@@ -129,7 +129,7 @@ NAMES NEVER ENTER POS (author's order, T4-04): no character names anywhere in PO
 THE TECHNIQUE MAP (author's table, 2026-09-21 — full map: specs/rating-techniques.json): a tier is a SUM OF LAYERS. Four layers: (1) WHAT is shown — clothes / breast tags; (2) HOW it is shown — camera / pose tags; (3) WHY it is shown — face / mood / ecchi-intent tags; (4) WHAT the model draws itself — water / sheer / «accident» tags. R+ = 3+ R-ladder signals across 2+ layers (2 signals is the R/R+ border, 1 is PG-13/R). X Cut = ONE hard fact — a visible nipple or areola — never a sum of hints; the lower body stays out of frame (upper body / portrait / cowboy shot) or clothed (skirt / shorts / panties / pants), never spread legs. TRAPS (the model draws the X itself): covering breasts, hair covering breasts, almost naked, torn clothes, clothes pull, bath/bathhouse/onsen, undressing. SUPPRESSORS (hold a frame at PG-13): standing+shy, magazine cover, fashion editorial. An R+ frame spreads its signals across layers — the claim (1) + the fabric state (4) + at least one camera/pose/intent tag (2 or 3); «looks erotic but does nothing» is the failure this kills.
 
 GENRES — the author must see the difference at a glance:
-- OC: her canon locks exact; the batch law rides her assigned theme.
+- OC: her canon locks exact; the batch law rides her assigned theme — and her theme-NAME never enters POS either: draw its meaning (scene, pose, light), never its title.
 - NICHE: the IMPOSSIBLE image. The race's anatomy does PHYSICAL WORK in the frame (mechanism, not costume) — race tags in the tag block, the impossibility is the FIRST read of the silhouette, the witness object holds the frame.
 - VOLT: FLESH. Camera as participant (low-angle, over-shoulder, through-gap), body in motion (tagged physical state), gaze a deliberate vector (locked/averted/half-lidded), exposure by explicit signal tag.
 - EXQUISITE: the ultra of its genre — extremity with dignity.
@@ -301,7 +301,7 @@ function slotFrame(slot: SlotPlan, ctx: ScribeCtx): string {
     const k1 = ctx.themeKeywords[slot.position % ctx.themeKeywords.length]
     const k2 = ctx.themeKeywords[(slot.position + Math.floor(ctx.themeKeywords.length / 2)) % ctx.themeKeywords.length]
     const words = k2 && k2 !== k1 ? `${k1} AND ${k2}` : k1
-    lines.push(`theme words for THIS slot (weave into the TAG RUN — the THEME is what the frame is ABOUT): ${words}`)
+    lines.push(`theme words for THIS slot (weave into the TAG RUN as DRAWABLE tags/compounds — objects, materials, physical states; NEVER the theme title itself, NEVER abstract nouns): ${words}`)
   }
   if (recipe) {
     const hardSignals = recipe.signals_hard ?? []
@@ -731,7 +731,7 @@ export async function scribeBatch(
   const spineRaw = await chat(
     zai,
     systemPrompt(),
-    `BATCH ${slug} «${theme}». THE THEME IS THE LAW.${wishesBlock}\n\nInvent a ONE-BATCH ENGINE for this theme (3.2-традиция, одноразовый): a physical law SPECIFIC to this theme that bends fabric, light, physics and wardrobe in every frame — not a generic style. The engine lives for this batch only. Return EXACTLY, nothing else:\nENGINE: <2-4 words, name of the engine>\nLAW: <1-2 sentences: the physical law and how the wardrobe obeys it>\nTHEME-KEYWORDS: <5-8 English tag-safe words from the THEME itself — objects, places, states, materials that can appear inside tags and prose (NOT style words)>\nTHESIS: <one paragraph, 90-140 words: the batch's ONE law, physical and testable in-frame, how the THEME (not the engine) is delivered across the 24 frames, and how the three acts escalate it>\nACT I: <WIDE sub-theme name, 2-5 words — each act must hold VERY different pictures>\nACT II: <WIDE sub-theme name>\nACT III: <WIDE sub-theme name>`,
+    `BATCH ${slug} «${theme}». THE THEME IS THE LAW.${wishesBlock}\n\nInvent a ONE-BATCH ENGINE for this theme (3.2-традиция, одноразовый): a physical law SPECIFIC to this theme that bends fabric, light, physics and wardrobe in every frame — not a generic style. The engine lives for this batch only. Return EXACTLY, nothing else:\nENGINE: <2-4 words, name of the engine>\nLAW: <1-2 sentences: the physical law and how the wardrobe obeys it>\nTHEME-KEYWORDS: <5-8 English tag-safe words from the THEME itself — drawable objects, places, materials, physical states that can appear INSIDE tags (NOT style words, NOT the theme title verbatim, NOT abstractions — only what a renderer can draw)>\nTHESIS: <one paragraph, 90-140 words: the batch's ONE law, physical and testable in-frame, how the THEME (not the engine) is delivered across the 24 frames, and how the three acts escalate it>\nACT I: <WIDE sub-theme name, 2-5 words — each act must hold VERY different pictures>\nACT II: <WIDE sub-theme name>\nACT III: <WIDE sub-theme name>`,
     log
   )
   const engineName = (/^ENGINE:\s*(.+)$/m.exec(spineRaw)?.[1] ?? 'per-theme').trim().slice(0, 60)

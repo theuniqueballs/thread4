@@ -75,9 +75,9 @@ export const DICE: Die[] = [
     id: 'C',
     title: 'интеграция темы ( THEME-KEYWORDS )',
     faces: [
-      { code: 'C1', what: 'theme-noun', how: 'тема — существительное в кадре (объект с именем темы)' },
-      { code: 'C2', what: 'theme-action', how: 'она ГЛАГОЛИТ тему (does the theme)' },
-      { code: 'C3', what: 'theme-absence', how: 'тема — то, чего в кадре НЕТ (отсутствие названо)' },
+      { code: 'C1', what: 'theme-noun', how: 'тема стала ОБЪЕКТОМ кадра (нарисованная вещь — не название темы в тегах)' },
+      { code: 'C2', what: 'theme-action', how: 'она ДЕЛАЕТ тему телом/действием (нарисованное действие, без слов темы)' },
+      { code: 'C3', what: 'theme-absence', how: 'тема — то, чего в кадре НЕТ (пустота НАРИСОВАНА: пустой стул, открытая дверь — не названа тегом)' },
       { code: 'C4', what: 'theme-transform', how: 'тема ИЗМЕНИЛА её/мир (результат виден)' },
       { code: 'C5', what: 'theme-witness', how: 'свидетель видит тему (третий глаз кадра)' },
       { code: 'C6', what: 'theme-implied', how: 'тема вплетена без явного слова (только теги)' },

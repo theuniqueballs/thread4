@@ -1573,6 +1573,18 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
         'sex', 'sexual act',
       ]
       const palCount: Record<string, number> = {}
+      /* закон №26 «тема — не тег» (авторский приказ из чата 2026-10-12:
+       * «зачем ты в позитиве всегда пишешь название темы… буквально всё,
+       * что ты там пишешь, переходит на сам рендер»): название темы батча
+       * не имеет права появляться в POS — ни целиком, ни пробегом слов.
+       * Рендерер рисует СЛОВА: абстрактный тайтл-тег травит кадр (T4-28 v1:
+       * «dead on the inside» во всех 24 POS; тот же корень в T4-25
+       * «no normal options …», T4-26 «the other version of …», T4-27
+       * «the extraordinary …»). Тема живёт через отрисуемое: физический
+       * закон, палитра, свет, объекты, выражение лица. */
+      const themeTitle = (/^#\s*[^\n]*?["«]([^"»\n]+)["»]/m.exec(file) ?? [])[1]?.trim() ?? ''
+      const titleWords = themeTitle.toLowerCase().match(/[a-zа-яё0-9']+/g) ?? []
+      const TITLE_STOP = new Set(['the', 'a', 'an', 'of', 'on', 'in', 'and', 'or', 'to', 'no', 'is', 'for', 'her'])
       for (const s of batch.slots) {
         const pal = resolvePalette(s.position, s.header)
         if (pal) palCount[pal] = (palCount[pal] ?? 0) + 1
@@ -1593,6 +1605,22 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
         if (/["“”«»]/.test(s.pos)) slotF.push('диалог/кавычки в POS — проза запрещена (закон №23)')
         if (/is rendered in/i.test(s.pos)) slotF.push('PH face-lock проза в POS («is rendered in…») — RAW+ пишет face-блок тегом (закон №23)')
         if (/\bshe\b/i.test(s.pos)) slotF.push('прозовое местоимение «she» в POS — теги несут существительные (закон №23)')
+        /* закон №26: тайтл темы не в POS — ни целиком, ни пробегом ≥3 слов
+         * (нормализация: не-буквы → пробел, ловит и дефисные уловки) */
+        if (titleWords.length >= 2) {
+          const posN = s.pos.toLowerCase().replace(/[^a-zа-яё0-9']+/g, ' ')
+          const full = titleWords.join(' ')
+          let titleHit = ''
+          if (posN.includes(full)) titleHit = themeTitle
+          else if (titleWords.length >= 3) {
+            for (let i = 0; i + 3 <= titleWords.length && !titleHit; i++) {
+              const run = titleWords.slice(i, i + 3)
+              if (run.every((w) => TITLE_STOP.has(w))) continue
+              if (posN.includes(run.join(' '))) titleHit = `…${run.join(' ')}…`
+            }
+          }
+          if (titleHit) slotF.push(`закон №26: название темы в POS (${titleHit}) — всё из позитива уходит в рендер, тайтл-тег травит кадр; тема через отрисуемое (закон/палитра/свет/объекты/лицо)`)
+        }
         /* закон №25: авторский бан-лист NEG (X-слоты держат coverage-блок — их исключаем) */
         if (tierOf(s.meta) !== 'X') {
           for (const t of NEG_BAN) {

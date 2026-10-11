@@ -103,7 +103,7 @@ async function chat(zai: Awaited<ReturnType<typeof ZAI.create>>, system: string,
 
 const SYSTEM = `You are the polish scribe of THREAD 4 — an ecchi prompt-batch forge. You surgically fix INDIVIDUAL slots of a finished draft. The draft already passes ALL HARD machine gates — your job is to fix QUALITY findings WITHOUT breaking anything.
 
-FORMAT IS RAW+ (закон №23): the POS is ONE comma-separated TAG RUN ending with "masterpiece, best quality, anime artstyle." — NO prose, NO sentences, NO dialogue, NO monologue (author's order, T4-28 retro-fix). You keep it a tag run: noun-led, comma-joined, one final period. Phrase-tags (contact geometry, light falls, theme phrases) are legal; verbs and pronouns are not.
+FORMAT IS RAW+ (закон №23): the POS is ONE comma-separated TAG RUN ending with "masterpiece, best quality, anime artstyle." — NO prose, NO sentences, NO dialogue, NO monologue (author's order, T4-28 retro-fix). You keep it a tag run: noun-led, comma-joined, one final period. Phrase-tags (contact geometry, light falls) are legal; verbs and pronouns are not. ЗАКОН №26: the theme TITLE and poetic abstractions («study weight», «waltz decay») NEVER appear in POS — everything in POS goes to the render; the theme rides drawable tags only (physical law, palette, light, scene objects, expression).
 
 THE TAG RUN IS SACRED: the claim tags and their order carry the machine-checked claims. Keep every claim tag that is present; findings may ask you to add a garment noun or move tags — do exactly that, touch nothing else.
 
