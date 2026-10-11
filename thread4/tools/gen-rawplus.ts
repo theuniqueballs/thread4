@@ -788,17 +788,19 @@ export function planRawPlus(opts: PlanOptions): RawPlusPlan {
   const rplusSlots = slots.filter((s) => s.rating === 'R+' && s.kind !== 'EXP')
   const toneCycle: Array<'dark' | 'mid' | 'light'> = ['dark', 'mid', 'light']
   const darkCount = Math.max(1, Math.ceil(rplusSlots.length / 3))
+  const lightCount = Math.min(3, Math.max(1, Math.floor(rplusSlots.length / 5)))
   const tonePlan: Array<'dark' | 'mid' | 'light'> = []
   for (let i = 0; i < rplusSlots.length; i++) {
     if (i < darkCount) tonePlan.push('dark')
-    else tonePlan.push(toneCycle[(i - darkCount) % 2 === 0 ? 1 : 2])
+    else if (i < darkCount + lightCount) tonePlan.push('light')
+    else tonePlan.push('mid')
   }
   rng.shuffle(tonePlan)
   rplusSlots.forEach((s, i) => {
     s.fabricTone = tonePlan[i] ?? 'mid'
   })
   report.push(
-    `ЗАКОН №27: тон вещи на ${rplusSlots.length} R+-слотах — dark ${tonePlan.filter((t) => t === 'dark').length} / mid ${tonePlan.filter((t) => t === 'mid').length} / light ${tonePlan.filter((t) => t === 'light').length} (through-заявка только на dark; кластер светлых ≤ 3 — вердикты T4-26/T4-28)`
+    `ЗАКОН №27: тон вещи на ${rplusSlots.length} R+-слотах — dark ${tonePlan.filter((t) => t === 'dark').length} / mid ${tonePlan.filter((t) => t === 'mid').length} / light ${tonePlan.filter((t) => t === 'light').length} (through-заявка только на dark; кластер светлых ≤ 3 — вердикты T4-26/T4-28)${slots.some((s) => s.kind === 'EXP') ? ' + EXP-пара №27 (light/dark полюса)' : ''}`
   )
 
   /* --- echo-мотивы: 2-3, арка трёх актов, мутации из разных групп --- */
