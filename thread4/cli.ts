@@ -432,7 +432,7 @@ async function main() {
     const tech = inv.find((s) => s.id === 'rating-techniques')
     check('техника-карта в инвентаре (>=100 приёмов)', (tech?.count ?? 0) >= 100)
     const recipes = inv.find((s) => s.id === 'rating-recipes')
-    check('рецепт v1.8.0 (закон №14 подслой-лок + №25 NEG-гигиена + №27 канал R+ «бугорок да, розовое нет»: fabric_tone_law + canonical_danbooru)', recipes?.version === '1.8.0')
+    check('рецепт v1.8.1 (закон №14 подслой-лок + №25 NEG-гигиена + №27 канал R+ «бугорок да, розовое нет»: fabric_tone_law + canonical_danbooru + breast clinging в required_state)', recipes?.version === '1.8.1')
     // статa доставки (рекомендация Claude №2, external.review 2026-09-23;
     // v0.2.0 — вердикт T4-05: 13 → 18 каналов)
     const dstats = inv.find((s) => s.id === 'delivery-stats')
@@ -732,9 +732,13 @@ async function main() {
         (await import('node:fs')).readFileSync('thread4/contracts/T4-27.json', 'utf-8')
       ) as { slots: { palette?: string }[] }
       const windowPals = new Set(c27.slots.map((s) => s.palette).filter(Boolean))
+      /* EXP-пары одной переменной делят палитру (закон №27-эксперимент):
+       * уникальность — внутри мейнов; пара — сознательное клонирование */
+      const expPalettes = p1.slots.filter((s) => s.kind === 'EXP').map((s) => s.palette)
       check(
-        'gen-rawplus: 24 уникальные палитры + EXP-болванки, ни одна в окне ротации (T4-27 исключён)',
-        new Set(p1.slots.map((s) => s.palette)).size === law2.slotsTotal + expDemo.length &&
+        'gen-rawplus: 24 уникальные палитры мейнов + EXP-пары делят одну на пару, ни одна в окне ротации (T4-27 исключён)',
+        new Set(p1.slots.filter((s) => s.kind !== 'EXP').map((s) => s.palette)).size === law2.slotsTotal &&
+          (expPalettes.length === 0 || new Set(expPalettes).size === expPalettes.length / 2) &&
           p1.slots.every((s) => !windowPals.has(s.palette))
       )
       const mains = p1.slots.filter((s) => s.kind !== 'OC' && s.kind !== 'EXP')
@@ -843,8 +847,8 @@ async function main() {
         diceSigs.length === p3.slots.length && diceSigs.every((s) => /^[A-E]\d·[A-E]\d·[A-E]\d·[A-E]\d·[A-E]\d$/.test(s))
       )
       check(
-        'dice: скелеты уникальны в батче — два слота не делят структуру (включая EXP)',
-        new Set(diceSigs).size === p3.slots.length
+        'dice: скелеты уникальны в батче — два слота не делят структуру (клонируют только EXP-пары одной переменной)',
+        new Set(diceSigs).size === p3.slots.length - Math.floor(p3.slots.filter((s) => s.kind === 'EXP').length / 2)
       )
       check(
         'dice: инструкции кубиков едут в контракт (писец обязывается)',
