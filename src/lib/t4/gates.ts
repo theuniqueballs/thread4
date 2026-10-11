@@ -1605,8 +1605,17 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
        * «nipples through clothing» и «light on chest» — НЕ теги; рендерер
        * рисует ведущее существительное. Тёмная ткань гасит розовое
        * (P08 ink-indigo, P20 black — обе R+), светлая — проступает (X). */
+      /* СЛОВАРЬ ТЁМНЫХ ТОНОВ — один на три места: гейт, писец (NIPPLE
+       * CHANNEL LAW), TASTE §27 (синхронизация 2026-10-12: писец,
+       * following FABRIC TONE=dark, может назвать вещь «burgundy» /
+       * «dark red» — легитимно тёмкое слово, гейт не должен давать
+       * ложный FAIL; все добавки — того же класса темноты, что уже
+       * перечисленные: oxblood≈burgundy/wine/maroon, espresso≈chocolate/
+       * cocoa, black≈obsidian/onyx/raven/soot/sable/sumi/void).
+       * Ночь-семью (night-blue — квитанция P09, X) в тёмные НЕ считаем;
+       * navy без dark/deep — тоже нет (только dark navy / deep navy). */
       const DARK_TONE =
-        /\b(black|ink|midnight|charcoal|espresso|dark navy|deep navy|oxblood|void|sumi)\b/i
+        /\b(black|ink|midnight|charcoal|espresso|dark navy|deep navy|oxblood|void|sumi|burgundy|wine|maroon|plum|chocolate|cocoa|aubergine|obsidian|onyx|raven|soot|sable|dark red|deep red|dark green|deep green|forest green|dark brown|deep brown|dark teal|dark purple|dark violet|dark crimson)\b/i
       /* словарь верхов — общий с noun-lock и salience-chain (там список
        * расширялся под практику писца: crop top, hoodie, pullover…);
        * закон №27 читает тот же мир вещей, что и остальные гейты */

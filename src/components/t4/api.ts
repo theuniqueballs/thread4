@@ -13,48 +13,10 @@ import { useCallback, useEffect, useState } from 'react'
 /* Contract types                                                      */
 /* ------------------------------------------------------------------ */
 
-export interface T4Counts {
-  batches: number
-  events: number
-  carriers: number
-  poses: number
-  palettes: number
-}
-
-export interface T4State {
-  era: unknown
-  lastBatch: unknown
-  nextStep: unknown
-  gateHealth: unknown
-  counts: unknown
-  openDebts: unknown
-}
-
-export interface DocPayload {
-  title: string
-  markdown: string
-}
-
-export interface SpecMeta {
-  id: string
-  name: string
-  count: number
-  version: string
-}
-
-export interface SpecListPayload {
-  specs: SpecMeta[]
-}
-
-export interface ContractListItem {
-  slug: string
-  theme: string
-  createdAt: string
-}
-
-export interface ContractsPayload {
-  items: ContractListItem[]
-}
+/** Контрактные типы — только те, что реально текут по коду UI
+ *  (webDevReview #9, 2026-10-12: 18 мёртвых экспортов-документалистов
+ *  удалены — UI читает ядро через unknown + защитные аксессоры BY DESIGN,
+ *  имена форм живут в git-истории, если понадобятся снова). */
 
 export interface CompilePayload {
   slug: string
@@ -62,18 +24,8 @@ export interface CompilePayload {
   contract: unknown
 }
 
-export interface BatchListItem {
-  slug: string
-  title: string
-  date: string
-}
-
-export interface BatchesPayload {
-  items: BatchListItem[]
-}
-
 export type GateLevel = 'hard' | 'warn' | 'advisory'
-export type GateVerdict = 'PASS' | 'FAIL' | 'WARN'
+type GateVerdict = 'PASS' | 'FAIL' | 'WARN'
 
 export interface GateReceipt {
   gate: string
@@ -82,50 +34,12 @@ export interface GateReceipt {
   findings: string[]
 }
 
-export interface GatesPayload {
-  receipts: GateReceipt[]
-  summary: unknown
-}
-
-export interface BatchDetail {
-  slug: string
-  title: string
-  markdown: string
-  receipts: GateReceipt[]
-}
-
 export interface T4Event {
   id: string
   at: string
   type: string
   summary: string
   data?: unknown
-}
-
-export interface EventsPayload {
-  events: T4Event[]
-}
-
-export interface ArchiveItem {
-  name: string
-  size: number
-}
-
-export interface ArchivePayload {
-  items: ArchiveItem[]
-}
-
-export interface ArchiveDetail {
-  name: string
-  markdown: string
-}
-
-export interface ContractDetail {
-  slug: string
-  theme: string
-  createdAt: string
-  markdown: string
-  contract: unknown
 }
 
 export interface ScribeResponse {
@@ -193,7 +107,7 @@ export function commanderHeaders(): Record<string, string> {
   return key === '' ? {} : { 'x-commander-key': key }
 }
 
-export interface CommanderProbe {
+interface CommanderProbe {
   probe: true
   /** серверный замок существует (~/.t4/commander.key на месте) */
   serverKey: boolean

@@ -518,7 +518,13 @@ danbooru-списка (14 589 тегов): «nipples through clothing» и
     читается формой ткани, но розовое не проступает. Правила подачи:
 
     - **ТЁМНАЯ ткань** (black / ink / midnight / charcoal / espresso /
-      deep navy / oxblood / void — цвет-слово в теге вещи):
+      deep navy / dark navy / oxblood / burgundy / wine / maroon / plum /
+      chocolate / cocoa / aubergine / obsidian / onyx / raven / soot /
+      sable / void / sumi / dark-deep + red/green/brown/teal/purple/violet —
+      цвет-слово в теге вещи; инженерная синхронизация 2026-10-12:
+      один словарь на гейт-писец-TASTE, все добавки — того же класса
+      темноты, что оригинальный список; ночь-семья night-blue — НЕ
+      тёмная, квитанция P09):
       through-заявка разрешена («nipples through clothing» + «clothed
       nipples») — тьма гасит цвет, остаётся бугорок (P08/P20-квитанции).
     - **СВЕТЛАЯ/СРЕДНЯЯ ткань** (white / ash / rain-grey / moss /
