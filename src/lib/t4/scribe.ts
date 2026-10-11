@@ -837,8 +837,15 @@ export async function scribeBatch(
     `BATCH ${slug} «${theme}». THE THEME IS THE LAW.${wishesBlock}\n\nInvent a ONE-BATCH ENGINE for this theme (3.2-традиция, одноразовый): a physical law SPECIFIC to this theme that bends fabric, light, physics and wardrobe in every frame — not a generic style. The engine lives for this batch only. Return EXACTLY, nothing else:\nENGINE: <2-4 words, name of the engine>\nLAW: <1-2 sentences: the physical law and how the wardrobe obeys it>\nTHEME-KEYWORDS: <5-8 English tag-safe words from the THEME itself — drawable objects, places, materials, physical states that can appear INSIDE tags (NOT style words, NOT the theme title verbatim, NOT abstractions — only what a renderer can draw)>\nTHESIS: <one paragraph, 90-140 words: the batch's ONE law, physical and testable in-frame, how the THEME (not the engine) is delivered across the 24 frames, and how the three acts escalate it>\nACT I: <WIDE sub-theme name, 2-5 words — each act must hold VERY different pictures>\nACT II: <WIDE sub-theme name>\nACT III: <WIDE sub-theme name>`,
     log
   )
-  const engineName = (/^ENGINE:\s*(.+)$/m.exec(spineRaw)?.[1] ?? 'per-theme').trim().slice(0, 60)
-  const engineLawSpine = (/^LAW:\s*(.+)$/m.exec(spineRaw)?.[1] ?? '').trim().slice(0, 300)
+  /* спайн-парсер: модель любит украшать ключи маркдауном («### ENGINE: …» —
+   * находка T4-29: строгие /^KEY:/m молча падали в фолбэк, батч терял
+   * движок и тему-слова). Заголовки/болд перед ключом допускаются. */
+  const spineLine = (key: string): string =>
+    (
+      new RegExp(`^#{0,4}\\s*\\**\\s*${key}:\\**\\s*(.+)$`, 'm').exec(spineRaw)?.[1] ?? ''
+    ).trim()
+  const engineName = (spineLine('ENGINE') || 'per-theme').slice(0, 60)
+  const engineLawSpine = spineLine('LAW').slice(0, 300)
   /* наблюдаемость спайна (T4-29): парс помалкивал — фолбэк-акты прятали
    * отказ/пересменку формата модели; сырой ответ теперь виден оператору
    * до того, как батч соберётся без движка и темы */
@@ -861,7 +868,7 @@ export async function scribeBatch(
   } catch {
     /* архив не критичен для записи — движок живёт в шапке батча */
   }
-  ctx.themeKeywords = (/^THEME-KEYWORDS:\s*(.+)$/m.exec(spineRaw)?.[1] ?? '')
+  ctx.themeKeywords = (spineLine('THEME-KEYWORDS') || '')
     .split(',')
     .map((s) => s.trim().toLowerCase())
     .filter(Boolean)
@@ -869,13 +876,17 @@ export async function scribeBatch(
   /* TITLE IS THEME (вердикт автора 2026-09-27: «меняется название темы» —
      больше никогда): название батча = тема автора, без переименований */
   const title = theme
-  const thesisP = (/^THESIS:\s*\n?([\s\S]*?)(?=\nACT I:|$)/m.exec(spineRaw)?.[1] ?? '').trim()
+  const thesisP = (
+    new RegExp(`(?:^|\\n)#{0,4}\\s*\\**\\s*THESIS:\\**\\s*\\n?([\\s\\S]*?)(?=\\n#{0,4}\\s*\\**\\s*ACT I:|$)`, 'm').exec(
+      spineRaw
+    )?.[1] ?? ''
+  ).trim()
   ctx.batchThesis = thesisP || `The batch's law: ${ctx.engineLaw}`
   ctx.acts = [
-    (/^ACT I:\s*(.+)$/m.exec(spineRaw)?.[1] ?? 'The Law Arrives').trim(),
-    (/^ACT II:\s*(.+)$/m.exec(spineRaw)?.[1] ?? 'The Law Worn In').trim(),
-    (/^ACT III:\s*(.+)$/m.exec(spineRaw)?.[1] ?? 'What the Law Keeps').trim(),
-  ]
+    spineLine('ACT I') || 'The Law Arrives',
+    spineLine('ACT II') || 'The Law Worn In',
+    spineLine('ACT III') || 'What the Law Keeps',
+  ].map((a) => a.trim())
   say(`  · «${title}» · акты: ${ctx.acts.join(' / ')}`)
 
   /* ---- calls 1..N: slot chunks ---- */
