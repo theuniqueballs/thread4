@@ -429,6 +429,7 @@ const DOCS = [
   { id: 'facts', label: 'Рендерер-факты' },
   { id: 'forge', label: 'Кузница движков' },
   { id: 'niche', label: 'Ниша' },
+  { id: 'verdict-analysis', label: 'Анализ вердиктов' },
 ] as const
 
 function DocsTab() {
