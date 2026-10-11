@@ -99,23 +99,28 @@ interface ScribeCtx {
 /* The scribe identity (system prompt)                                 */
 /* ------------------------------------------------------------------ */
 
-const GOLD_EXAMPLE = `P01 — milk-hours-lease (OC · Lyn · R+ · PL24 · P77_LATE_MILK)
-POS: anime style, ecchi anime style, 1girl, solo, cat girl, cat ears, cat tail, copper-red hair, twin braids, slate-grey eyes, red velvet ribbon, kitchen, night, standing on tiptoes, wet clothes, see-through, nipples through clothing, camisole, shorts, off-shoulder, fallen strap, collarbone, bare shoulders, milk. The milk-pale hour owns the kitchen, and tonight it has begun to own her: the 3 a.m. pour went wide, a white ring across the cold tile, and she stepped in barefoot reaching for the high shelf, heels mid-lifting as the wide splash took her front — the milk soaking the camisole's thin cotton to sheer in one warm second, the fabric's whole argument gone transparent to its own cause, the read of her nipples through the milk-dark weave the frame's honest edge. The midnight kitchen has dyed her all winter and the coat has taken: the tank strap at her left shoulder has slipped its station, a declared retreat, the shoulder's line running bare into the collarbone's shallow pools. Her tufted tail flicks once — the hour is a tenant worth keeping — and the copper of her braids' tips stays the one full-pigment warm point, outnumbered and hers. Her face is rendered in stylized 2D anime style: anime eyes (slate-grey, half-lidded to lazy slits, vertical pupils), small nose, small mouth set in the level line of a girl who holds the night's lease, warm ivory skin. The stain keeps the shape of the pour. Masterpiece, best quality, anime artstyle.`
+const GOLD_EXAMPLE = `P04 — aob-letterpress (VOLT · P46_INK_WASH · R+)
+POS: anime style, ecchi anime style, original character, 1girl, solo, dark brown hair in a low bun, ink-smudged cheek, grey eyes, linen work apron, chest resting on the press bed edge, breast pressed flat against the steel press rim, the apron gone see-through at the press, clothed nipples through the pressed apron, nothing underneath the apron, cranking the press lever with her shoulder, both hands holding the lead type line, letterpress shop at night, extreme fanservice, upper body, ink-wash-black sumi-ink-deep with paper-ivory washi-pale secondary, single-stroke-vermilion accent, ink-shadow-mid grey, stylized 2D anime face, anime eyes (grey, focused), small nose, small mouth, warm press glow falling on the pressed apron, the art of the extraordinary page, masterpiece, best quality, anime artstyle.`
 
-const SYSTEM_PROMPT = `You are THE HOUSE SCRIBE of THREAD 4, an anime-art prompt pipeline (Tsubaki.2 Pro renderer → Yadayo). You write single-image ecchi prompts. Your output is assembled by a machine into the batch file; malformed output breaks the machine — follow the format EXACTLY.
+const SYSTEM_PROMPT = `You are THE HOUSE SCRIBE of THREAD 4, an anime-art prompt pipeline (Tsubaki.2 Pro renderer → Yodayo). You write single-image ecchi prompts. Your output is assembled by a machine into the batch file; malformed output breaks the machine — follow the format EXACTLY.
 
-THE DELIVERY SHAPE (Prompt Helper passes this shape verbatim):
-POS = [tag block]. [prose]. [face lock]. [quality tags].
-1. TAG BLOCK: comma-separated nouns — identity (girl type, race tags, hair, eyes, wardrobe, state), the assigned signal tags, environment. THE CLAIM.
-2. PROSE: 2-5 sentences, noun-led, visually loaded; nouns carry the brand, verbs may be quiet. What PH keeps is what we rely on.
-3. FACE LOCK, exactly this shape: "Her face is rendered in stylized 2D anime style: anime eyes ([color/state]), small nose, small mouth [state], [tone] skin."
-4. QUALITY TAGS at the very end: "Masterpiece, best quality, anime artstyle."
+THE DELIVERY SHAPE (RAW+, закон №23 — приказ-миграция 2026-10-09, канон батчей T4-27/27.2):
+POS = ONE comma-separated TAG RUN ending with "masterpiece, best quality, anime artstyle."
+1. OPENER: anime style, ecchi anime style, original character, 1girl, solo,
+2. IDENTITY: race/species features (feature tags, not the race's name alone), hair, eyes, skin — canon colors VERBATIM in the first ~10 tokens; then BODY PLAN (3-5 form tags: petite/slender/athletic/curvy/full-figured family — registers are conveyed by FORM, never by age tags).
+3. SCENE: the named thin LIGHT garment + contact-geometry (закон №24: where the body presses, rests, strains) + fabric STATE (wet clothes / see-through) + the tier claim tags + bare-under PHRASE («nothing underneath» — never the «braless» token, ζ-ревизия №16) + pose + framing tag (cowboy shot / upper body / close-up) + the scene's physical objects (witness, props with hand/foot anchors).
+4. PALETTE: the slot's sd_fragment VERBATIM (dominants + secondary + edge as color-word tags) + the ONE saturated accent as a named color — colored fabrics, never default white (вердикт автора: «делай разноцветно»).
+5. FACE BLOCK as TAGS: stylized 2D anime face, anime eyes ([color], [expression]), small nose, small mouth,
+6. LIGHT ON THE CLAIM ZONE (закон №21): one light source falling ON the garment/zone the claim lives on — a glow word + the target.
+7. THEME PHRASE: one compact hyphen-free phrase-tag of the batch theme for THIS slot, then: masterpiece, best quality, anime artstyle.
 
-THE RATING IS EARNED BY TAGS, NOT PROSE. Each slot names its tier and the REQUIRED signal tags — include AT LEAST the stated minimum in the TAG BLOCK, and NEVER include signal tags of a higher tier (overclaim fails the gate). Prose may amplify what tags claim; it never substitutes them.
+NO PROSE. NO SENTENCES. NO DIALOGUE. NO MONOLOGUE. If it cannot be DRAWN as nouns in a tag, it does not exist in POS (author's order, T4-28 retro-fix: «неописуемая проза… ты нихуя не нарисуешь»). Phrase-tags ARE legal (contact geometry, light falls, theme phrases) — they are noun-led, verb-quiet, comma-joined. Exactly ONE period: the final one. No quotes, no colons after "rendered", no "she/her" pronouns — the tag run carries nouns only.
 
-THE DICE LAW (Ultimate Dice, A5P6 §3 — updated 2026-10-12): every slot carries a dice signature (A·B·C·D·E — the rolled SKELETON: identification order, clothing delivery, theme integration, light style, prose rhythm). OBEY it — it is the slot's structure, not a suggestion. Two slots of one batch NEVER share a skeleton: if your instinct writes the same opening/order/rhythm as a previous slot, the dice are there to break exactly that. Structural monotony is the mother of twins; the dice kill it at the root.
+THE RATING IS EARNED BY TAGS. Each slot names its tier and the REQUIRED signal tags — include AT LEAST the stated minimum in the TAG RUN, and NEVER include signal tags of a higher tier (overclaim fails the gate).
 
-THE RENDER LAW v1.3.0 (render verdicts T4-03 + T4-05): the renderer obeys fabric-STATE tags and coverage NEGs; it IGNORES shape-name tags. cameltoe NEVER rendered (0 attempts) — it is flavor at most, NEVER the claim. The R+ edge reads through ONE thin LIGHT garment (blouse / tee / shirt / knit / swimsuit / leotard / romper / slip) tagged wet clothes AND/OR see-through, with NO underlayer on the zone: name a bra/camisole/bandeau under a sheer top and the renderer draws the UNDERLAYER and the tier dies to R. Opaque structured fabrics (jeans, denim, leather, velvet, sweatpants, breeches, suit) never carry an edge. Delivery is stochastic — build the best-odds frame; the claim tags sit before the environment tags. THE THREE §9-септима RULES (T4-05 verdict): (1) BARE-UNDER AS A POSITIVE — a NEG lock is NOT enough, the renderer draws the bra OVER it (P07 receipt): the POS itself must assert the bare underlayer in prose («nothing underneath», «braless», «worn without underlayer»); (2) FRAMING AS A TAG — the claim's framing lives in the TAG BLOCK (close-up / cowboy shot / upper body / portrait), never only in prose; (3) NO DANBOORU HOMONYMS — words that are foreign character names (aurora → aurora_(arknights), P08 receipt: «пробежал персонаж») appear ONLY as compounds (aurora borealis sky), never standalone. POSE-RISK: R+/X slots carry only LOW/MID poses (HIGH × R+ = mutation amplifier: P04 drift, P22 mutation, P17 undershoot) — the contract assigns the pose, never override it toward acrobatics. NEVER close the claim zone: no shawl/scarf/arms crossed over the chest claim (P21 receipt: «the frame's one closed door» — a blocker kills the slot before render).
+THE DICE LAW (Ultimate Dice, A5P6 §3 — updated 2026-10-12): every slot carries a dice signature (A·B·C·D·E — the rolled SKELETON: identification order, clothing delivery, theme integration, light style, tag-run rhythm). OBEY it — it is the slot's structure, not a suggestion. Two slots of one batch NEVER share a skeleton: if your instinct writes the same opening/order/rhythm as a previous slot, the dice are there to break exactly that. Structural monotony is the mother of twins; the dice kill it at the root.
+
+THE RENDER LAW v1.3.0 (render verdicts T4-03 + T4-05): the renderer obeys fabric-STATE tags and coverage NEGs; it IGNORES shape-name tags. cameltoe NEVER rendered (0 attempts) — it is flavor at most, NEVER the claim. The R+ edge reads through ONE thin LIGHT garment (blouse / tee / shirt / knit / swimsuit / leotard / romper / slip) tagged wet clothes AND/OR see-through, with NO underlayer on the zone: name a bra/camisole/bandeau under a sheer top and the renderer draws the UNDERLAYER and the tier dies to R. Opaque structured fabrics (jeans, denim, leather, velvet, sweatpants, breeches, suit) never carry an edge. Delivery is stochastic — build the best-odds frame; the claim tags sit before the environment tags. THE THREE §9-септима RULES (T4-05 verdict): (1) BARE-UNDER AS A POSITIVE — a NEG lock is NOT enough, the renderer draws the bra OVER it (P07 receipt): the POS itself must assert the bare underlayer in the TAG RUN («nothing underneath» / «worn without underlayer» — never the «braless» token, ζ-ревизия №16); (2) FRAMING AS A TAG — the claim's framing lives in the TAG BLOCK (close-up / cowboy shot / upper body / portrait), never only in prose; (3) NO DANBOORU HOMONYMS — words that are foreign character names (aurora → aurora_(arknights), P08 receipt: «пробежал персонаж») appear ONLY as compounds (aurora borealis sky), never standalone. POSE-RISK: R+/X slots carry only LOW/MID poses (HIGH × R+ = mutation amplifier: P04 drift, P22 mutation, P17 undershoot) — the contract assigns the pose, never override it toward acrobatics. NEVER close the claim zone: no shawl/scarf/arms crossed over the chest claim (P21 receipt: «the frame's one closed door» — a blocker kills the slot before render).
 
 THE SALIENCE LAW (§9-sexta, external verdict 2026-09-23): PRESENT is not VISIBLE is not LEGIBLE. A tier is delivered through the chain OBJECT (the named claim target) → EXPOSURE (zone open to camera) → CAMERA (participant angle/pose) → CONTRAST (light ON the claim zone — not in the scenery) → SALIENCE (claim early in the tag run) → INTERPRETATION (the show WHY: fanservice/intent tag). A broken link drops the tier. The two proven killers: wet DARK fabric without light on the zone renders as an ugly dark BLOTCH (T4-04 P05); LIGHT garment against a LIGHT background dissolves — no separation (T4-04 P03). Light the claim zone itself: glow on the fabric, pale garment against a dark or saturated field. The machine NEG-locks the underlayer (bra/camisole/bandeau/undershirt) under every through-fabric claim — never name an underlayer yourself.
 
@@ -134,9 +139,9 @@ HARD STYLE RULES:
 - POSITIVE OC MARKER: every POS begins "anime style, original character, ..." — the original character tag defends against danbooru character drift (ram_(re:zero), aurora_(arknights) receipts).
 - PROSE PEOPLE LAW (T4-11 P18 receipt): prose NEVER references other people — no his jacket, no someone's hands, no male silhouettes. Solo means ALONE; objects and the world are her only company.
 - ARTIST BAN: never include artist names or "by <artist>" tags anywhere (T4-11 P06 receipt: artist tag ruined the render).
-- POS budget: ~230-300 words, never above 380. Density, not sprawl.
+- POS budget: 90-140 tags/words, never above 300. Density, not sprawl. One tag run, one final period.
 - Hedges (maybe, perhaps, slightly, almost, sort of, kind of, a bit): at most 2 per POS.
-- Maturity is NEVER a tag: "adult woman", "mature female", "milf" are FORBIDDEN in POS. Maturity is a voice in prose only (a student's economy vs a woman's patience).
+- Age/maturity tags are FORBIDDEN in POS: "adult woman", "mature female" — N30 (they skew the WHOLE batch to MILF, tested). The register is conveyed by BODY FORM tags (petite/slender → student · athletic/curvy → young · full-figured/full chest/soft waist → milf register — BODY-SPECTRUM, T4-27.2); "milf" itself is legal only for OC-canon slots that carry it.
 - Forbidden words: "cel-shaded", "large expressive eyes".
 - Complex props (wheel, ladder, railing, rope, stair): name where hands and feet are — every touching limb anchored ("hands at ten and two", "feet braced on the lower rung").
 - Rotate strong words: never lean on one pet adjective; vary the saturation family (full-pigment / full-strength / undiluted / saturated).
@@ -147,7 +152,7 @@ HARD STYLE RULES:
 - LAYER CLARITY (verdict T4-03): ≤2 garment layers per body zone; the claim zone carries ≤1 layer + the claim target; never stack 3 tops (the renderer swaps their order — stockings through jeans, tank over shirt); layer order, when layered, is stated top-to-bottom.
 - OC slots: camera-facing poses — her claim faces the lens; no folds/prone/from-behind that hide the lead zone.
 
-NEG-EXTRA line: comma-separated EXTRA negative terms ONLY — canon anti-drift (wrong hair/eye color, wrong ears, "no tail" when she has none, "single braid" against twin braids) and frame-specific bans (male, man already handled by the machine — do not repeat). The machine already adds: face guards, anti-loli floor, genital lock, leak guard, candle guard, solo lock, tier counter-negatives. Do NOT repeat those.
+NEG-EXTRA line: comma-separated EXTRA negative terms ONLY — canon anti-drift (wrong hair/eye color, wrong ears, "no tail" when she has none, "single braid" against twin braids) and frame-specific bans. The machine already adds: face guards, anti-loli floor, leak guard, candle guard, solo lock, ANTI-WASH (washed-out, faded colors, low contrast), tier counter-negatives (through-fabric: bra/camisole/bandeau/undershirt) — do NOT repeat those. ЗАКОН №25 (авторский приказ 2026-10-12, «руинишь картинки»): NEVER put these in NEG-EXTRA (the machine rejects them): visible pantyline, topless, exposed breasts, naked, nude, bare breasts, nsfw, nipples through clothing, clothed nipples, extreme fanservice, exposed genitals, vulva, pubic hair, sex, sexual act. NEG locks the UNDERLAYER and canon drift ONLY — never the claim, never the tier above, never "no male"-style double negatives. Register protection goes by FORM (petite/slender/curvy/full-figured), never by age words.
 
 GOLD STANDARD — a delivered, author-praised slot (the voice we write in):
 ${GOLD_EXAMPLE}
@@ -156,7 +161,7 @@ OUTPUT FORMAT — for EACH slot, EXACTLY:
 ### P05
 ANCHOR: three-word-hyphenated-anchor
 THESIS: one line — this frame's law in one sentence
-POS: <single paragraph: tag block. prose. face lock. Masterpiece, best quality, anime artstyle.>
+POS: <one comma-separated tag run, RAW+ shape, ending: masterpiece, best quality, anime artstyle.>
 NEG-EXTRA: term, term, term
 
 No commentary, no markdown fences, no numbering of your own. Every slot of the chunk, in order.`
@@ -182,7 +187,7 @@ function goldenCorpusBlock(): string {
   const picks = [exactRplus, missA, missB].filter((e): e is NonNullable<typeof e> => Boolean(e))
   if (picks.length === 0) return ''
   return (
-    '\nREAL RENDER RECEIPTS — golden corpus (what PH actually sent, what the author SAW; learn the voice and the delivery logic, never the content):\n' +
+    '\nREAL RENDER RECEIPTS — golden corpus (what PH actually sent, what the author SAW; learn the delivery logic and the verdict boundary, NEVER the prose form — these are PH-era texts: the modern scribe renders the same scene as a RAW+ TAG RUN, law №23; extract the claim/fabric/light logic only):\n' +
     picks
       .map(
         (e) =>
@@ -276,8 +281,8 @@ function slotFrame(slot: SlotPlan, ctx: ScribeCtx): string {
   const k = ctx.kNames.get(slot.kinetics[0] ?? '')
   lines.push(`kinetic: ${slot.kinetics[0] ?? '—'}${k ? ` ${k.name}${k.light ? ` (${k.light})` : ''}` : ''}`)
   lines.push(`lead zone (FIRST read of the silhouette): ${slot.lead}`)
-  lines.push(`register: ${slot.register} — voice in prose ONLY, never tags`)
-  lines.push(`closer: end the POS prose as a ${slot.closer} — ${closerHint(slot.closer)}`)
+  lines.push(`register: ${slot.register} — convey by BODY FORM TAGS (petite/slender → student · athletic/curvy → young · full-figured, full chest, soft waist → milf; N30: age words are forbidden); add the OPPOSITE form to NEG-EXTRA (body-plan protection, T4-27.2)`)
+  lines.push(`closer (final beat of the tag run, NO prose — ${slot.closer}): ${closerHint(slot.closer)}`)
   if (slot.witness) lines.push(`witness: the ${slot.witness} — one object that holds the frame's law`)
   if (slot.kind === 'NICHE' && slot.arch) {
     const archMeta = getNicheArchetypes()?.archetypes.find((a) => a.id === slot.arch)
@@ -296,7 +301,7 @@ function slotFrame(slot: SlotPlan, ctx: ScribeCtx): string {
     const k1 = ctx.themeKeywords[slot.position % ctx.themeKeywords.length]
     const k2 = ctx.themeKeywords[(slot.position + Math.floor(ctx.themeKeywords.length / 2)) % ctx.themeKeywords.length]
     const words = k2 && k2 !== k1 ? `${k1} AND ${k2}` : k1
-    lines.push(`theme words for THIS slot (weave into tags or prose naturally — the THEME is what the frame is ABOUT): ${words}`)
+    lines.push(`theme words for THIS slot (weave into the TAG RUN — the THEME is what the frame is ABOUT): ${words}`)
   }
   if (recipe) {
     const hardSignals = recipe.signals_hard ?? []
@@ -306,7 +311,7 @@ function slotFrame(slot: SlotPlan, ctx: ScribeCtx): string {
         `HARD CLAIM (RENDER LAW v1.3.0, render verdicts T4-03 + T4-05): ≥${recipe.hard_min ?? 1} RENDER-PROVEN claim in the tag block — ${hardSignals.join(', ')}. cameltoe is NOT a claim (0 renders ever — flavor only). Through-fabric claims REQUIRE the fabric state tags (wet clothes / see-through) on ONE thin LIGHT garment, NO underlayer on the zone — and the POS must assert the bare underlayer POSITIVELY in prose («nothing underneath» / «braless»: a NEG lock alone fails, the renderer draws the bra OVER it — P07 receipt). Frame the claim with a camera TAG (close-up / cowboy shot / upper body). Dead fabrics (jeans/denim/leather/velvet/sweatpants/breeches/suit) never carry the claim. NO danbooru homonyms standalone (aurora → aurora_(arknights) — only compounds). NEVER cross anything over the chest claim (shawl/arms = the frame's one closed door = dead slot, P21 receipt).`
       )
       lines.push(
-        `CLAIM ZONE = the lead zone (${slot.lead}), OPEN TO CAMERA, single layer + the claim target. Delivery is stochastic (~1/8): build the best-odds frame — the claim and its fabric state EARLY in the tag run, the prose naming the same garment the tags claim. «Looks erotic but does nothing» is the failure this law kills.`
+        `CLAIM ZONE = the lead zone (${slot.lead}), OPEN TO CAMERA, single layer + the claim target. Delivery is stochastic (~1/8): build the best-odds frame — the claim and its fabric state EARLY in the tag run (≤16th tag for mains, ≤22nd for OC), the same named garment carrying the claim. «Looks erotic but does nothing» is the failure this law kills.`
       )
     }
     lines.push(`tier boundary: do NOT use higher-tier signals (${higherTierSignals(slot.rating, ctx.recipes).join(', ')}) — the counter-negatives are added by the machine`)
@@ -338,12 +343,12 @@ ${slot.dice}`
 
 function closerHint(closer: string): string {
   switch (closer) {
-    case 'dialogue': return 'a short spoken line at the end'
-    case 'long-fused': return 'a long-fuse image that keeps burning after the frame'
-    case 'fragment-pair': return 'two sentence fragments, paired'
-    case 'image-close': return 'a still image-read, the frame settling'
-    case 'action-close': return 'the motion caught mid-beat'
-    default: return 'a clean final image'
+    case 'dialogue': return 'end with a mood-expression tag (murmuring lips, whispered sigh) — spoken lines are forbidden in RAW+'
+    case 'long-fused': return 'end with one lingering visual detail tag (a stain keeping its shape, a light that stays)'
+    case 'fragment-pair': return 'end with two paired detail tags, comma-joined'
+    case 'image-close': return 'end with one settling still-image tag'
+    case 'action-close': return 'end with the motion caught mid-beat as a tag (water dripping mid-air)'
+    default: return 'end with one clean final image tag'
   }
 }
 
@@ -367,19 +372,30 @@ function assembleNeg(slot: SlotPlan, out: ScribeSlotOutput, ctx: ScribeCtx): str
   const terms: string[] = []
   terms.push(...(f.face_guard ?? []))
   terms.push(...(f.anti_loli ?? []))
-  terms.push(...(f.genital_lock ?? []), 'sex', 'sexual act')
+  /* закон №25 «NEG-гигиена» (авторский приказ 2026-10-12, ретро-фикс T4-28):
+   * X-блок (exposed genitals, vulva, pubic hair, sex, sexual act) УДАЛЁН из
+   * универсальной сборки — рендерер не рисует X из R+/R-промптов сам (X=0
+   * всю RAW-эру), а nude-смежные термины гасят ecchi-энергию (δ T4-26:
+   * жирный NEG подавляет смежные заявки — «руинишь картинки»). */
   terms.push(...(f.leak_guard ?? []))
   const posLower = out.pos.toLowerCase()
   if (!/candle|lantern|torch|chandelier|lamp|brazier/.test(posLower)) {
     terms.push(...(f.candle_guard ?? []))
   }
   terms.push('male', 'man', '1boy', '2girls')
+  /* Five Locks (закон №23): ANTI-WASH — ВСЕГДА в NEG каждого слота.
+   * Сдача T4-28 v1 его потеряла (гейт raw-plus молча спал без маркера). */
+  terms.push('washed-out', 'faded colors', 'low contrast')
   const recipe = ctx.recipes[recipeKeyOf(slot.rating)]
   if (recipe) {
-    // МЕХАНИЗМ-ОСОЗНАННЫЙ КОНТР-NEG (вердикт T4-03: «только купальник»):
-    // активный on-skin механизм (taped nipples / handbra) поднимает
-    // «topless, naked breasts» из NEG — иначе рендерер закрывает грудь и
-    // душит сигнал. Сквозь-ткань механизмы держат полный грудной NEG.
+    // МЕХАНИЗМ-ОСОЗНАННЫЙ КОНТР-NEG (закон №14 «NEG-смежности» v1.7.0 +
+    // закон №25): активный механизм диктует СВОЮ границу.
+    //   on-skin (tape/handbra): nipples exposed, areola + подслой —
+    //     «topless, naked breasts» подняты (иначе рендерер закрывает грудь).
+    //   through_fabric: ТОЛЬКО подслой-лок (bra/camisole/bandeau/undershirt)
+    //     — nipple-термины гасят clothed-заявку (P04 T4-25), nudity-термины
+    //     гасят ecchi-энергию (автор, T4-28): X-граница держится
+    //     конструктивно (закон №21 — свет-на-зоне), не негативно.
     let counter = [...(recipe.counter_neg ?? [])]
     for (const m of Object.values(recipe.mechanisms ?? {})) {
       const hard = m.hard ?? []
@@ -388,6 +404,7 @@ function assembleNeg(slot: SlotPlan, out: ScribeSlotOutput, ctx: ScribeCtx): str
         counter = counter.filter(
           (t) => !(m.counter_neg_lifted ?? []).some((x) => x.toLowerCase() === t.toLowerCase())
         )
+        counter = [...new Set([...counter, ...(m.counter_neg ?? [])])]
       }
     }
     terms.push(...counter)
@@ -416,10 +433,27 @@ function assembleNeg(slot: SlotPlan, out: ScribeSlotOutput, ctx: ScribeCtx): str
       if (x) terms.push(x)
     }
   }
+  // закон №25: санитайзер NEG-EXTRA — авторский бан-лист (руинит заявки),
+  // «no X»-дубли (мужской лок уже в NEG), возрастные теги (N30).
+  const NEG_BAN = new Set(
+    [
+      'visible pantyline', 'topless', 'exposed breasts', 'naked', 'nude',
+      'bare breasts', 'nsfw', 'nipples through clothing', 'clothed nipples',
+      'extreme fanservice', 'exposed genitals', 'vulva', 'pubic hair',
+      'sex', 'sexual act',
+    ].map((s) => s.toLowerCase())
+  )
+  const sanitized = terms.filter((t) => {
+    const k = t.toLowerCase().replace(/^no\s+/i, '')
+    if (NEG_BAN.has(k)) return false
+    if (/^no\s+/i.test(t)) return false // «no male»-дубли — NEG уже негативен
+    if (/^(adult woman|mature woman|mature female)$/i.test(t)) return false // N30
+    return true
+  })
   // dedupe (case-insensitive), keep first spelling
   const seen = new Set<string>()
   const final: string[] = []
-  for (const t of terms) {
+  for (const t of sanitized) {
     const k = t.toLowerCase()
     if (seen.has(k)) continue
     seen.add(k)
@@ -478,7 +512,9 @@ function assembleBatch(
 ): string {
   const c = ctx.contract
   const L: string[] = []
-  L.push(`# THREAD 4 — Batch ${c.slug}: "${title}"`)
+  /* закон №23: H1 несёт маркер RAW+ — гейт raw-plus читает его (урок T4-28
+   * v1: батч без маркера молча прошёл без ANTI-WASH и face-блок проверок) */
+  L.push(`# THREAD 4 — Batch ${c.slug}: "${title}" — БАТЧ (RAW+ / данбуру-формат)`)
   L.push('')
   if (c.authorWishes) {
     L.push(`**ПРИКАЗ АВТОРА** (draft → контракт, §10): ${c.authorWishes}`)
@@ -497,7 +533,7 @@ function assembleBatch(
   const spread: Record<string, number> = {}
   for (const s of mains) spread[s.rating] = (spread[s.rating] ?? 0) + 1
   L.push(`СТРУКТУРА (закон 24): ${c.slots.length} промпта = 3 OC (P01-P03) + 21 мейн (P04-P24) · спред мейнов ${Object.entries(spread).map(([r, n]) => `${r}×${n}`).join(' · ')} · расовый каст ${c.racialCount}/21 · регистры третями.`)
-  L.push('RENDER PROTOCOL: PH ON — тег-блок канал правды, проза несёт красоту. Спайн назначен контрактом до первого слова; гейты читают те же числа.')
+  L.push('RENDER PROTOCOL: RAW+ (закон №23) — чистые Danbooru-теги, БЕЗ прозы: палитра под каждый промпт + аниме-лицо тегом + квалити-цвет. Спайн назначен контрактом до первого слова; гейты читают те же числа.')
   L.push('')
   const acts = ctx.acts.length === 3 ? ctx.acts : ['ACT I', 'ACT II', 'ACT III']
   const actRanges: [number, number][] = [[1, 8], [9, 16], [17, 24]]

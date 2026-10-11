@@ -319,12 +319,12 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
     const milfSlots = new Set<number>()
     for (const s of batch.slots) {
       const neg = s.neg.toLowerCase()
-      for (const term of floors.genital_lock ?? []) {
-        if (!neg.includes(term.toLowerCase())) {
-          f.push(`P${s.position}: генитальный лок пропускает «${term}»`)
-          break
-        }
-      }
+      /* закон №25 «NEG-гигиена» (авторский приказ 2026-10-12, ретро-фикс
+       * T4-28): X-блок (exposed genitals, vulva, pubic hair, sex, sexual
+       * act) УДАЛЁН из вечных флооров — рендерер не рисует X из R+/R-
+       * промптов сам (X=0 всю RAW-эру), а nude-смежные термины в NEG
+       * гасят ecchi-энергию (δ T4-26: жирный NEG подавляет смежные
+       * заявки). Граница X-тира живёт в tiers.X.counter_neg (спящий тир). */
       const loliTerms = floors.anti_loli ?? []
       const loliHits = loliTerms.filter((t) => neg.includes(t.toLowerCase())).length
       if (loliHits < 4) {
@@ -1529,7 +1529,14 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
      * Слоты с маркером ⚗ (§10) — умышленные нарушители ради гипотезы
      * (μ-B голый RAW против блеклости, λ-B без света-на-зоне против
      * X-границы №21): их нарушения — квитанцией warn, не блоком. */
-    const rawPlus = /^#\s*T4-[^\n]*RAW\+/m.test(file)
+    const rawPlusMarker = /^#\s*T4-[^\n]*RAW\+/m.test(file)
+    /* Урок T4-28 v1: H1 не нёс маркер RAW+ — гейт молча пропустил батч
+     * (проза в POS, NEG без ANTI-WASH). Вторая дверь: движок контракта.
+     * T4-25/26 (RAW) движками тем не матчатся — ретро-активации нет. */
+    const contractEngine = readJson<{ engine?: string }>(
+      path.join(CONTRACTS_DIR, `${batch.slug}.json`)
+    )?.engine
+    const rawPlus = rawPlusMarker || /raw-plus/i.test(contractEngine ?? '')
     if (rawPlus) {
       const rp = readJson<{
         abPairs?: { pair: string; a: number; b: number }[]
@@ -1551,6 +1558,17 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
       const expl: string[] = []
       const LIGHT_RE =
         /light|glow|sun|moon|star|neon|spot|backlit|rim|dawn|dusk|beam|halo|luminous|caustic|floodlight|shimmer|glare|flare|glint/i
+      /* закон №25 «NEG-гигиена» (авторский приказ из чата 2026-10-12,
+       * ретро-фикс T4-28, дословно: «ненужно в негативе: …»): запрещённые
+       * термины в NEG руинят заявку (nude-смежные гасят ecchi-энергию,
+       * R+-сигналы в NEG убивают сами заявки). Спек: specs/rating-recipes.json
+       * v1.7.0 → neg_law.banned_terms. X-тир держит свой coverage-блок. */
+      const NEG_BAN = [
+        'visible pantyline', 'topless', 'exposed breasts', 'naked', 'nude',
+        'bare breasts', 'nsfw', 'nipples through clothing', 'clothed nipples',
+        'extreme fanservice', 'exposed genitals', 'vulva', 'pubic hair',
+        'sex', 'sexual act',
+      ]
       const palCount: Record<string, number> = {}
       for (const s of batch.slots) {
         const pal = resolvePalette(s.position, s.header)
@@ -1563,6 +1581,22 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
         if (!LIGHT_RE.test(s.pos)) slotF.push('нет света-на-зоне: ни одного светового слова в POS (закон №21 — X-граница плоской натяжки, «блеклость»)')
         if (!/masterpiece/i.test(s.pos) || !/best quality/i.test(s.pos) || !/anime artstyle/i.test(s.pos)) slotF.push('нет финальных квалити-тегов (masterpiece, best quality, anime artstyle)')
         if (!/washed-out/i.test(s.neg) || !/faded colors/i.test(s.neg) || !/low contrast/i.test(s.neg)) slotF.push('нет ANTI-WASH в NEG (washed-out, faded colors, low contrast — Five Locks)')
+        /* закон №23: RAW+ = чистые теги, БЕЗ прозы (сдача T4-28 v1 принесла
+         * прозаические абзацы и диалоги — автор: «неописуемая проза, диалоги,
+         * монологи в позитиве… ты нихуя не нарисуешь»). Канон: один финальный
+         * период, ноль кавычек, face-блок тегом, ноль прозаических местоимений. */
+        const periodCount = (s.pos.match(/\./g) ?? []).length
+        if (periodCount > 1) slotF.push(`проза в POS: точек ${periodCount} > 1 — только финальная (закон №23: теги, БЕЗ прозы)`)
+        if (/["“”«»]/.test(s.pos)) slotF.push('диалог/кавычки в POS — проза запрещена (закон №23)')
+        if (/is rendered in/i.test(s.pos)) slotF.push('PH face-lock проза в POS («is rendered in…») — RAW+ пишет face-блок тегом (закон №23)')
+        if (/\bshe\b/i.test(s.pos)) slotF.push('прозовое местоимение «she» в POS — теги несут существительные (закон №23)')
+        /* закон №25: авторский бан-лист NEG (X-слоты держат coverage-блок — их исключаем) */
+        if (tierOf(s.meta) !== 'X') {
+          for (const t of NEG_BAN) {
+            const re = new RegExp(`\\b${t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i')
+            if (re.test(s.neg)) slotF.push(`закон №25: запрещённый автором NEG-термин «${t}» — руинит заявку (specs/rating-recipes.json v1.7.0 → neg_law)`)
+          }
+        }
         if (slotF.length === 0) continue
         if (isExpl) {
           expl.push(`EXPLORATORY ⚗ (§10, квитанция): P${s.position}: ${slotF.join(' · ')}`)
