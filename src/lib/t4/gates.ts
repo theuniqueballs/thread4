@@ -1145,9 +1145,15 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
       for (const [word, safe] of Object.entries(HOMONYMS)) {
         // одиночное слово — триггер; составное (продолжение из
         // safe-списка) — разрешено; тег-блок и проза проверяются одним
-        // правилом («только составные»)
+        // правилом («только составные»). Дефисные цепочки = один токен:
+        // «aurora-teal-silk» / «pale-gold-aurora warm edges» — палитры
+        // P34/P48/P50/P56 несут такие фрагменты ВЕРБАТИМ (закон №23
+        // sd_fragment verbatim); нормализация дефисов → подчёркивания
+        // снимает ложные срабатывания на хвосте цепочки (T4-29-находка),
+        // одиночное «aurora,» остаётся триггером (T4-05 P08 — квитанция)
+        const squash = (t: string) => t.replace(/-/g, '_')
         const re = new RegExp(`\\b${word}\\b(?!\\s+(?:${safe.join('|')}))`, 'i')
-        if (re.test(tagBlock) || re.test(prose)) {
+        if (re.test(squash(tagBlock)) || re.test(squash(prose))) {
           f.push(
             `P${s.position}: омоним данбуру «${word}» в POS — рендерер матчит чужого персонажа (${word}_…: T4-05 P08 — aurora_(arknights) «пробежал персонаж»). Только составной формой (§9-септима, character-collision)`
           )
@@ -1804,9 +1810,17 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
        * светлых/средних мокрых верхов подряд — и X-слайды, и визуальная
        * жвачка; 5 из 7 были серо-семейными — umber/prussian/moss/rain-grey). */
       if (lightCarryingTops.length > 3) {
+        /* кластерная находка + ПООСЛОТНЫЕ строки: писец-ремонт выбирает
+         * слоты по ВЕДУЩЕМУ P-номеру находки — без поослотных строк кластер
+         * (T4-29: 5>3) не доезжал до ремонта и крутился до исчерпания кругов */
         f.push(
-          `закон №27: светлых/серо-семейных несущих верхов с заявкой ${lightCarryingTops.length} > 3 (P${lightCarryingTops.map((p) => String(p).padStart(2, '0')).join('/P')}) — тон вещи ротацией dark/mid/light, светлый кластер рушит и канал (X-слайды), и разнообразие кадра (вердикты T4-26/T4-28)`
+          `закон №27: светлых/серо-семейных несущих верхов с заявкой ${lightCarryingTops.length} > 3 — тон вещи ротацией dark/mid/light, светлый кластер рушит и канал (X-слайды), и разнообразие кадра (вердикты T4-26/T4-28)`
         )
+        for (const p of lightCarryingTops) {
+          f.push(
+            `P${p}: закон №27 — несущий верх светлой/серо-семьи в кластере ${lightCarryingTops.length}>3; перетони вещь в dark/mid (тёмный полюс несёт through-заявку, светлый — covered/clothed, кластер ≤3)`
+          )
+        }
       }
       hard('raw-plus', f)
       if (expl.length > 0) {
