@@ -541,10 +541,13 @@ function normalizePos(pos: string, slot: SlotPlan, ctx: ScribeCtx): string {
   // даже если LLM его написал. Имена собственные, case-sensitive
   // («ash-grey» не трогаем)
   for (const name of Object.keys(ctx.ocs)) {
+    /* аудит 2026-10-12: имя OC без экранирования — метасимвол из
+     * oc-canon.json собирал невалидный RegExp на каждый слот */
+    const esc = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
     p = p
-      .replace(new RegExp(`\\b${name}\\b,\\s*`, 'g'), '') // «Miyu, tag» → «tag»
-      .replace(new RegExp(`,\\s*\\b${name}\\b`, 'g'), '') // «tag, Miyu» → «tag»
-      .replace(new RegExp(`\\s+\\b${name}\\b`, 'g'), '') // проза «… Miyu» → «…»
+      .replace(new RegExp(`\\b${esc}\\b,\\s*`, 'g'), '') // «Miyu, tag» → «tag»
+      .replace(new RegExp(`,\\s*\\b${esc}\\b`, 'g'), '') // «tag, Miyu» → «tag»
+      .replace(new RegExp(`\\s+\\b${esc}\\b`, 'g'), '') // проза «… Miyu» → «…»
   }
   p = p
     .replace(/\s{2,}/g, ' ')
@@ -688,26 +691,67 @@ function assembleBatch(
 
 type ZAiChat = Awaited<ReturnType<typeof ZAI.create>>
 
+/* Аудит 2026-10-12: LLM-цепь жила без таймаутов — повисший upstream держал
+ * роут (maxDuration 600с) и CLI до упора, ретраились и непереходящие 4xx.
+ * Теперь каждый вызов ограничен, между попытками backoff, а ретраятся
+ * только переходящие сбои (сеть/429/5xx). Request после таймаута НЕ
+ * отменяем (SDK не несёт AbortSignal наружу) — просто перестаём ждать. */
+const CHAT_TIMEOUT_MS = 180_000
+
+const sleep = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms))
+
+function isTransientLlmError(e: unknown): boolean {
+  const msg = e instanceof Error ? `${e.name}: ${e.message}` : String(e)
+  if (/network|fetch failed|timeout|timed out|aborted|socket|ECONN|EAI_AGAIN|ETIMEDOUT|ENOTFOUND|EPIPE/i.test(msg)) return true
+  if (/\b(408|425|429|500|502|503|504)\b/.test(msg)) return true
+  return false
+}
+
+function withTimeout<T>(p: Promise<T>, ms: number, what: string): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const t = setTimeout(() => reject(new Error(`${what}: timeout ${ms}ms`)), ms)
+    if (t && typeof t === 'object' && 'unref' in t) (t as { unref: () => void }).unref()
+    p.then(
+      (v) => {
+        clearTimeout(t)
+        resolve(v)
+      },
+      (e) => {
+        clearTimeout(t)
+        reject(e)
+      }
+    )
+  })
+}
+
 async function chat(zai: ZAiChat, system: string, user: string, log: string[], retries = 2): Promise<string> {
   let lastErr: unknown = null
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {
-      const completion = await zai.chat.completions.create({
-        messages: [
-          /* Залп 3: system — системной ролью (аудит v1 🟡); при капризах
-             upstream первый ретрай откатывается на assistant-совместимость */
-          { role: attempt === 0 ? 'system' : 'assistant', content: system },
-          { role: 'user', content: user },
-        ],
-        thinking: { type: 'disabled' },
-      })
+      const completion = await withTimeout(
+        zai.chat.completions.create({
+          messages: [
+            /* Залп 3: system — системной ролью (аудит v1 🟡); при капризах
+               upstream первый ретрай откатывается на assistant-совместимость */
+            { role: attempt === 0 ? 'system' : 'assistant', content: system },
+            { role: 'user', content: user },
+          ],
+          thinking: { type: 'disabled' },
+        }),
+        CHAT_TIMEOUT_MS,
+        'LLM-вызов'
+      )
       const content = completion.choices[0]?.message?.content ?? ''
       if (content.trim().length > 0) return content
-      lastErr = new Error('empty completion')
+      lastErr = new Error('empty completion') /* переходящий брак модели — ретраим */
     } catch (e) {
       lastErr = e
+      /* аудит 2026-10-12: непереходящий 4xx (нет ключа, модели нет) не стоит
+       * ни одного повтора — падаем сразу с исходной ошибкой */
+      if (!isTransientLlmError(e)) break
     }
     log.push(`  · LLM-вызов не удался (${attempt + 1}/${retries + 1})${attempt < retries ? ' — повтор' : ''}`)
+    if (attempt < retries) await sleep(1_500 * 2 ** attempt)
   }
   throw lastErr instanceof Error ? lastErr : new Error('LLM failed')
 }
@@ -981,7 +1025,9 @@ export async function scribeBatch(
     const repairUser = `${batchLawBlock}\n\nREWRITE THESE SLOTS — they failed the machine gates. Keep what worked, fix what is flagged. Same exact format.\n\n${repairSlots.map((s) => slotFrame(s, ctx)).join('\n\n')}\n\nGATE FAILURES TO FIX:\n${hardFails.flatMap((r) => r.findings.map((f) => `- [${r.gate}] ${f}`)).slice(0, 24).join('\n')}`
     const raw = await chat(zai, systemPrompt(), repairUser, log)
     for (const [n, o] of parseSlots(raw)) {
-      if (o.pos.trim()) outputs.set(n, o)
+      /* аудит 2026-10-12: ремонт пишет ТОЛЬКО позиции ремонт-набора —
+       * раньше модель могла вернуть «лишний» слот и затереть здоровый */
+      if (failed.has(n) && o.pos.trim()) outputs.set(n, o)
     }
     markdown = assembleBatch(ctx, outputs, title)
   }
@@ -1020,7 +1066,8 @@ export async function scribeBatch(
       const repairUser = `${batchLawBlock}\n\nREWRITE THESE SLOTS — they carry WARN-level QUALITY findings (the batch already passed all HARD gates — do NOT introduce any new fabric/claim/underlayer that could break them). Keep the same anchor, pose, palette, canon and stack. Keep what worked, fix what is flagged. Same exact format.\n\n${repairSlots.map((s) => slotFrame(s, ctx)).join('\n\n')}\n\nQUALITY FINDINGS TO FIX:\n${warnFindings.flatMap((r) => r.findings.map((f) => `- [${r.gate}] ${f}`)).slice(0, 24).join('\n')}`
       const raw = await chat(zai, systemPrompt(), repairUser, log)
       for (const [n, o] of parseSlots(raw)) {
-        if (o.pos.trim()) outputs.set(n, o)
+        /* аудит 2026-10-12: полировка тоже ограничена своим набором */
+        if (failedPolish.has(n) && o.pos.trim()) outputs.set(n, o)
       }
       markdown = assembleBatch(ctx, outputs, title)
       writeText(batchPath, markdown)
