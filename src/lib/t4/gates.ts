@@ -95,6 +95,14 @@ export function extractBatchTitle(text: string): string {
   return modern ? modern[1].trim() : ''
 }
 
+/** Границы секций слот-блока для многострочного POS/NEG. Аудит
+ *  2026-10-12: прежний lookahead (\n[^ \n]) обрывал блок на ПЕРВОЙ строке
+ *  без отступа — многострочные POS/NEG тихо теряли хвост, гейты судили
+ *  по неполным данным (floors мог не увидеть запрещённое на 2-й строке).
+ *  Граница теперь — только ключ секций, шапка следующего слота или
+ *  markdown-заголовок. */
+const SLOT_SECTION_BOUNDARY = String.raw`(?=\n(?:NEG|POS|THESIS|Canon|Spine|Stack|ENGINE|KIN|PROTOCOL|HEROINE-BATCH)\s*:|\nP\d{1,2}\s*[—-]|\n#{1,3}\s|(?![\s\S]))`
+
 export function parseBatch(slug: string, text: string): ParsedBatch {
   const title = extractBatchTitle(text)
   const slots: ParsedSlot[] = []
@@ -115,8 +123,8 @@ export function parseBatch(slug: string, text: string): ParsedBatch {
       const mm = re.exec(block)
       return mm ? mm[1].trim() : ''
     }
-    const posMatch = /^POS:\s*\n([\s\S]*?)(?=\nNEG:|\n[^ \n]|\n*$)/m.exec(block)
-    const negMatch = /^NEG:\s*\n([\s\S]*?)(?=\n[^ \n]|\n*$)/m.exec(block)
+    const posMatch = new RegExp(`^POS:\\s*\\n([\\s\\S]*?)${SLOT_SECTION_BOUNDARY}`, 'm').exec(block)
+    const negMatch = new RegExp(`^NEG:\\s*\\n([\\s\\S]*?)${SLOT_SECTION_BOUNDARY}`, 'm').exec(block)
     const stackLine = grab('Stack')
     slots.push({
       position: marks[i].n,
@@ -579,8 +587,10 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
     const ocNames = Object.keys(ocCanon?.ocs ?? {})
     for (const s of batch.slots) {
       for (const name of ocNames) {
-        // case-sensitive: имена — имена собственные; «ash-grey» ≠ OC Ash
-        const re = new RegExp(`\\b${name}\\b`)
+        // case-sensitive: имена — имена собственные; «ash-grey» ≠ OC Ash.
+        // аудит 2026-10-12: имя без экранирования — метасимвол в имени OC
+        // из oc-canon.json ронял ВЕСЬ прогон гейтов throw'ом из new RegExp
+        const re = new RegExp(`\\b${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`)
         if (re.test(s.pos)) {
           f.push(
             `P${s.position}: имя ОС «${name}» в POS — триггер чужих персонажей у рендерера (приказ автора, T4-04); опиши её дескрипторами, имя живёт в шапке/Canon`

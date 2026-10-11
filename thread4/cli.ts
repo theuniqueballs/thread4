@@ -1018,6 +1018,29 @@ async function main() {
         isSafeSlug('T4-29') && isSafeSlug('T4-27.2-EXP') &&
         !isSafeSlug('../etc/passwd') && !isSafeSlug('/etc/passwd') && !isSafeSlug('T4-..') && !isSafeSlug('T4-a/b')
       )
+      /* аудит 2026-10-12: многострочные POS/NEG раньше тихо обрезались до
+       * первой строки (lookahead \n[^ \n]) — гейты судили по неполным данным */
+      const pbMulti = parseBatch(
+        'T4-98',
+        '# T4-98 — тест\n\nP01 — anchor (NICHE · R · PL01 · P01_TEST)\nTHESIS: t\nPOS:\ntag1, tag2\ntag3, tag4\nNEG:\nbad1\nbad2\n'
+      )
+      check(
+        'parseBatch: многострочный POS/NEG не теряет хвост (floors видит 2-ю строку)',
+        pbMulti.slots.length === 1 &&
+          pbMulti.slots[0].pos.includes('tag3') &&
+          pbMulti.slots[0].pos.includes('tag4') &&
+          pbMulti.slots[0].neg.includes('bad2')
+      )
+      check(
+        'parseBatch: однострочный формат писца парсится как раньше (без регрессии)',
+        (() => {
+          const p = parseBatch(
+            'T4-99',
+            '# T4-99 — тест\n\nP01 — anchor (NICHE · R · PL01 · P01_TEST)\nTHESIS: t\nPOS:\n\none, two, three\n\nNEG:\n\nno-four, no-five\n'
+          )
+          return p.slots.length === 1 && p.slots[0].pos === 'one, two, three' && p.slots[0].neg === 'no-four, no-five'
+        })()
+      )
     }
 
     console.log(`\nselftest: ${ok} pass, ${fail} fail`)
