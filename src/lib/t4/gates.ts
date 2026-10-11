@@ -89,9 +89,9 @@ export function genreOf(meta: string): string {
  * Фикс Фреда 2026-10-08: второй формат не матчился — RAW-батчи T4-23/T4-24
  * уехали в delivery с title=slug ( Issue-ремонт «нет названия»). */
 export function extractBatchTitle(text: string): string {
-  const legacy = /#\s*THREAD 4[^\n]*?Batch\s+(T4-\d+)[^\n]*?["«]([^"»]+)["»]/i.exec(text)
+  const legacy = /#\s*THREAD 4[^\n]*?Batch\s+(T4-\d+)[^\n]*?["«]([^"»\n]+)["»]/i.exec(text)
   if (legacy) return legacy[2].trim()
-  const modern = /^#\s*T4-[\dA-Za-z.-]+\s*["«]([^"»]+)["»]/m.exec(text)
+  const modern = /^#\s*T4-[\dA-Za-z.-]+\s*["«]([^"»\n]+)["»]/m.exec(text)
   return modern ? modern[1].trim() : ''
 }
 
@@ -212,7 +212,10 @@ function dedupeSubsumed(hits: TechniqueEntry[]): TechniqueEntry[] {
     if (e.tag === 'nipples' && has(/nipples through|taped nipples|clothed nipples|covered nipples|nipple outline/)) return false
     if (e.tag === 'naked, nude' && has(/naked apron|naked shirt|almost naked/)) return false
     if (e.tag === 'see-through' && has(/see-through breasts/)) return false
-    if (e.tag === 'bare breasts' && has(/breasts out|one breast out/)) return false
+    /* правило «bare breasts ⊂ breasts out» было мёртвым: спек несёт тег
+     * строкой «no bra, bare breasts», не голым «bare breasts» — сравнение
+     * по === никогда не стреляло, дубль считался в сумму слоёв дважды */
+    if (/^(no bra, )?bare breasts$/.test(e.tag) && has(/breasts out|one breast out|breast slip/)) return false
     return true
   })
 }
@@ -962,7 +965,7 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
         const layersHit = [...new Set(ladder.map((e) => e.layer))].sort((a, b) => a - b)
         if (tier === 'R+') {
           // (1) сумма факторов — R+ зарабатывается суммой, не одним слоем
-          const floor = tech.sum_rules.rplus_floor
+          const floor = tech.sum_rules?.rplus_floor ?? { signals_min: 3, layers_min: 2 }
           if (ladder.length < floor.signals_min || layersHit.length < floor.layers_min) {
             const map = ladder.map((e) => e.tag.split(',')[0]).slice(0, 6).join(', ')
             f.push(
@@ -986,11 +989,11 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
         }
         if (tier === 'X') {
           // (5) X Cut hold: кадрирование или закрытый низ (блок 9)
-          const framing = tech.xcut_hold.framing.some((t) => techHit(tb, [[t]]))
-          const covered = tech.xcut_hold.lower_cover.some((t) => techHit(tb, [[t]]))
+          const framing = (tech.xcut_hold?.framing ?? []).some((t) => techHit(tb, [[t]]))
+          const covered = (tech.xcut_hold?.lower_cover ?? []).some((t) => techHit(tb, [[t]]))
           if (!framing && !covered) {
             f.push(
-              `P${s.position}: X Cut hold (блок 9) — низ тела ни закрыт (${tech.xcut_hold.lower_cover.slice(0, 5).join('/')}…), ни выведен из кадра (${tech.xcut_hold.framing.join('/')}) — модель может «дорисовать» ниже`
+              `P${s.position}: X Cut hold (блок 9) — низ тела ни закрыт (${(tech.xcut_hold?.lower_cover ?? ['skirt', 'shorts']).slice(0, 5).join('/')}…), ни выведен из кадра (${(tech.xcut_hold?.framing ?? ['upper body', 'portrait']).join('/')}) — модель может «дорисовать» ниже`
             )
           }
         }
@@ -1185,9 +1188,13 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
       const withTheme = batch.slots.filter((s) =>
         kws.some((k) => s.pos.toLowerCase().includes(k) || s.thesis.toLowerCase().includes(k))
       )
-      if (withTheme.length < Math.ceil(batch.slots.length * 0.6)) {
+      /* EXP-болванки темы не несут по построению (писец: «чистая болванка
+       * БЕЗ темы батча») — знаменатель без них, иначе порог 60% молча
+       * растёт до 16/24 (67%) на каждом батче с EXP-оверлеем */
+      const themeDenom = batch.slots.filter((s) => !/\(EXP ·/.test(s.header)).length
+      if (withTheme.length < Math.ceil(Math.max(1, themeDenom) * 0.6)) {
         f.push(
-          `тему несут ${withTheme.length}/${batch.slots.length} слотов (нужно ≥60%) — слова: ${kws.join(', ')}; тема живёт в кадрах, не в шапке`
+          `тему несут ${withTheme.length}/${themeDenom} слотов (нужно ≥60%; EXP-болванки не в счёте) — слова: ${kws.join(', ')}; тема живёт в кадрах, не в шапке`
         )
       }
     }
@@ -1322,7 +1329,7 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
       .filter(([, n]) => n >= 8)
       .sort((a, b) => b[1] - a[1])
       .slice(0, 12)
-      .map(([w, n]) => `${w} ${n}/21`)
+      .map(([w, n]) => `${w} ${n}/${Math.max(1, batch.slots.length)}`)
     if (tics.length) f.push(`кандидаты в тики: ${tics.join(' · ')}`)
     else f.push('тиков не обнаружено')
     advisory('freq-report', f)
@@ -1395,7 +1402,8 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
       'blouse', 'tee', 't-shirt', 'shirt', 'knit', 'cardigan', 'leotard', 'bodysuit',
       'swimsuit', 'bikini', 'romper', 'slip', 'dress', 'sundress', 'nightgown', 'gown',
       'robe', 'kimono', 'yukata', 'sheet', 'towel', 'halter', 'tunic', 'apron', 'qipao', 'cheongsam',
-      'sweater', 'gi', 'nightshirt',
+      'sweater', 'gi', 'nightshirt', 'hoodie', 'jersey', 'pullover', 'flannel', 'turtleneck',
+      'crop top', 'tank top', 'tube top', 'wrap top', 'fishnet top', 'bodystocking', 'top',
     ]
     /* Фред 2026-10-10 (T4-27 ξ): нижние заявки (visible pantyline) живут на
      * именованном низе — LOWER_LIGHT из noun-lock; без него салиенс-гейт
@@ -1582,10 +1590,18 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
        * (P08 ink-indigo, P20 black — обе R+), светлая — проступает (X). */
       const DARK_TONE =
         /\b(black|ink|midnight|charcoal|espresso|dark navy|deep navy|oxblood|void|sumi)\b/i
+      /* словарь верхов — общий с noun-lock и salience-chain (там список
+       * расширялся под практику писца: crop top, hoodie, pullover…);
+       * закон №27 читает тот же мир вещей, что и остальные гейты */
       const GARMENT_RE =
-        /\b(blouse|tee|t-shirt|shirt|knit|cardigan|leotard|bodysuit|swimsuit|bikini|romper|slip|dress|sundress|nightgown|gown|robe|kimono|yukata|sheet|towel|halter|tunic|apron|qipao|cheongsam|sweater|gi|nightshirt|crop top|tank top|top)\b/i
+        /\b(blouse|tee|t-shirt|shirt|knit|cardigan|leotard|bodysuit|swimsuit|bikini|romper|slip|dress|sundress|nightgown|gown|robe|kimono|yukata|sheet|towel|halter|tunic|apron|qipao|cheongsam|sweater|gi|nightshirt|hoodie|jersey|pullover|flannel|turtleneck|crop top|tank top|tube top|wrap top|fishnet top|bodystocking|top)\b/i
+      /* светлая/серо-семейная семья: серо-середины (rain-grey, moss, umber,
+       * prussian — 5 из 7 X-слайдов T4-28) считаются кластером наравне с
+       * белыми (вердикт жаловался на «светлые/средние» без различия) +
+       * недостающие светлые тона (butter-yellow/peach/coral/mint/beige… —
+       * иначе кластер обходится неназванными оттенками) */
       const LIGHT_FAMILY =
-        /\b(white|ash|cream|ivory|pale|pastel|linen|chalk|silver|grey|gray|moss|umber|prussian|rose|blush|sand|wheat|oat|pearl|fog|rain|salt)\b/i
+        /\b(white|ash|cream|ivory|pale|pastel|linen|chalk|silver|grey|gray|moss|umber|prussian|rose|blush|sand|wheat|oat|pearl|fog|rain|salt|smoke|slate|dove|butter|peach|coral|salmon|mint|powder|beige|ecru|champagne|tan|lemon|lilac|lavender)\b/i
       const lightCarryingTops: number[] = []
       /* закон №26 «тема — не тег» (авторский приказ из чата 2026-10-12:
        * «зачем ты в позитиве всегда пишешь название темы… буквально всё,
@@ -1599,6 +1615,17 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
       const themeTitle = (/^#\s*[^\n]*?["«]([^"»\n]+)["»]/m.exec(file) ?? [])[1]?.trim() ?? ''
       const titleWords = themeTitle.toLowerCase().match(/[a-zа-яё0-9']+/g) ?? []
       const TITLE_STOP = new Set(['the', 'a', 'an', 'of', 'on', 'in', 'and', 'or', 'to', 'no', 'is', 'for', 'her'])
+      /* ТЕМА-СЛОВА — санкционированные отрисуемые слова темы (theme-presence
+       * требует их в ≥60% слотов): однословный тайтл, совпадающий с ними, —
+       * законный тег, не утечка */
+      const themeKwLine27 = /^ТЕМА-СЛОВА:\s*(.+)$/m.exec(file)?.[1] ?? ''
+      const themeKwSet = new Set(
+        themeKwLine27
+          .toLowerCase()
+          .split(',')
+          .map((w) => w.trim())
+          .filter(Boolean)
+      )
       for (const s of batch.slots) {
         const pal = resolvePalette(s.position, s.header)
         if (pal) palCount[pal] = (palCount[pal] ?? 0) + 1
@@ -1619,18 +1646,35 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
         if (/["“”«»]/.test(s.pos)) slotF.push('диалог/кавычки в POS — проза запрещена (закон №23)')
         if (/is rendered in/i.test(s.pos)) slotF.push('PH face-lock проза в POS («is rendered in…») — RAW+ пишет face-блок тегом (закон №23)')
         if (/\bshe\b/i.test(s.pos)) slotF.push('прозовое местоимение «she» в POS — теги несут существительные (закон №23)')
-        /* закон №26: тайтл темы не в POS — ни целиком, ни пробегом ≥3 слов
-         * (нормализация: не-буквы → пробел, ловит и дефисные уловки) */
-        if (titleWords.length >= 2) {
+        /* закон №26: тайтл темы не в POS — ни целиком, ни пробегом слов
+         * (нормализация: не-буквы → пробел, ловит и дефисные уловки).
+         * Пробег ≥3 слов требует ≥2 ЗНАЧИМЫХ слов: «on the inside» (тату
+         * на запястье) — 1 значимое + 2 стоп-слова, это естественная фраза,
+         * не тема; «the extraordinary page» (T4-27) — 2 значимых, ловится.
+         * Однословный тайтл — word-boundary проверкой, но только если слово
+         * НЕ входит в ТЕМА-СЛОВА (санкционированный отрисуемый тег). */
+        if (titleWords.length >= 1) {
           const posN = s.pos.toLowerCase().replace(/[^a-zа-яё0-9']+/g, ' ')
           const full = titleWords.join(' ')
           let titleHit = ''
-          if (posN.includes(full)) titleHit = themeTitle
-          else if (titleWords.length >= 3) {
-            for (let i = 0; i + 3 <= titleWords.length && !titleHit; i++) {
-              const run = titleWords.slice(i, i + 3)
-              if (run.every((w) => TITLE_STOP.has(w))) continue
-              if (posN.includes(run.join(' '))) titleHit = `…${run.join(' ')}…`
+          if (titleWords.length >= 2 && posN.includes(full)) titleHit = themeTitle
+          else {
+            if (titleWords.length >= 3) {
+              for (let i = 0; i + 3 <= titleWords.length && !titleHit; i++) {
+                const run = titleWords.slice(i, i + 3)
+                const contentWords = run.filter((w) => !TITLE_STOP.has(w)).length
+                if (contentWords < 2) continue
+                if (posN.includes(run.join(' '))) titleHit = `…${run.join(' ')}…`
+              }
+            }
+            const titleContent = titleWords.filter((w) => !TITLE_STOP.has(w))
+            if (
+              !titleHit &&
+              titleContent.length === 1 &&
+              !themeKwSet.has(titleContent[0]) &&
+              new RegExp(`\\b${titleContent[0].replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`).test(posN)
+            ) {
+              titleHit = `…${titleContent[0]}…`
             }
           }
           if (titleHit) slotF.push(`закон №26: название темы в POS (${titleHit}) — всё из позитива уходит в рендер, тайтл-тег травит кадр; тема через отрисуемое (закон/палитра/свет/объекты/лицо)`)
@@ -1638,30 +1682,74 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
         /* закон №27: through-заявка — только на ТЁМНОЙ вещи; «light on chest»
          * запрещён на sheer/wet (квитанции P14/P17 — X). Порог: тон вещи
          * определяет её цвет-слово; без цвет-слова — не dark (безопасный
-         * дефолт: through запрещён). */
+         * дефолт: through запрещён).
+         * Вещь↔заявка: берём вещь, БЛИЖАЙШУЮ к заявке в ток-порядке, а не
+         * первую попавшуюся — «black dress» фоном не прикрывает through на
+         * мокрой белой рубашке (ложный PASS), а «white sheet backdrop» не
+         * блокирует законный through на чёрном бикини (ложный FAIL).
+         * Дефис-составные тона нормализуем (deep-navy → deep navy),
+         * danbooru-подчёркивания тоже (wet_clothes → wet clothes);
+         * классификация тона ИСКЛЮЧИТЕЛЬНА: тёмная вещь не считается
+         * светлой в кластере (black-and-white striped tee → dark). */
         const posTags27 = s.pos
           .toLowerCase()
+          .replace(/_/g, ' ')
           .split(/,|\./)
           .map((t) => t.trim())
-        const garmentTag27 = posTags27.find((t) => GARMENT_RE.test(t))
-        const garmentDark = garmentTag27 ? DARK_TONE.test(garmentTag27) : false
-        const garmentLightFam = garmentTag27 ? LIGHT_FAMILY.test(garmentTag27) : false
-        const posLower27 = s.pos.toLowerCase()
+        const CLAIM_27 = [
+          'nipples through clothing', 'clothed nipples', 'covered nipples',
+          'wet clothes', 'see-through', 'breast clinging',
+        ]
+        const claimIdx27: number[] = []
+        const garmentIdx27: number[] = []
+        posTags27.forEach((t, i) => {
+          if (CLAIM_27.some((c) => t.includes(c))) claimIdx27.push(i)
+          if (GARMENT_RE.test(t)) garmentIdx27.push(i)
+        })
+        let garmentTag27 = ''
+        if (garmentIdx27.length > 0) {
+          const pick =
+            claimIdx27.length > 0
+              ? garmentIdx27.reduce((best, gi) => {
+                  const dist = Math.min(...claimIdx27.map((ci) => Math.abs(gi - ci)))
+                  const bestDist = Math.min(...claimIdx27.map((ci) => Math.abs(best - ci)))
+                  return dist < bestDist ? gi : best
+                })
+              : garmentIdx27[0]
+          garmentTag27 = posTags27[pick]
+        }
+        const garmentNorm27 = garmentTag27.replace(/-/g, ' ')
+        const garmentDark = garmentTag27 ? DARK_TONE.test(garmentNorm27) : false
+        const garmentLightFam = garmentTag27 ? !garmentDark && LIGHT_FAMILY.test(garmentNorm27) : false
+        const posLower27 = s.pos.toLowerCase().replace(/_/g, ' ')
         const throughClaim27 = posLower27.includes('nipples through clothing')
-        const lightOnChest = posLower27.includes('light on chest')
-        const wetSheer = posLower27.includes('wet clothes') || posLower27.includes('see-through')
+        /* «light on chest» — окном до 40 символов без точки/запятой: ловит
+         * «light on her chest» / «light falling on the chest», не трогает
+         * «glow falling on the garment» (свет сцены НА вещь — законен) */
+        const lightOnChest = /\blight\b[^,.\n]{0,40}\bchest\b/i.test(s.pos)
+        const wetSheer27 =
+          posLower27.includes('wet clothes') ||
+          posLower27.includes('see-through') ||
+          posLower27.includes('breast clinging')
         if (tierOf(s.meta) === 'R+') {
           if (throughClaim27 && !garmentDark) {
             slotF.push(
               `закон №27: through-заявка «nipples through clothing» на не-тёмной вещи${garmentTag27 ? ` («${garmentTag27}»)` : ' (цвет вещи не назван)'} — розовое проступит, слот скатится в X (7 квитанций T4-28; P08/P20 — R+ только на тёмном); канал светлой/средней ткани: covered nipples + clothed nipples + wet clothes/see-through/breast clinging`
             )
           }
-          if (lightOnChest && wetSheer) {
+          if (lightOnChest && wetSheer27) {
             slotF.push(
               'закон №27: «light on chest» на sheer/wet верхе — прямой X-усилитель (квитанции P14/P17): свет на зоне — glow сцены на вещь, не «свет на груди»'
             )
           }
-          if (garmentLightFam && (throughClaim27 || posLower27.includes('clothed nipples') || posLower27.includes('covered nipples')) && wetSheer) {
+          /* EXP-болванки (§10) в жёсткий кластер батча не толкаются: светлый
+           * полюс №27 — сам эксперимент; открытия EXP идут warn-квитанцией */
+          if (
+            !/\(EXP ·/.test(s.header) &&
+            garmentLightFam &&
+            (throughClaim27 || posLower27.includes('clothed nipples') || posLower27.includes('covered nipples')) &&
+            wetSheer27
+          ) {
             lightCarryingTops.push(s.position)
           }
         }
@@ -1685,12 +1773,13 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
       for (const [pal, n] of Object.entries(palCount)) {
         if (n > 3) f.push(`палитра ${pal} использована ${n} раз > 3 (C067 — закон №23)`)
       }
-      /* батч-уровень: закон №27 — кластер светлых несущих верхов ≤3
-       * (вердикт T4-26: «белая рубашка… хламит» + T4-28: 7 светлых мокрых
-       * верхов подряд — и X-слайды, и визуальная жвачка). */
+      /* батч-уровень: закон №27 — кластер светлых/серо-семейных несущих
+       * верхов ≤3 (вердикт T4-26: «белая рубашка… хламит» + T4-28: 7
+       * светлых/средних мокрых верхов подряд — и X-слайды, и визуальная
+       * жвачка; 5 из 7 были серо-семейными — umber/prussian/moss/rain-grey). */
       if (lightCarryingTops.length > 3) {
         f.push(
-          `закон №27: светлых несущих верхов с заявкой ${lightCarryingTops.length} > 3 (P${lightCarryingTops.map((p) => String(p).padStart(2, '0')).join('/P')}) — тон вещи ротацией dark/mid/light, светлый кластер рушит и канал (X-слайды), и разнообразие кадра (вердикты T4-26/T4-28)`
+          `закон №27: светлых/серо-семейных несущих верхов с заявкой ${lightCarryingTops.length} > 3 (P${lightCarryingTops.map((p) => String(p).padStart(2, '0')).join('/P')}) — тон вещи ротацией dark/mid/light, светлый кластер рушит и канал (X-слайды), и разнообразие кадра (вердикты T4-26/T4-28)`
         )
       }
       hard('raw-plus', f)

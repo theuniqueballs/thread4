@@ -34,7 +34,10 @@ function printGates(result: NonNullable<ReturnType<typeof runGates>>) {
   for (const r of result.receipts) {
     const mark = r.verdict === 'PASS' ? '✓' : r.verdict === 'FAIL' ? '✗' : r.verdict === 'WARN' ? '⚠' : '·'
     console.log(`  [${mark}] ${r.gate} (${r.level})`)
-    for (const f of r.findings.slice(0, 5)) console.log(`       ${f}`)
+    /* непрохождение = полный список находок: срез 5 прятал хвост
+     * (check T4-28 показывал P7-P17, а P19/P21 и кластер — нет) */
+    const shown = r.verdict === 'PASS' ? r.findings.slice(0, 5) : r.findings
+    for (const f of shown) console.log(`       ${f}`)
   }
   console.log(`\nrun #${result.runIndex} · hard ${result.hardPass ? 'PASS' : 'FAIL'}${result.firstRunClean ? ' · FIRST RUN CLEAN' : ''}`)
   /* Issue #20: FRC — согласие гейтов с текстом, не качество.
