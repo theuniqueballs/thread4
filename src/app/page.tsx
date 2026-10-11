@@ -1097,7 +1097,7 @@ function CompileTab() {
               </div>
               {scribe.res.failedSlots.length > 0 ? (
                 <p className="text-xs text-rose-300">
-                  Не написаны: P{scribe.res.failedSlots.join(', P')} — черновик нельзя сдавать, нужен ручной проход.
+                  Не написаны: {scribe.res.failedSlots.map((n) => `P${String(n).padStart(2, '0')}`).join(', ')} — черновик нельзя сдавать, нужен ручной проход.
                 </p>
               ) : null}
               <div className="space-y-1">
@@ -1171,6 +1171,10 @@ function QuickVerdict({ slug }: { slug: string }) {
   const [text, setText] = useState('')
   const [busy, setBusy] = useState(false)
   const [note, setNote] = useState<string | null>(null)
+  /* ленивый инициализатор: getCommanderKey() читает localStorage — в рендере
+   * это hydration-риск (SSR-сервер не имеет ключа); QuickVerdict монтируется
+   * только после клика автора, но привычка должна быть одна (9-c №20) */
+  const [keyMissing, setKeyMissing] = useState(() => getCommanderKey() === '')
 
   function toggleIssue(x: string) {
     setIssues((cur) => (cur.includes(x) ? cur.filter((i) => i !== x) : [...cur, x]))
@@ -1211,7 +1215,7 @@ function QuickVerdict({ slug }: { slug: string }) {
         <p className="text-xs leading-relaxed text-zinc-500">
           Один клик — и вердикт в логе событий: он кодируется в право (T4-02 уже стал законом 24 слотов).
         </p>
-        {getCommanderKey() === '' ? (
+        {keyMissing ? (
           <p className="rounded-md border border-amber-500/25 bg-amber-500/5 px-2.5 py-1.5 text-[11px] leading-relaxed text-amber-200/80">
             ключ командира не сохранён в этом браузере — запись залочена (403). Один раз сохрани его
             в Стекле → «Ключ командира», и эта кнопка оживёт.
@@ -1509,7 +1513,7 @@ function BatchesTab() {
 
 function EventsTab() {
   const { data, error, loading } = useApi<{ events: { id: string; at: string; type: string; summary: string }[] }>(
-    '/api/t4/events?limit=200'
+    '/api/t4/events?limit=500'
   )
   const [typeFilter, setTypeFilter] = useState('')
   const [query, setQuery] = useState('')
@@ -1741,7 +1745,13 @@ function readDraft(slug: string): ReceiverDraft {
 function writeDraft(slug: string, draft: ReceiverDraft) {
   if (typeof window === 'undefined' || !slug) return
   draft.updatedAt = new Date().toISOString()
-  window.localStorage.setItem(`t4-receiver-draft-${slug}`, JSON.stringify(draft))
+  /* QuotaExceeded / приватный режим Safari раньше теряли ТЕКСТ автора
+   * (не прошли до setDraft — ввод пропадал); теперь тихий отказ */
+  try {
+    window.localStorage.setItem(`t4-receiver-draft-${slug}`, JSON.stringify(draft))
+  } catch {
+    /* хранилище недоступно — черновик живёт в состоянии сессии */
+  }
   window.dispatchEvent(new CustomEvent('t4-receiver-updated', { detail: { slug } }))
 }
 
@@ -1758,7 +1768,11 @@ function readJournal(slug: string): JournalEntry[] {
 
 function writeJournal(slug: string, entries: JournalEntry[]) {
   if (typeof window === 'undefined' || !slug) return
-  window.localStorage.setItem(`t4-vlm-journal-${slug}`, JSON.stringify(entries))
+  try {
+    window.localStorage.setItem(`t4-vlm-journal-${slug}`, JSON.stringify(entries))
+  } catch {
+    /* хранилище недоступно — журнал живёт в состоянии сессии */
+  }
   window.dispatchEvent(new CustomEvent('t4-receiver-updated', { detail: { slug } }))
 }
 
@@ -2185,7 +2199,14 @@ function VlmFirstPassPanel() {
             )}
             onClick={() => document.getElementById('vlm-first-file')?.click()}
             role="button"
+            tabIndex={0}
             aria-label="Кинуть рендеры кучей: дроп, клик или Ctrl+V"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                document.getElementById('vlm-first-file')?.click()
+              }
+            }}
           >
             <input
               id="vlm-first-file"
@@ -3279,10 +3300,16 @@ function VaultTab() {
                   </button>
                   <button
                     onClick={async () => {
-                      await deleteSnapshot(s.key)
+                      if (busy) return
+                      try {
+                        await deleteSnapshot(s.key)
+                      } catch {
+                        /* IndexedDB hiccup — не роняем панель, просто не удалилось */
+                      }
                       await refresh()
                     }}
-                    className="rounded-md border border-zinc-700 bg-zinc-800/60 px-2 py-1 text-[11px] text-zinc-400 transition-colors hover:border-rose-500/40 hover:text-rose-300"
+                    disabled={busy}
+                    className="rounded-md border border-zinc-700 bg-zinc-800/60 px-2 py-1 text-[11px] text-zinc-400 transition-colors hover:border-rose-500/40 hover:text-rose-300 disabled:opacity-40"
                   >
                     Удалить
                   </button>
@@ -3469,6 +3496,7 @@ export default function Home() {
                   id={`t4-tab-${t.id}`}
                   role="tab"
                   aria-selected={tab === t.id}
+                  aria-controls="t4-panel"
                   tabIndex={tab === t.id ? 0 : -1}
                   onClick={() => setTab(t.id)}
                   className={cn(
@@ -3493,8 +3521,8 @@ export default function Home() {
       </header>
 
       <main
+        id="t4-panel"
         className="mx-auto w-full max-w-7xl flex-1 px-4 py-6 sm:px-6"
-        role="tabpanel"
         aria-labelledby={`t4-tab-${tab}`}
       >
         {tab === 'state' ? <StateTab /> : null}
