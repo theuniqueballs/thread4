@@ -11,6 +11,7 @@ const TITLES: Record<string, string> = {
   facts: 'Рендерер-факты',
   forge: 'Кузница движков',
   niche: 'Ниша (доктрина)',
+  'verdict-analysis': 'Анализ вердиктов (24 записи, T4-02 → T4-28)',
 }
 
 const FILES: Record<string, string> = {
@@ -19,6 +20,7 @@ const FILES: Record<string, string> = {
   facts: 'RENDERER_FACTS.md',
   forge: 'ENGINE_FORGE.md',
   niche: 'NICHE.md',
+  'verdict-analysis': 'docs/VERDICT-ANALYSIS-2026-10-11.md',
 }
 
 export async function GET(
