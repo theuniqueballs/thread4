@@ -305,6 +305,11 @@ export function useApi<T>(path: string | null): ApiState<T> {
       return
     }
     const ctrl = new AbortController()
+    /* смена path — сброс данных СРАЗУ: пока грузится новый, таблица не
+     * показывает слоты ПРОШЛОГО батча под шапкой нового (приёмник вердиктов
+     * мигал чужими строками — webDevReview #8) */
+     
+    setData(null)
     setLoading(true)
     setError(null)
     fetchJson<T>(path)

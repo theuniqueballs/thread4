@@ -32,10 +32,23 @@ export async function GET(
   /* title: JSON → H1 батча (RAW/EXP без контракта) → слаг */
   const jsonTitle = meta?.title && meta.title !== slug ? meta.title : ''
   const title = jsonTitle || extractBatchTitle(markdown) || slug
+  /* квитанции — нормализация на границе API: findings/level/verdict —
+   * строки, findings — массив строк. Крэш T4-28 retro-fix #1 (receipts без
+   * findings → TypeError → вкладка умерла) чинился правкой ДАННЫХ — теперь
+   * код держит любую форму (webDevReview #8) */
+  const receipts = (Array.isArray(meta?.receipts) ? meta.receipts : []).map((r) => {
+    const rec = (r ?? {}) as Record<string, unknown>
+    return {
+      gate: String(rec.gate ?? ''),
+      level: String(rec.level ?? ''),
+      verdict: String(rec.verdict ?? ''),
+      findings: Array.isArray(rec.findings) ? rec.findings.map((f) => String(f)) : [],
+    }
+  })
   return NextResponse.json({
     slug,
     title,
     markdown,
-    receipts: meta?.receipts ?? [],
+    receipts,
   })
 }

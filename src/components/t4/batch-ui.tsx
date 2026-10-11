@@ -112,7 +112,7 @@ export function CopyBtn({ text, label, title }: { text: string; label: string; t
       onClick={go}
       title={title}
       className={cn(
-        'inline-flex shrink-0 items-center gap-1 rounded-md border px-1.5 py-0.5 text-[10px] font-medium leading-4 transition-all outline-none focus-visible:ring-1 focus-visible:ring-amber-500/60 active:scale-95',
+        'relative inline-flex shrink-0 items-center gap-1 rounded-md border px-1.5 py-0.5 text-[10px] font-medium leading-4 transition-all outline-none before:absolute before:-inset-1.5 focus-visible:ring-1 focus-visible:ring-amber-500/60 active:scale-95',
         done
           ? 'border-emerald-600/50 bg-emerald-600/10 text-emerald-400'
           : 'border-zinc-700/70 bg-zinc-800/50 text-zinc-400 hover:border-amber-500/50 hover:text-amber-300'
@@ -143,9 +143,15 @@ export function loadRenderProgress(slug: string): string[] {
 }
 
 /** Единая точка записи трекера рендера — режим Просмотра и Сравнение
- *  пишут одни и те же ключи, счётчики не расходятся. */
+ *  пишут одни и те же ключи, счётчики не расходятся. Запись обёрнута:
+ *  Safari private mode / QuotaExceeded / отключённое хранилище раньше
+ *  роняли useEffect → React разборал дерево → белый экран (9-c №2). */
 export function saveRenderProgress(slug: string, ids: string[]) {
-  window.localStorage.setItem(`t4-render-progress-${slug}`, JSON.stringify(ids))
+  try {
+    window.localStorage.setItem(`t4-render-progress-${slug}`, JSON.stringify(ids))
+  } catch {
+    /* хранилище недоступно — трекер живёт в памяти сессии, молча */
+  }
 }
 
 /* ------------------------------------------------------------------ */
@@ -339,7 +345,7 @@ export function SlotStrip({ slug, markdown }: { slug: string; markdown: string }
               onCheckedChange={() => toggle(s.id)}
               aria-label={`${s.id} отрендерен`}
               title={isDone ? `Снять отметку ${s.id}` : `Отметить ${s.id} отрендеренным`}
-              className="size-3.5 rounded-[4px] border-zinc-700 bg-zinc-900 transition-colors hover:border-emerald-500/60 data-[state=checked]:border-emerald-500 data-[state=checked]:bg-emerald-500 data-[state=checked]:text-zinc-950"
+              className="relative size-3.5 rounded-[4px] border-zinc-700 bg-zinc-900 transition-colors before:absolute before:-inset-2.5 hover:border-emerald-500/60 data-[state=checked]:border-emerald-500 data-[state=checked]:bg-emerald-500 data-[state=checked]:text-zinc-950"
             />
             <Mono className={isDone ? 'text-emerald-300/80' : undefined}>{s.id}</Mono>
             {s.kind ? <Chip tone="zinc">{s.kind}</Chip> : null}
@@ -994,39 +1000,37 @@ function RadarHypoRow({
         open ? 'border-amber-500/25 bg-amber-500/[0.02]' : 'border-zinc-800'
       )}
     >
-      <div
-        role="button"
-        tabIndex={0}
-        aria-expanded={open}
-        aria-label={`Гипотеза ${h.greek}${h.hid ? ` (${h.hid})` : ''} — ${h.title || 'EXP'}`}
-        onClick={onToggle}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault()
-            onToggle()
-          }
-        }}
-        className="flex cursor-pointer select-none flex-wrap items-center gap-2 px-3 py-2 transition-colors hover:bg-zinc-900/70"
-      >
-        <span
-          className={cn(
-            'flex size-6 shrink-0 items-center justify-center rounded-md border font-mono text-xs',
-            h.kind === 'pair'
-              ? 'border-amber-500/30 bg-amber-500/10 text-amber-300'
-              : 'border-zinc-700 bg-zinc-800/60 text-zinc-300'
-          )}
+      {/* WCAG 4.1.2: раньше заголовок был div[role=button] с КНОПКАМИ чипов
+          внутри — экранные читалки сплющивали дерево; теперь тоггл —
+          настоящий button, чипы навигации — соседы, не потомки */}
+      <div className="flex flex-wrap items-center gap-2 px-3 py-2 transition-colors hover:bg-zinc-900/70">
+        <button
+          type="button"
+          onClick={onToggle}
+          aria-expanded={open}
+          className="flex min-w-0 cursor-pointer select-none flex-wrap items-center gap-2 rounded-md text-left outline-none focus-visible:ring-1 focus-visible:ring-amber-500/60"
         >
-          {h.greek}
-        </span>
-        {h.hid ? <Chip tone="amber">{h.hid}</Chip> : null}
-        <span className="min-w-0 basis-24 text-xs font-medium text-zinc-200">
-          {h.title || (h.kind === 'pair' ? 'A/B-пара' : 'одиночка')}
-        </span>
-        {h.lawNo ? (
-          <span className="rounded border border-zinc-800 bg-zinc-900/60 px-1.5 font-mono text-[10px] text-zinc-500">
-            закон №{h.lawNo}
+          <span
+            className={cn(
+              'flex size-6 shrink-0 items-center justify-center rounded-md border font-mono text-xs',
+              h.kind === 'pair'
+                ? 'border-amber-500/30 bg-amber-500/10 text-amber-300'
+                : 'border-zinc-700 bg-zinc-800/60 text-zinc-300'
+            )}
+          >
+            {h.greek}
           </span>
-        ) : null}
+          {h.hid ? <Chip tone="amber">{h.hid}</Chip> : null}
+          <span className="min-w-0 basis-24 text-xs font-medium text-zinc-200">
+            {h.title || (h.kind === 'pair' ? 'A/B-пара' : 'одиночка')}
+          </span>
+          {h.lawNo ? (
+            <span className="rounded border border-zinc-800 bg-zinc-900/60 px-1.5 font-mono text-[10px] text-zinc-500">
+              закон №{h.lawNo}
+            </span>
+          ) : null}
+          <ChevronDown className={cn('size-3.5 shrink-0 text-zinc-600 transition-transform', open && 'rotate-180')} />
+        </button>
         <span className="ml-auto flex flex-wrap items-center gap-1.5">
           {present.map(({ half, side }) => (
             <SlotNavChip key={half.slotId} slug={effSlug} slotId={half.slotId} side={side} alchemy={half.alchemy} />
@@ -1043,7 +1047,6 @@ function RadarHypoRow({
           ) : null}
           {delta && delta !== 'A = B' ? <Chip tone="emerald">{delta}</Chip> : null}
           <TrialStatusPill status={status} rendered={doneCount} total={present.length} />
-          <ChevronDown className={cn('size-3.5 shrink-0 text-zinc-600 transition-transform', open && 'rotate-180')} />
         </span>
       </div>
       {open ? (

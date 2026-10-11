@@ -116,8 +116,20 @@ export function snapshotLastError(): string | null {
   return lastError
 }
 
-/* CLI-процессы живут секунды: флешим недоиндексированное на выходе. */
-if (typeof process !== 'undefined' && typeof process.on === 'function') {
+/* CLI-процессы живут секунды: флешим недоиндексированное на выходе.
+ * Глоб-флаг: Next dev компилирует роуты в отдельные бандлы — каждый
+ * инстанс модуля вешал СВОЙ process.on('exit') (MaxListenersExceeded 11+);
+ * один листенер на процесс достаточно (9-c №21). */
+declare global {
+   
+  var __t4PersistExitHook: boolean | undefined
+}
+if (
+  typeof process !== 'undefined' &&
+  typeof process.on === 'function' &&
+  !globalThis.__t4PersistExitHook
+) {
+  globalThis.__t4PersistExitHook = true
   process.on('exit', () => {
     if (pendingReasons.length > 0) snapshotNow('exit-flush')
   })

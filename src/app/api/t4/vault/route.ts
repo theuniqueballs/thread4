@@ -50,6 +50,11 @@ const DOC_FILES = [
   'ENGINE_FORGE.md',
 ]
 
+/* thread4/docs/ — аналитические документы раундов («Анализ вердиктов»
+ * 2026-10-11); раньше не собирались в сейф — единственный документ,
+ *  переживший контейнер только в браузере, был бы потерян (9-c №18c) */
+const ANALYTICS_DIR_NAME = 'docs'
+
 export async function GET() {
   ensureDirs()
   const files: Record<string, string> = {}
@@ -63,6 +68,7 @@ export async function GET() {
     const content = readText(path.join(DOCS_DIR, d))
     if (content != null) files[`thread4/${d}`] = content
   }
+  collectDir(path.join(DOCS_DIR, ANALYTICS_DIR_NAME), '.md', files)
   const log = readText(EVENT_LOG)
   if (log != null) files['thread4/events/log.jsonl'] = log
 
@@ -81,7 +87,7 @@ export async function GET() {
 /* ------------------------------------------------------------------ */
 
 const SAFE_PATH = /^thread4\/(batches|contracts|specs)\/[A-Za-z0-9][A-Za-z0-9._-]*$/
-const SAFE_DOC = /^thread4\/[A-Z][A-Z_]+\.md$/
+const SAFE_DOC = /^thread4\/(docs\/)?[A-Z][A-Za-z0-9._-]*\.md$/
 const LOG_PATH = 'thread4/events/log.jsonl'
 
 function parseLog(text: string): T4Event[] {
