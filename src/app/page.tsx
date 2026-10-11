@@ -136,6 +136,14 @@ const TABS: { id: TabId; label: string; icon: React.ReactNode }[] = [
   { id: 'archive', label: 'Архив 3.2', icon: <ArchiveIcon className="size-3.5" /> },
 ]
 
+/** Вкладка из адреса (#tab=batches) или null — deep-link hash-роутинга. */
+function tabFromHash(): TabId | null {
+  if (typeof window === 'undefined') return null
+  const m = /^#tab=([a-z]+)/.exec(window.location.hash)
+  if (m == null) return null
+  return TABS.some((t) => t.id === m[1]) ? (m[1] as TabId) : null
+}
+
 /* ------------------------------------------------------------------ */
 /* Tab: Стекло (Залп 3) — здоровье хрупкого, объявленное честно        */
 /* ------------------------------------------------------------------ */
@@ -3392,6 +3400,34 @@ function ArchiveTab() {
 
 export default function Home() {
   const [tab, setTab] = useState<TabId>('state')
+  /* hash-роутинг вкладок (порт fred-legacy, webDevReview #9): адрес
+   * вида #tab=batches всегда отражает текущую вкладку — ссылку можно
+   * закинуть в чат/заметку, F5 не теряет место. Применяется ПОСЛЕ
+   * гидрации (SSR рендерит 'state' — инициализация из window дала бы
+   * мисматч). Хэш не конфликтует с ?XTransformPort (search и hash —
+   * разные части URL). */
+  useEffect(() => {
+    const t = tabFromHash()
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- deep-link читается один раз после гидрации (как ключ командира в api.ts: localStorage/window в ленивом состоянии даёт SSR-мисматч)
+    if (t !== null) setTab(t)
+  }, [])
+  useEffect(() => {
+    const onHash = () => {
+      const t = tabFromHash()
+      if (t !== null) setTab(t)
+    }
+    window.addEventListener('hashchange', onHash)
+    return () => window.removeEventListener('hashchange', onHash)
+  }, [])
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    if (tabFromHash() !== tab) {
+      /* replaceState, не pushState: ключи 1–0 листают вкладки десятками
+       * за сессию — история браузера не должна превращаться в список
+       * перелистываний; назад/вперёд уводит со страницы, а не гуляет по ней */
+      window.history.replaceState(null, '', `#tab=${tab}`)
+    }
+  }, [tab])
   /* клавиатура табов (WAI-ARIA tabs): ←/→ циклично, Home/End — края;
      фокус следует за выбором (roving tabindex) */
   function onTabKey(e: React.KeyboardEvent) {
