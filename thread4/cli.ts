@@ -429,7 +429,7 @@ async function main() {
     const tech = inv.find((s) => s.id === 'rating-techniques')
     check('техника-карта в инвентаре (>=100 приёмов)', (tech?.count ?? 0) >= 100)
     const recipes = inv.find((s) => s.id === 'rating-recipes')
-    check('рецепт v1.6.0 (закон №14 подтверждён δ + №20 чистых рук: braless-токен изъят + №21 плоская натяжка X-риск)', recipes?.version === '1.6.0')
+    check('рецепт v1.7.0 (закон №14 через_fabric = подслой-лок + №25 NEG-гигиена: авторский бан-лист 15 терминов, X-блок снят с universal сборки)', recipes?.version === '1.7.0')
     // статa доставки (рекомендация Claude №2, external.review 2026-09-23;
     // v0.2.0 — вердикт T4-05: 13 → 18 каналов)
     const dstats = inv.find((s) => s.id === 'delivery-stats')
