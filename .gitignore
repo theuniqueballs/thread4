@@ -84,3 +84,9 @@ prisma/
 examples/
 tests/
 mini-services/
+
+# аудит 2026-10-12: атомарные tmp-файлы writeText (*.tmp-<pid>-<ts>),
+# браузерные QA-скриншоты, ключ командира (страховка поверх ~/.t4/)
+*.tmp-*
+.qa-shots/
+commander.key
