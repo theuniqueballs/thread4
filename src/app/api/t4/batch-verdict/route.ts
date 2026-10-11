@@ -9,6 +9,7 @@ import { NextResponse } from 'next/server'
 import path from 'node:path'
 
 import { appendEvent, readEvents } from '@/lib/t4/events'
+import { requireCommander } from '@/lib/t4/apiguard'
 import { BATCHES_DIR, CONTRACTS_DIR, readJson, readText } from '@/lib/t4/fsutil'
 import { extractBatchTitle } from '@/lib/t4/gates'
 import { TIER_RANK as TIERS } from '@/lib/t4/verdicts'
@@ -63,6 +64,11 @@ function tierDelta(a: string, b: string): number {
 }
 
 export async function POST(req: Request) {
+  /* Залп 1 (аудит 2026-10-12): вердикт-приёмник пишет render.verdict
+   * В ХЕШ-ЛЕТОПИСЬ (source=author-batch) — только с ключом командира.
+   * До раунда любой снаружи мог форжить авторские вердикты. */
+  const guard = requireCommander(req)
+  if (!guard.ok) return guard.response
   let body: {
     slug?: string
     slots?: BatchVerdictSlotInput[]

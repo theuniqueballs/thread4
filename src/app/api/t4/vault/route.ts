@@ -14,6 +14,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { NextResponse } from 'next/server'
 
+import { requireCommander } from '@/lib/t4/apiguard'
 import {
   BATCHES_DIR,
   CONTRACTS_DIR,
@@ -22,7 +23,6 @@ import {
   SPECS_DIR,
   ensureDirs,
   listFiles,
-  readCommanderKey,
   readText,
   writeText,
 } from '@/lib/t4/fsutil'
@@ -55,7 +55,12 @@ const DOC_FILES = [
  *  переживший контейнер только в браузере, был бы потерян (9-c №18c) */
 const ANALYTICS_DIR_NAME = 'docs'
 
-export async function GET() {
+export async function GET(req: Request) {
+  /* Аудит 2026-10-12: GET отдаёт ПОЛНЫЙ бандл (батчи, контракты, спеки,
+   * log.jsonl) — приравнен к записи, лочится тем же ключом командира.
+   * Клиент (Стекло) уже хранит ключ и прикладывает его к обоим вызовам. */
+  const guard = requireCommander(req)
+  if (!guard.ok) return guard.response
   ensureDirs()
   const files: Record<string, string> = {}
 
@@ -105,20 +110,10 @@ function parseLog(text: string): T4Event[] {
 }
 
 export async function POST(request: Request) {
-  /* восстановление переписывает диск — только с ключом командира */
-  const key = readCommanderKey()
-  if (key == null) {
-    return NextResponse.json(
-      { error: 'commander-key не создан — восстановление залочено', setupRequired: true },
-      { status: 503 }
-    )
-  }
-  if ((request.headers.get('x-commander-key') ?? '') !== key) {
-    return NextResponse.json(
-      { error: 'чужой или пустой commander-key — восстановление запрещено' },
-      { status: 403 }
-    )
-  }
+  /* восстановление переписывает диск — только с ключом командира
+   * (аудит 2026-10-12: единый гвард apiguard, timing-safe) */
+  const guard = requireCommander(request)
+  if (!guard.ok) return guard.response
 
   let body: { files?: Record<string, string>; savedAt?: string }
   try {

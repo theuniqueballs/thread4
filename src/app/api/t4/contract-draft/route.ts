@@ -23,6 +23,7 @@ import path from 'node:path'
 import { NextResponse } from 'next/server'
 
 import { appendEvent } from '@/lib/t4/events'
+import { requireCommander } from '@/lib/t4/apiguard'
 import { DRAFTS_DIR, BATCHES_DIR, CONTRACTS_DIR, listFiles, writeJson, writeText } from '@/lib/t4/fsutil'
 import { getRaces } from '@/lib/t4/specs'
 
@@ -111,6 +112,10 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
+  /* Залп 1 (аудит 2026-10-12): черновик пишется на диск + note в летопись —
+   * только с ключом командира. */
+  const guard = requireCommander(req)
+  if (!guard.ok) return guard.response
   let body: DraftBody
   try {
     body = (await req.json()) as DraftBody
@@ -205,6 +210,10 @@ export async function POST(req: Request) {
 }
 
 export async function DELETE(req: Request) {
+  /* удаление файла черновика + note в летопись — только с ключом (аудит
+   * 2026-10-12; до раунда DELETE был открыт снаружи) */
+  const guard = requireCommander(req)
+  if (!guard.ok) return guard.response
   const slug = new URL(req.url).searchParams.get('slug') ?? ''
   if (!/^T4-[\dA-Za-z.-]+$/.test(slug)) {
     return NextResponse.json({ error: 'слаг обязателен: ?slug=T4-NN' }, { status: 400 })

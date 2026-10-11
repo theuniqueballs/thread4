@@ -6,12 +6,17 @@
  */
 import { NextResponse } from 'next/server'
 
+import { requireCommander } from '@/lib/t4/apiguard'
 import { scribeBatch } from '@/lib/t4/scribe'
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 600
 
 export async function POST(req: Request) {
+  /* Залп 1 (аудит 2026-10-12): писец жгёт LLM-квоту, пишет batches/*.md
+   * и событие scribe.drafted — только с ключом командира. */
+  const guard = requireCommander(req)
+  if (!guard.ok) return guard.response
   let body: { slug?: string; maxRepairRounds?: number }
   try {
     body = await req.json()

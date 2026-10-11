@@ -2,6 +2,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { NextResponse } from 'next/server'
 
+import { commanderKeyMatches, requireCommander } from '@/lib/t4/apiguard'
 import { appendEvent, EVENT_TYPES, readEvents } from '@/lib/t4/events'
 import { readCommanderKey } from '@/lib/t4/fsutil'
 
@@ -21,7 +22,9 @@ export async function GET(req: Request) {
       return NextResponse.json({ probe: true, serverKey: false, keyOk: false })
     }
     const provided = req.headers.get('x-commander-key') ?? ''
-    return NextResponse.json({ probe: true, serverKey: true, keyOk: provided === serverKey })
+    /* timing-safe сравнение (аудит 2026-10-12): время ответа не различает
+     * ни содержание, ни длину ключа */
+    return NextResponse.json({ probe: true, serverKey: true, keyOk: commanderKeyMatches(provided, serverKey) })
   }
 
   const events = readEvents()
@@ -31,25 +34,11 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   /* Залп 1 «Правда»: запись в летопись — только с ключом командира.
-     Без этого любой процесс на машине мог форжить хоть era.born. */
-  const key = readCommanderKey()
-  if (key == null) {
-    return NextResponse.json(
-      {
-        error: 'commander-key не создан — летопись залочена',
-        setupRequired: true,
-        hint: 'создай ~/.t4/commander.key (32+ случайных символа) и передавай его в заголовке x-commander-key',
-      },
-      { status: 503 }
-    )
-  }
-  const provided = req.headers.get('x-commander-key') ?? ''
-  if (provided !== key) {
-    return NextResponse.json(
-      { error: 'чужой или пустой commander-key — запись в летопись запрещена' },
-      { status: 403 }
-    )
-  }
+     Без этого любой процесс на машине мог форжить хоть era.born.
+     Аудит 2026-10-12: единый гвард apiguard (timing-safe сравнение) —
+     семантика 503/403 сохранена. */
+  const guard = requireCommander(req)
+  if (!guard.ok) return guard.response
 
   let body: { type?: string; summary?: string; data?: Record<string, unknown> }
   try {

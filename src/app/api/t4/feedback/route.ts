@@ -14,6 +14,7 @@ import { NextResponse } from 'next/server'
 import ZAI from 'z-ai-web-dev-sdk'
 
 import { appendEvent } from '@/lib/t4/events'
+import { requireCommander } from '@/lib/t4/apiguard'
 import { BLIND_PROMPT, isProviderBlocked, parseBlindCard } from '@/lib/t4/vlm'
 
 export const dynamic = 'force-dynamic'
@@ -36,6 +37,10 @@ const PROMPT = `You are the render analyst of an anime-art prompt pipeline. Anal
 Judge only what is visible. Numbers are integers.`
 
 export async function POST(req: Request) {
+  /* Залп 1 (аудит 2026-10-12): платный VLM-вызов + запись render.verdict
+   * в летопись — только с ключом командира. */
+  const guard = requireCommander(req)
+  if (!guard.ok) return guard.response
   let body: { imageBase64?: string; slug?: string; position?: string; mimeType?: string; blind?: boolean }
   try {
     body = await req.json()

@@ -10,7 +10,7 @@
  * было один раз открыть Workflow после сдачи — и снимок уже здесь.
  */
 
-import { withGatewayPort } from './api'
+import { commanderHeaders, withGatewayPort } from './api'
 
 export interface VaultBundle {
   savedAt: string
@@ -61,9 +61,14 @@ function countBy(files: Record<string, string>, prefix: string, ext?: string): n
   return Object.keys(files).filter((p) => p.startsWith(prefix) && (ext ? p.endsWith(ext) : true)).length
 }
 
-/** Забрать бандл с сервера и положить в хранилище (дедуп по содержимому). */
+/** Забрать бандл с сервера и положить в хранилище (дедуп по содержимому).
+ * Аудит 2026-10-12: vault GET залочен ключом командира (бандл = весь
+ * журнал+батчи+спеки) — клиент прикладывает ключ как сервер ждёт. */
 export async function cacheCurrentState(): Promise<VaultMeta | null> {
-  const res = await fetch(withGatewayPort('/api/t4/vault'), { cache: 'no-store' })
+  const res = await fetch(withGatewayPort('/api/t4/vault'), {
+    cache: 'no-store',
+    headers: commanderHeaders(),
+  })
   if (!res.ok) throw new Error(`vault API ${res.status}`)
   const bundle = (await res.json()) as VaultBundle
   const serialized = JSON.stringify(bundle)
@@ -124,13 +129,16 @@ export async function deleteSnapshot(key: string): Promise<void> {
   await tx('readwrite', (s) => s.delete(key))
 }
 
-/** Восстановление: бандл уходит на сервер, сервер возвращает отчёт. */
+/** Восстановление: бандл уходит на сервер, сервер возвращает отчёт.
+ * Аудит 2026-10-12: ФИКС функционального бага — vault POST залочен с
+ * «Залпа 1», но клиент не слал x-commander-key: restore из UI всегда
+ * получал 403 и никогда не работал. */
 export async function restoreSnapshot(
   bundle: VaultBundle
 ): Promise<{ restored: string[]; skipped: string[]; mergedEvents: number }> {
   const res = await fetch(withGatewayPort('/api/t4/vault'), {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...commanderHeaders() },
     body: JSON.stringify({ savedAt: bundle.savedAt, files: bundle.files }),
   })
   if (!res.ok) throw new Error(`vault API ${res.status}`)

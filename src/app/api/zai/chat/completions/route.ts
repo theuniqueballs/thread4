@@ -12,6 +12,8 @@ import { NextResponse } from 'next/server'
 import path from 'node:path'
 import fs from 'node:fs'
 
+import { requireCommander } from '@/lib/t4/apiguard'
+
 export const dynamic = 'force-dynamic'
 export const maxDuration = 300
 
@@ -33,6 +35,11 @@ function loadConfig(): ZaiConfig | null {
 }
 
 export async function POST(req: Request) {
+  /* Аудит 2026-10-12 (High): роут — платный LLM-прокси с Bearer-ключом
+   * автора из .z-ai-config; до раунда любой снаружи (через шлюз :81)
+   * гонял модель за счёт автора. Ключ командира обязателен. */
+  const guard = requireCommander(req)
+  if (!guard.ok) return guard.response
   const cfg = loadConfig()
   if (!cfg) {
     return NextResponse.json(

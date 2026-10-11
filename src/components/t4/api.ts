@@ -172,7 +172,11 @@ export async function postJson<T>(
 ): Promise<T> {
   const res = await fetch(withGatewayPort(path), {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...extraHeaders },
+    /* Аудит 2026-10-12: ключ командира прикладывается КО ВСЕМ мутациям по
+     * умолчанию (Залп 1 расширен на compile/gates/scribe/verdicts/vlm/zai).
+     * Побочно это и CSRF-защита: кастомный заголовок нельзя поставить
+     * кросс-доменно без preflight. */
+    headers: { 'Content-Type': 'application/json', ...commanderHeaders(), ...extraHeaders },
     body: JSON.stringify(body),
   })
   if (!res.ok) {
@@ -192,9 +196,13 @@ export async function postJson<T>(
 }
 
 /** DELETE с телом ошибки наверх — симметрично postJson (удаление черновиков
- *  из UI, ревью 2026-10-11: отказ 409 «уже собран» должен быть читаем). */
+ *  из UI, ревью 2026-10-11: отказ 409 «уже собран» должен быть читаем).
+ *  Аудит 2026-10-12: ключ командира прикладывается по умолчанию. */
 export async function delJson<T>(path: string): Promise<T> {
-  const res = await fetch(withGatewayPort(path), { method: 'DELETE' })
+  const res = await fetch(withGatewayPort(path), {
+    method: 'DELETE',
+    headers: { ...commanderHeaders() },
+  })
   if (!res.ok) {
     let msg = `HTTP ${res.status}`
     try {

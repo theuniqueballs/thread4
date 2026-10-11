@@ -11,6 +11,8 @@ import { NextResponse } from 'next/server'
 import path from 'node:path'
 import fs from 'node:fs'
 
+import { requireCommander } from '@/lib/t4/apiguard'
+
 export const dynamic = 'force-dynamic'
 export const maxDuration = 300
 
@@ -32,6 +34,9 @@ function loadConfig(): ZaiConfig | null {
 }
 
 export async function POST(req: Request) {
+  /* Аудит 2026-10-12 (High): платный vision-прокси — только с ключом командира. */
+  const guard = requireCommander(req)
+  if (!guard.ok) return guard.response
   const cfg = loadConfig()
   if (!cfg) {
     return NextResponse.json(

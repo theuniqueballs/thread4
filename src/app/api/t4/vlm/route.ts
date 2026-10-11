@@ -20,12 +20,16 @@ import { NextResponse } from 'next/server'
 
 import ZAI from 'z-ai-web-dev-sdk'
 
+import { requireCommander } from '@/lib/t4/apiguard'
 import { BLIND_PROMPT, isProviderBlocked, parseBlindCard } from '@/lib/t4/vlm'
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 120
 
 export async function POST(req: Request) {
+  /* Залп 1 (аудит 2026-10-12): платный VLM-вызов — только с ключом командира. */
+  const guard = requireCommander(req)
+  if (!guard.ok) return guard.response
   let body: { imageBase64?: string; mimeType?: string }
   try {
     body = await req.json()

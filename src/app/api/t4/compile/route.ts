@@ -1,11 +1,17 @@
 import { NextResponse } from 'next/server'
 
+import { requireCommander } from '@/lib/t4/apiguard'
 import { compileBatch } from '@/lib/t4/compiler'
 import { contractMarkdown } from '@/lib/t4/compiler'
 
 export const dynamic = 'force-dynamic'
 
 export async function POST(req: Request) {
+  /* Залп 1 (аудит 2026-10-12): компиляция пишет контракты на диск и событие
+   * batch.compiled в летопись — только с ключом командира (до раунда
+   * роут был открыт, хотя дашборд достижим через шлюз :81). */
+  const guard = requireCommander(req)
+  if (!guard.ok) return guard.response
   let body: {
     theme?: string
     ocOrders?: string[]

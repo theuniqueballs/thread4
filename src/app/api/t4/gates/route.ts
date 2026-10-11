@@ -1,11 +1,17 @@
 import { NextResponse } from 'next/server'
 
+import { requireCommander } from '@/lib/t4/apiguard'
 import { runGates } from '@/lib/t4/gates'
 import { deliverBatch } from '@/lib/t4/deliver'
 
 export const dynamic = 'force-dynamic'
 
 export async function POST(req: Request) {
+  /* Залп 1 (аудит 2026-10-12): deliver пишет batches/*.md+json, события
+   * batch.delivered/oc.appeared и git-снапшот; сам прогон гейтов — чтение,
+   * но роут один на оба режима — лочится целиком (дешевле и предсказуемей). */
+  const guard = requireCommander(req)
+  if (!guard.ok) return guard.response
   let body: { slug?: string; deliver?: boolean }
   try {
     body = await req.json()
