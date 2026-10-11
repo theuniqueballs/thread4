@@ -1458,7 +1458,10 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
       let conOk = false
       let conUnclear = false
       let conWhy = ''
-      if (wet && darkScene && !garmentLight) {
+      if (wet && darkScene && !garmentLight && !sceneGlow) {
+        // закон №21: лекарство от «мокрой тёмной ткани = пятно» — свет НА
+        // зоне заявки (конструктивное, не негативное). Глоу-слово на зоне
+        // (sceneGlow) засчитывается как лечение пятно-риска.
         conWhy = 'мокрая тёмная ткань без света — пятно-риск'
       } else if (garmentLight && bgLightCount >= 2) {
         conWhy = 'светлое на светлом — слияние с фоном'
