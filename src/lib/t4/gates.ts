@@ -1328,8 +1328,13 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
     if (intra.length > 0) {
       f.push(`внутри-батчевые близнецы: ${intra.slice(0, 4).join(' · ')}${intra.length > 4 ? ` — и ещё ${intra.length - 4}` : ''}`)
     }
-    // повторная сдача (v2): себя не сравниваем — своё окно исключено
-    for (const w of state.windowSlugs.filter((x) => x !== batch.slug)) {
+    // повторная сдача (v2): себя не сравниваем — своё окно исключено.
+    // ISSUE 16 / #48 (аудит 2026-10-12): rebuildOf-источник исключается так же,
+    // как в окне палитр (windowOthersFor, вопрос №30) — ребилд переиспользует
+    // материал источника ПО ДИЗАЙНУ (тот же состав, одна переменная); warn
+    // «похоже на источник» на задуманном переиспользовании — ложный сигнал
+    // автору. Остальные члены окна конфликтуют как обычно.
+    for (const w of state.windowSlugs.filter((x) => x !== batch.slug && x !== contract?.rebuildOf)) {
       const wText = readText(path.join(BATCHES_DIR, `${w}.md`))
       if (!wText) continue
       const wBatch = parseBatch(w, wText)

@@ -796,7 +796,35 @@ function parseSlots(raw: string): Map<number, ScribeSlotOutput> {
 /* The scribe                                                          */
 /* ------------------------------------------------------------------ */
 
+/* ISSUE 14 / #46 (аудит 2026-10-12): throw посреди scribeBatch (сеть в
+ * ремонте, guard-ы) оставлял batches/<slug>.md на диске БЕЗ scribe.drafted
+ * в летописи — тихий дрейф файл/летопись, который никто не регистрировал.
+ * Обёртка ловит упавший прогон и пишет note с маркером scribe-aborted
+ * (файл остался без события; сдача закрыта — deliver требует hard PASS
+ * поверх scribe-прогона, так что защита от сдачи дрейфа уже была — не
+ * хватало наблюдаемости). Одна заметка на упавший прогон: это сигнал,
+ * не шум — каждый такой файл требует решения (перезапуск/чистка). */
 export async function scribeBatch(
+  slug: string,
+  options: ScribeOptions = {}
+): Promise<ScribeResult> {
+  const batchPath = path.join(BATCHES_DIR, `${slug}.md`)
+  try {
+    return await scribeBatchInner(slug, options)
+  } catch (e) {
+    const reason = e instanceof Error ? e.message : String(e)
+    if (fs.existsSync(batchPath)) {
+      appendEvent(
+        'note',
+        `scribe.aborted: ${slug} — прогон писца упал, файл черновика остался на диске БЕЗ scribe.drafted (сдача закрыта до решения: перезапуск или чистка) · причина: ${reason.slice(0, 300)}`,
+        { slug, kind: 'scribe-aborted', reason: reason.slice(0, 500) }
+      )
+    }
+    throw e
+  }
+}
+
+async function scribeBatchInner(
   slug: string,
   options: ScribeOptions = {}
 ): Promise<ScribeResult> {
@@ -984,7 +1012,7 @@ export async function scribeBatch(
   let markdown = assembleBatch(ctx, outputs, title)
   let result: GatesResult | null = null
   let rounds = 0
-  const batchPath = path.join(BATCHES_DIR, `${slug}.md`)
+  const batchPath = path.join(BATCHES_DIR, `${slug}.md`) // обёртка scribeBatch держит свой путь для aborted-нотификации (ISSUE 14)
 
   for (let round = 0; round <= maxRepairRounds; round++) {
     writeText(batchPath, markdown)

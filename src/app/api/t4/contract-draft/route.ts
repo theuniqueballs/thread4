@@ -25,7 +25,7 @@ import { NextResponse } from 'next/server'
 import { appendEvent } from '@/lib/t4/events'
 import { requireCommander } from '@/lib/t4/apiguard'
 import { DRAFTS_DIR, BATCHES_DIR, CONTRACTS_DIR, listFiles, writeJson, writeText } from '@/lib/t4/fsutil'
-import { getRaces } from '@/lib/t4/specs'
+import { getPolicy, getRaces } from '@/lib/t4/specs'
 
 export const dynamic = 'force-dynamic'
 
@@ -48,6 +48,9 @@ interface DraftBody {
   rehab?: boolean
   engine?: string
   notes?: string
+  /** EXP-слоты поверх 24 — заказ автора (напоминание 2026-10-12: «у тебя
+   *  если чё 9 слотов под EXP»); клампится по policy law.expSlotsMax. */
+  exp?: number
 }
 
 const RATINGS = new Set(['PG-13', 'R', 'R+', 'X'])
@@ -77,6 +80,9 @@ export async function GET() {
   const races = (getRaces()?.races ?? [])
     .filter((r) => (r.status === 'active' || r.status === 'gold') && r.name.toLowerCase() !== 'human')
     .map((r) => ({ id: r.id, name: r.name, status: r.status }))
+  /* EXP-бюджет из policy — UI показывает контрол честно (напоминание
+   * автора 2026-10-12: «у тебя если чё 9 слотов под EXP») */
+  const expSlotsMax = getPolicy()?.law?.expSlotsMax ?? 9
   /* список черновиков — бриф не исчезает после сохранения (ревью UI
    * 2026-10-11): слаг, тема, дата, кины, флаг «собран» (батч/контракт) */
   const drafts = listFiles(DRAFTS_DIR, '.json').map((f) => {
@@ -89,6 +95,7 @@ export async function GET() {
       abPairs?: number
       xSlots?: number
       themeWords?: string[]
+      exp?: number
     } = {}
     try {
       meta = JSON.parse(fs.readFileSync(path.join(DRAFTS_DIR, f.name), 'utf-8')) as typeof meta
@@ -105,10 +112,11 @@ export async function GET() {
       ocCount: Array.isArray(meta.ocThemes) ? meta.ocThemes.filter((o) => (o as OcTheme).theme).length : 0,
       abPairs: meta.abPairs ?? 0,
       themeWords: Array.isArray(meta.themeWords) ? meta.themeWords : [],
+      exp: typeof meta.exp === 'number' ? meta.exp : null,
       assembled,
     }
   })
-  return NextResponse.json({ nextSlug: nextSlug(), races, drafts })
+  return NextResponse.json({ nextSlug: nextSlug(), races, drafts, expSlotsMax })
 }
 
 export async function POST(req: Request) {
@@ -140,6 +148,12 @@ export async function POST(req: Request) {
     position: i + 1,
   }))
 
+  /* EXP-слоты поверх 24 (напоминание автора 2026-10-12): бюджет policy
+   * law.expSlotsMax — UI не может заказать больше закона; нечётное не
+   * запрещаем — генератор сам выравнивает в пары (радар ждёт A/B-пары). */
+  const expMax = getPolicy()?.law?.expSlotsMax ?? 9
+  const exp = Math.max(0, Math.min(expMax, Math.floor(Number(body.exp ?? 2) || 0)))
+
   const slug = nextSlug()
   /* тема-слова автора (точная привязка к теме): отрисуемые теги через
    * запятую — писец вплетает их в кадры ПЕРВЫМИ, спайн дополняет хвост
@@ -167,6 +181,10 @@ export async function POST(req: Request) {
     },
     xSlots: Math.max(0, Math.min(2, Number(body.xSlots ?? 0) || 0)),
     abPairs: Math.max(0, Math.min(3, Number(body.abPairs ?? 0) || 0)),
+    /* EXP-заказ автора фиксируется в брифе: генератор --from-draft читает
+     * его как приказ (§10; сильнее — только явный флаг --exp в руки).
+     * Двойку (умолчание policy) не пишем — пусть живёт в policy. */
+    ...(exp !== 2 ? { exp } : {}),
     rehab: body.rehab === true,
     engine: String(body.engine ?? 'per-theme'),
     notes: String(body.notes ?? '').trim().slice(0, 1000),
@@ -199,7 +217,8 @@ export async function POST(req: Request) {
     `- Кины (Species): ${draft.species.on ? `ON, ~${draft.species.count}` : 'OFF'}${draft.species.list.length ? ` — ${draft.species.list.join(', ')}` : ''}`,
     `- X-слоты: ${draft.xSlots}`,
     `- A/B-пары: ${draft.abPairs}`,
-    `- REHAB: ${draft.rehab ? 'да' : 'по умолчанию'}`,
+    `- EXP-слоты поверх 24: ${exp} (бюджет ${expMax}; парами — нечётное выровняется)`,
+    `- REHAB: ${draft.rehab ? 'да' : 'по умолчанию'},
     `- Движок: ${draft.engine}`,
     draft.notes ? `- Заметки: ${draft.notes}` : '',
     '',
@@ -208,8 +227,8 @@ export async function POST(req: Request) {
 
   appendEvent(
     'note',
-    `${slug}: черновик контракта создан автором через UI (без компиляции) — тема «${theme}», OC-тем: ${ocThemes.filter((o) => o.theme).length}, кины ${draft.species.on ? `ON ×${draft.species.count}` : 'OFF'}, X=${draft.xSlots}${themeWords.length > 0 ? `, тема-слова: ${themeWords.join('/')}` : ''}`,
-    { slug, kind: 'contract-draft', source: 'author' }
+    `${slug}: черновик контракта создан автором через UI (без компиляции) — тема «${theme}», OC-тем: ${ocThemes.filter((o) => o.theme).length}, кины ${draft.species.on ? `ON ×${draft.species.count}` : 'OFF'}, X=${draft.xSlots}, EXP=${exp}${themeWords.length > 0 ? `, тема-слова: ${themeWords.join('/')}` : ''}`,
+    { slug, kind: 'contract-draft', source: 'author', exp }
   )
 
   return NextResponse.json({ ok: true, slug, draftPath: jsonPath })

@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server'
+
+import { requireRead } from '@/lib/t4/apiguard'
 import path from 'node:path'
 
 import { BATCHES_DIR, CONTRACTS_DIR, readJson, readText } from '@/lib/t4/fsutil'
@@ -56,7 +58,9 @@ function synthesizeFromBatch(
 export async function GET(
   _req: Request,
   { params }: { params: Promise<{ slug: string }> }
-) {
+)
+  const read = requireRead(req)
+  if (!read.ok) return read.response {
   const { slug } = await params
   if (!SLUG_RE.test(slug)) {
     return NextResponse.json({ error: 'bad slug' }, { status: 400 })

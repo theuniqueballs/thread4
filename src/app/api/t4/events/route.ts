@@ -2,7 +2,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { NextResponse } from 'next/server'
 
-import { commanderKeyMatches, requireCommander } from '@/lib/t4/apiguard'
+import { commanderKeyMatches, requireCommander, requireRead } from '@/lib/t4/apiguard'
 import { appendEvent, EVENT_TYPES, readEvents } from '@/lib/t4/events'
 import { readCommanderKey } from '@/lib/t4/fsutil'
 
@@ -26,6 +26,12 @@ export async function GET(req: Request) {
      * ни содержание, ни длину ключа */
     return NextResponse.json({ probe: true, serverKey: true, keyOk: commanderKeyMatches(provided, serverKey) })
   }
+
+  /* ISSUE 15 / #47: граница чтения — read.lock опционален (файл есть → GET
+   * летописи требует ключ командира). Probe выше — НЕ трогаем: иначе автор
+   * не сможет проверить ключ, чтобы открыть чтение (курица и яйцо). */
+  const read = requireRead(req)
+  if (!read.ok) return read.response
 
   const events = readEvents()
   const slice = events.slice(-limit).reverse()

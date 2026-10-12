@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
 
+import { requireRead } from '@/lib/t4/apiguard'
+
 import { foldState, nextBatchNumber, readEvents, verifyChain } from '@/lib/t4/events'
 import { specInventory } from '@/lib/t4/specs'
 import { GATES_TOTAL } from '@/lib/t4/gates'

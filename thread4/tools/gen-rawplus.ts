@@ -280,6 +280,10 @@ export interface DraftBrief {
    *  ПЕРВЫМИ, спайн дополняет хвост до 8 — точная привязка к теме
    *  (ревью UI 2026-10-11: «точнее привязываться к теме») */
   themeWords?: string[]
+  /** EXP-слоты поверх 24 — заказ автора из брифа (напоминание автора
+   *  2026-10-12: «у тебя если чё 9 слотов под EXP»; бюджет law.expSlotsMax).
+   *  Цепочка: явный флаг --exp > бриф (§10) > умолчание 2 (policy). */
+  exp?: number
   species?: { on: boolean; count: number; list: string[] }
   xSlots: number
   abPairs: number
@@ -345,7 +349,17 @@ export function planRawPlus(opts: PlanOptions): RawPlusPlan {
    * пара одной переменной делит ОДНУ палитру, нужно pairCount, не 2×pairCount) --- */
   const palettes = getPalettes()?.palettes ?? []
   const pool = rng.shuffle(palettes.filter((p) => !bannedPalettes.has(p.id)))
-  const expWanted = Math.max(0, Math.min(opts.exp ?? 2, law.expSlotsMax ?? 9))
+  /* EXP-слоты — цепочка приказа: явный флаг --exp (приказ в руки) >
+   * бриф автора (§10 — черновик главнее умолчаний) > умолчание 2
+   * (policy exp_overlay_note, вердикт T4-28). Бюджет — law.expSlotsMax
+   * (9 слотов; приказ 2026-10-08 + напоминание автора 2026-10-12). */
+  if (opts.exp === undefined && opts.draft?.exp !== undefined) {
+    report.push(
+      `EXP-приказ из брифа: ${opts.draft.exp} слот(ов) — бюджет law.expSlotsMax ${law.expSlotsMax ?? 9} (§10: бриф главнее умолчания 2)`
+    )
+  }
+  const expOrder = opts.exp ?? opts.draft?.exp
+  const expWanted = Math.max(0, Math.min(expOrder ?? 2, law.expSlotsMax ?? 9))
   /* пары — ЧЁТНЫМ числом: одиночная болванка без пары ломает радар
    * (pairWith указывал бы на чужую пару); 1 → 2 (минимальная пара),
    * 3 → 2 (лишний хвост — обрезаем, не тасуем) */
@@ -1197,7 +1211,7 @@ function main() {
       process.exit(1)
     }
     theme = draft.theme
-    console.log(`бриф автора: «${theme}» · ОС-тем ${draft.ocThemes.length} · видов ${draft.species?.on ? draft.species.list.length : 0} · abPairs ${draft.abPairs} · rehab ${draft.rehab ? 'да' : 'нет'}`)
+    console.log(`бриф автора: «${theme}» · ОС-тем ${draft.ocThemes.length} · видов ${draft.species?.on ? draft.species.list.length : 0} · abPairs ${draft.abPairs} · rehab ${draft.rehab ? 'да' : 'нет'} · EXP ${draft.exp ?? '2 (умолчание)'} (бюджет ${getPolicy().law.expSlotsMax ?? 9})`)
     if (draft.mainWishes) console.log(`пожелания: ${draft.mainWishes}`)
   } else {
     slug = args[0]

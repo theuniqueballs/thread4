@@ -2,8 +2,10 @@
  * THREAD 4 CLI — seed / compile / check / gates / deliver / state.
  * Usage (bun):
  *   bun thread4/cli.ts seed          # era.born + spec.imported + law.ratified (once)
- *   bun thread4/cli.ts compile "тема" [engine] [oc1,oc2,oc3]
- *   bun thread4/cli.ts recompile T4-NN "тема" [engine]  # пересборка слага под текущий закон
+ *   bun thread4/cli.ts compile "тема" [oc1,oc2,oc3] [--pin oc-rplus,engine:key]
+ *     (позиция [engine] ещё принимается для совместимости, но игнорируется —
+ *      Issue #44: ротация всегда per-theme, судьба движков за автором/жнецом)
+ *   bun thread4/cli.ts recompile T4-NN "тема"  # пересборка слага под текущий закон
  *   bun thread4/cli.ts check T4-01   # писец: сухой прогон гейтов (без событий)
  *   bun thread4/cli.ts gates T4-01   # официальный прогон гейтов (gate.run в лог)
  *   bun thread4/cli.ts deliver T4-01 # официальный прогон + сдача батча
@@ -104,10 +106,17 @@ async function main() {
     const args = pinIdx >= 0 ? rawArgs.filter((_, i) => i !== pinIdx && i !== pinIdx + 1) : rawArgs
     const theme = args[0]
     if (!theme) {
-      console.error('usage: compile "тема" [engine] [oc1,oc2,oc3] [--pin oc-rplus,engine:key]')
+      console.error('usage: compile "тема" [oc1,oc2,oc3] [--pin oc-rplus,engine:key]')
       process.exit(1)
     }
     const engine = args[1] && !args[1].includes(',') ? args[1] : undefined
+    /* Issue #44 (аудит 2026-10-12): позиция принималась, но компилятор
+       игнорировал её — ротация всегда per-theme. Честность вместо мёртвого
+       параметра: аргумент не ломаем (совместимость мышечной памяти),
+       но врать в usage больше не будем. */
+    if (engine) {
+      console.log(`(движок «${engine}» принят, но ротация всегда per-theme — Issue #44; судьба движков за автором/жнецом)`)
+    }
     const ocArg = args[1] && args[1].includes(',') ? args[1] : args[2]
     const ocOrders = ocArg ? ocArg.split(',').map((s) => s.trim()).filter(Boolean) : undefined
     const contract = compileBatch(theme, { engine, ocOrders, authorPin })
@@ -595,6 +604,33 @@ async function main() {
       let guardThrew = false
       try { appendEvent('note', 'wounded \uFFFD wound') } catch { guardThrew = true }
       check('guard рождения: U+FFFD в summary отвергается до записи', guardThrew)
+      /* ISSUE 13 / #45 (аудит 2026-10-12 + раунд Super Z): событийный лок
+       * (appendEvent под withEventLock) не должен оставлять мусор после
+       * отказа ДО входа в критическую секцию, а протухший замок (владелец
+       * погиб) — взламываться следующим писателем. */
+      const { withEventLock } = await import('../src/lib/t4/events')
+      check(
+        'событийный лок: после born-wounded-отказов замка не осталось (файл чист)',
+        !fsMod.existsSync('thread4/events/log.jsonl.lock')
+      )
+      fsMod.writeFileSync('thread4/events/log.jsonl.lock', 'stale-owner-died')
+      const staleOld = new Date(Date.now() - 60_000)
+      fsMod.utimesSync('thread4/events/log.jsonl.lock', staleOld, staleOld)
+      let staleBroken = false
+      let staleClean = false
+      try {
+        withEventLock(() => {
+          staleBroken = true
+          return 0
+        })
+        staleClean = !fsMod.existsSync('thread4/events/log.jsonl.lock')
+      } catch {
+        /* не должен падать — замок протух */
+      }
+      check(
+        'событийный лок: протухший замок взламывается и снимается после работы (ISSUE 13)',
+        staleBroken && staleClean
+      )
       let enumThrew = false
       try { appendEvent('render.verdict', 'T4-99: test', { source: 'дичь' }) } catch { enumThrew = true }
       check('guard рождения: render.verdict с source вне enum отвергается (Issue #1 Кенни)', enumThrew)
@@ -1006,6 +1042,27 @@ async function main() {
       check(
         'окно ротации: void-батч покидает окно (заявлено в cli void — консистентность fold)',
         !st.windowSlugs.includes('T4-91') && st.windowSlugs.join(',') === 'T4-92,T4-93'
+      )
+      /* ISSUE 17 / #49: алиас слага (физическое переименование T4-18→T4-17
+       * 2026-10-02 без машинного события оставил state с призрачным delivered
+       * под старым слагом при физическом новом .md). Сценарий: дубль под
+       * T4-95 воидится, настоящий батч сдаётся как T4-96, переименовывается
+       * в T4-95 — fold обязан показать delivered T4-95, дубль из voided уйти. */
+      const st2 = foldState([
+        mk('2026-01-02T00:00:01Z', 'batch.compiled', { slug: 'T4-95', theme: 'dubl' }),
+        mk('2026-01-02T00:00:02Z', 'batch.void', { slug: 'T4-95' }),
+        mk('2026-01-02T00:00:03Z', 'batch.compiled', { slug: 'T4-96', theme: 'real' }),
+        mk('2026-01-02T00:00:04Z', 'batch.delivered', { slug: 'T4-96' }),
+        mk('2026-01-02T00:00:05Z', 'note', { kind: 'slug-alias', oldSlug: 'T4-96', newSlug: 'T4-95', replaces: 'voided-dubl' }),
+      ])
+      check(
+        'алиас слага: delivered переезжает под новый слаг, призрачного старого нет (ISSUE 17)',
+        st2.batches.some((b) => b.slug === 'T4-95' && b.deliveredAt != null) &&
+          !st2.batches.some((b) => b.slug === 'T4-96')
+      )
+      check(
+        'алиас слага: void ЗАМЕНЯЕМОГО дубля не хоронит переименованный батч (ISSUE 17)',
+        st2.windowSlugs.includes('T4-95') && !st2.voidedSlugs.includes('T4-95')
       )
       check(
         'нумерация: void-номер не переиспользуется (провенанс контракта неприкосновенен)',

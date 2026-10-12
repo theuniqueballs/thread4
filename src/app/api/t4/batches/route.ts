@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
 
+import { requireRead } from '@/lib/t4/apiguard'
+
 import { BATCHES_DIR, CONTRACTS_DIR, listFiles, readJson, readText } from '@/lib/t4/fsutil'
 import { extractBatchTitle } from '@/lib/t4/gates'
 

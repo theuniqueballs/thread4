@@ -19,6 +19,9 @@
  * ни содержание, ни длина ключа не различались временем ответа.
  */
 import crypto from 'node:crypto'
+import fs from 'node:fs'
+import os from 'node:os'
+import path from 'node:path'
 
 import { NextResponse } from 'next/server'
 
@@ -56,6 +59,50 @@ export function requireCommander(req: Request): CommanderGuard {
       ok: false,
       response: NextResponse.json(
         { error: 'чужой или пустой commander-key — операция запрещена' },
+        { status: 403 }
+      ),
+    }
+  }
+  return { ok: true }
+}
+
+/* ------------------------------------------------------------------ */
+/* Граница чтения — read.lock (ISSUE 15 / #47, аудит 2026-10-12:        */
+/* «read-key не реализован, Issue #2 закрыт декларативно»).              */
+/*                                                                      */
+/* Файл-флаг ~/.t4/read.lock — ОПЦИОНАЛЕН (спорное решение через         */
+/* фичу-флаг, умолчание = прежнее поведение):                           */
+/*   файла нет  → GET /api/t4/* открыты (локальная машина автора,       */
+/*                дашборд loopback-only — читает сам автор);            */
+/*   файл есть  → чтение конвейера = привилегия командира: все GET      */
+/*                требуют валидный x-commander-key.                     */
+/* Отдельного read.key НЕТ намеренно: один оператор — один секрет       */
+/* (меньше поверхностей утечки); отделить ключ просмотра можно будет,   */
+/* когда появится второй читатель. Стекло (glass.readBoundary) честно   */
+/* репортит фактическое состояние флага.                                 */
+/* ------------------------------------------------------------------ */
+
+export function readLocked(): boolean {
+  try {
+    return fs.existsSync(path.join(os.homedir(), '.t4', 'read.lock'))
+  } catch {
+    return false
+  }
+}
+
+/** Гвард чтения: без read.lock — свободно; с read.lock — ключ командира. */
+export function requireRead(req: Request): CommanderGuard {
+  if (!readLocked()) return { ok: true }
+  const guard = requireCommander(req)
+  if (!guard.ok) {
+    /* ответ сохраняет статус/тело Залпа 1, но с внятным для чтения текстом */
+    return {
+      ok: false,
+      response: NextResponse.json(
+        {
+          error: 'чтение залочено (~/.t4/read.lock) — вставь ключ командира в Стекле',
+          readLocked: true,
+        },
         { status: 403 }
       ),
     }

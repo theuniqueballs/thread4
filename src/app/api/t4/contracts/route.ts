@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
 
+import { requireRead } from '@/lib/t4/apiguard'
+
 import { listFiles, CONTRACTS_DIR, readJson } from '@/lib/t4/fsutil'
 
 export const dynamic = 'force-dynamic'

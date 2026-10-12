@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server'
+
+import { requireRead } from '@/lib/t4/apiguard'
 import path from 'node:path'
 
 import { readText, DOCS_DIR } from '@/lib/t4/fsutil'
@@ -26,7 +28,9 @@ const FILES: Record<string, string> = {
 export async function GET(
   _req: Request,
   { params }: { params: Promise<{ name: string }> }
-) {
+)
+  const read = requireRead(req)
+  if (!read.ok) return read.response {
   const { name } = await params
   const file = FILES[name]
   if (!file) {

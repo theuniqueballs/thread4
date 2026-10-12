@@ -160,7 +160,12 @@ export function isNotFound(err: unknown): boolean {
 }
 
 export async function fetchJson<T>(path: string): Promise<T> {
-  const res = await fetch(withGatewayPort(path), { cache: 'no-store' })
+  /* ISSUE 15 / #47 (read.lock): GET несёт ключ командира, если браузер его
+   * хранит. Без read.lock на сервере заголовок безвреден (игнорируется);
+   * с read.lock — чтение конвейера открывается автору без отдельного
+   * «ключа чтения»: один оператор, один секрет. Проба ключа (probe) идёт
+   * отдельным вызовом и не зависит от этого заголовка. */
+  const res = await fetch(withGatewayPort(path), { cache: 'no-store', headers: commanderHeaders() })
   if (!res.ok) throw new ApiError(`HTTP ${res.status}`, res.status)
   return (await res.json()) as T
 }

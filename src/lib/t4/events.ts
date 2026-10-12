@@ -93,6 +93,87 @@ function assertBornSemantics(type: string, data?: Record<string, unknown>): void
   }
 }
 
+/* ------------------------------------------------------------------ */
+/* Межпроцессный лок летописи (ISSUE 13 / #45, аудит 2026-10-12:         */
+/* «appendEvent без лока — параллельные CLI и дашборд интерливят         */
+/* log/chain»). Один оператор, но два процесса (CLI-прогон + браузерный  */
+/* запрос) в одном окне реально ходят рядом. Секция лог+цепь атомарна     */
+/* только ВНУТРИ процесса (sync-код не интерливится) — лок закрывает      */
+/* межпроцессную гонку: дубль звена → ложная тампер-тревога → событие    */
+/* отвергается. Замок обоюдоострый: владелец погиб (kill -9 между open    */
+/* и unlink) → mtime старше 5с → следующий писатель взламывает. Без новых */
+/* зависимостей.                                                          */
+/* ------------------------------------------------------------------ */
+
+const EVENT_LOCK = `${EVENT_LOG}.lock`
+const LOCK_STALE_MS = 5_000
+const LOCK_ATTEMPTS = 60
+const LOCK_RETRY_MS = 100
+
+/** Синхронный сон (retry-пауза): Atomics.wait — нулевая загрузка CPU;     */
+/** если рантайм запрещает (главный поток без shared memory) — короткий    */
+/** busy-wait как честный fallback редкой гонки.                          */
+function syncSleep(ms: number): void {
+  try {
+    Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms)
+  } catch {
+    const until = Date.now() + ms
+    while (Date.now() < until) {
+      /* spin — пауза 100мс, не дольше */
+    }
+  }
+}
+
+/** Выполняет fn под эксклюзивным событийным локом. Протухший замок       */
+/** (владелец погиб посреди записи) взламывается по mtime; живой —       */
+/** ждём до ~6с, потом внятный отказ (событие НЕ теряется — его просто    */
+/** не записали, вызывающий видит исключение).                            */
+export function withEventLock<T>(fn: () => T): T {
+  for (let attempt = 0; ; attempt++) {
+    let acquired = false
+    try {
+      const fd = fs.openSync(EVENT_LOCK, 'wx') // exclusive create — замок наш
+      acquired = true
+      try {
+        return fn()
+      } finally {
+        fs.closeSync(fd)
+        try {
+          fs.unlinkSync(EVENT_LOCK)
+        } catch {
+          /* замок уже взломали (протух), пока мы работали — не ошибка */
+        }
+      }
+    } catch (e) {
+      /* acquired=true — исключение из НАШЕЙ критической секции (fn/close):
+       * замок уже снят finally, ошибка идёт наружу как есть. Иначе — либо
+       * гонка за замок (EEXIST), либо реальная ошибка I/O (наружу). */
+      const code = (e as NodeJS.ErrnoException).code
+      if (acquired || code !== 'EEXIST') throw e
+      /* замок занят: протухший — взломать, живой — подождать */
+      try {
+        const st = fs.statSync(EVENT_LOCK)
+        if (Date.now() - st.mtimeMs > LOCK_STALE_MS) {
+          try {
+            fs.unlinkSync(EVENT_LOCK)
+          } catch {
+            /* уже взломали */
+          }
+          continue
+        }
+      } catch {
+        continue // замок исчез между open и stat — сразу новая попытка
+      }
+      if (attempt >= LOCK_ATTEMPTS) {
+        throw new Error(
+          `appendEvent: событийный лок занят дольше ${Math.round((LOCK_ATTEMPTS * LOCK_RETRY_MS) / 1000)}с — другой процесс держит летопись; повтори команду`
+        )
+      }
+      syncSleep(LOCK_RETRY_MS)
+    }
+  }
+}
+
 export function appendEvent(
   type: string,
   summary: string,
@@ -109,8 +190,13 @@ export function appendEvent(
     ...(data ? { data } : {}),
   }
   const rawLine = JSON.stringify(evt)
-  fs.appendFileSync(EVENT_LOG, rawLine + '\n', 'utf-8')
-  extendChain(rawLine, evt.id)
+  /* ISSUE 13: запись лога и достройка цепи — одна критическая секция.
+   * assertBorn* ДО лока: чистые проверки без I/O, ранний отказ не трогает
+   * файл замка (и born-wounded-тесты selftest не должны оставлять .lock). */
+  withEventLock(() => {
+    fs.appendFileSync(EVENT_LOG, rawLine + '\n', 'utf-8')
+    extendChain(rawLine, evt.id)
+  })
   /* durability: событие записано — состояние меняется, фиксируем в git */
   scheduleSnapshot(`event:${type}`)
   return evt
@@ -208,9 +294,13 @@ function computeChainOverLog(): { links: ChainLink[]; rawLines: string[] } {
 /** Rebase: построить chain.jsonl с нуля поверх текущего лога.
  *  Легальна только как объявленная операция (vault-восстановление, bootstrap). */
 export function bootstrapChain(): { links: number; head: string } {
-  const { links } = computeChainOverLog()
-  writeText(CHAIN_LOG, links.map((l) => JSON.stringify(l)).join('\n') + '\n')
-  return { links: links.length, head: links[links.length - 1]?.hash ?? '' }
+  /* ISSUE 13: полный ребилд цепи — та же критическая секция, что и append:
+   * vault-восстановление не должно интерливиться с живым appendEvent. */
+  return withEventLock(() => {
+    const { links } = computeChainOverLog()
+    writeText(CHAIN_LOG, links.map((l) => JSON.stringify(l)).join('\n') + '\n')
+    return { links: links.length, head: links[links.length - 1]?.hash ?? '' }
+  })
 }
 
 /** Продлить цепь новым звеном. Хвост цепи обязан совпадать с логом;
@@ -338,6 +428,9 @@ export interface T4DerivedState {
   windowSlugs: string[] // last 3 delivered (or fewer)
   ocAppearances: Record<string, number> // OC name -> times served
   voidedSlugs: string[] // batch.void — закрытые по приказу автора
+  /** Алиасы слагов (ISSUE 17: физическое переименование T4-18→T4-17 без
+   *  события оставило state с призрачным delivered-слагом): old → new. */
+  slugAliases: Record<string, string>
   openDebts: string[]
   lastEventAt: string | null
 }
@@ -349,6 +442,7 @@ export function foldState(events: T4Event[]): T4DerivedState {
   const voidedSlugs: string[] = []
   const openDebts: string[] = []
   const debtIds = new Map<string, string>() // debtId → text (policy.debts, Залп 2)
+  const slugAliases = new Map<string, { newSlug: string; dropVoid: boolean }>()
   let lastEventAt: string | null = null
 
   for (const e of events) {
@@ -382,6 +476,19 @@ export function foldState(events: T4Event[]): T4DerivedState {
       const name = d.name as string
       ocAppearances[name] = (ocAppearances[name] ?? 0) + 1
     }
+    if (e.type === 'note' && d.kind === 'slug-alias') {
+      /* ISSUE 17 / #49: алиас слага — переименование, приказанное автором
+       * (T4-18 → T4-17, «а куда 17 делся лол» 2026-10-02). Прозапись 2026-10-02
+       * существовала, но fold её не читал — state показывал призрачный T4-18
+       * delivered при физическом T4-17.md. Машинное событие несёт oldSlug/
+       * newSlug; replaces:'voided-dubl' — void на новом слаге принадлежал
+       * ЗАМЕНЯЕМОМУ дублю (T4-17-дубль), не переименованному батчу. */
+      const oldSlug = d.oldSlug
+      const newSlug = d.newSlug
+      if (typeof oldSlug === 'string' && typeof newSlug === 'string' && oldSlug !== newSlug) {
+        slugAliases.set(oldSlug, { newSlug, dropVoid: d.replaces === 'voided-dubl' })
+      }
+    }
     if (e.type === 'note' && typeof d.debt === 'string') {
       openDebts.push(d.debt as string)
       if (typeof d.debtId === 'string') debtIds.set(d.debtId as string, d.debt as string)
@@ -403,6 +510,24 @@ export function foldState(events: T4Event[]): T4DerivedState {
   /* Аудит 2026-10-12: void выводит батч из окна ротации — CLI void пишет
    * «в ротации не участвует», а fold держал закрытый батч в окне: гейт
    * window проверял повторы против мёртвого батча. */
+
+  /* ISSUE 17: алиасы применяются ПОСЛЕ всей истории (переименование
+   * легализует уже сданный батч задним числом — событие алиаса пишется
+   * позже факта, semantics как у vault-восстановления). Записи под
+   * старым слагом переезжают на новый; дубль на новом слаге заменяется
+   * (его провенанс — в git-истории и арейве контрактов). */
+  for (const [oldSlug, a] of slugAliases) {
+    const rec = batches.get(oldSlug)
+    if (rec) {
+      batches.delete(oldSlug)
+      batches.set(a.newSlug, { ...rec, slug: a.newSlug })
+    }
+    if (a.dropVoid) {
+      const vi = voidedSlugs.indexOf(a.newSlug)
+      if (vi >= 0) voidedSlugs.splice(vi, 1)
+    }
+  }
+
   const delivered = [...batches.values()]
     .filter((b) => b.deliveredAt != null)
     .filter((b) => !voidedSlugs.includes(b.slug))
@@ -420,6 +545,9 @@ export function foldState(events: T4Event[]): T4DerivedState {
     windowSlugs,
     ocAppearances,
     voidedSlugs,
+    slugAliases: Object.fromEntries(
+      [...slugAliases.entries()].map(([o, a]) => [o, a.newSlug])
+    ),
     openDebts: openDebtsClean,
     lastEventAt,
   }
