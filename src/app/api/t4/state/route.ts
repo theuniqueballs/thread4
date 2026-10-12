@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 
-import { requireRead } from '@/lib/t4/apiguard'
+import { readLocked, requireRead } from '@/lib/t4/apiguard'
 
 import { foldState, nextBatchNumber, readEvents, verifyChain } from '@/lib/t4/events'
 import { specInventory } from '@/lib/t4/specs'
@@ -87,19 +87,25 @@ export async function GET(req: Request) {
          Преемник Фреда, 2026-10-10: слой (2) больше не захардкожен строкой —
          читается из фактического Caddyfile (зажат/штрокер wildcard), чтобы
          Стекло (П-8 «честная хрупкость») не врало при смене машины/сандбокса.
-         Внешний доступ = read-key, не молчание. */
+         Раунд 2026-10-12 (ISSUE 15 / #47): read-key РЕАЛИЗОВАН как файл-флаг
+         ~/.t4/read.lock — есть файл → GET-роуты требуют ключ командира;
+         нет файла → чтение открыто (локальная машина). Стекло репортит
+         фактическое состояние флага — не декларацию. */
       readBoundary: (() => {
+        const lock = readLocked()
+          ? 'read.lock ВКЛЮЧЁН: GET требует x-commander-key'
+          : 'read.lock отключён: чтение открыто (локальная машина; включи — коснись ~/.t4/read.lock)'
         const caddy = readText(path.join(process.cwd(), 'Caddyfile'))
         if (caddy == null) {
-          return 'Caddyfile не читается — граница НЕ объявлена (внешний доступ = read-key, не молчание; почини файл)'
+          return `Caddyfile не читается — граница НЕ объявлена (почини файл) · ${lock}`
         }
         if (/XTransformPort=\*/.test(caddy)) {
-          return 'gateway :81 → 3000 · XTransformPort=* (платформенный wildcard — режим мини-сервисов; шире замка Issue #5, ворота держит платформа) · dev bind проверять в package.json (-H 127.0.0.1) · внешний доступ = read-key, не молчание'
+          return `gateway :81 → 3000 · XTransformPort=* (платформенный wildcard — режим мини-сервисов; шире замка Issue #5, ворота держит платформа) · dev bind проверять в package.json (-H 127.0.0.1) · ${lock}`
         }
         if (/XTransformPort=3000/.test(caddy)) {
-          return 'loopback-only: dev -H 127.0.0.1 + Caddyfile XTransformPort зажат на 3000 (проверять оба слоя; внешний доступ = read-key, не молчание)'
+          return `loopback-only: dev -H 127.0.0.1 + Caddyfile XTransformPort зажат на 3000 (проверять оба слоя) · ${lock}`
         }
-        return 'gateway :81 → 3000 · XTransformPort не распознан в Caddyfile — граница объявлена не полностью (внешний доступ = read-key, не молчание)'
+        return `gateway :81 → 3000 · XTransformPort не распознан в Caddyfile — граница объявлена не полностью · ${lock}`
       })(),
     },
   })

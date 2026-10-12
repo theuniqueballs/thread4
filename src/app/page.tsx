@@ -347,7 +347,7 @@ function GlassTab() {
           <p>· Обрыв питания — не страшно: записи атомарны, а истина лежит в git. Восстановление: git bundle + сейф браузера (Хранилище) + лог.</p>
           <p>· Сервер залочен (commander-key нет) — создай <code className="text-amber-300">~/.t4/commander.key</code>, состояние появится здесь зелёным; затем сохрани копию ключа в панели выше — и пиши вердикты прямо из браузера.</p>
           <p>· Цепь сломана — значит, летопись правили руками. Это громкий детектор, а не баг: разберись, кто и что правил, потом <code className="text-amber-300">bun thread4/cli.ts verify --heal</code>.</p>
-          <p>· Внешний доступ к треду — только через read-key (см. границу чтения выше), не молчанием.</p>
+          <p>· Внешний доступ к треду — read.lock (файл-флаг на машине ядра: есть — GET требует ключ командира; нет — чтение открыто локально; см. границу чтения выше).</p>
         </div>
       </Panel>
     </div>
@@ -568,6 +568,8 @@ interface DraftMeta {
   ocCount: number
   abPairs: number
   themeWords: string[]
+  /** EXP-слоты поверх 24 из брифа (null — умолчание policy = 2) */
+  exp: number | null
   assembled: boolean
 }
 
@@ -576,6 +578,8 @@ function DraftComposer() {
     nextSlug: string
     races: { id: string; name: string; status?: string }[]
     drafts: DraftMeta[]
+    /** бюджет EXP из policy law.expSlotsMax (напоминание автора 2026-10-12) */
+    expSlotsMax?: number
   }>('/api/t4/contract-draft')
   const [theme, setTheme] = useState('')
   const [oc, setOc] = useState([
@@ -593,6 +597,10 @@ function DraftComposer() {
   const [speciesList, setSpeciesList] = useState<string[]>([])
   const [xSlots, setXSlots] = useState(0)
   const [abPairs, setAbPairs] = useState(3)
+  /* EXP-слоты поверх 24 (напоминание автора 2026-10-12: «у тебя если чё
+   * 9 слотов под EXP»): умолчание 2 — policy; UI предлагает пары (0/2/4/6/8),
+   * бюджет прилетает из policy — контрол не может заказать больше закона */
+  const [expSlots, setExpSlots] = useState(2)
   const [rehab, setRehab] = useState(true)
   const [busy, setBusy] = useState(false)
   const [saved, setSaved] = useState<string | null>(null)
@@ -630,6 +638,7 @@ function DraftComposer() {
         speciesList,
         xSlots,
         abPairs,
+        exp: expSlots,
         rehab,
         engine: 'per-theme',
       })
@@ -849,6 +858,38 @@ function DraftComposer() {
               ))}
             </div>
           </div>
+          {/* EXP-слоты поверх 24 — бюджет автора (law.expSlotsMax, приказ
+              2026-10-08 + напоминание 2026-10-12). Парами: радар ждёт A/B —
+              нечётное генератор выровняет вниз. Умолчание 2 = policy. */}
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-xs text-zinc-300">
+              EXP-слоты{' '}
+              <span className="text-zinc-500">поверх 24 · пары A/B</span>
+            </span>
+            <div className="flex gap-1">
+              {[0, 2, 4, 6, 8].map((n) => (
+                <button
+                  key={n}
+                  onClick={() => setExpSlots(n)}
+                  aria-label={`EXP-слотов: ${n}`}
+                  className={cn(
+                    'rounded-md border px-2.5 py-1 font-mono text-[11px] transition-colors',
+                    expSlots === n
+                      ? 'border-violet-500/60 bg-violet-500/15 text-violet-300'
+                      : 'border-zinc-800 bg-zinc-900 text-zinc-500 hover:text-zinc-300'
+                  )}
+                >
+                  {n}
+                </button>
+              ))}
+              <span
+                className="ml-1 self-center font-mono text-[10px] text-zinc-600"
+                title={`бюджет приказа: ${meta.data?.expSlotsMax ?? 9}; нечётное число выровняется в пары вниз`}
+              >
+                ≤{meta.data?.expSlotsMax ?? 9}
+              </span>
+            </div>
+          </div>
           <div className="flex items-center justify-between gap-2">
             <span className="text-xs text-zinc-300">REHAB-добор каналов</span>
             <Switch checked={rehab} onCheckedChange={setRehab} />
@@ -938,6 +979,7 @@ function DraftComposer() {
                   </span>
                   <span className="font-mono text-[11px] text-zinc-500">
                     кины {d.kinCount} · ОС {d.ocCount} · A/B {d.abPairs}
+                    {d.exp != null && d.exp !== 2 ? ` · EXP ${d.exp}` : ''}
                   </span>
                   {d.themeWords.length > 0 ? (
                     <span
