@@ -162,6 +162,10 @@ export interface BatchContract {
   /** Провенанс черновика UI (drafts/T4-NN-draft.json) — контракт скомпилирован
    *  из авторского брифа, не из головы генератора */
   draftRef?: string
+  /** Члены окна ротации без наблюдаемых поз/палитр (нет контракта — RAW/ручной
+   *  батч, аудит-2026-10-12): свёртка окна их НЕ видела; экспозиция и гейт
+   *  window несут это как явный факт, а не молчаливый пропуск. */
+  windowOpaque?: string[]
   carrierStats: {
     wSharePct: number
     sheerRplusPct: number
@@ -227,11 +231,23 @@ function emptyUsage(): WindowUsage {
   }
 }
 
-function foldWindowUsage(windowSlugs: string[]): WindowUsage {
+/** Окно ротации: свёртка использования по контрактам членов окна.
+ *  Аудит-2026-10-12 (тихая деградация): член окна без контракта (RAW/ручной
+ *  батч) НЕ может наблюдаться по позам/палитрам — раньше он молча выпадал
+ *  (continue), и план считал окно «чище», чем оно есть. Теперь такие слаги
+ *  возвращаются списком opaque — контракт и экспозиция несут факт явно. */
+export function foldWindowUsage(windowSlugs: string[]): {
+  usage: WindowUsage
+  opaque: string[]
+} {
   const usage = emptyUsage()
+  const opaque: string[] = []
   for (const slug of windowSlugs) {
     const c = readJson<BatchContract>(path.join(CONTRACTS_DIR, `${slug}.json`))
-    if (!c) continue
+    if (!c) {
+      opaque.push(slug)
+      continue
+    }
     for (const s of c.slots) {
       usage.poses[s.pose] = (usage.poses[s.pose] ?? 0) + 1
       usage.palettes[s.palette] = (usage.palettes[s.palette] ?? 0) + 1
@@ -243,7 +259,7 @@ function foldWindowUsage(windowSlugs: string[]): WindowUsage {
       for (const cr of s.carriers) usage.carriers[cr.id] = (usage.carriers[cr.id] ?? 0) + 1
     }
   }
-  return usage
+  return { usage, opaque }
 }
 
 /** Least-recently-used picker: prefer never-used, then least used, tie → rng order. */
@@ -307,7 +323,7 @@ export function compileBatch(theme: string, options: CompileOptions = {}): Batch
     throw new Error('specs not loaded — run the pool import first')
   }
 
-  const usage = foldWindowUsage(state.windowSlugs)
+  const { usage, opaque: windowOpaque } = foldWindowUsage(state.windowSlugs)
 
   /* Одноразовые движки (3.2-традиция, вердикт автора Issue #11 Q3): движок
      пишется писцом ПОД ТЕМУ на этапе спайна и утилизируется после батча.
@@ -719,6 +735,7 @@ export function compileBatch(theme: string, options: CompileOptions = {}): Batch
       sheerFrameCapPct: LAWS.sheerFrameCapPct,
     },
     windowSlugs: state.windowSlugs,
+    ...(windowOpaque.length ? { windowOpaque } : {}),
     channelStats: {
       version: ds?.version ?? '—',
       live: channelLive,
@@ -798,6 +815,11 @@ export function contractMarkdown(c: BatchContract): string {
   lines.push(`# ${c.slug} «${c.theme}» — КОНТРАКТ`)
   lines.push('')
   lines.push(`**Скомпилировано**: ${c.createdAt.slice(0, 10)} · сид ${c.seed} · окно ротации: ${c.windowSlugs.length ? c.windowSlugs.join(' + ') : 'чистый лист'}`)
+  if (c.windowOpaque?.length) {
+    lines.push(
+      `**Окно без наблюдаемых поз/палитр**: ${c.windowOpaque.join(', ')} — контракта нет (RAW/ручной батч), ротация по этим слагам ненаблюдаема; текстовая близость покрывается simcheck.`
+    )
+  }
   lines.push('')
   /* Issue #21: авто-компилятор/писец — experimental/low-trust (вердикт автора 2026-10-02) */
   lines.push('**СТАТУС: experimental / low-trust** — авто-скелет требует ручной переработки писцом (закон письма, вердикт T4-12; Issue #21).')

@@ -40,6 +40,9 @@ function printGates(result: NonNullable<ReturnType<typeof runGates>>) {
      * (check T4-28 показывал P7-P17, а P19/P21 и кластер — нет) */
     const shown = r.verdict === 'PASS' ? r.findings.slice(0, 5) : r.findings
     for (const f of shown) console.log(`       ${f}`)
+    /* аудит-2026-10-12: не-фейлящие факты прогонa (видимость окна) — видны,
+     * вердикт не меняют */
+    for (const n of r.notes ?? []) console.log(`       · ${n}`)
   }
   console.log(`\nrun #${result.runIndex} · hard ${result.hardPass ? 'PASS' : 'FAIL'}${result.firstRunClean ? ' · FIRST RUN CLEAN' : ''}`)
   /* Issue #20: FRC — согласие гейтов с текстом, не качество.
@@ -637,6 +640,26 @@ async function main() {
       let noSrcThrew = false
       try { appendEvent('render.verdict', 'T4-99: test') } catch { noSrcThrew = true }
       check('guard рождения: render.verdict без source отвергается (Issue #1 Кенни)', noSrcThrew)
+      /* аудит-2026-10-12: нормализация ошибок на API-краю (остаток #47) —
+       * доменный текст проходит, служебные пути ОС снимаются */
+      {
+        const { clientErrorMessage } = await import('../src/lib/t4/apiguard')
+        const domain = 'слишком длинная тема (макс 200 символов)'
+        const leak = new Error(
+          `ENOENT: no such file or directory, open '${process.cwd()}/thread4/contracts/T4-99.json'`
+        )
+        const homeLeak = new Error(
+          "EACCES: permission denied, open '/home/z/.t4/commander.key'"
+        )
+        check(
+          'apiguard: доменный текст ошибки проходит как есть; абсолютные пути ОС снимаются',
+          clientErrorMessage(domain) === domain &&
+            clientErrorMessage(leak).includes('thread4/contracts') &&
+            !clientErrorMessage(leak).includes('/home/') &&
+            !clientErrorMessage(homeLeak).includes('/home/') &&
+            clientErrorMessage(homeLeak).includes('commander.key')
+        )
+      }
     }
 
     // Залп 2 «Рефлекс»: жнец и гигиенист
@@ -708,6 +731,41 @@ async function main() {
       check(
         'window-гейт: перестройка проходит окно (переиспользование источника ≠ конфликт ротации)',
         g272?.receipts.find((r) => r.gate === 'window')?.verdict === 'PASS'
+      )
+      /* аудит-2026-10-12: асимметрия ребилд↔источник (хвост #48) + RAW-видимость */
+      const { sentenceDots, closerClassOf } = await import('../src/lib/t4/gates')
+      const g27 = runGates('T4-27', true)
+      check(
+        'window-гейт: исключение двустороннее — источник не фейлит на материале собственной перестройки',
+        !(g27?.receipts.find((r) => r.gate === 'window')?.findings ?? []).some((x) =>
+          x.includes('T4-27.2-EXP')
+        )
+      )
+      const g23 = runGates('T4-23', true)
+      check(
+        'window-гейт: RAW-батч получает явную квитанцию о неприменимости (не молчаливый пропуск)',
+        (
+          g23?.receipts.find((r) => r.gate === 'window')?.notes ?? []
+        ).some((n) => n.includes('без контракта'))
+      )
+      check(
+        'закон №23: десятичные в тегах («2.5d») не считаются прозой; предложения считаются',
+        sentenceDots('2.5d, 0.8 opacity, tag.') === 1 && sentenceDots('one. two.') === 2
+      )
+      check(
+        'cadence: типографские кавычки “ ” — диалог; прежние классы не сломаны',
+        closerClassOf('— сказала она.”') === 'dialogue' &&
+          closerClassOf('waited.') === 'image-close' &&
+          closerClassOf('— есть,') === 'fragment-pair'
+      )
+      const fsMod = await import('node:fs')
+      const c29 = JSON.parse(fsMod.readFileSync('thread4/contracts/T4-29.json', 'utf-8'))
+      const mdPlain = contractMarkdown(c29)
+      const mdOpaque = contractMarkdown({ ...c29, windowOpaque: ['T4-25', 'T4-26'] })
+      check(
+        'экспозиция: окно без наблюдаемых поз/палитр печатается фактом только когда есть',
+        !mdPlain.includes('Окно без наблюдаемых') &&
+          mdOpaque.includes('Окно без наблюдаемых поз/палитр**: T4-25, T4-26')
       )
     }
 

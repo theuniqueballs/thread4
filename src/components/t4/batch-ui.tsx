@@ -63,7 +63,7 @@ export interface BatchDetailData {
   slug: string
   title: string
   markdown: string
-  receipts: { gate: string; level: string; verdict: string; findings: string[] }[]
+  receipts: { gate: string; level: string; verdict: string; findings: string[]; notes?: string[] }[]
 }
 
 export interface BatchVerdictRecord {

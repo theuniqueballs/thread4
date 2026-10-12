@@ -1696,6 +1696,9 @@ function BatchesTab() {
                     {r.findings.slice(0, 3).map((f, j) => (
                       <span key={j} className="text-[11px] text-zinc-500">{f}</span>
                     ))}
+                    {(r.notes ?? []).slice(0, 2).map((n, j) => (
+                      <span key={`n${j}`} className="text-[11px] text-amber-500/80">· {n}</span>
+                    ))}
                   </div>
                 ))}
               </div>

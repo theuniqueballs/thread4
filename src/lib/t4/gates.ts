@@ -23,6 +23,9 @@ export interface GateReceipt {
   level: GateLevel
   verdict: Verdict
   findings: string[]
+  /** Не-фейлящие факты прогонa (аудит-2026-10-12: видимость окна) —
+   *  вердикт не меняют, но в квитанции/CLI/UI попадают. */
+  notes?: string[]
 }
 
 export interface GatesResult {
@@ -36,11 +39,16 @@ export interface GatesResult {
 }
 
 /** Всего гейтов в прогоне (state-панель читает отсюда — одна истина).
- *  Залп 2: +1 warn (ab-single-variable). Вердикт автора 2026-09-27:
- *  +1 warn (theme-presence), -1 engine-rent (движки одноразовые),
- *  +1 warn (garment-family, U8 «осторожно») → 22.
- *  RAW-эра: +1 warn salience-chain v2 (§9-секста/септима) и +1 hard
- *  raw-plus (приказ-миграция №23, ввод с T4-27) → 24. */
+ *  База 24 = 6 hard (structure, floors, rating-recipe, canon, diversity,
+ *  window) + 15 warn (budget, cadence, niche-legibility, prop-geometry,
+ *  claim-visibility, technique-layers, noun-lock, character-collision,
+ *  ab-single-variable, theme-presence, original-character-coverage,
+ *  artist-leak, garment-family, simcheck, salience-chain) + 3 advisory
+ *  (freq-report, usage, technique-map).
+ *  Условные ВНЕ счёта 24: raw-plus (hard — при маркере RAW+ в H1 или
+ *  engine контракта raw-plus), rating-recipe-exploratory и
+ *  raw-plus-exploratory (warn — при ⚗-маркерах): живой прогон даёт
+ *  25–27 квитанций (аудит-2026-10-12, поправка арифметики комментария). */
 export const GATES_TOTAL = 24
 
 /* ------------------------------------------------------------------ */
@@ -253,7 +261,34 @@ export function windowOthersFor(
   windowSlugs: string[],
   rebuildOf?: string
 ): string[] {
-  return windowSlugs.filter((w) => w !== batchSlug && w !== rebuildOf)
+  /* аудит-2026-10-12 (асимметрия ребилд↔источник, хвост #48): исключался
+   * только rebuildOf САМОГО батча; члены окна, чей rebuildOf == batchSlug
+   * (перестройки ЭТОГО слага), оставались — повторный прогон источника
+   * после сдачи ребилда фейлил «палитра конфликтует с окном» на материале,
+   * переиспользованном легально (воспроизведено: T4-27 после T4-27.2-EXP).
+   * Исключение теперь двустороннее. */
+  return windowSlugs.filter((w) => {
+    if (w === batchSlug || w === rebuildOf) return false
+    const wc = readJson<{ rebuildOf?: string }>(path.join(CONTRACTS_DIR, `${w}.json`))
+    return wc?.rebuildOf !== batchSlug
+  })
+}
+
+/** Точки-концы предложений в POS (закон №23). Десятичные в тегах
+ * («2.5d», «v2.0») — не проза: точка между цифрами не считается.
+ * Экспорт — для selftest (чистая функция). */
+export function sentenceDots(pos: string): number {
+  return (pos.match(/(?<![0-9])\.(?![0-9])/g) ?? []).length
+}
+
+/** Класс клоузера по последнему предложению POS (N25-ловушка).
+ *  Аудит-2026-10-12: типографские кавычки “ ” — тоже диалог.
+ *  Экспорт — для selftest (чистая функция). */
+export function closerClassOf(last: string): string {
+  if (/[«"\u201E\u201C\u201D]/.test(last) || /["\u201D]\s*$/.test(last)) return 'dialogue'
+  if (/—\s*\S+[.,]?\s*$/.test(last)) return 'fragment-pair'
+  if (/\b(waited|still|again|on)\.\s*$/i.test(last)) return 'image-close'
+  return 'other'
 }
 
 export function runGates(slug: string, dryRun = false): GatesResult | null {
@@ -286,12 +321,30 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
   const ocCanon = getOCCanon()
 
   const receipts: GateReceipt[] = []
-  const hard = (gate: string, findings: string[]) =>
-    receipts.push({ gate, level: 'hard', verdict: findings.length ? 'FAIL' : 'PASS', findings })
-  const warn = (gate: string, findings: string[]) =>
-    receipts.push({ gate, level: 'warn', verdict: findings.length ? 'WARN' : 'PASS', findings })
-  const advisory = (gate: string, findings: string[]) =>
-    receipts.push({ gate, level: 'advisory', verdict: 'REPORT', findings })
+  const hard = (gate: string, findings: string[], notes?: string[]) =>
+    receipts.push({
+      gate,
+      level: 'hard',
+      verdict: findings.length ? 'FAIL' : 'PASS',
+      findings,
+      ...(notes?.length ? { notes } : {}),
+    })
+  const warn = (gate: string, findings: string[], notes?: string[]) =>
+    receipts.push({
+      gate,
+      level: 'warn',
+      verdict: findings.length ? 'WARN' : 'PASS',
+      findings,
+      ...(notes?.length ? { notes } : {}),
+    })
+  const advisory = (gate: string, findings: string[], notes?: string[]) =>
+    receipts.push({
+      gate,
+      level: 'advisory',
+      verdict: 'REPORT',
+      findings,
+      ...(notes?.length ? { notes } : {}),
+    })
 
   /* ---------------- 1. structure (hard) ---------------- */
   {
@@ -717,7 +770,17 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
   /* ---------------- 6. window (hard, vacuous on clean slate) ------- */
   {
     const f: string[] = []
+    const notes: string[] = []
     const state = foldState(readEvents())
+    if (state.windowSlugs.length > 0 && !contract) {
+      /* Аудит-2026-10-12 (тихая деградация): раньше весь блок молча
+       * пропускался (`&& contract`). Теперь факт виден: у RAW/ручного батча
+       * нет идентификаторов поз/палитр — сравнение с окном неприменимо,
+       * текстовую близость ловит simcheck. Вердикт не меняет. */
+      notes.push(
+        'батч без контракта (RAW/ручной): сравнение поз/палитр с окном неприменимо; текстовая близость покрывается simcheck'
+      )
+    }
     if (state.windowSlugs.length > 0 && contract) {
       // повторная сдача (v2): батч не конфликтует сам с собой — своё окно
       // исключается (событие batch.delivered уже внесло слаг в окно);
@@ -734,18 +797,28 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
       const myPals = new Set(
         batch.slots.map((s) => (/\b(P\d{1,3}_[A-Z_]+)\b/.exec(s.header) ?? [])[0]).filter(Boolean)
       )
+      const opaque: string[] = []
       for (const w of windowOthers) {
         const wc = readJson<{ slots: { pose: string; palette: string }[] }>(
           path.join(CONTRACTS_DIR, `${w}.json`)
         )
-        if (!wc) continue
+        if (!wc) {
+          /* Аудит-2026-10-12: не continue молча, а явный факт в квитанции */
+          opaque.push(w)
+          continue
+        }
         for (const s of wc.slots) {
           if (myPoses.has(s.pose)) f.push(`поза ${s.pose} конфликтует с окном (${w})`)
           if (myPals.has(s.palette)) f.push(`палитра ${s.palette} конфликтует с окном (${w})`)
         }
       }
+      if (opaque.length > 0) {
+        notes.push(
+          `члены окна без контракта (позы/палитры ненаблюдаемы): ${opaque.join(', ')}`
+        )
+      }
     }
-    hard('window', f)
+    hard('window', f, notes)
   }
 
   /* ---------------- 7. budget (warn) ---------------- */
@@ -758,7 +831,8 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
       if (words > hardCap) f.push(`P${s.position}: POS ${words} слов > ${hardCap}`)
       else if (words > target) f.push(`P${s.position}: POS ${words} слов (цель ${target}) — плотнее`)
       const hedges = HEDGES.filter((h) => s.pos.toLowerCase().includes(h)).length
-      if (hedges > (bans?.hedge_budget ?? 2)) f.push(`P${s.position}: хеджей ${hedges} > 2`)
+      const hedgeBudget = bans?.hedge_budget ?? 2
+      if (hedges > hedgeBudget) f.push(`P${s.position}: хеджей ${hedges} > ${hedgeBudget}`)
     }
     warn('budget', f)
   }
@@ -770,10 +844,9 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
     for (const s of batch.slots) {
       const sentences = s.pos.split(/(?<=[.!?…"\u00bb])\s+/).filter(Boolean)
       const last = sentences[sentences.length - 1] ?? ''
-      if (/[«"„]/.test(last) || /"\s*$/.test(last)) closers.dialogue = (closers.dialogue ?? 0) + 1
-      else if (/—\s*\S+[.,]?\s*$/.test(last)) closers['fragment-pair'] = (closers['fragment-pair'] ?? 0) + 1
-      else if (/\b(waited|still|again|on)\.\s*$/i.test(last)) closers['image-close'] = (closers['image-close'] ?? 0) + 1
-      else closers.other += 1
+      /* аудит-2026-10-12: типографские «ёлочки-лапки» “ ” — тоже диалог
+       * (раньше закрытие кавычкой-ёлочкой верхних регистров не считалось) */
+      closers[closerClassOf(last)] = (closers[closerClassOf(last)] ?? 0) + 1
     }
     const total = batch.slots.length || 1
     for (const [cls, n] of Object.entries(closers)) {
@@ -1691,8 +1764,10 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
         /* закон №23: RAW+ = чистые теги, БЕЗ прозы (сдача T4-28 v1 принесла
          * прозаические абзацы и диалоги — автор: «неописуемая проза, диалоги,
          * монологи в позитиве… ты нихуя не нарисуешь»). Канон: один финальный
-         * период, ноль кавычек, face-блок тегом, ноль прозаических местоимений. */
-        const periodCount = (s.pos.match(/\./g) ?? []).length
+         * период, ноль кавычек, face-блок тегом, ноль прозаических местоимений.
+         * Аудит-2026-10-12: десятичные в тегах («2.5d», «v2.0») — НЕ проза,
+         * точка между цифрами счёту не подлежит. */
+        const periodCount = sentenceDots(s.pos)
         if (periodCount > 1) slotF.push(`проза в POS: точек ${periodCount} > 1 — только финальная (закон №23: теги, БЕЗ прозы)`)
         if (/["“”«»]/.test(s.pos)) slotF.push('диалог/кавычки в POS — проза запрещена (закон №23)')
         if (/is rendered in/i.test(s.pos)) slotF.push('PH face-lock проза в POS («is rendered in…») — RAW+ пишет face-блок тегом (закон №23)')
