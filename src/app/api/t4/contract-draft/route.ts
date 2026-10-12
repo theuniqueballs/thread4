@@ -218,7 +218,7 @@ export async function POST(req: Request) {
     `- X-слоты: ${draft.xSlots}`,
     `- A/B-пары: ${draft.abPairs}`,
     `- EXP-слоты поверх 24: ${exp} (бюджет ${expMax}; парами — нечётное выровняется)`,
-    `- REHAB: ${draft.rehab ? 'да' : 'по умолчанию'},
+    `- REHAB: ${draft.rehab ? 'да' : 'по умолчанию'}`,
     `- Движок: ${draft.engine}`,
     draft.notes ? `- Заметки: ${draft.notes}` : '',
     '',

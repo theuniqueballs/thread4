@@ -8,11 +8,11 @@ import { ARCHIVE_DIR, listFiles, readText } from '@/lib/t4/fsutil'
 export const dynamic = 'force-dynamic'
 
 export async function GET(
-  _req: Request,
+  req: Request,
   { params }: { params: Promise<{ name: string }> }
-)
+) {
   const read = requireRead(req)
-  if (!read.ok) return read.response {
+  if (!read.ok) return read.response
   const { name } = await params
   // path traversal guard: the name must be an existing archive file name
   const allowed = new Set(listFiles(ARCHIVE_DIR, '.md').map((f) => f.name))

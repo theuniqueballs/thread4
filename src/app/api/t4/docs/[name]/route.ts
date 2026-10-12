@@ -26,11 +26,11 @@ const FILES: Record<string, string> = {
 }
 
 export async function GET(
-  _req: Request,
+  req: Request,
   { params }: { params: Promise<{ name: string }> }
-)
+) {
   const read = requireRead(req)
-  if (!read.ok) return read.response {
+  if (!read.ok) return read.response
   const { name } = await params
   const file = FILES[name]
   if (!file) {

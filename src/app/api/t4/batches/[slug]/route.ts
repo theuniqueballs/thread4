@@ -17,11 +17,11 @@ export const dynamic = 'force-dynamic'
 const SLUG_RE = /^T4-\d{2}(?:[-.][A-Za-z0-9]+)*$/
 
 export async function GET(
-  _req: Request,
+  req: Request,
   { params }: { params: Promise<{ slug: string }> }
-)
+) {
   const read = requireRead(req)
-  if (!read.ok) return read.response {
+  if (!read.ok) return read.response
   const { slug } = await params
   if (!SLUG_RE.test(slug)) {
     return NextResponse.json({ error: 'bad slug' }, { status: 400 })
