@@ -14,7 +14,7 @@ import { NextResponse } from 'next/server'
 import ZAI from 'z-ai-web-dev-sdk'
 
 import { appendEvent } from '@/lib/t4/events'
-import { requireCommander } from '@/lib/t4/apiguard'
+import { clientErrorMessage, requireCommander } from '@/lib/t4/apiguard'
 import { BLIND_PROMPT, isProviderBlocked, parseBlindCard } from '@/lib/t4/vlm'
 
 export const dynamic = 'force-dynamic'
@@ -142,6 +142,6 @@ export async function POST(req: Request) {
         { status: 503 }
       )
     }
-    return NextResponse.json({ error: msg.slice(0, 300) }, { status: 500 })
+    return NextResponse.json({ error: clientErrorMessage(e).slice(0, 300) }, { status: 500 })
   }
 }

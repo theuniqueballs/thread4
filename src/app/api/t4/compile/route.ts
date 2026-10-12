@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 
-import { requireCommander } from '@/lib/t4/apiguard'
+import { clientErrorMessage, requireCommander } from '@/lib/t4/apiguard'
 import { compileBatch } from '@/lib/t4/compiler'
 import { contractMarkdown } from '@/lib/t4/compiler'
 
@@ -66,7 +66,7 @@ export async function POST(req: Request) {
     })
   } catch (e) {
     return NextResponse.json(
-      { error: e instanceof Error ? e.message : 'compile failed' },
+      { error: clientErrorMessage(e) || 'compile failed' },
       { status: 500 }
     )
   }

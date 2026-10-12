@@ -90,6 +90,24 @@ export function readLocked(): boolean {
   }
 }
 
+/* ------------------------------------------------------------------ */
+/* Нормализация ошибок на API-краю (остаток Issue #47, аудит 2026-10-12):*/
+/* доменный текст ядра идёт автору как есть (это UX конвейера), служебные*/
+/* подробности ОС/ФС — нет: абсолютные пути машины снимаются, полный текст*/
+/* остаётся в stderr сервера. Без изменения — без лога (не шумим).       */
+/* ------------------------------------------------------------------ */
+
+export function clientErrorMessage(e: unknown): string {
+  const raw = e instanceof Error ? e.message : String(e)
+  const msg = raw
+    .split(process.cwd() + path.sep)
+    .join('')
+    .replace(/\/home\/[^\s'"`,:)]+/g, (m) => m.slice(m.lastIndexOf('/') + 1))
+    .replace(/\(node:\d+\)\s*/g, '')
+  if (msg !== raw) console.error('[t4:api]', raw)
+  return msg.slice(0, 500)
+}
+
 /** Гвард чтения: без read.lock — свободно; с read.lock — ключ командира. */
 export function requireRead(req: Request): CommanderGuard {
   if (!readLocked()) return { ok: true }

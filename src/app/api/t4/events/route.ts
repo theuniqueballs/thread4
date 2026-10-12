@@ -2,7 +2,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { NextResponse } from 'next/server'
 
-import { commanderKeyMatches, requireCommander, requireRead } from '@/lib/t4/apiguard'
+import { clientErrorMessage, commanderKeyMatches, requireCommander, requireRead } from '@/lib/t4/apiguard'
 import { appendEvent, EVENT_TYPES, readEvents } from '@/lib/t4/events'
 import { readCommanderKey } from '@/lib/t4/fsutil'
 
@@ -94,6 +94,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true, event: evt })
   } catch (e) {
     /* рана при рождении (кодировка/размер) — отказ, а не битая история */
-    return NextResponse.json({ error: e instanceof Error ? e.message : 'append failed' }, { status: 422 })
+    return NextResponse.json({ error: clientErrorMessage(e) || 'append failed' }, { status: 422 })
   }
 }

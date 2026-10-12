@@ -6,7 +6,7 @@
  */
 import { NextResponse } from 'next/server'
 
-import { requireCommander } from '@/lib/t4/apiguard'
+import { clientErrorMessage, requireCommander } from '@/lib/t4/apiguard'
 import { scribeBatch } from '@/lib/t4/scribe'
 
 export const dynamic = 'force-dynamic'
@@ -52,7 +52,7 @@ export async function POST(req: Request) {
     })
   } catch (e) {
     return NextResponse.json(
-      { error: e instanceof Error ? e.message : 'scribe failed' },
+      { error: clientErrorMessage(e) || 'scribe failed' },
       { status: 500 }
     )
   }
