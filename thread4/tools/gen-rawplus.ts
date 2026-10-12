@@ -365,10 +365,17 @@ export function planRawPlus(opts: PlanOptions): RawPlusPlan {
    * 3 → 2 (лишний хвост — обрезаем, не тасуем) */
   const expPlanCount = expWanted === 0 ? 0 : Math.max(2, expWanted - (expWanted % 2))
   const expPairCount = expPlanCount / 2
-  if (pool.length < law.paletteDistinct + expPlanCount) {
-    throw new Error(`палитр вне окна мало: ${pool.length} < ${law.paletteDistinct + expPlanCount} — расширь окно или палитры`)
+  /* находка раунда 2026-10-12 (живой dry-run EXP=6): проверка и срез
+   * требовали paletteDistinct + expPlanCount (2×N палитр) — вдвое жаднее
+   * собственной документации «пара делит ОДНУ палитру» (позы-сторона ниже
+   * всегда считала pairCount). Ложный потолок: бюджет автора 9 слотов
+   * упирался в несуществующий дефицит. Реальная потребность: 24 + N пар. */
+  if (pool.length < law.paletteDistinct + expPairCount) {
+    throw new Error(
+      `палитр вне окна мало: ${pool.length} < ${law.paletteDistinct + expPairCount} (24 мейнов + ${expPairCount} EXP-пар; всего ${palettes.length} палитр, окно исключило ${bannedPalettes.size}) — расширь окно или палитры`
+    )
   }
-  const chosenPalettes = pool.slice(0, law.slotsTotal + expPlanCount)
+  const chosenPalettes = pool.slice(0, law.slotsTotal + expPairCount)
 
   /* --- OC: канон + ротация по served --- */
   const ocCanon = getOCCanon()
@@ -798,7 +805,11 @@ export function planRawPlus(opts: PlanOptions): RawPlusPlan {
    *  B — тёмный через-ткань). Греческая буква пары — после ab-пар
    *  (радар читает «EXP ν-A · …»). --exp 0 отключает явным приказом. --- */
   const expCount = expPlanCount
-  const expLetters = ['κ', 'λ', 'μ', 'ν', 'ξ', 'ρ'].slice(abPairs.length)
+  /* буквы пар — 8 штук: abPairs до 3 + EXP-пар до 4 (бюджет 9 слотов
+   * = 4 пары) — раньше при abPairs=3 и EXP>4 пары получали ДУБЛИ букв
+   * (slice(3) оставлял 2 буквы на 4 пары, modulo молча повторял метку
+   * радара). σ/τ — продолжение греческого ряда. */
+  const expLetters = ['κ', 'λ', 'μ', 'ν', 'ξ', 'ρ', 'σ', 'τ'].slice(abPairs.length)
   if (expCount > 0) {
     const basePos = law.slotsTotal
     const expPoses = chosenPoses.slice(basePos)

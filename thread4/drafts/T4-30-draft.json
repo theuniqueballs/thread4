@@ -1,0 +1,39 @@
+{
+  "slug": "T4-30",
+  "kind": "draft",
+  "status": "draft — без компиляции (Issue #21: авто-входы low-trust; это письменный бриф писцу)",
+  "createdAt": "2026-10-12T11:07:55.979Z",
+  "theme": "QA Round — EXP budget proof, to be removed",
+  "ocThemes": [
+    {
+      "theme": "",
+      "rating": "R+",
+      "wishes": "",
+      "position": 1
+    },
+    {
+      "theme": "",
+      "rating": "R+",
+      "wishes": "",
+      "position": 2
+    },
+    {
+      "theme": "",
+      "rating": "R+",
+      "wishes": "",
+      "position": 3
+    }
+  ],
+  "mainWishes": "",
+  "species": {
+    "on": true,
+    "count": 10,
+    "list": []
+  },
+  "xSlots": 0,
+  "abPairs": 3,
+  "exp": 4,
+  "rehab": true,
+  "engine": "per-theme",
+  "notes": ""
+}

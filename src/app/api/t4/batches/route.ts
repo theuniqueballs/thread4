@@ -15,7 +15,10 @@ export const dynamic = 'force-dynamic'
  * JSON (не селф-слаг) → theme → тайтл из H1 батча → слаг.
  * Преемник, 2026-10-11: rebuildOf из контракта — маркер перестройки в UI.
  */
-export async function GET() {
+export async function GET(req: Request) {
+  const read = requireRead(req)
+  if (!read.ok) return read.response
+
   const items = listFiles(BATCHES_DIR, '.md').map((f) => {
     const meta = readJson<{ title?: string; date?: string; theme?: string }>(
       `${BATCHES_DIR}/${f.base}.json`

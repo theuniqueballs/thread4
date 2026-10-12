@@ -11,7 +11,10 @@ import path from 'node:path'
 
 export const dynamic = 'force-dynamic'
 
-export async function GET() {
+export async function GET(req: Request) {
+  const read = requireRead(req)
+  if (!read.ok) return read.response
+
   const events = readEvents()
   const state = foldState(events)
   const batches = listFiles(BATCHES_DIR, '.md')

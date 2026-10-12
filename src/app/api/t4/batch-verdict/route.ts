@@ -9,7 +9,7 @@ import { NextResponse } from 'next/server'
 import path from 'node:path'
 
 import { appendEvent, readEvents } from '@/lib/t4/events'
-import { requireCommander } from '@/lib/t4/apiguard'
+import { requireCommander, requireRead } from '@/lib/t4/apiguard'
 import { BATCHES_DIR, CONTRACTS_DIR, readJson, readText } from '@/lib/t4/fsutil'
 import { extractBatchTitle } from '@/lib/t4/gates'
 import { TIER_RANK as TIERS } from '@/lib/t4/verdicts'
@@ -270,7 +270,10 @@ export async function POST(req: Request) {
   return NextResponse.json({ ok: true, event: evt, scoreboard })
 }
 
-export async function GET() {
+export async function GET(req: Request) {
+  const read = requireRead(req)
+  if (!read.ok) return read.response
+
   const events = readEvents()
   const records = events
     .filter(

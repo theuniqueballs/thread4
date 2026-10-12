@@ -6,7 +6,10 @@ import { listFiles, CONTRACTS_DIR, readJson } from '@/lib/t4/fsutil'
 
 export const dynamic = 'force-dynamic'
 
-export async function GET() {
+export async function GET(req: Request) {
+  const read = requireRead(req)
+  if (!read.ok) return read.response
+
   const items = listFiles(CONTRACTS_DIR, '.json').map((f) => {
     const c = readJson<{ theme?: string; createdAt?: string }>(
       `${CONTRACTS_DIR}/${f.name}`

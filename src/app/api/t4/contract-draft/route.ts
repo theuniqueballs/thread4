@@ -23,7 +23,7 @@ import path from 'node:path'
 import { NextResponse } from 'next/server'
 
 import { appendEvent } from '@/lib/t4/events'
-import { requireCommander } from '@/lib/t4/apiguard'
+import { requireCommander, requireRead } from '@/lib/t4/apiguard'
 import { DRAFTS_DIR, BATCHES_DIR, CONTRACTS_DIR, listFiles, writeJson, writeText } from '@/lib/t4/fsutil'
 import { getPolicy, getRaces } from '@/lib/t4/specs'
 
@@ -70,7 +70,10 @@ function nextSlug(): string {
   return `T4-${String(max + 1).padStart(2, '0')}`
 }
 
-export async function GET() {
+export async function GET(req: Request) {
+  const read = requireRead(req)
+  if (!read.ok) return read.response
+
   // 2026-10-11: gold-расы (авторские: R17 jellyfish, R20 harpy) возвращены в
   // пикер — компилятор их всегда включал (compiler.ts: active || gold), а
   // фильтр «active» их молча выкидывал из UI. Статус уезжает на фронт для ★.

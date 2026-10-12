@@ -6,7 +6,10 @@ import { ARCHIVE_DIR, listFiles } from '@/lib/t4/fsutil'
 
 export const dynamic = 'force-dynamic'
 
-export async function GET() {
+export async function GET(req: Request) {
+  const read = requireRead(req)
+  if (!read.ok) return read.response
+
   const items = listFiles(ARCHIVE_DIR, '.md')
   return NextResponse.json({
     items: items.map((f) => ({ name: f.name, size: f.size })),
