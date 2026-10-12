@@ -935,8 +935,8 @@ async function main() {
       )
       const r26 = buildReport('T4-26', 8)
       check(
-        'stack-report: переименованный T4-18 пропускается с меткой, история без него',
-        r26.skipped.includes('T4-18') && !r26.history.includes('T4-18')
+        'stack-report: алиас T4-18→T4-17 вернул переименованный батч в историю осей (ISSUE 17) — призрачного слага нет',
+        r26.history.includes('T4-17') && !r26.history.includes('T4-18') && !r26.skipped.includes('T4-18')
       )
       check(
         'stack-report: RAW-поворот честен — T4-26 без палитр (0 с палитрой), стеки на месте (33)',
