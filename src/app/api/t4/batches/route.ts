@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 
 import { requireRead } from '@/lib/t4/apiguard'
 
+import { observableSlotCount } from '@/lib/t4/compiler'
 import { BATCHES_DIR, CONTRACTS_DIR, listFiles, readJson, readText } from '@/lib/t4/fsutil'
 import { extractBatchTitle } from '@/lib/t4/gates'
 
@@ -26,12 +27,18 @@ export async function GET(req: Request) {
     const jsonTitle = meta?.title && meta.title !== f.base ? meta.title : ''
     const md = readText(`${BATCHES_DIR}/${f.base}.md`)
     const headerTitle = md ? extractBatchTitle(md) : ''
-    const contract = readJson<{ rebuildOf?: string }>(`${CONTRACTS_DIR}/${f.base}.json`)
+    const contract = readJson<{ rebuildOf?: string; slots?: { pose?: string; palette?: string }[] }>(
+      `${CONTRACTS_DIR}/${f.base}.json`
+    )
     return {
       slug: f.base,
       title: jsonTitle || meta?.theme || headerTitle || f.base,
       date: meta?.date ?? '',
       rebuildOf: contract?.rebuildOf ?? '',
+      /* аудит 2026-10-12 (#42) + webDevReview: ненаблюдаем для окна =
+       * нет контракта ИЛИ контракт без единого id позы/палитры
+       * (RAW-компиляция T4-25/26); UI честно помечает список */
+      windowOpaque: observableSlotCount(contract?.slots ?? []) === 0,
     }
   })
   return NextResponse.json({ items: items.sort((a, b) => b.slug.localeCompare(a.slug)) })

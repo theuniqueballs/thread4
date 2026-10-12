@@ -767,6 +767,16 @@ async function main() {
         !mdPlain.includes('Окно без наблюдаемых') &&
           mdOpaque.includes('Окно без наблюдаемых поз/палитр**: T4-25, T4-26')
       )
+      /* webDevReview: наблюдаемость ≠ наличие файла контракта — RAW-компиляция
+       * (T4-25/26) пишет контракты с пустыми pose/palette; usage[''] не пачкаем */
+      const { observableSlotCount, foldWindowUsage } = await import('../src/lib/t4/compiler')
+      check(
+        'окно: контракт без единого id (T4-25) ненаблюдаем; контракт с id (T4-29) наблюдаем',
+        observableSlotCount([{ pose: '', palette: '' }, { pose: 'PL84', palette: '' }]) === 1 &&
+          observableSlotCount([{ pose: '', palette: '' }]) === 0 &&
+          foldWindowUsage(['T4-25']).opaque.includes('T4-25') &&
+          foldWindowUsage(['T4-29']).opaque.length === 0
+      )
     }
 
     // Закон №27 «канал R+: бугорок да, розовое нет» (вердикт T4-28,

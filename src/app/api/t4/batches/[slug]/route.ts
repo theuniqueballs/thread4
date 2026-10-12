@@ -47,6 +47,11 @@ export async function GET(
       level: String(rec.level ?? ''),
       verdict: String(rec.verdict ?? ''),
       findings: Array.isArray(rec.findings) ? rec.findings.map((f) => String(f)) : [],
+      /* аудит 2026-10-12: notes — не-фейлящие факты (видимость окна);
+       * раньше стрипались маппингом и UI их не видел никогда */
+      ...(Array.isArray(rec.notes) && rec.notes.length > 0
+        ? { notes: rec.notes.map((n) => String(n)) }
+        : {}),
     }
   })
   return NextResponse.json({

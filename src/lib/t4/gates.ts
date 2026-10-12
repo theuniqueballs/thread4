@@ -12,7 +12,7 @@ import path from 'node:path'
 import { assertSafeSlug, BATCHES_DIR, CONTRACTS_DIR, readJson, readText } from './fsutil'
 import { appendEvent, foldState, readEvents } from './events'
 import { getBans, getCarriers, getOCCanon, getRaces, getRatingRecipes, getRatingTechniques, type TechniqueEntry } from './specs'
-import { LAWS } from './compiler'
+import { LAWS, observableSlotCount } from './compiler'
 import { TIER_RANK as TIER_ORDER } from './verdicts'
 
 export type GateLevel = 'hard' | 'warn' | 'advisory'
@@ -807,7 +807,14 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
           opaque.push(w)
           continue
         }
+        if (observableSlotCount(wc.slots) === 0) {
+          /* контракт есть, но идентификаторов нет (RAW-компиляция) —
+           * сравнивать нечем: явный факт, не молчаливый пропуск */
+          opaque.push(w)
+          continue
+        }
         for (const s of wc.slots) {
+          if (!s.pose?.trim() && !s.palette?.trim()) continue // пустые id не сравниваем
           if (myPoses.has(s.pose)) f.push(`поза ${s.pose} конфликтует с окном (${w})`)
           if (myPals.has(s.palette)) f.push(`палитра ${s.palette} конфликтует с окном (${w})`)
         }

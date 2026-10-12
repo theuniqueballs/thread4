@@ -51,7 +51,7 @@ export interface ScribeResponse {
   sha10: string
   failedSlots: number[]
   log: string[]
-  receipts: { gate: string; level: string; verdict: string; findings: string[] }[]
+  receipts: { gate: string; level: string; verdict: string; findings: string[]; notes?: string[] }[]
 }
 
 export interface DeliverResponse {

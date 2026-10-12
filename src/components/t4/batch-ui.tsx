@@ -57,6 +57,8 @@ export interface BatchRow {
   title: string
   date?: string
   rebuildOf?: string
+  /** ненаблюдаем для окна ротации: нет контракта ИЛИ контракт без id (#42) */
+  windowOpaque?: boolean
 }
 
 export interface BatchDetailData {

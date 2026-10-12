@@ -236,6 +236,16 @@ function emptyUsage(): WindowUsage {
  *  батч) НЕ может наблюдаться по позам/палитрам — раньше он молча выпадал
  *  (continue), и план считал окно «чище», чем оно есть. Теперь такие слаги
  *  возвращаются списком opaque — контракт и экспозиция несут факт явно. */
+/** Слот наблюдаем для окна ротации, если несёт id позы или палитры.
+ *  RAW-компиляция (T4-25/26) пишет контракты с ПУСТЫМИ pose/palette —
+ *  такие слоты не должны ни считаться в usage[''], ни считаться видимыми.
+ *  Экспорт — для гейтов и selftest (чистая функция). */
+export function observableSlotCount(slots: { pose?: string; palette?: string }[]): number {
+  return slots.filter(
+    (s) => Boolean((s.pose ?? '').trim()) || Boolean((s.palette ?? '').trim())
+  ).length
+}
+
 export function foldWindowUsage(windowSlugs: string[]): {
   usage: WindowUsage
   opaque: string[]
@@ -248,7 +258,14 @@ export function foldWindowUsage(windowSlugs: string[]): {
       opaque.push(slug)
       continue
     }
+    if (observableSlotCount(c.slots) === 0) {
+      /* контракт есть, но ни одного id — наблюдаемость нулевая: тот же
+       * класс тихой деградации, что #42, уровнем глубже (webDevReview) */
+      opaque.push(slug)
+      continue
+    }
     for (const s of c.slots) {
+      if (!s.pose?.trim() && !s.palette?.trim()) continue // пустые id не считаем
       usage.poses[s.pose] = (usage.poses[s.pose] ?? 0) + 1
       usage.palettes[s.palette] = (usage.palettes[s.palette] ?? 0) + 1
       usage.races[s.race ?? ''] = (usage.races[s.race ?? ''] ?? 0) + 1
