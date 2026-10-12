@@ -1330,6 +1330,11 @@ function CompileTab() {
                       <LevelBadge level={r.level} />
                       <VerdictBadge verdict={r.verdict} />
                       <span>{r.findings.slice(0, 2).join(' · ')}</span>
+                      {(r.notes ?? []).length > 0 ? (
+                        <span className="text-amber-500/70">
+                          · {(r.notes ?? []).slice(0, 1).join(' · ')}
+                        </span>
+                      ) : null}
                     </div>
                   ))}
               </div>
@@ -1646,6 +1651,14 @@ function BatchesTab() {
                         className="shrink-0 rounded border border-cyan-500/40 bg-cyan-500/10 px-1.5 py-0.5 font-mono text-[10px] text-cyan-300"
                       >
                         ↻ {b.rebuildOf}
+                      </span>
+                    ) : null}
+                    {b.windowOpaque ? (
+                      <span
+                        title="позы/палитры для окна ротации ненаблюдаемы: нет контракта (RAW/EXP) или контракт без единого id (RAW-компиляция T4-25/26) — window-гейт и компилятор честно репортят это в notes (#42)"
+                        className="shrink-0 rounded border border-zinc-700 bg-zinc-800/60 px-1.5 py-0.5 font-mono text-[10px] text-zinc-400"
+                      >
+                        вне окна
                       </span>
                     ) : null}
                     <span className="truncate text-xs text-zinc-300 transition-colors group-hover/batch:text-zinc-100" title={b.title}>
