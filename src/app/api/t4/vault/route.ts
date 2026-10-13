@@ -26,7 +26,7 @@ import {
   readText,
   writeText,
 } from '@/lib/t4/fsutil'
-import { appendEvent, bootstrapChain, readEvents, type T4Event } from '@/lib/t4/events'
+import { appendEvent, bootstrapChain, readEvents, withEventLock, type T4Event } from '@/lib/t4/events'
 import { snapshotNow } from '@/lib/t4/persist'
 
 export const dynamic = 'force-dynamic'
@@ -150,20 +150,28 @@ export async function POST(request: Request) {
   }
 
   if (typeof incomingLog === 'string' && incomingLog.trim() !== '') {
-    const diskEvents = readEvents()
-    const diskIds = new Set(diskEvents.map((e) => e.id))
-    const histEvents = parseLog(incomingLog).filter((e) => !diskIds.has(e.id))
-    if (histEvents.length > 0) {
-      /* события вставляем в хронологическом порядке (fold зависит от порядка) */
-      const merged = [...diskEvents, ...histEvents].sort((a, b) =>
-        a.at < b.at ? -1 : a.at > b.at ? 1 : 0
-      )
-      writeText(EVENT_LOG, merged.map((e) => JSON.stringify(e)).join('\n') + '\n')
-      mergedEvents = histEvents.length
-      /* лог переписан (rebase) — хеш-цепь перебазируется объявленно,
-         иначе verify орал бы на каждую перезаписанную строку */
-      bootstrapChain()
-    }
+    /* Ревизия 2026-10-13: слияние лога — одна критическая секция под
+     * событийным локом. Раньше writeText(EVENT_LOG) шёл ВНЕ лока, а
+     * bootstrapChain — под ним: параллельный appendEvent из другого
+     * процесса (CLI/дашборд) интерливился с переписыванием лога —
+     * событие терялось молча. Чтение-слияние-запись-rebase атомарны. */
+    const histEvents = withEventLock(() => {
+      const diskEvents = readEvents()
+      const diskIds = new Set(diskEvents.map((e) => e.id))
+      const hist = parseLog(incomingLog).filter((e) => !diskIds.has(e.id))
+      if (hist.length > 0) {
+        /* события вставляем в хронологическом порядке (fold зависит от порядка) */
+        const merged = [...diskEvents, ...hist].sort((a, b) =>
+          a.at < b.at ? -1 : a.at > b.at ? 1 : 0
+        )
+        writeText(EVENT_LOG, merged.map((e) => JSON.stringify(e)).join('\n') + '\n')
+        /* лог переписан (rebase) — хеш-цепь перебазируется объявленно,
+           иначе verify орал бы на каждую перезаписанную строку */
+        bootstrapChain()
+      }
+      return hist
+    })
+    mergedEvents = histEvents.length
   }
 
   if (restored.length > 0 || mergedEvents > 0) {
