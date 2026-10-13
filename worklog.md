@@ -2784,3 +2784,70 @@ Stage Summary:
 - Известная хрупкость: ключ волатильен между перезаливами сандбокса —
   Стекло честно это покажет; свежий ключ у меня по запросу. middleware.ts
   → proxy.ts (Next 16) — мелочь на следующий раунд.
+
+## Раунд Super Z — T4-30 «Cyber-Idols 2099» собран и сдан (2026-10-13, приказ автора из чата)
+
+Task: автор записал черновик T4-30 через UI (Cyber-Idols 2099, киберпанк
+в меру, 3 OC-темы, 14 видов, A/B 3, EXP 8, REHAB, per-theme) — «поищи чё
+я там надрафтил, после чего — соберёшь батч. не очень сложно, но очень
+круто».
+
+Work Log:
+- Прочитан бриф drafts/T4-30-draft.json: Lucy (новенькая из T4-29) +
+  Caught changing + Tentacle Wrap & Tease, виды R17/R20/R03-R35 (14),
+  X=0, abPairs=3, EXP=8, REHAB.
+- ПРЕДУПРЕЖДЕНИЕ ИНВЕНТАРЯ: 26 палитр вне окна (105−79) — EXP=8 требует
+  28; потолок сегодня 4 (2 пары) — зафиксировано ещё в раунде
+  EXP-бюджета. Залит --exp 4 (флаг > бриф по цепочке §10), автору
+  доложено: расширение — только палитрами или законом №30.
+- LUCY CANONIZED: oc-canon v2.1.0 → v2.2.0 — флуоресцентно-молочно-
+  зелёная кожа (UNIQUE), мятные волосы (план T4-29), бледно-зелёные
+  полуприкрытые глаза (рендер P18), FAM-A milf-регистр, XX Judgement
+  (pending veto), элемент NEON, гардероб cool-static светоловящий;
+  «канон = рендер» (прецедент Ana v1.8.0). Событие spec.imported bcf54f95.
+- Контракт: gen-rawplus --from-draft T4-30 --oc Lucy,Mab,Nix --exp 4
+  --seed 3030. OC-трио по вайбу+ротации (Mab — шарнирная кукла-андроид,
+  Nix — хром-холод + стальная цепь; обе по 3 сервера). План: 14 рас,
+  A/B κ/λ/μ (back/hips/breasts), EXP ν+ξ, закон №27 dark 9/mid 5/light
+  3, echo ×3, дайс 28 уникальных сигнатур, rehab dry-sheer+wet-sheer.
+- Писец: scribe T4-30 — 28 слотов, но черновик пришёл СДВИНУТЫМ:
+  кин-блоки уехали на слот вперёд (cat→P08, goat→P09, sheep→P10, P06 =
+  клон Маб, oni исчез), позы/палитры/свидетели сместились вместе с ними,
+  16 слотов без face-блока M17, 8 без света (№21), мета-утечки
+  («comma-joined», ID в POS), P24 проза, P28 №27 на светлой ткани,
+  kill-хвосты в NEG («covered nipples» в NEG глушили POS).
+- ХИРУРГИЯ (7 слотов POS пересобрано руками по контракту+спекам:
+  кэрриеры фразами из carriers.json, кин-блоки из kin-block.ts,
+  палитры из palettes.json, hair/eye из E3 контракта):
+  * P06 = Cat-kin auburn/green + PL163 mid-throw + Forest Mist Dawn
+  * P08 = Goat-kin white/pale-blue + encore arms + Ember Frost
+  * P09 = Sheep-kin rose/teal + curled windowseat + traffic mirror
+  * P10 = человек navy/violet + stage bow + Pocketed Noon (THESIS из
+    NICHE-арха N37 уехал в P11 — обменян на generic)
+  * P11 = Oni-kin golden/emerald + bridle reach-up + window pane
+  * R-слоты (7): сняты R+-клейма (covered/clothed nipples, wet clothes,
+    see-through, nothing underneath), вписаны R-сигналы рецепта
+    (panties/bra/underwear/upskirt/microbikini/garter belt/boyshorts)
+  * through_fabric-глушилки сняты с NEG P8/P10/P18/P20/P21/P23/P24
+  * мёртвые ткани: velvet→satin (P20), suit→silk (P27/P28)
+  * noun-lock: open-weave shirt / knit dress / wet white tee / wet
+    black shirt; якоря лестниц (hand on rail + foot on tread)
+  * P25/P27 — светлые полюса (silver-white / pale-lilac-syrup),
+    P26/P28 — тёмные (midnight-black / deep-plum): одна переменная
+  * THESIS-опечатки «Cyber-Ids»→«Cyber-Idols» (3)
+- ИТОГ ГЕЙТОВ: **hard PASS · FIRST RUN CLEAN** (raw-plus, rating-recipe,
+  canon, diversity, window, structure, floors — все зелёные; в WARN
+  только рабочий X-риск механизма и салиенс-прогнозы).
+- DELIVERED: batch.delivered записан; verify 313/313 ЦЕЛА; selftest
+  117/117. Persist-демон закоммитил автоматически.
+
+Stage Summary:
+- T4-30 «Cyber-Idols 2099» (28 слотов = 3 OC + 21 мейн + 4 EXP) собран,
+  проверен и сдан; Lucy в каноне (v2.2.0); OC-ротация: Lucy+Mab+Nix.
+- EXP=8 упёрся в палитровый инвентарь (26 вне окна) — залито 4; ключ к
+  разблокировке: новые палитры (автор) или окно №30.
+- Урок конвейера: писец после LLM-чанков сдвигает кин-блоки/позы на
+  слот — хирургия по контракту обязательна; кандидаты на фикс писца —
+  Issue-материал.
+- За автором: рендер 28 кадров → вердикт (приёмник готов), veto карты
+  XX/NEON/Cancer для Lucy, судьба EXP-бюджета 8.
