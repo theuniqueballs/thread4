@@ -18,14 +18,16 @@ export const dynamic = 'force-dynamic'
 
 /** Лёгкий вердикт-путь (приказ автора, раунд 2026-10-11): батч-уровень
  *  БЕЗ по-слотовой разметки — одна запись, три исхода, проза по желанию.
- *  Работает для любого батча (контракт не нужен — тема из меты/H1). */
-export const LIGHT_VERDICTS: Record<string, string> = {
+ *  Работает для любого батча (контракт не нужен — тема из меты/H1).
+ *  Ревизия 2026-10-13: export снят — из route-файла Next должен экспортировать
+ *  только хендлеры; внешних потребителей нет. */
+const LIGHT_VERDICTS: Record<string, string> = {
   keep: 'зашёл — держим курс',
   mixed: 'местами — половина решает',
   rework: 'мимо — переделать',
 }
 
-export interface BatchVerdictSlotInput {
+interface BatchVerdictSlotInput {
   position: string // P01..P24
   claim?: string // заявка контракта (R+/R/X)
   pose?: string
