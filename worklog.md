@@ -2908,3 +2908,58 @@ Stage Summary:
 - За автором: черновик T4-31 (тема с сюжетным якорем по №26-усилению,
   veto-карты Lucy XX/NEON, судьба EXP-бюджета 8 — палитры или окно №30).
 - Крон webDevReview пересоздан (fixed_rate 900, Europe/Moscow).
+
+## Раунд Super Z — полная ревизия генерации/техпроцесса/гейтов + 12 фиксов (2026-10-13, приказ автора: «мощность максимальная, пройти вообще по всему»)
+
+Task: полная ревизия всего, что связано с генерацией, техпроцессом
+(seed → compile → scribe → check → deliver) и гейтами. Отчёт по трём
+категориям (РАБОТАЕТ / НЕ РАБОТАЕТ / НЕ ИСПОЛЬЗУЕТСЯ, НО ТРЕБУЕТ
+ПЕРЕСТРОЙКИ) с файл:строка — потом только однозначные фиксы, атомарно,
+с регрессией.
+
+Work Log:
+- Прямое чтение ядра: cli.ts (1181), compiler.ts (987), gates.ts (1987),
+  scribe.ts (1149), gen-rawplus.ts (1303), dice/kin-block/polish-batch,
+  9 сирот-tools, events/deliver/specs/fsutil/apiguard/persist, роуты
+  scribe/compile/contract-draft/events/vault.
+- Три параллельных Explore-агента: API+LIB (19 роутов + 9 либ), UI+конфиги
+  (page.tsx 3812 + компоненты + package/tsconfig/tailwind/middleware),
+  docs+ссылки (11 документов + битые ссылки + Issues-статусы).
+- ОТЧЁТ: thread4/docs/REVISION-2026-10-13.md — 19 позиций «работает»,
+  23 «не работает», 13 «перестройки»; каждая с файл:строка/почему/действие.
+- Ложные следы сняты при чтении: GATES_TOTAL=24 НЕ дрейф (комментарий
+  честно считает 24 базы + условные raw-plus/exploratory = 25–27 в прогоне);
+  grid-cols-inmax — артефакт ANSI-рендера вывода, файл корректен;
+  author.pinned/scribe.objection — законные спящие типы в EVENT_TYPES.
+- ФИКСЫ (12, атомарно, каждый с верификацией selftest/verify/tsc/lint):
+  C1 tsconfig+skills (tsc 0); C2 events limit NaN (кап 500 пробивался,
+  ?limit=abc отдавал весь лог); C3 simcheck — двусторонний rebuild-плюс
+  (класс #48 недолечен: T4-27 ловил ложные WARN от материала T4-27.2-EXP;
+  +selftest-регрессия 117→118 на живых контрактах); C4 deliver TOCTOU —
+  вся сдача одной секцией под withEventLock, лок реентерабелен
+  per-process (runGates пишет gate.run под внешним замком), git-снапшот
+  вне лока (прецедент: T4-04 имеет 3 batch.delivered); C5 vault merge под
+  локом (writeText лога интерливился с appendEvent); C6 genreOf мёртвый
+  экспорт; C7 contract-draft мёртвые ветки + expSlotsMax обязателен;
+  C8 lang=ru; C9 middleware→proxy (Next 16, рестарт сервера, CSP жив,
+  варнинг исчез); C10 фантомный recover-комментарий; C11 docs-титул;
+  C12 route-экспорты.
+- Итог: selftest 118/118, verify 316/316 ЦЕЛА, tsc 0, lint 0, browser-QA
+  зелёный, дев-сервер на proxy.ts.
+- Persist-демон дважды съедал стейджинг — распутано soft-reset'ом в
+  атомарные коммиты (31c29c9, 9e8c706, 039164d, 6922a32).
+
+Stage Summary:
+- Ревизия задокументирована артефактом docs/REVISION-2026-10-13.md:
+  ядро конвейера (компилятор/гейты/писец/gen-rawplus/летопись) —
+  ЗДОРОВО; критические дыры целостности (TOCTOU сдачи, vault-merge,
+  NaN-кап, simcheck-асимметрия) — закрыты.
+- Открыто за автором (категория 2/3 отчёта): кин-валидатор писца
+  (сдвиг кин-блоков — Issue-материал), судьба polish-batch (дублирует
+  встроенную полировку, без таймаутов), vlm-роут-сирота, чистка
+  мёртвых deps/ui (next-auth/zustand/tanstack + 35 компонентов +
+  tailwind.config v3), recover-CLI для FORENSICS-блока, контракт-из-батча
+  (обобщение 4 одноразовых генераторов), corpus-очередь для batch-verdict,
+  GATES_TOTAL из массива, корневой TASTE.md-заглушка.
+- Цепь не тронута (append-only), законы без вердикта не менялись (§10),
+  окно ротации/loopback/CLI-совместимость соблюдены, секретов в коде нет.
