@@ -128,15 +128,33 @@ function syncSleep(ms: number): void {
 /** (владелец погиб посреди записи) взламывается по mtime; живой —       */
 /** ждём до ~6с, потом внятный отказ (событие НЕ теряется — его просто    */
 /** не записали, вызывающий видит исключение).                            */
+/* Ревизия 2026-10-13 (TOCTOU повторной сдачи): лок реентерабелен
+ * ВНУТРИ процесса — deliverBatch держит секцию и зовёт runGates, чей
+ * appendEvent(gate.run) берёт тот же замок: без реентерабельности
+ * вложенный вызов ждал бы сам себя до stale-break. Глубина >0 = мы уже
+ * под замком: внешняя секция несёт эксклюзию, межпроцессная защита
+ * (файл-замок) не меняется. */
+let eventLockDepth = 0
+
 export function withEventLock<T>(fn: () => T): T {
+  if (eventLockDepth > 0) {
+    eventLockDepth++
+    try {
+      return fn()
+    } finally {
+      eventLockDepth--
+    }
+  }
   for (let attempt = 0; ; attempt++) {
     let acquired = false
     try {
       const fd = fs.openSync(EVENT_LOCK, 'wx') // exclusive create — замок наш
       acquired = true
+      eventLockDepth = 1
       try {
         return fn()
       } finally {
+        eventLockDepth = 0
         fs.closeSync(fd)
         try {
           fs.unlinkSync(EVENT_LOCK)

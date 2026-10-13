@@ -6,7 +6,7 @@
 import path from 'node:path'
 
 import { assertSafeSlug, BATCHES_DIR, CONTRACTS_DIR, readJson, readText, writeJson, writeText } from './fsutil'
-import { appendEvent, readEvents } from './events'
+import { appendEvent, readEvents, withEventLock } from './events'
 import { parseBatch, runGates, type GatesResult } from './gates'
 import { LAWS } from './compiler'
 import { getRatingRecipes } from './specs'
@@ -26,6 +26,21 @@ export function deliverBatch(slug: string): DeliverResult | null {
   const text0 = readText(path.join(BATCHES_DIR, `${slug}.md`))
   if (text0 == null) return null
 
+  /* Ревизия 2026-10-13 (TOCTOU повторной сдачи): чек priorDelivery и
+   * batch.delivered жили в разных критических секциях — два параллельных
+   * deliver проходили оба (прецедент: T4-04, три batch.delivered в
+   * летописи). Вся сдача — одна секия под событийным локом; appendEvent
+   * внутри реентерабелен (events.ts), runGates пишет gate.run под тем же
+   * замком. Git-снапшот — ПОСЛЕ секции: секунды коммита не держат летопись. */
+  const delivered = withEventLock(() => deliverBatchInner(slug, text0))
+  if (delivered?.ok) {
+    /* durability: сдача батча — священный момент, коммит в git немедленно */
+    snapshotNow(`deliver:${slug}`)
+  }
+  return delivered
+}
+
+function deliverBatchInner(slug: string, text0: string): DeliverResult | null {
   // охрана повторной сдачи (аудит N-10): второй batch.delivered двигал бы
   // окно ротации и дублировал события — сданный батч не сдаётся дважды
   const priorDelivery = readEvents().some(
@@ -161,7 +176,5 @@ export function deliverBatch(slug: string): DeliverResult | null {
       sha10: result.sha10,
     }
   )
-  /* durability: сдача батча — священный момент, коммит в git немедленно */
-  snapshotNow(`deliver:${slug}`)
   return { ok: true, result, title }
 }
