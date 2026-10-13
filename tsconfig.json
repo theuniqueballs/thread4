@@ -39,6 +39,7 @@
   "exclude": [
     "node_modules",
     "legacy",
-    "thread4/tools/tmp"
+    "thread4/tools/tmp",
+    "skills"
   ]
 }
