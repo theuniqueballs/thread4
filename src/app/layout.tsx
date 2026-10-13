@@ -27,7 +27,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    /* ревизия 2026-10-13: UI полностью русский — lang="ru" (a11y:
+     * скринридеры и переводчики читали страницу как английскую) */
+    <html lang="ru" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
       >
