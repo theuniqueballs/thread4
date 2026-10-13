@@ -1414,7 +1414,12 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
     // материал источника ПО ДИЗАЙНУ (тот же состав, одна переменная); warn
     // «похоже на источник» на задуманном переиспользовании — ложный сигнал
     // автору. Остальные члены окна конфликтуют как обычно.
-    for (const w of state.windowSlugs.filter((x) => x !== batch.slug && x !== contract?.rebuildOf)) {
+    /* ревизия 2026-10-13: асимметрия долечена — окно гейта исключало и
+     * ПЕРЕСТРОЙКИ этого батча (wc.rebuildOf == batchSlug, windowOthersFor
+     * двусторонний), а simcheck — только собственный rebuildOf. Прогон
+     * источника (T4-27 после сдачи T4-27.2-EXP) ловил ложные WARN на том
+     * же легальном материале. Теперь один источник исключения на оба гейта. */
+    for (const w of windowOthersFor(batch.slug, state.windowSlugs, contract?.rebuildOf)) {
       const wText = readText(path.join(BATCHES_DIR, `${w}.md`))
       if (!wText) continue
       const wBatch = parseBatch(w, wText)
