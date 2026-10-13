@@ -10,7 +10,10 @@ export const dynamic = 'force-dynamic'
 
 export async function GET(req: Request) {
   const url = new URL(req.url)
-  const limit = Math.min(500, Math.max(1, parseInt(url.searchParams.get('limit') ?? '100', 10)))
+  /* ревизия 2026-10-13: parseInt('abc') → NaN → slice(-NaN) = slice(0) —
+   * кап 500 пробивался и GET отдавал весь лог. NaN теперь = дефолт 100. */
+  const rawLimit = parseInt(url.searchParams.get('limit') ?? '100', 10)
+  const limit = Math.min(500, Math.max(1, Number.isFinite(rawLimit) ? rawLimit : 100))
 
   /* Преемник Фреда, 2026-10-10: probe=1 — проверка ключа командира БЕЗ записи
      в летопись. Стекло (дашборд) зовёт это после сохранения ключа в браузере,
