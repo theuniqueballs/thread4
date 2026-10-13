@@ -84,8 +84,10 @@ export async function GET(req: Request) {
     .filter((r) => (r.status === 'active' || r.status === 'gold') && r.name.toLowerCase() !== 'human')
     .map((r) => ({ id: r.id, name: r.name, status: r.status }))
   /* EXP-бюджет из policy — UI показывает контрол честно (напоминание
-   * автора 2026-10-12: «у тебя если чё 9 слотов под EXP») */
-  const expSlotsMax = getPolicy()?.law?.expSlotsMax ?? 9
+   * автора 2026-10-12: «у тебя если чё 9 слотов под EXP»).
+   * Ревизия 2026-10-13: getPolicy() бросает при отсутствии — «?. … ?? 9»
+   * были мёртвой веткой + захардкоженным дублем policy.expSlotsMax (П-2). */
+  const expSlotsMax = getPolicy().law.expSlotsMax
   /* список черновиков — бриф не исчезает после сохранения (ревью UI
    * 2026-10-11): слаг, тема, дата, кины, флаг «собран» (батч/контракт) */
   const drafts = listFiles(DRAFTS_DIR, '.json').map((f) => {
@@ -154,7 +156,7 @@ export async function POST(req: Request) {
   /* EXP-слоты поверх 24 (напоминание автора 2026-10-12): бюджет policy
    * law.expSlotsMax — UI не может заказать больше закона; нечётное не
    * запрещаем — генератор сам выравнивает в пары (радар ждёт A/B-пары). */
-  const expMax = getPolicy()?.law?.expSlotsMax ?? 9
+  const expMax = getPolicy().law.expSlotsMax
   const exp = Math.max(0, Math.min(expMax, Math.floor(Number(body.exp ?? 2) || 0)))
 
   const slug = nextSlug()
