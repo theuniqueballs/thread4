@@ -81,9 +81,11 @@ export interface ParsedBatch {
  * от 21 тематического мейна, без темы — чистые болванки для тестов). */
 const GENRES = ['EXP', 'OC', 'NICHE', 'VOLT', 'EXQUISITE'] as const
 
-/* genreOf экспортирован вместе с tierOf для фолбэк-контрактов приёмника
- * (Фред, 2026-10-08) — один парсер шапок слотов на все потребители. */
-export function genreOf(meta: string): string {
+/* genreOf — внутренний парсер жанра шапки слота (занят parseBatch).
+ * Ревизия 2026-10-13: экспорт снят — единственный внешний импортёр
+ * (contracts/[slug] роут) его не вызывал; «фолбэк-контракты приёмника»
+ * читают жанр через parseBatch, не напрямую. */
+function genreOf(meta: string): string {
   const u = meta.toUpperCase()
   for (const g of GENRES) {
     if (new RegExp(`\\b${g}\\b`).test(u)) return g

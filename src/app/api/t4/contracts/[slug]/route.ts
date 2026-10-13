@@ -5,7 +5,7 @@ import path from 'node:path'
 
 import { BATCHES_DIR, CONTRACTS_DIR, readJson, readText } from '@/lib/t4/fsutil'
 import { contractMarkdown, type BatchContract, type SlotPlan } from '@/lib/t4/compiler'
-import { extractBatchTitle, genreOf, parseBatch, tierOf } from '@/lib/t4/gates'
+import { extractBatchTitle, parseBatch, tierOf } from '@/lib/t4/gates'
 
 export const dynamic = 'force-dynamic'
 
