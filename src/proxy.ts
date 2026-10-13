@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-/* Аудит 2026-10-12, остаток Issue #47: Strict-CSP с nonce для дашборда.
+/* Ревизия 2026-10-13: конвенция middleware → proxy (Next 16 — варнинг
+ * «The "middleware" file convention is deprecated. Please use "proxy"
+ * instead» в dev.log). Семантика без изменений (CSP-nonce, Issue #47).
+ *
+ * Аудит 2026-10-12, остаток Issue #47: Strict-CSP с nonce для дашборда.
  * Дашборд рендерит летопись (текст писца/автора) — nonce-пайплайн закрывает
  * инлайн-инъекцию скриптов даже при прорыве экранирования. Next сам подхватывает
  * nonce из CSP-заголовка ЗАПРОСА и проставляет его своим скриптам
@@ -9,7 +13,7 @@ import { NextRequest, NextResponse } from 'next/server'
  * Dev (turbopack HMR) требует 'unsafe-eval' и ws — только вне прод-сборки.
  * Дашборд loopback-only (127.0.0.1) — заголовок defense-in-depth, не замена
  * командному замку (apiguard). */
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const nonce = crypto.randomUUID().replace(/-/g, '')
   const isDev = process.env.NODE_ENV !== 'production'
 
