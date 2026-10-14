@@ -42,6 +42,7 @@ import {
   getDeliveryStats,
   getHairEyeLibrary,
   getNicheArchetypes,
+  getNicheDoors,
   getOCCanon,
   getPalettes,
   getPolicy,
@@ -217,6 +218,10 @@ export interface RawPlusSlot {
   witness?: string
   /** НИША-50: архетип невозможного */
   arch?: string
+  /** A3P5-дверь (ревизия 2026-10-14): момент входа в кадр */
+  door?: string
+  /** A3P5-оператор камеры: где камера относительно невозможного */
+  spatial?: string
   /** ULTIMATE DICE (A5P6 §3 → RAW-эра): сигнатура скелета «A3·B5·C2·D7·E1» —
    *  уникальна внутри батча, межбатчевая дисциплина через dice-archive */
   diceSig?: string
@@ -587,6 +592,13 @@ export function planRawPlus(opts: PlanOptions): RawPlusPlan {
   )
   const kPool = rng.shuffle(poolsSpec?.sections?.kinetics_k ?? []).map((k) => k.id)
   const archPool = rng.shuffle(getNicheArchetypes()?.archetypes ?? []).map((a) => a.id)
+  /* A3P5-двери + операторы (ревизия 2026-10-14): момент входа в кадр и
+   * положение камеры — последний непереплавленный кусок A3 в конвейер */
+  const doorsSpec = getNicheDoors()
+  const doorPool = rng.shuffle(doorsSpec?.doors ?? []).map((d) => d.name)
+  const spatialPool = rng.shuffle(doorsSpec?.operators ?? []).map((o) => o.name)
+  let doorIdx = 0
+  let spatialIdx = 0
   const witnessPool = rng.shuffle(WITNESS_TYPES)
   const closerPool = rng.shuffle(CLOSER_CLASSES)
   const registers: ('student' | 'young' | 'milf')[] = ['student', 'young', 'milf']
@@ -695,10 +707,13 @@ export function planRawPlus(opts: PlanOptions): RawPlusPlan {
       lead: leadPool[leadIdx % leadPool.length],
       register: registers[Math.floor(mainIdx / (law.mainsTotal / 3))] ?? 'student',
       closer: closerPool[closerIdx++ % closerPool.length],
-      /* НИША-50: архетип невозможного + свидетель — ротация без повторов */
+      /* НИША-50: архетип невозможного + свидетель + A3P5-дверь + оператор
+       * камеры — ротация без повторов */
       ...(isNiche
         ? {
             arch: archPool[archIdx++ % archPool.length],
+            door: doorPool[doorIdx++ % Math.max(doorPool.length, 1)],
+            spatial: spatialPool[spatialIdx++ % Math.max(spatialPool.length, 1)],
             witness: witnessPool[witnessIdx++ % witnessPool.length],
           }
         : {}),
@@ -1039,6 +1054,8 @@ export function planRawPlus(opts: PlanOptions): RawPlusPlan {
       closer: s.closer,
       ...(s.witness ? { witness: s.witness } : {}),
       ...(s.arch ? { arch: s.arch } : {}),
+      ...(s.door ? { door: s.door } : {}),
+      ...(s.spatial ? { spatial: s.spatial } : {}),
       ...(s.diceSig ? { diceSig: s.diceSig } : {}),
       ...(s.dice ? { dice: s.dice } : {}),
       ...(s.fabricTone ? { fabricTone: s.fabricTone } : {}),

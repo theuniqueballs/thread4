@@ -27,6 +27,7 @@ import {
   getCarriers,
   getGoldenCorpus,
   getNicheArchetypes,
+  getNicheDoors,
   getOCCanon,
   getPalettes,
   getPoses,
@@ -122,6 +123,12 @@ POS = ONE comma-separated TAG RUN ending with "masterpiece, best quality, anime 
 NO PROSE. NO SENTENCES. NO DIALOGUE. NO MONOLOGUE. If it cannot be DRAWN as nouns in a tag, it does not exist in POS (author's order, T4-28 retro-fix: «неописуемая проза… ты нихуя не нарисуешь»). Phrase-tags ARE legal (contact geometry, light falls) — they are noun-led, verb-quiet, comma-joined, and every noun names a DRAWABLE thing. Exactly ONE period: the final one. No quotes, no colons after "rendered", no "she/her" pronouns — the tag run carries nouns only.
 
 THE RATING IS EARNED BY TAGS. Each slot names its tier and the REQUIRED signal tags — include AT LEAST the stated minimum in the TAG RUN, and NEVER include signal tags of a higher tier (overclaim fails the gate).
+
+THE PRIORITY STACK (ревизия 2026-10-14, A2P13F CoreEngine:181-124 — арбитраж конфликтов; раньше писец решал их молча и не в ту сторону): when rules collide, resolve IN THIS ORDER and never sacrifice an upper rule for a lower one: (1) HARD BANS — forbidden words, names, age tags, X-facts, underlayer on the claim zone: NEVER broken; (2) THEME + WORLD LAW — the batch engine, theme keywords, NICHE impossibility: the frame serves it; (3) RENDER PHYSICS — face lock, №21 light, №27 channel, salience chain, fabric state: a rule-breaking render is a broken slot; (4) FORM/DIVERSITY — dice skeleton, registers, pose risk, palette discipline; (5) FLOURISHES — variation, style garnish. The FACE BLOCK is §3 physics, NOT garnish: trading "anime eyes + small nose + small mouth" for extra scene tags is the WRONG trade (the renderer drifts to semi-realism and the structure gate fails the slot — песочница ревизии: 4 слота из 24 потеряли фейс-лок именно так).
+
+TENSION vs RELEASE (A2P13F:564-585): a frame carries EITHER a building-tension beat (contact about to happen, weight about to shift, fabric at the edge of its state — the claim zone coiled) OR a release beat (the moment after: settled, breathing, aftermath-door). Pick ONE per slot — a frame doing both reads as noise. The DOOR assignment (A3P5) names which beat this slot carries.
+
+ENV CAP (A2P13F:475-492): when the frame's focus is a claim zone (R+/X), the environment gets AT MOST 2 tags beyond palette/light/witness — the erotic element IS the scene, extra location dressing dilutes the render's attention (and the tag budget). NICHE frames invert the cap: the impossibility may dress the world — the CLAIM stays lean either way.
 
 THE DICE LAW (Ultimate Dice, A5P6 §3 — updated 2026-10-12): every slot carries a dice signature (A·B·C·D·E — the rolled SKELETON: identification order, clothing delivery, theme integration, light style, tag-run rhythm). OBEY it — it is the slot's structure, not a suggestion. Two slots of one batch NEVER share a skeleton: if your instinct writes the same opening/order/rhythm as a previous slot, the dice are there to break exactly that. Structural monotony is the mother of twins; the dice kill it at the root.
 
@@ -302,6 +309,23 @@ function slotFrame(slot: SlotPlan, ctx: ScribeCtx): string {
   lines.push(`register: ${slot.register} — convey by BODY FORM TAGS (petite/slender → student · athletic/curvy → young · full-figured, full chest, soft waist → milf; N30: age words are forbidden); add the OPPOSITE form to NEG-EXTRA (body-plan protection, T4-27.2)`)
   lines.push(`closer (final beat of the tag run, NO prose — ${slot.closer}): ${closerHint(slot.closer)}`)
   if (slot.witness) lines.push(`witness: the ${slot.witness} — one object that holds the frame's law`)
+  /* A3P5-двери (ревизия 2026-10-14, последний непереплавленный кусок A3):
+   * ARCH отвечает «что в мире сломано», DOOR — «в какую секунду мы это
+   * застали», OPERATOR — «откуда смотрит камера». Дверь меняет ПОЗУ и
+   * ВЗГЛЯД слота, оператор — ракурс: это не бижутерия, а второй шаг
+   * формулы невозможного после ARCH. */
+  if (slot.door) {
+    const doorMeta = getNicheDoors()?.doors.find((d) => d.name === slot.door)
+    lines.push(
+      `DOOR (A3P5 — момент входа): ${slot.door}${doorMeta ? ` — ${doorMeta.hint}` : ''} — the slot is a MOMENT, not a pose: her body/eyes are mid-door (what just happened or is about to), threaded into the tag run as pose/gaze/expression tags, never as the word "${slot.door}" itself.`
+    )
+  }
+  if (slot.spatial) {
+    const opMeta = getNicheDoors()?.operators.find((o) => o.name === slot.spatial)
+    lines.push(
+      `CAMERA OPERATOR (A3P5): ${slot.spatial}${opMeta ? ` — ${opMeta.hint}` : ''} — the camera stands HERE relative to the impossibility; choose the framing tag accordingly.`
+    )
+  }
   if (slot.kind === 'NICHE' && slot.arch) {
     const archMeta = getNicheArchetypes()?.archetypes.find((a) => a.id === slot.arch)
     lines.push(
@@ -630,7 +654,8 @@ function assembleBatch(
         `closer ${slot.closer}`,
       ]
       if (slot.dice) spineParts.push(`dice ${slot.diceSig}`)
-  if (slot.witness) spineParts.push(`witness: ${slot.witness}`)
+      if (slot.witness) spineParts.push(`witness: ${slot.witness}`)
+      if (slot.door) spineParts.push(`door ${slot.door}${slot.spatial ? ` · ${slot.spatial}` : ''} (A3P5)`)
       if (slot.ocTheme && slot.kind === 'OC') spineParts.push(`OC theme: ${slot.ocTheme}`)
       if (slot.targetChannel) spineParts.push(`REHAB target channel: ${slot.targetChannel} (добор по вердикту автора — сделай заявку этого канала доставки главным сигналом кадра)`)
       L.push(`Spine: ${spineParts.join(' · ')}`)

@@ -1076,6 +1076,26 @@ async function main() {
           kinSlots.every((s) => (s.kinPos ?? '').length > 0 && (s.kinNeg ?? '').length > 0) &&
           kinSlots.every((s) => s.position > law2.ocSlots)
       )
+      /* A3P5-двери (ревизия 2026-10-14): 15 дверей + 6 операторов из легаси
+       * (legacy/a3/A3P5_Core.txt:20 + QUICK REFERENCE) — NICHE-слот несёт
+       * дверь (момент входа в кадр) и оператора камеры (ракурс) ротацией */
+      {
+        const { getNicheDoors } = await import('../src/lib/t4/specs')
+        const doorsSpec = getNicheDoors()
+        const doors = p1.slots.filter((s) => s.door).map((s) => s.door)
+        const spatials = p1.slots.filter((s) => s.spatial).map((s) => s.spatial)
+        const nicheCount = p1.slots.filter((s) => s.kind === 'NICHE').length
+        check(
+          'A3P5: спека дверей — 15 дверей + 6 операторов (последний непереплавленный кусок A3 в конвейере)',
+          (doorsSpec?.doors.length ?? 0) === 15 && (doorsSpec?.operators.length ?? 0) === 6
+        )
+        check(
+          'A3P5: каждый NICHE-слот несёт дверь и оператора камеры, двери без повторов',
+          doors.length === nicheCount && spatials.length === nicheCount &&
+            new Set(doors).size === doors.length &&
+            doors.every((d) => (doorsSpec?.doors ?? []).some((x) => x.name === d))
+        )
+      }
       const c27 = JSON.parse(
         (await import('node:fs')).readFileSync('thread4/contracts/T4-27.json', 'utf-8')
       ) as { slots: { palette?: string }[] }

@@ -1,0 +1,30 @@
+{
+  "version": "1.0.0",
+  "born": "2026-10-14",
+  "source": "legacy/a3/A3P5_Core.txt:20 (15 DOORS) + QUICK REFERENCE (6 spatial operators) — ревизия 2026-10-14: единственный непереплавленный остаток A3. Дверь = МОМЕНТ входа в кадр (что только что произошло / вот-вот произойдёт); оператор = где камера стоит относительно невозможного. Дополняют ARCH (что не так в мире): ARCH отвечает «что сломано», DOOR — «в какую секунду мы это застали».",
+  "doors": [
+    { "id": "D01", "name": "UNSEEN", "hint": "she has NOT noticed yet — eyes elsewhere, the wrongness already in frame" },
+    { "id": "D02", "name": "TURNING", "hint": "mid-turn: head beginning to swing toward the impossibility, motion in the neck/shoulder line" },
+    { "id": "D03", "name": "AFTERMATH", "hint": "it already happened — displaced objects, settled dust, her stillness facing the result" },
+    { "id": "D04", "name": "THRESHOLD", "hint": "doorway/edge framing: one foot in the world of the law, weight undecided" },
+    { "id": "D05", "name": "RETURN", "hint": "she came BACK for something — bag half-open, hand already reaching, urgency quiet" },
+    { "id": "D06", "name": "OFFERING", "hint": "she presents the wrongness on open palms / an out-held object — a gift or evidence" },
+    { "id": "D07", "name": "SECRET", "hint": "shared with the camera only: lean-in, cupped hand, a look that checks for witnesses" },
+    { "id": "D08", "name": "ACCIDENT", "hint": "it just slipped/broke/spilled — the physics mid-fall, her reflex catching up" },
+    { "id": "D09", "name": "STILLNESS", "hint": "dead-quiet center: everything frozen around her mid-motion blur" },
+    { "id": "D10", "name": "DREAM", "hint": "logic is off by one step — proportions plausible, physics politely wrong" },
+    { "id": "D11", "name": "MELANCHOLY", "hint": "the law has a cost: the frame is aftermath + longing, palette doing half the work" },
+    { "id": "D12", "name": "PLAY", "hint": "she uses the impossibility as a toy — mischief in the eyes, the law domesticated" },
+    { "id": "D13", "name": "POWER", "hint": "the law answers to her: posture owned, weight deliberate, environment deferential" },
+    { "id": "D14", "name": "ABANDONED", "hint": "the wrongness outlived its owner — her presence is the intrusion now" },
+    { "id": "D15", "name": "AWARE", "hint": "full eye-contact with the camera: she KNOWS you see it too" }
+  ],
+  "operators": [
+    { "id": "S01", "name": "OUTSIDE", "hint": "impossibility seen through/over a boundary — glass, fence, waterline" },
+    { "id": "S02", "name": "INSIDE", "hint": "camera within the law's radius: distortions reach the frame edges too" },
+    { "id": "S03", "name": "BEHIND", "hint": "revelation hides behind her silhouette — one edge visible past the hip/shoulder" },
+    { "id": "S04", "name": "THROUGH", "hint": "framed through an aperture: keyhole, gap in shelves, torn poster" },
+    { "id": "S05", "name": "BELOW", "hint": "floor-level angle: what the ground does around her carries the proof" },
+    { "id": "S06", "name": "ABOVE", "hint": "overhead: the pattern only visible from height — her the only asymmetry" }
+  ]
+}

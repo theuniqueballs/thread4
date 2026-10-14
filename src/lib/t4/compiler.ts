@@ -118,6 +118,13 @@ export interface SlotPlan {
   targetChannelNote?: string
   /** НИША-50: архетип невозможного композиции (ротация без повторов в батче) */
   arch?: string
+  /** A3P5-дверь (ревизия 2026-10-14): МОМЕНТ входа в кадр — UNSEEN /
+   *  AFTERMATH / THRESHOLD…; дополняет ARCH («что сломано» → «в какую
+   *  секунду застали»). Спека specs/niche-doors.json, ротация без повторов. */
+  door?: string
+  /** A3P5-оператор камеры: OUTSIDE / BEHIND / THROUGH / BELOW… — где
+   * камера стоит относительно невозможного. Той же спеки. */
+  spatial?: string
   /** ULTIMATE DICE (A5P6 §3 → RAW-эра): сигнатура скелета «A3·B5·C2·D7·E1» */
   diceSig?: string
   /** инструкции кубиков: порядок id / подача одежды / тема / свет / ритм */

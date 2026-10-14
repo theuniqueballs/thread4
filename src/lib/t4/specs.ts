@@ -510,6 +510,29 @@ export function getNicheArchetypes(): NicheArchetypesSpec | null {
   return load<NicheArchetypesSpec>('niche-archetypes.json')
 }
 
+/* ---------------- 15 DOORS + 6 операторов (A3P5 → ревизия 2026-10-14) ---------------- */
+
+export interface NicheDoor {
+  id: string
+  name: string
+  hint: string
+}
+
+export interface NicheDoorsSpec {
+  id: string
+  version: string
+  doors: NicheDoor[]
+  operators: NicheDoor[]
+}
+
+/** A3P5-дверь = МОМЕНТ входа в кадр (UNSEEN/AFTERMATH/THRESHOLD…),
+ *  оператор = положение камеры относительно невозможного (BEHIND/THROUGH…).
+ *  Дополняет ARCH: «что сломано в мире» → «в какую секунду мы это застали
+ *  и откуда смотрим». Единственный непереплавленный остаток A3 — живой. */
+export function getNicheDoors(): NicheDoorsSpec | null {
+  return load<NicheDoorsSpec>('niche-doors.json')
+}
+
 export function allCarrierIds(spec: CarrierSpec): Carrier[] {
   return Object.values(spec.classes).flat()
 }
