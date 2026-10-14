@@ -1,0 +1,39 @@
+{
+  "slug": "T4-32",
+  "kind": "draft",
+  "status": "draft — без компиляции (Issue #21: авто-входы low-trust; это письменный бриф писцу)",
+  "createdAt": "2026-10-14T22:09:58.181Z",
+  "theme": "INTO THE VOID",
+  "ocThemes": [
+    {
+      "theme": "",
+      "rating": "R+",
+      "wishes": "",
+      "position": 1
+    },
+    {
+      "theme": "",
+      "rating": "R+",
+      "wishes": "",
+      "position": 2
+    },
+    {
+      "theme": "",
+      "rating": "R+",
+      "wishes": "",
+      "position": 3
+    }
+  ],
+  "mainWishes": "",
+  "species": {
+    "on": true,
+    "count": 12,
+    "list": []
+  },
+  "xSlots": 0,
+  "abPairs": 3,
+  "exp": 8,
+  "rehab": true,
+  "engine": "per-theme",
+  "notes": ""
+}
