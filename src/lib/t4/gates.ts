@@ -785,10 +785,10 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
         const dark28 =
           /\b(black|ink|midnight|charcoal|espresso|dark|deep|oxblood|void|sumi|burgundy|wine|maroon|plum|chocolate|cocoa|aubergine|obsidian|onyx|raven|soot|sable|forest)\b/i
         const swim28 = /\bswimsuit\b|\bbikini\b|\brash guard\b/i
-        const through28 = /\bnipples through clothing\b/i
-        const wetCombo28 = /\bwet clothes\b/i.test(tagRun) && /\bsee-through\b/i
-        const sheer28 = /\bsheer\b/i
-        const bumps28 = /\bclothed nipples\b|\bcovered nipples\b/i
+        const through28 = /\bnipples through clothing\b/i.test(tagRun)
+        const wetCombo28 = /\bwet clothes\b/i.test(tagRun) && /\bsee-through\b/i.test(tagRun)
+        const sheer28 = /\bsheer\b/i.test(tagRun)
+        const bumps28 = /\bclothed nipples\b|\bcovered nipples\b/i.test(tagRun)
         const msg28 = (m: string) =>
           isExploratory(s)
             ? exploratoryFindings.push(`EXPLORATORY (§10, квитанция): P${s.position}: ${m}`)
