@@ -797,11 +797,11 @@ async function main() {
           x.includes('T4-27.2-EXP')
         )
       )
-      const g23 = runGates('T4-23', true)
+      const g24 = runGates('T4-24', true)
       check(
         'window-гейт: RAW-батч получает явную квитанцию о неприменимости (не молчаливый пропуск)',
         (
-          g23?.receipts.find((r) => r.gate === 'window')?.notes ?? []
+          g24?.receipts.find((r) => r.gate === 'window')?.notes ?? []
         ).some((n) => n.includes('без контракта'))
       )
       check(
@@ -997,6 +997,45 @@ async function main() {
       check(
         'contract-from-batch: ретро-нота честна (летопись не тронута, окно не заявляется)',
         c.retroNote.includes('data-repair') && built.markdown.includes('ретро, из батча')
+      )
+    }
+
+    // Ревизия 2026-10-14: corpus-очередь в lib — батч-вердикт кормит её же
+    // (категория 3.5: правило «взгляд ≥40» жило инлайном в events-роуте)
+    {
+      const { authorGazeWorthy, feedCorpusQueue } = await import('../src/lib/t4/corpus')
+      const fsMod = await import('node:fs')
+      const mkEvt = (type: string, data: Record<string, unknown>): T4Event => ({
+        id: '999',
+        at: '2026-10-14T00:00:00Z',
+        type,
+        summary: type,
+        data,
+      })
+      check(
+        'corpus: взгляд автора = render.verdict + source author* + проза ≥40 (порог AUTHOR_GAZE_MIN)',
+        authorGazeWorthy(mkEvt('render.verdict', { source: 'author-batch', prose: 'Вот это кадр: мокрая ткань легла как вторая кожа, сосок читается сквозь блузку — канон.' })).worthy &&
+          !authorGazeWorthy(mkEvt('render.verdict', { source: 'author-batch', prose: 'норм' })).worthy &&
+          !authorGazeWorthy(mkEvt('render.verdict', { source: 'vlm', prose: 'Длинная проза машины не считается взглядом автора — это аналитика, не высказывание автора о кадре.' })).worthy
+      )
+      const tmpQ = `thread4/.selftest-corpus-${Date.now()}.jsonl`
+      try { fsMod.rmSync(tmpQ, { force: true }) } catch { /* ... */ }
+      const fed = feedCorpusQueue(
+        mkEvt('render.verdict', { source: 'author-batch', slug: 'T4-94', mode: 'light', verdict: 'keep', prose: 'Мокрая ткань легла как вторая кожа — держим канал, это золото для корпуса.' }),
+        tmpQ
+      )
+      const notFed = feedCorpusQueue(
+        mkEvt('render.verdict', { source: 'author-batch', slug: 'T4-94', prose: 'коротко' }),
+        tmpQ
+      )
+      const lines = fsMod.existsSync(tmpQ) ? fsMod.readFileSync(tmpQ, 'utf8').split('\n').filter(Boolean) : []
+      try { fsMod.rmSync(tmpQ, { force: true }) } catch { /* ... */ }
+      check(
+        'corpus: очередь пишет batch-вердикт с лейблом, короткую прозу не пишет (U6 без дублей мусора)',
+        fed && !notFed && lines.length === 1 &&
+          JSON.parse(lines[0]).slug === 'T4-94' &&
+          JSON.parse(lines[0]).verdict === 'keep' &&
+          JSON.parse(lines[0]).source === 'author-batch'
       )
     }
 

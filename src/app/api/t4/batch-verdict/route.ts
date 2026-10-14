@@ -9,6 +9,7 @@ import { NextResponse } from 'next/server'
 import path from 'node:path'
 
 import { appendEvent, readEvents } from '@/lib/t4/events'
+import { feedCorpusQueue } from '@/lib/t4/corpus'
 import { requireCommander, requireRead } from '@/lib/t4/apiguard'
 import { BATCHES_DIR, CONTRACTS_DIR, readJson, readText } from '@/lib/t4/fsutil'
 import { extractBatchTitle } from '@/lib/t4/gates'
@@ -122,7 +123,10 @@ export async function POST(req: Request) {
       title: themeL,
       prose,
     })
-    return NextResponse.json({ ok: true, event: evtL, light: true, verdict: label })
+    /* Ревизия 2026-10-14: взгляд автора из ЛЕГКОГО вердикта тоже едет в
+     * очередь золотого корпуса — раньше кормил только events-роут. */
+    const queuedL = feedCorpusQueue(evtL)
+    return NextResponse.json({ ok: true, event: evtL, light: true, verdict: label, queued: queuedL })
   }
 
   const rawSlots = Array.isArray(body.slots) ? body.slots.slice(0, 60) : []
@@ -269,7 +273,11 @@ export async function POST(req: Request) {
       : undefined,
     prose,
   })
-  return NextResponse.json({ ok: true, event: evt, scoreboard })
+  /* Ревизия 2026-10-14 (категория 3.5): батч-вердикт «одной записью» теперь
+   * кормит очередь золотого корпуса — слепая зона закрыта: автор пишет
+   * вердикты здесь, значит взгляды ≥40 символов должны попадать в U6. */
+  const queued = feedCorpusQueue(evt)
+  return NextResponse.json({ ok: true, event: evt, scoreboard, queued })
 }
 
 export async function GET(req: Request) {

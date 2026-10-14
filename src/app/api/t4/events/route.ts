@@ -1,9 +1,8 @@
-import fs from 'node:fs'
-import path from 'node:path'
 import { NextResponse } from 'next/server'
 
 import { clientErrorMessage, commanderKeyMatches, requireCommander, requireRead } from '@/lib/t4/apiguard'
 import { appendEvent, EVENT_TYPES, readEvents } from '@/lib/t4/events'
+import { feedCorpusQueue } from '@/lib/t4/corpus'
 import { readCommanderKey } from '@/lib/t4/fsutil'
 
 export const dynamic = 'force-dynamic'
@@ -69,32 +68,11 @@ export async function POST(req: Request) {
   try {
     const evt = appendEvent(type, summary, body.data)
     /* Corpus 2.0 (U6): взгляды автора ≥40 символов — в очередь золотого
-       корпуса; ритуал кураторства (клёво/мусор/анти) решает попадание в спеку */
-    if (type === 'render.verdict' && evt.data && typeof evt.data.prose === 'string') {
-      const prose = (evt.data.prose as string).trim()
-      const src = String(evt.data.source ?? '')
-      if (prose.length >= 40 && src.startsWith('author')) {
-        try {
-          fs.appendFileSync(
-            path.join(process.cwd(), 'thread4', 'corpus-queue.jsonl'),
-            JSON.stringify({
-              id: evt.id,
-              at: evt.at,
-              slug: evt.data.slug ?? '',
-              position: evt.data.position ?? '',
-              verdict: evt.data.verdict ?? '',
-              source: src,
-              confidence: evt.data.confidence ?? '',
-              prose: prose.slice(0, 400),
-            }) + '\n',
-            'utf-8'
-          )
-        } catch {
-          /* очередь не критична для записи вердикта */
-        }
-      }
-    }
-    return NextResponse.json({ ok: true, event: evt })
+       корпуса; ритуал кураторства решает попадание в спеку.
+       Ревизия 2026-10-14: правило переехало в lib/t4/corpus.ts —
+       батч-приёмник кормит ту же очередь (раньше только этот роут). */
+    const queued = feedCorpusQueue(evt)
+    return NextResponse.json({ ok: true, event: evt, queued })
   } catch (e) {
     /* рана при рождении (кодировка/размер) — отказ, а не битая история */
     return NextResponse.json({ error: clientErrorMessage(e) || 'append failed' }, { status: 422 })
