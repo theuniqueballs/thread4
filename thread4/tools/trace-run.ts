@@ -32,7 +32,7 @@ import { spawnSync } from 'node:child_process'
 const ROOT = process.cwd()
 const TRACE_DIR = path.join('/tmp', 't4-trace')
 const PRELOAD = path.join(ROOT, 'thread4', 'tools', 'trace-preload.cjs')
-const DOC_OUT = path.join(ROOT, 'thread4', 'docs', 'USAGE-MAP-2026-10-13.md')
+const DOC_OUT = path.join(ROOT, 'thread4', 'docs', 'USAGE-MAP-2026-10-14.md')
 const JSON_OUT = path.join(ROOT, 'thread4', 'docs', 'usage-map.json')
 
 type Entry = { name: string; files: string[] }
@@ -72,11 +72,17 @@ function parseSpecs(file: string): string[] {
   add(specs, DYN_IMPORT_RE)
   add(specs, REQUIRE_RE)
   add(specs, BARE_IMPORT_RE)
-  return [...specs].filter((s) => s.startsWith('.') || s.startsWith('/'))
+  /* '@/'-алиас (tsconfig paths) — родной импорт роутов/UI, не терять */
+  return [...specs].filter((s) => s.startsWith('.') || s.startsWith('/') || s.startsWith('@/'))
 }
 
 function resolveSpec(fromFile: string, spec: string): string | null {
-  const base = spec.startsWith('/') ? spec : path.resolve(path.dirname(fromFile), spec)
+  /* '@/' — tsconfig paths «@/* → ./src/*» (роуты и UI ходят только так) */
+  const base = spec.startsWith('@/')
+    ? path.join(ROOT, 'src', spec.slice(2))
+    : spec.startsWith('/')
+      ? spec
+      : path.resolve(path.dirname(fromFile), spec)
   const candidates = [
     base,
     base + '.ts',
@@ -266,13 +272,14 @@ function runCompileDry(): boolean {
 
 function buildReport(traces: Trace[], groups: Entry[], creationFiles: Set<string>): string {
   const L: string[] = []
-  L.push('# USAGE MAP — инструментированный прогон техпроцесса (2026-10-13)')
+  L.push('# USAGE MAP — инструментированный прогон техпроцесса (2026-10-14)')
   L.push('')
   L.push('Приказ: «запиши какие конкретно вещи и штуки используются для прогона».')
   L.push('Два слоя: СТАТИКА (import-граф — что ядро может вызвать) и ДИНАМИКА')
   L.push('(fs-трасса — что реально открыто на прогоне). Мутирующие стадии')
-  L.push('(compile/scribe/deliver) проверены в ПЕСОЧНИЦЕ /tmp/t4-sandbox —')
-  L.push('летопись настоящего репо не тронута ни одним событием.')
+  L.push('(compile/scribe/deliver) проверены в ПЕСОЧНИЦЕ .t4-sandbox/ (клон')
+  L.push('летописи, клон живёт в gitignored-папке проекта) — летопись')
+  L.push('настоящего репо не тронута ни одним событием.')
   L.push('')
 
   L.push('## 1. Статический import-граф (входы → замыкания)')
@@ -371,10 +378,10 @@ function main() {
     console.log(`fast: ${results.length - bad.length}/${results.length} команд живы${bad.length ? ` — ПАЛИ: ${bad.map((b) => b.name).join(', ')}` : ''}`)
   }
 
-  /* report: собрать все трассы из TRACE_DIR */
+  /* report: собрать все трассы из TRACE_DIR (stdout-протоколы — не трассы) */
   const traces: Trace[] = []
   for (const f of fs.readdirSync(TRACE_DIR).sort()) {
-    if (!f.endsWith('.log')) continue
+    if (!f.endsWith('.log') || f.includes('-stdout')) continue
     const t = readTrace(f.replace(/\.log$/, ''), path.join(TRACE_DIR, f))
     if (t) traces.push(t)
   }
