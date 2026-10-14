@@ -466,11 +466,11 @@ export function historicalWindowFor(
   batchSlug: string,
   state: { batches: { slug: string; deliveredAt?: string | null }[]; windowSlugs: string[] }
 ): string[] {
-  const mine = state.batches.find((b) => b.slug === batchSlug)
-  if (!mine?.deliveredAt) return state.windowSlugs
+  const mineAt = state.batches.find((b) => b.slug === batchSlug)?.deliveredAt
+  if (!mineAt) return state.windowSlugs
   return state.windowSlugs.filter((w) => {
-    const wm = state.batches.find((b) => b.slug === w)
-    return !wm?.deliveredAt || wm.deliveredAt <= mine.deliveredAt
+    const wmAt = state.batches.find((b) => b.slug === w)?.deliveredAt
+    return !wmAt || wmAt <= mineAt
   })
 }
 
