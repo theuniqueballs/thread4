@@ -194,7 +194,7 @@ export interface FidelitySlot {
  *  kin-block.ts: раса обязана ФИЗИЧЕСКИ работать в кадре (закон №3). */
 function kinTokensOf(
   raceName: string,
-  racesSpec: { races: { name: string; features: string[] }[] } | null
+  racesSpec: { races: { name: string; features?: string[] }[] } | null
 ): string[] {
   const out = new Set<string>()
   const name = raceName.trim()
@@ -232,7 +232,7 @@ function kinTokensOf(
 export function contractFidelity(
   contract: { slots: FidelitySlot[] },
   batch: ParsedBatch,
-  racesSpec: { races: { name: string; features: string[] }[] } | null = null
+  racesSpec: { races: { name: string; features?: string[] }[] } | null = null
 ): string[] {
   const f: string[] = []
   const esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
