@@ -1379,6 +1379,34 @@ async function main() {
         nextBatchNumber(st.batches) === 94
       )
       check('нумерация: чистый лист стартует с T4-01', nextBatchNumber([]) === 1)
+      /* Ревизия 2026-10-14 (3.8/3.13): Стекло считает гейты из летописи,
+       * не из легенды — receipts последнего gate.run единственный источник */
+      {
+        const { gatesHealthFromEvents } = await import('../src/lib/t4/gates')
+        const gh = gatesHealthFromEvents([
+          mk('2026-01-03T00:00:01Z', 'gate.run', {
+            slug: 'T4-91',
+            run: 1,
+            hardPass: false,
+            receipts: [
+              { gate: 'structure', level: 'hard', verdict: 'FAIL' },
+              { gate: 'raw-plus', level: 'hard', verdict: 'PASS' },
+              { gate: 'simcheck', level: 'warn', verdict: 'WARN' },
+              { gate: 'freq-report', level: 'advisory', verdict: 'REPORT' },
+            ],
+          }),
+        ])
+        check(
+          'gateHealth: из receipts последнего прогона — hard/warn/advisory/условные/база считаются (3.8)',
+          gh.hard === 1 && gh.warn === 1 && gh.advisory === 1 && gh.conditional === 1 &&
+            gh.base === 3 && gh.runTotal === 4 && gh.lastRun?.slug === 'T4-91' &&
+            gh.lastRun.hardPass === false
+        )
+        check(
+          'gateHealth: прогонов нет — фолбэк на кодовую базу GATES_TOTAL (не ноль, не легенда)',
+          gatesHealthFromEvents([]).base === 25 && gatesHealthFromEvents([]).lastRun === null
+        )
+      }
       const { isSafeSlug } = await import('../src/lib/t4/fsutil')
       check(
         'slug-гвард: легальные слаги T4-29 / T4-27.2-EXP проходят, ../ и абсолютные пути — нет',

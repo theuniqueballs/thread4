@@ -10,7 +10,7 @@ import crypto from 'node:crypto'
 import path from 'node:path'
 
 import { assertSafeSlug, BATCHES_DIR, CONTRACTS_DIR, readJson, readText } from './fsutil'
-import { appendEvent, foldState, readEvents } from './events'
+import { appendEvent, foldState, readEvents, type T4Event } from './events'
 import { getBans, getCarriers, getOCCanon, getRaces, getRatingRecipes, getRatingTechniques, type TechniqueEntry } from './specs'
 import { LAWS, observableSlotCount } from './compiler'
 import { TIER_RANK as TIER_ORDER } from './verdicts'
@@ -51,6 +51,66 @@ export interface GatesResult {
  *  26–28 квитанций. Ревизия 2026-10-14: +contract-fidelity (warn) —
  *  сверка батча с контрактом, кино-сдвиг T4-30. */
 export const GATES_TOTAL = 25
+
+/* ------------------------------------------------------------------ */
+/* Gates health — живой счётчик из летописи (ревизия 2026-10-14, 3.8/3.13) */
+/* ------------------------------------------------------------------ */
+
+/** Условные гейты — вне базового счёта (маркер-зависимые, см. GATES_TOTAL). */
+const CONDITIONAL_GATES = new Set(['raw-plus', 'rating-recipe-exploratory', 'raw-plus-exploratory'])
+
+export interface GatesHealth {
+  /** квитанций в последнем прогоне (всего) */
+  runTotal: number
+  /** базовых гейтов (без условных) — динамический наследник GATES_TOTAL */
+  base: number
+  conditional: number
+  hard: number
+  warn: number
+  advisory: number
+  lastRun: { slug: string; run: number; at: string; hardPass: boolean } | null
+}
+
+/** Здоровье гейтов из ПОСЛЕДНЕГО gate.run летописи: ручные счётчики и
+ *  легенды в state-роуте протухали (№23/№25/№26/№27 перечислены руками,
+ *  25–27 «квитанций» — догадка). Receipts пишутся в каждый прогон —
+ *  еда Retirement Protocol (#18) уже есть, Стекло читает её же. */
+export function gatesHealthFromEvents(events: T4Event[]): GatesHealth {
+  const runs = events.filter((e) => e.type === 'gate.run')
+  const last = runs.at(-1)
+  const receipts = (last?.data?.receipts ?? []) as { gate: string; level: string }[]
+  if (receipts.length === 0 || !last) {
+    return {
+      runTotal: 0,
+      base: GATES_TOTAL,
+      conditional: 0,
+      hard: 0,
+      warn: 0,
+      advisory: 0,
+      lastRun: null,
+    }
+  }
+  const levels = { hard: 0, warn: 0, advisory: 0 } as Record<string, number>
+  let conditional = 0
+  for (const r of receipts) {
+    if (CONDITIONAL_GATES.has(r.gate)) conditional += 1
+    else if (r.level in levels) levels[r.level] += 1
+  }
+  return {
+    runTotal: receipts.length,
+    base: receipts.length - conditional,
+    conditional,
+    hard: levels.hard,
+    warn: levels.warn,
+    advisory: levels.advisory,
+    lastRun: {
+      slug: String(last.data?.slug ?? ''),
+      run: Number(last.data?.run ?? 0),
+      at: last.at,
+      hardPass: Boolean(last.data?.hardPass),
+    },
+  }
+}
 
 /* ------------------------------------------------------------------ */
 /* Batch file parsing                                                  */

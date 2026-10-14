@@ -4,7 +4,7 @@ import { readLocked, requireRead } from '@/lib/t4/apiguard'
 
 import { foldState, nextBatchNumber, readEvents, verifyChain } from '@/lib/t4/events'
 import { specInventory } from '@/lib/t4/specs'
-import { GATES_TOTAL } from '@/lib/t4/gates'
+import { gatesHealthFromEvents, GATES_TOTAL } from '@/lib/t4/gates'
 import { listFiles, BATCHES_DIR, readCommanderKey, readText } from '@/lib/t4/fsutil'
 import { scanSource } from '@/lib/t4/hygiene'
 import path from 'node:path'
@@ -23,7 +23,14 @@ export async function GET(req: Request) {
   const poses = inv.find((s) => s.id === 'poses')
   const palettes = inv.find((s) => s.id === 'palettes')
   const delivered = state.batches.filter((b) => b.deliveredAt)
-  const last = delivered[delivered.length - 1]
+  /* Ревизия 2026-10-14 (категория 3.6): «последний» = последним СДАН по
+   * времени, а не последний по алфавиту слагов — foldState сортирует по
+   * слагу, и «T4-09» > «T4-10» лексически: будущие T4-100+/с ледяные
+   * суффиксы переворачивали бы порядок молча. */
+  const last = delivered.reduce<(typeof delivered)[number] | null>(
+    (acc, b) => (!acc || (b.deliveredAt ?? '') > (acc.deliveredAt ?? '') ? b : acc),
+    null
+  )
   // следующий номер — max+1 по всем слагам (аудит 2026-10-12: void-номера
   // НЕ переиспользуются — провенанс закрытого батча неприкосновенен)
   const nextNum = nextBatchNumber(state.batches)
@@ -32,12 +39,22 @@ export async function GET(req: Request) {
       ? `T4-${String(nextNum).padStart(2, '0')} — ждёт тему от автора`
       : `T4-${String(nextNum).padStart(2, '0')} — следующий цикл`
 
+  /* Ревизия 2026-10-14 (категория 3.8/3.13): gateHealth пересчитывается из
+   * receipts ПОСЛЕДНЕГО gate.run (слепки пишутся в каждый прогон — еда
+   * Retirement Protocol #18 уже есть, Стекло теперь читает её же). Ручная
+   * легенда «№23/№25/№26/№27 + 25–27 квитанций» протухла бы с первым же
+   * новым гейтом/батчем — числа теперь живые, источник один: летопись. */
+  const health = gatesHealthFromEvents(events)
+  const gateHealth = health.lastRun
+    ? `hard ${health.hard} · warn ${health.warn} · advisory ${health.advisory}${health.conditional ? ` · +${health.conditional} условных (RAW+/⚗)` : ''} = ${health.runTotal} квитанций — последний прогон ${health.lastRun.slug} #${health.lastRun.run} (${health.lastRun.at.slice(0, 16).replace('T', ' ')}, hard ${health.lastRun.hardPass ? 'PASS' : 'FAIL'}) — счёт из receipts, не из легенды`
+    : `hard / warn / advisory — прогонов в летописи нет, база из кода: ${GATES_TOTAL}`
+
   return NextResponse.json({
     era: 'THREAD 4',
     lastBatch: last ? `${last.slug}${last.title ? ` «${last.title}»` : ''}` : '— (эра только родилась)',
     nextStep,
-    gateHealth: `hard / warn / advisory — ${GATES_TOTAL} базовых гейтов + hard raw-plus на RAW+ батчах (№23/№25/№26/№27) — квитанций в прогоне 25–27`,
-    gatesTotal: GATES_TOTAL,
+    gateHealth,
+    gatesTotal: health.lastRun ? health.base : GATES_TOTAL,
     voidedSlugs: state.voidedSlugs,
     counts: {
       batches: delivered.length,
