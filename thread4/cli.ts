@@ -410,6 +410,54 @@ async function main() {
     return
   }
 
+  if (cmd === 'recover') {
+    /* Ревизия 2026-10-14 (категория 3.1): FORENSICS-блок persist.ts
+       (recoverReport/recoverApply, ~120 строк) был мёртвым грузом с
+       2026-09-23 — ценные функции без входа. Теперь вход есть:
+         recover          — сухой отчёт: что съедено откатами платформы
+         recover --apply  — восстановить недостающее + note в летопись
+       Сканирует reflog + rev-list --all (включая осиротевшие коммиты):
+       откат платформы не удаляет историю — он лишь уводит её за HEAD. */
+    const { recoverReport, recoverApply } = await import('../src/lib/t4/persist')
+    const apply = process.argv[3] === '--apply'
+    if (apply) {
+      const { report, restored } = recoverApply((line) => console.log(`  ${line}`))
+      if (!report) {
+        console.error('recover: git-корня нет — восстанавливать не из чего')
+        process.exit(1)
+      }
+      if (restored.length === 0) {
+        console.log(`recover: нечего восстанавливать — ${report.candidates.length} кандидатов, все на месте (head ${report.head.slice(0, 10)}, просканировано ${report.scannedCommits} коммитов)`)
+        return
+      }
+      appendEvent(
+        'note',
+        `recover --apply: восстановлено ${restored.length} файл(ов) из git-истории после отката платформы — ${restored.slice(0, 8).join(', ')}${restored.length > 8 ? ` … +${restored.length - 8}` : ''}`,
+        { kind: 'recover', restored, head: report.head, candidates: report.candidates.length }
+      )
+      console.log(`recover: восстановлено ${restored.length}, снапшот-коммит persist, note в летописи`)
+      return
+    }
+    const report = recoverReport()
+    if (!report) {
+      console.error('recover: git-корня нет — восстанавливать не из чего')
+      process.exit(1)
+    }
+    if (report.candidates.length === 0 && report.diskDiffers.length === 0) {
+      console.log(`recover: чисто — летопись и файлы целы против всей истории (head ${report.head.slice(0, 10)}, просканировано ${report.scannedCommits} коммитов, включая осиротевшие из reflog)`)
+      return
+    }
+    console.log(`recover: head ${report.head.slice(0, 10)}, просканировано ${report.scannedCommits} коммитов (reflog + all refs)`)
+    for (const c of report.candidates) {
+      console.log(`  [${c.kind === 'missing' ? 'ПРОПАЛ' : 'ОТКАЧЕН'}] ${c.path} ← ${c.commit.slice(0, 8)} (${new Date(c.commitTime * 1000).toISOString().slice(0, 16).replace('T', ' ')})`)
+    }
+    for (const d of report.diskDiffers) {
+      console.log(`  [ДРУГОЕ] ${d.path} — диск отличается от HEAD (свежая правка? коммить)`)
+    }
+    console.log(`recover: ${report.candidates.length} кандидат(ов) на восстановление — применить: bun thread4/cli.ts recover --apply`)
+    return
+  }
+
   if (cmd === 'grep-gate') {
     /* П-2: код не знает чисел треда — сканер ловит возврат хардкода */
     const violations = scanSource(path.join(process.cwd(), 'src', 'lib', 't4'))
@@ -1251,7 +1299,7 @@ async function main() {
     process.exit(fail === 0 ? 0 : 1)
   }
 
-  console.log('commands: seed | compile "theme" [engine] [oc1,oc2,oc3] [--pin x,y] | recompile T4-NN "theme" | scribe T4-NN | check T4-NN | gates T4-NN | deliver T4-NN | void T4-NN "reason" | state | drift T4-NN | stack T4-NN | chain | verify [--heal] | reaper | grep-gate | corpus | selftest')
+  console.log('commands: seed | compile "theme" [engine] [oc1,oc2,oc3] [--pin x,y] | recompile T4-NN "theme" | scribe T4-NN | polish T4-NN | check T4-NN | gates T4-NN | deliver T4-NN | void T4-NN "reason" | state | drift T4-NN | stack T4-NN | lists | diff | trial | chain | verify [--heal] | shore-merge | reaper | corpus | recover [--apply] | grep-gate | selftest')
 }
 
 main().catch((e) => {
