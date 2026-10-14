@@ -208,6 +208,11 @@ export interface TierRecipe {
       upper_claims?: string[]
       /** bare-under маркеры (braless-позитивы, §9-септима) */
       bare_under_marker?: string[]
+      /** ЗАКОН №28 (v1.9.0): теги, жёстко запрещённые на механизме
+       *  (через-теги на R+ = X-канал по определению) */
+      forbidden_tags?: string[]
+      /** №28: теги риска — квитанцией (гейт dresser), не блоком */
+      risk_tags?: string[]
     }
   >
   carrier_classes: string[]
@@ -226,6 +231,17 @@ export interface RatingRecipesSpec {
   tiers: Record<string, TierRecipe>
   eternal_floors: Record<string, string[]>
   default_spread: { mains_21: Record<string, number>; note: string }
+  /** ВЕСА RAW (закон-легализация, вердикт T4-31: «можно попробовать
+   *  подрочить веса 1.2, 1.1»): формат (tag:1.1), 0.8–1.2, ≤3/слот,
+   *  канал тира весом не обходится. */
+  weights_raw?: {
+    born: string
+    format: string
+    weights_allowed: number[]
+    policy: string
+    guard: string
+    exp_t4_32?: string
+  }
 }
 
 /* ------------------------- rating techniques ----------------------- */
