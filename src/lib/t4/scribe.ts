@@ -369,7 +369,7 @@ function slotFrame(slot: SlotPlan, ctx: ScribeCtx): string {
         `CLAIM ZONE = the lead zone (${slot.lead}), OPEN TO CAMERA, single layer + the claim target. Delivery is stochastic (~1/8): build the best-odds frame — the claim and its fabric state EARLY in the tag run (≤16th tag for mains, ≤22nd for OC), the same named garment carrying the claim. «Looks erotic but does nothing» is the failure this law kills.`
       )
     }
-    lines.push(`tier boundary: do NOT use higher-tier signals (${higherTierSignals(slot.rating, ctx.recipes).join(', ')}) — the counter-negatives are added by the machine`)
+    lines.push(tierBudgetLine(slot.rating, ctx.recipes, offerSignals, hardSignals))
   }
   /* Закон №27 (вердикт T4-28 — X-слайды «слишком прорисованы соски»):
    * тон несущей вещи назначен контрактом; through-заявка — только dark.
@@ -433,16 +433,58 @@ function closerHint(closer: string): string {
   }
 }
 
-function higherTierSignals(tier: string, recipes: Record<string, TierRecipe>): string[] {
+/** Запретные сигналы высших тиров для слота тира `tier` — ПОЛНЫЙ список
+ *  (T4-005). Экспорт для самотеста: гейт и промпт обязаны видеть один
+ *  и тот же список (окно истины). */
+export function higherTierSignals(tier: string, recipes: Record<string, TierRecipe>): string[] {
   const order: Record<string, number> = TIER_RANK
   const mine = order[tier] ?? 0
   const out: string[] = []
   for (const [key, rec] of Object.entries(recipes)) {
     const t = key === 'PG13' ? 'PG-13' : key === 'RPLUS' ? 'R+' : key
-    if ((order[t] ?? 0) > mine && t !== 'XXX') out.push(...(rec.signals ?? []).slice(0, 8))
+    /* T4-005 (Issues/thread4, 2026-10-14): раньше .slice(0, 8) на тир —
+     * «visible pantyline» (9-й в RPLUS-списке) не попадал в запрет писца,
+     * и ремонт играл в whack-a-mole: срезал «covered nipples» (из списка)
+     * и вписывал «visible pantyline» (за срезом). Гейт (gates.ts,
+     * overclaim-цикл) итерирует ПОЛНЫЙ список — окно истины теперь общее. */
+    if ((order[t] ?? 0) > mine && t !== 'XXX') out.push(...(rec.signals ?? []))
   }
   return [...new Set(out)]
 }
+
+/** T4-005: бюджет сигналов тира — строка промпта для slotFrame (и самотеста:
+ *  чистая функция тир × словари → строка). Двусторонний и ПОЛНЫЙ:
+ *  разрешённые (свой тир, ловушки отфильтрованы) + весь запретный список
+ *  (все высшие тиры без усечения) — до фикса запрет был усечён до 8
+ *  сигналов на тир, и ремонт перекатывал один сверхтировый сигнал в другой. */
+export function tierBudgetLine(
+  tier: string,
+  recipes: Record<string, TierRecipe>,
+  offerSignals: string[],
+  hardSignals: string[]
+): string {
+  const forbidden = higherTierSignals(tier, recipes)
+  const allowed =
+    offerSignals.length > 0 ? offerSignals.join(', ') : '— (no rating signals: pure genre slot)'
+  const claims = hardSignals.length > 0 ? `; render-proven claims: ${hardSignals.join(', ')}` : ''
+  return (
+    `TIER SIGNAL BUDGET (T4-005 — whack-a-mole killer): rating ${tier} — ALLOWED: ${allowed}${claims}. ` +
+    `FORBIDDEN anywhere in POS (tags AND prose): ${forbidden.join(', ')} — the machine counter-negatives catch ALL of these; ` +
+    `swapping one forbidden signal for another forbidden one is the SAME failure, not a fix.`
+  )
+}
+
+/* ------------------------------------------------------------------ */
+/* Repair prompt blocks (T4-005: один источник для scribeBatch и        */
+/* polishBatch — раньше 4 копии, правка одной = дрейф остальных)       */
+/* ------------------------------------------------------------------ */
+
+const REPAIR_BOILERPLATE = `NON-NEGOTIABLE BOILERPLATE (structure gate, §3 RENDER PHYSICS — ревизия 2026-10-14: ремонт чинил флаг и ронял фейс-лок, пинг-понг слотов P19/P21/P30): every POS you rewrite MUST contain — «anime style» opener · face block AS TAGS («stylized 2D anime face, anime eyes ([color], [expression]), small nose, small mouth») · «masterpiece, best quality, anime artstyle» closer. A rewrite that fixes the flagged finding but drops the face block FAILS the structure gate and the round is wasted.`
+
+/* T4-005 (Issues/thread4, инцидент T4-31: P19/P21/P30): ремонт менял НАБОР
+ * сверхтировых сигналов, а не класс ошибки — срезал «covered nipples» и
+ * вписывал «visible pantyline». Бюджет тира — закон и в ремонте. */
+const REPAIR_TIER_BUDGET = `TIER BUDGET (T4-005 — whack-a-mole killer): a rewrite that removes a flagged super-tier signal must not import ANOTHER signal from the slot's FORBIDDEN list (see TIER SIGNAL BUDGET in each slot below) — same tier, same channel, a DIFFERENT physical fact. Swapping «covered nipples» for «visible pantyline» is the same failure wearing a new coat.`
 
 /* ------------------------------------------------------------------ */
 /* NEG assembly (the machine half)                                     */
@@ -1075,7 +1117,7 @@ async function scribeBatchInner(
     if (failed.size === 0) break // nothing slot-specific to repair
     const repairSlots = contract.slots.filter((s) => failed.has(s.position))
     say(`  · ремонт слотов: ${[...failed].sort((a, b) => a - b).join(', ')}`)
-    const repairUser = `${batchLawBlock}\n\nREWRITE THESE SLOTS — they failed the machine gates. Keep what worked, fix what is flagged. Same exact format.\n\nNON-NEGOTIABLE BOILERPLATE (structure gate, §3 RENDER PHYSICS — ревизия 2026-10-14: ремонт чинил флаг и ронял фейс-лок, пинг-понг слотов P19/P21/P30): every POS you rewrite MUST contain — «anime style» opener · face block AS TAGS («stylized 2D anime face, anime eyes ([color], [expression]), small nose, small mouth») · «masterpiece, best quality, anime artstyle» closer. A rewrite that fixes the flagged finding but drops the face block FAILS the structure gate and the round is wasted.\n\n${repairSlots.map((s) => slotFrame(s, ctx)).join('\n\n')}\n\nGATE FAILURES TO FIX:\n${hardFails.flatMap((r) => r.findings.map((f) => `- [${r.gate}] ${f}`)).slice(0, 24).join('\n')}`
+    const repairUser = `${batchLawBlock}\n\nREWRITE THESE SLOTS — they failed the machine gates. Keep what worked, fix what is flagged. Same exact format.\n\n${REPAIR_BOILERPLATE}\n\n${REPAIR_TIER_BUDGET}\n\n${repairSlots.map((s) => slotFrame(s, ctx)).join('\n\n')}\n\nGATE FAILURES TO FIX:\n${hardFails.flatMap((r) => r.findings.map((f) => `- [${r.gate}] ${f}`)).slice(0, 24).join('\n')}`
     const raw = await chat(zai, systemPrompt(), repairUser, log)
     for (const [n, o] of parseSlots(raw)) {
       /* аудит 2026-10-12: ремонт пишет ТОЛЬКО позиции ремонт-набора —
@@ -1119,7 +1161,7 @@ async function scribeBatchInner(
       const backup = markdown
       const backupOutputs = new Map(outputs)
       const repairSlots = contract.slots.filter((s) => failedPolish.has(s.position))
-      const repairUser = `${batchLawBlock}\n\nREWRITE THESE SLOTS — they carry WARN-level QUALITY findings (the batch already passed all HARD gates — do NOT introduce any new fabric/claim/underlayer that could break them). Keep the same anchor, pose, palette, canon and stack. Keep what worked, fix what is flagged. Same exact format.\n\n${repairSlots.map((s) => slotFrame(s, ctx)).join('\n\n')}\n\nQUALITY FINDINGS TO FIX:\n${warnFindings.flatMap((r) => r.findings.map((f) => `- [${r.gate}] ${f}`)).slice(0, 24).join('\n')}`
+      const repairUser = `${batchLawBlock}\n\nREWRITE THESE SLOTS — they carry WARN-level QUALITY findings (the batch already passed all HARD gates — do NOT introduce any new fabric/claim/underlayer that could break them, and NEVER import signals from the slot's FORBIDDEN tier list — T4-005). Keep the same anchor, pose, palette, canon and stack. Keep what worked, fix what is flagged. Same exact format.\n\n${REPAIR_TIER_BUDGET}\n\n${repairSlots.map((s) => slotFrame(s, ctx)).join('\n\n')}\n\nQUALITY FINDINGS TO FIX:\n${warnFindings.flatMap((r) => r.findings.map((f) => `- [${r.gate}] ${f}`)).slice(0, 24).join('\n')}`
       const raw = await chat(zai, systemPrompt(), repairUser, log)
       for (const [n, o] of parseSlots(raw)) {
         /* аудит 2026-10-12: полировка тоже ограничена своим набором */
@@ -1324,7 +1366,7 @@ export async function polishBatch(
     if (failed.size === 0) break
     say(`  · ремонт слотов: ${[...failed].sort((a, b) => a - b).join(', ')}`)
     const repairSlots = contract.slots.filter((s) => failed.has(s.position))
-    const repairUser = `${batchLawBlock}\n\nREWRITE THESE SLOTS — they failed the machine gates. Keep what worked, fix what is flagged. Same exact format.\n\nNON-NEGOTIABLE BOILERPLATE (structure gate, §3 RENDER PHYSICS — ревизия 2026-10-14: ремонт чинил флаг и ронял фейс-лок, пинг-понг слотов P19/P21/P30): every POS you rewrite MUST contain — «anime style» opener · face block AS TAGS («stylized 2D anime face, anime eyes ([color], [expression]), small nose, small mouth») · «masterpiece, best quality, anime artstyle» closer. A rewrite that fixes the flagged finding but drops the face block FAILS the structure gate and the round is wasted.\n\n${repairSlots.map((s) => slotFrame(s, ctx)).join('\n\n')}\n\nGATE FAILURES TO FIX:\n${hardFails.flatMap((r) => r.findings.map((f) => `- [${r.gate}] ${f}`)).slice(0, 24).join('\n')}`
+    const repairUser = `${batchLawBlock}\n\nREWRITE THESE SLOTS — they failed the machine gates. Keep what worked, fix what is flagged. Same exact format.\n\n${REPAIR_BOILERPLATE}\n\n${REPAIR_TIER_BUDGET}\n\n${repairSlots.map((s) => slotFrame(s, ctx)).join('\n\n')}\n\nGATE FAILURES TO FIX:\n${hardFails.flatMap((r) => r.findings.map((f) => `- [${r.gate}] ${f}`)).slice(0, 24).join('\n')}`
     const raw = await chat(zai, systemPrompt(), repairUser, log)
     for (const [n, o] of parseSlots(raw)) {
       if (failed.has(n) && o.pos.trim()) outputs.set(n, o)
@@ -1354,7 +1396,7 @@ export async function polishBatch(
       const backup = markdown
       const backupOutputs = new Map(outputs)
       const repairSlots = contract.slots.filter((s) => failedPolish.has(s.position))
-      const repairUser = `${batchLawBlock}\n\nREWRITE THESE SLOTS — they carry WARN-level QUALITY findings (the batch already passed all HARD gates — do NOT introduce any new fabric/claim/underlayer that could break them). Keep the same anchor, pose, palette, canon and stack. Same exact format.\n\n${repairSlots.map((s) => slotFrame(s, ctx)).join('\n\n')}\n\nQUALITY FINDINGS TO FIX:\n${warnFindings.flatMap((r) => r.findings.map((f) => `- [${r.gate}] ${f}`)).slice(0, 24).join('\n')}`
+      const repairUser = `${batchLawBlock}\n\nREWRITE THESE SLOTS — they carry WARN-level QUALITY findings (the batch already passed all HARD gates — do NOT introduce any new fabric/claim/underlayer that could break them, and NEVER import signals from the slot's FORBIDDEN tier list — T4-005). Keep the same anchor, pose, palette, canon and stack. Same exact format.\n\n${REPAIR_TIER_BUDGET}\n\n${repairSlots.map((s) => slotFrame(s, ctx)).join('\n\n')}\n\nQUALITY FINDINGS TO FIX:\n${warnFindings.flatMap((r) => r.findings.map((f) => `- [${r.gate}] ${f}`)).slice(0, 24).join('\n')}`
       const raw = await chat(zai, systemPrompt(), repairUser, log)
       for (const [n, o] of parseSlots(raw)) {
         if (failedPolish.has(n) && o.pos.trim()) outputs.set(n, o)

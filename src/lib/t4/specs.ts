@@ -414,6 +414,17 @@ export function getPolicy(): PolicySpec {
   return p
 }
 
+/** Максимум видов (кинов) в брифе — закон посадки генератора
+ *  (gen-rawplus): каждый вид обязан получить мейна, ceil(q/2) сажается
+ *  в NICHE-слоты ⇒ q ≤ 2×nicheCount; потолок мейнов — вторая грань.
+ *  До T4-004 это знал только генератор и отказывал на СБОРКЕ; теперь
+ *  гвард брифа (contract-draft POST) и UI клэмпят на ВВОДЕ — один
+ *  источник истины для всех трёх (selftest сверяет инвариант). */
+export function speciesLawMax(): number {
+  const law = getPolicy().law
+  return Math.min(2 * law.nicheCount, law.mainsTotal)
+}
+
 export function getCarriers(): CarrierSpec | null {
   return load<CarrierSpec>('carriers.json')
 }

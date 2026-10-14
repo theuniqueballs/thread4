@@ -25,7 +25,7 @@ import { NextResponse } from 'next/server'
 import { appendEvent } from '@/lib/t4/events'
 import { requireCommander, requireRead } from '@/lib/t4/apiguard'
 import { DRAFTS_DIR, BATCHES_DIR, CONTRACTS_DIR, listFiles, writeJson, writeText } from '@/lib/t4/fsutil'
-import { getPolicy, getRaces } from '@/lib/t4/specs'
+import { getPolicy, getRaces, speciesLawMax } from '@/lib/t4/specs'
 
 export const dynamic = 'force-dynamic'
 
@@ -88,6 +88,9 @@ export async function GET(req: Request) {
    * Ревизия 2026-10-13: getPolicy() бросает при отсутствии — «?. … ?? 9»
    * были мёртвой веткой + захардкоженным дублем policy.expSlotsMax (П-2). */
   const expSlotsMax = getPolicy().law.expSlotsMax
+  /* T4-004 (Issues/thread4, 2026-10-14): закон посадки видов — гвард брифа
+   * получает его из policy, UI клэмпит пикер/ползунок по тому же числу. */
+  const speciesMax = speciesLawMax()
   /* список черновиков — бриф не исчезает после сохранения (ревью UI
    * 2026-10-11): слаг, тема, дата, кины, флаг «собран» (батч/контракт) */
   const drafts = listFiles(DRAFTS_DIR, '.json').map((f) => {
@@ -121,7 +124,7 @@ export async function GET(req: Request) {
       assembled,
     }
   })
-  return NextResponse.json({ nextSlug: nextSlug(), races, drafts, expSlotsMax })
+  return NextResponse.json({ nextSlug: nextSlug(), races, drafts, expSlotsMax, speciesMax })
 }
 
 export async function POST(req: Request) {
@@ -153,6 +156,52 @@ export async function POST(req: Request) {
     position: i + 1,
   }))
 
+  /* T4-004 (Issues/thread4, инцидент брифа T4-31: 17 видов при законе 14,
+   * счётчик 13 против списка 17): генератор отказывал на СБОРКЕ
+   * («посадочных мест 15 < видов 17») — ошибку надо ловить при ВВОДЕ.
+   * Гвард зеркалит закон gen-rawplus: дубликаты/неизвестные ID — 422;
+   * переполнение квоты (люди слот не тратят) — 422 с расшифровкой; счётчик
+   * и список — одно окно правды (список главнее, счётчик = длина списка). */
+  const speciesList = (Array.isArray(body.speciesList) ? body.speciesList.map(String).map((s) => s.trim()) : []).filter(Boolean)
+  const speciesOn = body.speciesOn === true
+  const racesById = new Map((getRaces()?.races ?? []).map((r) => [r.id, r]))
+  const kinIds = speciesList.filter((id) => (racesById.get(id)?.name ?? '').toLowerCase() !== 'human')
+  if (speciesOn && speciesList.length > 0) {
+    const dup = new Set<string>()
+    const seen = new Set<string>()
+    for (const id of speciesList) {
+      if (seen.has(id)) dup.add(id)
+      seen.add(id)
+    }
+    if (dup.size > 0) {
+      return NextResponse.json(
+        { error: `дубликаты видов в списке: ${[...dup].join(', ')} — генератор откажет на сборке (${speciesList.join(', ')})` },
+        { status: 422 }
+      )
+    }
+    const unknown = speciesList.filter((id) => !racesById.has(id))
+    if (unknown.length > 0) {
+      return NextResponse.json(
+        { error: `неизвестные виды: ${unknown.join(', ')} — races.json их не знает (генератор откажет на сборке)` },
+        { status: 422 }
+      )
+    }
+    /* люди — раса без признаков, кин-слот не тратит: в квоту не считаются
+     * (генератор молчит и сажает их «по умолчанию людьми») */
+    const kinQuota = kinIds.length
+    const speciesMax = speciesLawMax()
+    if (kinQuota > speciesMax) {
+      return NextResponse.json(
+        {
+          error: `видов ${kinQuota} > закона ${speciesMax}: посадочная матрица даёт ${speciesMax} кинов (NICHE-слоты ×2 + мейны, policy.law) — убери лишние из списка, иначе генератор откажет на сборке`,
+          speciesMax,
+          kinQuota,
+        },
+        { status: 422 }
+      )
+    }
+  }
+
   /* EXP-слоты поверх 24 (напоминание автора 2026-10-12): бюджет policy
    * law.expSlotsMax — UI не может заказать больше закона; нечётное не
    * запрещаем — генератор сам выравнивает в пары (радар ждёт A/B-пары). */
@@ -180,9 +229,11 @@ export async function POST(req: Request) {
     mainWishes: String(body.mainWishes ?? '').trim().slice(0, 2000),
     ...(themeWords.length > 0 ? { themeWords } : {}),
     species: {
-      on: body.speciesOn === true,
-      count: Number(body.speciesCount ?? 0) || 0,
-      list: Array.isArray(body.speciesList) ? body.speciesList.map(String) : [],
+      on: speciesOn,
+      /* T4-004: счётчик = длина списка, когда список задан (список главнее —
+       * §10); без списка клэмпится законом (ползунок UI тоже не выше) */
+      count: speciesList.length > 0 ? kinIds.length : Math.min(Number(body.speciesCount ?? 0) || 0, speciesLawMax()),
+      list: speciesList,
     },
     xSlots: Math.max(0, Math.min(2, Number(body.xSlots ?? 0) || 0)),
     abPairs: Math.max(0, Math.min(3, Number(body.abPairs ?? 0) || 0)),

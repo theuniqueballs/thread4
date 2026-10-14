@@ -25,7 +25,7 @@ import { scribeBatch } from '../src/lib/t4/scribe'
 import fs from 'node:fs'
 import path from 'node:path'
 import { appendEvent, bootstrapChain, foldState, healChainTail, nextBatchNumber, readEvents, verifyChain, type T4Event } from '../src/lib/t4/events'
-import { getDeliveryStats, getPolicy, specInventory } from '../src/lib/t4/specs'
+import { getDeliveryStats, getPolicy, specInventory, type TierRecipe } from '../src/lib/t4/specs'
 import { buildReaperDraft } from '../src/lib/t4/reaper'
 import { scanSource } from '../src/lib/t4/hygiene'
 import { isSafeSlug, writeText } from '../src/lib/t4/fsutil'
@@ -565,6 +565,62 @@ async function main() {
       const layers = new Set(ladder.map((e) => e.layer))
       check('синтет-скорер: wet+see-through кадр = 3+ сигнала через 2+ слоя',
         ladder.length >= 3 && layers.size >= 2)
+    }
+
+    /* T4-004 (Issues/thread4): закон посадки видов — гвард брифа и UI
+     * клэмпят speciesMax из policy; инвариант генератора (ceil(q/2) ≤
+     * niche) обязан выполняться на максимуме, иначе стена сборки вернётся */
+    {
+      const { speciesLawMax } = await import('../src/lib/t4/specs')
+      const smax = speciesLawMax()
+      const lawNow = getPolicy().law
+      check(
+        `T4-004: закон видов = min(2×niche ${lawNow.nicheCount}, mains ${lawNow.mainsTotal}) = ${smax}`,
+        smax === Math.min(2 * lawNow.nicheCount, lawNow.mainsTotal)
+      )
+      check(
+        `T4-004: инвариант посадки ceil(${smax}/2) ≤ niche ${lawNow.nicheCount} (генератор не откажет на максимуме)`,
+        Math.ceil(smax / 2) <= lawNow.nicheCount && smax <= lawNow.mainsTotal
+      )
+    }
+
+    /* T4-005 (Issues/thread4): бюджет сигналов тира — писец видит ПОЛНЫЙ
+     * запретный список (до фикса slice(0,8): «visible pantyline» был за
+     * срезом, ремонт перекатывал один сверхтировый сигнал в другой) */
+    {
+      const { higherTierSignals, tierBudgetLine } = await import('../src/lib/t4/scribe')
+      const { getRatingRecipes } = await import('../src/lib/t4/specs')
+      const rrNow = getRatingRecipes()
+      const tiers = (rrNow?.tiers ?? {}) as unknown as Record<string, TierRecipe>
+      const forbiddenR = higherTierSignals('R', tiers)
+      check(
+        'T4-005: запрет R полный — covered nipples И visible pantyline в списке (whack-a-mole закрыт)',
+        forbiddenR.includes('covered nipples') && forbiddenR.includes('visible pantyline')
+      )
+      check(
+        'T4-005: X-сигналы в запрете R (nipples, topless, nsfw), нижние тиры — нет (bikini не запрещён для R)',
+        forbiddenR.includes('nipples') && forbiddenR.includes('topless') && forbiddenR.includes('nsfw') && !forbiddenR.includes('bikini')
+      )
+      const rSignals = (rrNow?.tiers?.R?.signals ?? []).filter(
+        (s) => !/almost naked|torn clothes|clothes pull|covering breasts|hair covering|undressing|bath|onsen|braless|tight clothes/i.test(s)
+      )
+      const budgetR = tierBudgetLine('R', tiers, rSignals, [])
+      check(
+        'T4-005: строка бюджета R в промпте — ALLOWED (lingerie…) + FORBIDDEN + «same failure»',
+        budgetR.includes('lingerie') && budgetR.includes('FORBIDDEN') && budgetR.includes('SAME failure')
+      )
+      const budgetRplus = tierBudgetLine(
+        'R+',
+        tiers,
+        (rrNow?.tiers?.RPLUS?.signals ?? []).filter(
+          (s) => !/almost naked|torn clothes|clothes pull|covering breasts|hair covering|undressing|bath|onsen|braless|tight clothes/i.test(s)
+        ),
+        rrNow?.tiers?.RPLUS?.signals_hard ?? []
+      )
+      check(
+        'T4-005: бюджет R+ — claims в ALLOWED-строке, X-сигналы в FORBIDDEN (nipples, topless)',
+        budgetRplus.includes('covered nipples') && budgetRplus.includes('nipples, topless')
+      )
     }
 
     // compile determinism (dryRun — no events/files pollution)
