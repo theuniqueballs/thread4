@@ -1208,6 +1208,182 @@ function GenericTable({ items, depth }: { items: unknown[]; depth: number }) {
   )
 }
 
+
+/* ------------------------------------------------------------------ */
+/* Дрессер (квитанция №29, приказ автора из вердикта T4-31)            */
+/* ------------------------------------------------------------------ */
+
+function DresserView({ spec, filter }: { spec: unknown; filter: string }) {
+  const rec = asRecord(spec)
+  const doctrine = asStr(rec.doctrine)
+  const born = asStr(rec.born)
+  const channels = Object.entries(asRecord(rec.channels))
+  const categories = Object.entries(asRecord(rec.categories))
+  const conflicts = asArray(rec.conflicts).map(asRecord).filter((c) => Object.keys(c).length > 0)
+  const propLeg = asRecord(rec.prop_legibility)
+  const layerPolicy = asRecord(rec.layer_policy)
+  const weights = asRecord(rec.weights)
+
+  const chanVisible = channels.filter(([, v]) => matches(v, filter))
+  const catVisible = categories.filter(([, v]) => matches(v, filter))
+
+  if (chanVisible.length === 0 && catVisible.length === 0 && conflicts.length === 0) {
+    return <FilterEmpty filter={filter} />
+  }
+
+  return (
+    <div className="t4-scroll max-h-96 space-y-5 overflow-y-auto pr-1">
+      {doctrine ? (
+        <div className="rounded-md border border-amber-900/40 bg-amber-950/20 px-3 py-2">
+          <div className="mb-1 text-[10px] font-semibold uppercase tracking-widest text-amber-500/80">Доктрина №29</div>
+          <p className="text-xs leading-relaxed text-zinc-300">{doctrine}</p>
+          {born ? <p className="mt-1.5 text-[10px] leading-relaxed text-zinc-500">{born}</p> : null}
+        </div>
+      ) : null}
+
+      {chanVisible.length > 0 ? (
+        <div>
+          <div className="mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-zinc-500">
+            Каналы тиров (закон №28: через-ткань = X; R+ бугорки = P30-коктейль)
+          </div>
+          <div className="space-y-1.5">
+            {chanVisible.map(([key, v]) => {
+              const c = asRecord(v)
+              const state = asArray(c.state).map(asStr).filter(Boolean)
+              const forbidden = asArray(c.forbidden).map(asStr).filter(Boolean)
+              const receipt = asStr(c.receipt)
+              return (
+                <div key={key} className="rounded-md border border-zinc-800 bg-zinc-900/60 px-3 py-2">
+                  <div className="flex flex-wrap items-baseline gap-2">
+                    <span className="font-mono text-[11px] text-amber-300">{key}</span>
+                    <span className="text-xs text-zinc-300">{asStr(c.name)}</span>
+                    <Chip tone="zinc">{`закон ${asStr(c.law)}`}</Chip>
+                    <Chip tone="zinc">{`тон: ${asStr(c.tone)}`}</Chip>
+                  </div>
+                  {state.length > 0 ? (
+                    <div className="mt-1.5 flex flex-wrap gap-1">
+                      <span className="text-[10px] uppercase tracking-wider text-zinc-500">состояние:</span>
+                      {state.map((s) => (
+                        <Chip key={s} tone="emerald">{s}</Chip>
+                      ))}
+                    </div>
+                  ) : null}
+                  {forbidden.length > 0 ? (
+                    <div className="mt-1 flex flex-wrap gap-1">
+                      <span className="text-[10px] uppercase tracking-wider text-zinc-500">запрещено:</span>
+                      {forbidden.map((s) => (
+                        <Chip key={s} tone="rose">{s}</Chip>
+                      ))}
+                    </div>
+                  ) : null}
+                  <div className="mt-1 text-[11px] leading-relaxed text-zinc-500">
+                    {`подслой: ${asStr(c.underlayer)}`}
+                    {receipt ? ` · квитанция: ${receipt}` : ''}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      ) : null}
+
+      {catVisible.length > 0 ? (
+        <div>
+          <div className="mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-zinc-500">
+            Категории дресс-кода (сцена → семейство вещей)
+          </div>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="h-8 text-[10px]">ID</TableHead>
+                <TableHead className="h-8 text-[10px]">Сцена</TableHead>
+                <TableHead className="h-8 text-[10px]">Вещи</TableHead>
+                <TableHead className="h-8 text-[10px]">Когерентность</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {catVisible.map(([key, v]) => {
+                const cat = asRecord(v)
+                const items = asArray(cat.items).map(asStr).filter(Boolean)
+                return (
+                  <TableRow key={key}>
+                    <TableCell className="py-1.5 font-mono text-[11px] text-amber-300">{key}</TableCell>
+                    <TableCell className="py-1.5 text-xs text-zinc-300">{asStr(cat.name)}</TableCell>
+                    <TableCell className="py-1.5">
+                      <div className="flex flex-wrap gap-1">
+                        {items.map((it) => (
+                          <Chip key={it} tone="zinc">{it}</Chip>
+                        ))}
+                      </div>
+                    </TableCell>
+                    <TableCell className="py-1.5 text-[11px] leading-relaxed text-zinc-500">{asStr(cat.coherence)}</TableCell>
+                  </TableRow>
+                )
+              })}
+            </TableBody>
+          </Table>
+        </div>
+      ) : null}
+
+      {conflicts.length > 0 && matches(conflicts, filter) ? (
+        <div>
+          <div className="mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-zinc-500">
+            Конфликты категорий (T4-31: «нахуя с купальником эти бретельки»)
+          </div>
+          <div className="space-y-1.5">
+            {conflicts.map((c, i) => {
+              const pair = asArray(c.pair).map(asStr).filter(Boolean)
+              const rule = asStr(c.rule)
+              return (
+                <div key={i} className="rounded-md border border-rose-900/40 bg-rose-950/10 px-3 py-2">
+                  <div className="flex flex-wrap items-baseline gap-2">
+                    {pair.map((p, j) => (
+                      <span key={p} className="text-xs font-medium text-rose-200">
+                        {p}
+                        {j === 0 ? <span className="mx-1 text-zinc-500">×</span> : null}
+                      </span>
+                    ))}
+                    <Chip tone={rule === 'hard' ? 'rose' : 'amber'}>{rule}</Chip>
+                  </div>
+                  <p className="mt-1 text-[11px] leading-relaxed text-zinc-500">{asStr(c.why)}</p>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      ) : null}
+
+      {Object.keys(propLeg).length > 0 && matches(propLeg, filter) ? (
+        <div className="rounded-md border border-zinc-800 bg-zinc-900/60 px-3 py-2">
+          <div className="mb-1 text-[10px] font-semibold uppercase tracking-widest text-zinc-500">
+            {`P03-правило: ${asStr(propLeg.law)}`}
+          </div>
+          <p className="text-xs leading-relaxed text-zinc-400">{asStr(propLeg.text)}</p>
+          <p className="mt-1 text-[10px] text-zinc-600">{asStr(propLeg.receipt)}</p>
+        </div>
+      ) : null}
+
+      {Object.keys(layerPolicy).length > 0 && matches(layerPolicy, filter) ? (
+        <div className="flex flex-wrap gap-2">
+          <Chip tone="zinc">{`§7-бис: ≤${asStr(layerPolicy.max_per_zone)} слоя на зону`}</Chip>
+          <Chip tone="zinc">{`зона сигнала: ≤${asStr(layerPolicy.signal_zone_max)} слой`}</Chip>
+        </div>
+      ) : null}
+
+      {Object.keys(weights).length > 0 && matches(weights, filter) ? (
+        <div className="rounded-md border border-amber-900/40 bg-amber-950/20 px-3 py-2">
+          <div className="mb-1 text-[10px] font-semibold uppercase tracking-widest text-amber-500/80">
+            Веса RAW (легализация — вердикт T4-31)
+          </div>
+          <p className="text-xs leading-relaxed text-zinc-400">{asStr(weights.policy)}</p>
+          <p className="mt-1 text-[11px] leading-relaxed text-zinc-500">{asStr(weights.guard)}</p>
+          {asStr(weights.ref) ? <p className="mt-1 text-[10px] text-zinc-600">{asStr(weights.ref)}</p> : null}
+        </div>
+      ) : null}
+    </div>
+  )
+}
+
 function GenericSpecView({ data, filter }: { data: unknown; filter: string }) {
   if (Array.isArray(data)) {
     const filtered = data.filter((x) => matches(x, filter))
@@ -1472,6 +1648,8 @@ export function SpecView({ id, spec, filter }: { id: string; spec: unknown; filt
       return <PoolsView spec={spec} filter={filter} />
     case 'bans':
       return <BansView spec={spec} filter={filter} />
+    case 'dresser':
+      return <DresserView spec={spec} filter={filter} />
     default:
       return <GenericSpecView data={spec} filter={filter} />
   }
