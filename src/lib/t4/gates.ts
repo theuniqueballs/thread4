@@ -808,7 +808,7 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
             'закон №28: слово «sheer» на R+ — сквозь-заявка в самом слове (P04 sheer black под призмой → X, P26 sheer crop → X); бугорки-канал живёт БЕЗ sheer-слова'
           )
         }
-        if (bumps28.test(tagRun) && !dark28.test(tagRun)) {
+        if (bumps28 && !dark28.test(tagRun)) {
           msg28(
             'закон №28+№27: бугорки-канал (clothed/covered nipples) без тёмного слова-цвета — бугорки живут ТОЛЬКО на тёмной вещи (P30 oxblood/espresso — единственный выживший; светлые/серые вершины — каналы вне-ткани)'
           )
