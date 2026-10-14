@@ -544,6 +544,54 @@ export function getNicheDoors(): NicheDoorsSpec | null {
   return load<NicheDoorsSpec>('niche-doors.json')
 }
 
+/* ------------------------------ dresser ----------------------------- */
+
+export interface DressChannel {
+  name: string
+  law: string
+  tone: string
+  state: string[]
+  forbidden: string[]
+  underlayer: string
+  categories: string[]
+  receipt?: string
+}
+
+export interface DressCategory {
+  name: string
+  items: string[]
+  coherence: string
+  receipts?: string[]
+}
+
+export interface DressConflict {
+  pair: [string, string]
+  rule: string
+  why: string
+  tags: string[]
+}
+
+export interface DresserSpec {
+  version: string
+  born: string
+  doctrine: string
+  channels: Record<string, DressChannel>
+  categories: Record<string, DressCategory>
+  conflicts: DressConflict[]
+  prop_legibility: { law: string; text: string; receipt: string }
+  layer_policy: { law: string; max_per_zone: number; signal_zone_max: number; note: string }
+  weights: Record<string, string>
+  scene_hints: Record<string, string>
+}
+
+/** ДРЕССЕР (квитанция №29, приказ автора из вердикта T4-31): дресс-код
+ *  политика — категория сцены × канал тира №28 × тон × состояние;
+ *  конфликты категорий (garter+swim) запрещены до рендера. Данные —
+ *  specs/dresser.json; каналы тиров — rating-recipes v1.9.0. */
+export function getDresser(): DresserSpec | null {
+  return load<DresserSpec>('dresser.json')
+}
+
 export function allCarrierIds(spec: CarrierSpec): Carrier[] {
   return Object.values(spec.classes).flat()
 }
@@ -568,6 +616,8 @@ export function specInventory(): { id: string; name: string; count: number; vers
   if (he) out.push({ id: 'hair-eye-library', name: 'Библиотека волос/глаз (E3)', count: he.hair.length + he.eyes.length, version: he.version })
   const rr = getRatingRecipes()
   if (rr) out.push({ id: 'rating-recipes', name: 'Рейтинг-рецепты', count: Object.keys(rr.tiers).length, version: rr.version })
+  const dr = getDresser()
+  if (dr) out.push({ id: 'dresser', name: 'Дрессер (дресс-код №29)', count: Object.keys(dr.channels).length + Object.keys(dr.categories).length, version: dr.version })
   const rt = getRatingTechniques()
   if (rt) out.push({ id: 'rating-techniques', name: 'Техника-карта рейтинга', count: rt.techniques.length, version: rt.version })
   const ds = getDeliveryStats()

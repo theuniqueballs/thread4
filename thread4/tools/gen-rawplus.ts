@@ -37,6 +37,7 @@ import path from 'node:path'
 import { windowOthersFor } from '../../src/lib/t4/gates'
 import { foldState, readEvents } from '../../src/lib/t4/events'
 import { CONTRACTS_DIR, DRAFTS_DIR, readJson, writeJson, writeText } from '../../src/lib/t4/fsutil'
+import { channelsForTier, dressFor, frameLine, type DressCode, type FabricTone } from '../../src/lib/t4/dresser'
 import {
   getCarriers,
   getDeliveryStats,
@@ -233,8 +234,22 @@ export interface RawPlusSlot {
   targetChannel?: string
   targetChannelNote?: string
   echo?: string[]
-  /** Закон №27 (вердикт T4-28): тон несущей вещи на зоне заявки */
+  /** Закон №28 (вердикт T4-31, №27→№28): тон несущей вещи на зоне заявки */
   fabricTone?: 'dark' | 'mid' | 'light'
+  /** ДРЕССЕР (квитанция №29, приказ автора из вердикта T4-31): дресс-код
+   *  слота — канал тира × категория сцены × тон × состояние; инструкция
+   *  писцу вшивается в слот-фрейм (frameLine), квитанции — в гейт dresser */
+  dress?: {
+    channel: string
+    channelName: string
+    category: string
+    tone: string
+    garment: string
+    state: string[]
+    underlayer: string
+    weights: string[]
+    law: string
+  }
   /** EXP-гипотеза слота (вердикт T4-28: «не забывай про EXP промпты»);
    *  letter — греческая буква программы (маркер THESIS для радара) */
   exp?: { hypothesis: string; half?: 'A' | 'B'; pairWith?: number; letter?: string }
@@ -267,6 +282,9 @@ export interface PlanOptions {
   /** Живое состояние (main) или синтетика (selftest). Чистая функция. */
   windowSlugs: string[]
   ocAppearances: Record<string, number>
+  /** Веса RAW (v1.9.0 weights_raw, легализация — вердикт T4-31): EXP-режим
+   *  Дрессера — до 4 слотов несут весовые теги (A/B T4-32); по умолчанию выкл. */
+  weights?: boolean
 }
 
 /* ------------------------------------------------------------------ */
@@ -952,7 +970,74 @@ export function planRawPlus(opts: PlanOptions): RawPlusPlan {
     cand.fabricTone = 'mid'
   }
   report.push(
-    `ЗАКОН №27: тон вещи на ${rplusSlots.length} R+-слотах — dark ${toneCount('dark')} / mid ${toneCount('mid')} / light ${toneCount('light')} (through-заявка только на dark; §10-пары — тон на пару; кластер светлых ≤ 3 — вердикты T4-26/T4-28)${slots.some((s) => s.kind === 'EXP') ? ' + EXP-пара №27 (light/dark полюса)' : ''}`
+    `ЗАКОН №28 (принят, вердикт T4-31): тон вещи на ${rplusSlots.length} R+-слотах — dark ${toneCount('dark')} / mid ${toneCount('mid')} / light ${toneCount('light')} (бугорки-канал — ТОЛЬКО dark, DRY; light/mid верх — каналы вне-ткани: pantyline/tape/handbra/мокрый купальник P21; §10-пары — тон на пару; кластер светлых ≤ 3)${slots.some((s) => s.kind === 'EXP') ? ' + EXP-пара (полюса №28: dry-dark ↔ wet-light)' : ''}`
+  )
+
+  /* --- ДРЕССЕР (квитанция №29, приказ автора из вердикта T4-31: «система
+   *  Дрессер, которая решит проблемы и с сосками и с прозрачностью»):
+   *  дресс-код политика на каждом R+/X-слоте — канал тира №28 × категория
+   *  сцены × тон × состояние. Каналы ротируются (разнообразие подачи),
+   *  garment — из категории спека, weights — только по флагу --weights
+   *  (EXP-грамматика v1.9.0, максимум 2 от Дрессера). --- */
+  const sceneHint =
+    opts.theme
+      .toLowerCase()
+      .split(/[^a-zа-яё]+/)
+      .map((w) => w.trim())
+      .find((w) => ['beach', 'pool', 'onsen', 'gym', 'stage', 'street', 'hotel', 'bedroom', 'home', 'void', 'пляж', 'бассейн', 'зал', 'сцена', 'улица', 'отель', 'спальня', 'дом'].includes(w)) ?? ''
+  let weightsBudget = opts.weights ? 4 : 0 // максимум 4 весовых слота на батч (guard: ≤3 тега/слот)
+  const channelRot = new Map<string, number>()
+  /* канал — на ЕДИНИЦУ слота: §10-пара (ab) и EXP-пара (exp.pairWith) делят
+   * канал (одна заявка, разная подача — вердикт атрибутирует канал, не случай) */
+  const unitOf = (s: { ab?: { pair: string }; exp?: { pairWith?: number; half?: string } }): string =>
+    s.ab ? `ab:${s.ab.pair}` : s.exp?.pairWith ? `exp:${s.exp.pairWith}` : `solo:${(s as { position: number }).position}`
+  const unitChannel = new Map<string, string>()
+  for (const s of slots) {
+    if (s.kind === 'OC') continue
+    const tier = s.rating
+    if (tier !== 'R+' && tier !== 'X') continue
+    const tone: FabricTone = (s.fabricTone as FabricTone | undefined) ?? (tier === 'X' ? 'mid' : 'dark')
+    const unit = unitOf(s)
+    let channel = unitChannel.get(unit)
+    if (!channel) {
+      const candidates = channelsForTier(tier, tone)
+      if (candidates.length === 0) continue
+      const idx = channelRot.get(tier) ?? 0
+      channelRot.set(tier, idx + 1)
+      channel = candidates[idx % candidates.length]
+      unitChannel.set(unit, channel)
+    }
+    const wantWeights = weightsBudget > 0 && (channel === 'bumps' || channel === 'through') && s.kind === 'EXP'
+    if (wantWeights) weightsBudget--
+    const code: DressCode | null = dressFor({
+      tier,
+      tone,
+      channel,
+      sceneHint,
+      rng: rng.next,
+      wantWeights,
+    })
+    if (code) {
+      s.dress = {
+        channel: code.channel,
+        channelName: code.channelName,
+        category: code.category,
+        tone: code.tone,
+        garment: code.garment,
+        state: code.stateTags,
+        underlayer: code.underlayer,
+        weights: code.weights,
+        law: code.law,
+      }
+    }
+  }
+  const dressedCount = slots.filter((s) => s.dress).length
+  const channelCounts: Record<string, number> = {}
+  for (const s of slots) if (s.dress) channelCounts[s.dress.channel] = (channelCounts[s.dress.channel] ?? 0) + 1
+  report.push(
+    `ДРЕССЕР №29: ${dressedCount} слотов одеты по политике — ${Object.entries(channelCounts)
+      .map(([k, v]) => `${k} ×${v}`)
+      .join(' · ')} (категория по сцене${sceneHint ? ` «${sceneHint}»` : ''}; конфликты категорий гейтится; веса RAW: ${opts.weights ? 'ВКЛ (≤4 слота, A/B T4-32)' : 'выкл — флаг --weights'})`
   )
 
   /* --- echo-мотивы: 2-3, арка трёх актов, мутации из разных групп --- */
@@ -1059,6 +1144,7 @@ export function planRawPlus(opts: PlanOptions): RawPlusPlan {
       ...(s.diceSig ? { diceSig: s.diceSig } : {}),
       ...(s.dice ? { dice: s.dice } : {}),
       ...(s.fabricTone ? { fabricTone: s.fabricTone } : {}),
+      ...(s.dress ? { dress: s.dress } : {}),
       ...(s.exp ? { exp: s.exp } : {}),
       ...(s.ab ? { ab: s.ab } : {}),
       ...(s.targetChannel ? { targetChannel: s.targetChannel } : {}),
@@ -1140,15 +1226,28 @@ export function planMarkdown(plan: RawPlusPlan): string {
   L.push('')
   L.push('## Слоты')
   L.push('')
-  L.push('| P | Вид | Рейтинг | Палитра | Волосы / Глаза | Раса | Стек | Echo |')
-  L.push('|---|---|---|---|---|---|---|---|')
+  L.push('| P | Вид | Рейтинг | Дрессер | Палитра | Волосы / Глаза | Раса | Стек | Echo |')
+  L.push('|---|---|---|---|---|---|---|---|---|')
   for (const s of plan.slots) {
     const who = s.oc ? `OC ${s.oc}` : s.kind
+    const dress = s.dress ? `${s.dress.channel}${s.dress.weights.length > 0 ? ' ⚖' : ''}` : '—'
     L.push(
-      `| P${String(s.position).padStart(2, '0')} | ${who} | ${s.rating} | ${s.palette} | ${s.hairEyeFrom === 'canon' ? 'канон' : `${s.hair} / ${s.eyes}`} (${s.hairEyeFrom === 'suggestion' ? 'подск.' : s.hairEyeFrom === 'library' ? 'библ.' : '—'}) | ${s.race ? `${s.raceId} ${s.race}` : '—'} | ${s.carriers.map((x) => x.cls).join('')} | ${s.echo?.join(',') ?? ''} |`
+      `| P${String(s.position).padStart(2, '0')} | ${who} | ${s.rating} | ${dress} | ${s.palette} | ${s.hairEyeFrom === 'canon' ? 'канон' : `${s.hair} / ${s.eyes}`} (${s.hairEyeFrom === 'suggestion' ? 'подск.' : s.hairEyeFrom === 'library' ? 'библ.' : '—'}) | ${s.race ? `${s.raceId} ${s.race}` : '—'} | ${s.carriers.map((x) => x.cls).join('')} | ${s.echo?.join(',') ?? ''} |`
     )
   }
   L.push('')
+  const dressedSlots = plan.slots.filter((s) => s.dress)
+  if (dressedSlots.length > 0) {
+    L.push('## Дресс-коды (квитанция №29 — вплетаются писцом дословно)')
+    L.push('')
+    for (const s of dressedSlots) {
+      const d = s.dress!
+      L.push(
+        `- P${String(s.position).padStart(2, '0')} · канал «${d.channelName}» · ${d.category} · ${d.garment} · состояние: ${d.state.join(', ')} · подслой: ${d.underlayer}${d.weights.length > 0 ? ` · веса RAW: ${d.weights.join(' ')}` : ''}`
+      )
+    }
+    L.push('')
+  }
   if (plan.kinBlocks.length > 0) {
     L.push('## Расовые тег-блоки (закон №3 — вставляются в POS/NEG при сборке)')
     L.push('')
@@ -1274,6 +1373,7 @@ function main() {
   const rebuildOf = flag('--rebuild-of')
   const ocOrder = flag('--oc') ? flag('--oc')!.split(',').map((s) => s.trim()).filter(Boolean) : undefined
   const dry = has('--demo') || has('--dry')
+  const weights = has('--weights')
 
   /* живое состояние — только чтение, летопись не трогаем */
   const state = foldState(readEvents())
@@ -1289,6 +1389,7 @@ function main() {
     ...(exquisite !== undefined ? { exquisite } : {}),
     ...(rebuildOf ? { rebuildOf } : {}),
     ...(draft ? { draft } : {}),
+    ...(weights ? { weights } : {}),
     windowSlugs: state.windowSlugs,
     ocAppearances: state.ocAppearances,
   })

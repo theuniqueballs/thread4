@@ -12,6 +12,7 @@ import path from 'node:path'
 import { assertSafeSlug, BATCHES_DIR, CONTRACTS_DIR, readJson, readText } from './fsutil'
 import { appendEvent, foldState, readEvents, type T4Event } from './events'
 import { getBans, getCarriers, getOCCanon, getRaces, getRatingRecipes, getRatingTechniques, type TechniqueEntry } from './specs'
+import { checkCoherence } from './dresser'
 import { LAWS, observableSlotCount } from './compiler'
 import { TIER_RANK as TIER_ORDER } from './verdicts'
 
@@ -50,7 +51,7 @@ export interface GatesResult {
  *  raw-plus-exploratory (warn — при ⚗-маркерах): живой прогон даёт
  *  26–28 квитанций. Ревизия 2026-10-14: +contract-fidelity (warn) —
  *  сверка батча с контрактом, кино-сдвиг T4-30. */
-export const GATES_TOTAL = 25
+export const GATES_TOTAL = 26
 
 /* ------------------------------------------------------------------ */
 /* Gates health — живой счётчик из летописи (ревизия 2026-10-14, 3.8/3.13) */
@@ -772,6 +773,47 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
           }
         }
       }
+      // ЗАКОН №28 (ПРИНЯТ вердикт T4-31, EXP-изоляция тона 7/8 X):
+      // через-ткань = X-канал ПО ОПРЕДЕЛЕНИЮ. Жёсткие запреты на R+:
+      // (1) тег «nipples through clothing» — рендерер рисует ЦВЕТНОЙ сосок
+      // через любую ткань (P09 свитер, P12 не-сквозная жёлтая);
+      // (2) комбо «wet clothes»+«see-through» — X на любом тоне (P12/P25/P26);
+      // (3) слово «sheer» — сквозь-заявка в самом слове;
+      // (4) бугорки-канал (clothed/covered) без тёмного слова — №27 dark-only
+      // (P30 — единственный выживший). EXP ⚗ — квитанцией, не блоком (§10).
+      if (tier === 'R+') {
+        const dark28 =
+          /\b(black|ink|midnight|charcoal|espresso|dark|deep|oxblood|void|sumi|burgundy|wine|maroon|plum|chocolate|cocoa|aubergine|obsidian|onyx|raven|soot|sable|forest)\b/i
+        const swim28 = /\bswimsuit\b|\bbikini\b|\brash guard\b/i
+        const through28 = /\bnipples through clothing\b/i
+        const wetCombo28 = /\bwet clothes\b/i.test(tagRun) && /\bsee-through\b/i
+        const sheer28 = /\bsheer\b/i
+        const bumps28 = /\bclothed nipples\b|\bcovered nipples\b/i
+        const msg28 = (m: string) =>
+          isExploratory(s)
+            ? exploratoryFindings.push(`EXPLORATORY (§10, квитанция): P${s.position}: ${m}`)
+            : f.push(`P${s.position}: ${m}`)
+        if (through28) {
+          msg28(
+            'закон №28: «nipples through clothing» на R+ — через-заявка = X-канал ПО ОПРЕДЕЛЕНИЮ (рендерер рисует цветной сосок через любую ткань: P09 свитер, P12 не-сквозная жёлтая; P30-формула бугорков = DRY dark + covered-first + clinging + sweat)'
+          )
+        }
+        if (wetCombo28 && !swim28.test(tagRun)) {
+          msg28(
+            'закон №28: мокрое+сквозное на тканевом верхе = X-комбо на любом тоне (P12 deep-amber, P25 rose-pink, P26 black — все X); купальник — исключение (P21-золото), но тут не он'
+          )
+        }
+        if (sheer28) {
+          msg28(
+            'закон №28: слово «sheer» на R+ — сквозь-заявка в самом слове (P04 sheer black под призмой → X, P26 sheer crop → X); бугорки-канал живёт БЕЗ sheer-слова'
+          )
+        }
+        if (bumps28.test(tagRun) && !dark28.test(tagRun)) {
+          msg28(
+            'закон №28+№27: бугорки-канал (clothed/covered nipples) без тёмного слова-цвета — бугорки живут ТОЛЬКО на тёмной вещи (P30 oxblood/espresso — единственный выживший; светлые/серые вершины — каналы вне-ткани)'
+          )
+        }
+      }
       // counter-NEG: at least one boundary term present
       const counterHit = (recipe.counter_neg ?? []).some((t) => negLower.includes(t.toLowerCase()))
       if (!counterHit) {
@@ -824,6 +866,43 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
         findings: exploratoryFindings,
       })
     }
+  }
+
+  /* ---------------- 3-бис. dresser (warn, квитанция №29 — приказ автора
+   * из вердикта T4-31: «Предлагаю систему Дрессер…») — когерентность
+   * дресс-кода: конфликты категорий (garter+swim «нахуя эти бретельки»),
+   * №28-риски каналов на R+ (see-through / wet clothes на тканевом
+   * верхе — квитанцией, hard живёт в rating-recipe), слои §7-бис,
+   * P03-реквизит без контакт-глагола. ---------------- */
+  {
+    const f: string[] = []
+    for (const s of batch.slots) {
+      const tier = tierOf(s.meta)
+      if (!tier) continue
+      const firstDot = s.pos.indexOf('.')
+      const tagRun = (firstDot > 0 ? s.pos.slice(0, firstDot) : s.pos).toLowerCase()
+      const isExpl = s.header.includes('⚗')
+      // №28-риски (квитанции — осознанность, не блок)
+      if (tier === 'R+' && !isExpl) {
+        const swim = /\bswimsuit\b|\bbikini\b|\brash guard\b/i.test(tagRun)
+        if (/\bsee-through\b/i.test(tagRun)) {
+          f.push(
+            `P${s.position}: №28-риск: «see-through» на R+ — тег рисует просвет (P09: даже тёмный knit — X; P30 выжил лишь с «dark garment» и опозданием тега) — лучше опустить, бугорки живут без него`
+          )
+        }
+        if (/\bwet clothes\b/i.test(tagRun) && !swim) {
+          f.push(
+            `P${s.position}: №28-риск: «wet clothes» на тканевом верхе R+ — влага тянит в X (№27: тон не щит); DRY-формула P30 — «sweat glisting»; мокрый купальник — исключение (P21-золото)`
+          )
+        }
+      }
+      // Дрессер: конфликты категорий + слои + P03-реквизит
+      const tier28 = tier === 'R+' || tier === 'X' ? tier : 'R'
+      for (const r of checkCoherence({ tagRun, tier: tier28, isExploratory: isExpl })) {
+        f.push(`P${s.position}: ${r}`)
+      }
+    }
+    warn('dresser', f)
   }
 
   /* ---------------- 4. canon (hard) ---------------- */
@@ -2076,7 +2155,7 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
         if (tierOf(s.meta) === 'R+') {
           if (throughClaim27 && !garmentDark) {
             slotF.push(
-              `закон №27: through-заявка «nipples through clothing» на не-тёмной вещи${garmentTag27 ? ` («${garmentTag27}»)` : ' (цвет вещи не назван)'} — розовое проступит, слот скатится в X (7 квитанций T4-28; P08/P20 — R+ только на тёмном); канал светлой/средней ткани: covered nipples + clothed nipples + wet clothes/see-through/breast clinging`
+              `закон №28 (№27-наследие): through-заявка «nipples through clothing» — X-канал ПО ОПРЕДЕЛЕНИЮ на любом тоне${garmentTag27 ? ` («${garmentTag27}»)` : ' (цвет вещи не назван)'}: тег рисует цветной сосок через любую ткань (P09 свитер, P12 не-сквозная — T4-31); R+ бугорки = DRY dark + covered-first (P30)`
             )
           }
           if (lightOnChest && wetSheer27) {

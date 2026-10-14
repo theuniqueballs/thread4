@@ -1,0 +1,159 @@
+{
+ "version": "1.0.0",
+ "born": "2026-10-14 · вердикт T4-31, приказ автора дословно: «Предлагаю систему Дрессер, которая уже решит проблемы и с сосками и с прозрачностью и с прочей хуйнёй. …Какая-то понял, дресс-код политика должна присутствовать всё-таки»",
+ "doctrine": "АУТФИТ СОБИРАЕТСЯ ПО ПОЛИТИКЕ, А НЕ СЛУЧАЙНЫМИ ПРЕДМЕТАМИ: категория сцены → семейство вещей; канал тира → тон/состояние/подслой; конфликты категорий — запрещены до рендера. Дрессер решает структурно то, что теги решали по одному: соски (№28: канал-тон-состояние), прозрачность (sheer только в X-канале), слои (§7-бис как матрица), реквизит (легибильность действия).",
+ "channels": {
+  "bumps": {
+   "name": "бугорки без цвета (R+ через-ткань, единственный выживший)",
+   "law": "№28 (P30-коктейль, T4-31)",
+   "tone": "dark",
+   "state": ["covered nipples", "clothed nipples", "dark garment", "fabric clinging", "sweat glistening"],
+   "forbidden": ["nipples through clothing", "wet clothes", "sheer", "see-through", "light on chest"],
+   "underlayer": "nothing underneath (позитивно в тег-ране)",
+   "categories": ["street", "lounge", "active", "specialty"],
+   "receipt": "P30 «тут видно меньше, они без цвета, просто бугорки» — единственный R+ через-ткани из 25 заявок T4-31"
+  },
+  "swim_wet": {
+   "name": "мокрый купальник (R+ вне-ткани)",
+   "law": "P21-золото T4-31",
+   "tone": "any",
+   "state": ["swimsuit", "wet clothes", "covered nipples", "nothing underneath"],
+   "forbidden": ["nipples through clothing", "see-through", "garter straps", "thighhighs"],
+   "underlayer": "ничего (купальник самодостаточен)",
+   "categories": ["swim"],
+   "receipt": "«Я не люблю ван пис купальники но это прям заебись получилось» — функциональный вэт не сексуализируется рендерером"
+  },
+  "on_skin": {
+   "name": "на коже (R+: tape/handbra)",
+   "law": "рецепт v1.9.0 mechanisms.on_skin",
+   "tone": "any",
+   "state": ["taped nipples", "topless with tape", "handbra"],
+   "forbidden": ["bra", "camisole", "bandeau", "undershirt"],
+   "underlayer": "кожа + реквизит контакта",
+   "categories": ["lounge", "street", "specialty"],
+   "receipt": "вердикт T4-03: tape-конструкции хрупки, но живы"
+  },
+  "pantyline": {
+   "name": "нижняя заявка (R+ вне-груди)",
+   "law": "рецепт v1.9.0 (lower_claims)",
+   "tone": "any (dead_fabrics_lower!)",
+   "state": ["visible pantyline", "tight", "nothing underneath"],
+   "forbidden": ["jeans", "denim", "leather skirt", "leather pants", "suit", "sweatpants", "breeches", "trousers", "slacks", "vinyl", "suede"],
+   "underlayer": "без белья или named тонкая вещь",
+   "categories": ["street", "active", "lounge"],
+   "receipt": "finisher legs-apart-panties (T4-28 P22)"
+  },
+  "through": {
+   "name": "через-ткань цветом (X по определению)",
+   "law": "№28 (квитанции ×27)",
+   "tone": "any",
+   "state": ["nipples through clothing", "see-through", "wet clothes"],
+   "forbidden": ["bra", "camisole", "bandeau", "undershirt"],
+   "underlayer": "nothing underneath",
+   "categories": ["street", "lounge", "specialty"],
+   "receipt": "P09 свитер/P12 не-сквозная жёлтая — рендерер рисует тег, не физику"
+  },
+  "bare": {
+   "name": "обнажение (X bare-state)",
+   "law": "рецепт v1.9.0 X + X Cut hold (блок 9)",
+   "tone": "n/a",
+   "state": ["topless", "bare breasts", "nipples"],
+   "forbidden": ["covered breasts", "bra", "clothing on chest"],
+   "underlayer": "n/a",
+   "categories": ["lounge", "specialty"],
+   "receipt": "coverage-block NEG — инструмент доставки 2/2 (T4-03)"
+  }
+ },
+ "categories": {
+  "swim": {
+   "name": "пляж/бассейн/онсэн",
+   "items": ["one-piece swimsuit", "competition swimsuit", "rash guard", "swim shorts", "sarong wrap", "beach towel wrap"],
+   "coherence": "САМОДОСТАТОЧЕН: никогда не носит подвязки/чулки/пиджак/лифчик поверх; аксессуары — пляжные (парео, солнцезащитные очки, крем)",
+   "receipts": ["T4-31: «нахуя с купальником надевать эти бретельки которые держат чулки» — категориальная несовместимость"]
+  },
+  "lounge": {
+   "name": "дом/отель/спальня",
+   "items": ["oversized sleep shirt", "cami set", "silk robe", "knit cardigan (unbuttoned)", "sleep shorts", "bath towel wrap"],
+   "coherence": "домашняя многослойность мягкая: robe поверх cami — ок; строгий верх поверх белья — нет",
+   "receipts": ["T4-30 P06 hotel kimono"]
+  },
+  "street": {
+   "name": "улица/город/транспорт",
+   "items": ["blouse", "tee", "knit top", "shirt (open)", "cropped jacket", "mini skirt", "pleated skirt", "shorts", "dress"],
+   "coherence": "верх+низ в одном регистре (официальный верх + спортивный низ = конфликт); ≤2 слоя на зону (§7-бис)",
+   "receipts": ["T4-31 P11 «ну собсна рубашки это круто»", "T4-31 P10 сатиновая майка «выглядит эротично пиздец»"]
+  },
+  "active": {
+   "name": "зал/танец/бег",
+   "items": ["leotard", "sports bra set", "athletic tee", "track shorts", "gym leggings", "tennis skirt"],
+   "coherence": "спортивный комплект; купальник-для-спорта (leotard) — свой предмет, не пляжный",
+   "receipts": ["T4-31 P05 Sprinter's Set", "T4-26 форма wet light 17/25 — депрецирована №28"]
+  },
+  "formal": {
+   "name": "сцена/выход/галерея",
+   "items": ["gown (thigh-slit)", "stage dress", "opera gloves", "heel boots", "performance corset"],
+   "coherence": "сценический комплект держит жанр (№26: роль в костюме), разрез = заявка",
+   "receipts": ["T4-30 Stage Bow — роль-поза айдола"]
+  },
+  "specialty": {
+   "name": "нишевая тематика (WTF-концепт)",
+   "items": ["concept-forged item (по нише)", "slime-harness", "puppet-joint sleeves", "ghost-phasing shawl"],
+   "coherence": "предмет куется под концепт НИШИ и обязан объясняться действием (P03-правило)",
+   "receipts": ["P03: мерная лента без кадровой логики — «не понял чё за мерная лента нахуя она»"]
+  },
+  "intimates": {
+   "name": "интимный контекст (bedroom)",
+   "items": ["garter belt", "stockings", "thighhighs", "lingerie set", "sheer nightgown"],
+   "coherence": "подвязки живут ТОЛЬКО тут + formal-низ (юбка/платье); НИКОГДА с swim; чулки с поясом — комплект",
+   "receipts": ["T4-31 купальник+бретельки — запрет"]
+  }
+ },
+ "conflicts": [
+  {
+   "pair": ["garter straps", "swim"],
+   "rule": "hard",
+   "why": "T4-31 дословно: «нахуя с купальником надевать эти бретельки которые держат чулки» — нижнее бельё поверх пляжного = категориальная ошибка",
+   "tags": ["garter straps", "garter belt", "thighhighs", "stockings", "swimsuit", "bikini"]
+  },
+  {
+   "pair": ["activewear", "intimates"],
+   "rule": "warn",
+   "why": "спортивный верх + бельё-комплект — регистровый разрыв (осознанно — квитанция)",
+   "tags": ["sports bra", "track shorts", "garter belt", "stockings"]
+  },
+  {
+   "pair": ["formal", "athletic"],
+   "rule": "warn",
+   "why": "вечернее + спорт-низ — рендерер смешивает регистры (№26: жанр размывается)",
+   "tags": ["gown", "opera gloves", "gym leggings", "tennis skirt"]
+  }
+ ],
+ "prop_legibility": {
+  "law": "P03-правило (T4-31)",
+  "text": "WTF-реквизит обязан объясняться ДЕЙСТВИЕМ/ПОЗОЙ в кадре: мерная лента + портниха, меряющая себя — читается; лента на груди без смысла — «нахуя она». Реквизит-носитель темы всегда имеет контакт-глагол (wraps/measures/holds/threads) и зону контакта",
+  "receipt": "«не понял чё за мерная лента вокруг сисек нахуя она»"
+ },
+ "layer_policy": {
+  "law": "§7-бис (конституция)",
+  "max_per_zone": 2,
+  "signal_zone_max": 1,
+  "note": "зона сигнала — один слой; 3+ верхних слоя = рендерер собирает скромную комбинацию (RENDER LAW)"
+ },
+ "weights": {
+  "ref": "specs/rating-recipes.json → weights_raw (v1.9.0)",
+  "legality": "автор легализовал 2026-10-14: «можно попробовать подрочить веса 1.2, 1.1…» — только в RAW-тег-ране, максимум 3/слот, канал тира весом не обходится",
+  "exp_t4_32": "A/B: (covered nipples:1.1)+(fabric clinging:1.2) на бугорках против контроля; (nipples through clothing:1.2) на X; грязная отрисовка — (…:0.9)"
+ },
+ "scene_hints": {
+  "beach": "swim",
+  "pool": "swim",
+  "onsen": "swim",
+  "gym": "active",
+  "stage": "formal",
+  "street": "street",
+  "hotel": "lounge",
+  "bedroom": "intimates",
+  "home": "lounge",
+  "void": "specialty"
+ }
+}

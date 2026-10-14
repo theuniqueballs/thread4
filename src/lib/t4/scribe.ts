@@ -100,13 +100,15 @@ interface ScribeCtx {
 /* The scribe identity (system prompt)                                 */
 /* ------------------------------------------------------------------ */
 
-/* Золото — слот, который глаз автора ОЦЕНИЛ в вердикте T4-28: P20 — единственный
- * R+-слот с формулой сосков («лучший способ отобразить соски… бугорок есть,
- * розового нет — да и сам промпт охуенный»). Тёмная ткань + through-заявка —
- * эталон закона №27. Канонизированы: half-lidded→half-closed, tight
+/* Золото — P30, ЕДИНСТВЕННЫЙ выживший R+ через-ткани из 25 заявок T4-31
+ * (вердикт: «тут видно меньше, они без цвета, просто бугорки»): DRY тёмная
+ * вещь + covered-first + clinging + sweat — формула закона №28. Прежнее
+ * золото P20 (sheer black + see-through + nipples through) УБИТО тем же
+ * коктейлем в T4-31 P26 (X «очень чётко») — сохранилось здесь как
+ * предостережение. Канонизированы: half-lidded→half-closed, tight
  * clothes→tight (danbooru-канон, ресёрч 2026-10-11). */
-const GOLD_EXAMPLE = `P20 — void-sidesaddle-glow (VOLT · Moth-kin · R+ · PL127 · P38_VOID_BLOOD_ACCENT) — автор: «лучший способ отобразить соски… сам промпт охуенный» (R+)
-POS: anime style, ecchi anime style, original character, 1girl, solo, moth girl, feathered-curved antennae, dust-scales at the collarbone, small-dusted wings in cloak-fold, powder-pale skin, black hair, red eyes, sheer black crop top, see-through, nipples through clothing, clothed nipples, covered nipples, nothing underneath, extreme fanservice, tight, full-figured body, full chest, soft waist, staticky clothes, empty eyes, sitting on motorcycle, sidesaddle bike-sit, seat to the camera, close-up, void-deep jeans, absolute-black void with single blood-red accent, ivory-bone single light, charcoal-deep shadow, motorcycle headlamp light falling full on the sheer top, stylized 2D anime face, anime eyes (red, distant half-closed), small nose, small mouth, masterpiece, best quality, anime artstyle.`
+const GOLD_EXAMPLE = `P30 — autumn-rust-sports (EXP · — · R+ · PL146 · P12_AUTUMN_RUST) — автор: «тут видно меньше, они без цвета, просто бугорки» (R+, ЕДИНСТВЕННЫЙ выживший через-ткани)
+POS: anime style, ecchi anime style, original character, 1girl, solo, full-figured body, full chest, soft waist, oxblood-red knit top, dark-burgundy cutout sides, espresso-brown fabric, pale-gold accents, covered nipples, clothed nipples, nothing underneath, dark garment, fabric clinging, sweat glistening, tight, extreme fanservice, mid_wave_reach kinetic, umbrella shoulder-rest pose, chest to camera, close-up, warm_afternoon_golden_leaves_filter lighting off-frame, stylized 2D anime face, anime eyes (copper, flushed), small nose, small mouth, masterpiece, best quality, anime artstyle.`
 
 const SYSTEM_PROMPT = `You are THE HOUSE SCRIBE of THREAD 4, an anime-art prompt pipeline (Tsubaki.2 Pro renderer → Yodayo). You write single-image ecchi prompts. Your output is assembled by a machine into the batch file; malformed output breaks the machine — follow the format EXACTLY.
 
@@ -114,7 +116,7 @@ THE DELIVERY SHAPE (RAW+, закон №23 — приказ-миграция 202
 POS = ONE comma-separated TAG RUN ending with "masterpiece, best quality, anime artstyle."
 1. OPENER: anime style, ecchi anime style, original character, 1girl, solo,
 2. IDENTITY: race/species features (feature tags, not the race's name alone), hair, eyes, skin — canon colors VERBATIM in the first ~10 tokens; then BODY PLAN (3-5 form tags: petite/slender/athletic/curvy/full-figured family — registers are conveyed by FORM, never by age tags).
-3. SCENE: the named thin garment (its TONE is assigned by FABRIC TONE below — law №27) + contact-geometry (закон №24: where the body presses, rests, strains) + fabric STATE (wet clothes / see-through / breast clinging) + the tier claim tags + bare-under PHRASE («nothing underneath» — never the «braless» token, ζ-ревизия №16) + pose + framing tag (cowboy shot / upper body / close-up) + the scene's physical objects (witness, props with hand/foot anchors).
+3. SCENE: the named thin garment (its TONE and CHANNEL are assigned by FABRIC TONE / DRESS CODE below — закон №28) + contact-geometry (закон №24: where the body presses, rests, strains) + fabric STATE per the assigned channel (R+ bumps: fabric clinging / sweat gisting — DRY; X through: wet clothes / see-through; swim: wet clothes on a swimsuit) + the tier claim tags + bare-under PHRASE («nothing underneath» — never the «braless» token, ζ-ревизия №16) + pose + framing tag (cowboy shot / upper body / close-up) + the scene's physical objects (witness, props with hand/foot anchors).
 4. PALETTE: the slot's sd_fragment VERBATIM (dominants + secondary + edge as color-word tags) + the ONE saturated accent as a named color — colored fabrics, never default white (вердикт автора: «делай разноцветно»).
 5. FACE BLOCK as TAGS: stylized 2D anime face, anime eyes ([color], [expression]), small nose, small mouth,
 6. LIGHT ON THE CLAIM ZONE (закон №21): one light source falling ON the garment/zone the claim lives on — a glow word + the target.
@@ -132,9 +134,9 @@ ENV CAP (A2P13F:475-492): when the frame's focus is a claim zone (R+/X), the env
 
 THE DICE LAW (Ultimate Dice, A5P6 §3 — updated 2026-10-12): every slot carries a dice signature (A·B·C·D·E — the rolled SKELETON: identification order, clothing delivery, theme integration, light style, tag-run rhythm). OBEY it — it is the slot's structure, not a suggestion. Two slots of one batch NEVER share a skeleton: if your instinct writes the same opening/order/rhythm as a previous slot, the dice are there to break exactly that. Structural monotony is the mother of twins; the dice kill it at the root.
 
-THE RENDER LAW v1.3.0 (render verdicts T4-03 + T4-05): the renderer obeys fabric-STATE tags and coverage NEGs; it IGNORES shape-name tags. cameltoe NEVER rendered (0 attempts) — it is flavor at most, NEVER the claim. The R+ edge reads through ONE thin garment (blouse / tee / shirt / knit / swimsuit / leotard / romper / slip — tone per FABRIC TONE, закон №27) tagged wet clothes AND/OR see-through, with NO underlayer on the zone: name a bra/camisole/bandeau under a sheer top and the renderer draws the UNDERLAYER and the tier dies to R. Opaque structured fabrics (jeans, denim, leather, velvet, sweatpants, breeches, suit) never carry an edge. Delivery is stochastic — build the best-odds frame; the claim tags sit before the environment tags. THE THREE §9-септима RULES (T4-05 verdict): (1) BARE-UNDER AS A POSITIVE — a NEG lock is NOT enough, the renderer draws the bra OVER it (P07 receipt): the POS itself must assert the bare underlayer in the TAG RUN («nothing underneath» / «worn without underlayer» — never the «braless» token, ζ-ревизия №16); (2) FRAMING AS A TAG — the claim's framing lives in the TAG BLOCK (close-up / cowboy shot / upper body / portrait), never only in prose; (3) NO DANBOORU HOMONYMS — words that are foreign character names (aurora → aurora_(arknights), P08 receipt: «пробежал персонаж») appear ONLY as compounds (aurora borealis sky), never standalone. POSE-RISK: R+/X slots carry only LOW/MID poses (HIGH × R+ = mutation amplifier: P04 drift, P22 mutation, P17 undershoot) — the contract assigns the pose, never override it toward acrobatics. NEVER close the claim zone: no shawl/scarf/arms crossed over the chest claim (P21 receipt: «the frame's one closed door» — a blocker kills the slot before render).
+THE RENDER LAW v1.9.0 (render verdicts T4-03 + T4-05 + T4-31, закон №28): the renderer obeys fabric-STATE tags and coverage NEGs; it IGNORES shape-name tags. cameltoe NEVER rendered (0 attempts) — it is flavor at most, NEVER the claim. THE RENDERER DOES NOT SIMULATE FABRIC PHYSICS (T4-31: a colored nipple drawn through a SWEATER, P09, and a non-translucent yellow top, P12 — the tag is a COMMAND, not a description): «nipples through clothing» and «see-through»+wet draw the colored nipple through ANY fabric — they are X-TAGS; on R+ the edge is a BUMP WITHOUT COLOR on a DRY dark garment (P30 formula, NIPPLE CHANNEL LAW v2). An underlayer (bra/camisole/bandeau) under a sheer garment renders the UNDERLAYER — the tier dies to R. LIGHT ON THE ZONE LIGHTENS THE FABRIC (P04: black under a prism light rendered white → X) — R+ bumps keep the zone's light off-frame. Opaque structured fabrics (jeans, denim, leather, velvet, sweatpants, breeches, suit) never carry an edge. Delivery is stochastic — build the best-odds frame; the claim tags sit before the environment tags. THE THREE §9-септима RULES (T4-05 verdict): (1) BARE-UNDER AS A POSITIVE — a NEG lock is NOT enough, the renderer draws the bra OVER it (P07 receipt): the POS itself must assert the bare underlayer in the TAG RUN («nothing underneath» / «worn without underlayer» — never the «braless» token, ζ-ревизия №16); (2) FRAMING AS A TAG — the claim's framing lives in the TAG BLOCK (close-up / cowboy shot / upper body / portrait), never only in prose; (3) NO DANBOORU HOMONYMS — words that are foreign character names (aurora → aurora_(arknights), P08 receipt: «пробежал персонаж») appear ONLY as compounds (aurora borealis sky), never standalone. POSE-RISK: R+/X slots carry only LOW/MID poses (HIGH × R+ = mutation amplifier: P04 drift, P22 mutation, P17 undershoot) — the contract assigns the pose, never override it toward acrobatics. NEVER close the claim zone: no shawl/scarf/arms crossed over the chest claim (P21 receipt: «the frame's one closed door» — a blocker kills the slot before render).
 
-THE NIPPLE CHANNEL LAW (закон №27, вердикт T4-28 — авторское золото P20: «лучший способ отобразить соски: слегка видно, бугорок есть, розового цвета на кофте от них — нет»): the R+ edge is a BUMP WITHOUT COLOR. The renderer draws the NOUN a non-tag phrase leads with — «nipples through clothing» on a WET LIGHT/MID garment renders the pink THROUGH the fabric and the slot slides to X (7 receipts: P07/P09/P11/P14/P17/P19/P21, all X). RULES: (a) the through-claim («nipples through clothing» + «clothed nipples») rides ONLY a DARK garment (black / ink / midnight / charcoal / espresso / dark navy / deep navy / oxblood / burgundy / wine / maroon / plum / chocolate / cocoa / aubergine / obsidian / onyx / raven / soot / sable / dark red / deep red / dark green / forest green / dark brown / dark teal / dark purple / dark violet — the color word IN the garment's tag, one vocabulary with the №27 gate; P08 ink-indigo and P20 black receipts, both R+; night-blue is NOT dark — P09 receipt, X); (b) on a LIGHT or MID garment (white / ash / rain-grey / moss / umber / prussian — anything not dark) the channel is «covered nipples» + «clothed nipples» + the fabric STATE (wet clothes / see-through / breast clinging) — the T4-26 formula that delivered 17/25: wet light cloth clinging, bump, no drawn nipple; (c) «light on chest» is FORBIDDEN on sheer or wet tops (P14/P17 receipts — X): the zone's light is a SCENE glow falling ON the garment, never a light «on the chest»; (d) fabric TONE rotates — never more than 3 light carrying tops per batch (T4-26 verdict: «белая рубашка… хламит»); the contract assigns this slot's garment tone — obey it.
+THE NIPPLE CHANNEL LAW v2 (закон №28 ПРИНЯТ, вердикт T4-31: EXP-изоляция тона 7/8 X — квитанции ×27; приказ автора — система Дрессер): the R+ edge is a BUMP WITHOUT COLOR, and the ONLY surviving formula is DRY + DARK + covered-first: dark garment («oxblood-red knit top» / «black tee» — the color word IN the garment tag) + «covered nipples, clothed nipples» FIRST in the chest block + «dark garment» + «fabric clinging»/«breast clinging» + «sweat glistening» (NOT «wet clothes») + light OFF the zone (P04: prism light falling full on the fabric LIGHTENED it — white render, colored nipple, X). RULES: (a) «nipples through clothing» is an X-TAG — it draws a COLORED nipple through a sweater (P09) and a non-translucent yellow top (P12): the renderer does NOT simulate fabric physics, the tag is a COMMAND; NEVER write it on an R+ slot; (b) «see-through» + «wet clothes» together = the X-combo on ANY tone (P12 deep-amber, P25 rose-pink, P26 black — all X); «see-through» alone on R+ — only on a DARK garment, never on light/mid; (c) WET is legal at R+ ONLY on a swimsuit (P21 gold: «Я не люблю ван пис купальники но это прям заебись получилось» — functional swimwear wet is not over-sexualized); wet on a fabric top (blouse/knit/tee) = X-risk; (d) LIGHT/MID tops carry NO through-claims AT ALL — their R+ channels are pantyline / taped nipples / handbra / wet swimsuit; the T4-26 wet-light-covered formula (17/25 then) is DEPRECATED (T4-29 ×7, T4-30 ×6, T4-31 ×14 — all X); (e) «light on chest» is FORBIDDEN on sheer/wet tops; (f) fabric TONE rotates — never more than 3 light carrying tops per batch; the contract assigns this slot's garment tone AND the DRESS CODE (канал × категория) — obey both, the dress code's tags go in VERBATIM (квитанция №29, Дрессер).
 
 CANONICAL TAGS (danbooru strict-list research 2026-10-11 — the renderer was TRAINED on these): covered nipples, see-through, wet clothes, breast clinging, no bra, half-closed eyes, swept bangs, bandaid, tight, close-up, upper body, empty eyes, parted lips. Non-tag phrases («nipples through clothing», «light on chest», «tight clothes», «half-lidded eyes») are raw words: the renderer draws their LEADING NOUN. Prefer the canonical form whenever a choice exists («half-closed eyes» over «half-lidded», «tight» over «tight clothes»).
 
@@ -363,7 +365,7 @@ function slotFrame(slot: SlotPlan, ctx: ScribeCtx): string {
     lines.push(`REQUIRED rating signals — include ≥${recipe.signal_min} of these IN THE TAG BLOCK (before the environment tags): ${offerSignals.slice(0, 14).join(', ')}`)
     if (hardSignals.length > 0) {
       lines.push(
-        `HARD CLAIM (RENDER LAW v1.3.0, render verdicts T4-03 + T4-05): ≥${recipe.hard_min ?? 1} RENDER-PROVEN claim in the tag block — ${hardSignals.join(', ')}. cameltoe is NOT a claim (0 renders ever — flavor only). Through-fabric claims REQUIRE the fabric state tags (wet clothes / see-through / breast clinging) on ONE thin garment (tone per FABRIC TONE — закон №27), NO underlayer on the zone — and the POS must assert the bare underlayer POSITIVELY in the TAG RUN («nothing underneath» / «worn without underlayer» — never the «braless» token, ζ-ревизия №16: a NEG lock alone fails, the renderer draws the bra OVER it — P07 receipt). Frame the claim with a camera TAG (close-up / cowboy shot / upper body). Dead fabrics (jeans/denim/leather/velvet/sweatpants/breeches/suit) never carry the claim. NO danbooru homonyms standalone (aurora → aurora_(arknights) — only compounds). NEVER cross anything over the chest claim (shawl/arms = the frame's one closed door = dead slot, P21 receipt).`
+        `HARD CLAIM (RENDER LAW v1.9.0, закон №28 — вердикты T4-03/T4-05/T4-31): ≥${recipe.hard_min ?? 1} RENDER-PROVEN claim in the tag block — ${hardSignals.join(', ')}. cameltoe is NOT a claim (0 renders ever — flavor only). R+ через-ткань = канал БУГОРКОВ (P30-коктейль): DRY dark garment + «covered nipples, clothed nipples» FIRST in the chest block + «dark garment» + «fabric clinging»/«breast clinging» + «sweat gisting» — «nipples through clothing» and «see-through»+wet are X-TAGS (FORBIDDEN on R+: the renderer draws a COLORED nipple through a sweater, P09/P12). NO underlayer on the zone — the POS asserts the bare underlayer POSITIVELY in the TAG RUN («nothing underneath» — never the «braless» token, ζ-ревизия №16). Frame the claim with a camera TAG (close-up / cowboy shot / upper body). Dead fabrics (jeans/denim/leather/velvet/sweatpants/breeches/suit) never carry the claim. NO danbooru homonyms standalone (aurora → aurora_(arknights) — only compounds). NEVER cross anything over the chest claim (shawl/arms = the frame's one closed door = dead slot, P21 receipt).`
       )
       lines.push(
         `CLAIM ZONE = the lead zone (${slot.lead}), OPEN TO CAMERA, single layer + the claim target. Delivery is stochastic (~1/8): build the best-odds frame — the claim and its fabric state EARLY in the tag run (≤16th tag for mains, ≤22nd for OC), the same named garment carrying the claim. «Looks erotic but does nothing» is the failure this law kills.`
@@ -371,21 +373,31 @@ function slotFrame(slot: SlotPlan, ctx: ScribeCtx): string {
     }
     lines.push(tierBudgetLine(slot.rating, ctx.recipes, offerSignals, hardSignals))
   }
-  /* Закон №27 (вердикт T4-28 — X-слайды «слишком прорисованы соски»):
-   * тон несущей вещи назначен контрактом; through-заявка — только dark.
-   * Серо-семья (rain-grey/moss/umber/prussian) — СРЕДНЯЯ, не «тёмнеющая»:
-   * «prussian-dark» как подсказка валила гейт (prussian — светлая семья
-   * кластера, 5 из 7 X-слайдов T4-28 были серо-семейными) — средний тон
-   * держит covered-канал без исключений. */
+  /* Закон №28 (ПРИНЯТ, вердикт T4-31 — EXP-изоляция тона 7/8 X): тон
+   *  несущей вещи назначен контрактом; бугорки-канал — только dark DRY;
+   *  light/mid верх — каналы вне-ткани. Серо-семья (rain-grey/moss/
+   *  umber/prussian) — СРЕДНЯЯ: 5 из 7 X-слайдов T4-28 носили серые
+   *  миды — средний тон не «тёмнеет». */
   if (slot.rating === 'R+' || slot.rating === 'X') {
     const tone = slot.fabricTone ?? 'mid'
     const toneLaw =
       tone === 'dark'
-        ? 'DARK garment — the through-claim («nipples through clothing» + «clothed nipples») is ALLOWED here: the darkness kills the pink, keeps the bump (P08/P20 receipts, both R+). Name the dark color IN the garment tag.'
+        ? 'DARK garment — the BUMPS channel (закон №28, P30-коктейль): DRY dark thing + «covered nipples, clothed nipples» first + «dark garment» + «fabric clinging» + «sweat glisting» — NO «wet clothes», NO «nipples through clothing», NO sheer word. Light stays OFF the zone. Name the dark color IN the garment tag (oxblood/black/espresso/ink…).'
         : tone === 'light'
-          ? 'LIGHT garment — the through-claim is FORBIDDEN (7 X-receipts T4-28): the channel is «covered nipples» + «clothed nipples» + the fabric STATE (wet clothes / see-through / breast clinging) — wet cloth clinging, bump, NO drawn nipple. Never «light on chest».'
-          : 'MID garment — same as LIGHT, NO exceptions: «covered nipples» + «clothed nipples» + fabric state; the grey family (rain-grey/moss/umber/prussian/rose-grey) is MID, not dark-leaning — 5 of the 7 T4-28 X-slides wore grey-family mids. When in doubt, no «through».'
-    lines.push(`FABRIC TONE (закон №27, вердикт T4-28): ${tone.toUpperCase()} — ${toneLaw}`)
+          ? 'LIGHT garment — NO through-claims AT ALL (закон №28, формата T4-26 больше нет): R+ каналы вне-ткани — «visible pantyline» / «taped nipples» / «handbra» / мокрый купальник (swim). Never «light on chest», never wet on a fabric top.'
+          : 'MID garment — same as LIGHT, NO exceptions: the grey family (rain-grey/moss/umber/prussian/rose-grey) is MID — through-claims forbidden; каналы вне-ткани или купальник. When in doubt, no «through».'
+    lines.push(`FABRIC TONE (закон №28, принят вердиктом T4-31): ${tone.toUpperCase()} — ${toneLaw}`)
+  }
+  /* ДРЕССЕР (квитанция №29, приказ автора из вердикта T4-31): дресс-код
+   *  слота — канал × категория × тон × состояние — назначен контрактом
+   *  (dresser.ts), теги состояния вплетаются ДОСЛОВНО, веса RAW — только
+   *  назначенные (EXP-грамматика). Конфликты категорий (garter+swim —
+   *  «нахуя с купальником эти бретельки») — гейтится. */
+  if (slot.dress) {
+    const d = slot.dress
+    lines.push(
+      `DRESS CODE (Дрессер №29, закон ${d.law}): канал «${d.channelName}» · категория «${d.category}» · ${d.garment} · СОСТОЯНИЕ ВПЛЕТАЕТСЯ ДОСЛОВНО: ${d.state.join(', ')} · подслой: ${d.underlayer}${d.weights.length > 0 ? ` · ВЕСА RAW (только эти, дословно): ${d.weights.join(' ')}` : ''}`
+    )
   }
   /* EXP-слоты (вердикт T4-28: «не забывай про EXP промпты»): чистая болванка
    * без темы, гипотеза слота — в THESIS. Маркер — канон радара
@@ -399,7 +411,7 @@ function slotFrame(slot: SlotPlan, ctx: ScribeCtx): string {
   }
   if (slot.ab) {
     lines.push(
-      `A/B-ПАРА ${slot.ab.pair} — половина ${slot.ab.half}, пара с P${String(slot.ab.withSlot).padStart(2, '0')} (§10-поправка): LEAD-зона одна (${slot.ab.lead}) — ЗАЯВКА ОДИНАКОВАЯ (тот же механизм доставки: wet/sheer через именованную тонкую вещь на этой зоне — тон каждой половины назначен её FABRIC TONE, канал по закону №27), ПОДАЧА РАЗНАЯ (поза/камера/свет назначены разные — не выравнивай их). Вердикт приёмника атрибутирует канал доставки, а не случай.`
+      `A/B-ПАРА ${slot.ab.pair} — половина ${slot.ab.half}, пара с P${String(slot.ab.withSlot).padStart(2, '0')} (§10-поправка): LEAD-зона одна (${slot.ab.lead}) — ЗАЯВКА ОДИНАКОВАЯ (канал Дрессера един на пару — теги состояния дословно у обеих половин; тон каждой половины назначен её FABRIC TONE, №28), ПОДАЧА РАЗНАЯ (поза/камера/свет назначены разные — не выравнивай их). Вердикт приёмника атрибутирует канал доставки, а не случай.`
     )
   }
   if (slot.dice) {
@@ -736,7 +748,8 @@ function assembleBatch(
         `closer ${slot.closer}`,
       ]
       if (slot.dice) spineParts.push(`dice ${slot.diceSig}`)
-      if (slot.fabricTone) spineParts.push(`fabric tone ${slot.fabricTone} (закон №27)`)
+      if (slot.fabricTone) spineParts.push(`fabric tone ${slot.fabricTone} (закон №28)`)
+      if (slot.dress) spineParts.push(`dress: ${slot.dress.channel}/${slot.dress.category}${slot.dress.weights.length > 0 ? ' ⚖RAW' : ''} (№29)`)
       L.push(`Spine: ${spineParts.join(' · ')}`)
       L.push(`Stack: ${slot.carriers.map((x) => x.id).join(' + ')}`)
       L.push('POS:')

@@ -132,6 +132,20 @@ export interface SlotPlan {
   /** Закон №27 (вердикт T4-28): тон несущей вещи на зоне заявки — контракт
    *  назначает ротацией (dark/mid/light); through-заявка живёт только на dark */
   fabricTone?: 'dark' | 'mid' | 'light'
+  /** ДРЕССЕР (квитанция №29, приказ автора из вердикта T4-31): дресс-код
+   *  слота — канал тира №28 × категория сцены × тон × состояние; писец
+   *  вплетает ДОСЛОВНО (frameLine), гейт dresser проверяет когерентность */
+  dress?: {
+    channel: string
+    channelName: string
+    category: string
+    tone: string
+    garment: string
+    state: string[]
+    underlayer: string
+    weights: string[]
+    law: string
+  }
   /** EXP-слот (вердикт T4-28: «не забывай про EXP промпты»): болванка без
    *  темы, 1-2 гипотезы на слот — тест закона/канала с A/B-половинкой;
    *  letter — греческая буква программы (κλμνξρ), маркер THESIS для
