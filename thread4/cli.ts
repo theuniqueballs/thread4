@@ -145,7 +145,7 @@ async function main() {
       onLog: (line) => console.log(line),
     })
       .then((res) => {
-        console.log(`\npolish: ${res.slug} «${res.title}» — ремонт ${res.rounds}, полировка done, гейты ${res.hardPass ? 'PASS' : 'FAIL'} (sha ${res.sha10})`)
+        console.log(`\npolish: ${res.slug} «${res.title}» — ремонт ${res.rounds} круг(а), гейты ${res.hardPass ? 'PASS' : 'FAIL'} (sha ${res.sha10})${res.hardPass ? ` — сдача открыта: bun thread4/cli.ts deliver ${res.slug}` : ' — черновик записан с квитанциями'}`)
         process.exit(res.hardPass ? 0 : 1)
       })
       .catch((e) => {

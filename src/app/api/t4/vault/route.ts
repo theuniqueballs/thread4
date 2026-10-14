@@ -48,6 +48,10 @@ const DOC_FILES = [
   'TASTE.md',
   'RENDERER_FACTS.md',
   'ENGINE_FORGE.md',
+  /* Ревизия 2026-10-14 (3.12): NICHE-доктрина и живые заметки — канон
+   * жанра и ход раундов; SAFE_DOC готов принять, сейф должен нести. */
+  'NICHE.md',
+  'LIVING-NOTES.md',
 ]
 
 /* thread4/docs/ — аналитические документы раундов («Анализ вердиктов»
