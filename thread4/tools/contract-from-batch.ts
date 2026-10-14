@@ -104,7 +104,9 @@ export function buildContractFromBatch(
       palette,
       paletteName: palette,
       kinetics: [],
-      carriers: s.stack.map((id) => carriers.get(id)).filter(Boolean),
+      carriers: s.stack
+        .map((id) => carriers.get(id))
+        .filter((x): x is { id: string; name: string; cls: string } => Boolean(x)),
       lead: '',
       register: s.genre === 'OC' ? 'oc' : isExp ? 'exp-blank' : 'student',
       closer: '',
@@ -164,7 +166,7 @@ export function buildContractFromBatch(
     '',
   ].join('\n')
 
-  return { contract, markdown }
+  return { contract, markdown: md }
 }
 
 /* ---------------- CLI-обёртка ---------------- */
