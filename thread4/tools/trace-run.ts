@@ -63,7 +63,7 @@ function walk(dir: string, exts: string[], out: string[] = []): string[] {
 function parseSpecs(file: string): string[] {
   const src = fs.readFileSync(file, 'utf8')
   const specs = new Set<string>()
-  const add = (m: RegExp, re: RegExp) => {
+  const add = (m: Set<string>, re: RegExp) => {
     let match: RegExpExecArray | null
     re.lastIndex = 0
     while ((match = re.exec(src))) m.add(match[1])
