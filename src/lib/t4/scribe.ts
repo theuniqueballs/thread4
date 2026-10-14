@@ -1261,8 +1261,31 @@ export async function polishBatch(
     engineName: contract.engine,
     engineLaw: contract.engineLaw,
   }
-  /* THESIS батча — первая строка после H1 (закон писался при создании) */
-  ctx.batchThesis = (text0.split('\n').find((l) => l.trim() !== '' && !l.startsWith('#')) ?? '').trim()
+  /* Ревизия 2026-10-14 (сдача T4-31): пересборка шапки polish-ом ДЕГРАДИРОВАЛА
+   * её до «ACT I — ACT I» и тезиса=ПРИКАЗ — acts/thesis/ТЕМА-СЛОВА теперь
+   * восстанавливаются из САМОГО батча (делишители актов, параграф после
+   * ПРИКАЗА, строка ТЕМА-СЛОВА), а не обнуляются. Батч — источник истины. */
+  const actMatches = [...text0.matchAll(/^ACT [IVX]+[ —-]+(.+)$/gm)].map((m) =>
+    m[1].trim().replace(/^ACT [IVX]+\s*[—-]\s*/i, '')
+  )
+  if (actMatches.filter((a) => a && !/^ACT [IVX]+$/i.test(a)).length === 3) {
+    ;(ctx as { acts: string[] }).acts = actMatches
+  }
+  const kwMatch = /^ТЕМА-СЛОВА:\s*(.+)$/m.exec(text0)
+  if (kwMatch) {
+    ctx.themeKeywords = kwMatch[1]
+      .split(',')
+      .map((w) => w.trim().toLowerCase())
+      .filter(Boolean)
+      .slice(0, 8)
+  }
+  /* THESIS батча — первый НЕ-пустой абзац после H1, НЕ являющийся ПРИКАЗОМ
+   * (закон писался при создании; ПРИКАЗ — блок автора, не тезис писца) */
+  ctx.batchThesis = (
+    text0
+      .split('\n')
+      .find((l) => l.trim() !== '' && !l.startsWith('#') && !l.startsWith('**ПРИКАЗ')) ?? ''
+  ).trim()
 
   const outputs = outputsFromBatchText(slug, text0)
   say(`Polish: ${slug} «${contract.theme}» — ${outputs.size} слотов из черновика, движок ${contract.engine}`)
