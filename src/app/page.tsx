@@ -581,6 +581,9 @@ function DraftComposer() {
     drafts: DraftMeta[]
     /** бюджет EXP из policy law.expSlotsMax (напоминание автора 2026-10-12) */
     expSlotsMax?: number
+    /** T4-004: закон посадки видов (2×niche, потолок мейнов) — пикер и
+     * ползунок клэмпятся этим числом, гвард POST зеркалит его */
+    speciesMax?: number
   }>('/api/t4/contract-draft')
   const [theme, setTheme] = useState('')
   const [oc, setOc] = useState([
@@ -596,6 +599,9 @@ function DraftComposer() {
   const [speciesOn, setSpeciesOn] = useState(true)
   const [speciesCount, setSpeciesCount] = useState(10)
   const [speciesList, setSpeciesList] = useState<string[]>([])
+  /* T4-004: перебор видов ловится на вводе — N+1-й чип не встаёт, у пикера
+   * висит пояснение (до фикса UI молчал, автор упирался в стену на сборке) */
+  const [kinWarn, setKinWarn] = useState<string | null>(null)
   const [xSlots, setXSlots] = useState(0)
   const [abPairs, setAbPairs] = useState(3)
   /* EXP-слоты поверх 24 (напоминание автора 2026-10-12: «у тебя если чё
@@ -620,7 +626,17 @@ function DraftComposer() {
   function setOcRow(i: number, patch: Partial<{ theme: string; rating: string; wishes: string }>) {
     setOc((rows) => rows.map((r, j) => (j === i ? { ...r, ...patch } : r)))
   }
+  /* закон посадки видов (T4-004): speciesMax из policy через GET;
+   * пока меты нет — консервативные 14 (2×7 NICHE), после загрузки — точное */
+  const speciesMax = meta.data?.speciesMax ?? 14
   function toggleSpecies(id: string) {
+    if (!speciesList.includes(id) && speciesList.length >= speciesMax) {
+      setKinWarn(
+        `закон сажает максимум ${speciesMax} кинов (NICHE ×2, policy) — сначала сними лишний, потом отметь новый`
+      )
+      return
+    }
+    setKinWarn(null)
     setSpeciesList((l) => (l.includes(id) ? l.filter((x) => x !== id) : [...l, id]))
   }
 
@@ -807,12 +823,12 @@ function DraftComposer() {
               </span>
             ) : (
               <>
-                <span className="w-8 text-right font-mono text-xs text-amber-400">{speciesCount}</span>
+                <span className="w-8 text-right font-mono text-xs text-amber-400">{Math.min(speciesCount, speciesMax)}</span>
                 <Slider
-                  value={[speciesCount]}
+                  value={[Math.min(speciesCount, speciesMax)]}
                   onValueChange={(v) => setSpeciesCount(v[0] ?? speciesCount)}
                   min={0}
-                  max={21}
+                  max={speciesMax}
                   step={1}
                   className="w-28"
                   disabled={!speciesOn}
@@ -906,29 +922,57 @@ function DraftComposer() {
         {speciesOn && races.length > 0 && (
           <div className="space-y-2">
             <p className="text-[11px] uppercase tracking-wider text-zinc-500">
-              Какие кины — отмечай любимых ({speciesList.length} выбрано · ★ — золото автора · люди —
+              Какие кины — отмечай любимых ({speciesList.length}/{speciesMax} · ★ — золото автора · люди —
               мейны без кина, слот не тратят)
             </p>
+            {/* T4-004: чипы за капом не выбираются — это не ошибка сети,
+             * это закон посадки; пояснение живёт у места клика */}
+            {kinWarn ? (
+              <p
+                role="status"
+                className="rounded-md border border-rose-500/40 bg-rose-500/10 px-2.5 py-1.5 text-[11px] text-rose-300"
+              >
+                {kinWarn}
+              </p>
+            ) : null}
             <div className="flex flex-wrap gap-1.5">
-              {races.map((r) => (
+              {races.map((r) => {
+                const atCap = !speciesList.includes(r.id) && speciesList.length >= speciesMax
+                return (
                 <button
                   key={r.id}
                   onClick={() => toggleSpecies(r.id)}
-                  title={r.status === 'gold' ? 'золотая раса автора' : undefined}
-                  aria-label={r.status === 'gold' ? `${r.name} — золотая раса автора` : r.name}
+                  title={
+                    atCap
+                      ? `закон сажает максимум ${speciesMax} — сними лишний чип, потом отметь ${r.name}`
+                      : r.status === 'gold'
+                        ? 'золотая раса автора'
+                        : undefined
+                  }
+                  aria-label={
+                    atCap
+                      ? `${r.name} — недоступно: достигнут максимум ${speciesMax} видов`
+                      : r.status === 'gold'
+                        ? `${r.name} — золотая раса автора`
+                        : r.name
+                  }
+                  aria-disabled={atCap}
                   className={cn(
                     'rounded-full border px-2.5 py-1 text-[11px] transition-colors',
+                    atCap && 'cursor-not-allowed opacity-40',
                     speciesList.includes(r.id)
                       ? 'border-fuchsia-500/60 bg-fuchsia-500/15 text-fuchsia-300'
                       : r.status === 'gold'
                         ? 'border-amber-500/40 bg-amber-500/10 text-amber-300/90 hover:border-amber-400/70 hover:text-amber-200'
-                        : 'border-zinc-800 bg-zinc-900/60 text-zinc-500 hover:border-zinc-700 hover:text-zinc-300'
+                        : 'border-zinc-800 bg-zinc-900/60 text-zinc-500 hover:border-zinc-700 hover:text-zinc-300',
+                    !atCap && 'hover:border-fuchsia-500/40'
                   )}
                 >
                   {r.status === 'gold' ? '★ ' : ''}
                   {r.name}
                 </button>
-              ))}
+                )
+              })}
             </div>
           </div>
         )}
