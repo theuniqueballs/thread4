@@ -1,0 +1,902 @@
+{
+  "slug": "T4-23",
+  "theme": "WHAT THE FUCK IS THAT",
+  "engine": "raw-danbooru",
+  "seed": 0,
+  "createdAt": "2026-10-14T14:37:44.058Z",
+  "retroNote": "контракт собран ИЗ сданного батча (contract-from-batch, ревизия 2026-10-14): data-repair без переписывания летописи; окно ротации не заявляется — батч уже в истории",
+  "spread": [
+    {
+      "rating": "R+",
+      "count": 16
+    },
+    {
+      "rating": "R",
+      "count": 8
+    }
+  ],
+  "slots": [
+    {
+      "position": 1,
+      "kind": "OC",
+      "oc": "Sue",
+      "rating": "R+",
+      "pose": "",
+      "poseName": "wtf-sue-absolute-aphrodisiac",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W19",
+          "name": "Jersey Rumple",
+          "cls": "W"
+        },
+        {
+          "id": "CR-C10",
+          "name": "Boyshort Bisection",
+          "cls": "C"
+        },
+        {
+          "id": "CR-U17",
+          "name": "Shared Kitchen",
+          "cls": "U"
+        },
+        {
+          "id": "CR-I05",
+          "name": "Belt Line",
+          "cls": "I"
+        }
+      ],
+      "lead": "",
+      "register": "oc",
+      "closer": ""
+    },
+    {
+      "position": 2,
+      "kind": "OC",
+      "oc": "Doe",
+      "rating": "R+",
+      "pose": "",
+      "poseName": "wtf-doe-xtape-showdown",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W06",
+          "name": "Sweat-Damp Spine",
+          "cls": "W"
+        },
+        {
+          "id": "CR-C14",
+          "name": "Paddleboard Wobble",
+          "cls": "C"
+        },
+        {
+          "id": "CR-L07",
+          "name": "Strapless War",
+          "cls": "L"
+        },
+        {
+          "id": "CR-D06",
+          "name": "Table Flattening",
+          "cls": "D"
+        }
+      ],
+      "lead": "",
+      "register": "oc",
+      "closer": ""
+    },
+    {
+      "position": 3,
+      "kind": "OC",
+      "oc": "Lua",
+      "rating": "R",
+      "pose": "",
+      "poseName": "wtf-lua-gacha-pull",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [],
+      "lead": "",
+      "register": "oc",
+      "closer": ""
+    },
+    {
+      "position": 4,
+      "kind": "VOLT",
+      "oc": "",
+      "rating": "R+",
+      "pose": "",
+      "poseName": "wtf-police-tape-dress",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W22",
+          "name": "Denim Stress-White",
+          "cls": "W"
+        },
+        {
+          "id": "CR-C12",
+          "name": "Leather Squeak",
+          "cls": "C"
+        },
+        {
+          "id": "CR-E28",
+          "name": "Hoodie Zipper",
+          "cls": "E"
+        },
+        {
+          "id": "CR-M12",
+          "name": "Backpack Chest Strap",
+          "cls": "M"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 5,
+      "kind": "VOLT",
+      "oc": "",
+      "rating": "R+",
+      "pose": "",
+      "poseName": "wtf-invisible-box-mime",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W13",
+          "name": "Sitting-Crease",
+          "cls": "W"
+        },
+        {
+          "id": "CR-A01",
+          "name": "Seam Pressed Flat",
+          "cls": "A"
+        },
+        {
+          "id": "CR-E15",
+          "name": "Kimono Summer",
+          "cls": "E"
+        },
+        {
+          "id": "CR-I09",
+          "name": "Collar Transfer",
+          "cls": "I"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 6,
+      "kind": "VOLT",
+      "oc": "",
+      "rating": "R+",
+      "pose": "",
+      "poseName": "wtf-vacuum-vs-dress",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W27",
+          "name": "Steam-Damp",
+          "cls": "W"
+        },
+        {
+          "id": "CR-S20",
+          "name": "Slip's Strap-Beds",
+          "cls": "S"
+        },
+        {
+          "id": "CR-E24",
+          "name": "Glove Peel",
+          "cls": "E"
+        },
+        {
+          "id": "CR-I11",
+          "name": "Buttons One-Off",
+          "cls": "I"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 7,
+      "kind": "VOLT",
+      "oc": "",
+      "rating": "R+",
+      "pose": "",
+      "poseName": "wtf-door-stuck",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W01",
+          "name": "Taut Weave",
+          "cls": "W"
+        },
+        {
+          "id": "CR-S11",
+          "name": "Sweat Track",
+          "cls": "S"
+        },
+        {
+          "id": "CR-E18",
+          "name": "Apron Strings",
+          "cls": "E"
+        },
+        {
+          "id": "CR-M04",
+          "name": "Window Glass",
+          "cls": "M"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 8,
+      "kind": "VOLT",
+      "oc": "",
+      "rating": "R+",
+      "pose": "",
+      "poseName": "wtf-balloon-lift-nothing-down",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W18",
+          "name": "Towel Nap",
+          "cls": "W"
+        },
+        {
+          "id": "CR-B02",
+          "name": "Shape Through Cold Cloth",
+          "cls": "B"
+        },
+        {
+          "id": "CR-E02",
+          "name": "Bra Strap Escaped Boat Neck",
+          "cls": "E"
+        },
+        {
+          "id": "CR-I01",
+          "name": "Bra Release Lines",
+          "cls": "I"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 9,
+      "kind": "VOLT",
+      "oc": "",
+      "rating": "R+",
+      "pose": "",
+      "poseName": "wtf-plant-grew-through",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W15",
+          "name": "Leather Mold",
+          "cls": "W"
+        },
+        {
+          "id": "CR-B15",
+          "name": "Calf In Boot",
+          "cls": "B"
+        },
+        {
+          "id": "CR-E05",
+          "name": "Wrap Gap",
+          "cls": "E"
+        },
+        {
+          "id": "CR-M08",
+          "name": "Doorframe Squeeze",
+          "cls": "M"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 10,
+      "kind": "VOLT",
+      "oc": "",
+      "rating": "R+",
+      "pose": "",
+      "poseName": "wtf-ice-encasement",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W26",
+          "name": "Wind-Press",
+          "cls": "W"
+        },
+        {
+          "id": "CR-B28",
+          "name": "Padding Defeated",
+          "cls": "B"
+        },
+        {
+          "id": "CR-E08",
+          "name": "One-Side Untuck",
+          "cls": "E"
+        },
+        {
+          "id": "CR-I05",
+          "name": "Belt Line",
+          "cls": "I"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 11,
+      "kind": "VOLT",
+      "oc": "",
+      "rating": "R+",
+      "pose": "",
+      "poseName": "wtf-slime-dress-alive",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W06",
+          "name": "Sweat-Damp Spine",
+          "cls": "W"
+        },
+        {
+          "id": "CR-S04",
+          "name": "First Inch Of Cleavage",
+          "cls": "S"
+        },
+        {
+          "id": "CR-E30",
+          "name": "Shoulder-Snap Popped",
+          "cls": "E"
+        },
+        {
+          "id": "CR-M01",
+          "name": "Seatbelt Diagonal",
+          "cls": "M"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 12,
+      "kind": "VOLT",
+      "oc": "",
+      "rating": "R+",
+      "pose": "",
+      "poseName": "wtf-shower-curtain-wrap",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W07",
+          "name": "Plastered Wet Shirt",
+          "cls": "W"
+        },
+        {
+          "id": "CR-B10",
+          "name": "Profile Curve",
+          "cls": "B"
+        },
+        {
+          "id": "CR-E09",
+          "name": "Vent Gust Flip",
+          "cls": "E"
+        },
+        {
+          "id": "CR-M06",
+          "name": "Guitar Body",
+          "cls": "M"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 13,
+      "kind": "VOLT",
+      "oc": "",
+      "rating": "R+",
+      "pose": "",
+      "poseName": "wtf-chair-invisible-swap",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W12",
+          "name": "Threadbare Tee",
+          "cls": "W"
+        },
+        {
+          "id": "CR-S15",
+          "name": "Garter Frame",
+          "cls": "S"
+        },
+        {
+          "id": "CR-E31",
+          "name": "Seam Giving",
+          "cls": "E"
+        },
+        {
+          "id": "CR-M15",
+          "name": "Corset Exhale",
+          "cls": "M"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 14,
+      "kind": "VOLT",
+      "oc": "",
+      "rating": "R+",
+      "pose": "",
+      "poseName": "wtf-police-vest-only",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W30",
+          "name": "Cold-Stiff Drape",
+          "cls": "W"
+        },
+        {
+          "id": "CR-B04",
+          "name": "Apex Contour",
+          "cls": "B"
+        },
+        {
+          "id": "CR-E20",
+          "name": "Leotard Leg-Line",
+          "cls": "E"
+        },
+        {
+          "id": "CR-M11",
+          "name": "Dog's Paws",
+          "cls": "M"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 15,
+      "kind": "VOLT",
+      "oc": "",
+      "rating": "R+",
+      "pose": "",
+      "poseName": "wtf-balloon-animal-ambush",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W15",
+          "name": "Leather Mold",
+          "cls": "W"
+        },
+        {
+          "id": "CR-B15",
+          "name": "Calf In Boot",
+          "cls": "B"
+        },
+        {
+          "id": "CR-E05",
+          "name": "Wrap Gap",
+          "cls": "E"
+        },
+        {
+          "id": "CR-M08",
+          "name": "Doorframe Squeeze",
+          "cls": "M"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 16,
+      "kind": "EXQUISITE",
+      "oc": "",
+      "rating": "R+",
+      "pose": "",
+      "poseName": "wtf-towel-octopus",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W24",
+          "name": "Suit-Seat Taut",
+          "cls": "W"
+        },
+        {
+          "id": "CR-B23",
+          "name": "Strap Line Through Bodice",
+          "cls": "B"
+        },
+        {
+          "id": "CR-E27",
+          "name": "Stretched Neckhole",
+          "cls": "E"
+        },
+        {
+          "id": "CR-I14",
+          "name": "Sand Cling",
+          "cls": "I"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 17,
+      "kind": "NICHE",
+      "oc": "",
+      "rating": "R",
+      "pose": "",
+      "poseName": "wtf-cat-stole-everything",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W20",
+          "name": "Chairback Print",
+          "cls": "W"
+        },
+        {
+          "id": "CR-S05",
+          "name": "Underboob Shadow-Line",
+          "cls": "S"
+        },
+        {
+          "id": "CR-E10",
+          "name": "Barstool Ride",
+          "cls": "E"
+        },
+        {
+          "id": "CR-M15",
+          "name": "Corset Exhale",
+          "cls": "M"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 18,
+      "kind": "NICHE",
+      "oc": "",
+      "rating": "R",
+      "pose": "",
+      "poseName": "wtf-static-tv-girl",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W02",
+          "name": "Stretched Buttonholes",
+          "cls": "W"
+        },
+        {
+          "id": "CR-S09",
+          "name": "Inner Thigh Band",
+          "cls": "S"
+        },
+        {
+          "id": "CR-E23",
+          "name": "Sock Slouch",
+          "cls": "E"
+        },
+        {
+          "id": "CR-I13",
+          "name": "Grass Print",
+          "cls": "I"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 19,
+      "kind": "NICHE",
+      "oc": "",
+      "rating": "R",
+      "pose": "",
+      "poseName": "wtf-laundry-basket-stuck",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W29",
+          "name": "Pleat-Set",
+          "cls": "W"
+        },
+        {
+          "id": "CR-B16",
+          "name": "Shoulder-Ball",
+          "cls": "B"
+        },
+        {
+          "id": "CR-E14",
+          "name": "Collar Askew",
+          "cls": "E"
+        },
+        {
+          "id": "CR-M16",
+          "name": "Measuring Tape",
+          "cls": "M"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 20,
+      "kind": "NICHE",
+      "oc": "",
+      "rating": "R",
+      "pose": "",
+      "poseName": "wtf-trombone-stuck",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W03",
+          "name": "Side-Seam Strain",
+          "cls": "W"
+        },
+        {
+          "id": "CR-C14",
+          "name": "Paddleboard Wobble",
+          "cls": "C"
+        },
+        {
+          "id": "CR-E15",
+          "name": "Kimono Summer",
+          "cls": "E"
+        },
+        {
+          "id": "CR-M07",
+          "name": "Cello Embrace",
+          "cls": "M"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 21,
+      "kind": "NICHE",
+      "oc": "",
+      "rating": "R",
+      "pose": "",
+      "poseName": "wtf-frog-rain-stickers",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W05",
+          "name": "Static Cling",
+          "cls": "W"
+        },
+        {
+          "id": "CR-A07",
+          "name": "Grande Plié",
+          "cls": "A"
+        },
+        {
+          "id": "CR-E32",
+          "name": "Petticoat Drop",
+          "cls": "E"
+        },
+        {
+          "id": "CR-M09",
+          "name": "Crowd Press",
+          "cls": "M"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 22,
+      "kind": "NICHE",
+      "oc": "",
+      "rating": "R",
+      "pose": "",
+      "poseName": "wtf-vending-machine-revenge",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W02",
+          "name": "Stretched Buttonholes",
+          "cls": "W"
+        },
+        {
+          "id": "CR-C02",
+          "name": "Vinyl Print",
+          "cls": "C"
+        },
+        {
+          "id": "CR-E01",
+          "name": "Tank Strap Fallen",
+          "cls": "E"
+        },
+        {
+          "id": "CR-I18",
+          "name": "Towel's Damp Rectangle",
+          "cls": "I"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 23,
+      "kind": "NICHE",
+      "oc": "",
+      "rating": "R",
+      "pose": "",
+      "poseName": "wtf-octopus-barber",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W10",
+          "name": "Sheer Panel",
+          "cls": "W"
+        },
+        {
+          "id": "CR-S17",
+          "name": "Anklet Chain",
+          "cls": "S"
+        },
+        {
+          "id": "CR-E22",
+          "name": "Thigh-High Roll",
+          "cls": "E"
+        },
+        {
+          "id": "CR-M05",
+          "name": "Counter Reach",
+          "cls": "M"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    },
+    {
+      "position": 24,
+      "kind": "EXQUISITE",
+      "oc": "",
+      "rating": "R+",
+      "pose": "",
+      "poseName": "wtf-doorframe-shoulder",
+      "poseRisk": "",
+      "palette": "",
+      "paletteName": "",
+      "kinetics": [],
+      "carriers": [
+        {
+          "id": "CR-W04",
+          "name": "Ribbing Stress-Bands",
+          "cls": "W"
+        },
+        {
+          "id": "CR-S08",
+          "name": "Back Dimples",
+          "cls": "S"
+        },
+        {
+          "id": "CR-E11",
+          "name": "Waistband Roll",
+          "cls": "E"
+        },
+        {
+          "id": "CR-M13",
+          "name": "Life Jacket",
+          "cls": "M"
+        }
+      ],
+      "lead": "",
+      "register": "student",
+      "closer": ""
+    }
+  ],
+  "abPairs": [],
+  "carrierStats": {
+    "wSharePct": 24
+  },
+  "windowSlugs": [],
+  "windowAtDelivery": [
+    "T4-24",
+    "T4-25",
+    "T4-26",
+    "T4-27",
+    "T4-27.2-EXP",
+    "T4-28",
+    "T4-29",
+    "T4-30"
+  ]
+}
