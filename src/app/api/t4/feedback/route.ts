@@ -15,7 +15,7 @@ import ZAI from 'z-ai-web-dev-sdk'
 
 import { appendEvent } from '@/lib/t4/events'
 import { clientErrorMessage, requireCommander } from '@/lib/t4/apiguard'
-import { BLIND_PROMPT, isProviderBlocked, parseBlindCard } from '@/lib/t4/vlm'
+import { imagePayloadError, isProviderBlocked, runBlindVision } from '@/lib/t4/vlm'
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 120
@@ -48,16 +48,15 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'bad json' }, { status: 400 })
   }
   const b64 = (body.imageBase64 ?? '').replace(/^data:[^;]+;base64,/, '')
-  if (!b64 || b64.length < 100) {
-    return NextResponse.json({ error: 'imageBase64 required' }, { status: 400 })
-  }
-  /* аудит 2026-10-12: капа тела + allowlist типа (как в vlm/route) */
-  if (b64.length > 10_000_000) {
-    return NextResponse.json({ error: 'image too large (base64 ≤ 10M символов)' }, { status: 413 })
-  }
   const mimeType = body.mimeType ?? 'image/png'
-  if (!/^image\/(png|jpe?g|webp|gif)$/.test(mimeType)) {
-    return NextResponse.json({ error: 'mimeType: image/png|jpeg|webp|gif' }, { status: 400 })
+  /* Ревизия 2026-10-14 (2.23/3.7): капа + allowlist — общий гвард
+   * imagePayloadError из lib/vlm (была копипастой между роутами) */
+  const payloadError = imagePayloadError(b64, mimeType)
+  if (payloadError === 'image too large (base64 ≤ 10M символов)') {
+    return NextResponse.json({ error: payloadError }, { status: 413 })
+  }
+  if (payloadError) {
+    return NextResponse.json({ error: payloadError }, { status: 400 })
   }
   const slug = (body.slug ?? '').trim()
   const position = (body.position ?? '').trim()
@@ -65,26 +64,21 @@ export async function POST(req: Request) {
   try {
     const zai = await ZAI.create()
 
-    /* ---- слепой режим: единый протокол, карточка, без лога ---- */
+    /* ---- слепой режим: единый протокол, карточка, без лога.
+       * Ревизия 2026-10-14: вызов консолидирован в runBlindVision (lib) —
+       * один промпт, один парсер, одна детекция фильтра на оба роута. ---- */
     if (body.blind) {
-      const completion = await zai.chat.completions.createVision({
-        messages: [
-          {
-            role: 'user',
-            content: [
-              { type: 'text', text: BLIND_PROMPT },
-              { type: 'image_url', image_url: { url: `data:${mimeType};base64,${b64}` } },
-            ],
-          },
-        ],
-        model: 'glm-4.5v',
-      thinking: { type: 'disabled' },
-      })
-      const raw = completion.choices[0]?.message?.content ?? ''
-      if (raw.trim() === '') {
-        return NextResponse.json({ ok: false, error: 'пустой ответ модели' }, { status: 502 })
+      const r = await runBlindVision(b64, mimeType)
+      if (r.ok) {
+        return NextResponse.json({ ok: true, card: r.card, raw: r.raw })
       }
-      return NextResponse.json({ ok: true, card: parseBlindCard(raw), raw })
+      if (r.setupRequired) {
+        return NextResponse.json({ ok: false, error: r.error, setupRequired: true }, { status: 503 })
+      }
+      return NextResponse.json(
+        { ok: false, ...(r.blocked ? { blocked: true } : {}), error: r.error },
+        { status: r.blocked ? 200 : 502 }
+      )
     }
 
     /* ---- классический 5-осевой разбор (с записью события) ---- */

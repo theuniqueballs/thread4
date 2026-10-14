@@ -4,7 +4,15 @@
  * разъединило их: панель ждала структурную карточку, а feedback отвечал
  * старой 5-осевой анкетой без детекции фильтра — карточки были пустыми.
  * Один промпт, один парсер, одна детекция контент-фильтра.
+ *
+ * Ревизия 2026-10-14 (категория 2.23/3.7): сам ВЫЗОВ тоже был продублирован
+ * (ZAI.create + createVision + обработка блока/503 — в двух роутах с
+ * расползанием обработки). Теперь вызов живёт здесь же — роуты стали
+ * тонкими валидаторами; клиент vlm.ts не импортирует никто (проверено
+ * ревизией), SDK-импорт не вытекает в браузер.
  */
+
+import ZAI from 'z-ai-web-dev-sdk'
 
 export interface BlindCard {
   scene: string
@@ -73,4 +81,62 @@ export function parseBlindCard(raw: string): BlindCard {
 /** Контент-фильтр провайдера: кадр не принят НА ВХОДЕ (X-кадры, 400/1301). */
 export function isProviderBlocked(msg: string): boolean {
   return /contentFilter|1301|系统检测|unsafe|sensitive/i.test(msg)
+}
+
+/* ------------------------------------------------------------------ */
+/* Единый слепой вызов (ревизия 2026-10-14, 2.23/3.7)                   */
+/* ------------------------------------------------------------------ */
+
+/** Валидация тела с картинкой — общий гвард обоих роутов (аудит 2026-10-12:
+ *  капа + allowlist типа; раньше копипастился). null = валидно. */
+export function imagePayloadError(b64: string, mimeType: string): string | null {
+  if (!b64 || b64.length < 100) return 'imageBase64 required'
+  if (b64.length > 10_000_000) return 'image too large (base64 ≤ 10M символов)'
+  if (!/^image\/(png|jpe?g|webp|gif)$/.test(mimeType)) return 'mimeType: image/png|jpeg|webp|gif'
+  return null
+}
+
+export type BlindVisionResult =
+  | { ok: true; card: BlindCard; raw: string }
+  | { ok: false; blocked?: boolean; setupRequired?: boolean; error: string }
+
+/** Один слепой VLM-прогон: BLIND_PROMPT + createVision + parseBlindCard +
+ *  детекция контент-фильтра провайдера + 503-сигнал «нет .z-ai-config».
+ *  Машинные прогоны НЕ пишутся в лог событий (§10-поправка) — флаги
+ *  уезжают внутри батч-вердикта через приёмник. */
+export async function runBlindVision(b64: string, mimeType: string): Promise<BlindVisionResult> {
+  try {
+    const zai = await ZAI.create()
+    const completion = await zai.chat.completions.createVision({
+      messages: [
+        {
+          role: 'user',
+          content: [
+            { type: 'text', text: BLIND_PROMPT },
+            { type: 'image_url', image_url: { url: `data:${mimeType};base64,${b64}` } },
+          ],
+        },
+      ],
+      model: 'glm-4.5v',
+      thinking: { type: 'disabled' },
+    })
+    const raw = completion.choices[0]?.message?.content ?? ''
+    if (raw.trim() === '') {
+      return { ok: false, error: 'пустой ответ модели' }
+    }
+    return { ok: true, card: parseBlindCard(raw), raw }
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e)
+    if (isProviderBlocked(msg)) {
+      return { ok: false, blocked: true, error: msg.slice(0, 300) }
+    }
+    if (/Configuration file not found|z-ai-config/i.test(msg)) {
+      return {
+        ok: false,
+        setupRequired: true,
+        error: 'VLM не настроен: нет .z-ai-config (ключ Z.ai) на этой машине',
+      }
+    }
+    return { ok: false, error: msg.slice(0, 300) }
+  }
 }
