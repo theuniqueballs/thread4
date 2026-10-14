@@ -1075,7 +1075,7 @@ async function scribeBatchInner(
     if (failed.size === 0) break // nothing slot-specific to repair
     const repairSlots = contract.slots.filter((s) => failed.has(s.position))
     say(`  · ремонт слотов: ${[...failed].sort((a, b) => a - b).join(', ')}`)
-    const repairUser = `${batchLawBlock}\n\nREWRITE THESE SLOTS — they failed the machine gates. Keep what worked, fix what is flagged. Same exact format.\n\n${repairSlots.map((s) => slotFrame(s, ctx)).join('\n\n')}\n\nGATE FAILURES TO FIX:\n${hardFails.flatMap((r) => r.findings.map((f) => `- [${r.gate}] ${f}`)).slice(0, 24).join('\n')}`
+    const repairUser = `${batchLawBlock}\n\nREWRITE THESE SLOTS — they failed the machine gates. Keep what worked, fix what is flagged. Same exact format.\n\nNON-NEGOTIABLE BOILERPLATE (structure gate, §3 RENDER PHYSICS — ревизия 2026-10-14: ремонт чинил флаг и ронял фейс-лок, пинг-понг слотов P19/P21/P30): every POS you rewrite MUST contain — «anime style» opener · face block AS TAGS («stylized 2D anime face, anime eyes ([color], [expression]), small nose, small mouth») · «masterpiece, best quality, anime artstyle» closer. A rewrite that fixes the flagged finding but drops the face block FAILS the structure gate and the round is wasted.\n\n${repairSlots.map((s) => slotFrame(s, ctx)).join('\n\n')}\n\nGATE FAILURES TO FIX:\n${hardFails.flatMap((r) => r.findings.map((f) => `- [${r.gate}] ${f}`)).slice(0, 24).join('\n')}`
     const raw = await chat(zai, systemPrompt(), repairUser, log)
     for (const [n, o] of parseSlots(raw)) {
       /* аудит 2026-10-12: ремонт пишет ТОЛЬКО позиции ремонт-набора —
@@ -1301,7 +1301,7 @@ export async function polishBatch(
     if (failed.size === 0) break
     say(`  · ремонт слотов: ${[...failed].sort((a, b) => a - b).join(', ')}`)
     const repairSlots = contract.slots.filter((s) => failed.has(s.position))
-    const repairUser = `${batchLawBlock}\n\nREWRITE THESE SLOTS — they failed the machine gates. Keep what worked, fix what is flagged. Same exact format.\n\n${repairSlots.map((s) => slotFrame(s, ctx)).join('\n\n')}\n\nGATE FAILURES TO FIX:\n${hardFails.flatMap((r) => r.findings.map((f) => `- [${r.gate}] ${f}`)).slice(0, 24).join('\n')}`
+    const repairUser = `${batchLawBlock}\n\nREWRITE THESE SLOTS — they failed the machine gates. Keep what worked, fix what is flagged. Same exact format.\n\nNON-NEGOTIABLE BOILERPLATE (structure gate, §3 RENDER PHYSICS — ревизия 2026-10-14: ремонт чинил флаг и ронял фейс-лок, пинг-понг слотов P19/P21/P30): every POS you rewrite MUST contain — «anime style» opener · face block AS TAGS («stylized 2D anime face, anime eyes ([color], [expression]), small nose, small mouth») · «masterpiece, best quality, anime artstyle» closer. A rewrite that fixes the flagged finding but drops the face block FAILS the structure gate and the round is wasted.\n\n${repairSlots.map((s) => slotFrame(s, ctx)).join('\n\n')}\n\nGATE FAILURES TO FIX:\n${hardFails.flatMap((r) => r.findings.map((f) => `- [${r.gate}] ${f}`)).slice(0, 24).join('\n')}`
     const raw = await chat(zai, systemPrompt(), repairUser, log)
     for (const [n, o] of parseSlots(raw)) {
       if (failed.has(n) && o.pos.trim()) outputs.set(n, o)
