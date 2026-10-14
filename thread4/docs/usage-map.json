@@ -1,0 +1,423 @@
+{
+  "traces": [
+    {
+      "name": "check_T4-30_сухие_гейты_",
+      "ok": true,
+      "reads": [
+        "thread4/batches/T4-28.md",
+        "thread4/batches/T4-29.md",
+        "thread4/batches/T4-30.md",
+        "thread4/contracts/T4-28.json",
+        "thread4/contracts/T4-29.json",
+        "thread4/contracts/T4-30.json",
+        "thread4/events/log.jsonl",
+        "thread4/specs/bans.json",
+        "thread4/specs/carriers.json",
+        "thread4/specs/oc-canon.json",
+        "thread4/specs/policy.json",
+        "thread4/specs/races.json",
+        "thread4/specs/rating-recipes.json",
+        "thread4/specs/rating-techniques.json"
+      ],
+      "writes": [
+        "thread4",
+        "thread4/batches",
+        "thread4/contracts",
+        "thread4/drafts",
+        "thread4/events",
+        "thread4/specs"
+      ],
+      "stats": 0,
+      "readdirs": 0
+    },
+    {
+      "name": "compile-dry",
+      "ok": true,
+      "reads": [
+        "thread4/contracts/T4-28.json",
+        "thread4/contracts/T4-29.json",
+        "thread4/contracts/T4-30.json",
+        "thread4/events/log.jsonl",
+        "thread4/specs/carriers.json",
+        "thread4/specs/delivery-stats.json",
+        "thread4/specs/facts.json",
+        "thread4/specs/niche-archetypes.json",
+        "thread4/specs/oc-canon.json",
+        "thread4/specs/palettes.json",
+        "thread4/specs/policy.json",
+        "thread4/specs/pools.json",
+        "thread4/specs/poses.json",
+        "thread4/specs/races.json",
+        "thread4/specs/rating-recipes.json"
+      ],
+      "writes": [
+        "thread4",
+        "thread4/batches",
+        "thread4/contracts",
+        "thread4/drafts",
+        "thread4/events",
+        "thread4/specs"
+      ],
+      "stats": 0,
+      "readdirs": 0
+    },
+    {
+      "name": "corpus_очередь_взглядов_",
+      "ok": true,
+      "reads": [
+        "thread4/corpus-queue.jsonl",
+        "thread4/specs/policy.json"
+      ],
+      "writes": [],
+      "stats": 1,
+      "readdirs": 0
+    },
+    {
+      "name": "diff_T4-27_T4-27.2-EXP",
+      "ok": true,
+      "reads": [
+        "thread4/batches/T4-27.2-EXP.md",
+        "thread4/batches/T4-27.md",
+        "thread4/specs/policy.json"
+      ],
+      "writes": [
+        "download",
+        "download/diff-T4-27_to_T4-27.2-EXP.md",
+        "download/diff-T4-27_to_T4-27.2-EXP.md.tmp-2946-1791987768745"
+      ],
+      "stats": 1,
+      "readdirs": 0
+    },
+    {
+      "name": "drift_T4-30",
+      "ok": true,
+      "reads": [
+        "thread4/batches/T4-30.md",
+        "thread4/specs/policy.json"
+      ],
+      "writes": [],
+      "stats": 1,
+      "readdirs": 0
+    },
+    {
+      "name": "grep-gate_П-2_",
+      "ok": true,
+      "reads": [
+        "src/lib/t4/apiguard.ts",
+        "src/lib/t4/batch-md.ts",
+        "src/lib/t4/compiler.ts",
+        "src/lib/t4/deliver.ts",
+        "src/lib/t4/events.ts",
+        "src/lib/t4/fsutil.ts",
+        "src/lib/t4/gates.ts",
+        "src/lib/t4/persist.ts",
+        "src/lib/t4/reaper.ts",
+        "src/lib/t4/scribe.ts",
+        "src/lib/t4/specs.ts",
+        "src/lib/t4/verdicts.ts",
+        "src/lib/t4/vlm.ts",
+        "thread4/specs/policy.json"
+      ],
+      "writes": [],
+      "stats": 13,
+      "readdirs": 1
+    },
+    {
+      "name": "lists_T4-28",
+      "ok": true,
+      "reads": [
+        "thread4/batches/T4-28.md",
+        "thread4/specs/policy.json"
+      ],
+      "writes": [
+        "download",
+        "download/render-list-T4-28.txt",
+        "download/render-list-T4-28.txt.tmp-2937-1791987768065"
+      ],
+      "stats": 1,
+      "readdirs": 0
+    },
+    {
+      "name": "manual",
+      "ok": true,
+      "reads": [
+        "thread4/events/log.jsonl",
+        "thread4/specs/policy.json"
+      ],
+      "writes": [
+        "thread4",
+        "thread4/batches",
+        "thread4/contracts",
+        "thread4/drafts",
+        "thread4/events",
+        "thread4/specs"
+      ],
+      "stats": 0,
+      "readdirs": 0
+    },
+    {
+      "name": "reaper_драфт_отставок_",
+      "ok": true,
+      "reads": [
+        "thread4/contracts/T4-02.json",
+        "thread4/contracts/T4-03.json",
+        "thread4/contracts/T4-04.json",
+        "thread4/contracts/T4-05.json",
+        "thread4/contracts/T4-07.json",
+        "thread4/contracts/T4-08.json",
+        "thread4/contracts/T4-09.json",
+        "thread4/contracts/T4-11.json",
+        "thread4/contracts/T4-12.json",
+        "thread4/contracts/T4-13.json",
+        "thread4/contracts/T4-14.json",
+        "thread4/contracts/T4-15.json",
+        "thread4/contracts/T4-16.json",
+        "thread4/contracts/T4-17.json",
+        "thread4/contracts/T4-19.json",
+        "thread4/contracts/T4-20.json",
+        "thread4/contracts/T4-21.json",
+        "thread4/contracts/T4-22.json",
+        "thread4/contracts/T4-23.json",
+        "thread4/contracts/T4-24.json",
+        "thread4/contracts/T4-25.json",
+        "thread4/contracts/T4-26.json",
+        "thread4/contracts/T4-27.2-EXP.json",
+        "thread4/contracts/T4-27.json",
+        "thread4/contracts/T4-28.json",
+        "thread4/contracts/T4-29.json",
+        "thread4/contracts/T4-30.json",
+        "thread4/events/log.jsonl",
+        "thread4/specs/delivery-stats.json",
+        "thread4/specs/engines.json",
+        "thread4/specs/oc-canon.json",
+        "thread4/specs/policy.json"
+      ],
+      "writes": [
+        "thread4",
+        "thread4/batches",
+        "thread4/contracts",
+        "thread4/drafts",
+        "thread4/events",
+        "thread4/reaper-draft-2026-10-14.md",
+        "thread4/reaper-draft-2026-10-14.md.tmp-2905-1791987767240",
+        "thread4/specs"
+      ],
+      "stats": 1,
+      "readdirs": 0
+    },
+    {
+      "name": "selftest_118_регрессий_",
+      "ok": true,
+      "reads": [
+        "src/lib/t4/apiguard.ts",
+        "src/lib/t4/batch-md.ts",
+        "src/lib/t4/compiler.ts",
+        "src/lib/t4/deliver.ts",
+        "src/lib/t4/events.ts",
+        "src/lib/t4/fsutil.ts",
+        "src/lib/t4/gates.ts",
+        "src/lib/t4/persist.ts",
+        "src/lib/t4/reaper.ts",
+        "src/lib/t4/scribe.ts",
+        "src/lib/t4/specs.ts",
+        "src/lib/t4/verdicts.ts",
+        "src/lib/t4/vlm.ts",
+        "thread4/.selftest-atomic-1791987766812.tmp",
+        "thread4/batches/T4-08.md",
+        "thread4/batches/T4-17.md",
+        "thread4/batches/T4-19.md",
+        "thread4/batches/T4-20.md",
+        "thread4/batches/T4-21.md",
+        "thread4/batches/T4-22.md",
+        "thread4/batches/T4-23.md",
+        "thread4/batches/T4-24.md",
+        "thread4/batches/T4-25.md",
+        "thread4/batches/T4-26.md",
+        "thread4/batches/T4-27.2-EXP.md",
+        "thread4/batches/T4-27.md",
+        "thread4/batches/T4-28.md",
+        "thread4/batches/T4-29.md",
+        "thread4/batches/T4-30.md",
+        "thread4/contracts/A.json",
+        "thread4/contracts/T4-02.json",
+        "thread4/contracts/T4-03.json",
+        "thread4/contracts/T4-04.json",
+        "thread4/contracts/T4-05.json",
+        "thread4/contracts/T4-07.json",
+        "thread4/contracts/T4-08.json",
+        "thread4/contracts/T4-09.json",
+        "thread4/contracts/T4-11.json",
+        "thread4/contracts/T4-12.json",
+        "thread4/contracts/T4-13.json",
+        "thread4/contracts/T4-14.json",
+        "thread4/contracts/T4-15.json",
+        "thread4/contracts/T4-16.json",
+        "thread4/contracts/T4-17.json",
+        "thread4/contracts/T4-19.json",
+        "thread4/contracts/T4-20.json",
+        "thread4/contracts/T4-21.json",
+        "thread4/contracts/T4-22.json",
+        "thread4/contracts/T4-23.json",
+        "thread4/contracts/T4-24.json",
+        "thread4/contracts/T4-25.json",
+        "thread4/contracts/T4-26.json",
+        "thread4/contracts/T4-27.2-EXP.json",
+        "thread4/contracts/T4-27.json",
+        "thread4/contracts/T4-28.json",
+        "thread4/contracts/T4-29.json",
+        "thread4/contracts/T4-30.json",
+        "thread4/dice-archive.jsonl",
+        "thread4/events/chain.jsonl",
+        "thread4/events/log.jsonl",
+        "thread4/specs/bans.json",
+        "thread4/specs/carriers.json",
+        "thread4/specs/delivery-stats.json",
+        "thread4/specs/engine-forge.json",
+        "thread4/specs/engines.json",
+        "thread4/specs/facts.json",
+        "thread4/specs/golden-corpus.json",
+        "thread4/specs/hair-eye-library.json",
+        "thread4/specs/niche-archetypes.json",
+        "thread4/specs/oc-canon.json",
+        "thread4/specs/palettes.json",
+        "thread4/specs/policy.json",
+        "thread4/specs/pools.json",
+        "thread4/specs/poses.json",
+        "thread4/specs/races.json",
+        "thread4/specs/rating-recipes.json",
+        "thread4/specs/rating-techniques.json"
+      ],
+      "writes": [
+        "thread4",
+        "thread4/.selftest-atomic-1791987766812.tmp",
+        "thread4/.selftest-atomic-1791987766812.tmp.tmp-2890-1791987766812",
+        "thread4/batches",
+        "thread4/contracts",
+        "thread4/drafts",
+        "thread4/events",
+        "thread4/events/log.jsonl.lock",
+        "thread4/specs"
+      ],
+      "stats": 51,
+      "readdirs": 1
+    },
+    {
+      "name": "stack_T4-30",
+      "ok": true,
+      "reads": [
+        "thread4/batches/T4-23.md",
+        "thread4/batches/T4-24.md",
+        "thread4/batches/T4-25.md",
+        "thread4/batches/T4-26.md",
+        "thread4/batches/T4-27.2-EXP.md",
+        "thread4/batches/T4-27.md",
+        "thread4/batches/T4-28.md",
+        "thread4/batches/T4-29.md",
+        "thread4/batches/T4-30.md",
+        "thread4/contracts/T4-25.json",
+        "thread4/contracts/T4-26.json",
+        "thread4/contracts/T4-27.2-EXP.json",
+        "thread4/contracts/T4-27.json",
+        "thread4/contracts/T4-28.json",
+        "thread4/contracts/T4-29.json",
+        "thread4/contracts/T4-30.json",
+        "thread4/events/log.jsonl",
+        "thread4/specs/carriers.json",
+        "thread4/specs/policy.json"
+      ],
+      "writes": [
+        "thread4",
+        "thread4/batches",
+        "thread4/contracts",
+        "thread4/drafts",
+        "thread4/events",
+        "thread4/specs"
+      ],
+      "stats": 18,
+      "readdirs": 0
+    },
+    {
+      "name": "state",
+      "ok": true,
+      "reads": [
+        "thread4/events/log.jsonl",
+        "thread4/specs/policy.json"
+      ],
+      "writes": [
+        "thread4",
+        "thread4/batches",
+        "thread4/contracts",
+        "thread4/drafts",
+        "thread4/events",
+        "thread4/specs"
+      ],
+      "stats": 0,
+      "readdirs": 0
+    },
+    {
+      "name": "trial_живая_пара_",
+      "ok": true,
+      "reads": [
+        "thread4/batches/T4-27.2-EXP.md",
+        "thread4/batches/T4-27.md",
+        "thread4/events/log.jsonl",
+        "thread4/specs/policy.json"
+      ],
+      "writes": [
+        "download",
+        "download/trial-T4-27.2-EXP.md",
+        "download/trial-T4-27.2-EXP.md.tmp-2955-1791987769413",
+        "download/trial-T4-27.md",
+        "download/trial-T4-27.md.tmp-2955-1791987769409",
+        "thread4",
+        "thread4/batches",
+        "thread4/contracts",
+        "thread4/drafts",
+        "thread4/events",
+        "thread4/specs"
+      ],
+      "stats": 1,
+      "readdirs": 0
+    },
+    {
+      "name": "verify",
+      "ok": true,
+      "reads": [
+        "thread4/events/chain.jsonl",
+        "thread4/events/log.jsonl",
+        "thread4/specs/policy.json"
+      ],
+      "writes": [],
+      "stats": 0,
+      "readdirs": 0
+    }
+  ],
+  "groups": [
+    "cli.ts (техпроцесс: seed/compile/scribe/check/gates/deliver…)",
+    "API-роуты дашборда ×21",
+    "UI (page.tsx + layout.tsx)",
+    "proxy.ts (CSP-nonce)",
+    "tool thread4/tools/gates-dump.ts",
+    "tool thread4/tools/refresh-t425-v2.ts",
+    "tool thread4/tools/stack-report.ts",
+    "tool thread4/tools/gen-t4272-contract.ts",
+    "tool thread4/tools/polish-batch.ts",
+    "tool thread4/tools/kin-block.ts",
+    "tool thread4/tools/drift-report.ts",
+    "tool thread4/tools/build-golden-corpus.ts",
+    "tool thread4/tools/trace-preload.cjs",
+    "tool thread4/tools/trace-run.ts",
+    "tool thread4/tools/trial-export.ts",
+    "tool thread4/tools/tmp/sync-t428-law26b.ts",
+    "tool thread4/tools/tmp/sync-t428-law26.ts",
+    "tool thread4/tools/tmp/fixpass-law26.ts",
+    "tool thread4/tools/gen-rawplus.ts",
+    "tool thread4/tools/gen-t426-contract.ts",
+    "tool thread4/tools/post-issues.ts",
+    "tool thread4/tools/verify-chain-quick.ts",
+    "tool thread4/tools/diff-export.ts",
+    "tool thread4/tools/render-lists.ts",
+    "tool thread4/tools/gen-t427-contract.ts",
+    "tool thread4/tools/dice.ts"
+  ]
+}
