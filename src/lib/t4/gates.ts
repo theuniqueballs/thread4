@@ -453,6 +453,27 @@ export function windowOthersFor(
   })
 }
 
+/** Ревизия 2026-10-14 (после сдачи T4-31): РЕТРОАКТИВНОЕ ОКНО. Повторный
+ *  прогон сданного батча судился по ТЕКУЩЕМУ окну — члены, сданные ПОЗЖЕ
+ *  него, ретроактивно роняли старый батч материалом, легально свободным
+ *  на его сдаче (живой случай: T4-27.2-EXP × T4-31 — 4 палитры, свободные
+ *  вне окна генерации T4-31; selftest «перестройка проходит окно» упал
+ *  ровно на этом). Правило: сданный батч сравнивается только с членами
+ *  окна, сданными НЕ ПОЗЖЕ него самого; несданный (прогон до delivery)
+ *  видит всё текущее окно. История стабильна, будущее не судит прошлое.
+ *  Экспорт — для selftest (чистая функция). */
+export function historicalWindowFor(
+  batchSlug: string,
+  state: { batches: { slug: string; deliveredAt?: string | null }[]; windowSlugs: string[] }
+): string[] {
+  const mine = state.batches.find((b) => b.slug === batchSlug)
+  if (!mine?.deliveredAt) return state.windowSlugs
+  return state.windowSlugs.filter((w) => {
+    const wm = state.batches.find((b) => b.slug === w)
+    return !wm?.deliveredAt || wm.deliveredAt <= mine.deliveredAt
+  })
+}
+
 /** Точки-концы предложений в POS (закон №23). Десятичные в тегах
  * («2.5d», «v2.0») — не проза: точка между цифрами не считается.
  * Экспорт — для selftest (чистая функция). */
@@ -971,7 +992,7 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
       // переиспользование палитр/поз источника и есть смысл перестройки
       const windowOthers = windowOthersFor(
         batch.slug,
-        state.windowSlugs,
+        historicalWindowFor(batch.slug, state),
         contract.rebuildOf
       )
       const myPoses = new Set(
@@ -1602,7 +1623,7 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
      * двусторонний), а simcheck — только собственный rebuildOf. Прогон
      * источника (T4-27 после сдачи T4-27.2-EXP) ловил ложные WARN на том
      * же легальном материале. Теперь один источник исключения на оба гейта. */
-    for (const w of windowOthersFor(batch.slug, state.windowSlugs, contract?.rebuildOf)) {
+    for (const w of windowOthersFor(batch.slug, historicalWindowFor(batch.slug, state), contract?.rebuildOf)) {
       const wText = readText(path.join(BATCHES_DIR, `${w}.md`))
       if (!wText) continue
       const wBatch = parseBatch(w, wText)

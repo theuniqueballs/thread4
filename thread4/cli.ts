@@ -817,7 +817,23 @@ async function main() {
         g272?.receipts.find((r) => r.gate === 'window')?.verdict === 'PASS'
       )
       /* аудит-2026-10-12: асимметрия ребилд↔источник (хвост #48) + RAW-видимость */
-      const { sentenceDots, closerClassOf } = await import('../src/lib/t4/gates')
+      const { sentenceDots, closerClassOf, historicalWindowFor } = await import('../src/lib/t4/gates')
+      /* ревизия 2026-10-14 (сдача T4-31): ретроактивное окно — регрессия на
+       * живом случае: T4-27.2-EXP ронялся будущим членом T4-31 (4 палитры) */
+      const hwState = {
+        batches: [
+          { slug: 'OLD', deliveredAt: '2026-10-11T00:00:00.000Z' },
+          { slug: 'FUT', deliveredAt: '2026-10-14T00:00:00.000Z' },
+          { slug: 'PAST', deliveredAt: '2026-10-10T00:00:00.000Z' },
+          { slug: 'NODEL' },
+        ],
+        windowSlugs: ['FUT', 'PAST', 'NODEL'],
+      }
+      check(
+        'ретроактивное окно: сданный батч не судится будущими членами; несданный видит всё (T4-27.2-EXP × T4-31, сдача 2026-10-14)',
+        JSON.stringify(historicalWindowFor('OLD', hwState)) === JSON.stringify(['PAST', 'NODEL']) &&
+          JSON.stringify(historicalWindowFor('NEW', hwState)) === JSON.stringify(['FUT', 'PAST', 'NODEL'])
+      )
       const g27 = runGates('T4-27', true)
       check(
         'window-гейт: исключение двустороннее — источник не фейлит на материале собственной перестройки',
