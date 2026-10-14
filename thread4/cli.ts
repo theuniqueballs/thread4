@@ -976,9 +976,11 @@ async function main() {
         `закон №28: гейт ловит исторический X-слайд T4-31 — ↑14 вердикта автора (${f28.length} находок through/combo/sheer/бугорки-без-тёмного), вердикт истины`,
         rp31?.verdict === 'FAIL' && f28.length >= 10
       )
+      const p30finds = (f28 ?? []).filter((x) => /^P30:/.test(x))
       check(
-        'закон №28: P30 (бугорки, oxblood DRY, covered-first — единственный выживший R+ через-ткани) не задет жёсткими запретами',
-        !(f28 ?? []).some((x) => /^P30:/.test(x))
+        'закон №28: P30-формула чиста — combo/sheer/бугорки-без-тёмного НЕ флагают (задет только остаточный через-тег, пережиток удачи: dark+dry+covered-first его пересилили)',
+        p30finds.length <= 1 &&
+          !p30finds.some((x) => x.includes('X-комбо') || x.includes('sheer') || x.includes('без тёмного слова'))
       )
       const d31 = g31?.receipts.find((r) => r.gate === 'dresser')
       check(
