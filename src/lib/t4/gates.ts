@@ -39,17 +39,18 @@ export interface GatesResult {
 }
 
 /** Всего гейтов в прогоне (state-панель читает отсюда — одна истина).
- *  База 24 = 6 hard (structure, floors, rating-recipe, canon, diversity,
- *  window) + 15 warn (budget, cadence, niche-legibility, prop-geometry,
+ *  База 25 = 6 hard (structure, floors, rating-recipe, canon, diversity,
+ *  window) + 16 warn (budget, cadence, niche-legibility, prop-geometry,
  *  claim-visibility, technique-layers, noun-lock, character-collision,
  *  ab-single-variable, theme-presence, original-character-coverage,
- *  artist-leak, garment-family, simcheck, salience-chain) + 3 advisory
- *  (freq-report, usage, technique-map).
- *  Условные ВНЕ счёта 24: raw-plus (hard — при маркере RAW+ в H1 или
+ *  artist-leak, garment-family, simcheck, salience-chain,
+ *  contract-fidelity) + 3 advisory (freq-report, usage, technique-map).
+ *  Условные ВНЕ счёта базы: raw-plus (hard — при маркере RAW+ в H1 или
  *  engine контракта raw-plus), rating-recipe-exploratory и
  *  raw-plus-exploratory (warn — при ⚗-маркерах): живой прогон даёт
- *  25–27 квитанций (аудит-2026-10-12, поправка арифметики комментария). */
-export const GATES_TOTAL = 24
+ *  26–28 квитанций. Ревизия 2026-10-14: +contract-fidelity (warn) —
+ *  сверка батча с контрактом, кино-сдвиг T4-30. */
+export const GATES_TOTAL = 25
 
 /* ------------------------------------------------------------------ */
 /* Batch file parsing                                                  */
@@ -172,6 +173,122 @@ export function tierOf(meta: string): string {
   if (/\bX\b/.test(u)) return 'X'
   if (/\bR\b/.test(u)) return 'R'
   return ''
+}
+
+/* ---------------- contract fidelity (ревизия 2026-10-14) ---------------- */
+
+export interface FidelitySlot {
+  position: number
+  kind?: string
+  oc?: string
+  rating?: string
+  race?: string
+  pose?: string
+  palette?: string
+  carriers?: { id: string }[]
+}
+
+/** Кин-токены расы для сверки POS: имя (cat → «cat», «cat girl»),
+ *  скобочные синонимы («Kitsune (fox-kin)» → fox), существительные фич
+ *  («horns half-curl» → «horns») — тот же паттерн, что строит
+ *  kin-block.ts: раса обязана ФИЗИЧЕСКИ работать в кадре (закон №3). */
+function kinTokensOf(
+  raceName: string,
+  racesSpec: { races: { name: string; features: string[] }[] } | null
+): string[] {
+  const out = new Set<string>()
+  const name = raceName.trim()
+  if (!name) return []
+  const core = name.replace(/\s*\(.*?\)\s*/g, '').trim()
+  const paren = (/\((.*?)\)/.exec(name)?.[1] ?? '').trim()
+  const push = (sRaw: string) => {
+    const s = sRaw.toLowerCase().replace(/-?\s*kin/g, '').trim()
+    if (s && s !== 'human' && s.length >= 3) {
+      out.add(s)
+      out.add(`${s} girl`)
+    }
+  }
+  push(core)
+  for (const p of paren.split(/[,/]/)) push(p.trim())
+  const spec = racesSpec?.races.find(
+    (r) => r.name.toLowerCase() === core.toLowerCase()
+  )
+  for (const feat of spec?.features ?? []) {
+    const head = feat.toLowerCase().split(' — ')[0].trim()
+    if (!head || /sol|lock|forbid/i.test(head)) continue
+    out.add(head)
+    out.add(head.split(/\s+/)[0])
+  }
+  out.delete('human')
+  return [...out]
+}
+
+/** Сверка собранного батча с его контрактом по осям, которые машина
+ *  обещала: поза PL, палитра, стек носителей, рейтинг, OC-имя, расовый
+ *  тег-блок. Дефект T4-30: LLM-чанки и ручная хирургия сдвигают кин-блоки
+ *  и позы на соседний слот (cat → P08, oni исчез) — файл расходился с
+ *  контрактом молча. Чистая функция: кормится любым батчем/контрактом,
+ *  самотест гоняет её на синтетике. */
+export function contractFidelity(
+  contract: { slots: FidelitySlot[] },
+  batch: ParsedBatch,
+  racesSpec: { races: { name: string; features: string[] }[] } | null = null
+): string[] {
+  const f: string[] = []
+  const esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  const byPos = new Map(batch.slots.map((s) => [s.position, s]))
+  for (const cs of contract.slots) {
+    const label = `P${String(cs.position).padStart(2, '0')}`
+    const bs = byPos.get(cs.position)
+    if (!bs) {
+      f.push(`${label}: слот контракта отсутствует в батче`)
+      continue
+    }
+    const meta = bs.meta
+    if (cs.pose && !new RegExp(`\\b${esc(cs.pose)}\\b`).test(meta)) {
+      f.push(
+        `${label}: поза контракта ${cs.pose} ≠ шапки батча (${meta.match(/PL\d+/)?.[0] ?? '—'}) — кино-сдвиг (класс T4-30), вернуть позу из Spine`
+      )
+    }
+    if (
+      cs.palette &&
+      !new RegExp(`\\b${esc(cs.palette)}\\b`).test(meta)
+    ) {
+      f.push(
+        `${label}: палитра контракта ${cs.palette} ≠ шапки (${meta.match(/P\d{1,3}_[A-Z_]+/)?.[0] ?? '—'})`
+      )
+    }
+    if (cs.rating && cs.rating !== tierOf(meta)) {
+      f.push(`${label}: рейтинг контракта ${cs.rating} ≠ шапки ${tierOf(meta) || '—'}`)
+    }
+    if (cs.oc && !meta.toLowerCase().includes(cs.oc.toLowerCase())) {
+      f.push(`${label}: OC контракта ${cs.oc} не назван в шапке слота`)
+    }
+    if (cs.race) {
+      const tokens = kinTokensOf(cs.race, racesSpec)
+      const posLower = bs.pos.toLowerCase().replace(/_/g, ' ')
+      if (tokens.length > 0 && !tokens.some((t) => posLower.includes(t))) {
+        f.push(
+          `${label}: раса «${cs.race}» не работает в кадре — POS не несёт ни одного её токена (${tokens
+            .slice(0, 4)
+            .join(', ')}) — закон №3: раса делает ФИЗИЧЕСКУЮ работу, не тег-бижутерию`
+        )
+      }
+    }
+    const stackC = (cs.carriers ?? []).map((c) => c.id).filter(Boolean)
+    if (stackC.length > 0) {
+      const miss = stackC.filter((id) => !bs.stack.includes(id))
+      const extra = bs.stack.filter((id) => !stackC.includes(id))
+      if (miss.length > 0 || extra.length > 0) {
+        f.push(
+          `${label}: стек контракта [${stackC.join(' + ')}] ≠ Stack: [${bs.stack.join(
+            ' + '
+          )}]${miss.length ? ` — потеряно: ${miss.join(', ')}` : ''}${extra.length ? ` — лишнее: ${extra.join(', ')}` : ''}`
+        )
+      }
+    }
+  }
+  return f
 }
 
 function recipeKey(tier: string): string {
@@ -307,6 +424,10 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
       position: number
       rating: string
       race?: string
+      pose?: string
+      palette?: string
+      kind?: string
+      oc?: string
       poseRisk?: string
       poseName?: string
       carriers: { id: string }[]
@@ -1935,6 +2056,28 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
         receipts.push({ gate: 'raw-plus-exploratory', level: 'warn', verdict: 'WARN', findings: expl })
       }
     }
+  }
+
+  /* ---------------- 26. contract-fidelity (warn) ---------------- */
+  /* Ревизия 2026-10-14: T4-30 — LLM-чанки и ручная хирургия сдвигают
+   * кин-блоки и позы на соседний слот (cat → P08, oni исчез), файл
+   * расходится с контрактом молча. Сверка по обещанным осям: PL-поза,
+   * палитра, стек, рейтинг, OC-имя, расовый тег-блок. WARN: не блокирует
+   * сдачу, но полирующий круг писца чинит эти слоты автоматически
+   * (scribe.ts POLISH_GATES) — верность контракту стала саморемонтной. */
+  {
+    const fidelity = contract
+      ? contractFidelity(
+          { slots: contract.slots },
+          batch,
+          getRaces()
+        )
+      : []
+    warn(
+      'contract-fidelity',
+      fidelity,
+      contract ? undefined : ['контракта нет — RAW/ручная сборка: верность контракту не проверяема']
+    )
   }
 
   /* ---------------- receipt + event ---------------- */

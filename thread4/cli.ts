@@ -805,6 +805,77 @@ async function main() {
       )
     }
 
+    // Ревизия 2026-10-14: contract-fidelity — кино-сдвиг ловится (дефект T4-30)
+    {
+      const { contractFidelity } = await import('../src/lib/t4/gates')
+      const { getRaces } = await import('../src/lib/t4/specs')
+      const races = getRaces()
+      const cfContract = {
+        slots: [
+          {
+            position: 1,
+            kind: 'NICHE',
+            rating: 'R',
+            pose: 'PL175',
+            palette: 'P01_TEST_X',
+            carriers: [{ id: 'CR-W01' }, { id: 'CR-B03' }],
+          },
+          { position: 2, kind: 'VOLT', rating: 'R+', race: 'Cat', pose: 'PL22', palette: 'P02_TEST_Y', carriers: [{ id: 'CR-W02' }] },
+        ],
+      }
+      const mdShift = [
+        '# T4-96 — тест',
+        '',
+        'P01 — anchor-one (NICHE · R · PL22 · P01_TEST_X)',
+        'THESIS: t',
+        'Stack: CR-W01 + CR-E05',
+        'POS:',
+        'tags, tags',
+        'NEG:',
+        'bad',
+        '',
+        'P02 — anchor-two (VOLT · R+ · PL22 · P02_TEST_Y)',
+        'THESIS: t',
+        'Stack: CR-W02',
+        'POS:',
+        'girl, standing, smile',
+        'NEG:',
+        'bad',
+      ].join('\n')
+      const fid = contractFidelity(cfContract, parseBatch('T4-96', mdShift), races)
+      check(
+        'contract-fidelity: ловит сдвиг позы PL175→PL22, расхождение стека и пропавший кин-блок (дефект T4-30)',
+        fid.some((x) => x.includes('PL175')) &&
+          fid.some((x) => x.includes('CR-B03')) &&
+          fid.some((x) => x.includes('раса «Cat»'))
+      )
+      const goodSlot = {
+        position: 1,
+        kind: 'NICHE',
+        rating: 'R',
+        race: 'Cat',
+        pose: 'PL175',
+        palette: 'P01_TEST_X',
+        carriers: [{ id: 'CR-W01' }, { id: 'CR-B03' }],
+      }
+      const mdGood = [
+        '# T4-97 — тест',
+        '',
+        'P01 — anchor-one (NICHE · R · PL175 · P01_TEST_X)',
+        'THESIS: t',
+        'Stack: CR-W01 + CR-B03',
+        'POS:',
+        'cat girl, cat ears, cat tail, scene',
+        'NEG:',
+        'bad',
+      ].join('\n')
+      const fidGood = contractFidelity({ slots: [goodSlot] }, parseBatch('T4-97', mdGood), races)
+      check(
+        'contract-fidelity: верный слот (поза/палитра/стек/кин на месте) не шумит',
+        fidGood.length === 0
+      )
+    }
+
     // RAW+ генератор (кины в конвейер, закон №3 + A5: hair/eye E3, echo F13)
     {
       const { planRawPlus } = await import('./tools/gen-rawplus')

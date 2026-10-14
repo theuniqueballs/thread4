@@ -1072,7 +1072,10 @@ async function scribeBatchInner(
     /* полировка только поверх hard PASS: черновик с hard FAIL сначала
      * ремонтируется (или сдаётся автору с квитанциями), полировка
      * поверх поломанного — трата круга LLM впустую */
-    const POLISH_GATES = new Set(['noun-lock', 'claim-visibility', 'prop-geometry', 'simcheck'])
+    /* Ревизия 2026-10-14: +contract-fidelity — кино-сдвиги (T4-30: cat → P08,
+     * oni исчез) чинятся тем же кругом: слот переписывается ПО КОНТРАКТУ,
+     * раса/поза/стек возвращаются в кадр без ручной хирургии автора. */
+    const POLISH_GATES = new Set(['noun-lock', 'claim-visibility', 'prop-geometry', 'simcheck', 'contract-fidelity'])
     const warnFindings = result.receipts.filter(
       (r) => r.level === 'warn' && r.verdict === 'WARN' && POLISH_GATES.has(r.gate)
     )
