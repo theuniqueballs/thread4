@@ -964,6 +964,29 @@ async function main() {
       )
     }
 
+    // Закон №28 (ПРИНЯТ вердиктом T4-31, EXP-изоляция тона 7/8 X):
+    // доказательная пара — гейт ловит ИСТОРИЮ (через-теги на R+ из 25
+    // заявок — ↑14 X-слайдов автора), P30-выживший (бугорки, тёмный, DRY)
+    // не задет жёсткими запретами. Дрессер №29 — квитанции каналов.
+    {
+      const g31 = runGates('T4-31', true)
+      const rp31 = g31?.receipts.find((r) => r.gate === 'rating-recipe')
+      const f28 = (rp31?.findings ?? []).filter((x) => x.includes('закон №28'))
+      check(
+        `закон №28: гейт ловит исторический X-слайд T4-31 — ↑14 вердикта автора (${f28.length} находок through/combo/sheer/бугорки-без-тёмного), вердикт истины`,
+        rp31?.verdict === 'FAIL' && f28.length >= 10
+      )
+      check(
+        'закон №28: P30 (бугорки, oxblood DRY, covered-first — единственный выживший R+ через-ткани) не задет жёсткими запретами',
+        !(f28 ?? []).some((x) => /^P30:/.test(x))
+      )
+      const d31 = g31?.receipts.find((r) => r.gate === 'dresser')
+      check(
+        `Дрессер №29: квитанции когерентности по T4-31 (see-through/wet-риски + garter-история; ${d31?.findings?.length ?? 0} квитанций)`,
+        (d31?.findings?.length ?? 0) >= 3
+      )
+    }
+
     // Ревизия 2026-10-14: contract-fidelity — кино-сдвиг ловится (дефект T4-30)
     {
       const { contractFidelity } = await import('../src/lib/t4/gates')
