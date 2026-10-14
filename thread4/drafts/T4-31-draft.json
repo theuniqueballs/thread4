@@ -1,0 +1,57 @@
+{
+  "slug": "T4-31",
+  "kind": "draft",
+  "status": "draft — без компиляции (Issue #21: авто-входы low-trust; это письменный бриф писцу)",
+  "createdAt": "2026-10-14T16:17:28.460Z",
+  "theme": "What the Fuck is That 2",
+  "ocThemes": [
+    {
+      "theme": "Queen of Pain",
+      "rating": "R+",
+      "wishes": "",
+      "position": 1
+    },
+    {
+      "theme": "OVER OVER OVER YANDERE",
+      "rating": "R+",
+      "wishes": "",
+      "position": 2
+    },
+    {
+      "theme": "Kill la Kill",
+      "rating": "R+",
+      "wishes": "",
+      "position": 3
+    }
+  ],
+  "mainWishes": "постарайся не повторять сцены прошлого WTF, постарайся использовать только новейшие разработки!\nплюс, не одна тема проверки в EXP слотах, проверь всё что тебя интересует, чтобы делать выводы!",
+  "species": {
+    "on": true,
+    "count": 13,
+    "list": [
+      "R02",
+      "R03",
+      "R04",
+      "R07",
+      "R10",
+      "R09",
+      "R13",
+      "R14",
+      "R15",
+      "R17",
+      "R18",
+      "R20",
+      "R21",
+      "R25",
+      "R28",
+      "R29",
+      "R30"
+    ]
+  },
+  "xSlots": 0,
+  "abPairs": 3,
+  "exp": 8,
+  "rehab": true,
+  "engine": "per-theme",
+  "notes": ""
+}
