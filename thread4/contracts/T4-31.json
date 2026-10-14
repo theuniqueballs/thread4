@@ -1,0 +1,1826 @@
+{
+  "slug": "T4-31",
+  "theme": "What the Fuck is That 2",
+  "engine": "per-theme raw-plus",
+  "engineLaw": "RAW+ сборка (№23) + расовый тег-блок (закон №3, kin-block: POS-теги + anti-shield NEG + свет/гардеробные хуки) + hair/eye из библиотеки E3 (A5P3F: независимо от палитры, подсказка ~50%) + echo-мотивы F13 (2-3 на батч, арка трёх актов, мутация ≥2 параметров из разных групп) + палитры вне окна ротации",
+  "engineWhy": "кины потеряны в RAW-миграции с T4-23 по небрежности генераторов (закон №3 не отменялся); практики A5 (hair/eye библиотека, echo-мотивы) не доехали в спеки RAW-эры — возвращены по приказу автора 2026-10-11",
+  "authorWishes": "постарайся не повторять сцены прошлого WTF, постарайся использовать только новейшие разработки!\nплюс, не одна тема проверки в EXP слотах, проверь всё что тебя интересует, чтобы делать выводы! · писец (сборка 2026-10-14): список видов обрезан 17→14 — закон сажает максимум 14 (7 NICHE); срезаны R03 Kitsune / R17 Jellyfish / R30 Frog — каждый 3/3 в последних трёх контрактах (T4-28/29/30), максимальная заезженность по окну ротации + пожелание автора «не повторять». Полный оригинал 17: R02 R03 R04 R07 R10 R09 R13 R14 R15 R17 R18 R20 R21 R25 R28 R29 R30. UI позволил заказать 17 при пределе 14 — заводка в Issues/thread4.",
+  "draftRef": "thread4/drafts/T4-31-draft.json",
+  "seed": 1791995174445,
+  "createdAt": "2026-10-14T16:26:14.462Z",
+  "spread": [
+    {
+      "rating": "R+",
+      "count": 25
+    },
+    {
+      "rating": "R",
+      "count": 7
+    }
+  ],
+  "slots": [
+    {
+      "position": 1,
+      "kind": "OC",
+      "oc": "Lucy",
+      "ocTheme": "Queen of Pain",
+      "rating": "R+",
+      "pose": "PL41",
+      "poseName": "Slow Undress Pause",
+      "poseRisk": "MID",
+      "palette": "P47_PORCELAIN_LACQUER",
+      "paletteName": "Porcelain Lacquer",
+      "kinetics": [
+        "K05"
+      ],
+      "carriers": [
+        {
+          "id": "CR-W17",
+          "name": "Open-Weave Light",
+          "cls": "W"
+        },
+        {
+          "id": "CR-E04",
+          "name": "Back Zipper",
+          "cls": "E"
+        },
+        {
+          "id": "CR-G07",
+          "name": "Hip-Height Doorframe",
+          "cls": "G"
+        },
+        {
+          "id": "CR-D23",
+          "name": "Shiver Ripple",
+          "cls": "D"
+        }
+      ],
+      "hair": "mint hair, loose mid-length with a wet-look wave (поле из плана контракта T4-29; рендер P18 — upper body, волосы не в кадре)",
+      "eyes": "pale-green eyes, half-closed — the drowsy neon gaze; зелёная в тон свечения кожи (рендер P18)",
+      "hairEyeFrom": "canon",
+      "lead": "cheeks",
+      "register": "oc",
+      "closer": "action-close",
+      "diceSig": "A1·B6·C1·D4·E4",
+      "dice": "A1 hair-first: волосы первыми, потом глаза, потом раса/тело · B6 tactile-first: «fabric against skin…» — прикосновение первым · C1 theme-noun: тема стала ОБЪЕКТОМ кадра (нарисованная вещь — не название темы в тегах) · D4 atmospheric-wash: цветовой залив всего пространства · E4 one-breath: одно предложение на весь кадр, длинное",
+      "fabricTone": "dark"
+    },
+    {
+      "position": 2,
+      "kind": "OC",
+      "oc": "Rue",
+      "ocTheme": "OVER OVER OVER YANDERE",
+      "rating": "R+",
+      "pose": "PL130",
+      "poseName": "Ladder-Lean Hook",
+      "poseRisk": "MID",
+      "palette": "P27_VOID_STARLIGHT",
+      "paletteName": "Void Starlight",
+      "kinetics": [
+        "K62"
+      ],
+      "carriers": [
+        {
+          "id": "CR-L10",
+          "name": "Collars Overlapping Wrong",
+          "cls": "L"
+        },
+        {
+          "id": "CR-G03",
+          "name": "Between-Knees Sightline",
+          "cls": "G"
+        },
+        {
+          "id": "CR-W28",
+          "name": "Splash-Side",
+          "cls": "W"
+        },
+        {
+          "id": "CR-D03",
+          "name": "Quarter-Turn Lead",
+          "cls": "D"
+        }
+      ],
+      "hair": "dusty-rose hair in a crown braid halo, small escaped strands at the nape (HS11)",
+      "eyes": "haunted ruby eyes, level and somewhere else",
+      "hairEyeFrom": "canon",
+      "lead": "thighs",
+      "register": "oc",
+      "closer": "fragment-pair",
+      "diceSig": "A2·B5·C2·D8·E4",
+      "dice": "A2 race-first: расовые теги первими (ears/wings/tail/scales), потом волосы · B5 absence-first: «nothing underneath the…» — отсутствие первым · C2 theme-action: она ДЕЛАЕТ тему телом/действием (нарисованное действие, без слов темы) · D8 borrowed-light: зона ловит чужой свет (мокрое стекло/зеркало) · E4 one-breath: одно предложение на весь кадр, длинное",
+      "fabricTone": "dark"
+    },
+    {
+      "position": 3,
+      "kind": "OC",
+      "oc": "Rin",
+      "ocTheme": "Kill la Kill",
+      "rating": "R+",
+      "pose": "PL71",
+      "poseName": "Towel Clamp Stand",
+      "poseRisk": "MID",
+      "palette": "P62_PLATINUM_VOID",
+      "paletteName": "Platinum Void",
+      "kinetics": [
+        "K140"
+      ],
+      "carriers": [
+        {
+          "id": "CR-G07",
+          "name": "Hip-Height Doorframe",
+          "cls": "G"
+        },
+        {
+          "id": "CR-E12",
+          "name": "Last Button",
+          "cls": "E"
+        },
+        {
+          "id": "CR-M16",
+          "name": "Measuring Tape",
+          "cls": "M"
+        },
+        {
+          "id": "CR-W02",
+          "name": "Stretched Buttonholes",
+          "cls": "W"
+        }
+      ],
+      "hair": "copper-red hair in a voluminous cloud of tight curls haloing her head (HS22-revised v1.3.0) — the roundness full between cheekbone and collarbone, LENGTH LOCK: never past the shoulders (N14 POS rendered long; the PH wording rendered right — use PH-style phrasing)",
+      "eyes": "jade, half-closed into the glow, beyond the evening",
+      "hairEyeFrom": "canon",
+      "lead": "collarbone",
+      "register": "oc",
+      "closer": "dialogue",
+      "diceSig": "A4·B5·C4·D2·E5",
+      "dice": "A4 body-first: форма тела первой (register-теги), потом волосы · B5 absence-first: «nothing underneath the…» — отсутствие первым · C4 theme-transform: тема ИЗМЕНИЛА её/мир (результат виден) · D2 edge-on-skin: свет красит кромку тела на зоне · E5 dialogue-close: проза + реплика в конце (closer-dialogue)",
+      "fabricTone": "dark"
+    },
+    {
+      "position": 4,
+      "kind": "VOLT",
+      "rating": "R+",
+      "pose": "PL198",
+      "poseName": "Sofa-Corner Curl",
+      "poseRisk": "LOW",
+      "palette": "P20_VOID_PRISM",
+      "paletteName": "Void Prism",
+      "kinetics": [
+        "K81"
+      ],
+      "carriers": [
+        {
+          "id": "CR-F10",
+          "name": "Pigeon Pose",
+          "cls": "F"
+        },
+        {
+          "id": "CR-W04",
+          "name": "Ribbing Stress-Bands",
+          "cls": "W"
+        },
+        {
+          "id": "CR-C10",
+          "name": "Boyshort Bisection",
+          "cls": "C"
+        },
+        {
+          "id": "CR-H04",
+          "name": "Goosebumps On Spill",
+          "cls": "H"
+        }
+      ],
+      "hair": "black",
+      "eyes": "pink",
+      "hairEyeFrom": "suggestion",
+      "lead": "seat",
+      "register": "student",
+      "closer": "image-close",
+      "diceSig": "A3·B6·C3·D3·E5",
+      "dice": "A3 garment-first: именнованная вещь сразу после id — до волос · B6 tactile-first: «fabric against skin…» — прикосновение первым · C3 theme-absence: тема — то, чего в кадре НЕТ (пустота НАРИСОВАНА: пустой стул, открытая дверь — не названа тегом) · D3 shadow-contrast: свет против тени — контраст пары · E5 dialogue-close: проза + реплика в конце (closer-dialogue)",
+      "fabricTone": "dark",
+      "ab": {
+        "pair": "κ",
+        "half": "A",
+        "withSlot": 5,
+        "lead": "seat"
+      }
+    },
+    {
+      "position": 5,
+      "kind": "VOLT",
+      "rating": "R+",
+      "pose": "PL105",
+      "poseName": "Sprinter's Set",
+      "poseRisk": "HIGH",
+      "palette": "P90_FAIRY_LAUNDRY",
+      "paletteName": "Fairy Laundry",
+      "kinetics": [
+        "K152"
+      ],
+      "carriers": [
+        {
+          "id": "CR-F10",
+          "name": "Pigeon Pose",
+          "cls": "F"
+        },
+        {
+          "id": "CR-W27",
+          "name": "Steam-Damp",
+          "cls": "W"
+        },
+        {
+          "id": "CR-C10",
+          "name": "Boyshort Bisection",
+          "cls": "C"
+        },
+        {
+          "id": "CR-H04",
+          "name": "Goosebumps On Spill",
+          "cls": "H"
+        }
+      ],
+      "hair": "blonde",
+      "eyes": "pale-blue",
+      "hairEyeFrom": "library",
+      "lead": "seat",
+      "register": "student",
+      "closer": "long-fused",
+      "diceSig": "A3·B3·C4·D6·E5",
+      "dice": "A3 garment-first: именнованная вещь сразу после id — до волос · B3 reveal-first: «the blouse gives/conceals…» — что вещь отдаёт/держит · C4 theme-transform: тема ИЗМЕНИЛА её/мир (результат виден) · D6 dual-light: два источника, две температуры на зоне · E5 dialogue-close: проза + реплика в конце (closer-dialogue)",
+      "fabricTone": "dark",
+      "ab": {
+        "pair": "κ",
+        "half": "B",
+        "withSlot": 4,
+        "lead": "seat"
+      }
+    },
+    {
+      "position": 6,
+      "kind": "NICHE",
+      "rating": "R",
+      "race": "Goat-kin",
+      "raceId": "R09",
+      "kinPos": "goat girl, goat, horns small-ribbed-curved, ears long-drooping",
+      "kinNeg": "human ears, no horns",
+      "kinHook": "light: the horn's ribbing stripes the light",
+      "witnessHint": "свидетель в кадре обязателен (mirror/glass/monitor/phone/gauge…)",
+      "pose": "PL90",
+      "poseName": "Swing Forward Apex",
+      "poseRisk": "LOW",
+      "palette": "P54_ART_DECO_PLATINUM",
+      "paletteName": "Art Deco Platinum",
+      "kinetics": [
+        "K117"
+      ],
+      "carriers": [
+        {
+          "id": "CR-B03",
+          "name": "Peaks Through Dry Knit",
+          "cls": "B"
+        },
+        {
+          "id": "CR-E29",
+          "name": "Sarong Knot",
+          "cls": "E"
+        },
+        {
+          "id": "CR-H12",
+          "name": "Shiver At Strap Slide",
+          "cls": "H"
+        },
+        {
+          "id": "CR-M05",
+          "name": "Counter Reach",
+          "cls": "M"
+        }
+      ],
+      "hair": "platinum-white",
+      "eyes": "black",
+      "hairEyeFrom": "suggestion",
+      "lead": "hamstrings",
+      "register": "student",
+      "closer": "action-close",
+      "witness": "wet street",
+      "arch": "N04",
+      "door": "DREAM",
+      "spatial": "INSIDE",
+      "diceSig": "A4·B6·C5·D6·E6",
+      "dice": "A4 body-first: форма тела первой (register-теги), потом волосы · B6 tactile-first: «fabric against skin…» — прикосновение первым · C5 theme-witness: свидетель видит тему (третий глаз кадра) · D6 dual-light: два источника, две температуры на зоне · E6 question-close: проза заканчивается вопросом без ответа"
+    },
+    {
+      "position": 7,
+      "kind": "VOLT",
+      "rating": "R+",
+      "race": "Porcelain-doll",
+      "raceId": "R15",
+      "kinPos": "porcelain-doll, bisque skin with seams at joints, ball-joint elbows-and-knees, painted blush fixed",
+      "kinNeg": "normal human skin, no joints, subsurface glow",
+      "kinHook": "light: matte scatter, no subsurface glow — the uncanny read; collision: doll + ivory-white hair + veil = ASH-adjacent (avoid); mat: bisque-porcelain",
+      "pose": "PL192",
+      "poseName": "Lounger Side-Propp",
+      "poseRisk": "HIGH",
+      "palette": "P64_SUNRISE_INDIGO",
+      "paletteName": "Sunrise Indigo",
+      "kinetics": [
+        "K82"
+      ],
+      "carriers": [
+        {
+          "id": "CR-B29",
+          "name": "Window Reflection",
+          "cls": "B"
+        },
+        {
+          "id": "CR-F13",
+          "name": "Dash Slouch",
+          "cls": "F"
+        },
+        {
+          "id": "CR-I17",
+          "name": "Wet Footprints",
+          "cls": "I"
+        },
+        {
+          "id": "CR-W11",
+          "name": "Worn-Thin At The Strap",
+          "cls": "W"
+        }
+      ],
+      "hair": "sky-blue",
+      "eyes": "gold",
+      "hairEyeFrom": "suggestion",
+      "lead": "nape",
+      "register": "student",
+      "closer": "fragment-pair",
+      "diceSig": "A5·B2·C5·D2·E5",
+      "dice": "A5 marks-first: метки/шрамы/веснушки первыми, потом волосы · B2 state-first: «soaked through, the blouse…» — состояние первым словом · C5 theme-witness: свидетель видит тему (третий глаз кадра) · D2 edge-on-skin: свет красит кромку тела на зоне · E5 dialogue-close: проза + реплика в конце (closer-dialogue)",
+      "fabricTone": "dark",
+      "ab": {
+        "pair": "λ",
+        "half": "A",
+        "withSlot": 8,
+        "lead": "nape"
+      },
+      "echo": [
+        "gaze"
+      ]
+    },
+    {
+      "position": 8,
+      "kind": "VOLT",
+      "rating": "R+",
+      "race": "Dragon-kin",
+      "raceId": "R07",
+      "kinPos": "dragon girl, dragon, horns ridged swept-back, scales forearm-patches, wing-fragments at shoulder-blades",
+      "kinNeg": "no horns, no tail, no wings",
+      "kinHook": "light: the ridge-lines of horns hold shadow like canyon strata; pick: 1-2 codes max per girl (error budget §23)",
+      "pose": "PL108",
+      "poseName": "Skid-Stop Turn",
+      "poseRisk": "HIGH",
+      "palette": "P93_GLASS_BELL_JAR",
+      "paletteName": "Glass Bell Jar",
+      "kinetics": [
+        "K147"
+      ],
+      "carriers": [
+        {
+          "id": "CR-B29",
+          "name": "Window Reflection",
+          "cls": "B"
+        },
+        {
+          "id": "CR-F13",
+          "name": "Dash Slouch",
+          "cls": "F"
+        },
+        {
+          "id": "CR-M15",
+          "name": "Corset Exhale",
+          "cls": "M"
+        },
+        {
+          "id": "CR-W11",
+          "name": "Worn-Thin At The Strap",
+          "cls": "W"
+        }
+      ],
+      "hair": "brown",
+      "eyes": "dark-red",
+      "hairEyeFrom": "library",
+      "lead": "nape",
+      "register": "student",
+      "closer": "dialogue",
+      "diceSig": "A3·B3·C1·D1·E6",
+      "dice": "A3 garment-first: именнованная вещь сразу после id — до волос · B3 reveal-first: «the blouse gives/conceals…» — что вещь отдаёт/держит · C1 theme-noun: тема стала ОБЪЕКТОМ кадра (нарисованная вещь — не название темы в тегах) · D1 source-off-frame: источник за кадром, луч входит · E6 question-close: проза заканчивается вопросом без ответа",
+      "fabricTone": "dark",
+      "ab": {
+        "pair": "λ",
+        "half": "B",
+        "withSlot": 7,
+        "lead": "nape"
+      },
+      "echo": [
+        "clothing-state",
+        "textural"
+      ]
+    },
+    {
+      "position": 9,
+      "kind": "VOLT",
+      "rating": "R+",
+      "race": "Merfolk-adapt",
+      "raceId": "R13",
+      "kinPos": "merfolk-adapt, scales shin-and-hip, tide-line-tan",
+      "kinNeg": "human legs, legs",
+      "kinHook": "wardrobe: wet-look knits, nothing that minds water",
+      "pose": "PL206",
+      "poseName": "Knees Forehead Close",
+      "poseRisk": "LOW",
+      "palette": "P03_CYBER_ASH",
+      "paletteName": "Cyber Ash",
+      "kinetics": [
+        "K90"
+      ],
+      "carriers": [
+        {
+          "id": "CR-D04",
+          "name": "Overhead Reach Lift",
+          "cls": "D"
+        },
+        {
+          "id": "CR-H02",
+          "name": "Lip Bite At The Finding-Out",
+          "cls": "H"
+        },
+        {
+          "id": "CR-W03",
+          "name": "Side-Seam Strain",
+          "cls": "W"
+        },
+        {
+          "id": "CR-C09",
+          "name": "Pocket Frame",
+          "cls": "C"
+        }
+      ],
+      "hair": "silver",
+      "eyes": "gold",
+      "hairEyeFrom": "suggestion",
+      "lead": "hamstrings",
+      "register": "student",
+      "closer": "image-close",
+      "diceSig": "A3·B7·C2·D4·E3",
+      "dice": "A3 garment-first: именнованная вещь сразу после id — до волос · B7 action-clothing: «she reaches/leans, the garment…» — действие раскрывает вещь · C2 theme-action: она ДЕЛАЕТ тему телом/действием (нарисованное действие, без слов темы) · D4 atmospheric-wash: цветовой залив всего пространства · E3 action-beat: глагольная пулемётная очередь — движение",
+      "fabricTone": "dark",
+      "ab": {
+        "pair": "μ",
+        "half": "A",
+        "withSlot": 10,
+        "lead": "hamstrings"
+      }
+    },
+    {
+      "position": 10,
+      "kind": "VOLT",
+      "rating": "R+",
+      "pose": "PL13",
+      "poseName": "Flinch Recoil",
+      "poseRisk": "MID",
+      "palette": "P50_GLASS_AURORA",
+      "paletteName": "Glass Aurora",
+      "kinetics": [
+        "K89"
+      ],
+      "carriers": [
+        {
+          "id": "CR-D04",
+          "name": "Overhead Reach Lift",
+          "cls": "D"
+        },
+        {
+          "id": "CR-H02",
+          "name": "Lip Bite At The Finding-Out",
+          "cls": "H"
+        },
+        {
+          "id": "CR-W21",
+          "name": "Lycra Shine",
+          "cls": "W"
+        },
+        {
+          "id": "CR-C09",
+          "name": "Pocket Frame",
+          "cls": "C"
+        }
+      ],
+      "hair": "sky-blue",
+      "eyes": "violet",
+      "hairEyeFrom": "suggestion",
+      "lead": "hamstrings",
+      "register": "student",
+      "closer": "long-fused",
+      "diceSig": "A7·B3·C6·D6·E4",
+      "dice": "A7 claims-first: заявка-теги сразу после id — волосы после одежды · B3 reveal-first: «the blouse gives/conceals…» — что вещь отдаёт/держит · C6 theme-implied: тема вплетена без явного слова (только теги) · D6 dual-light: два источника, две температуры на зоне · E4 one-breath: одно предложение на весь кадр, длинное",
+      "fabricTone": "dark",
+      "ab": {
+        "pair": "μ",
+        "half": "B",
+        "withSlot": 9,
+        "lead": "hamstrings"
+      }
+    },
+    {
+      "position": 11,
+      "kind": "VOLT",
+      "rating": "R+",
+      "race": "Sheep-kin",
+      "raceId": "R28",
+      "kinPos": "sheep girl, sheep, spiral curled horns, wool fleece at shoulders and hips, droopy ears",
+      "kinNeg": "human ears, no horns",
+      "kinHook": "skin: warm cream; wardrobe: knit that sheds wool fluff; fleece peeks where the cloth ends",
+      "pose": "PL48",
+      "poseName": "Cloak Open",
+      "poseRisk": "HIGH",
+      "palette": "P87_ICE_SHEET_FIRSTLIGHT",
+      "paletteName": "Ice Sheet Firstlight",
+      "kinetics": [
+        "K169"
+      ],
+      "carriers": [
+        {
+          "id": "CR-W12",
+          "name": "Threadbare Tee",
+          "cls": "W"
+        },
+        {
+          "id": "CR-D09",
+          "name": "Jog Rhythm",
+          "cls": "D"
+        },
+        {
+          "id": "CR-G02",
+          "name": "Top-Down Shaft",
+          "cls": "G"
+        },
+        {
+          "id": "CR-S02",
+          "name": "Bare Shoulder Slope",
+          "cls": "S"
+        }
+      ],
+      "hair": "auburn",
+      "eyes": "violet",
+      "hairEyeFrom": "library",
+      "lead": "throat",
+      "register": "young",
+      "closer": "action-close",
+      "diceSig": "A2·B2·C2·D2·E4",
+      "dice": "A2 race-first: расовые теги первими (ears/wings/tail/scales), потом волосы · B2 state-first: «soaked through, the blouse…» — состояние первым словом · C2 theme-action: она ДЕЛАЕТ тему телом/действием (нарисованное действие, без слов темы) · D2 edge-on-skin: свет красит кромку тела на зоне · E4 one-breath: одно предложение на весь кадр, длинное",
+      "fabricTone": "light",
+      "targetChannel": "dry-sheer",
+      "targetChannelNote": "Сквозь-ткань заявка без состояния ткани (wet clothes / see-through / threadbare) не несёт edge. Мёртвые ткани (джинсы/бархат/кожа/свитпаны/бриджи/костюм) заявку не несут никогда. Уточнение v0.2.0: плотная сухая ≠ истёртая сухая — threadbare-sheer жив отдельным каналом. T4-25: 0/5 за батч. Карта T4-25 (закон №13): R+ доставляет только физика КОНТАКТА; прозрачность без прикосновения — 0/7 за батч по всему sheer-семейст",
+      "echo": [
+        "clothing-state",
+        "textural"
+      ]
+    },
+    {
+      "position": 12,
+      "kind": "VOLT",
+      "rating": "R+",
+      "race": "Deer-folk",
+      "raceId": "R10",
+      "kinPos": "deer-folk, horns smooth-unbranched, tail small",
+      "kinNeg": "no tail, no horns",
+      "kinHook": "collision: lavender hair + purple cheek-scales = DOE (different colors required)",
+      "pose": "PL195",
+      "poseName": "High-Bed Over-Look Crawl",
+      "poseRisk": "HIGH",
+      "palette": "P74_HONEY_STATIC",
+      "paletteName": "Honey Static",
+      "kinetics": [
+        "K101"
+      ],
+      "carriers": [
+        {
+          "id": "CR-H07",
+          "name": "Held Breath At Zipper",
+          "cls": "H"
+        },
+        {
+          "id": "CR-W27",
+          "name": "Steam-Damp",
+          "cls": "W"
+        },
+        {
+          "id": "CR-B24",
+          "name": "Unhidden Shadows",
+          "cls": "B"
+        },
+        {
+          "id": "CR-E13",
+          "name": "Placket Gape",
+          "cls": "E"
+        }
+      ],
+      "hair": "golden",
+      "eyes": "gold",
+      "hairEyeFrom": "suggestion",
+      "lead": "waist",
+      "register": "young",
+      "closer": "fragment-pair",
+      "diceSig": "A6·B7·C6·D6·E6",
+      "dice": "A6 kinetic-first: движение-тег первым (mid-motion), потом id-хвост · B7 action-clothing: «she reaches/leans, the garment…» — действие раскрывает вещь · C6 theme-implied: тема вплетена без явного слова (только теги) · D6 dual-light: два источника, две температуры на зоне · E6 question-close: проза заканчивается вопросом без ответа",
+      "fabricTone": "light",
+      "targetChannel": "wet-sheer-flat",
+      "targetChannelNote": "Состояние ткани без подачи — «выглядит эротично, но ничего эротического не делает». Салиенс-цепочка рвётся на INTERPRETATION: сигнал присутствует, но не прочитывается.",
+      "echo": [
+        "gaze"
+      ]
+    },
+    {
+      "position": 13,
+      "kind": "NICHE",
+      "rating": "R",
+      "race": "Cat-kin",
+      "raceId": "R04",
+      "kinPos": "cat girl, cat, ears small-fluffy, ears folded, tail slender-tufted",
+      "kinNeg": "human ears, dog ears, fox ears, no tail, round pupils",
+      "kinHook": "wardrobe: ears above the collar; the tail chooses its own hem; light: the ear's inner fur transmits a pink glow in backlight",
+      "witnessHint": "свидетель в кадре обязателен (mirror/glass/monitor/phone/gauge…)",
+      "pose": "PL183",
+      "poseName": "Chest-Flat Desk Fold",
+      "poseRisk": "HIGH",
+      "palette": "P80_SALT_APPETITE",
+      "paletteName": "Salt Appetite",
+      "kinetics": [
+        "K182"
+      ],
+      "carriers": [
+        {
+          "id": "CR-W04",
+          "name": "Ribbing Stress-Bands",
+          "cls": "W"
+        },
+        {
+          "id": "CR-G05",
+          "name": "Water-Level Lens",
+          "cls": "G"
+        },
+        {
+          "id": "CR-M09",
+          "name": "Crowd Press",
+          "cls": "M"
+        },
+        {
+          "id": "CR-C06",
+          "name": "Staircase Arithmetic",
+          "cls": "C"
+        }
+      ],
+      "hair": "white",
+      "eyes": "teal",
+      "hairEyeFrom": "suggestion",
+      "lead": "nape",
+      "register": "young",
+      "closer": "dialogue",
+      "witness": "elevator brass",
+      "arch": "N23",
+      "door": "RETURN",
+      "spatial": "BELOW",
+      "diceSig": "A4·B2·C4·D4·E1",
+      "dice": "A4 body-first: форма тела первой (register-теги), потом волосы · B2 state-first: «soaked through, the blouse…» — состояние первым словом · C4 theme-transform: тема ИЗМЕНИЛА её/мир (результат виден) · D4 atmospheric-wash: цветовой залив всего пространства · E1 three-long: 3 длинных предложения, дыхание медленное"
+    },
+    {
+      "position": 14,
+      "kind": "VOLT",
+      "rating": "R+",
+      "pose": "PL57",
+      "poseName": "All-Fours Look-Back",
+      "poseRisk": "HIGH",
+      "palette": "P49_CINNABAR_DREAM",
+      "paletteName": "Cinnabar Dream",
+      "kinetics": [
+        "K174"
+      ],
+      "carriers": [
+        {
+          "id": "CR-H08",
+          "name": "Denied Arch",
+          "cls": "H"
+        },
+        {
+          "id": "CR-W18",
+          "name": "Towel Nap",
+          "cls": "W"
+        },
+        {
+          "id": "CR-B17",
+          "name": "Spine Valley",
+          "cls": "B"
+        },
+        {
+          "id": "CR-M06",
+          "name": "Guitar Body",
+          "cls": "M"
+        }
+      ],
+      "hair": "red",
+      "eyes": "black",
+      "hairEyeFrom": "suggestion",
+      "lead": "cheeks",
+      "register": "young",
+      "closer": "image-close",
+      "diceSig": "A3·B5·C1·D8·E1",
+      "dice": "A3 garment-first: именнованная вещь сразу после id — до волос · B5 absence-first: «nothing underneath the…» — отсутствие первым · C1 theme-noun: тема стала ОБЪЕКТОМ кадра (нарисованная вещь — не название темы в тегах) · D8 borrowed-light: зона ловит чужой свет (мокрое стекло/зеркало) · E1 three-long: 3 длинных предложения, дыхание медленное",
+      "fabricTone": "light"
+    },
+    {
+      "position": 15,
+      "kind": "NICHE",
+      "rating": "R",
+      "race": "Mushroom-kin",
+      "raceId": "R21",
+      "kinPos": "mushroom girl, mushroom, cap-frill at the crown, spore-freckles glowing faint",
+      "kinNeg": "no wings",
+      "kinHook": "skin: damp-pale; wardrobe: moss-agreeing weaves; nothing that minds the damp; light: the spores a private constellation at close range",
+      "witnessHint": "свидетель в кадре обязателен (mirror/glass/monitor/phone/gauge…)",
+      "pose": "PL20",
+      "poseName": "Turned Away Glance",
+      "poseRisk": "LOW",
+      "palette": "P15_INDUSTRIAL_STEEL",
+      "paletteName": "Industrial Steel",
+      "kinetics": [
+        "K151"
+      ],
+      "carriers": [
+        {
+          "id": "CR-W02",
+          "name": "Stretched Buttonholes",
+          "cls": "W"
+        },
+        {
+          "id": "CR-H05",
+          "name": "Upper-Chest Flush",
+          "cls": "H"
+        },
+        {
+          "id": "CR-S15",
+          "name": "Garter Frame",
+          "cls": "S"
+        },
+        {
+          "id": "CR-U11",
+          "name": "Exam Dawn",
+          "cls": "U"
+        }
+      ],
+      "hair": "silver",
+      "eyes": "amber",
+      "hairEyeFrom": "suggestion",
+      "lead": "thighs",
+      "register": "young",
+      "closer": "long-fused",
+      "witness": "watch face",
+      "arch": "N15",
+      "door": "STILLNESS",
+      "spatial": "THROUGH",
+      "diceSig": "A8·B1·C2·D2·E5",
+      "dice": "A8 witness-first: объект-свидетель первым тегом сцены (НИША-путь) · B1 garment-noun: «the blouse clings…» — вещь субъектом предложения · C2 theme-action: она ДЕЛАЕТ тему телом/действием (нарисованное действие, без слов темы) · D2 edge-on-skin: свет красит кромку тела на зоне · E5 dialogue-close: проза + реплика в конце (closer-dialogue)"
+    },
+    {
+      "position": 16,
+      "kind": "NICHE",
+      "rating": "R",
+      "race": "Slime-girl",
+      "raceId": "R25",
+      "kinPos": "slime-girl, translucent gel body, semi-liquid hair dripping slow, core-orb glowing inside",
+      "kinNeg": "solid skin, opaque body",
+      "kinHook": "wardrobe: borrowed clothes dissolve at contact zones; light refracts through the gel",
+      "witnessHint": "свидетель в кадре обязателен (mirror/glass/monitor/phone/gauge…)",
+      "pose": "PL18",
+      "poseName": "Hands-on-Ground Kneel",
+      "poseRisk": "HIGH",
+      "palette": "P66_DUSK_VERMILION",
+      "paletteName": "Dusk Vermilion",
+      "kinetics": [
+        "K99"
+      ],
+      "carriers": [
+        {
+          "id": "CR-W01",
+          "name": "Taut Weave",
+          "cls": "W"
+        },
+        {
+          "id": "CR-C16",
+          "name": "Tights Seat Wear",
+          "cls": "C"
+        },
+        {
+          "id": "CR-U03",
+          "name": "Post-Shower Tee",
+          "cls": "U"
+        },
+        {
+          "id": "CR-G03",
+          "name": "Between-Knees Sightline",
+          "cls": "G"
+        }
+      ],
+      "hair": "lavender",
+      "eyes": "heterochromia",
+      "hairEyeFrom": "library",
+      "lead": "collarbone",
+      "register": "young",
+      "closer": "action-close",
+      "witness": "photo frame",
+      "arch": "N06",
+      "door": "UNSEEN",
+      "spatial": "BEHIND",
+      "diceSig": "A7·B6·C5·D2·E6",
+      "dice": "A7 claims-first: заявка-теги сразу после id — волосы после одежды · B6 tactile-first: «fabric against skin…» — прикосновение первым · C5 theme-witness: свидетель видит тему (третий глаз кадра) · D2 edge-on-skin: свет красит кромку тела на зоне · E6 question-close: проза заканчивается вопросом без ответа"
+    },
+    {
+      "position": 17,
+      "kind": "VOLT",
+      "rating": "R+",
+      "pose": "PL173",
+      "poseName": "Shared-Umbrella Tilt",
+      "poseRisk": "MID",
+      "palette": "P88_COBALT_ROAD",
+      "paletteName": "Cobalt Road",
+      "kinetics": [
+        "K179"
+      ],
+      "carriers": [
+        {
+          "id": "CR-L14",
+          "name": "Thigh-High Negotiation",
+          "cls": "L"
+        },
+        {
+          "id": "CR-H04",
+          "name": "Goosebumps On Spill",
+          "cls": "H"
+        },
+        {
+          "id": "CR-W02",
+          "name": "Stretched Buttonholes",
+          "cls": "W"
+        },
+        {
+          "id": "CR-I03",
+          "name": "Sheet's Hip Line",
+          "cls": "I"
+        }
+      ],
+      "hair": "golden",
+      "eyes": "blue",
+      "hairEyeFrom": "suggestion",
+      "lead": "breasts",
+      "register": "young",
+      "closer": "fragment-pair",
+      "diceSig": "A2·B2·C5·D3·E6",
+      "dice": "A2 race-first: расовые теги первими (ears/wings/tail/scales), потом волосы · B2 state-first: «soaked through, the blouse…» — состояние первым словом · C5 theme-witness: свидетель видит тему (третий глаз кадра) · D3 shadow-contrast: свет против тени — контраст пары · E6 question-close: проза заканчивается вопросом без ответа",
+      "fabricTone": "mid"
+    },
+    {
+      "position": 18,
+      "kind": "VOLT",
+      "rating": "R+",
+      "pose": "PL68",
+      "poseName": "Apron-Only Oven Bend",
+      "poseRisk": "HIGH",
+      "palette": "P35_VOID_EMBER",
+      "paletteName": "Void Ember",
+      "kinetics": [
+        "K79"
+      ],
+      "carriers": [
+        {
+          "id": "CR-L10",
+          "name": "Collars Overlapping Wrong",
+          "cls": "L"
+        },
+        {
+          "id": "CR-W20",
+          "name": "Chairback Print",
+          "cls": "W"
+        },
+        {
+          "id": "CR-G08",
+          "name": "Fisheye Curve",
+          "cls": "G"
+        },
+        {
+          "id": "CR-B14",
+          "name": "Cheek Shelf Under Drape",
+          "cls": "B"
+        }
+      ],
+      "hair": "orange",
+      "eyes": "pearl-grey",
+      "hairEyeFrom": "library",
+      "lead": "back",
+      "register": "milf",
+      "closer": "dialogue",
+      "diceSig": "A6·B8·C3·D6·E4",
+      "dice": "A6 kinetic-first: движение-тег первым (mid-motion), потом id-хвост · B8 layer-first: «one layer, then…» — счёт слоёв первым · C3 theme-absence: тема — то, чего в кадре НЕТ (пустота НАРИСОВАНА: пустой стул, открытая дверь — не названа тегом) · D6 dual-light: два источника, две температуры на зоне · E4 one-breath: одно предложение на весь кадр, длинное",
+      "fabricTone": "mid",
+      "echo": [
+        "clothing-state"
+      ]
+    },
+    {
+      "position": 19,
+      "kind": "NICHE",
+      "rating": "R",
+      "race": "Mouse-kin",
+      "raceId": "R29",
+      "kinPos": "mouse girl, mouse, round oversized ears, thin long tail, small front teeth",
+      "kinNeg": "human ears, no tail",
+      "kinHook": "skin: soft grey or cream; wardrobe: oversized hoodies slipping off; the tail curls around the thigh",
+      "witnessHint": "свидетель в кадре обязателен (mirror/glass/monitor/phone/gauge…)",
+      "pose": "PL147",
+      "poseName": "Mirror Eye-Lock",
+      "poseRisk": "LOW",
+      "palette": "P32_VOID_ICE",
+      "paletteName": "Void Ice",
+      "kinetics": [
+        "K91"
+      ],
+      "carriers": [
+        {
+          "id": "CR-C08",
+          "name": "Office Tilt",
+          "cls": "C"
+        },
+        {
+          "id": "CR-L09",
+          "name": "Bandeau Migration",
+          "cls": "L"
+        },
+        {
+          "id": "CR-H08",
+          "name": "Denied Arch",
+          "cls": "H"
+        },
+        {
+          "id": "CR-M05",
+          "name": "Counter Reach",
+          "cls": "M"
+        }
+      ],
+      "hair": "ice-blue",
+      "eyes": "sea-glass",
+      "hairEyeFrom": "library",
+      "lead": "hamstrings",
+      "register": "milf",
+      "closer": "image-close",
+      "witness": "car hood",
+      "arch": "N11",
+      "door": "MELANCHOLY",
+      "spatial": "ABOVE",
+      "diceSig": "A4·B7·C3·D1·E5",
+      "dice": "A4 body-first: форма тела первой (register-теги), потом волосы · B7 action-clothing: «she reaches/leans, the garment…» — действие раскрывает вещь · C3 theme-absence: тема — то, чего в кадре НЕТ (пустота НАРИСОВАНА: пустой стул, открытая дверь — не названа тегом) · D1 source-off-frame: источник за кадром, луч входит · E5 dialogue-close: проза + реплика в конце (closer-dialogue)"
+    },
+    {
+      "position": 20,
+      "kind": "NICHE",
+      "rating": "R",
+      "race": "Dryad",
+      "raceId": "R14",
+      "kinPos": "dryad, vine-strands woven in hair, seasonal bloom at temple, bark-patch at collarbone",
+      "kinNeg": "no petals, no vines",
+      "kinHook": "light: the bloom holds daylight a minute after the room dims",
+      "witnessHint": "свидетель в кадре обязателен (mirror/glass/monitor/phone/gauge…)",
+      "pose": "PL85",
+      "poseName": "Pirouette Bell",
+      "poseRisk": "MID",
+      "palette": "P41_SUNSET_DRIFT",
+      "paletteName": "Sunset Drift",
+      "kinetics": [
+        "K120"
+      ],
+      "carriers": [
+        {
+          "id": "CR-D26",
+          "name": "Swing Apex",
+          "cls": "D"
+        },
+        {
+          "id": "CR-H10",
+          "name": "Pupil Widen",
+          "cls": "H"
+        },
+        {
+          "id": "CR-E16",
+          "name": "Gi Lapel Crossed Wrong",
+          "cls": "E"
+        },
+        {
+          "id": "CR-W06",
+          "name": "Sweat-Damp Spine",
+          "cls": "W"
+        }
+      ],
+      "hair": "red",
+      "eyes": "emerald",
+      "hairEyeFrom": "library",
+      "lead": "shoulders",
+      "register": "milf",
+      "closer": "long-fused",
+      "witness": "fountain edge",
+      "arch": "N01",
+      "door": "TURNING",
+      "spatial": "OUTSIDE",
+      "diceSig": "A1·B2·C3·D7·E6",
+      "dice": "A1 hair-first: волосы первыми, потом глаза, потом раса/тело · B2 state-first: «soaked through, the blouse…» — состояние первым словом · C3 theme-absence: тема — то, чего в кадре НЕТ (пустота НАРИСОВАНА: пустой стул, открытая дверь — не названа тегом) · D7 glow-from-within: зона светится сама (экран/прибор/магия) · E6 question-close: проза заканчивается вопросом без ответа"
+    },
+    {
+      "position": 21,
+      "kind": "EXQUISITE",
+      "rating": "R+",
+      "pose": "PL229",
+      "poseName": "Seam Mid-Step",
+      "poseRisk": "MID",
+      "palette": "P56_AURORA_BOREALIS_NIGHT",
+      "paletteName": "Aurora Borealis Night",
+      "kinetics": [
+        "K168"
+      ],
+      "carriers": [
+        {
+          "id": "CR-C07",
+          "name": "Saddle Overflow",
+          "cls": "C"
+        },
+        {
+          "id": "CR-F10",
+          "name": "Pigeon Pose",
+          "cls": "F"
+        },
+        {
+          "id": "CR-W15",
+          "name": "Leather Mold",
+          "cls": "W"
+        },
+        {
+          "id": "CR-G01",
+          "name": "Low Third",
+          "cls": "G"
+        }
+      ],
+      "hair": "navy",
+      "eyes": "silver",
+      "hairEyeFrom": "suggestion",
+      "lead": "seat",
+      "register": "milf",
+      "closer": "action-close",
+      "diceSig": "A3·B7·C6·D8·E2",
+      "dice": "A3 garment-first: именнованная вещь сразу после id — до волос · B7 action-clothing: «she reaches/leans, the garment…» — действие раскрывает вещь · C6 theme-implied: тема вплетена без явного слова (только теги) · D8 borrowed-light: зона ловит чужой свет (мокрое стекло/зеркало) · E2 fragment-pair: 2 фрагмента + 1 длинное — обрыв как стиль",
+      "fabricTone": "mid",
+      "echo": [
+        "textural"
+      ]
+    },
+    {
+      "position": 22,
+      "kind": "NICHE",
+      "rating": "R",
+      "race": "Harpy-kin (wing-armed)",
+      "raceId": "R20",
+      "kinPos": "harpy girl, harpy, wing-armed, feathered forearms to the wrist, flight-feathers at the shoulder-blades",
+      "kinNeg": "human arms, human hands, no wings",
+      "kinHook": "AUTHOR-CONFIRMED GOLD for Thread 4. skin: wind-tan; wardrobe: backless by necessity; sleeves are fingerless vests; light: the barbs split the light into feather-combs",
+      "witnessHint": "свидетель в кадре обязателен (mirror/glass/monitor/phone/gauge…)",
+      "pose": "PL81",
+      "poseName": "Over-Lap Lean",
+      "poseRisk": "HIGH",
+      "palette": "P51_RAIN_STAINED_GLASS",
+      "paletteName": "Rain Stained Glass",
+      "kinetics": [
+        "K133"
+      ],
+      "carriers": [
+        {
+          "id": "CR-I15",
+          "name": "Seatbelt Sleep-Crease",
+          "cls": "I"
+        },
+        {
+          "id": "CR-W30",
+          "name": "Cold-Stiff Drape",
+          "cls": "W"
+        },
+        {
+          "id": "CR-E13",
+          "name": "Placket Gape",
+          "cls": "E"
+        },
+        {
+          "id": "CR-S16",
+          "name": "Exposed Nape",
+          "cls": "S"
+        }
+      ],
+      "hair": "dark-brown",
+      "eyes": "gold",
+      "hairEyeFrom": "library",
+      "lead": "hands",
+      "register": "milf",
+      "closer": "fragment-pair",
+      "witness": "propped phone",
+      "arch": "N14",
+      "door": "AWARE",
+      "spatial": "INSIDE",
+      "diceSig": "A3·B3·C3·D8·E4",
+      "dice": "A3 garment-first: именнованная вещь сразу после id — до волос · B3 reveal-first: «the blouse gives/conceals…» — что вещь отдаёт/держит · C3 theme-absence: тема — то, чего в кадре НЕТ (пустота НАРИСОВАНА: пустой стул, открытая дверь — не названа тегом) · D8 borrowed-light: зона ловит чужой свет (мокрое стекло/зеркало) · E4 one-breath: одно предложение на весь кадр, длинное"
+    },
+    {
+      "position": 23,
+      "kind": "VOLT",
+      "rating": "R+",
+      "race": "Gargoyle-kin",
+      "raceId": "R18",
+      "kinPos": "gargoyle girl, gargoyle, small stone horns rough-textured, stone patches at the forearm",
+      "kinNeg": "no horns",
+      "kinHook": "skin: granite-grey warm-veined; wardrobe: heavy weaves that agree with the stone; light: the patches eat light; the horns' rough holds a dry rim",
+      "pose": "PL107",
+      "poseName": "Branch Swing-Through",
+      "poseRisk": "HIGH",
+      "palette": "P46_INK_WASH",
+      "paletteName": "Ink Wash",
+      "kinetics": [
+        "K148"
+      ],
+      "carriers": [
+        {
+          "id": "CR-H07",
+          "name": "Held Breath At Zipper",
+          "cls": "H"
+        },
+        {
+          "id": "CR-W29",
+          "name": "Pleat-Set",
+          "cls": "W"
+        },
+        {
+          "id": "CR-A13",
+          "name": "Pencil-Skirt Stride",
+          "cls": "A"
+        },
+        {
+          "id": "CR-L04",
+          "name": "Corset Busk Ridge",
+          "cls": "L"
+        }
+      ],
+      "hair": "dusty-pink",
+      "eyes": "gold",
+      "hairEyeFrom": "library",
+      "lead": "hips",
+      "register": "milf",
+      "closer": "dialogue",
+      "diceSig": "A6·B1·C2·D5·E5",
+      "dice": "A6 kinetic-first: движение-тег первым (mid-motion), потом id-хвост · B1 garment-noun: «the blouse clings…» — вещь субъектом предложения · C2 theme-action: она ДЕЛАЕТ тему телом/действием (нарисованное действие, без слов темы) · D5 light-as-verb: свет ДЕЙСТВУЕТ на зону (licks/falls/hits) · E5 dialogue-close: проза + реплика в конце (closer-dialogue)",
+      "fabricTone": "mid"
+    },
+    {
+      "position": 24,
+      "kind": "VOLT",
+      "rating": "R+",
+      "race": "Elf",
+      "raceId": "R02",
+      "kinPos": "elf, e1 long-pointed swept-back, e2 short-pointed, e3 single-left-asymmetric",
+      "kinNeg": "human ears, no ears, drooping ears, fox ears",
+      "kinHook": "skin: ['moonlit-pale', 'pale-gold']; wardrobe: higher armholes; nothing at the ear; light: the ear-tip catches the key first",
+      "pose": "PL119",
+      "poseName": "Bed-Edge Morning Arc",
+      "poseRisk": "MID",
+      "palette": "P52_MEIJI_DUSK",
+      "paletteName": "Meiji Dusk",
+      "kinetics": [
+        "K87"
+      ],
+      "carriers": [
+        {
+          "id": "CR-D27",
+          "name": "Cheer Herkie",
+          "cls": "D"
+        },
+        {
+          "id": "CR-W03",
+          "name": "Side-Seam Strain",
+          "cls": "W"
+        },
+        {
+          "id": "CR-B14",
+          "name": "Cheek Shelf Under Drape",
+          "cls": "B"
+        },
+        {
+          "id": "CR-E03",
+          "name": "Off-Shoulder Ride",
+          "cls": "E"
+        }
+      ],
+      "hair": "chestnut",
+      "eyes": "copper-green",
+      "hairEyeFrom": "library",
+      "lead": "throat",
+      "register": "milf",
+      "closer": "image-close",
+      "diceSig": "A4·B7·C4·D7·E3",
+      "dice": "A4 body-first: форма тела первой (register-теги), потом волосы · B7 action-clothing: «she reaches/leans, the garment…» — действие раскрывает вещь · C4 theme-transform: тема ИЗМЕНИЛА её/мир (результат виден) · D7 glow-from-within: зона светится сама (экран/прибор/магия) · E3 action-beat: глагольная пулемётная очередь — движение",
+      "fabricTone": "mid",
+      "echo": [
+        "gaze"
+      ]
+    },
+    {
+      "position": 25,
+      "kind": "EXP",
+      "rating": "R+",
+      "pose": "PL196",
+      "poseName": "Jacket Shrug-Off Roll",
+      "poseRisk": "MID",
+      "palette": "P14_ROSE_GOLD",
+      "paletteName": "Rose Gold",
+      "kinetics": [
+        "K07"
+      ],
+      "carriers": [
+        {
+          "id": "CR-W08",
+          "name": "Wet Hemline",
+          "cls": "W"
+        },
+        {
+          "id": "CR-F13",
+          "name": "Dash Slouch",
+          "cls": "F"
+        },
+        {
+          "id": "CR-S05",
+          "name": "Underboob Shadow-Line",
+          "cls": "S"
+        },
+        {
+          "id": "CR-G04",
+          "name": "Macro Escape",
+          "cls": "G"
+        }
+      ],
+      "hair": "chocolate",
+      "eyes": "pale-blue",
+      "hairEyeFrom": "library",
+      "lead": "chest",
+      "register": "young",
+      "closer": "long-fused",
+      "diceSig": "A4·B2·C1·D7·E5",
+      "dice": "A4 body-first: форма тела первой (register-теги), потом волосы · B2 state-first: «soaked through, the blouse…» — состояние первым словом · C1 theme-noun: тема стала ОБЪЕКТОМ кадра (нарисованная вещь — не название темы в тегах) · D7 glow-from-within: зона светится сама (экран/прибор/магия) · E5 dialogue-close: проза + реплика в конце (closer-dialogue)",
+      "fabricTone": "light",
+      "exp": {
+        "hypothesis": "закон №27, светлый полюс: wet LIGHT garment + covered/clothed nipples (БЕЗ through) — мокрая светлая ткань прилипла, бугорок без нарисованного соска (формула T4-26 17/25; P01/P02 T4-28 — R)",
+        "half": "A",
+        "pairWith": 26,
+        "letter": "ν"
+      }
+    },
+    {
+      "position": 26,
+      "kind": "EXP",
+      "rating": "R+",
+      "pose": "PL196",
+      "poseName": "Jacket Shrug-Off Roll",
+      "poseRisk": "MID",
+      "palette": "P14_ROSE_GOLD",
+      "paletteName": "Rose Gold",
+      "kinetics": [
+        "K07"
+      ],
+      "carriers": [
+        {
+          "id": "CR-W08",
+          "name": "Wet Hemline",
+          "cls": "W"
+        },
+        {
+          "id": "CR-F13",
+          "name": "Dash Slouch",
+          "cls": "F"
+        },
+        {
+          "id": "CR-S05",
+          "name": "Underboob Shadow-Line",
+          "cls": "S"
+        },
+        {
+          "id": "CR-G04",
+          "name": "Macro Escape",
+          "cls": "G"
+        }
+      ],
+      "hair": "chocolate",
+      "eyes": "pale-blue",
+      "hairEyeFrom": "library",
+      "lead": "chest",
+      "register": "young",
+      "closer": "long-fused",
+      "diceSig": "A4·B2·C1·D7·E5",
+      "dice": "A4 body-first: форма тела первой (register-теги), потом волосы · B2 state-first: «soaked through, the blouse…» — состояние первым словом · C1 theme-noun: тема стала ОБЪЕКТОМ кадра (нарисованная вещь — не название темы в тегах) · D7 glow-from-within: зона светится сама (экран/прибор/магия) · E5 dialogue-close: проза + реплика в конце (closer-dialogue)",
+      "fabricTone": "dark",
+      "exp": {
+        "hypothesis": "закон №27, тёмный полюс: sheer DARK garment + через-ткань заявку (nipples through clothing + clothed nipples) — тьма гасит розовое, остаётся бугорок (P20/P08 T4-28 — обе R+)",
+        "half": "B",
+        "pairWith": 25,
+        "letter": "ν"
+      }
+    },
+    {
+      "position": 27,
+      "kind": "EXP",
+      "rating": "R+",
+      "pose": "PL92",
+      "poseName": "Handstand Split",
+      "poseRisk": "HIGH",
+      "palette": "P22_VOID_INDIGO",
+      "paletteName": "Void Indigo",
+      "kinetics": [
+        "K139"
+      ],
+      "carriers": [
+        {
+          "id": "CR-B30",
+          "name": "Shoji Silhouette",
+          "cls": "B"
+        },
+        {
+          "id": "CR-H11",
+          "name": "Collar-Edge Swallow",
+          "cls": "H"
+        },
+        {
+          "id": "CR-U20",
+          "name": "Post-Comp Jacket",
+          "cls": "U"
+        },
+        {
+          "id": "CR-W01",
+          "name": "Taut Weave",
+          "cls": "W"
+        }
+      ],
+      "hair": "white",
+      "eyes": "amber",
+      "hairEyeFrom": "library",
+      "lead": "chest",
+      "register": "young",
+      "closer": "action-close",
+      "diceSig": "A2·B3·C4·D2·E2",
+      "dice": "A2 race-first: расовые теги первими (ears/wings/tail/scales), потом волосы · B3 reveal-first: «the blouse gives/conceals…» — что вещь отдаёт/держит · C4 theme-transform: тема ИЗМЕНИЛА её/мир (результат виден) · D2 edge-on-skin: свет красит кромку тела на зоне · E2 fragment-pair: 2 фрагмента + 1 длинное — обрыв как стиль",
+      "fabricTone": "light",
+      "exp": {
+        "hypothesis": "закон №27, светлый полюс: wet LIGHT garment + covered/clothed nipples (БЕЗ through) — мокрая светлая ткань прилипла, бугорок без нарисованного соска (формула T4-26 17/25; P01/P02 T4-28 — R)",
+        "half": "A",
+        "pairWith": 28,
+        "letter": "ξ"
+      }
+    },
+    {
+      "position": 28,
+      "kind": "EXP",
+      "rating": "R+",
+      "pose": "PL92",
+      "poseName": "Handstand Split",
+      "poseRisk": "HIGH",
+      "palette": "P22_VOID_INDIGO",
+      "paletteName": "Void Indigo",
+      "kinetics": [
+        "K139"
+      ],
+      "carriers": [
+        {
+          "id": "CR-B30",
+          "name": "Shoji Silhouette",
+          "cls": "B"
+        },
+        {
+          "id": "CR-H11",
+          "name": "Collar-Edge Swallow",
+          "cls": "H"
+        },
+        {
+          "id": "CR-U20",
+          "name": "Post-Comp Jacket",
+          "cls": "U"
+        },
+        {
+          "id": "CR-W01",
+          "name": "Taut Weave",
+          "cls": "W"
+        }
+      ],
+      "hair": "white",
+      "eyes": "amber",
+      "hairEyeFrom": "library",
+      "lead": "chest",
+      "register": "young",
+      "closer": "action-close",
+      "diceSig": "A2·B3·C4·D2·E2",
+      "dice": "A2 race-first: расовые теги первими (ears/wings/tail/scales), потом волосы · B3 reveal-first: «the blouse gives/conceals…» — что вещь отдаёт/держит · C4 theme-transform: тема ИЗМЕНИЛА её/мир (результат виден) · D2 edge-on-skin: свет красит кромку тела на зоне · E2 fragment-pair: 2 фрагмента + 1 длинное — обрыв как стиль",
+      "fabricTone": "dark",
+      "exp": {
+        "hypothesis": "закон №27, тёмный полюс: sheer DARK garment + через-ткань заявку (nipples through clothing + clothed nipples) — тьма гасит розовое, остаётся бугорок (P20/P08 T4-28 — обе R+)",
+        "half": "B",
+        "pairWith": 27,
+        "letter": "ξ"
+      }
+    },
+    {
+      "position": 29,
+      "kind": "EXP",
+      "rating": "R+",
+      "pose": "PL146",
+      "poseName": "Umbrella Shoulder-Rest",
+      "poseRisk": "LOW",
+      "palette": "P12_AUTUMN_RUST",
+      "paletteName": "Autumn Rust",
+      "kinetics": [
+        "K104"
+      ],
+      "carriers": [
+        {
+          "id": "CR-W03",
+          "name": "Side-Seam Strain",
+          "cls": "W"
+        },
+        {
+          "id": "CR-L18",
+          "name": "Cutout's Whole Point",
+          "cls": "L"
+        },
+        {
+          "id": "CR-M11",
+          "name": "Dog's Paws",
+          "cls": "M"
+        },
+        {
+          "id": "CR-H06",
+          "name": "Ear-Tips Burning",
+          "cls": "H"
+        }
+      ],
+      "hair": "navy",
+      "eyes": "green",
+      "hairEyeFrom": "library",
+      "lead": "chest",
+      "register": "young",
+      "closer": "fragment-pair",
+      "diceSig": "A2·B5·C6·D1·E5",
+      "dice": "A2 race-first: расовые теги первими (ears/wings/tail/scales), потом волосы · B5 absence-first: «nothing underneath the…» — отсутствие первым · C6 theme-implied: тема вплетена без явного слова (только теги) · D1 source-off-frame: источник за кадром, луч входит · E5 dialogue-close: проза + реплика в конце (closer-dialogue)",
+      "fabricTone": "light",
+      "exp": {
+        "hypothesis": "закон №27, светлый полюс: wet LIGHT garment + covered/clothed nipples (БЕЗ through) — мокрая светлая ткань прилипла, бугорок без нарисованного соска (формула T4-26 17/25; P01/P02 T4-28 — R)",
+        "half": "A",
+        "pairWith": 30,
+        "letter": "ρ"
+      }
+    },
+    {
+      "position": 30,
+      "kind": "EXP",
+      "rating": "R+",
+      "pose": "PL146",
+      "poseName": "Umbrella Shoulder-Rest",
+      "poseRisk": "LOW",
+      "palette": "P12_AUTUMN_RUST",
+      "paletteName": "Autumn Rust",
+      "kinetics": [
+        "K104"
+      ],
+      "carriers": [
+        {
+          "id": "CR-W03",
+          "name": "Side-Seam Strain",
+          "cls": "W"
+        },
+        {
+          "id": "CR-L18",
+          "name": "Cutout's Whole Point",
+          "cls": "L"
+        },
+        {
+          "id": "CR-M11",
+          "name": "Dog's Paws",
+          "cls": "M"
+        },
+        {
+          "id": "CR-H06",
+          "name": "Ear-Tips Burning",
+          "cls": "H"
+        }
+      ],
+      "hair": "navy",
+      "eyes": "green",
+      "hairEyeFrom": "library",
+      "lead": "chest",
+      "register": "young",
+      "closer": "fragment-pair",
+      "diceSig": "A2·B5·C6·D1·E5",
+      "dice": "A2 race-first: расовые теги первими (ears/wings/tail/scales), потом волосы · B5 absence-first: «nothing underneath the…» — отсутствие первым · C6 theme-implied: тема вплетена без явного слова (только теги) · D1 source-off-frame: источник за кадром, луч входит · E5 dialogue-close: проза + реплика в конце (closer-dialogue)",
+      "fabricTone": "dark",
+      "exp": {
+        "hypothesis": "закон №27, тёмный полюс: sheer DARK garment + через-ткань заявку (nipples through clothing + clothed nipples) — тьма гасит розовое, остаётся бугорок (P20/P08 T4-28 — обе R+)",
+        "half": "B",
+        "pairWith": 29,
+        "letter": "ρ"
+      }
+    },
+    {
+      "position": 31,
+      "kind": "EXP",
+      "rating": "R+",
+      "pose": "PL190",
+      "poseName": "Hair-Flip Waist-Arch",
+      "poseRisk": "HIGH",
+      "palette": "P02_DAWN_AMBER",
+      "paletteName": "Dawn Amber",
+      "kinetics": [
+        "K181"
+      ],
+      "carriers": [
+        {
+          "id": "CR-W18",
+          "name": "Towel Nap",
+          "cls": "W"
+        },
+        {
+          "id": "CR-D07",
+          "name": "Pendulum Lag",
+          "cls": "D"
+        },
+        {
+          "id": "CR-L14",
+          "name": "Thigh-High Negotiation",
+          "cls": "L"
+        },
+        {
+          "id": "CR-A02",
+          "name": "Center-Seam Whole Line",
+          "cls": "A"
+        }
+      ],
+      "hair": "violet",
+      "eyes": "dark-red",
+      "hairEyeFrom": "library",
+      "lead": "chest",
+      "register": "young",
+      "closer": "dialogue",
+      "diceSig": "A1·B1·C5·D2·E2",
+      "dice": "A1 hair-first: волосы первыми, потом глаза, потом раса/тело · B1 garment-noun: «the blouse clings…» — вещь субъектом предложения · C5 theme-witness: свидетель видит тему (третий глаз кадра) · D2 edge-on-skin: свет красит кромку тела на зоне · E2 fragment-pair: 2 фрагмента + 1 длинное — обрыв как стиль",
+      "fabricTone": "light",
+      "exp": {
+        "hypothesis": "закон №27, светлый полюс: wet LIGHT garment + covered/clothed nipples (БЕЗ through) — мокрая светлая ткань прилипла, бугорок без нарисованного соска (формула T4-26 17/25; P01/P02 T4-28 — R)",
+        "half": "A",
+        "pairWith": 32,
+        "letter": "σ"
+      }
+    },
+    {
+      "position": 32,
+      "kind": "EXP",
+      "rating": "R+",
+      "pose": "PL190",
+      "poseName": "Hair-Flip Waist-Arch",
+      "poseRisk": "HIGH",
+      "palette": "P02_DAWN_AMBER",
+      "paletteName": "Dawn Amber",
+      "kinetics": [
+        "K181"
+      ],
+      "carriers": [
+        {
+          "id": "CR-W18",
+          "name": "Towel Nap",
+          "cls": "W"
+        },
+        {
+          "id": "CR-D07",
+          "name": "Pendulum Lag",
+          "cls": "D"
+        },
+        {
+          "id": "CR-L14",
+          "name": "Thigh-High Negotiation",
+          "cls": "L"
+        },
+        {
+          "id": "CR-A02",
+          "name": "Center-Seam Whole Line",
+          "cls": "A"
+        }
+      ],
+      "hair": "violet",
+      "eyes": "dark-red",
+      "hairEyeFrom": "library",
+      "lead": "chest",
+      "register": "young",
+      "closer": "dialogue",
+      "diceSig": "A1·B1·C5·D2·E2",
+      "dice": "A1 hair-first: волосы первыми, потом глаза, потом раса/тело · B1 garment-noun: «the blouse clings…» — вещь субъектом предложения · C5 theme-witness: свидетель видит тему (третий глаз кадра) · D2 edge-on-skin: свет красит кромку тела на зоне · E2 fragment-pair: 2 фрагмента + 1 длинное — обрыв как стиль",
+      "fabricTone": "dark",
+      "exp": {
+        "hypothesis": "закон №27, тёмный полюс: sheer DARK garment + через-ткань заявку (nipples through clothing + clothed nipples) — тьма гасит розовое, остаётся бугорок (P20/P08 T4-28 — обе R+)",
+        "half": "B",
+        "pairWith": 31,
+        "letter": "σ"
+      }
+    }
+  ],
+  "ocRotation": [
+    {
+      "name": "Lucy",
+      "served": 1
+    },
+    {
+      "name": "Rue",
+      "served": 3
+    },
+    {
+      "name": "Rin",
+      "served": 3
+    }
+  ],
+  "racialCount": 14,
+  "hairEye": {
+    "source": "specs/hair-eye-library.json (E3, A5P3F §III-C-2)",
+    "ocCanonWins": true,
+    "suggestionFollowed": 12,
+    "suggestionDeviated": 9,
+    "distinctHairOnMains": 17
+  },
+  "echoMotifs": [
+    {
+      "type": "clothing-state",
+      "motif": "состояние одежды (thread)",
+      "appearances": [
+        {
+          "slot": 8,
+          "act": "I — откровение",
+          "mutation": [
+            "палитра сцены смещается по спектру",
+            "направление света поворачивается"
+          ]
+        },
+        {
+          "slot": 11,
+          "act": "II — развитие",
+          "mutation": [
+            "палитра сцены смещается по спектру",
+            "роль мотива в кадре меняется"
+          ]
+        },
+        {
+          "slot": 18,
+          "act": "III — финал",
+          "mutation": [
+            "палитра сцены смещается по спектру",
+            "температура света меняется"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "gaze",
+      "motif": "направление взгляда (thread)",
+      "appearances": [
+        {
+          "slot": 7,
+          "act": "I — откровение",
+          "mutation": [
+            "камера меняет дистанцию/ракурс",
+            "состояние одежды эволюционирует"
+          ]
+        },
+        {
+          "slot": 12,
+          "act": "II — развитие",
+          "mutation": [
+            "камера меняет дистанцию/ракурс",
+            "взгляд/выражение меняет отношение к мотиву"
+          ]
+        },
+        {
+          "slot": 24,
+          "act": "III — финал",
+          "mutation": [
+            "окружение/локация меняется",
+            "состояние одежды эволюционирует"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "textural",
+      "motif": "материальная пара (thread)",
+      "appearances": [
+        {
+          "slot": 8,
+          "act": "I — откровение",
+          "mutation": [
+            "палитра сцены смещается по спектру",
+            "направление света поворачивается"
+          ]
+        },
+        {
+          "slot": 11,
+          "act": "II — развитие",
+          "mutation": [
+            "палитра сцены смещается по спектру",
+            "состояние одежды эволюционирует"
+          ]
+        },
+        {
+          "slot": 21,
+          "act": "III — финал",
+          "mutation": [
+            "камера меняет дистанцию/ракурс",
+            "погодное условие меняется"
+          ]
+        }
+      ]
+    }
+  ],
+  "abPairs": [
+    {
+      "pair": "κ",
+      "a": 4,
+      "b": 5,
+      "lead": "seat"
+    },
+    {
+      "pair": "λ",
+      "a": 7,
+      "b": 8,
+      "lead": "nape"
+    },
+    {
+      "pair": "μ",
+      "a": 9,
+      "b": 10,
+      "lead": "hamstrings"
+    }
+  ],
+  "carrierStats": {
+    "wSharePct": 31,
+    "sheerRplusPct": 24,
+    "wCapPct": 45,
+    "sheerFrameCapPct": 40
+  },
+  "windowSlugs": [
+    "T4-28",
+    "T4-29",
+    "T4-30"
+  ],
+  "channelStats": {
+    "version": "0.7.0",
+    "live": [
+      "wet-sheer-delivery",
+      "x-coverage-block",
+      "r-geometry",
+      "tape-only",
+      "contact-physics",
+      "handbra-open-palms"
+    ],
+    "candidate": [
+      "threadbare-sheer",
+      "named-underlayer-display",
+      "breast-environment-contact",
+      "oc-rplus",
+      "underwear-as-outfit",
+      "fabric-tension",
+      "pantyline-lower"
+    ],
+    "dead": [
+      "cameltoe"
+    ],
+    "deadClaims": []
+  },
+  "platform": "yodayo",
+  "laws": [
+    "24-слотовый закон (3 OC + 21 мейн)",
+    "спред мейнов: R+×14 · R×7 (NICHE R · VOLT R+ · EXQUISITE R+)",
+    "расовый каст 14 на мейнах (закон №3 «race as mechanism»)",
+    "hair/eye E3: канон для OC, библиотека для мейнов, подсказка палитры ~50%",
+    "echo-мотивы F13: 2-3, арка I→II→III, мутация 1 spatial + 1 narrative/atmospheric",
+    "стеки core-4: 4 мех-группы из 5 на каждом слоте",
+    "rehab-добор (Залп 3): 2 слота несут конфиг оживления канала",
+    "провенанс: черновик UI автора (drafts/) — контракт скомпилирован из брифа §10"
+  ]
+}
