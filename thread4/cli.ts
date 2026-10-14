@@ -522,7 +522,7 @@ async function main() {
     const tech = inv.find((s) => s.id === 'rating-techniques')
     check('техника-карта в инвентаре (>=100 приёмов)', (tech?.count ?? 0) >= 100)
     const recipes = inv.find((s) => s.id === 'rating-recipes')
-    check('рецепт v1.8.1 (закон №14 подслой-лок + №25 NEG-гигиена + №27 канал R+ «бугорок да, розовое нет»: fabric_tone_law + canonical_danbooru + breast clinging в required_state)', recipes?.version === '1.8.1')
+    check('рецепт v1.9.0 (закон №28 ПРИНЯТ: через-ткань = X-канал; R+ bumps = P30-коктейль DRY dark covered-first; веса RAW легализованы; X несёт through_fabric)', recipes?.version === '1.9.0')
     // статa доставки (рекомендация Claude №2, external.review 2026-09-23;
     // v0.2.0 — вердикт T4-05: 13 → 18 каналов)
     const dstats = inv.find((s) => s.id === 'delivery-stats')
@@ -552,9 +552,20 @@ async function main() {
         rt?.techniques.find((e) => e.tag.startsWith('cameltoe'))?.rplus === '')
       check('техника-карта v1.1.0 = 108 приёмов (+4 моста delivery-stats v0.2.0)',
         rt?.version === '1.1.0' && rt?.techniques.length === 108)
-      check('§9-септима: bare-under маркеры в рецепте through_fabric',
-        Array.isArray(rr?.tiers.RPLUS?.mechanisms?.through_fabric?.bare_under_marker) &&
-        (rr?.tiers.RPLUS?.mechanisms?.through_fabric?.bare_under_marker?.length ?? 0) >= 5)
+      check('§9-септима: bare-under маркеры в рецепте bumps (№28-переименование through_fabric)',
+        Array.isArray(rr?.tiers.RPLUS?.mechanisms?.bumps?.bare_under_marker) &&
+        (rr?.tiers.RPLUS?.mechanisms?.bumps?.bare_under_marker?.length ?? 0) >= 5)
+      check('закон №28: через-теги ушли в X — R+ signals_hard без «nipples through clothing», X signals с ним',
+        !(rr?.tiers.RPLUS?.signals_hard ?? []).includes('nipples through clothing') &&
+        (rr?.tiers.X?.signals ?? []).includes('nipples through clothing') &&
+        (rr?.tiers.X?.mechanisms?.through_fabric?.hard ?? []).includes('nipples through clothing'))
+      check('закон №28: bumps forbidden_tags (nipples through clothing / wet clothes / sheer) + risk_tags (see-through) + weights_raw 0.8–1.2',
+        (rr?.tiers.RPLUS?.mechanisms?.bumps?.forbidden_tags ?? []).includes('wet clothes') &&
+        (rr?.tiers.RPLUS?.mechanisms?.bumps?.forbidden_tags ?? []).includes('sheer') &&
+        (rr?.tiers.RPLUS?.mechanisms?.bumps?.risk_tags ?? []).includes('see-through') &&
+        (rr?.weights_raw?.weights_allowed ?? []).includes(1.2))
+      check('ДРЕССЕР №29: спек в инвентаре (каналы+категории ≥ 13), garter+swim конфликт живёт',
+        (inv.find((s) => s.id === 'dresser')?.count ?? 0) >= 13)
       // слой-скорер на синтетическом тег-блоке (T4-04 P01-подобный кадр)
       const synth = 'student, steam damp blouse, wet clothes, see-through, nipples through clothing, tight clothes, steam press room, kneeling forward reach, brass key'
       const boilerRe = /\b(?:hentai anime style|ecchi anime style|anime style|masterpiece|best quality|anime artstyle|1girl|solo)\b/gi
@@ -1532,8 +1543,8 @@ async function main() {
             gh.lastRun.hardPass === false
         )
         check(
-          'gateHealth: прогонов нет — фолбэк на кодовую базу GATES_TOTAL (не ноль, не легенда)',
-          gatesHealthFromEvents([]).base === 25 && gatesHealthFromEvents([]).lastRun === null
+          'gateHealth: прогонов нет — фолбэк на кодовую базу GATES_TOTAL (не ноль, не легенда; №28/№29 → 26)',
+          gatesHealthFromEvents([]).base === 26 && gatesHealthFromEvents([]).lastRun === null
         )
       }
       const { isSafeSlug } = await import('../src/lib/t4/fsutil')
