@@ -127,6 +127,34 @@ async function main() {
     return
   }
 
+  if (cmd === 'polish') {
+    /* Ревизия 2026-10-14 (2.6): гейт-починка существующего черновика —
+       замена осиротевшего polish-batch.ts (собственный LLM-цикл без
+       таймаутов). Ремонт hard-фейлов + полировка WARN-гейтов тем же
+       машинерием писца: таймауты 180с, откат полировки, ремонт только
+       своего набора позиций. Сданный батч не трогает. */
+    const slug = process.argv[3]
+    if (!slug || !/^T4-[\dA-Za-z.-]+$/.test(slug)) {
+      console.error('usage: polish T4-NN [maxRepairRounds]')
+      process.exit(1)
+    }
+    const rounds = process.argv[4] ? parseInt(process.argv[4], 10) : 2
+    const { polishBatch } = await import('../src/lib/t4/scribe')
+    polishBatch(slug, {
+      maxRepairRounds: Number.isFinite(rounds) ? rounds : 2,
+      onLog: (line) => console.log(line),
+    })
+      .then((res) => {
+        console.log(`\npolish: ${res.slug} «${res.title}» — ремонт ${res.rounds}, полировка done, гейты ${res.hardPass ? 'PASS' : 'FAIL'} (sha ${res.sha10})`)
+        process.exit(res.hardPass ? 0 : 1)
+      })
+      .catch((e) => {
+        console.error(e instanceof Error ? e.message : e)
+        process.exit(1)
+      })
+    return
+  }
+
   if (cmd === 'scribe') {
     const slug = process.argv[3]
     if (!slug || !/^T4-\d{2}$/.test(slug)) {
@@ -921,6 +949,15 @@ async function main() {
       check(
         'contract-fidelity: верный слот (поза/палитра/стек/кин на месте) не шумит',
         fidGood.length === 0
+      )
+      /* polish (ревизия 2026-10-14): выходы из существующего батча —
+       * замена polish-batch.ts (2.6); чистая функция без LLM */
+      const { outputsFromBatchText } = await import('../src/lib/t4/scribe')
+      const outs = outputsFromBatchText('T4-96', mdShift)
+      check(
+        'polish: outputsFromBatchText читает слоты черновика обратно в выходы писца (anchor/thesis/pos на месте)',
+        outs.size === 2 && (outs.get(1)?.anchor ?? '').startsWith('anchor-one') &&
+          (outs.get(2)?.pos ?? '').includes('standing') && (outs.get(1)?.thesis ?? '') === 't'
       )
     }
 

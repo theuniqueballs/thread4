@@ -17,9 +17,9 @@ import path from 'node:path'
 
 import ZAI from 'z-ai-web-dev-sdk'
 
-import { BATCHES_DIR, CONTRACTS_DIR, readJson, writeText } from './fsutil'
+import { BATCHES_DIR, CONTRACTS_DIR, readJson, readText, writeText } from './fsutil'
 import { appendEvent, foldState, readEvents } from './events'
-import { runGates, type GateReceipt, type GatesResult } from './gates'
+import { parseBatch, runGates, type GateReceipt, type GatesResult } from './gates'
 import { TIER_RANK } from './verdicts'
 import { type BatchContract, type SlotPlan } from './compiler'
 import {
@@ -1168,6 +1168,206 @@ async function scribeBatchInner(
     rounds,
     hardPass: result.hardPass,
     firstRunClean: result.firstRunClean,
+    sha10: result.sha10,
+    receipts: result.receipts,
+    failedSlots: contract.slots.filter((s) => !outputs.has(s.position)).map((s) => s.position),
+    log,
+    markdown,
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* polishBatch — гейт-починка СУЩЕСТВУЮЩЕГО черновика (ревизия         */
+/* 2026-10-14, категория 2.6): замена осиротевшего polish-batch.ts    */
+/* (собственный LLM-цикл без таймаутов, дублировал полирующий круг).  */
+/* Не пишет заново — читает слоты из батча, гоняет ремонт hard-фейлов */
+/* и полировку WARN-гейтов тем же машинерием писца (таймауты, откат   */
+/* полировки, ремонт ограничен своим набором позиций).                */
+/* ------------------------------------------------------------------ */
+
+/** Слоты батча → выходы писца (чистая функция — самотест гоняет её). */
+export function outputsFromBatchText(
+  slug: string,
+  text: string
+): Map<number, ScribeSlotOutput> {
+  const parsed = parseBatch(slug, text)
+  const out = new Map<number, ScribeSlotOutput>()
+  for (const s of parsed?.slots ?? []) {
+    out.set(s.position, {
+      position: s.position,
+      anchor: s.anchor || 'unnamed-frame',
+      thesis: s.thesis,
+      pos: s.pos,
+      negExtra: '',
+    })
+  }
+  return out
+}
+
+export async function polishBatch(
+  slug: string,
+  options: { maxRepairRounds?: number; onLog?: (s: string) => void } = {}
+): Promise<ScribeResult> {
+  const log: string[] = []
+  const maxRepairRounds = options.maxRepairRounds ?? 2
+  const say = (s: string) => {
+    log.push(s)
+    options.onLog?.(s)
+  }
+  const contract = readJson<BatchContract>(path.join(CONTRACTS_DIR, `${slug}.json`))
+  if (!contract) throw new Error(`контракт ${slug} не найден — polish работает по контракту`)
+  const text0 = readText(path.join(BATCHES_DIR, `${slug}.md`))
+  if (text0 == null) throw new Error(`батч ${slug} не найден — polish чинит существующий черновик`)
+  const allDelivered = readEvents()
+    .filter((e) => e.type === 'batch.delivered')
+    .map((e) => String(e.data?.slug ?? ''))
+  if (allDelivered.includes(slug)) {
+    throw new Error(`${slug} уже сдан — сданный батч не перезаписывается`)
+  }
+
+  /* контекст писца из контракта (без спайн-вызова LLM: закон уже написан) */
+  const carriersSpec = getCarriers()
+  const posesSpec = getPoses()
+  const palettesSpec = getPalettes()
+  const racesSpec = getRaces()
+  const ocCanon = getOCCanon()
+  const recipesSpec = getRatingRecipes()
+  const bans = getBans()
+  if (!carriersSpec || !posesSpec || !palettesSpec || !racesSpec || !ocCanon || !recipesSpec || !bans) {
+    throw new Error('спеки не загружены')
+  }
+  const poolsSpec = readJson<{ sections: Record<string, { id: string; name?: string; light?: string }[]> }>(
+    path.join(process.cwd(), 'thread4', 'specs', 'pools.json')
+  )
+  const kNames = new Map<string, { name: string; light: string }>()
+  for (const k of poolsSpec?.sections?.kinetics_k ?? []) {
+    kNames.set(k.id, { name: k.name ?? k.id, light: k.light ?? '' })
+  }
+  const ctx: ScribeCtx = {
+    contract,
+    carriers: new Map(Object.values(carriersSpec.classes).flat().map((c) => [c.id, c])),
+    poses: new Map(posesSpec.poses.map((p) => [p.id, p])),
+    palettes: new Map(palettesSpec.palettes.map((p) => [p.id, p])),
+    races: new Map(racesSpec.races.map((r) => [r.name, r])),
+    ocs: ocCanon.ocs,
+    recipes: recipesSpec.tiers as unknown as Record<string, TierRecipe>,
+    floors: recipesSpec.eternal_floors as unknown as Record<string, string[]>,
+    kNames,
+    batchThesis: '',
+    acts: [],
+    themeKeywords: Array.isArray(contract.themeWords)
+      ? contract.themeWords.map((w) => String(w).toLowerCase()).slice(0, 8)
+      : [],
+    engineName: contract.engine,
+    engineLaw: contract.engineLaw,
+  }
+  /* THESIS батча — первая строка после H1 (закон писался при создании) */
+  ctx.batchThesis = (text0.split('\n').find((l) => l.trim() !== '' && !l.startsWith('#')) ?? '').trim()
+
+  const outputs = outputsFromBatchText(slug, text0)
+  say(`Polish: ${slug} «${contract.theme}» — ${outputs.size} слотов из черновика, движок ${contract.engine}`)
+
+  const zai = await ZAI.create()
+  const batchLawBlock = `BATCH ${slug} «${contract.theme}» — theme: ${contract.theme}${contract.authorWishes ? `\nAUTHOR'S WISHES: ${contract.authorWishes}` : ''}\nENGINE: ${ctx.engineName} — ${ctx.engineLaw}\nBATCH THESIS: ${ctx.batchThesis}`
+
+  let markdown = assembleBatch(ctx, outputs, contract.theme)
+  let result: GatesResult | null = null
+  let rounds = 0
+  const batchPath = path.join(BATCHES_DIR, `${slug}.md`)
+
+  /* --- ремонт hard-фейлов (гейт-ведомый, тот же протокол писца) --- */
+  for (let round = 0; round <= maxRepairRounds; round++) {
+    writeText(batchPath, markdown)
+    say(`круг ${round + 1}: гейты (сухой прогон)…`)
+    result = runGates(slug, true)
+    if (!result) throw new Error('гейты не нашли файл батча')
+    const hardFails = result.receipts.filter((r) => r.level === 'hard' && r.verdict === 'FAIL')
+    if (hardFails.length === 0) break
+    if (round === maxRepairRounds) {
+      say(`  · круг ${round + 1}: hard FAIL остался — сдача невозможна`)
+      break
+    }
+    rounds = round + 1
+    const failed = new Set<number>()
+    for (const r of hardFails) {
+      for (const fnd of r.findings) {
+        const m = /^P(\d{1,2})\b/.exec(fnd)
+        if (m) {
+          const p = parseInt(m[1], 10)
+          if (p >= 1 && p <= contract.slots.length) failed.add(p)
+        }
+      }
+    }
+    if (failed.size === 0) break
+    say(`  · ремонт слотов: ${[...failed].sort((a, b) => a - b).join(', ')}`)
+    const repairSlots = contract.slots.filter((s) => failed.has(s.position))
+    const repairUser = `${batchLawBlock}\n\nREWRITE THESE SLOTS — they failed the machine gates. Keep what worked, fix what is flagged. Same exact format.\n\n${repairSlots.map((s) => slotFrame(s, ctx)).join('\n\n')}\n\nGATE FAILURES TO FIX:\n${hardFails.flatMap((r) => r.findings.map((f) => `- [${r.gate}] ${f}`)).slice(0, 24).join('\n')}`
+    const raw = await chat(zai, systemPrompt(), repairUser, log)
+    for (const [n, o] of parseSlots(raw)) {
+      if (failed.has(n) && o.pos.trim()) outputs.set(n, o)
+    }
+    markdown = assembleBatch(ctx, outputs, contract.theme)
+  }
+
+  /* --- полировка WARN-гейтов (один круг, откат при потере hard) --- */
+  let polished = 0
+  if (result?.hardPass) {
+    const POLISH_GATES = new Set(['noun-lock', 'claim-visibility', 'prop-geometry', 'simcheck', 'contract-fidelity'])
+    const warnFindings = result.receipts.filter(
+      (r) => r.level === 'warn' && r.verdict === 'WARN' && POLISH_GATES.has(r.gate)
+    )
+    const failedPolish = new Set<number>()
+    for (const r of warnFindings) {
+      for (const fnd of r.findings) {
+        const m = /P(\d{1,2})/.exec(fnd)
+        if (m) {
+          const p = parseInt(m[1], 10)
+          if (p >= 1 && p <= contract.slots.length) failedPolish.add(p)
+        }
+      }
+    }
+    if (failedPolish.size > 0) {
+      say(`полировка качества — слоты ${[...failedPolish].sort((a, b) => a - b).join(', ')}`)
+      const backup = markdown
+      const backupOutputs = new Map(outputs)
+      const repairSlots = contract.slots.filter((s) => failedPolish.has(s.position))
+      const repairUser = `${batchLawBlock}\n\nREWRITE THESE SLOTS — they carry WARN-level QUALITY findings (the batch already passed all HARD gates — do NOT introduce any new fabric/claim/underlayer that could break them). Keep the same anchor, pose, palette, canon and stack. Same exact format.\n\n${repairSlots.map((s) => slotFrame(s, ctx)).join('\n\n')}\n\nQUALITY FINDINGS TO FIX:\n${warnFindings.flatMap((r) => r.findings.map((f) => `- [${r.gate}] ${f}`)).slice(0, 24).join('\n')}`
+      const raw = await chat(zai, systemPrompt(), repairUser, log)
+      for (const [n, o] of parseSlots(raw)) {
+        if (failedPolish.has(n) && o.pos.trim()) outputs.set(n, o)
+      }
+      markdown = assembleBatch(ctx, outputs, contract.theme)
+      writeText(batchPath, markdown)
+      const after = runGates(slug, true)
+      if (after && after.hardPass) {
+        polished = failedPolish.size
+        result = after
+        say(`  · полировка: hard PASS удержан (${polished} слотов)`)
+      } else {
+        outputs.clear()
+        for (const [k, v] of backupOutputs) outputs.set(k, v)
+        markdown = backup
+        writeText(batchPath, markdown)
+        const restored = runGates(slug, true)
+        if (restored) result = restored
+        say('  · полировка сломала hard — ОТКАТ')
+      }
+    }
+  }
+
+  if (!result) throw new Error('гейты не прогнались')
+  writeText(batchPath, markdown)
+  appendEvent(
+    'note',
+    `polish: ${slug} — гейт-починка существующего черновика: ремонт ${rounds} круг(а), полировка ${polished} слот(ов), гейты ${result.hardPass ? 'PASS' : 'FAIL'} (sha ${result.sha10})`,
+    { slug, kind: 'polish', rounds, polished, hardPass: result.hardPass, sha10: result.sha10 }
+  )
+  return {
+    slug,
+    title: contract.theme,
+    rounds,
+    hardPass: result.hardPass,
+    firstRunClean: false,
     sha10: result.sha10,
     receipts: result.receipts,
     failedSlots: contract.slots.filter((s) => !outputs.has(s.position)).map((s) => s.position),
