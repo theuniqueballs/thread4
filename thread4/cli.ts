@@ -924,6 +924,82 @@ async function main() {
       )
     }
 
+    // Ревизия 2026-10-14: contract-from-batch — ретро-контракт одним вызовом
+    // (обобщение gen-t426/27/272 + refresh-t425, ~590 строк одноразовок)
+    {
+      const { buildContractFromBatch, carrierIndex, paletteOfHeader } = await import('./tools/contract-from-batch')
+      const miniCarriers = carrierIndex({
+        classes: {
+          W: [{ id: 'CR-W01', name: 'blouse' }],
+          B: [{ id: 'CR-B03', name: 'bra-top' }],
+        },
+      })
+      check(
+        'contract-from-batch: carrierIndex строит id→{name,cls} по классам',
+        miniCarriers.get('CR-W01')?.cls === 'W' && miniCarriers.get('CR-B03')?.name === 'bra-top'
+      )
+      check(
+        'contract-from-batch: палитра из шапки — регекс P###_NAME, не режет составные',
+        paletteOfHeader('(VOLT · R+ · PL22 · P02_TEST_Y)') === 'P02_TEST_Y' &&
+          paletteOfHeader('(NICHE · R · PL01)') === ''
+      )
+      const mdRetro = [
+        '# T4-95 — тест',
+        '',
+        'P01 — anchor-one (OC · Rue · R+ · PL01 · P01_X)',
+        'THESIS: t',
+        'Stack: CR-W01 + CR-B03',
+        'POS:',
+        'pos',
+        'NEG:',
+        'neg',
+        '',
+        'P02 — anchor-two (EXP · — · R+ · PL02 · P02_Y)',
+        'THESIS: t',
+        'Stack: CR-W01',
+        'POS:',
+        'pos',
+        'NEG:',
+        'neg',
+        '',
+        'P03 — anchor-three (NICHE · R · PL03 · P03_Z)',
+        'THESIS: t',
+        'POS:',
+        'pos',
+        'NEG:',
+        'neg',
+      ].join('\n')
+      const built = buildContractFromBatch(parseBatch('T4-95', mdRetro), miniCarriers, {
+        slug: 'T4-95',
+        theme: 'ретро-тема',
+        engine: 'retro-engine',
+        abSpec: 'P2:P3:κ:тест-пара',
+      })
+      const c = built.contract as {
+        slots: { position: number; kind: string; oc: string; rating: string; palette: string; carriers: { id: string }[]; exploratory?: string; ab?: { pair: string; half: string } }[]
+        spread: { rating: string; count: number }[]
+        abPairs: { pair: string; a: number; b: number; lead: string }[]
+        retroNote: string
+      }
+      check(
+        'contract-from-batch: слоты — жанр/OC-имя/тир/палитра/стек из батча; EXP-слот несёт exploratory',
+        c.slots.length === 3 &&
+          c.slots[0].kind === 'OC' && c.slots[0].oc === 'Rue' && c.slots[0].rating === 'R+' &&
+          c.slots[0].palette === 'P01_X' && c.slots[0].carriers.length === 2 &&
+          c.slots[2].kind === 'NICHE' && c.slots[2].carriers.length === 0
+      )
+      check(
+        'contract-from-batch: spread считается по тирам, abSpec → пары с лидом',
+        c.spread.length === 2 && c.spread.find((s) => s.rating === 'R+')?.count === 2 &&
+          c.spread.find((s) => s.rating === 'R')?.count === 1 &&
+          c.abPairs.length === 1 && c.abPairs[0].pair === 'κ' && c.abPairs[0].a === 2 && c.abPairs[0].b === 3
+      )
+      check(
+        'contract-from-batch: ретро-нота честна (летопись не тронута, окно не заявляется)',
+        c.retroNote.includes('data-repair') && built.markdown.includes('ретро, из батча')
+      )
+    }
+
     // RAW+ генератор (кины в конвейер, закон №3 + A5: hair/eye E3, echo F13)
     {
       const { planRawPlus } = await import('./tools/gen-rawplus')
