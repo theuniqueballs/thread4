@@ -31,6 +31,7 @@ import {
 } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
+import { toast } from '@/hooks/use-toast'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -1068,8 +1069,13 @@ function CompileTab() {
       const res = await postJson<CompilePayload>('/api/t4/compile', payload)
       setResult(res)
       contracts.reload()
+      toast({
+        title: `Контракт ${res.slug} собран`,
+        description: `спред из policy · окно учтено · дальше — писец`,
+      })
     } catch (e) {
       setErr(e instanceof ApiError ? `API: ${e.message}` : 'Сеть недоступна')
+      toast({ title: 'Сборка не удалась', description: e instanceof ApiError ? e.message : 'сеть', variant: 'destructive' })
     } finally {
       setBusy(false)
     }
@@ -1092,6 +1098,12 @@ function CompileTab() {
     try {
       const res = await postJson<ScribeResponse>('/api/t4/scribe', { slug })
       setScribe({ slug, busy: false, err: null, res })
+      toast({
+        title: res.hardPass ? `Писец: ${slug} готов` : `Писец: ${slug} — hard FAIL`,
+        description: res.hardPass
+          ? `ремонт ${res.rounds} · сдача открыта`
+          : `${res.failedSlots.length > 0 ? `НЕ написаны P${res.failedSlots.join(', P')} · ` : ''}черновик записан с квитанциями — чини против контракта`,
+      })
     } catch (e) {
       setScribe({
         slug,
@@ -1099,6 +1111,7 @@ function CompileTab() {
         err: e instanceof ApiError ? `API: ${e.message}` : 'Сеть недоступна — писец не смог',
         res: null,
       })
+      toast({ title: 'Писец не смог', description: e instanceof ApiError ? e.message : 'сеть', variant: 'destructive' })
     }
   }
 
@@ -1111,8 +1124,15 @@ function CompileTab() {
           ? `${slug} «${res.title}» сдан официально${res.result?.firstRunClean ? ' · FIRST RUN CLEAN' : ''} — батч, мета и ворклог во вкладке «Батчи»`
           : `${slug}: hard FAIL — черновик чини (см. квитанции во вкладке «Батчи»)`
       )
+      toast({
+        title: res.delivered ? `${slug} СДАН` : `${slug}: hard FAIL`,
+        description: res.delivered
+          ? `«${res.title}»${res.result?.firstRunClean ? ' · FIRST RUN CLEAN' : ''} — окно ротации двинулось`
+          : 'сдача закрыта гейтами — квитанции во вкладке «Батчи»',
+      })
     } catch (e) {
       setDeliverNote(e instanceof ApiError ? `API: ${e.message}` : 'Сеть недоступна')
+      toast({ title: 'Сдача не прошла', description: e instanceof ApiError ? e.message : 'сеть', variant: 'destructive' })
     }
   }
 
@@ -1424,11 +1444,16 @@ function QuickVerdict({ slug }: { slug: string }) {
         commanderHeaders()
       )
       setNote('Вердикт записан в лог — он кормит правки закона и вкус.')
+      toast({
+        title: 'Вердикт в логе',
+        description: `${slug}: ${vLabel}${issues.length > 0 ? ` · ${issues.join(', ')}` : ''}`,
+      })
       setVerdict(null)
       setIssues([])
       setText('')
     } catch (e) {
       setNote(ledgerWriteError(e))
+      toast({ title: 'Запись не прошла', description: ledgerWriteError(e), variant: 'destructive' })
     } finally {
       setBusy(false)
     }
@@ -2117,9 +2142,14 @@ function AuthorVisionRow({ slug }: { slug: string }) {
         commanderHeaders()
       )
       setDone(`вердикт записан (source=author, ${confidence}) — летопись видит твой глаз`)
+      toast({
+        title: 'Глаз автора в летописи',
+        description: `${slug}${pos.trim() ? ` ${pos.trim().toUpperCase()}` : ''} · ${tier} · ${confidence}`,
+      })
       setNote('')
     } catch (e) {
       setDone(ledgerWriteError(e))
+      toast({ title: 'Запись не прошла', description: ledgerWriteError(e), variant: 'destructive' })
     } finally {
       setBusy(false)
     }
@@ -2894,9 +2924,24 @@ function BatchReceiverPanel() {
           ? `Батч-вердикт ${slug} записан ОДНОЙ записью (render.verdict · author-batch): ${live.filled}/${slots.length} слотов · расхождения ↑${res.scoreboard?.claimDelta?.up ?? live.up} ↓${res.scoreboard?.claimDelta?.down ?? live.down}`
           : 'Не записано'
       )
+      /* Ревизия 2026-10-14 (3.4): Toaster смонтирован с рождения, но ни один
+       * toast() не вызывался — система фидбека существовала только в
+       * setNote-строках внутри панелей. Мутации автора теперь говорят
+       * вслух: успех — что записано, отказ — почему. */
+      toast({
+        title: res.ok ? `Вердикт ${slug} записан` : 'Вердикт не записан',
+        description: res.ok
+          ? `${live.filled}/${slots.length} слотов · ↑${res.scoreboard?.claimDelta?.up ?? live.up} ↓${res.scoreboard?.claimDelta?.down ?? live.down} · очередь корпуса накормлена (U6)`
+          : 'приёмник отказал — см. текст ошибки',
+      })
       records.reload()
     } catch (e) {
       setNote(e instanceof ApiError ? `API: ${e.message}` : 'Сеть недоступна')
+      toast({
+        title: 'Сеть/приёмник недоступны',
+        description: e instanceof ApiError ? e.message : 'нет ответа — вердикт НЕ записан',
+        variant: 'destructive',
+      })
     } finally {
       setBusy(false)
     }
@@ -2907,7 +2952,7 @@ function BatchReceiverPanel() {
     setBusy(true)
     setNote(null)
     try {
-      const res = await postJson<{ ok: boolean; verdict?: string }>(
+      const res = await postJson<{ ok: boolean; verdict?: string; queued?: boolean }>(
         '/api/t4/batch-verdict',
         { slug, mode: 'light', verdict: lightVerdict, prose: lightProse.trim() }
       )
@@ -2916,11 +2961,18 @@ function BatchReceiverPanel() {
           ? `Лёгкий вердикт ${slug} записан (${res.verdict ?? lightVerdict}) — батч-уровень, без по-слотовой разметки.`
           : 'Не записано'
       )
+      toast({
+        title: res.ok ? 'Лёгкий вердикт записан' : 'Не записано',
+        description: res.ok
+          ? `${slug} · ${res.verdict ?? lightVerdict}${res.queued ? ' · взгляд уехал в очередь корпуса' : ''}`
+          : 'приёмник отказал',
+      })
       setLightVerdict(null)
       setLightProse('')
       records.reload()
     } catch (e) {
       setNote(e instanceof ApiError ? `API: ${e.message}` : 'Сеть недоступна')
+      toast({ title: 'Вердикт не записан', description: e instanceof ApiError ? e.message : 'сеть недоступна', variant: 'destructive' })
     } finally {
       setBusy(false)
     }
