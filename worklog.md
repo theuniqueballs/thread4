@@ -3713,3 +3713,191 @@ Stage Summary:
 - Система стала крепче: карта Дрессера закрывает петлю обратной связи
   «контракт → рендер → вердикт → следующий контракт». Автор больше не
   гадает — видит конкретные каналы и слоты, которые нужно менять.
+
+---
+Task ID: bug-sweep-3
+Agent: Explore (very thorough)
+Task: Большой sweep багов THREAD 4 — POS/NEG copy, парсер, API consistency, UI, security, performance.
+
+Work Log:
+- Прочитал worklog (последние 150 строк) — последние 5 записей:
+  turn-1-reaper-oracle, turn-2-dresser-map, ezc-restore-1, issues+t4-32,
+  ключ+EZC-issues. Сервер жив на :3000, ключ командира на месте, цепь цела
+  (339 событий).
+- Скопировал CopyBtn в batch-ui.tsx (lines 101-128): navigator.clipboard.
+  writeText(text) — простой текст, без добавления пробелов/переносов. POS и
+  NEG симметричны (один компонент, разные поля). Другие copy-кнопки в
+  page.tsx (copyOrder, copyCurl, copyReply) — fixed strings + slug или LLM
+  reply, не парсят батчи. Чисто.
+- Парсер parseBatchMd (batch-md.ts:105-165) — ЖАДНЫЙ к структурным линиям:
+  цикл не сбрасывает section=null при встрече ACT-хедеров, markdown
+  заголовков (## / ###), blockquotes (>), горизонтальных правил (---),
+  divider-линий (═══). Все эти линии прилипают к текущей секции (обычно NEG,
+  т.к. POS идёт до NEG). bug-sweep проверил все 33 батча через bun-скрипт:
+  35 грязных слотов в 33 батчах (P08/P16/P24 в основном, иногда P03/P14/P19).
+  T4-32: P08/P16/P24 — NEG хвосты содержат «═════ ACT II/III/EXP OVERLAY
+  ═════». Подтверждено краевыми кейсами (markdown-header, blockquote,
+  horizontal-rule — все текут в NEG).
+- API routes consistency: state/events/batches/batch-verdict/oracle/
+  dresser-map/[slug] — все мутирующие POST-ы требуют requireCommander (403
+  без ключа), все GET-ы требуют requireRead (no-op без read.lock — текущая
+  машина открыта). curl-пробы без ключа: POST /batch-verdict 403, POST
+  /oracle 403, GET /batches 200, GET /batches/T4-99 404, GET /dresser-map/
+  T4-32 200. Path traversal: /dresser-map/../../etc/passwd → 404,
+  /dresser-map/..INVALID → 400, /dresser-map/T4-32..%2F..%2fcontracts →
+  400 (assertSafeSlug reject).
+- Летопись: 339 событий = 339 звеньев цепи, нет дублей id, нет summary>4000,
+  нет битых строк. EVENT_TYPES (21 значение в коде) покрывает все 18 типов,
+  встречающихся в логе. 27 note-событий с data.kind, 25 без (legacy
+  pre-2026-10-15). vault-restore событий в логе 0 (после фикса Кенни Issue#1
+  новый код ещё не отрабатывал — ждёт первого vault-restore через браузерный
+  сейф). assertBornSemantics для oracle.spoke требует data.model + data.reply
+  (50..4000 симв) — 1 oracle.spoke событие валидно.
+- UI в page.tsx (4639 строк): TODO/FIXME/HACK/XXX комментариев нет (только
+  «XXX» как рейтинг-код). Sticky footer корректен (flex min-h-screen flex-col
+  + main flex-1 + footer mt-auto — короткие и длинные страницы работают).
+  Lint 0 ошибок — неиспользуемых импортов нет. Все 5 parseBatchMd-вызовов в
+  useMemo — кэш работает. useApi AbortController + setData(null) до fetch +
+  aborted-check в then/catch — race conditions нет.
+- Security: assertSafeSlug (fsutil.ts:79) и SLUG_RE (batches/[slug], batch-
+  verdict) оба отвергают / и .. — path-traversal невозможен. Несоответствие
+  regex между dresser-map (assertSafeSlug, принимает «T4-A») и batches
+  (требует T4-\d{2}) — не критично, не эксплойт. XSS: react-markdown v9
+  экранирует HTML по умолчанию; единственный dangerouslySetInnerHTML —
+  shadcn chart.tsx <style> с фиксированной CSS, не пользовательский ввод.
+  Author prose (render.verdict data.prose, dresser-map authorProse) рендерится
+  как {text} в <p>/<pre> — React экранирует. Чисто.
+- EZC-протокол: worklog append-only — 52 секции, все Task ID идут
+  хронологически (1, 2-a, 2-b, 3-7, 3, …, turn-2-dresser-map на line 3621).
+  git-remote в /home/z/thread4-work — HTTPS без hardcoded PAT (PAT
+  вставляется в URL временно, потом вычищается — по протоколу прошлого тура).
+
+Stage Summary:
+- CRITICAL: parseBatchMd (batch-md.ts:105-165) — structural-line leak. ACT
+  headers, markdown headers (## / ###), blockquotes (>), horizontal rules
+  (---), divider lines (═══) НЕ сбрасывают section в null. Текст прилипает
+  к текущей секции (обычно NEG, т.к. POS идёт до NEG). 35 грязных слотов в
+  33 батчах (P08/P16/P24 в основном, иногда P03/P14/P19). T4-32: P08/P16/
+  P24 NEG хвосты несут «═════ ACT II/III/EXP OVERLAY ═════». Фикс: добавить
+  boundary-regex (например /^(═{3,}|─{3,}|━{3,}|={3,}|\*{3,}|_{3,}|ACT\s+
+  [IVX]+\b|#{1,6}\s|>\s|---+\s*$)/) и при матче делать section = null;
+  continue.
+- HIGH: CopyBtn NEG в batch-ui.tsx:371-372 — consequence of CRITICAL. Когда
+  автор копирует NEG слота P08/P16/P24 (T4-32) или любого ACT-slot в любом
+  батче, в буфер идёт мусор (divider + ACT-header текст). PixAI/Tsubaki
+  NEG-поле получает текст с ═ и «ACT II — GRAVITIC PULL». Фикс = фикс #1.
+- MEDIUM: page.tsx:3911-3913 — lessonsForNextBatch (markdown) рендерится
+  как <pre>{text}</pre> (plain), а не через <MarkdownView>. UX-несоответствие
+  (поле генерируется как markdown, показывается как текст). Фикс: либо
+  <MarkdownView>{currentMap.lessonsForNextBatch}</MarkdownView>, либо
+  генерить plain-text в dresser-map.ts.
+- MEDIUM: page.tsx:1464 QuickVerdict vs page.tsx:2840 BatchReceiverPanel —
+  два код-пути render.verdict · author-batch. QuickVerdict POSTит в /api/t4/
+  events с {slug, verdict, tags, prose} (без slots/scoreboard). Receiver
+  POSTит в /api/t4/batch-verdict с полным slots+scoreboard+A/B-атрибуцией.
+  Оба пишут render.verdict · author-batch события разной формы. Не баг сегодня
+  (state/route.ts authorCycle читает оба), но maintenance smell.
+- LOW: events.ts:227 — crypto.randomUUID().slice(0,8) = 32-bit space.
+  На 339 событиях коллизия ~1e-8, но birthday-paradox на миллионах событий.
+- LOW: page.tsx:2091 — TIER_ORDER_MAP = TIER_RANK redundant alias.
+- LOW: page.tsx:3615 — комментарий «// 最新ний вердикт» (китайский 最新 +
+  кириллица ний) — paste accident, cosmetic.
+- LOW: batch-ui.tsx:124 — Lucide icons в CopyBtn без aria-hidden (minor
+  a11y, decorative SVGs).
+- POSITIVE: requireCommander/requireRead consistency ✓; path-traversal
+  blocked ✓; XSS-safe ✓; chain integrity ✓; useApi race-safe ✓; parseBatchMd
+  memoized ✓; EZC append-only ✓; no TODO/FIXME ✓; lint clean ✓.
+- За автором (на тур 3+): фикс #1 (boundary-regex в parser) — главное.
+  После фикса — перерендер T4-32 ACT-слотов (P08/P16/P24) с чистым NEG и
+  сравнение delivery. Также — verdict Issue (поднять веса 1.2/1.3 на ключевые
+  теги канала Дрессера, как приказал автор в T4-32).
+
+---
+Task ID: turn-3-counter-contract-and-neg-fix
+Agent: Super Z (main)
+Task: Тур 3 (большой). Автор: «не ограничивайся одной штукой, ищи
+проблему, прогоняй, находи решения — всё просто». Плюс конкретный
+баг: «на стыках разной залупы типа актов, когда копируешь негатив
+кнопкой — вместе с ним копируется другая ненужная залупа, посмотришь».
+
+Work Log:
+- Прочитал worklog (последние 150 строк — тур 2 + bug-sweep-3 от
+  Explore-агента).
+- Делегировал bug-sweep-3 Explore-агенту: нашёл CRITICAL (parseBatchMd
+  структурные линии прилипают к NEG, 35 грязных слотов в 33 батчах),
+  MEDIUM (lessonsForNextBatch показывался как <pre>, markdown не
+  парсился), LOW (китайский коммент). Все безопасные места проверены:
+  path-traversal, XSS, chain integrity, useApi race conditions — ок.
+- Воспроизвёл NEG-copy баг через bun-скрипт: T4-32 P08 NEG хвост =
+  «...soft waist ═══ ACT II — GRAVITIC PULL ═══» (195 символов мусора
+  после легитимных тегов). То же для P16 (ACT III), P24 (EXP OVERLAY).
+  Парсер SECTION_RE = /^(THESIS|Canon|Spine|Stack|POS|NEG|...)/ не
+  ловил ACT-хедеры, ═══-разделители, ## markdown-заголовки, > blockquotes.
+  Строки прилипали к текущей секции (последней перед P-header следующего
+  слота — обычно NEG, потому что POS обрывается на NEG:).
+- Фикс парсера: BOUNDARY_RE = /^(?:[═━─=]{3,}|[*_]{3,}|[-]{3,}\s*$|#{1,6}\s|>\s|ACT\s+[IVX]+\b|EXP\s+OVERLAY\b|REHAB\s+OVERLAY\b)/
+  При матче section = null, строка в слот не пишется. После фикса:
+  0 грязных слотов во ВСЕХ 33 батчах (было 35). Selftest 145/145.
+- MEDIUM фикс: lessonsForNextBatch теперь <MarkdownView> (был <pre>).
+  Markdown парсится, заголовки ## видны как заголовки. По умолчанию
+  раскрыто (open).
+- LOW фикс: page.tsx:3615 «// 最新ній вердикт» (китайский 最新 + кириллица,
+  paste accident) → «// последний вердикт».
+- ФЛАГМАН ТУРА: Контр-Контракт — советник следующего батча. Прямой ответ
+  на приказ автора «придумать клёвую систему распределения рейтингов» +
+  «добавлять веса 1.2, 1.3 на теги» + «определяться с боди типом».
+  · src/lib/t4/dresser-map.ts: новый интерфейс CounterContract +
+    BodyTypeGap + ProposedWeights. Функции: computeHistoricalDelivery
+    (R+/R delivery rate по последним 5 author-batch вердиктам),
+    findBodyTypeGaps (контракт несёт oc: Lucy, но НЕ тащит body_type
+    из oc-canon.json — писец пишет без тела, рендер «стерилен»),
+    proposeWeights (1.2/1.3 вместо 1.1/1.2 — дословно приказ автора),
+    buildCounterContract (агрегат + markdown-сводка).
+    buildDresserMap теперь возвращает counterContract в дополнение к
+    lessonsForNextBatch.
+  · src/app/page.tsx: UI-секция «Контр-Контракт» в DresserMapPanel
+    (между «Уроками» и «Приказом автора»):
+    - исторический delivery rate (R+/R, bar-визуализация с цветами:
+      ≥100% emerald, ≥50% amber, <50% rose)
+    - рекомендованное распределение (R+ × N, R × 28-N — бар + why)
+    - body_type gaps (per-OC: position + bodyType значение из канона)
+    - proposed weights (per-channel: current vs proposed, code-styled)
+    - markdown summary (collapsible, MarkdownView)
+- По T4-32 (видно в UI):
+  · Исторически R+ delivery = 42% (36/86 в 5 батчах), R = 136%
+    (38/28 — модель часто апгрейдит R → R+).
+  · Рекомендовано: R+ × 17 (вместо 21) + R × 11 (вместо 7) = 28.
+  · body_type gaps: P01 Lucy (full-figured, FAM-A: full chest, soft
+    waist, wide hips — milf), P02 Noa (athletic, toned), P03 Miyu
+    (slim, elegant). Все 3 OC имеют body_type в каноне, контракт
+    не тащит.
+  · weights: bumps (1.1/1.2 → 1.3/1.3 + 3 новых: dark garment 1.2,
+    sweat glistening 1.2, nothing underneath 1.2), swim_wet (0 → 5
+    весов: wet clothes 1.3, swimsuit 1.3, covered nipples 1.2,
+    nothing underneath 1.2, fabric clinging 1.2), on_skin (0 → 3),
+    pantyline (0 → 3).
+- Lint: 0 ошибок. Сервер жив. Agent Browser: Вердикты → Карта
+  Дрессера → Контр-Контракт рендерится со всеми секциями (исторический,
+  рекомендованный, body_type, веса, markdown). Скриншот
+  /tmp/t4-counter-contract.png.
+- Пуш: копировал 3 файла в thread4-work, lint OK, git commit «round:
+  тура 3 — NEG-copy баг фикс + Контр-Контракт (большой тур)»,
+  git push origin main: f027cfe..75991dd (fast-forward, PAT вычищен
+  из remote). На github.com/theuniqueballs/thread4: latest 75991dd53a.
+
+Stage Summary:
+- NEG-copy баг закрыт навсегда: BOUNDARY_RE обрывает секцию на
+  структурных линиях. 0 грязных слотов в 33 батчах (было 35).
+- Контр-Контракт — советник следующего батча. По T4-32: рекомендует
+  R+ × 17 + R × 11 (вместо 21+7), указывает на 3 body_type gaps,
+  предлагает 5 усиленных весов для bumps + 5 для swim_wet.
+- Уроки теперь как markdown (не plain text).
+- Коммит 75991dd53a на main, push успешен.
+- За автором (на тур 4): применить рекомендации контр-контракта —
+  добавить bodyType поле в контракт (писец вплетает дословно),
+  усилить dressFor wantWeights до 1.2/1.3, рассмотреть снижение R+
+  claim до 17 для следующего батча. ИЛИ — перелопатить рейтинг
+  полностью (вариант автора): 6-уровневый с R++/R-super.
+- Система стала крепче: 3 фикса (CRITICAL + MEDIUM + LOW) + новая
+  фича (Контр-Контракт с 4 под-секциями) — большой тур вместо
+  маленького, как приказал автор.
