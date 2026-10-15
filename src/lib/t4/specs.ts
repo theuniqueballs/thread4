@@ -125,6 +125,10 @@ export interface OCLocks {
   eyes?: string
   skin?: string
   body?: string
+  /** Тур 4 (приказ автора 2026-10-15): body_type — ключевой для OC-слотов.
+   *  Контракт несёт это поле, писец вплетает в POS, рендер не стерилен. */
+  body_type?: string
+  family?: string
   features?: string
   wardrobe?: string
   register?: string

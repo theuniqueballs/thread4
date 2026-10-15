@@ -22,6 +22,7 @@ import { appendEvent, foldState, readEvents } from './events'
 import { parseBatch, runGates, type GateReceipt, type GatesResult } from './gates'
 import { TIER_RANK } from './verdicts'
 import { type BatchContract, type SlotPlan } from './compiler'
+import { varietyLine } from './variety-engine'
 import {
   getBans,
   getCarriers,
@@ -250,10 +251,19 @@ function canonLineOf(oc: OCLocks): string {
 function canonTagHints(oc: OCLocks): string {
   const marks = Array.isArray(oc.signature_marks) ? (oc.signature_marks as unknown[]).map(String) : []
   const shield = Array.isArray(oc.anti_shield) ? (oc.anti_shield as unknown[]).map(String) : []
+  /* Тур 4 (приказ автора 2026-10-15): body_type — ВПЛЕТАЕТСЯ В POS дословно.
+   *  Вердикт T4-32 P01 Lucy: «параметры тела не определены (сиськи и прочее)»
+   *  — стерилен без боди. Теперь писец видит body_type в canon-блоке и обязан
+   *  вплести его в POS-секцию (между hair/eyes/skin и pose). Контракт несёт
+   *  это поле тоже (compiler.ts OC slot). */
+  const bodyType = typeof oc.body_type === 'string' ? oc.body_type.trim() : ''
   return [
     `hair: ${String(oc.hair ?? '')} — VERBATIM into the first 10 tokens of the tag block (canon colors are law: no drift, no human defaults)`,
     `eyes: ${String(oc.eyes ?? '')} — VERBATIM into the tag block, same early position`,
     `skin: ${String(oc.skin ?? '')}`,
+    bodyType
+      ? `body_type: ${bodyType} — VERBATIM into the POS tag block (between skin and pose); this is the OC's body plan, never omit it (вердикт T4-32 P01: рендер «стерилен» без боди)`
+      : '',
     marks.length ? `signature marks (carry as tags): ${marks.slice(0, 5).join(' | ')}` : '',
     shield.length ? `anti-drift (put these in NEG-EXTRA): ${shield.slice(0, 10).join(', ')}` : '',
   ]
@@ -395,8 +405,12 @@ function slotFrame(slot: SlotPlan, ctx: ScribeCtx): string {
    *  «нахуя с купальником эти бретельки») — гейтится. */
   if (slot.dress) {
     const d = slot.dress
+    /* Тур 4 (приказ автора 2026-10-15): negWeights — ВЕСА В NEG, дословно.
+     *  Автор: «можно юзать веса прямо в негативе, мы не работаем через PH».
+     *  POS weights — EXP-only (бюджет), negWeights — ВСЕГДА на R+/X слотах. */
+    const negWeights = Array.isArray(d.negWeights) ? d.negWeights : []
     lines.push(
-      `DRESS CODE (Дрессер №29, закон ${d.law}): канал «${d.channelName}» · категория «${d.category}» · ${d.garment} · СОСТОЯНИЕ ВПЛЕТАЕТСЯ ДОСЛОВНО: ${d.state.join(', ')} · подслой: ${d.underlayer}${d.weights.length > 0 ? ` · ВЕСА RAW (только эти, дословно): ${d.weights.join(' ')}` : ''}`
+      `DRESS CODE (Дрессер №29, закон ${d.law}): канал «${d.channelName}» · категория «${d.category}» · ${d.garment} · СОСТОЯНИЕ ВПЛЕТАЕТСЯ ДОСЛОВНО: ${d.state.join(', ')} · подслой: ${d.underlayer}${d.weights.length > 0 ? ` · ВЕСА POS RAW (только эти, дословно, в POS-блок): ${d.weights.join(' ')}` : ''}${negWeights.length > 0 ? ` · ВЕСА NEG RAW (только эти, дословно, в NEG-блок): ${negWeights.join(' ')}` : ''}`
     )
   }
   /* EXP-слоты (вердикт T4-28: «не забывай про EXP промпты»): чистая болванка
@@ -408,6 +422,15 @@ function slotFrame(slot: SlotPlan, ctx: ScribeCtx): string {
     lines.push(
       `EXP SLOT (вердикт T4-28 — «не забывай про EXP промпты»): чистая болванка БЕЗ темы батча — тема-слота и движок НЕ применяются. Гипотеза: ${slot.exp.hypothesis}${slot.exp.half ? ` (половина ${slot.exp.half}${slot.exp.pairWith ? `, пара с P${String(slot.exp.pairWith).padStart(2, '0')}` : ''})` : ''}. THESIS MUST OPEN with "EXP ${letter}-${slot.exp.half ?? 'A'} · ${slot.exp.hypothesis.slice(0, 80)}" — одна переменная отличает половины, всё остальное одинаково (канон T4-27.2: «план identical»).`
     )
+  }
+  /* Тур 4 (приказ автора 2026-10-15): VARIETY ENGINE — пакет разнообразия
+   *  на каждый слот, детерминированно (хеш slug+position). Без этого все
+   *  28 слотов идут по одному шаблону → T4-32 сошёлся к 12 PG-13 из 21 R+.
+   *  VarietyLine — СОВЕТ писцу, как структурировать промпт СЕЙЧАС (порядок
+   *  тегов, регистр, длина, стиль-якорь, NEG-вариант). Не закон — канон
+   *  и dress code приоритетнее. */
+  if (slot.variety) {
+    lines.push(`VARIETY (тура 4): ${varietyLine(slot.variety)}`)
   }
   if (slot.ab) {
     lines.push(
@@ -749,7 +772,12 @@ function assembleBatch(
       ]
       if (slot.dice) spineParts.push(`dice ${slot.diceSig}`)
       if (slot.fabricTone) spineParts.push(`fabric tone ${slot.fabricTone} (закон №28)`)
-      if (slot.dress) spineParts.push(`dress: ${slot.dress.channel}/${slot.dress.category}${slot.dress.weights.length > 0 ? ' ⚖RAW' : ''} (№29)`)
+      if (slot.dress) {
+        const hasPos = slot.dress.weights.length > 0
+        const hasNeg = (slot.dress.negWeights?.length ?? 0) > 0
+        const marker = hasPos && hasNeg ? ' ⚖RAW±' : hasPos ? ' ⚖RAW+' : hasNeg ? ' ⚖RAW−' : ''
+        spineParts.push(`dress: ${slot.dress.channel}/${slot.dress.category}${marker} (№29)`)
+      }
       L.push(`Spine: ${spineParts.join(' · ')}`)
       L.push(`Stack: ${slot.carriers.map((x) => x.id).join(' + ')}`)
       L.push('POS:')

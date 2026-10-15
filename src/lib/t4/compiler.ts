@@ -35,6 +35,7 @@ import {
   getRatingRecipes,
   type Carrier,
 } from './specs'
+import { proposeVariety } from './variety-engine'
 
 /* ------------------------------------------------------------------ */
 /* Seeded RNG (deterministic compiles)                                 */
@@ -132,6 +133,11 @@ export interface SlotPlan {
   /** Закон №27 (вердикт T4-28): тон несущей вещи на зоне заявки — контракт
    *  назначает ротацией (dark/mid/light); through-заявка живёт только на dark */
   fabricTone?: 'dark' | 'mid' | 'light'
+  /** Тур 4 (2026-10-15, приказ автора): body_type из oc-canon.json — для
+   *  OC-слотов контракт ТАЩИТ это поле из канона, писец вплетает ДОСЛОВНО
+   *  в POS (после hair/eyes/skin, до pose). Раньше писец писал только oc
+   *  имя → рендер «стерилен» без боди (вердикт T4-32 P01 Lucy). */
+  bodyType?: string
   /** ДРЕССЕР (квитанция №29, приказ автора из вердикта T4-31): дресс-код
    *  слота — канал тира №28 × категория сцены × тон × состояние; писец
    *  вплетает ДОСЛОВНО (frameLine), гейт dresser проверяет когерентность */
@@ -144,6 +150,11 @@ export interface SlotPlan {
     state: string[]
     underlayer: string
     weights: string[]
+    /** Тур 4 (приказ автора 2026-10-15): веса NEG — автор «можно юзать веса
+     *  прямо в негативе, мы не работаем через PH». Писец вплетает дословно
+     *  в NEG-блок (не в POS). В отличие от POS weights, нет бюджета —
+     *  rejection tags на всех R+/X слотах. */
+    negWeights?: string[]
     law: string
   }
   /** EXP-слот (вердикт T4-28: «не забывай про EXP промпты»): болванка без
@@ -151,6 +162,20 @@ export interface SlotPlan {
    *  letter — греческая буква программы (κλμνξρ), маркер THESIS для
    *  ТРИАЛ-радара (batch-md.ts HYPO_PAIR_RE читает «EXP κ-A · H10») */
   exp?: { hypothesis: string; half?: 'A' | 'B'; pairWith?: number; letter?: string }
+  /** Тур 4 (приказ автора 2026-10-15): пакет разнообразия — порядок POS,
+   *  регистр кадра, класс длины, стиль-якорь, NEG-вариант. Назначается
+   *  детерминированно (хеш slug+position) → рераны не меняют судьбу слота.
+   *  Писец читает varietyLine(v) и структурирует промпт соответственно.
+   *  Цель: разные картинки + разные подходы (T4-32 сошёлся к 12 PG-13
+   *  из 21 R+ заявок — шаблонность убила интенсивность). */
+  variety?: {
+    posOrder: string
+    register: string
+    lengthClass: string
+    styleAnchor: string
+    negVariant: number
+    seed: number
+  }
 }
 
 export interface BatchContract {
@@ -566,6 +591,14 @@ export function compileBatch(theme: string, options: CompileOptions = {}): Batch
       const ocName = ocNames[pos - 1]
       const ocCarriers = ocRating === 'R+' ? assignCore4('R+', pos) : assignTierCarriers('R')
       const ocPose = pickPose(ocRating)
+      /* Тур 4 (приказ автора 2026-10-15): body_type из oc-canon.json —
+       * писец вплетает в POS, рендер больше не стерилен без боди.
+       * Вердикт T4-32 P01 Lucy: «параметры тела не определены (сиськи и
+       * прочее)» — закрыт на корне, контракт несёт поле. */
+      const ocData = ocCanon.ocs[ocName]
+      const ocBodyType = typeof ocData?.body_type === 'string' && ocData.body_type.trim() !== ''
+        ? ocData.body_type.trim()
+        : undefined
       slots.push({
         position: pos,
         kind: 'OC',
@@ -583,6 +616,7 @@ export function compileBatch(theme: string, options: CompileOptions = {}): Batch
         lead,
         register: ocName === 'Sue' ? 'milf' : register,
         closer,
+        ...(ocBodyType ? { bodyType: ocBodyType } : {}),
       })
       continue
     }
@@ -752,12 +786,22 @@ export function compileBatch(theme: string, options: CompileOptions = {}): Batch
     })
   }
 
+  /* Тур 4 (приказ автора 2026-10-15): назначить пакет разнообразия
+   *  (порядок POS / регистр / длина / стиль-якорь / NEG-вариант) КАЖДОМУ
+   *  слоту контракта — детерминированно (хеш slug+position). Без этого
+   *  писец пишет все 28 слотов по одному шаблону → T4-32 сошёлся к 12
+   *  PG-13 из 21 R+. VarietyLine в slotFrame говорит писцу, КАК
+   *  структурировать промпт этого слота — это совет, не закон. */
+  for (const s of slots) {
+    s.variety = proposeVariety(s, slug)
+  }
+
   const contract: BatchContract = {
     slug,
     theme,
     engine: engineKey,
     engineLaw: engine.law,
-    engineWhy: 'одноразовый движок: писец выведет физический закон ТЕМЫ на этапе спайна (3.2-традиция — движок под тему, утилизация после батча)',
+    engineWhy: 'одноразовый движок: писец выведёт физический закон ТЕМЫ на этапе спайна (3.2-традиция — движок под тему, утилизация после батча)',
     seed,
     createdAt: new Date().toISOString(),
     spread: Object.entries(spreadMap).map(([rating, count]) => ({ rating, count })),

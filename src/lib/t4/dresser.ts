@@ -26,6 +26,10 @@ export interface DressCode {
   stateTags: string[]
   underlayer: string
   weights: string[]
+  /** Тур 4 (приказ автора 2026-10-15): веса в NEG разрешены («мы не работаем
+   *  через PH» — нет PH-прослойки, weights_raw идут в оба блока). Усиливают
+   *  rejection на ключевые «слишком реалистично/детское/дефолт». */
+  negWeights: string[]
   receipts: string[]
   law: string
 }
@@ -83,10 +87,41 @@ export function dressFor(args: {
       : (cat.items.length > 0 ? cat.items[Math.floor((args.rng?.() ?? 0.42) * cat.items.length)] : 'named garment')
   const toneWord = args.tone === 'dark' ? 'тёмная' : args.tone === 'light' ? 'светлая' : 'средняя'
   const weights: string[] = []
+  /* Тур 4: negWeights — веса в NEG (раз не через PH, weights_raw идут в оба
+   *  блока). Канал-специфичные: bumps → отширь «nipples through clothing»
+   *  и «see-through» (X-теги, не должны просочиться на R+); swim_wet → отширь
+   *  «bra» (купальник самодостаточен); on_skin → отширь «bra/camisole»
+   *  (заявка на коже). Усиленные 1.3 на ключевые «photorealistic/child» —
+   *  автор прямо приказал «1.2, 1.3 на теги».
+   *
+   *  В отличие от POS weights (EXP-only, budget-limited), negWeights — ВСЕГДА
+   *  на R+/X слотах: это rejection tags, не signal tags, бюджет не жрёт. */
+  const negWeights: string[] = []
+  if (channel === spec.channels['bumps']) {
+    negWeights.push(
+      '(nipples through clothing:1.3)',
+      '(see-through:1.3)',
+      '(wet clothes on fabric top:1.2)'
+    )
+  }
+  if (channel === spec.channels['swim_wet']) {
+    negWeights.push('(bra:1.2)', '(camisole:1.2)', '(garter straps:1.2)', '(nipples through clothing:1.3)')
+  }
+  if (channel === spec.channels['on_skin']) {
+    negWeights.push('(bra:1.2)', '(camisole:1.2)', '(bandeau:1.2)', '(undershirt:1.2)')
+  }
+  if (channel === spec.channels['pantyline']) {
+    negWeights.push('(jeans:1.3)', '(denim:1.3)', '(leather skirt:1.2)', '(sweatpants:1.2)')
+  }
+  // universal: автор прямо приказал «веса 1.2, 1.3 на теги» — усиливаем
+  // rejection на ключевые «слишком реалистично/детское/дефолт»
+  negWeights.push('(photorealistic:1.3)', '(3D face:1.3)', '(child:1.2)', '(loli:1.2)')
+
+  // POS weights — EXP-only, бюджетные (v1.9.0 weights_raw grammar)
   if (args.wantWeights) {
-    // EXP-грамматика (v1.9.0 weights_raw): максимум 2 на слот от Дрессера
     if (channel === spec.channels['bumps']) weights.push('(covered nipples:1.1)', '(fabric clinging:1.2)')
     if (channel === spec.channels['through']) weights.push('(nipples through clothing:1.2)')
+    if (channel === spec.channels['swim_wet']) weights.push('(wet clothes:1.2)', '(swimsuit:1.2)')
   }
   return {
     channel: Object.keys(spec.channels).find((k) => spec.channels[k] === channel) ?? 'bumps',
@@ -97,6 +132,7 @@ export function dressFor(args: {
     stateTags: channel.state ?? [],
     underlayer: channel.underlayer ?? 'nothing underneath',
     weights,
+    negWeights,
     receipts: [channel.receipt ?? '', cat.receipts?.[0] ?? ''].filter(Boolean),
     law: channel.law ?? '',
   }
@@ -109,7 +145,13 @@ export function frameLine(d: DressCode): string {
     `состояние: ${d.stateTags.join(', ')}`,
     `подслой: ${d.underlayer}`,
   ]
-  if (d.weights.length > 0) parts.push(`веса RAW (EXP): ${d.weights.join(' ')} — только эти, дословно`)
+  if (d.weights.length > 0) parts.push(`веса POS RAW (только эти, дословно): ${d.weights.join(' ')}`)
+  /* Тур 4: веса NEG — автор прямо приказал «добавлять веса 1.2, 1.3 на теги»
+   *  + «мы не работаем через PH» — weights_raw идут В ОБА блока. Эти теги
+   *  писец вплетает в NEG, не в POS. */
+  if (d.negWeights.length > 0) {
+    parts.push(`веса NEG RAW (только эти, дословно, в NEG-блок): ${d.negWeights.join(' ')}`)
+  }
   parts.push(`конфликт-запрет категории смотри в спеке dresser.json; тон вещи НЕ оспаривается (№27/№28)`)
   return parts.join(' · ')
 }

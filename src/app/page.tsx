@@ -3591,6 +3591,18 @@ interface DresserMap {
     }[]
     markdown: string
   }
+  /** Тур 4: матрица разнообразия — пакет на каждый слот. */
+  varietyMatrix: {
+    position: string
+    claim: string
+    posOrder: string
+    register: string
+    lengthClass: string
+    styleAnchor: string
+    negVariant: number
+    negVariantName: string
+    seed: number
+  }[]
 }
 
 const FAILURE_MODE_LABELS: Record<FailureMode, string> = {
@@ -4112,6 +4124,57 @@ function DresserMapPanel() {
                 <MarkdownView>{currentMap.counterContract.markdown}</MarkdownView>
               </div>
             </details>
+          </div>
+        ) : null}
+
+        {/* Variety Engine — флагман тура 4 (2026-10-15). Каждый слот
+            *  контракта получает пакет разнообразия: порядок POS / регистр /
+            *  длина / стиль-якорь / NEG-вариант. Детерминированно по хешу
+            *  slug+position → рераны не меняют судьбу слота. Цель: разные
+            *  картинки + разные подходы (T4-32 сошёлся к 12 PG-13 из 21 R+). */}
+        {currentMap.varietyMatrix && currentMap.varietyMatrix.length > 0 ? (
+          <div className="rounded-md border border-emerald-500/20 bg-emerald-500/5 p-3">
+            <div className="mb-3 flex items-center gap-2">
+              <Sparkles className="size-4 text-emerald-500" />
+              <span className="text-sm font-semibold text-emerald-300">Variety Engine</span>
+              <span className="text-[10px] text-zinc-500">
+                пакет разнообразия на каждый слот (детерминированно)
+              </span>
+            </div>
+            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+              {currentMap.varietyMatrix.map((v) => (
+                <div
+                  key={v.position}
+                  className="rounded border border-zinc-800 bg-zinc-950/40 p-2 text-[10px]"
+                >
+                  <div className="mb-1 flex items-center justify-between">
+                    <Mono className="text-zinc-300">{v.position}</Mono>
+                    <span className="text-zinc-600">{v.claim}</span>
+                  </div>
+                  <div className="space-y-0.5 text-zinc-400">
+                    <div>
+                      <span className="text-zinc-600">order:</span>{' '}
+                      <span className="text-emerald-300/90">{v.posOrder}</span>
+                    </div>
+                    <div>
+                      <span className="text-zinc-600">register:</span>{' '}
+                      <span className="text-amber-300/90">{v.register}</span>
+                    </div>
+                    <div>
+                      <span className="text-zinc-600">length:</span> {v.lengthClass}
+                    </div>
+                    <div>
+                      <span className="text-zinc-600">style:</span>{' '}
+                      <span className="text-fuchsia-300/90">{v.styleAnchor}</span>
+                    </div>
+                    <div>
+                      <span className="text-zinc-600">neg:</span> #{v.negVariant}{' '}
+                      <span className="text-zinc-500">({v.negVariantName})</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         ) : null}
 

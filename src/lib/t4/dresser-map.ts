@@ -26,6 +26,7 @@ import { readEvents } from './events'
 import { dressFor, type FabricTone } from './dresser'
 import { type SlotPlan, type BatchContract } from './compiler'
 import { getOCCanon } from './specs'
+import { proposeVariety, NEG_VARIANTS } from './variety-engine'
 
 /* ------------------------------------------------------------------ */
 /* Типы (то, что уезжает в UI)                                          */
@@ -98,6 +99,23 @@ export interface DresserMap {
   /** Тур 3 (2026-10-15): контр-контракт — советник следующего батча на
    *  основе исторических delivery rates + недостающих bodyType. */
   counterContract: CounterContract
+  /** Тур 4 (2026-10-15): матрица разнообразия — для каждого слота контракта
+   *  его пакет (posOrder / register / length / styleAnchor / negVariant).
+   *  Берётся из contract.slot.variety (назначается в compiler.ts). */
+  varietyMatrix: VarietyRow[]
+}
+
+/** Строка матрицы разнообразия — что получил слот от Variety Engine. */
+export interface VarietyRow {
+  position: string
+  claim: string
+  posOrder: string
+  register: string
+  lengthClass: string
+  styleAnchor: string
+  negVariant: number
+  negVariantName: string
+  seed: number
 }
 
 /* ------------------------------------------------------------------ */
@@ -635,9 +653,35 @@ export function buildDresserMap(slug: string): DresserMap | null {
    *  partial (ему нужны slots + channelMatrix + authorProse). */
   const counterContract = buildCounterContract(partialWithoutLessons, events)
 
+  /* Тур 4: матрица разнообразия — для каждого слота контракта его пакет
+   *  variety (posOrder / register / length / style / negVariant). Берётся
+   *  из contract.slot.variety если есть; иначе пересчитывается через
+   *  proposeVariety (старые контракты T4-32 — без variety, но покажем
+   *  ЧТО бы они получили). */
+  const varietyMatrix: VarietyRow[] = contract.slots.map((cs) => {
+    const v =
+      cs.variety ?? proposeVariety({ position: cs.position }, slug)
+    const negVariantName =
+      v.negVariant >= 0 && v.negVariant < NEG_VARIANTS.length
+        ? NEG_VARIANTS[v.negVariant].name
+        : `variant-${v.negVariant}`
+    return {
+      position: `P${String(cs.position).padStart(2, '0')}`,
+      claim: cs.rating,
+      posOrder: v.posOrder,
+      register: v.register,
+      lengthClass: v.lengthClass,
+      styleAnchor: v.styleAnchor,
+      negVariant: v.negVariant,
+      negVariantName,
+      seed: v.seed,
+    }
+  })
+
   const partial: Omit<DresserMap, 'lessonsForNextBatch'> = {
     ...partialWithoutLessons,
     counterContract,
+    varietyMatrix,
   }
 
   return { ...partial, lessonsForNextBatch: buildLessons(partialWithoutLessons) }
