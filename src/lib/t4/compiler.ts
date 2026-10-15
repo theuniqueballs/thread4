@@ -35,7 +35,7 @@ import {
   getRatingRecipes,
   type Carrier,
 } from './specs'
-import { proposeVariety } from './variety-engine'
+import { proposeVariety, proposeBatchVariety, cameraForLead } from './variety-engine'
 
 /* ------------------------------------------------------------------ */
 /* Seeded RNG (deterministic compiles)                                 */
@@ -167,13 +167,22 @@ export interface SlotPlan {
    *  детерминированно (хеш slug+position) → рераны не меняют судьбу слота.
    *  Писец читает varietyLine(v) и структурирует промпт соответственно.
    *  Цель: разные картинки + разные подходы (T4-32 сошёлся к 12 PG-13
-   *  из 21 R+ заявок — шаблонность убила интенсивность). */
+   *  из 21 R+ заявок — шаблонность убила интенсивность).
+   *
+   *  Тур 5 (аудит Коул #52): расширено — camera (G01), bodyPlan для
+   *  non-OC (G11), handsHint для VOLT (G22), themeWordBudget (G30).
+   *  Назначается через proposeBatchVariety (квота камеры + interleave
+   *  bodyPlan на батч-уровне, а не per-slot random). */
   variety?: {
     posOrder: string
     register: string
     lengthClass: string
     styleAnchor: string
     negVariant: number
+    camera: string
+    bodyPlan: string | null
+    handsHint: string | null
+    themeWordBudget: number
     seed: number
   }
 }
@@ -791,9 +800,31 @@ export function compileBatch(theme: string, options: CompileOptions = {}): Batch
    *  слоту контракта — детерминированно (хеш slug+position). Без этого
    *  писец пишет все 28 слотов по одному шаблону → T4-32 сошёлся к 12
    *  PG-13 из 21 R+. VarietyLine в slotFrame говорит писцу, КАК
-   *  структурировать промпт этого слота — это совет, не закон. */
-  for (const s of slots) {
-    s.variety = proposeVariety(s, slug)
+   *  структурировать промпт этого слота — это совет, не закон.
+   *
+   *  Тур 5 (аудит Коул #52): используем proposeBatchVariety (вместо
+   *  цикла proposeVariety) — это накладывает КВОТУ камеры (G01) и
+   *  INTERLEAVE bodyPlan (G12 — нет двух соседних слотов с одинаковым
+   *  боди-планом). Также camera адаптируется под lead (G03: lead=nape
+   *  → upper-body вместо full-body). */
+  const batchVariety = proposeBatchVariety(slots, slug)
+  for (let i = 0; i < slots.length; i++) {
+    const v = batchVariety[i]
+    if (!v) continue
+    // G03: lead узкий → камера фрагмент, не full-body
+    const adjustedCamera = cameraForLead(slots[i].lead, v.camera)
+    slots[i].variety = {
+      posOrder: v.posOrder,
+      register: v.register,
+      lengthClass: v.lengthClass,
+      styleAnchor: v.styleAnchor,
+      negVariant: v.negVariant,
+      camera: adjustedCamera,
+      bodyPlan: v.bodyPlan,
+      handsHint: v.handsHint,
+      themeWordBudget: v.themeWordBudget,
+      seed: v.seed,
+    }
   }
 
   const contract: BatchContract = {

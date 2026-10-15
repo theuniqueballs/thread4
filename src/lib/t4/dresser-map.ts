@@ -26,7 +26,7 @@ import { readEvents } from './events'
 import { dressFor, type FabricTone } from './dresser'
 import { type SlotPlan, type BatchContract } from './compiler'
 import { getOCCanon } from './specs'
-import { proposeVariety, NEG_VARIANTS } from './variety-engine'
+import { proposeVariety, proposeBatchVariety, NEG_VARIANTS } from './variety-engine'
 
 /* ------------------------------------------------------------------ */
 /* Типы (то, что уезжает в UI)                                          */
@@ -115,6 +115,12 @@ export interface VarietyRow {
   styleAnchor: string
   negVariant: number
   negVariantName: string
+  /** Тур 5 (аудит Коул): camera (G01), bodyPlan (G11), handsHint (G22),
+   *  themeWordBudget (G30) — расширение Variety Engine. */
+  camera: string
+  bodyPlan: string | null
+  handsHint: string | null
+  themeWordBudget: number
   seed: number
 }
 
@@ -656,11 +662,31 @@ export function buildDresserMap(slug: string): DresserMap | null {
   /* Тур 4: матрица разнообразия — для каждого слота контракта его пакет
    *  variety (posOrder / register / length / style / negVariant). Берётся
    *  из contract.slot.variety если есть; иначе пересчитывается через
-   *  proposeVariety (старые контракты T4-32 — без variety, но покажем
-   *  ЧТО бы они получили). */
-  const varietyMatrix: VarietyRow[] = contract.slots.map((cs) => {
+   *  proposeBatchVariety (батч-уровень — квота камеры + interleave bodyPlan).
+   *  Тур 5: расширено — camera (G01), bodyPlan (G11), handsHint (G22),
+   *  themeWordBudget (G30). */
+  const hasVarietyInContract = contract.slots.some((cs) => cs.variety)
+  let fallbackVariety: ReturnType<typeof proposeBatchVariety> = []
+  if (!hasVarietyInContract) {
+    // старый контракт без variety (T4-32) — пересчитываем батч-уровнево,
+    // чтобы interleave работал в UI-предпросмотре
+    fallbackVariety = proposeBatchVariety(
+      contract.slots.map((cs) => ({
+        position: cs.position,
+        kind: cs.kind,
+        rating: cs.rating,
+      })),
+      slug
+    )
+  }
+  const varietyMatrix: VarietyRow[] = contract.slots.map((cs, idx) => {
     const v =
-      cs.variety ?? proposeVariety({ position: cs.position }, slug)
+      cs.variety ??
+      fallbackVariety[idx] ??
+      proposeVariety(
+        { position: cs.position, kind: cs.kind, rating: cs.rating },
+        slug
+      )
     const negVariantName =
       v.negVariant >= 0 && v.negVariant < NEG_VARIANTS.length
         ? NEG_VARIANTS[v.negVariant].name
@@ -674,6 +700,10 @@ export function buildDresserMap(slug: string): DresserMap | null {
       styleAnchor: v.styleAnchor,
       negVariant: v.negVariant,
       negVariantName,
+      camera: v.camera,
+      bodyPlan: v.bodyPlan,
+      handsHint: v.handsHint,
+      themeWordBudget: v.themeWordBudget,
       seed: v.seed,
     }
   })

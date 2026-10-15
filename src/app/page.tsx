@@ -3601,6 +3601,12 @@ interface DresserMap {
     styleAnchor: string
     negVariant: number
     negVariantName: string
+    /** Тур 5 (аудит Коул #52): camera (G01), bodyPlan (G11),
+     *  handsHint (G22), themeWordBudget (G30). */
+    camera: string
+    bodyPlan: string | null
+    handsHint: string | null
+    themeWordBudget: number
     seed: number
   }[]
 }
@@ -4166,6 +4172,27 @@ function DresserMapPanel() {
                     <div>
                       <span className="text-zinc-600">style:</span>{' '}
                       <span className="text-fuchsia-300/90">{v.styleAnchor}</span>
+                    </div>
+                    {/* Тур 5: новые оси из аудита Коул */}
+                    <div>
+                      <span className="text-zinc-600">cam:</span>{' '}
+                      <span className="text-sky-300/90">{v.camera}</span>
+                    </div>
+                    {v.bodyPlan ? (
+                      <div>
+                        <span className="text-zinc-600">body:</span>{' '}
+                        <span className="text-rose-300/90">{v.bodyPlan}</span>
+                      </div>
+                    ) : null}
+                    {v.handsHint ? (
+                      <div>
+                        <span className="text-zinc-600">hands:</span>{' '}
+                        <span className="text-orange-300/90">{v.handsHint}</span>
+                      </div>
+                    ) : null}
+                    <div>
+                      <span className="text-zinc-600">theme≤:</span>{' '}
+                      <span className="text-zinc-300">{v.themeWordBudget}</span>
                     </div>
                     <div>
                       <span className="text-zinc-600">neg:</span> #{v.negVariant}{' '}

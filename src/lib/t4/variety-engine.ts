@@ -44,6 +44,47 @@ export type StyleAnchor =
   | 'detailed-ink'
   | 'none'
 
+/** Тур 5 (приём G01 от Коул): класс дистанции камеры — ломает
+ *  «cowboy на всех 28 слотах». Квота: 6 full-body / 8 cowboy /
+ *  6 upper-body / 4 image-close / 2 face / 2 worm's-eye / 2 top-down
+ *  на батч = 30 (28 батч берёт почти все, плюс 2 запас). */
+export type CameraClass =
+  | 'full-body'
+  | 'cowboy'
+  | 'upper-body'
+  | 'image-close'
+  | 'face-focus'
+  | 'worms-eye'
+  | 'top-down'
+  | 'over-shoulder'
+
+/** Тур 5 (приём G11 от Коул): named body plan для non-OC слотов.
+ *  OC берут body_type из oc-canon; NICHE/VOLT/EXQUISITE/EXP —
+ *  назначается план из пула, вплетается в POS (positions 6-10). */
+export type BodyPlan =
+  | 'petite'
+  | 'slender'
+  | 'athletic'
+  | 'curvy'
+  | 'full-figured'
+  | 'hourglass'
+  | 'slim'
+  | 'toned'
+  | 'voluptuous'
+  | 'compact'
+
+/** Тур 5 (приём G22 от Коул): занятые руки на VOLT/R+ — ломает
+ *  «arms-at-sides default». ≥50% VOLT/R+ должны нести busy-hand тег. */
+export type HandsHint =
+  | 'holding-hem'
+  | 'adjusting-strap'
+  | 'gathering-hair'
+  | 'pressing-fabric'
+  | 'catching-waistband'
+  | 'reaching-upward'
+  | 'twisting-torso'
+  | 'arms-at-sides'
+
 export interface SlotVariety {
   posOrder: PosOrder
   register: PromptRegister
@@ -51,6 +92,14 @@ export interface SlotVariety {
   styleAnchor: StyleAnchor
   /** индекс в NEG_VARIANTS — у каждого слота свой NEG-шаблон */
   negVariant: number
+  /** Тур 5: класс дистанции камеры (G01) */
+  camera: CameraClass
+  /** Тур 5: body plan для non-OC слотов (G11) — null для OC (берут из канона) */
+  bodyPlan: BodyPlan | null
+  /** Тур 5: занятость рук (G22) — только для VOLT/EXQUISITE/EXP non-OC */
+  handsHint: HandsHint | null
+  /** Тур 5: бюджет theme-слов (G30) — warn если theme-token count > claim-token count на R+ */
+  themeWordBudget: number
   /** seed (для отладки — детерминизм виден) */
   seed: number
 }
@@ -73,6 +122,47 @@ const STYLES: StyleAnchor[] = [
   'none',
 ]
 
+const BODY_PLANS: BodyPlan[] = [
+  'petite',
+  'slender',
+  'athletic',
+  'curvy',
+  'full-figured',
+  'hourglass',
+  'slim',
+  'toned',
+  'voluptuous',
+  'compact',
+]
+
+const HANDS_HINTS: HandsHint[] = [
+  'holding-hem',
+  'adjusting-strap',
+  'gathering-hair',
+  'pressing-fabric',
+  'catching-waistband',
+  'reaching-upward',
+  'twisting-torso',
+  'arms-at-sides',
+]
+
+/** G01 camera quota pool — 28 слотов примерно покрывают квоту Коул.
+ *  Пул shuffle-ится по batchSlug, чтобы каждый батч получал своё
+ *  распределение (но всегда ≈ 6 cowboy / 6 full-body / 6 upper / и т.д.). */
+export const CAMERA_QUOTA: Record<CameraClass, number> = {
+  cowboy: 8,
+  'full-body': 6,
+  'upper-body': 6,
+  'image-close': 4,
+  'face-focus': 2,
+  'worms-eye': 2,
+  'top-down': 2,
+  'over-shoulder': 2,
+}
+const CAMERA_POOL: CameraClass[] = Object.entries(CAMERA_QUOTA).flatMap(
+  ([c, n]) => Array(n).fill(c) as CameraClass[]
+)
+
 /** FNV-1a хеш — детерминированный, без зависимостей. Тот же slug+position
  *  всегда даёт ту же ось; рераны не меняют судьбу слота. */
 function hashSeed(slug: string, position: number): number {
@@ -85,21 +175,103 @@ function hashSeed(slug: string, position: number): number {
   return h >>> 0
 }
 
-/** Собрать пакет разнообразия для слота. Детерминированно. */
+/** Seedable shuffle — детерминированная перестановка массива по seed.
+ *  Fisher-Yates с PRNG, который seedится из FNV-1a. */
+function seededShuffle<T>(arr: T[], seed: number): T[] {
+  const out = [...arr]
+  let s = seed >>> 0
+  const rng = () => {
+    s = Math.imul(s ^ (s >>> 15), 0x85ebca6b)
+    s = Math.imul(s ^ (s >>> 13), 0xc2b2ae35)
+    s ^= s >>> 16
+    return ((s >>> 0) / 0x100000000) as number
+  }
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1))
+    ;[out[i], out[j]] = [out[j], out[i]]
+  }
+  return out
+}
+
+/** Собрать пакет разнообразия для слота. Детерминированно.
+ *
+ *  Внимание: camera и bodyPlan — батч-уровневые (нужна квота и interleave),
+ *  в одиночном вызове proposeVariety они provisional — используй
+ *  proposeBatchVariety для всего батча, там квота и interleave налаживаются. */
 export function proposeVariety(
-  slot: { position: number },
+  slot: { position: number; kind?: string; rating?: string },
   batchSlug: string
 ): SlotVariety {
   const seed = hashSeed(batchSlug, slot.position)
-  // 5 осей — каждая берёт свой кусок из хеша, чтобы оси были независимы
+  const isOC = slot.kind === 'OC'
+  const isRplus = slot.rating === 'R+'
+  const isX = slot.rating === 'X'
+  const isVoltOrMain = !isOC && (slot.kind === 'VOLT' || slot.kind === 'EXQUISITE' || slot.kind === 'EXP')
+  // G06: claim-first bias на R+ — ≥40% R+ слотов должны быть claim-first
+  // (ломает hair-first дефолт, из-за которого claim тонет)
+  let posOrder: PosOrder
+  if (isRplus && (seed % 100) < 40) {
+    posOrder = 'claim-first'
+  } else {
+    posOrder = POS_ORDERS[seed % POS_ORDERS.length]
+  }
   return {
-    posOrder: POS_ORDERS[seed % POS_ORDERS.length],
+    posOrder,
     register: REGISTERS[(seed >>> 3) % REGISTERS.length],
     lengthClass: LENGTHS[(seed >>> 5) % LENGTHS.length],
     styleAnchor: STYLES[(seed >>> 7) % STYLES.length],
     negVariant: (seed >>> 9) % 4,
+    camera: CAMERA_POOL[seed % CAMERA_POOL.length], // provisional — батч-уровень ниже
+    bodyPlan: isOC ? null : BODY_PLANS[(seed >>> 11) % BODY_PLANS.length], // provisional
+    handsHint: isVoltOrMain
+      ? HANDS_HINTS[(seed >>> 13) % HANDS_HINTS.length]
+      : null,
+    themeWordBudget: isRplus ? 3 : 5, // R+: ≤3 theme-слов (claim приоритет), остальное: ≤5
     seed,
   }
+}
+
+/** Батч-уровневая сборка разнообразия — накладывает КВОТУ камеры (G01)
+ *  и INTERLEAVE bodyPlan (G12 — запрет двум соседним слотам иметь
+ *  одинаковый боди-план). Возвращает массив variety по слотам.
+ *
+ *  Принимает слоты с их kind/rating, чтобы знать где OC (там bodyPlan=null),
+ *  где VOLT (там handsHint нужен), и т.д. */
+export function proposeBatchVariety(
+  slots: { position: number; kind?: string; rating?: string }[],
+  batchSlug: string
+): SlotVariety[] {
+  const batchSeed = hashSeed(batchSlug, 0)
+  // 1) базовая variety на каждый слот
+  const result = slots.map((s) => proposeVariety(s, batchSlug))
+  // 2) квота камеры: shuffle CAMERA_POOL по batchSeed, раздать по слотам
+  const cameraOrder = seededShuffle(CAMERA_POOL, batchSeed).slice(0, result.length)
+  // добираем если слотов больше чем пул (редкий кейс)
+  while (cameraOrder.length < result.length) {
+    cameraOrder.push(CAMERA_POOL[(cameraOrder.length - CAMERA_POOL.length + batchSeed) % CAMERA_POOL.length])
+  }
+  for (let i = 0; i < result.length; i++) {
+    result[i].camera = cameraOrder[i]
+  }
+  // 3) interleave bodyPlan (G12): запрет двум соседним non-OC слотам
+  // иметь одинаковый боди-план — переставляем на следующий в пуле
+  let lastBodyPlan: BodyPlan | null = null
+  for (let i = 0; i < result.length; i++) {
+    const v = result[i]
+    if (v.bodyPlan === null) {
+      lastBodyPlan = null
+      continue
+    }
+    if (v.bodyPlan === lastBodyPlan) {
+      // rotate to next plan in pool (deterministic, не random — иначе
+      // соседи снова могут совпасть)
+      const idx = BODY_PLANS.indexOf(v.bodyPlan)
+      const next = BODY_PLANS[(idx + 1 + (i % 3)) % BODY_PLANS.length]
+      v.bodyPlan = next
+    }
+    lastBodyPlan = v.bodyPlan
+  }
+  return result
 }
 
 /* ------------------------------------------------------------------ */
@@ -222,6 +394,66 @@ export const STYLE_ANCHOR_TAGS: Record<StyleAnchor, string> = {
 }
 
 /* ------------------------------------------------------------------ */
+/* Тур 5: Camera tags (G01) — POS-тег дистанции/ракурса              */
+/* ------------------------------------------------------------------ */
+
+export const CAMERA_TAGS: Record<CameraClass, string> = {
+  cowboy: 'cowboy shot',
+  'full-body': 'full body',
+  'upper-body': 'upper body',
+  'image-close': 'close-up',
+  'face-focus': 'face focus, extreme close-up',
+  'worms-eye': "from below, worm's eye view",
+  'top-down': 'from above, top-down view',
+  'over-shoulder': 'over shoulder, from behind',
+}
+
+/** Коул G03: lead-zone = кадр, не подпись. Если lead=nape → камера
+ *  фрагмент на nape/shoulders, не full-body. Override camera, если
+ *  lead узкий. */
+export function cameraForLead(lead: string | undefined, base: CameraClass): CameraClass {
+  if (!lead) return base
+  // узкие lead → фрагмент, не full-body
+  const narrow = ['nape', 'throat', 'collarbone', 'shoulders', 'back']
+  if (narrow.includes(lead.toLowerCase()) && base === 'full-body') {
+    return 'upper-body'
+  }
+  return base
+}
+
+/* ------------------------------------------------------------------ */
+/* Тур 5: Body plan tags (G11) — POS-теги плана тела для non-OC    */
+/* ------------------------------------------------------------------ */
+
+export const BODY_PLAN_TAGS: Record<BodyPlan, string> = {
+  petite: 'petite body, small frame, compact',
+  slender: 'slender body, slim form',
+  athletic: 'athletic body, toned, defined',
+  curvy: 'curvy body, soft curves',
+  'full-figured': 'full-figured body, full chest, soft waist',
+  hourglass: 'hourglass figure, wide hips, narrow waist',
+  slim: 'slim body, slight build',
+  toned: 'toned body, defined muscles',
+  voluptuous: 'voluptuous body, generous figure',
+  compact: 'compact body, small-waisted, softly mounded',
+}
+
+/* ------------------------------------------------------------------ */
+/* Тур 5: Hands hint tags (G22) — POS-тег занятых рук              */
+/* ------------------------------------------------------------------ */
+
+export const HANDS_HINT_TAGS: Record<HandsHint, string> = {
+  'holding-hem': 'holding hem',
+  'adjusting-strap': 'adjusting strap',
+  'gathering-hair': 'gathering hair',
+  'pressing-fabric': 'pressing fabric',
+  'catching-waistband': 'catching waistband',
+  'reaching-upward': 'reaching upward',
+  'twisting-torso': 'twisting torso, weight shifted',
+  'arms-at-sides': 'arms at sides',
+}
+
+/* ------------------------------------------------------------------ */
 /* Длина промпта → бюджет тегов                                     */
 /* ------------------------------------------------------------------ */
 
@@ -282,6 +514,18 @@ export function varietyLine(v: SlotVariety): string {
   parts.push(POS_ORDER_HINT[v.posOrder])
   parts.push(REGISTER_HINT[v.register])
   parts.push(LENGTH_TAG_BUDGET[v.lengthClass].hint)
+  // G01: camera tag (POS)
+  parts.push(`CAMERA (G01): ${CAMERA_TAGS[v.camera]} — weave VERBATIM into POS as the framing tag`)
+  // G11: body plan for non-OC (POS, between hair/eyes/skin and pose)
+  if (v.bodyPlan) {
+    parts.push(
+      `BODY PLAN (G11): ${BODY_PLAN_TAGS[v.bodyPlan]} — weave into POS positions 6-10 (between skin and pose); NEVER on OC slots (they carry body_type from canon)`
+    )
+  }
+  // G22: hands hint for VOLT/EXQUISITE/EXP (POS)
+  if (v.handsHint) {
+    parts.push(`HANDS (G22): ${HANDS_HINT_TAGS[v.handsHint]} — weave into POS as the action tag`)
+  }
   if (v.styleAnchor !== 'none' && STYLE_ANCHOR_TAGS[v.styleAnchor]) {
     parts.push(
       `STYLE ANCHOR — weave VERBATIM into the tag run (between the body and quality tags): ${STYLE_ANCHOR_TAGS[v.styleAnchor]}`
@@ -293,5 +537,9 @@ export function varietyLine(v: SlotVariety): string {
       `NEG VARIANT (${nv.name}): use these as the NEG base (supplemented by OC anti-shield + slot-specific dresser negWeights): ${nv.tags.join(', ')}`
     )
   }
+  // G30: theme-word budget
+  parts.push(
+    `THEME BUDGET (G30): ≤${v.themeWordBudget} theme-words in POS — claim-token count MUST exceed theme-token count on R+; if theme-word count > claim-token count, trim theme (theme eats body, T4-19/T4-32 pattern)`
+  )
   return parts.join(' · ')
 }
