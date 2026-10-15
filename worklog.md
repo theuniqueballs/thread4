@@ -3523,3 +3523,96 @@ Stage Summary:
 - EZC-репо неприкосновенно (по приказу автора). Файлы видны локальным
   каталогом (порт 3100 прошлой сессии) и могут быть подхвачены при
   следующем поднятии.
+
+---
+Task ID: turn-1-reaper-oracle
+Agent: Super Z (main)
+Task: Тур 1. Поднять THREAD 4 в основном workspace, развернуть EZC как
+референс, восстановить утраченную между турами персонализацию EZC (3 скилла +
+1 команда), найти и улучшить проблемы, придумать необычную новую фичу.
+Изменения запушить в thread4 GitHub.
+
+Work Log:
+- Склонировал everything-ZCode (EZC) → /home/z/my-project/ezc/ (toolkit +
+  README); понимаю как каталог конфигов для ZCode/Z.ai (8 агентов, 10 команд,
+  8 скиллов, 9 правил, хуки, контексты). Применяю их протокол worklog.md +
+  /verify в работе.
+- Склонировал thread4 → /home/z/thread4-work; развернул содержимое в
+  /home/z/my-project (src/, thread4/, legacy/, public/, package.json,
+  tsconfig, eslint.config, README, TASTE, worklog — НЕ Caddyfile, осталась
+  платформенная).
+- bun install + bun run dev: сервер поднялся на :3000 за 1062ms, / отдаёт
+  200, 10 табов рендерятся, 337 событий в летописи, цепь цела. dev.log чист,
+  ошибок/консольных алертов — 0.
+- Прогнал все 10 табов агент-браузером (state→archive): все отвечают 200,
+  HMR-компиляции стабильны (~150-200ms), T4-32 доступен в /api/t4/batches.
+- Делегировал Explore-агенту разведку 7 ключевых файлов (page.tsx, events,
+  state, specs, reaper, zai-bridge, feedback). Получил точные имена функций,
+  схемы, места вставки новой вкладки, список из 10 проблем (критическая:
+  EVENT_TYPES без oracle.spoke; anti-prose Issue #1 в state/route.ts;
+  вводящий в заблуждение комментарий в /api/zai/chat/completions/route.ts).
+- Делегировал full-stack-developer восстановление утраченной между турами
+  персонализации EZC (subagent id: ezc-restore-1, см. запись выше).
+- Реализовал флагман тура — «Жнец» (Oracle of the Reaper):
+  · src/lib/t4/events.ts: EVENT_TYPES += 'oracle.spoke' (between scribe.objection
+    and note) + assertBornSemantics для oracle.spoke (data.model: строка
+    обязательно, data.reply: 50..4000 симв обязательно — анонимный/пустой
+    оракул отвергается на рождении, как render.verdict)
+  · src/lib/t4/oracle.ts (NEW): REAPER_SYSTEM_PROMPT (тон: мрачно-торжественный,
+    самоирония, §10 уважён — совет не приказ, 250-500 слов, без markdown),
+    buildOracleContext (readEvents + foldState + buildReaperDraft + прошлые
+    3 исповеди oracle.spoke), buildOraclePrompt (компактный текст для LLM:
+    последние 15 событий, драфт жнеца, открытые долги, прошлые исповеди)
+  · src/app/api/t4/oracle/route.ts (NEW): POST, requireCommander (Залп 1),
+    ZAI.create() + zai.chat.completions.create({model: 'glm-4.5-flash',
+    thinking: disabled, max_tokens: 1200}), appendEvent('oracle.spoke',
+    summary, {model, reply, prompt, chainOk, themeHint, context}).
+    503 setupRequired (нет .z-ai-config), 502 blocked (контент-фильтр),
+    500 fallback. Паттерн — брат /api/t4/feedback (не /api/zai/chat —
+    тот fetch-прокси, не SDK).
+  · src/app/page.tsx: импорт Skull; TabId += 'reaper' (11-я вкладка,
+    намеренно вне 1-0 клавиш — жнеца не зовут случайно); TABS запись;
+    switch-case запись; ReaperSigil (SVG коса+3 звена цепи); ReaperTab
+    (stat-карточки контекста: последний батч/события/прошлые исповеди/гейты;
+    авторская нота textarea 300 симв; кнопка «Спросить жнеца» amber-600;
+    свежая исповедь в font-serif amber-100; список прошлых с details/
+    читать-полностью; toast на успех/провал через ledgerWriteError).
+- Anti-prose фикс (Issue #1 Кенни): state/route.ts lastRecoveryCheck был
+  `summary.includes('VAULT')` — любой oracle.spoke со словом «vault» в
+  исповеди сдвинул бы метрику ложно. Заменено на `data.kind === 'vault-restore'`
+  с legacy-fallback для событий до 2026-10-15 (без data.kind). В vault/route.ts
+  в appendEvent добавлено `kind: 'vault-restore'`.
+- Lint: ezc/toolkit/hooks/scripts/*.js (require()-стиль, не часть thread4)
+  добавлены в eslint ignores (как и legacy/, src.bak/). bun run lint — 0 ошибок.
+- Создал ~/.t4/commander.key (openssl rand -hex 24, 48 hex, chmod 600),
+  probe?keyOk:true. Вставил ключ в localStorage браузера (t4-commander-key).
+- Браузерный цикл золотого пути: Жнец → Спросить жнеца → POST /api/t4/oracle
+  200 in 3.3s → LLM сказал: «Я вижу летопись: 337 событий, цепь цела, но
+  трещина в фундаменте уже видна… T4-32 «INTO THE VOID» дважды провалил dry
+  FAIL… — окно чистое, но за стеклом бродят призраки движков.» Звено 735294fd
+  в цепи, цепь цела (338 событий, problems: []). Toast «Жнец высказался ·
+  Звено 735294fd в цепи · glm-4.5-flash» показан. Список прошлых исповедей
+  обновился (1 запись). Мобильная вёрстка 375px + десктоп 1280px — ок.
+- Пуш: скопировал изменённые файлы из /home/z/my-project в /home/z/thread4-work
+  (git-история там), git add -A, git commit -m «round: Жнец (Oracle of the
+  Reaper) — LLM-мета-комментатор состояния конвейера», git push origin main:
+  `46d9929..6b82215 main -> main` (fast-forward, PAT в URL, затем вычищен
+  из remote). Верификация: api.github.com/repos/theuniqueballs/thread4/commits/main
+  → latest 6b82215e = мой коммит. На github.com/theuniqueballs/thread4.
+
+Stage Summary:
+- THREAD 4 поднят в основном workspace: 337 событий, цепь цела, 28 батчей,
+  T4-31 последний сданный, T4-32 черновик 28/28 ждёт вердикта автора.
+- EZC локально (my-project/ezc/toolkit/) — референс для работы; персонализация
+  восстановлена (3 скилла + 1 команда) и НЕ запушена (по приказу прошлого тура).
+- Флагман тура: «Жнец» — 11-я вкладка, LLM-мета-комментатор. glm-4.5-flash
+  читает летопись + драфт реапера + свои прошлые исповеди, говорит литературно
+  о здоровье конвейера. Каждое слово — звено хеш-цепи навсегда. Первая
+  исповедь записана (338 событие, id 735294fd).
+- Bug fix: anti-prose Issue #1 Кенни закрыт для будущих событий (data.kind
+  вместо summary.includes), legacy fallback сохранён.
+- На github.com/theuniqueballs/thread4: коммит 6b82215e на main.
+- За автором: вердикт по T4-32 (1 hard-гейт rating-recipe на 9 слотах —
+  ручной проход или ещё прогон писца); дефицит палитр EXP=8 → +2 или окно ≤2;
+  ключ командира в Стекле (если sandbox перезалит — перевыпустить снова);
+  следующая необычная фича — на тур 2.
