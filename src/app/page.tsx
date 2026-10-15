@@ -3569,6 +3569,28 @@ interface DresserMap {
   failureModes: { mode: FailureMode; count: number; slots: string[]; recommendation: string }[]
   lessonsForNextBatch: string
   authorProse: string
+  /** Тур 3: контр-контракт — советник следующего батча. */
+  counterContract: {
+    historicalDelivery: {
+      sampleSize: number
+      rPlusClaimed: number
+      rPlusDelivered: number
+      rPlusDeliveryRate: number
+      rClaimed: number
+      rDelivered: number
+      rDeliveryRate: number
+    }
+    recommendedSpread: { rating: string; count: number; why: string }[]
+    bodyTypeGaps: { position: string; oc: string; bodyType: string; family?: string }[]
+    proposedWeights: {
+      channel: string
+      channelName: string
+      current: string[]
+      proposed: string[]
+      why: string
+    }[]
+    markdown: string
+  }
 }
 
 const FAILURE_MODE_LABELS: Record<FailureMode, string> = {
@@ -3612,7 +3634,7 @@ function deltaLabel(delta: number): string {
 }
 
 function DresserMapPanel() {
-  // 最新ний вердикт — берём его слаг
+  // последний вердикт — берём его слаг
   const verdictsApi = useApi<{ records: BatchVerdictRecord[] }>('/api/t4/batch-verdict')
   const latestVerdict = verdictsApi.data?.records?.[0] ?? null
   const slug = latestVerdict?.slug ?? null
@@ -3903,15 +3925,195 @@ function DresserMapPanel() {
           </ul>
         </div>
 
-        {/* Уроки для следующего батча — генерит анализатор */}
-        <details className="rounded-md border border-zinc-800 bg-zinc-950/40 p-3">
+        {/* Уроки для следующего батча — генерит анализатор как markdown.
+            *  Тур 3: раньше был <pre> — markdown не парсился, agora MarkdownView. */}
+        <details className="rounded-md border border-zinc-800 bg-zinc-950/40 p-3" open>
           <summary className="cursor-pointer text-xs font-medium text-zinc-300">
             Уроки для следующего батча (после {currentMap.slug})
           </summary>
-          <pre className="mt-2 whitespace-pre-wrap break-words font-serif text-[11px] leading-relaxed text-zinc-300">
-            {currentMap.lessonsForNextBatch}
-          </pre>
+          <div className="mt-2 text-[11px] leading-relaxed text-zinc-300">
+            <MarkdownView>{currentMap.lessonsForNextBatch}</MarkdownView>
+          </div>
         </details>
+
+        {/* Контр-Контракт — флагман тура 3 (2026-10-15). Советник следующего
+            *  батча: исторический delivery rate → рекомендованное распределение
+            *  рейтингов; body_type gaps (контракт не тащит из oc-canon);
+            *  усиленные веса каналов (1.2/1.3 вместо 1.1/1.2). */}
+        {currentMap.counterContract ? (
+          <div className="rounded-md border border-amber-500/30 bg-amber-500/5 p-3">
+            <div className="mb-3 flex items-center gap-2">
+              <Skull className="size-4 text-amber-500" />
+              <span className="text-sm font-semibold text-amber-300">Контр-Контракт</span>
+              <span className="text-[10px] text-zinc-500">
+                советник следующего батча на основе истории
+              </span>
+            </div>
+            <div className="grid gap-3 lg:grid-cols-2">
+              {/* Historical delivery rate */}
+              <div className="rounded-md border border-zinc-800 bg-zinc-950/40 p-3">
+                <div className="mb-2 text-[11px] font-medium uppercase tracking-wide text-zinc-500">
+                  Исторический delivery (последние {currentMap.counterContract.historicalDelivery.sampleSize} батчей)
+                </div>
+                {[
+                  {
+                    tier: 'R+',
+                    delivered: currentMap.counterContract.historicalDelivery.rPlusDelivered,
+                    claimed: currentMap.counterContract.historicalDelivery.rPlusClaimed,
+                    rate: currentMap.counterContract.historicalDelivery.rPlusDeliveryRate,
+                  },
+                  {
+                    tier: 'R',
+                    delivered: currentMap.counterContract.historicalDelivery.rDelivered,
+                    claimed: currentMap.counterContract.historicalDelivery.rClaimed,
+                    rate: currentMap.counterContract.historicalDelivery.rDeliveryRate,
+                  },
+                ].map((r) => {
+                  const ratePct = (r.rate * 100).toFixed(0)
+                  const barColor = r.rate >= 1 ? 'bg-emerald-500' : r.rate >= 0.5 ? 'bg-amber-500' : 'bg-rose-500'
+                  return (
+                    <div key={r.tier} className="mb-2 last:mb-0">
+                      <div className="mb-0.5 flex items-center justify-between text-[11px]">
+                        <span className="flex items-center gap-1">
+                          <span className={`size-2 rounded-full ${TIER_DOT[r.tier] ?? 'bg-zinc-500'}`} />
+                          <span className="text-zinc-400">{r.tier}</span>
+                        </span>
+                        <span className="tabular-nums text-zinc-300">
+                          <span className={r.rate >= 0.5 ? 'text-emerald-400' : 'text-rose-400'}>
+                            {ratePct}%
+                          </span>
+                          <span className="text-zinc-600">
+                            {' '}
+                            ({r.delivered}/{r.claimed})
+                          </span>
+                        </span>
+                      </div>
+                      <div className="h-2 overflow-hidden rounded bg-zinc-900">
+                        <div
+                          className={`${barColor} h-full`}
+                          style={{ width: `${Math.min(r.rate * 100, 100)}%` }}
+                        />
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+
+              {/* Recommended spread */}
+              <div className="rounded-md border border-zinc-800 bg-zinc-950/40 p-3">
+                <div className="mb-2 text-[11px] font-medium uppercase tracking-wide text-zinc-500">
+                  Рекомендованное распределение (закон 28)
+                </div>
+                <div className="space-y-2">
+                  {currentMap.counterContract.recommendedSpread.map((r) => {
+                    // визуальный бар: доля от 28
+                    const pct = (r.count / 28) * 100
+                    return (
+                      <div key={r.rating} className="space-y-0.5">
+                        <div className="flex items-center gap-2 text-[11px]">
+                          <span className={`size-2 rounded-full ${TIER_DOT[r.rating] ?? 'bg-zinc-500'}`} />
+                          <span className="w-8 text-zinc-400">{r.rating}</span>
+                          <span className="flex-1">
+                            <div className="h-2 overflow-hidden rounded bg-zinc-900">
+                              <div
+                                className={`${TIER_DOT[r.rating] ?? 'bg-zinc-500'} h-full opacity-80`}
+                                style={{ width: `${pct}%` }}
+                              />
+                            </div>
+                          </span>
+                          <span className="w-8 text-right tabular-nums text-zinc-300">×{r.count}</span>
+                        </div>
+                        <p className="text-[10px] leading-snug text-zinc-600">{r.why}</p>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            </div>
+
+            {/* Body type gaps */}
+            {currentMap.counterContract.bodyTypeGaps.length > 0 ? (
+              <div className="mt-3 rounded-md border border-fuchsia-500/20 bg-fuchsia-500/5 p-3">
+                <div className="mb-2 text-[11px] font-medium uppercase tracking-wide text-fuchsia-400/80">
+                  OC body_type — писец обязан вплести
+                </div>
+                <p className="mb-2 text-[10px] leading-snug text-zinc-500">
+                  Контракт несёт <Mono>oc: "Lucy"</Mono>, но НЕ тащит{' '}
+                  <Mono>body_type</Mono> из <Mono>oc-canon.json</Mono>. Писец пишет без тела —
+                  модель играет стерильно. Добавить в контракт поле bodyType:
+                </p>
+                <ul className="space-y-1.5">
+                  {currentMap.counterContract.bodyTypeGaps.map((g) => (
+                    <li key={g.position} className="flex items-start gap-2 text-[11px]">
+                      <Mono className="shrink-0 text-zinc-400">{g.position}</Mono>
+                      <div className="flex-1">
+                        <span className="text-zinc-400">OC {g.oc}:</span>{' '}
+                        <code className="rounded bg-fuchsia-500/10 px-1 py-0.5 font-mono text-[10px] text-fuchsia-200">
+                          {g.bodyType}
+                        </code>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+
+            {/* Proposed weights */}
+            {currentMap.counterContract.proposedWeights.length > 0 ? (
+              <div className="mt-3 rounded-md border border-orange-500/20 bg-orange-500/5 p-3">
+                <div className="mb-2 text-[11px] font-medium uppercase tracking-wide text-orange-400/80">
+                  Усиленные веса каналов (автор: «1.2, 1.3 на теги»)
+                </div>
+                <ul className="space-y-3">
+                  {currentMap.counterContract.proposedWeights.map((w) => (
+                    <li key={w.channel} className="space-y-1">
+                      <div className="flex items-center gap-1.5 text-[11px]">
+                        <span className="text-zinc-300">{w.channelName}</span>
+                        <Mono className="text-zinc-600">{w.channel}</Mono>
+                      </div>
+                      <div className="flex flex-wrap items-center gap-1 text-[10px]">
+                        <span className="text-zinc-600">текущие:</span>
+                        {w.current.length > 0 ? (
+                          w.current.map((c, i) => (
+                            <code
+                              key={i}
+                              className="rounded bg-zinc-800 px-1 py-0.5 font-mono text-[9px] text-zinc-400"
+                            >
+                              {c}
+                            </code>
+                          ))
+                        ) : (
+                          <span className="text-zinc-700">— нет весов —</span>
+                        )}
+                        <span className="mx-1 text-zinc-700">→</span>
+                        <span className="text-zinc-600">предложенные:</span>
+                        {w.proposed.map((p, i) => (
+                          <code
+                            key={i}
+                            className="rounded bg-orange-500/15 px-1 py-0.5 font-mono text-[9px] text-orange-200"
+                          >
+                            {p}
+                          </code>
+                        ))}
+                      </div>
+                      <p className="text-[10px] leading-snug text-zinc-600">{w.why}</p>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+
+            {/* Markdown summary (collapsible) */}
+            <details className="mt-3 rounded-md border border-zinc-800 bg-zinc-950/40 p-3">
+              <summary className="cursor-pointer text-xs font-medium text-zinc-300">
+                Полный контр-контракт (markdown)
+              </summary>
+              <div className="mt-2 text-[11px] leading-relaxed text-zinc-300">
+                <MarkdownView>{currentMap.counterContract.markdown}</MarkdownView>
+              </div>
+            </details>
+          </div>
+        ) : null}
 
         {/* Авторская проза — что автор сказал о всём батче */}
         {currentMap.authorProse ? (

@@ -63,6 +63,16 @@ const SECTION_MAP: Record<string, SectionKey> = {
   POS: 'pos',
   NEG: 'neg',
 }
+
+/* Bug fix 2026-10-15 (тура 3, sweep): структурные линии между слотами
+ *  прилипали к ПОСЛЕДНЕЙ секции предыдущего слота (обычно NEG) — ACT-хедеры,
+ *  divider-линии (═══), markdown-заголовки (##), blockquotes (>), hr (---),
+ *  EXP OVERLAY-баннер. Копирование NEG уводило мусор в PixAI/Tsubaki.
+ *  Подтверждено: 35 грязных слотов в 33 батчах (P08/P16/P24 в T4-32 и т.п.).
+ *
+ *  BOUNDARY_RE — структура, НЕ контент: при матче section = null,
+ *  строка в слот не пишется. */
+const BOUNDARY_RE = /^(?:[═━─=]{3,}|[*_]{3,}|[-]{3,}\s*$|#{1,6}\s|>\s|ACT\s+[IVX]+\b|EXP\s+OVERLAY\b|REHAB\s+OVERLAY\b)/
 const KINDS = new Set(['OC', 'VOLT', 'NICHE', 'EXQUISITE', 'EXP'])
 const RATINGS = /^(R\+?|X|XXX|PG-?13)$/i
 
@@ -140,6 +150,13 @@ export function parseBatchMd(md: string): BatchMd | null {
       continue
     }
     if (!cur) continue
+    /* Bug fix 2026-10-15 (тура 3): структурные линии (ACT-хедеры, divider-ы,
+     * markdown-заголовки, blockquotes, EXP OVERLAY) НЕ контент — обрывают
+     * текущую секцию, иначе мусор прилипает к NEG последнего слота в акте. */
+    if (BOUNDARY_RE.test(line)) {
+      section = null
+      continue
+    }
     const sm = line.match(SECTION_RE)
     if (sm) {
       /* неизвестные секции (PROTOCOL:, HEROINE-BATCH:) — section = null:
