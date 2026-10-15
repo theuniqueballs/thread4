@@ -17,6 +17,7 @@ import {
   Download,
   FileText,
   FlaskConical,
+  GitCompare,
   Heart,
   History,
   KeyRound,
@@ -3511,10 +3512,432 @@ function BatchReceiverPanel() {
   )
 }
 
+/* ------------------------------------------------------------------ */
+/* Panel: Карта Дрессера — флагман тура 2 (2026-10-15)                 */
+/* ------------------------------------------------------------------ */
+
+/* Типы DresserMap — зеркало серверного src/lib/t4/dresser-map.ts.
+ *  Не импортируем с сервера, чтобы не утянуть fs/readJson в браузерный
+ *  бандл. Типы синхронны вручную, как с BatchVerdictRecord. */
+type FailureMode =
+  | 'sterile'
+  | 'weak'
+  | 'body-missing'
+  | 'tag-issue'
+  | 'pose-miss'
+  | 'pass'
+  | 'no-verdict'
+
+interface DresserMapSlot {
+  position: string
+  claim: string
+  myTier: string | null
+  yodayoTier: string | null
+  delta: number
+  channel: string | null
+  channelName: string | null
+  tone: string | null
+  oc: string | null
+  pose: string | null
+  poseName: string | null
+  palette: string | null
+  paletteName: string | null
+  lead: string | null
+  note: string
+  genreRead?: 'yes' | 'no'
+  wow?: 'yes' | 'no'
+  failureMode: FailureMode
+}
+
+interface DresserMap {
+  slug: string
+  title: string
+  verdictAt: string | null
+  verdictSource: string | null
+  slots: DresserMapSlot[]
+  channelMatrix: {
+    channel: string
+    channelName: string
+    claimed: Record<string, number>
+    delivered: Record<string, number>
+    total: number
+    passes: number
+    failures: number
+    failRate: number
+  }[]
+  ratingDistribution: { claimed: Record<string, number>; delivered: Record<string, number> }
+  failureModes: { mode: FailureMode; count: number; slots: string[]; recommendation: string }[]
+  lessonsForNextBatch: string
+  authorProse: string
+}
+
+const FAILURE_MODE_LABELS: Record<FailureMode, string> = {
+  sterile: 'стерильно',
+  weak: 'слабо',
+  'body-missing': 'боди не задан',
+  'tag-issue': 'тег-промах',
+  'pose-miss': 'поза не та',
+  pass: 'доехало',
+  'no-verdict': 'без вердикта',
+}
+
+const FAILURE_MODE_COLOR: Record<FailureMode, string> = {
+  sterile: 'bg-rose-500/15 text-rose-300 border-rose-500/30',
+  weak: 'bg-amber-500/15 text-amber-300 border-amber-500/30',
+  'body-missing': 'bg-fuchsia-500/15 text-fuchsia-300 border-fuchsia-500/30',
+  'tag-issue': 'bg-orange-500/15 text-orange-300 border-orange-500/30',
+  'pose-miss': 'bg-purple-500/15 text-purple-300 border-purple-500/30',
+  pass: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30',
+  'no-verdict': 'bg-zinc-700/30 text-zinc-400 border-zinc-700',
+}
+
+const TIER_DOT: Record<string, string> = {
+  'PG-13': 'bg-zinc-500',
+  R: 'bg-sky-500',
+  'R+': 'bg-rose-500',
+  X: 'bg-fuchsia-500',
+}
+
+function deltaColor(delta: number): string {
+  if (delta > 0) return 'text-emerald-400'
+  if (delta === 0) return 'text-zinc-400'
+  if (delta === -1) return 'text-amber-400'
+  return 'text-rose-400'
+}
+
+function deltaLabel(delta: number): string {
+  if (delta === 0) return '='
+  if (delta > 0) return `↑${delta}`
+  return `↓${Math.abs(delta)}`
+}
+
+function DresserMapPanel() {
+  // 最新ний вердикт — берём его слаг
+  const verdictsApi = useApi<{ records: BatchVerdictRecord[] }>('/api/t4/batch-verdict')
+  const latestVerdict = verdictsApi.data?.records?.[0] ?? null
+  const slug = latestVerdict?.slug ?? null
+
+  // если есть вердикт — тянем карту Дрессера по слагу
+  const mapApi = useApi<DresserMap>(slug ? `/api/t4/dresser-map/${slug}` : null)
+  const map = mapApi.data
+
+  // переключатель слага — пусть автор выберет любой из последних батчей
+  const [selectedSlug, setSelectedSlug] = useState<string | null>(null)
+  const effectiveSlug = selectedSlug ?? slug
+  const effectiveMap = useApi<DresserMap>(effectiveSlug ? `/api/t4/dresser-map/${effectiveSlug}` : null)
+
+  const batchesApi = useApi<{ items: { slug: string; title: string }[] }>('/api/t4/batches')
+
+  const currentMap = effectiveMap.data ?? map
+  const loading = (effectiveSlug ? effectiveMap.loading : mapApi.loading) || verdictsApi.loading
+
+  // сортировка слотов: провалы сверху, потом по дельте
+  const sortedSlots = useMemo(() => {
+    if (!currentMap) return []
+    return [...currentMap.slots].sort((a, b) => a.delta - b.delta || (a.failureMode === 'pass' ? 1 : 0))
+  }, [currentMap])
+
+  if (loading && !currentMap) {
+    return (
+      <Panel title="Карта Дрессера" icon={<GitCompare className="size-4" />}>
+        <SkeletonBlock lines={6} />
+      </Panel>
+    )
+  }
+
+  if (!currentMap) {
+    return (
+      <Panel title="Карта Дрессера" icon={<GitCompare className="size-4" />}>
+        <EmptyState
+          title="Карта пуста"
+          hint="Нужен вердикт автора по батчу. Сдай батч в приёмнике → дай вердикт → карта родится."
+          icon={<GitCompare className="size-5" />}
+        />
+      </Panel>
+    )
+  }
+
+  const claimed = currentMap.ratingDistribution.claimed
+  const delivered = currentMap.ratingDistribution.delivered
+  const tiers = ['PG-13', 'R', 'R+', 'X']
+  const maxCount = Math.max(...tiers.map((t) => Math.max(claimed[t] ?? 0, delivered[t] ?? 0)), 1)
+
+  return (
+    <Panel
+      title={
+        <span className="flex items-center gap-2">
+          <GitCompare className="size-4 text-amber-500" />
+          <span>Карта Дрессера</span>
+          <span className="text-zinc-600">·</span>
+          <Mono>{currentMap.slug}</Mono>
+          <span className="text-xs font-normal text-zinc-500">«{currentMap.title}»</span>
+          {currentMap.verdictAt ? (
+            <Badge variant="outline" className="border-zinc-700 text-zinc-400">
+              {formatDate(currentMap.verdictAt)}
+            </Badge>
+          ) : null}
+        </span>
+      }
+      action={
+        // dropdown для смены батча
+        <select
+          value={effectiveSlug ?? ''}
+          onChange={(e) => setSelectedSlug(e.target.value || null)}
+          className="h-7 rounded border border-zinc-800 bg-zinc-950 px-2 text-xs text-zinc-300"
+          aria-label="Выбрать батч для анализа"
+        >
+          <option value="">последний: {slug ?? '—'}</option>
+          {(batchesApi.data?.items ?? []).slice(0, 10).map((b) => (
+            <option key={b.slug} value={b.slug}>
+              {b.slug} «{b.title}»
+            </option>
+          ))}
+        </select>
+      }
+    >
+      <div className="space-y-5">
+        {/* Описание панели — что это и зачем */}
+        <p className="text-xs leading-relaxed text-zinc-500">
+          Карта Дрессера — структурный анализ расхождения заявки контракта и факта вердикта.
+          Для каждого слота пересчитан канал Дрессера (<Mono>dressFor(tier, tone)</Mono>),
+          сравнен с фактом автора. Провалы кластеризованы по типу отказа. Цель — закрыть
+          петлю обратной связи «контракт → рендер → вердикт → следующий контракт».
+        </p>
+
+        {/* Два столбца: распределение рейтингов + матрица каналов */}
+        <div className="grid gap-4 lg:grid-cols-2">
+          {/* Распределение рейтингов: заявлено vs доставлено */}
+          <div className="rounded-md border border-zinc-800 bg-zinc-950/40 p-3">
+            <div className="mb-2 text-[11px] font-medium uppercase tracking-wide text-zinc-500">
+              Распределение рейтингов
+            </div>
+            <div className="space-y-2">
+              {tiers.map((t) => {
+                const c = claimed[t] ?? 0
+                const d = delivered[t] ?? 0
+                if (c === 0 && d === 0) return null
+                return (
+                  <div key={t} className="flex items-center gap-2 text-[11px]">
+                    <div className="flex w-12 items-center gap-1">
+                      <span className={`size-2 rounded-full ${TIER_DOT[t] ?? 'bg-zinc-500'}`} />
+                      <span className="text-zinc-400">{t}</span>
+                    </div>
+                    {/* заявлено */}
+                    <div className="flex-1">
+                      <div className="relative h-3 rounded bg-zinc-900">
+                        <div
+                          className="absolute inset-y-0 left-0 rounded bg-zinc-700/60"
+                          style={{ width: `${(c / maxCount) * 100}%` }}
+                        />
+                        <div
+                          className={`absolute inset-y-0 left-0 rounded ${TIER_DOT[t] ?? 'bg-zinc-500'} opacity-80`}
+                          style={{ width: `${(d / maxCount) * 100}%` }}
+                        />
+                      </div>
+                    </div>
+                    <div className="w-16 text-right tabular-nums text-zinc-400">
+                      <span className="text-zinc-300">{d}</span>
+                      <span className="text-zinc-600"> / {c}</span>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+            <div className="mt-2 flex items-center gap-3 text-[10px] text-zinc-600">
+              <span className="flex items-center gap-1">
+                <span className="size-2 rounded-full bg-zinc-700/60" /> заявлено
+              </span>
+              <span className="flex items-center gap-1">
+                <span className={`size-2 rounded-full ${TIER_DOT['R+']}`} /> доставлено
+              </span>
+            </div>
+          </div>
+
+          {/* Матрица каналов: заявлено/доставлено/провал */}
+          <div className="rounded-md border border-zinc-800 bg-zinc-950/40 p-3">
+            <div className="mb-2 text-[11px] font-medium uppercase tracking-wide text-zinc-500">
+              Каналы Дрессера (claim → delivery)
+            </div>
+            {currentMap.channelMatrix.length === 0 ? (
+              <p className="text-xs text-zinc-600">
+                Нет R+/X слотов — Дрессер не работает с R/PG-13.
+              </p>
+            ) : (
+              <div className="space-y-2">
+                {currentMap.channelMatrix.map((c) => {
+                  const dot =
+                    c.failRate >= 0.5
+                      ? 'bg-rose-500'
+                      : c.failRate >= 0.25
+                        ? 'bg-amber-500'
+                        : 'bg-emerald-500'
+                  return (
+                    <div key={c.channel} className="space-y-1">
+                      <div className="flex items-center justify-between text-[11px]">
+                        <span className="flex items-center gap-1.5">
+                          <span className={`size-2 rounded-full ${dot}`} />
+                          <span className="text-zinc-300">{c.channelName}</span>
+                          <Mono className="text-zinc-600">{c.channel}</Mono>
+                        </span>
+                        <span className="tabular-nums text-zinc-400">
+                          {c.failures}/{c.total} пров · {(c.failRate * 100).toFixed(0)}% · pass {c.passes}
+                        </span>
+                      </div>
+                      {/* мини-бар pass/fail */}
+                      <div className="flex h-2 overflow-hidden rounded bg-zinc-900">
+                        <div
+                          className="bg-emerald-500/60"
+                          style={{ width: `${(c.passes / Math.max(c.total, 1)) * 100}%` }}
+                        />
+                        <div
+                          className="bg-rose-500/60"
+                          style={{ width: `${(c.failures / Math.max(c.total, 1)) * 100}%` }}
+                        />
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Отказы по типу — кластеры */}
+        {currentMap.failureModes.length > 0 ? (
+          <div className="rounded-md border border-amber-500/15 bg-amber-500/5 p-3">
+            <div className="mb-2 text-[11px] font-medium uppercase tracking-wide text-amber-500/80">
+              Отказы по типу · что менять
+            </div>
+            <ul className="space-y-2">
+              {currentMap.failureModes.map((f) => (
+                <li key={f.mode} className="flex flex-col gap-1 text-xs sm:flex-row sm:items-start sm:gap-3">
+                  <Badge
+                    variant="outline"
+                    className={`shrink-0 border ${FAILURE_MODE_COLOR[f.mode]} text-[10px]`}
+                  >
+                    {FAILURE_MODE_LABELS[f.mode]} ×{f.count}
+                  </Badge>
+                  <div className="flex-1">
+                    <div className="text-zinc-400">
+                      слоты: <Mono className="text-zinc-300">{f.slots.join(', ')}</Mono>
+                    </div>
+                    <div className="text-zinc-500">{f.recommendation}</div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
+
+        {/* Слоты — сортировка по дельте (худшие сверху) */}
+        <div>
+          <div className="mb-2 flex items-center justify-between">
+            <div className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">
+              Слоты ({currentMap.slots.length}) · сортировка: дельта ↓
+            </div>
+          </div>
+          <ul className="max-h-[480px] space-y-1.5 overflow-y-auto pr-1">
+            {sortedSlots.map((s) => (
+              <li
+                key={s.position}
+                className={cn(
+                  'flex flex-col gap-1.5 rounded-md border bg-zinc-950/40 p-2.5 text-xs sm:flex-row sm:items-start sm:gap-3',
+                  s.delta < 0 ? 'border-rose-500/20' : s.delta === 0 ? 'border-zinc-800' : 'border-emerald-500/20'
+                )}
+              >
+                {/* колонка 1: позиция + дельта + claim→myTier */}
+                <div className="flex shrink-0 items-center gap-2 sm:w-32">
+                  <Mono className="text-zinc-300">{s.position}</Mono>
+                  <span className={cn('font-mono text-sm font-semibold tabular-nums', deltaColor(s.delta))}>
+                    {deltaLabel(s.delta)}
+                  </span>
+                  <div className="flex items-center gap-1 text-[10px]">
+                    <span className={`size-1.5 rounded-full ${TIER_DOT[s.claim] ?? 'bg-zinc-500'}`} />
+                    <span className="text-zinc-500">{s.claim}</span>
+                    <span className="text-zinc-700">→</span>
+                    {s.myTier ? (
+                      <>
+                        <span className={`size-1.5 rounded-full ${TIER_DOT[s.myTier] ?? 'bg-zinc-500'}`} />
+                        <span className="text-zinc-400">{s.myTier}</span>
+                      </>
+                    ) : (
+                      <span className="text-zinc-600">—</span>
+                    )}
+                  </div>
+                </div>
+                {/* колонка 2: канал/тон/OC/поза + failure-mode бейдж */}
+                <div className="flex flex-1 flex-col gap-1">
+                  <div className="flex flex-wrap items-center gap-1.5 text-[10px] text-zinc-500">
+                    {s.channel ? (
+                      <Badge variant="outline" className="border-zinc-700 text-zinc-400">
+                        {s.channelName ?? s.channel}
+                      </Badge>
+                    ) : (
+                      <span className="text-zinc-600">без канала (R/PG-13)</span>
+                    )}
+                    {s.tone ? <Mono>тон={s.tone}</Mono> : null}
+                    {s.oc ? <Mono>OC={s.oc}</Mono> : null}
+                    {s.poseName ? <span className="text-zinc-400">· {s.poseName}</span> : null}
+                    {s.paletteName ? (
+                      <span className="text-zinc-600">· палитра: {s.paletteName}</span>
+                    ) : null}
+                    <Badge
+                      variant="outline"
+                      className={`ml-auto border ${FAILURE_MODE_COLOR[s.failureMode]} text-[9px]`}
+                    >
+                      {FAILURE_MODE_LABELS[s.failureMode]}
+                    </Badge>
+                  </div>
+                  {s.note ? (
+                    <p className="font-serif text-[11px] leading-snug text-amber-100/70">{s.note}</p>
+                  ) : null}
+                  {(s.genreRead || s.wow) && (s.genreRead === 'yes' || s.wow === 'yes') ? (
+                    <div className="flex gap-1 text-[10px] text-emerald-400/80">
+                      {s.genreRead === 'yes' ? <span>genre ✓</span> : null}
+                      {s.wow === 'yes' ? <span>wow ✓</span> : null}
+                    </div>
+                  ) : null}
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Уроки для следующего батча — генерит анализатор */}
+        <details className="rounded-md border border-zinc-800 bg-zinc-950/40 p-3">
+          <summary className="cursor-pointer text-xs font-medium text-zinc-300">
+            Уроки для следующего батча (после {currentMap.slug})
+          </summary>
+          <pre className="mt-2 whitespace-pre-wrap break-words font-serif text-[11px] leading-relaxed text-zinc-300">
+            {currentMap.lessonsForNextBatch}
+          </pre>
+        </details>
+
+        {/* Авторская проза — что автор сказал о всём батче */}
+        {currentMap.authorProse ? (
+          <details className="rounded-md border border-amber-500/15 bg-amber-500/5 p-3">
+            <summary className="cursor-pointer text-xs font-medium text-amber-300/80">
+              Приказ автора (из вердикта {currentMap.slug})
+            </summary>
+            <p className="mt-2 whitespace-pre-wrap break-words font-serif text-[11px] leading-relaxed text-amber-100/80">
+              {currentMap.authorProse}
+            </p>
+          </details>
+        ) : null}
+      </div>
+    </Panel>
+  )
+}
+
 function VerdictsTab() {
   return (
     <div className="space-y-6">
-      {/* Панель 0: TRIAL-радар — порт из fred-legacy (Фред, webDevReview #5):
+      {/* Панель 0: Карта Дрессера — флагман тура 2 (2026-10-15).
+       *  Автор прямо приказал: «построить карту дрессера который будет
+       *  следовал рейтингу» — эта панель и есть ответ. Первая в Вердиктах,
+       *  чтобы автор сразу видел расхождения после сдачи батча. */}
+      <DresserMapPanel />
+      {/* Панель 1: TRIAL-радар — порт из fred-legacy (Фред, webDevReview #5):
        *  законы триала + EXP-гипотезы + статусы под вердиктом. */}
       <TrialRadarPanel />
       <VlmFirstPassPanel />
