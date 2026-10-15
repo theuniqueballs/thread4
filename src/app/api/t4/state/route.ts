@@ -79,9 +79,21 @@ export async function GET(req: Request) {
         events
           .filter((e) => e.type === 'scribe.drafted')
           .at(-1)?.at ?? null,
+      /* 2026-10-15: фильтр по data.kind === 'vault-restore', а не по
+       * summary.includes('VAULT'). Закрывает prose-matching Issue #1 Кенни:
+       * любое событие со словом «VAULT» в summary (напр. oracle.spoke жнеца,
+       * рассуждающего о браузерном сейфе) раньше ложно двигало метрику.
+       * На старых событиях (до 2026-10-15) kind отсутствует — fallback на
+       * summary-эвристику ради совместимости с историей. */
       lastRecoveryCheck:
         events
-          .filter((e) => e.type === 'note' && e.summary.includes('VAULT'))
+          .filter(
+            (e) =>
+              e.type === 'note' &&
+              (e.data?.kind === 'vault-restore' ||
+                /* legacy fallback: события до 2026-10-15 не несут data.kind */
+                (!e.data?.kind && e.summary.includes('VAULT')))
+          )
           .at(-1)?.at ?? null,
       /* Метрика 4.2 (ответ автора Q10/Q12): сколько времени жрёт система у
          автора. Цикл = batch.delivered → последний вердикт по этому слагу.

@@ -27,6 +27,7 @@ import {
   ShieldCheck,
   Sparkles,
   Stamp,
+  Skull,
   Upload,
 } from 'lucide-react'
 
@@ -124,6 +125,7 @@ type TabId =
   | 'glass'
   | 'vault'
   | 'archive'
+  | 'reaper'
 
 const TABS: { id: TabId; label: string; icon: React.ReactNode }[] = [
   { id: 'state', label: 'Состояние', icon: <Activity className="size-3.5" /> },
@@ -136,6 +138,10 @@ const TABS: { id: TabId; label: string; icon: React.ReactNode }[] = [
   { id: 'glass', label: 'Стекло', icon: <ScanEye className="size-3.5" /> },
   { id: 'vault', label: 'Хранилище', icon: <ShieldCheck className="size-3.5" /> },
   { id: 'archive', label: 'Архив 3.2', icon: <ArchiveIcon className="size-3.5" /> },
+  /* 2026-10-15: Жнец — LLM-мета-комментатор состояния конвейера.
+   * 11-я вкладка, под клавишами 1-0 недоступна (их 10) — стрелками/Home/End
+   * или кликом. Это намеренно: жнеца не зовут случайно. */
+  { id: 'reaper', label: 'Жнец', icon: <Skull className="size-3.5" /> },
 ]
 
 /** Вкладка из адреса (#tab=batches) или null — deep-link hash-роутинга. */
@@ -3719,6 +3725,307 @@ function ArchiveTab() {
 }
 
 /* ------------------------------------------------------------------ */
+/* Tab: Жнец — Oracle of the Reaper (раунд 2026-10-15)                */
+/* ------------------------------------------------------------------ */
+
+/* Сигил жнеца — стилизованный SVG: коса + цепь. Минимум линий, чтобы
+ * читался на любом фоне. Не эмодзи, не картинка — функция рисует функцию. */
+function ReaperSigil({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 64 64"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.5}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      {/* лезвие косы — дуга */}
+      <path d="M52 8 C 40 18, 28 28, 14 44" />
+      {/* древко */}
+      <path d="M52 8 L 18 42" />
+      {/* кольцо цепи у пятки */}
+      <circle cx="18" cy="44" r="3" />
+      {/* три звена цепи вниз — летопись */}
+      <circle cx="22" cy="50" r="2.2" />
+      <circle cx="28" cy="54" r="2.2" />
+      <circle cx="34" cy="58" r="2.2" />
+    </svg>
+  )
+}
+
+type OracleReply = {
+  ok: true
+  reply: string
+  model: string
+  event: { id: string; at: string }
+}
+type OracleError = {
+  ok: false
+  error: string
+  setupRequired?: boolean
+  blocked?: boolean
+}
+
+function ReaperTab() {
+  const state = useApi<{
+    era?: string
+    lastBatch?: string
+    nextStep?: string
+    counts?: { events?: number; batches?: number }
+    glass?: { chain?: { ok?: boolean; events?: number } }
+    gateHealth?: string
+  }>('/api/t4/state')
+  const eventsApi = useApi<{ events: { id: string; at: string; type: string; summary: string; data?: { reply?: string; model?: string; themeHint?: string | null } }[] }>(
+    '/api/t4/events?limit=200'
+  )
+
+  const [reply, setReply] = useState<string | null>(null)
+  const [busy, setBusy] = useState(false)
+  const [theme, setTheme] = useState('')
+  const [error, setError] = useState<string | null>(null)
+
+  const pastOracles = useMemo(() => {
+    const evs = eventsApi.data?.events
+    if (!Array.isArray(evs)) return []
+    return evs.filter((e) => e.type === 'oracle.spoke').slice(0, 5)
+  }, [eventsApi.data])
+
+  const chainOk = state.data?.glass?.chain?.ok
+  const eventsCount = state.data?.counts?.events ?? state.data?.glass?.chain?.events
+  const lastBatch = state.data?.lastBatch ?? '—'
+
+  async function askReaper() {
+    if (busy) return
+    setBusy(true)
+    setError(null)
+    setReply(null)
+    try {
+      const r = await postJson<OracleReply | OracleError>('/api/t4/oracle', {
+        theme: theme.trim() || undefined,
+      })
+      if (r.ok) {
+        setReply(r.reply)
+        toast({
+          title: 'Жнец высказался',
+          description: `Звено ${r.event.id} в цепи · ${r.model}`,
+        })
+        eventsApi.reload()
+        state.reload()
+      } else {
+        const msg = r.error
+        setError(msg)
+        toast({
+          title: r.blocked ? 'Жнец не хочет говорить об этом' : 'Жнец промолчал',
+          description: msg,
+          variant: 'destructive',
+        })
+      }
+    } catch (e: unknown) {
+      const msg = ledgerWriteError(e)
+      setError(msg)
+      toast({ title: 'Жнец не говорит', description: msg, variant: 'destructive' })
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Герой — сигил + имя + контекст + кнопка спросить */}
+      <Panel
+        title={
+          <span className="flex items-center gap-2">
+            <ReaperSigil className="size-5 text-amber-500" />
+            <span>Жнец</span>
+            <span className="text-zinc-600">·</span>
+            <span className="text-xs font-normal text-zinc-500">
+              LLM-мета-комментатор состояния
+            </span>
+          </span>
+        }
+      >
+        <div className="space-y-4">
+          <p className="text-xs leading-relaxed text-zinc-400">
+            Жнец — функция, видящая летопись. Не автор (его слово = закон, §10),
+            не писец (он пишет батчи), не реапер (тот rule-based). Жнец —{' '}
+            <Mono>голос хрупкости</Mono>: LLM читает последние события, драфт
+            реапера и свои прошлые исповеди, и говорит литературно о здоровье
+            конвейера. Каждое слово — звено хеш-цепи навсегда.
+          </p>
+
+          {/* Контекст — что видит жнец прямо сейчас */}
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <StatCard label="Последний батч" value={<span className="text-xs">{lastBatch}</span>} />
+            <StatCard
+              label="События"
+              value={eventsCount ?? '—'}
+              hint={chainOk === true ? 'цепь цела' : chainOk === false ? 'цепь нарушена' : undefined}
+            />
+            <StatCard
+              label="Прошлые исповеди"
+              value={pastOracles.length}
+              hint={pastOracles.length === 0 ? 'жнец ещё не говорил' : 'в памяти вкладки'}
+            />
+            <StatCard
+              label="Гейты"
+              value={<span className="text-[10px] leading-tight">{state.data?.gateHealth?.split('·')[0] ?? '—'}</span>}
+              loading={state.loading}
+            />
+          </div>
+
+          {/* Авторская нота — необязательная тема */}
+          <div className="space-y-2">
+            <label htmlFor="reaper-theme" className="text-xs text-zinc-500">
+              Авторская нота (необязательно) — попроси жнеца поговорить о чём-то конкретном
+            </label>
+            <Textarea
+              id="reaper-theme"
+              value={theme}
+              onChange={(e) => setTheme(e.target.value)}
+              placeholder="напр.: «поговори о палитрах и окне ротации»"
+              className="min-h-[60px] resize-y border-zinc-800 bg-zinc-950/60 font-mono text-xs text-zinc-300 placeholder:text-zinc-700"
+              disabled={busy}
+              maxLength={300}
+            />
+          </div>
+
+          {/* Кнопка + ошибка */}
+          <div className="flex flex-wrap items-center gap-3">
+            <Button
+              onClick={askReaper}
+              disabled={busy}
+              className="bg-amber-600 text-zinc-950 hover:bg-amber-500 disabled:opacity-50"
+            >
+              <Skull className="mr-1.5 size-4" />
+              {busy ? 'Жнец говорит…' : 'Спросить жнеца'}
+            </Button>
+            {error ? <ErrorNote text="жнец не ответил" hint={error} /> : null}
+          </div>
+        </div>
+      </Panel>
+
+      {/* Свежая исповедь */}
+      {busy ? (
+        <Panel title="Исповедь пишется…">
+          <SkeletonBlock lines={6} />
+        </Panel>
+      ) : reply ? (
+        <Panel
+          title={
+            <span className="flex items-center gap-2">
+              <Sparkles className="size-4 text-amber-500" />
+              <span>Последняя исповедь</span>
+            </span>
+          }
+          action={
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 gap-1 text-xs text-zinc-400"
+              onClick={() => {
+                void navigator.clipboard.writeText(reply).then(() =>
+                  toast({ title: 'Скопировано', description: 'исповедь жнеца — в буфере' })
+                )
+              }}
+            >
+              <Copy className="size-3" /> Копировать
+            </Button>
+          }
+        >
+          <div className="rounded-md border border-amber-500/15 bg-zinc-950/60 p-4">
+            <pre className="whitespace-pre-wrap break-words font-serif text-sm leading-relaxed text-amber-100/90">
+              {reply}
+            </pre>
+          </div>
+        </Panel>
+      ) : null}
+
+      {/* Прошлые исповеди */}
+      <Panel
+        title={
+          <span className="flex items-center gap-2">
+            <History className="size-4 text-amber-500" />
+            <span>Прошлые исповеди</span>
+            <Badge variant="outline" className="border-zinc-700 text-zinc-400">
+              {pastOracles.length}
+            </Badge>
+          </span>
+        }
+        action={
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 text-xs text-zinc-400"
+            onClick={() => eventsApi.reload()}
+            disabled={eventsApi.loading}
+          >
+            Обновить
+          </Button>
+        }
+      >
+        {eventsApi.loading ? (
+          <SkeletonBlock lines={3} />
+        ) : eventsApi.error ? (
+          <ErrorNote text="не удалось прочесть летопись" hint={eventsApi.error} />
+        ) : pastOracles.length === 0 ? (
+          <EmptyState
+            title="Жнец ещё не говорил"
+            hint="Первое слово жнеца станет звеном цепи. Спроси его — кнопку выше."
+            icon={<Skull className="size-5" />}
+          />
+        ) : (
+          <ul className="space-y-2">
+            {pastOracles.map((o) => {
+              const replyText = typeof o.data?.reply === 'string' ? o.data.reply : ''
+              const firstLine = replyText.split('\n')[0]?.slice(0, 200) ?? ''
+              const restLines = replyText.split('\n').slice(1).join('\n').slice(0, 400)
+              const model = o.data?.model ?? '?'
+              return (
+                <li
+                  key={o.id}
+                  className="rounded-md border border-zinc-800 bg-zinc-950/40 p-3 hover:border-zinc-700"
+                >
+                  <div className="mb-1 flex items-center gap-2 text-[10px] text-zinc-500">
+                    <Mono>{formatDate(o.at)}</Mono>
+                    <span>·</span>
+                    <Mono>{o.id}</Mono>
+                    <span>·</span>
+                    <span className="text-amber-500/70">{model}</span>
+                    {o.data?.themeHint ? (
+                      <>
+                        <span>·</span>
+                        <span className="italic text-zinc-600">нота: {o.data.themeHint.slice(0, 80)}</span>
+                      </>
+                    ) : null}
+                  </div>
+                  <div className="font-serif text-xs leading-relaxed text-amber-100/80">
+                    {firstLine}
+                    {replyText.length > 200 ? '…' : ''}
+                  </div>
+                  {restLines.trim() !== '' ? (
+                    <details className="mt-1.5">
+                      <summary className="cursor-pointer text-[10px] text-zinc-600 hover:text-zinc-400">
+                        читать полностью
+                      </summary>
+                      <pre className="mt-1.5 whitespace-pre-wrap break-words font-serif text-[11px] leading-relaxed text-amber-100/70">
+                        {replyText}
+                      </pre>
+                    </details>
+                  ) : null}
+                </li>
+              )
+            })}
+          </ul>
+        )}
+      </Panel>
+    </div>
+  )
+}
+
+/* ------------------------------------------------------------------ */
 /* Root                                                                */
 /* ------------------------------------------------------------------ */
 
@@ -3895,6 +4202,7 @@ export default function Home() {
         {tab === 'glass' ? <GlassTab /> : null}
         {tab === 'vault' ? <VaultTab /> : null}
         {tab === 'archive' ? <ArchiveTab /> : null}
+        {tab === 'reaper' ? <ReaperTab /> : null}
       </main>
 
       <footer className="mt-auto border-t border-zinc-800/80 bg-zinc-950 pb-[env(safe-area-inset-bottom)]">
