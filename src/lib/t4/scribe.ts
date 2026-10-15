@@ -838,7 +838,12 @@ async function chat(zai: ZAiChat, system: string, user: string, log: string[], r
 
 function parseSlots(raw: string): Map<number, ScribeSlotOutput> {
   const out = new Map<number, ScribeSlotOutput>()
-  const blocks = raw.split(/^###\s*P(\d{1,2})\s*$/m)
+  /* Т4-32 (живой прогон): модель 4× подряд писала первый слот заголовком с
+   * хвостом («### P01 — anchor…»), строгий сплит ^…P(\d+)\s*$ его ронял —
+   * слот терялся и чанк-повтор, и 2 круга ремонта вернуть его не могли.
+   * Толерантный хвост [^\n]* — строгое надмножество: голый «### P05»
+   * парсится как раньше, аннотированный — теперь тоже. */
+  const blocks = raw.split(/^###\s*P(\d{1,2})[^\n]*$/m)
   // split with capture: [pre, n1, body1, n2, body2, ...]
   for (let i = 1; i + 1 < blocks.length + 1; i += 2) {
     const n = parseInt(blocks[i], 10)
