@@ -124,6 +124,11 @@ function syncSleep(ms: number): void {
   }
 }
 
+/* Read-through кэш readEvents (аудит 2026-10-16): ключ — size+mtime лога,
+ * см. комментарий в теле. Массив заморожен на рантайме (мутация падает
+ * громко), тип остаётся T4Event[] чтобы не ломать контракт всех читателей. */
+let eventsReadCache: { size: number; mtimeMs: number; events: T4Event[] } | null = null
+
 /** Выполняет fn под эксклюзивным событийным локом. Протухший замок       */
 /** (владелец погиб посреди записи) взламывается по mtime; живой —       */
 /** ждём до ~6с, потом внятный отказ (событие НЕ теряется — его просто    */
@@ -212,8 +217,12 @@ export function appendEvent(
    * assertBorn* ДО лока: чистые проверки без I/O, ранний отказ не трогает
    * файл замка (и born-wounded-тесты selftest не должны оставлять .lock). */
   withEventLock(() => {
+    /* Big-O (аудит 2026-10-16): снимок лога ДО записи — ключ честности
+     * O(1)-пути extendChain. Обе статы под событийным локом: между ними
+     * в лог не мог никто вписаться. */
+    const pre = statLog()
     fs.appendFileSync(EVENT_LOG, rawLine + '\n', 'utf-8')
-    extendChain(rawLine, evt.id)
+    extendChain(rawLine, evt.id, pre)
   })
   /* durability: событие записано — состояние меняется, фиксируем в git */
   scheduleSnapshot(`event:${type}`)
@@ -222,10 +231,27 @@ export function appendEvent(
 
 export function readEvents(): T4Event[] {
   ensureDirs()
+  let st: fs.Stats
+  try {
+    st = fs.statSync(EVENT_LOG)
+  } catch {
+    eventsReadCache = null
+    return []
+  }
+  /* Big-O (аудит 2026-10-16): readEvents парсил ВЕСЬ лог на каждый запрос
+   * (GET /events, /state, fold писца, deliver) — O(n) на опрос Стекла при
+   * растущей навсегда летописи. Read-through кэш с ключом size+mtime:
+   * чужая запись (CLI-процесс, другой бандл роута) меняет статы → полный
+   * пересчёт, наша — нет. Массив заморожен: контракт «только чтение»,
+   * случайный in-place reverse/push падает громко, а не портит кэш. */
+  if (eventsReadCache && eventsReadCache.size === st.size && eventsReadCache.mtimeMs === st.mtimeMs) {
+    return eventsReadCache.events
+  }
   let raw: string
   try {
     raw = fs.readFileSync(EVENT_LOG, 'utf-8')
   } catch {
+    eventsReadCache = null
     return []
   }
   const out: T4Event[] = []
@@ -238,6 +264,7 @@ export function readEvents(): T4Event[] {
       // a corrupted line never kills the fold — append-only resilience
     }
   }
+  eventsReadCache = { size: st.size, mtimeMs: st.mtimeMs, events: Object.freeze(out) as T4Event[] }
   return out
 }
 
@@ -260,6 +287,27 @@ function normLine(l: string): string {
 function chainHash(prev: string, rawLine: string): string {
   return crypto.createHash('sha256').update(`${prev}|${normLine(rawLine)}`, 'utf-8').digest('hex')
 }
+
+/** Снимок статов лога (size+mtime) — null, если файла нет. */
+function statLog(): { size: number; mtimeMs: number } | null {
+  try {
+    const st = fs.statSync(EVENT_LOG)
+    return { size: st.size, mtimeMs: st.mtimeMs }
+  } catch {
+    return null
+  }
+}
+
+/* Big-O (аудит 2026-10-16): extendChain звал computeChainOverLog на КАЖДОЙ
+ * записи — полный реад лога + N sha256 на append (O(n) на событие,
+ * O(n²) на батч писца: десятки событий за прогон, летопись только растёт).
+ * Кэш вычисленной цепи, ключ — (size, mtime) ДО записи: рост ровно на
+ * нашу строку под событийным локом → O(1) достройка одного звена от
+ * кэшированного head; любое чужое изменение лога (CLI-процесс, другой
+ * бандл, vault-слияние, in-place правка — mtime не обманешь) → честный
+ * полный пересчёт. Кэш — только ускорение: verifyChain ВСЕГДА
+ * пересчитывает с нуля (аудитор не верит кэшу). */
+let chainCache: { logBytes: number; logMtimeMs: number; links: ChainLink[] } | null = null
 
 export interface ChainLink {
   seq: number
@@ -317,46 +365,71 @@ export function bootstrapChain(): { links: number; head: string } {
   return withEventLock(() => {
     const { links } = computeChainOverLog()
     writeText(CHAIN_LOG, links.map((l) => JSON.stringify(l)).join('\n') + '\n')
+    const post = statLog()
+    chainCache = post ? { logBytes: post.size, logMtimeMs: post.mtimeMs, links } : null
     return { links: links.length, head: links[links.length - 1]?.hash ?? '' }
   })
 }
 
 /** Продлить цепь новым звеном. Хвост цепи обязан совпадать с логом;
- *  расхождение = тампер-тревога, запись события отвергается. */
-function extendChain(rawLine: string, id: string): void {
+ *  расхождение = тампер-тревога, запись события отвергается.
+ *  pre — статы лога ДО нашей записи (снят под локом в appendEvent):
+ *  совпадает с кэшем → история не менялась с прошлого достроенного
+ *  состояния → O(1) путь; иначе → полный пересчёт computeChainOverLog. */
+function extendChain(rawLine: string, id: string, pre: { size: number; mtimeMs: number } | null): void {
   const stored = readChain()
-  const { links } = computeChainOverLog() // включает только что дописанное событие
+  const grew = Buffer.byteLength(rawLine + '\n', 'utf-8')
+  const post = statLog()
+  let links: ChainLink[]
+  let fastPath = false
+  if (chainCache != null && pre != null && pre.size === chainCache.logBytes && pre.mtimeMs === chainCache.logMtimeMs) {
+    /* лог не менялся с момента постройки кэша — новое звено от head,
+     * без реада и перехеширования истории. */
+    const prev = chainCache.links.length > 0 ? chainCache.links[chainCache.links.length - 1].hash : GENESIS
+    links = [...chainCache.links, { seq: chainCache.links.length + 1, id, hash: chainHash(prev, rawLine) }]
+    fastPath = true
+  } else {
+    links = computeChainOverLog().links // включает только что дописанное событие
+  }
   if (stored.length === 0) {
     // цепи ещё нет (первый запуск после Залпа 1) — строим целиком
     writeText(CHAIN_LOG, links.map((l) => JSON.stringify(l)).join('\n') + '\n')
-    return
-  }
-  // хвост stored обязан быть префиксом computed
-  for (let i = 0; i < stored.length; i++) {
-    if (!links[i] || stored[i].hash !== links[i].hash) {
-      throw new Error(
-        `chain tamper detected at seq ${i + 1}: летопись правлена руками после записи цепи — событие отвергнуто (см. bun thread4/cli.ts verify)`
-      )
+  } else {
+    // хвост stored обязан быть префиксом computed
+    for (let i = 0; i < stored.length; i++) {
+      if (!links[i] || stored[i].hash !== links[i].hash) {
+        throw new Error(
+          `chain tamper detected at seq ${i + 1}: летопись правлена руками после записи цепи — событие отвергнуто (см. bun thread4/cli.ts verify)`
+        )
+      }
+    }
+    if (stored.length !== links.length - 1) {
+      // дыра между цепью и логом (крах между двумя append) — достраиваем хвост честно.
+      // Аудит 2026-10-12: при stored.length === links.length (гонка двух процессов:
+      // событие уже в логе, звена ещё нет) хвост ПУСТ — прежний код писал пустую
+      // строку в chain.jsonl, оставляя событие без звена. Пустой хвост не пишем:
+      // следующее appendEvent достроит звено (хеш-цепь покроет лог целиком).
+      const tail = links.slice(stored.length)
+      if (tail.length > 0) {
+        fs.appendFileSync(
+          CHAIN_LOG,
+          tail.map((l) => JSON.stringify(l)).join('\n') + '\n',
+          'utf-8'
+        )
+      }
+    } else {
+      const last = links[links.length - 1]
+      fs.appendFileSync(CHAIN_LOG, JSON.stringify({ seq: last.seq, id, hash: last.hash }) + '\n', 'utf-8')
     }
   }
-  if (stored.length !== links.length - 1) {
-    // дыра между цепью и логом (крах между двумя append) — достраиваем хвост честно.
-    // Аудит 2026-10-12: при stored.length === links.length (гонка двух процессов:
-    // событие уже в логе, звена ещё нет) хвост ПУСТ — прежний код писал пустую
-    // строку в chain.jsonl, оставляя событие без звена. Пустой хвост не пишем:
-    // следующее appendEvent достроит звено (хеш-цепь покроет лог целиком).
-    const tail = links.slice(stored.length)
-    if (tail.length > 0) {
-      fs.appendFileSync(
-        CHAIN_LOG,
-        tail.map((l) => JSON.stringify(l)).join('\n') + '\n',
-        'utf-8'
-      )
-    }
-    return
+  /* кэш обновляем ПОСЛЕ успешной записи звена: post-статы отражают лог
+   * с нашим событием; links — полная цепь над этим логом (быстрый путь —
+   * кэш+новое звено, медленный — полный пересчёт: оба корректны). */
+  if (post != null) {
+    chainCache = fastPath || links.length > 0 ? { logBytes: post.size, logMtimeMs: post.mtimeMs, links } : null
+  } else {
+    chainCache = null
   }
-  const last = links[links.length - 1]
-  fs.appendFileSync(CHAIN_LOG, JSON.stringify({ seq: last.seq, id, hash: last.hash }) + '\n', 'utf-8')
 }
 
 export interface ChainVerdict {
@@ -549,7 +622,13 @@ export function foldState(events: T4Event[]): T4DerivedState {
   const delivered = [...batches.values()]
     .filter((b) => b.deliveredAt != null)
     .filter((b) => !voidedSlugs.includes(b.slug))
-    .sort((a, b) => (a.deliveredAt! < b.deliveredAt! ? -1 : 1))
+    /* строгий трёхпозиционный компаратор (аудит 2026-10-16): прежний
+     * возвращал 1 на равных deliveredAt — нарушение контракта sort,
+     * недетерминированный порядок окна ротации при двух сдачах в одну
+     * миллисекунду. Tie-break по слагу — окно воспроизводимо. */
+    .sort((a, b) =>
+      a.deliveredAt! < b.deliveredAt! ? -1 : a.deliveredAt! > b.deliveredAt! ? 1 : a.slug.localeCompare(b.slug)
+    )
   const windowSlugs = delivered.slice(-3).map((b) => b.slug)
 
   /* Залп 1: batch.void гасит долги — закрытый слот не может числиться

@@ -22,7 +22,7 @@
  *    чекпоинтам платформы (add -A + amend поглощает его без потерь);
  *  - сбой git (lock, нет .git) — тихий false, следующая запись повторит.
  */
-import { spawnSync } from 'node:child_process'
+import { spawn, spawnSync } from 'node:child_process'
 import fs from 'node:fs'
 import path from 'node:path'
 
@@ -44,6 +44,18 @@ const DEBOUNCE_MS = 600
 let timer: ReturnType<typeof setTimeout> | null = null
 let pendingReasons: string[] = []
 let lastError: string | null = null
+
+/* Архитектура (аудит 2026-10-16): два пута снапшота.
+ *  · snapshotNow (sync) — CLI, exit-flush, recover: процесс всё равно
+ *    короткоживущий или умирает, блокироваться нечем.
+ *  · snapshotAsync — дебаунс-путь ЖИВОГО сервера: три git-спавна больше
+ *    НЕ стоят в event loop (spawnSync на add/diff/commit замораживал
+ *    API на сотни мс каждые 600мс писца). Сериализация in-process
+ *    (snapBusy) исключает self-inflicted index.lock; межпроцессная
+ *    гонка (CLI vs сервер) переживается прежней доктриной: git упал →
+ *    тихий false → следующая запись повторит. */
+let snapBusy = false
+let snapQueuedAgain = false
 
 function gitOk(): boolean {
   try {
@@ -69,14 +81,69 @@ function run(
   }
 }
 
+/** Неблокирующий аналог run(): тот же контракт, но git работает в своём
+ *  дочернем процессе — event loop сервера свободен. Таймаут — SIGKILL,
+ *  вывод аккумулируется с потоком (без maxBuffer-обрезки). */
+function runAsync(
+  args: string[],
+  timeoutMs = 30_000
+): Promise<{ ok: boolean; out: string; err: string }> {
+  return new Promise((resolve) => {
+    let child: ReturnType<typeof spawn>
+    try {
+      child = spawn('git', args, { cwd: ROOT, stdio: ['ignore', 'pipe', 'pipe'] })
+    } catch {
+      resolve({ ok: false, out: '', err: 'spawn failed' })
+      return
+    }
+    let out = ''
+    let err = ''
+    let settled = false
+    const finish = (ok: boolean, e: string): void => {
+      if (settled) return
+      settled = true
+      clearTimeout(killTimer)
+      resolve({ ok, out: out.trim(), err: e })
+    }
+    const killTimer = setTimeout(() => {
+      try {
+        child.kill('SIGKILL')
+      } catch {
+        /* уже умер */
+      }
+      finish(false, `timeout ${timeoutMs}ms`)
+    }, timeoutMs)
+    child.stdout?.on('data', (d: Buffer) => {
+      out += d.toString('utf-8')
+    })
+    child.stderr?.on('data', (d: Buffer) => {
+      err += d.toString('utf-8')
+    })
+    child.on('error', () => finish(false, 'spawn failed'))
+    child.on('close', (code) => finish(code === 0, err))
+  })
+}
+
+function drainReasons(extra: string): string[] {
+  const reasons = [...pendingReasons, extra]
+  pendingReasons = []
+  return reasons
+}
+
+function commitMessage(reasons: string[]): string {
+  return (
+    `persist: ${reasons.slice(0, 5).join(' + ')}` +
+    (reasons.length > 5 ? ` (+${reasons.length - 5})` : '')
+  )
+}
+
 /** Синхронный снапшот: add (без удалений) + commit. true = коммит создан. */
 export function snapshotNow(reason: string): boolean {
   if (timer) {
     clearTimeout(timer)
     timer = null
   }
-  const reasons = [...pendingReasons, reason]
-  pendingReasons = []
+  const reasons = drainReasons(reason)
   if (!gitOk() || process.env.T4_PERSIST === 'off') return false
 
   const add = run(['add', '--ignore-removal', '--', ...STAGE_PATHS])
@@ -88,9 +155,6 @@ export function snapshotNow(reason: string): boolean {
   const staged = run(['diff', '--cached', '--name-only'])
   if (!staged.ok || staged.out === '') return false
 
-  const msg =
-    `persist: ${reasons.slice(0, 5).join(' + ')}` +
-    (reasons.length > 5 ? ` (+${reasons.length - 5})` : '')
   const commit = run([
     '-c',
     'user.name=Z User',
@@ -98,13 +162,62 @@ export function snapshotNow(reason: string): boolean {
     'user.email=z@container',
     'commit',
     '-m',
-    msg,
+    commitMessage(reasons),
   ])
   if (!commit.ok) {
     lastError = commit.err
     return false
   }
   return true
+}
+
+/** Асинхронный снапшот для живого сервера (см. архитектурный комментарий
+ *  вверху): тот же конвейер add→diff→commit, но без блокировки event loop.
+ *  Повторный вызов во время полёта — не отказ, а постановка в очередь
+ *  (одна дозапись после завершения: причины не теряются). */
+async function snapshotAsync(reason: string): Promise<boolean> {
+  if (timer) {
+    clearTimeout(timer)
+    timer = null
+  }
+  if (snapBusy) {
+    snapQueuedAgain = true
+    return false
+  }
+  snapBusy = true
+  try {
+    const reasons = drainReasons(reason)
+    if (!gitOk() || process.env.T4_PERSIST === 'off') return false
+
+    const add = await runAsync(['add', '--ignore-removal', '--', ...STAGE_PATHS])
+    if (!add.ok) {
+      lastError = add.err
+      return false
+    }
+    const staged = await runAsync(['diff', '--cached', '--name-only'])
+    if (!staged.ok || staged.out === '') return false
+
+    const commit = await runAsync([
+      '-c',
+      'user.name=Z User',
+      '-c',
+      'user.email=z@container',
+      'commit',
+      '-m',
+      commitMessage(reasons),
+    ])
+    if (!commit.ok) {
+      lastError = commit.err
+      return false
+    }
+    return true
+  } finally {
+    snapBusy = false
+    if (snapQueuedAgain) {
+      snapQueuedAgain = false
+      void snapshotAsync('debounce+')
+    }
+  }
 }
 
 /** Отложенный снапшот (дебаунс): для частых записей (писец, события). */
@@ -114,7 +227,7 @@ export function scheduleSnapshot(reason: string): void {
   if (timer) clearTimeout(timer)
   timer = setTimeout(() => {
     timer = null
-    snapshotNow('debounce')
+    void snapshotAsync('debounce')
   }, DEBOUNCE_MS)
 }
 
