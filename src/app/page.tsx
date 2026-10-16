@@ -7,6 +7,7 @@
  */
 
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { copyText } from '@/lib/clipboard'
 import {
   Activity,
   Archive as ArchiveIcon,
@@ -1133,12 +1134,19 @@ function CompileTab() {
   }
 
   async function copyOrder(slug: string) {
-    try {
-      await navigator.clipboard.writeText(`Super Z, произведи ${slug}`)
+    /* буфер без тихих сбоев (лид 2026-10-16): отказ виден тостом —
+     * «в поле останется прошлый приказ» дороже секунды тишины */
+    const res = await copyText(`Super Z, произведи ${slug}`)
+    if (res.ok) {
       setCopied(slug)
       setTimeout(() => setCopied((c) => (c === slug ? null : c)), 2500)
-    } catch {
+    } else {
       setCopied(null)
+      toast({
+        title: `Приказ ${slug} НЕ в буфере`,
+        description: res.reason ?? 'буфер недоступен — вставится прошлый текст',
+        variant: 'destructive',
+      })
     }
   }
 
@@ -3041,14 +3049,19 @@ function BatchReceiverPanel() {
   }
 
   async function copyCurl() {
-    try {
-      await navigator.clipboard.writeText(
-        `curl -X POST /api/t4/batch-verdict -H 'Content-Type: application/json' --data @${slug}-batch-verdict.json`
-      )
+    const res = await copyText(
+      `curl -X POST /api/t4/batch-verdict -H 'Content-Type: application/json' --data @${slug}-batch-verdict.json`
+    )
+    if (res.ok) {
       setCurlCopied(true)
       setTimeout(() => setCurlCopied(false), 2500)
-    } catch {
+    } else {
       setCurlCopied(false)
+      toast({
+        title: 'curl НЕ в буфере',
+        description: res.reason ?? 'буфер недоступен — вставится прошлый текст',
+        variant: 'destructive',
+      })
     }
   }
 
@@ -4641,8 +4654,14 @@ function ReaperTab() {
               size="sm"
               className="h-7 gap-1 text-xs text-zinc-400"
               onClick={() => {
-                void navigator.clipboard.writeText(reply).then(() =>
-                  toast({ title: 'Скопировано', description: 'исповедь жнеца — в буфере' })
+                void copyText(reply).then((res) =>
+                  res.ok
+                    ? toast({ title: 'В буфере: исповедь жнеца', description: `${reply.length} симв. — вставляй смело` })
+                    : toast({
+                        title: 'НЕ скопировано',
+                        description: `${res.reason ?? 'буфер недоступен'} — в поле останется прошлый текст`,
+                        variant: 'destructive',
+                      })
                 )
               }}
             >
