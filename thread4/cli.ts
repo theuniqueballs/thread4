@@ -1568,8 +1568,8 @@ async function main() {
             gh.lastRun.hardPass === false
         )
         check(
-          'gateHealth: прогонов нет — фолбэк на кодовую базу GATES_TOTAL (не ноль, не легенда; №28/№29 → 26)',
-          gatesHealthFromEvents([]).base === 26 && gatesHealthFromEvents([]).lastRun === null
+          'gateHealth: прогонов нет — фолбэк на кодовую базу GATES_TOTAL (не ноль, не легенда; №28/№29 + G17-bumps → 27)',
+          gatesHealthFromEvents([]).base === 27 && gatesHealthFromEvents([]).lastRun === null
         )
       }
       const { isSafeSlug } = await import('../src/lib/t4/fsutil')

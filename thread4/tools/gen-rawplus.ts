@@ -1065,6 +1065,12 @@ export function planRawPlus(opts: PlanOptions): RawPlusPlan {
   }
   /* квоты после парной раздачи (слотовых единиц): dark ≥ ⌈n/3⌉ И ≥ bumps-квоты,
    * light ≤ 3 — меряем по мейнам (тон-план — их) */
+  /* G17: OC — явный mid в контракте (тон-план мейновский; OC без дресс-кода
+   * №29, писец считает mid по умолчанию — контракт несёт факт явно,
+ * «все R+ имеют тон» — честный инвариант самотеста) */
+  for (const s of rplusSlots) {
+    if (s.kind === 'OC' && !s.fabricTone) s.fabricTone = 'mid'
+  }
   const toneCount = (t: string) => rplusMainsT.filter((s) => (s.fabricTone ?? 'mid') === t).length
   const soloRplus = rplusMainsT.filter((s) => !s.ab)
   while (toneCount('dark') < Math.max(Math.ceil(rplusMainsT.length / 3), bumpsQuota)) {
