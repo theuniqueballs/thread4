@@ -1027,42 +1027,47 @@ export function planRawPlus(opts: PlanOptions): RawPlusPlan {
    * dark-сырьё под квоту бугорков. bumps живёт ТОЛЬКО на dark (№28),
    * а канальная ротация давала ему каждого четвёртого dark-слота —
    * 8-19% батча (T4-33: bumps 3 из 16, самые живые слоты T4-31 были
-   * bumps×11). Теперь dark-минимум ≥ bumps-квоты = ⌈0.4 × R+-дресс⌉. */
-  const rplusDressCount = slots.filter(
-    (s) => s.kind !== 'OC' && s.kind !== 'EXP' && s.rating === 'R+'
-  ).length
+   * bumps×11). Тон-план строится ПО МЕЙНАМ (OC без дресс-кода №29 —
+   * их тон по умолчанию mid, dark-места на OC не тратятся: демо
+   * 2026-10-16 вскрыл недобор, когда OC съедали dark-места плана),
+   * dark-минимум ≥ bumps-квоты = ⌈0.4 × R+-дресс⌉. */
+  const rplusMainsT = rplusSlots.filter((s) => s.kind !== 'OC')
+  const rplusDressCount = rplusMainsT.length
   const bumpsQuota = Math.min(rplusDressCount, Math.ceil(rplusDressCount * 0.4))
   const darkCount = Math.min(
-    rplusSlots.length,
-    Math.max(Math.max(1, Math.ceil(rplusSlots.length / 3)), bumpsQuota)
+    rplusMainsT.length,
+    Math.max(Math.max(1, Math.ceil(rplusMainsT.length / 3)), bumpsQuota)
   )
-  const lightCount = Math.min(3, Math.max(1, Math.floor(rplusSlots.length / 5)))
+  const lightCount = Math.min(3, Math.max(1, Math.floor(rplusMainsT.length / 5)))
   const tonePlan: Array<'dark' | 'mid' | 'light'> = []
-  for (let i = 0; i < rplusSlots.length; i++) {
+  for (let i = 0; i < rplusMainsT.length; i++) {
     if (i < darkCount) tonePlan.push('dark')
     else if (i < darkCount + lightCount) tonePlan.push('light')
     else tonePlan.push('mid')
   }
   rng.shuffle(tonePlan)
-  /* пары первыми: одна единица плана — на обе половины */
+  /* пары первыми: одна единица плана — на обе половины; OC — фикс mid
+   * (дресс-код политика на OC не назначается — №29; тон mid даёт писцу
+   * закон №28 «каналы вне-ткани» для OC-заявки, легально) */
   let toneIdx = 0
   const pairedDone = new Set<string>()
-  for (const s of rplusSlots) {
+  for (const s of rplusMainsT) {
     if (!s.ab || pairedDone.has(s.ab.pair)) continue
     pairedDone.add(s.ab.pair)
     const tone = tonePlan[toneIdx++] ?? 'mid'
-    for (const half of rplusSlots.filter((x) => x.ab?.pair === s.ab!.pair)) {
+    for (const half of rplusMainsT.filter((x) => x.ab?.pair === s.ab!.pair)) {
       half.fabricTone = tone
     }
   }
-  for (const s of rplusSlots) {
+  for (const s of rplusMainsT) {
     if (s.ab) continue
     s.fabricTone = tonePlan[toneIdx++] ?? 'mid'
   }
-  /* квоты после парной раздачи (слотовых единиц): dark ≥ ⌈n/3⌉, light ≤ 3 */
-  const toneCount = (t: string) => rplusSlots.filter((s) => (s.fabricTone ?? 'mid') === t).length
-  const soloRplus = rplusSlots.filter((s) => !s.ab)
-  while (toneCount('dark') < Math.ceil(rplusSlots.length / 3)) {
+  /* квоты после парной раздачи (слотовых единиц): dark ≥ ⌈n/3⌉ И ≥ bumps-квоты,
+   * light ≤ 3 — меряем по мейнам (тон-план — их) */
+  const toneCount = (t: string) => rplusMainsT.filter((s) => (s.fabricTone ?? 'mid') === t).length
+  const soloRplus = rplusMainsT.filter((s) => !s.ab)
+  while (toneCount('dark') < Math.max(Math.ceil(rplusMainsT.length / 3), bumpsQuota)) {
     const cand = soloRplus.find((s) => (s.fabricTone ?? 'mid') === 'mid')
     if (!cand) break
     cand.fabricTone = 'dark'
@@ -1073,7 +1078,7 @@ export function planRawPlus(opts: PlanOptions): RawPlusPlan {
     cand.fabricTone = 'mid'
   }
   report.push(
-    `ЗАКОН №28 (принят, вердикт T4-31): тон вещи на ${rplusSlots.length} R+-слотах — dark ${toneCount('dark')} / mid ${toneCount('mid')} / light ${toneCount('light')} (бугорки-канал — ТОЛЬКО dark, DRY; light/mid верх — каналы вне-ткани: pantyline/tape/handbra/мокрый купальник P21; §10-пары — тон на пару; кластер светлых ≤ 3)${slots.some((s) => s.kind === 'EXP') ? ' + EXP-пара (полюса №28: dry-dark ↔ wet-light)' : ''}`
+    `ЗАКОН №28 (принят, вердикт T4-31): тон вещи на ${rplusMainsT.length} R+-мейнах — dark ${toneCount('dark')} / mid ${toneCount('mid')} / light ${toneCount('light')} (бугорки-канал — ТОЛЬКО dark, DRY; light/mid верх — каналы вне-ткани: pantyline/tape/handbra/мокрый купальник P21; §10-пары — тон на пару; кластер светлых ≤ 3; OC — mid по умолчанию, без дресс-кода №29)${slots.some((s) => s.kind === 'EXP') ? ' + EXP-пара (полюса №28: dry-dark ↔ wet-light)' : ''}`
   )
 
   /* --- ДРЕССЕР (квитанция №29, приказ автора из вердикта T4-31: «система
