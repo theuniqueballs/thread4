@@ -17,6 +17,7 @@ import {
   Download,
   FileText,
   FlaskConical,
+  GitCompare,
   Heart,
   History,
   KeyRound,
@@ -27,6 +28,7 @@ import {
   ShieldCheck,
   Sparkles,
   Stamp,
+  Skull,
   Upload,
 } from 'lucide-react'
 
@@ -124,6 +126,7 @@ type TabId =
   | 'glass'
   | 'vault'
   | 'archive'
+  | 'reaper'
 
 const TABS: { id: TabId; label: string; icon: React.ReactNode }[] = [
   { id: 'state', label: 'Состояние', icon: <Activity className="size-3.5" /> },
@@ -136,6 +139,10 @@ const TABS: { id: TabId; label: string; icon: React.ReactNode }[] = [
   { id: 'glass', label: 'Стекло', icon: <ScanEye className="size-3.5" /> },
   { id: 'vault', label: 'Хранилище', icon: <ShieldCheck className="size-3.5" /> },
   { id: 'archive', label: 'Архив 3.2', icon: <ArchiveIcon className="size-3.5" /> },
+  /* 2026-10-15: Жнец — LLM-мета-комментатор состояния конвейера.
+   * 11-я вкладка, под клавишами 1-0 недоступна (их 10) — стрелками/Home/End
+   * или кликом. Это намеренно: жнеца не зовут случайно. */
+  { id: 'reaper', label: 'Жнец', icon: <Skull className="size-3.5" /> },
 ]
 
 /** Вкладка из адреса (#tab=batches) или null — deep-link hash-роутинга. */
@@ -3505,10 +3512,724 @@ function BatchReceiverPanel() {
   )
 }
 
+/* ------------------------------------------------------------------ */
+/* Panel: Карта Дрессера — флагман тура 2 (2026-10-15)                 */
+/* ------------------------------------------------------------------ */
+
+/* Типы DresserMap — зеркало серверного src/lib/t4/dresser-map.ts.
+ *  Не импортируем с сервера, чтобы не утянуть fs/readJson в браузерный
+ *  бандл. Типы синхронны вручную, как с BatchVerdictRecord. */
+type FailureMode =
+  | 'sterile'
+  | 'weak'
+  | 'body-missing'
+  | 'tag-issue'
+  | 'pose-miss'
+  | 'pass'
+  | 'no-verdict'
+
+interface DresserMapSlot {
+  position: string
+  claim: string
+  myTier: string | null
+  yodayoTier: string | null
+  delta: number
+  channel: string | null
+  channelName: string | null
+  tone: string | null
+  oc: string | null
+  pose: string | null
+  poseName: string | null
+  palette: string | null
+  paletteName: string | null
+  lead: string | null
+  note: string
+  genreRead?: 'yes' | 'no'
+  wow?: 'yes' | 'no'
+  failureMode: FailureMode
+}
+
+interface DresserMap {
+  slug: string
+  title: string
+  verdictAt: string | null
+  verdictSource: string | null
+  slots: DresserMapSlot[]
+  channelMatrix: {
+    channel: string
+    channelName: string
+    claimed: Record<string, number>
+    delivered: Record<string, number>
+    total: number
+    passes: number
+    failures: number
+    failRate: number
+  }[]
+  ratingDistribution: { claimed: Record<string, number>; delivered: Record<string, number> }
+  failureModes: { mode: FailureMode; count: number; slots: string[]; recommendation: string }[]
+  lessonsForNextBatch: string
+  authorProse: string
+  /** Тур 3: контр-контракт — советник следующего батча. */
+  counterContract: {
+    historicalDelivery: {
+      sampleSize: number
+      rPlusClaimed: number
+      rPlusDelivered: number
+      rPlusDeliveryRate: number
+      rClaimed: number
+      rDelivered: number
+      rDeliveryRate: number
+    }
+    recommendedSpread: { rating: string; count: number; why: string }[]
+    bodyTypeGaps: { position: string; oc: string; bodyType: string; family?: string }[]
+    proposedWeights: {
+      channel: string
+      channelName: string
+      current: string[]
+      proposed: string[]
+      why: string
+    }[]
+    markdown: string
+  }
+  /** Тур 4: матрица разнообразия — пакет на каждый слот. */
+  varietyMatrix: {
+    position: string
+    claim: string
+    posOrder: string
+    register: string
+    lengthClass: string
+    styleAnchor: string
+    negVariant: number
+    negVariantName: string
+    /** Тур 5 (аудит Коул #52): camera (G01), bodyPlan (G11),
+     *  handsHint (G22), themeWordBudget (G30). */
+    camera: string
+    bodyPlan: string | null
+    handsHint: string | null
+    themeWordBudget: number
+    seed: number
+  }[]
+}
+
+const FAILURE_MODE_LABELS: Record<FailureMode, string> = {
+  sterile: 'стерильно',
+  weak: 'слабо',
+  'body-missing': 'боди не задан',
+  'tag-issue': 'тег-промах',
+  'pose-miss': 'поза не та',
+  pass: 'доехало',
+  'no-verdict': 'без вердикта',
+}
+
+const FAILURE_MODE_COLOR: Record<FailureMode, string> = {
+  sterile: 'bg-rose-500/15 text-rose-300 border-rose-500/30',
+  weak: 'bg-amber-500/15 text-amber-300 border-amber-500/30',
+  'body-missing': 'bg-fuchsia-500/15 text-fuchsia-300 border-fuchsia-500/30',
+  'tag-issue': 'bg-orange-500/15 text-orange-300 border-orange-500/30',
+  'pose-miss': 'bg-purple-500/15 text-purple-300 border-purple-500/30',
+  pass: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30',
+  'no-verdict': 'bg-zinc-700/30 text-zinc-400 border-zinc-700',
+}
+
+const TIER_DOT: Record<string, string> = {
+  'PG-13': 'bg-zinc-500',
+  R: 'bg-sky-500',
+  'R+': 'bg-rose-500',
+  X: 'bg-fuchsia-500',
+}
+
+function deltaColor(delta: number): string {
+  if (delta > 0) return 'text-emerald-400'
+  if (delta === 0) return 'text-zinc-400'
+  if (delta === -1) return 'text-amber-400'
+  return 'text-rose-400'
+}
+
+function deltaLabel(delta: number): string {
+  if (delta === 0) return '='
+  if (delta > 0) return `↑${delta}`
+  return `↓${Math.abs(delta)}`
+}
+
+function DresserMapPanel() {
+  // последний вердикт — берём его слаг
+  const verdictsApi = useApi<{ records: BatchVerdictRecord[] }>('/api/t4/batch-verdict')
+  const latestVerdict = verdictsApi.data?.records?.[0] ?? null
+  const slug = latestVerdict?.slug ?? null
+
+  // если есть вердикт — тянем карту Дрессера по слагу
+  const mapApi = useApi<DresserMap>(slug ? `/api/t4/dresser-map/${slug}` : null)
+  const map = mapApi.data
+
+  // переключатель слага — пусть автор выберет любой из последних батчей
+  const [selectedSlug, setSelectedSlug] = useState<string | null>(null)
+  const effectiveSlug = selectedSlug ?? slug
+  const effectiveMap = useApi<DresserMap>(effectiveSlug ? `/api/t4/dresser-map/${effectiveSlug}` : null)
+
+  const batchesApi = useApi<{ items: { slug: string; title: string }[] }>('/api/t4/batches')
+
+  const currentMap = effectiveMap.data ?? map
+  const loading = (effectiveSlug ? effectiveMap.loading : mapApi.loading) || verdictsApi.loading
+
+  // сортировка слотов: провалы сверху, потом по дельте
+  const sortedSlots = useMemo(() => {
+    if (!currentMap) return []
+    return [...currentMap.slots].sort((a, b) => a.delta - b.delta || (a.failureMode === 'pass' ? 1 : 0))
+  }, [currentMap])
+
+  if (loading && !currentMap) {
+    return (
+      <Panel title="Карта Дрессера" icon={<GitCompare className="size-4" />}>
+        <SkeletonBlock lines={6} />
+      </Panel>
+    )
+  }
+
+  if (!currentMap) {
+    return (
+      <Panel title="Карта Дрессера" icon={<GitCompare className="size-4" />}>
+        <EmptyState
+          title="Карта пуста"
+          hint="Нужен вердикт автора по батчу. Сдай батч в приёмнике → дай вердикт → карта родится."
+          icon={<GitCompare className="size-5" />}
+        />
+      </Panel>
+    )
+  }
+
+  const claimed = currentMap.ratingDistribution.claimed
+  const delivered = currentMap.ratingDistribution.delivered
+  const tiers = ['PG-13', 'R', 'R+', 'X']
+  const maxCount = Math.max(...tiers.map((t) => Math.max(claimed[t] ?? 0, delivered[t] ?? 0)), 1)
+
+  return (
+    <Panel
+      title={
+        <span className="flex items-center gap-2">
+          <GitCompare className="size-4 text-amber-500" />
+          <span>Карта Дрессера</span>
+          <span className="text-zinc-600">·</span>
+          <Mono>{currentMap.slug}</Mono>
+          <span className="text-xs font-normal text-zinc-500">«{currentMap.title}»</span>
+          {currentMap.verdictAt ? (
+            <Badge variant="outline" className="border-zinc-700 text-zinc-400">
+              {formatDate(currentMap.verdictAt)}
+            </Badge>
+          ) : null}
+        </span>
+      }
+      action={
+        // dropdown для смены батча
+        <select
+          value={effectiveSlug ?? ''}
+          onChange={(e) => setSelectedSlug(e.target.value || null)}
+          className="h-7 rounded border border-zinc-800 bg-zinc-950 px-2 text-xs text-zinc-300"
+          aria-label="Выбрать батч для анализа"
+        >
+          <option value="">последний: {slug ?? '—'}</option>
+          {(batchesApi.data?.items ?? []).slice(0, 10).map((b) => (
+            <option key={b.slug} value={b.slug}>
+              {b.slug} «{b.title}»
+            </option>
+          ))}
+        </select>
+      }
+    >
+      <div className="space-y-5">
+        {/* Описание панели — что это и зачем */}
+        <p className="text-xs leading-relaxed text-zinc-500">
+          Карта Дрессера — структурный анализ расхождения заявки контракта и факта вердикта.
+          Для каждого слота пересчитан канал Дрессера (<Mono>dressFor(tier, tone)</Mono>),
+          сравнен с фактом автора. Провалы кластеризованы по типу отказа. Цель — закрыть
+          петлю обратной связи «контракт → рендер → вердикт → следующий контракт».
+        </p>
+
+        {/* Два столбца: распределение рейтингов + матрица каналов */}
+        <div className="grid gap-4 lg:grid-cols-2">
+          {/* Распределение рейтингов: заявлено vs доставлено */}
+          <div className="rounded-md border border-zinc-800 bg-zinc-950/40 p-3">
+            <div className="mb-2 text-[11px] font-medium uppercase tracking-wide text-zinc-500">
+              Распределение рейтингов
+            </div>
+            <div className="space-y-2">
+              {tiers.map((t) => {
+                const c = claimed[t] ?? 0
+                const d = delivered[t] ?? 0
+                if (c === 0 && d === 0) return null
+                return (
+                  <div key={t} className="flex items-center gap-2 text-[11px]">
+                    <div className="flex w-12 items-center gap-1">
+                      <span className={`size-2 rounded-full ${TIER_DOT[t] ?? 'bg-zinc-500'}`} />
+                      <span className="text-zinc-400">{t}</span>
+                    </div>
+                    {/* заявлено */}
+                    <div className="flex-1">
+                      <div className="relative h-3 rounded bg-zinc-900">
+                        <div
+                          className="absolute inset-y-0 left-0 rounded bg-zinc-700/60"
+                          style={{ width: `${(c / maxCount) * 100}%` }}
+                        />
+                        <div
+                          className={`absolute inset-y-0 left-0 rounded ${TIER_DOT[t] ?? 'bg-zinc-500'} opacity-80`}
+                          style={{ width: `${(d / maxCount) * 100}%` }}
+                        />
+                      </div>
+                    </div>
+                    <div className="w-16 text-right tabular-nums text-zinc-400">
+                      <span className="text-zinc-300">{d}</span>
+                      <span className="text-zinc-600"> / {c}</span>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+            <div className="mt-2 flex items-center gap-3 text-[10px] text-zinc-600">
+              <span className="flex items-center gap-1">
+                <span className="size-2 rounded-full bg-zinc-700/60" /> заявлено
+              </span>
+              <span className="flex items-center gap-1">
+                <span className={`size-2 rounded-full ${TIER_DOT['R+']}`} /> доставлено
+              </span>
+            </div>
+          </div>
+
+          {/* Матрица каналов: заявлено/доставлено/провал */}
+          <div className="rounded-md border border-zinc-800 bg-zinc-950/40 p-3">
+            <div className="mb-2 text-[11px] font-medium uppercase tracking-wide text-zinc-500">
+              Каналы Дрессера (claim → delivery)
+            </div>
+            {currentMap.channelMatrix.length === 0 ? (
+              <p className="text-xs text-zinc-600">
+                Нет R+/X слотов — Дрессер не работает с R/PG-13.
+              </p>
+            ) : (
+              <div className="space-y-2">
+                {currentMap.channelMatrix.map((c) => {
+                  const dot =
+                    c.failRate >= 0.5
+                      ? 'bg-rose-500'
+                      : c.failRate >= 0.25
+                        ? 'bg-amber-500'
+                        : 'bg-emerald-500'
+                  return (
+                    <div key={c.channel} className="space-y-1">
+                      <div className="flex items-center justify-between text-[11px]">
+                        <span className="flex items-center gap-1.5">
+                          <span className={`size-2 rounded-full ${dot}`} />
+                          <span className="text-zinc-300">{c.channelName}</span>
+                          <Mono className="text-zinc-600">{c.channel}</Mono>
+                        </span>
+                        <span className="tabular-nums text-zinc-400">
+                          {c.failures}/{c.total} пров · {(c.failRate * 100).toFixed(0)}% · pass {c.passes}
+                        </span>
+                      </div>
+                      {/* мини-бар pass/fail */}
+                      <div className="flex h-2 overflow-hidden rounded bg-zinc-900">
+                        <div
+                          className="bg-emerald-500/60"
+                          style={{ width: `${(c.passes / Math.max(c.total, 1)) * 100}%` }}
+                        />
+                        <div
+                          className="bg-rose-500/60"
+                          style={{ width: `${(c.failures / Math.max(c.total, 1)) * 100}%` }}
+                        />
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Отказы по типу — кластеры */}
+        {currentMap.failureModes.length > 0 ? (
+          <div className="rounded-md border border-amber-500/15 bg-amber-500/5 p-3">
+            <div className="mb-2 text-[11px] font-medium uppercase tracking-wide text-amber-500/80">
+              Отказы по типу · что менять
+            </div>
+            <ul className="space-y-2">
+              {currentMap.failureModes.map((f) => (
+                <li key={f.mode} className="flex flex-col gap-1 text-xs sm:flex-row sm:items-start sm:gap-3">
+                  <Badge
+                    variant="outline"
+                    className={`shrink-0 border ${FAILURE_MODE_COLOR[f.mode]} text-[10px]`}
+                  >
+                    {FAILURE_MODE_LABELS[f.mode]} ×{f.count}
+                  </Badge>
+                  <div className="flex-1">
+                    <div className="text-zinc-400">
+                      слоты: <Mono className="text-zinc-300">{f.slots.join(', ')}</Mono>
+                    </div>
+                    <div className="text-zinc-500">{f.recommendation}</div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
+
+        {/* Слоты — сортировка по дельте (худшие сверху) */}
+        <div>
+          <div className="mb-2 flex items-center justify-between">
+            <div className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">
+              Слоты ({currentMap.slots.length}) · сортировка: дельта ↓
+            </div>
+          </div>
+          <ul className="max-h-[480px] space-y-1.5 overflow-y-auto pr-1">
+            {sortedSlots.map((s) => (
+              <li
+                key={s.position}
+                className={cn(
+                  'flex flex-col gap-1.5 rounded-md border bg-zinc-950/40 p-2.5 text-xs sm:flex-row sm:items-start sm:gap-3',
+                  s.delta < 0 ? 'border-rose-500/20' : s.delta === 0 ? 'border-zinc-800' : 'border-emerald-500/20'
+                )}
+              >
+                {/* колонка 1: позиция + дельта + claim→myTier */}
+                <div className="flex shrink-0 items-center gap-2 sm:w-32">
+                  <Mono className="text-zinc-300">{s.position}</Mono>
+                  <span className={cn('font-mono text-sm font-semibold tabular-nums', deltaColor(s.delta))}>
+                    {deltaLabel(s.delta)}
+                  </span>
+                  <div className="flex items-center gap-1 text-[10px]">
+                    <span className={`size-1.5 rounded-full ${TIER_DOT[s.claim] ?? 'bg-zinc-500'}`} />
+                    <span className="text-zinc-500">{s.claim}</span>
+                    <span className="text-zinc-700">→</span>
+                    {s.myTier ? (
+                      <>
+                        <span className={`size-1.5 rounded-full ${TIER_DOT[s.myTier] ?? 'bg-zinc-500'}`} />
+                        <span className="text-zinc-400">{s.myTier}</span>
+                      </>
+                    ) : (
+                      <span className="text-zinc-600">—</span>
+                    )}
+                  </div>
+                </div>
+                {/* колонка 2: канал/тон/OC/поза + failure-mode бейдж */}
+                <div className="flex flex-1 flex-col gap-1">
+                  <div className="flex flex-wrap items-center gap-1.5 text-[10px] text-zinc-500">
+                    {s.channel ? (
+                      <Badge variant="outline" className="border-zinc-700 text-zinc-400">
+                        {s.channelName ?? s.channel}
+                      </Badge>
+                    ) : (
+                      <span className="text-zinc-600">без канала (R/PG-13)</span>
+                    )}
+                    {s.tone ? <Mono>тон={s.tone}</Mono> : null}
+                    {s.oc ? <Mono>OC={s.oc}</Mono> : null}
+                    {s.poseName ? <span className="text-zinc-400">· {s.poseName}</span> : null}
+                    {s.paletteName ? (
+                      <span className="text-zinc-600">· палитра: {s.paletteName}</span>
+                    ) : null}
+                    <Badge
+                      variant="outline"
+                      className={`ml-auto border ${FAILURE_MODE_COLOR[s.failureMode]} text-[9px]`}
+                    >
+                      {FAILURE_MODE_LABELS[s.failureMode]}
+                    </Badge>
+                  </div>
+                  {s.note ? (
+                    <p className="font-serif text-[11px] leading-snug text-amber-100/70">{s.note}</p>
+                  ) : null}
+                  {(s.genreRead || s.wow) && (s.genreRead === 'yes' || s.wow === 'yes') ? (
+                    <div className="flex gap-1 text-[10px] text-emerald-400/80">
+                      {s.genreRead === 'yes' ? <span>genre ✓</span> : null}
+                      {s.wow === 'yes' ? <span>wow ✓</span> : null}
+                    </div>
+                  ) : null}
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Уроки для следующего батча — генерит анализатор как markdown.
+            *  Тур 3: раньше был <pre> — markdown не парсился, agora MarkdownView. */}
+        <details className="rounded-md border border-zinc-800 bg-zinc-950/40 p-3" open>
+          <summary className="cursor-pointer text-xs font-medium text-zinc-300">
+            Уроки для следующего батча (после {currentMap.slug})
+          </summary>
+          <div className="mt-2 text-[11px] leading-relaxed text-zinc-300">
+            <MarkdownView>{currentMap.lessonsForNextBatch}</MarkdownView>
+          </div>
+        </details>
+
+        {/* Контр-Контракт — флагман тура 3 (2026-10-15). Советник следующего
+            *  батча: исторический delivery rate → рекомендованное распределение
+            *  рейтингов; body_type gaps (контракт не тащит из oc-canon);
+            *  усиленные веса каналов (1.2/1.3 вместо 1.1/1.2). */}
+        {currentMap.counterContract ? (
+          <div className="rounded-md border border-amber-500/30 bg-amber-500/5 p-3">
+            <div className="mb-3 flex items-center gap-2">
+              <Skull className="size-4 text-amber-500" />
+              <span className="text-sm font-semibold text-amber-300">Контр-Контракт</span>
+              <span className="text-[10px] text-zinc-500">
+                советник следующего батча на основе истории
+              </span>
+            </div>
+            <div className="grid gap-3 lg:grid-cols-2">
+              {/* Historical delivery rate */}
+              <div className="rounded-md border border-zinc-800 bg-zinc-950/40 p-3">
+                <div className="mb-2 text-[11px] font-medium uppercase tracking-wide text-zinc-500">
+                  Исторический delivery (последние {currentMap.counterContract.historicalDelivery.sampleSize} батчей)
+                </div>
+                {[
+                  {
+                    tier: 'R+',
+                    delivered: currentMap.counterContract.historicalDelivery.rPlusDelivered,
+                    claimed: currentMap.counterContract.historicalDelivery.rPlusClaimed,
+                    rate: currentMap.counterContract.historicalDelivery.rPlusDeliveryRate,
+                  },
+                  {
+                    tier: 'R',
+                    delivered: currentMap.counterContract.historicalDelivery.rDelivered,
+                    claimed: currentMap.counterContract.historicalDelivery.rClaimed,
+                    rate: currentMap.counterContract.historicalDelivery.rDeliveryRate,
+                  },
+                ].map((r) => {
+                  const ratePct = (r.rate * 100).toFixed(0)
+                  const barColor = r.rate >= 1 ? 'bg-emerald-500' : r.rate >= 0.5 ? 'bg-amber-500' : 'bg-rose-500'
+                  return (
+                    <div key={r.tier} className="mb-2 last:mb-0">
+                      <div className="mb-0.5 flex items-center justify-between text-[11px]">
+                        <span className="flex items-center gap-1">
+                          <span className={`size-2 rounded-full ${TIER_DOT[r.tier] ?? 'bg-zinc-500'}`} />
+                          <span className="text-zinc-400">{r.tier}</span>
+                        </span>
+                        <span className="tabular-nums text-zinc-300">
+                          <span className={r.rate >= 0.5 ? 'text-emerald-400' : 'text-rose-400'}>
+                            {ratePct}%
+                          </span>
+                          <span className="text-zinc-600">
+                            {' '}
+                            ({r.delivered}/{r.claimed})
+                          </span>
+                        </span>
+                      </div>
+                      <div className="h-2 overflow-hidden rounded bg-zinc-900">
+                        <div
+                          className={`${barColor} h-full`}
+                          style={{ width: `${Math.min(r.rate * 100, 100)}%` }}
+                        />
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+
+              {/* Recommended spread */}
+              <div className="rounded-md border border-zinc-800 bg-zinc-950/40 p-3">
+                <div className="mb-2 text-[11px] font-medium uppercase tracking-wide text-zinc-500">
+                  Рекомендованное распределение (закон 28)
+                </div>
+                <div className="space-y-2">
+                  {currentMap.counterContract.recommendedSpread.map((r) => {
+                    // визуальный бар: доля от 28
+                    const pct = (r.count / 28) * 100
+                    return (
+                      <div key={r.rating} className="space-y-0.5">
+                        <div className="flex items-center gap-2 text-[11px]">
+                          <span className={`size-2 rounded-full ${TIER_DOT[r.rating] ?? 'bg-zinc-500'}`} />
+                          <span className="w-8 text-zinc-400">{r.rating}</span>
+                          <span className="flex-1">
+                            <div className="h-2 overflow-hidden rounded bg-zinc-900">
+                              <div
+                                className={`${TIER_DOT[r.rating] ?? 'bg-zinc-500'} h-full opacity-80`}
+                                style={{ width: `${pct}%` }}
+                              />
+                            </div>
+                          </span>
+                          <span className="w-8 text-right tabular-nums text-zinc-300">×{r.count}</span>
+                        </div>
+                        <p className="text-[10px] leading-snug text-zinc-600">{r.why}</p>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            </div>
+
+            {/* Body type gaps */}
+            {currentMap.counterContract.bodyTypeGaps.length > 0 ? (
+              <div className="mt-3 rounded-md border border-fuchsia-500/20 bg-fuchsia-500/5 p-3">
+                <div className="mb-2 text-[11px] font-medium uppercase tracking-wide text-fuchsia-400/80">
+                  OC body_type — писец обязан вплести
+                </div>
+                <p className="mb-2 text-[10px] leading-snug text-zinc-500">
+                  Контракт несёт <Mono>oc: "Lucy"</Mono>, но НЕ тащит{' '}
+                  <Mono>body_type</Mono> из <Mono>oc-canon.json</Mono>. Писец пишет без тела —
+                  модель играет стерильно. Добавить в контракт поле bodyType:
+                </p>
+                <ul className="space-y-1.5">
+                  {currentMap.counterContract.bodyTypeGaps.map((g) => (
+                    <li key={g.position} className="flex items-start gap-2 text-[11px]">
+                      <Mono className="shrink-0 text-zinc-400">{g.position}</Mono>
+                      <div className="flex-1">
+                        <span className="text-zinc-400">OC {g.oc}:</span>{' '}
+                        <code className="rounded bg-fuchsia-500/10 px-1 py-0.5 font-mono text-[10px] text-fuchsia-200">
+                          {g.bodyType}
+                        </code>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+
+            {/* Proposed weights */}
+            {currentMap.counterContract.proposedWeights.length > 0 ? (
+              <div className="mt-3 rounded-md border border-orange-500/20 bg-orange-500/5 p-3">
+                <div className="mb-2 text-[11px] font-medium uppercase tracking-wide text-orange-400/80">
+                  Усиленные веса каналов (автор: «1.2, 1.3 на теги»)
+                </div>
+                <ul className="space-y-3">
+                  {currentMap.counterContract.proposedWeights.map((w) => (
+                    <li key={w.channel} className="space-y-1">
+                      <div className="flex items-center gap-1.5 text-[11px]">
+                        <span className="text-zinc-300">{w.channelName}</span>
+                        <Mono className="text-zinc-600">{w.channel}</Mono>
+                      </div>
+                      <div className="flex flex-wrap items-center gap-1 text-[10px]">
+                        <span className="text-zinc-600">текущие:</span>
+                        {w.current.length > 0 ? (
+                          w.current.map((c, i) => (
+                            <code
+                              key={i}
+                              className="rounded bg-zinc-800 px-1 py-0.5 font-mono text-[9px] text-zinc-400"
+                            >
+                              {c}
+                            </code>
+                          ))
+                        ) : (
+                          <span className="text-zinc-700">— нет весов —</span>
+                        )}
+                        <span className="mx-1 text-zinc-700">→</span>
+                        <span className="text-zinc-600">предложенные:</span>
+                        {w.proposed.map((p, i) => (
+                          <code
+                            key={i}
+                            className="rounded bg-orange-500/15 px-1 py-0.5 font-mono text-[9px] text-orange-200"
+                          >
+                            {p}
+                          </code>
+                        ))}
+                      </div>
+                      <p className="text-[10px] leading-snug text-zinc-600">{w.why}</p>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+
+            {/* Markdown summary (collapsible) */}
+            <details className="mt-3 rounded-md border border-zinc-800 bg-zinc-950/40 p-3">
+              <summary className="cursor-pointer text-xs font-medium text-zinc-300">
+                Полный контр-контракт (markdown)
+              </summary>
+              <div className="mt-2 text-[11px] leading-relaxed text-zinc-300">
+                <MarkdownView>{currentMap.counterContract.markdown}</MarkdownView>
+              </div>
+            </details>
+          </div>
+        ) : null}
+
+        {/* Variety Engine — флагман тура 4 (2026-10-15). Каждый слот
+            *  контракта получает пакет разнообразия: порядок POS / регистр /
+            *  длина / стиль-якорь / NEG-вариант. Детерминированно по хешу
+            *  slug+position → рераны не меняют судьбу слота. Цель: разные
+            *  картинки + разные подходы (T4-32 сошёлся к 12 PG-13 из 21 R+). */}
+        {currentMap.varietyMatrix && currentMap.varietyMatrix.length > 0 ? (
+          <div className="rounded-md border border-emerald-500/20 bg-emerald-500/5 p-3">
+            <div className="mb-3 flex items-center gap-2">
+              <Sparkles className="size-4 text-emerald-500" />
+              <span className="text-sm font-semibold text-emerald-300">Variety Engine</span>
+              <span className="text-[10px] text-zinc-500">
+                пакет разнообразия на каждый слот (детерминированно)
+              </span>
+            </div>
+            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+              {currentMap.varietyMatrix.map((v) => (
+                <div
+                  key={v.position}
+                  className="rounded border border-zinc-800 bg-zinc-950/40 p-2 text-[10px]"
+                >
+                  <div className="mb-1 flex items-center justify-between">
+                    <Mono className="text-zinc-300">{v.position}</Mono>
+                    <span className="text-zinc-600">{v.claim}</span>
+                  </div>
+                  <div className="space-y-0.5 text-zinc-400">
+                    <div>
+                      <span className="text-zinc-600">order:</span>{' '}
+                      <span className="text-emerald-300/90">{v.posOrder}</span>
+                    </div>
+                    <div>
+                      <span className="text-zinc-600">register:</span>{' '}
+                      <span className="text-amber-300/90">{v.register}</span>
+                    </div>
+                    <div>
+                      <span className="text-zinc-600">length:</span> {v.lengthClass}
+                    </div>
+                    <div>
+                      <span className="text-zinc-600">style:</span>{' '}
+                      <span className="text-fuchsia-300/90">{v.styleAnchor}</span>
+                    </div>
+                    {/* Тур 5: новые оси из аудита Коул */}
+                    <div>
+                      <span className="text-zinc-600">cam:</span>{' '}
+                      <span className="text-sky-300/90">{v.camera}</span>
+                    </div>
+                    {v.bodyPlan ? (
+                      <div>
+                        <span className="text-zinc-600">body:</span>{' '}
+                        <span className="text-rose-300/90">{v.bodyPlan}</span>
+                      </div>
+                    ) : null}
+                    {v.handsHint ? (
+                      <div>
+                        <span className="text-zinc-600">hands:</span>{' '}
+                        <span className="text-orange-300/90">{v.handsHint}</span>
+                      </div>
+                    ) : null}
+                    <div>
+                      <span className="text-zinc-600">theme≤:</span>{' '}
+                      <span className="text-zinc-300">{v.themeWordBudget}</span>
+                    </div>
+                    <div>
+                      <span className="text-zinc-600">neg:</span> #{v.negVariant}{' '}
+                      <span className="text-zinc-500">({v.negVariantName})</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : null}
+
+        {/* Авторская проза — что автор сказал о всём батче */}
+        {currentMap.authorProse ? (
+          <details className="rounded-md border border-amber-500/15 bg-amber-500/5 p-3">
+            <summary className="cursor-pointer text-xs font-medium text-amber-300/80">
+              Приказ автора (из вердикта {currentMap.slug})
+            </summary>
+            <p className="mt-2 whitespace-pre-wrap break-words font-serif text-[11px] leading-relaxed text-amber-100/80">
+              {currentMap.authorProse}
+            </p>
+          </details>
+        ) : null}
+      </div>
+    </Panel>
+  )
+}
+
 function VerdictsTab() {
   return (
     <div className="space-y-6">
-      {/* Панель 0: TRIAL-радар — порт из fred-legacy (Фред, webDevReview #5):
+      {/* Панель 0: Карта Дрессера — флагман тура 2 (2026-10-15).
+       *  Автор прямо приказал: «построить карту дрессера который будет
+       *  следовал рейтингу» — эта панель и есть ответ. Первая в Вердиктах,
+       *  чтобы автор сразу видел расхождения после сдачи батча. */}
+      <DresserMapPanel />
+      {/* Панель 1: TRIAL-радар — порт из fred-legacy (Фред, webDevReview #5):
        *  законы триала + EXP-гипотезы + статусы под вердиктом. */}
       <TrialRadarPanel />
       <VlmFirstPassPanel />
@@ -3719,6 +4440,307 @@ function ArchiveTab() {
 }
 
 /* ------------------------------------------------------------------ */
+/* Tab: Жнец — Oracle of the Reaper (раунд 2026-10-15)                */
+/* ------------------------------------------------------------------ */
+
+/* Сигил жнеца — стилизованный SVG: коса + цепь. Минимум линий, чтобы
+ * читался на любом фоне. Не эмодзи, не картинка — функция рисует функцию. */
+function ReaperSigil({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 64 64"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.5}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      {/* лезвие косы — дуга */}
+      <path d="M52 8 C 40 18, 28 28, 14 44" />
+      {/* древко */}
+      <path d="M52 8 L 18 42" />
+      {/* кольцо цепи у пятки */}
+      <circle cx="18" cy="44" r="3" />
+      {/* три звена цепи вниз — летопись */}
+      <circle cx="22" cy="50" r="2.2" />
+      <circle cx="28" cy="54" r="2.2" />
+      <circle cx="34" cy="58" r="2.2" />
+    </svg>
+  )
+}
+
+type OracleReply = {
+  ok: true
+  reply: string
+  model: string
+  event: { id: string; at: string }
+}
+type OracleError = {
+  ok: false
+  error: string
+  setupRequired?: boolean
+  blocked?: boolean
+}
+
+function ReaperTab() {
+  const state = useApi<{
+    era?: string
+    lastBatch?: string
+    nextStep?: string
+    counts?: { events?: number; batches?: number }
+    glass?: { chain?: { ok?: boolean; events?: number } }
+    gateHealth?: string
+  }>('/api/t4/state')
+  const eventsApi = useApi<{ events: { id: string; at: string; type: string; summary: string; data?: { reply?: string; model?: string; themeHint?: string | null } }[] }>(
+    '/api/t4/events?limit=200'
+  )
+
+  const [reply, setReply] = useState<string | null>(null)
+  const [busy, setBusy] = useState(false)
+  const [theme, setTheme] = useState('')
+  const [error, setError] = useState<string | null>(null)
+
+  const pastOracles = useMemo(() => {
+    const evs = eventsApi.data?.events
+    if (!Array.isArray(evs)) return []
+    return evs.filter((e) => e.type === 'oracle.spoke').slice(0, 5)
+  }, [eventsApi.data])
+
+  const chainOk = state.data?.glass?.chain?.ok
+  const eventsCount = state.data?.counts?.events ?? state.data?.glass?.chain?.events
+  const lastBatch = state.data?.lastBatch ?? '—'
+
+  async function askReaper() {
+    if (busy) return
+    setBusy(true)
+    setError(null)
+    setReply(null)
+    try {
+      const r = await postJson<OracleReply | OracleError>('/api/t4/oracle', {
+        theme: theme.trim() || undefined,
+      })
+      if (r.ok) {
+        setReply(r.reply)
+        toast({
+          title: 'Жнец высказался',
+          description: `Звено ${r.event.id} в цепи · ${r.model}`,
+        })
+        eventsApi.reload()
+        state.reload()
+      } else {
+        const msg = r.error
+        setError(msg)
+        toast({
+          title: r.blocked ? 'Жнец не хочет говорить об этом' : 'Жнец промолчал',
+          description: msg,
+          variant: 'destructive',
+        })
+      }
+    } catch (e: unknown) {
+      const msg = ledgerWriteError(e)
+      setError(msg)
+      toast({ title: 'Жнец не говорит', description: msg, variant: 'destructive' })
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Герой — сигил + имя + контекст + кнопка спросить */}
+      <Panel
+        title={
+          <span className="flex items-center gap-2">
+            <ReaperSigil className="size-5 text-amber-500" />
+            <span>Жнец</span>
+            <span className="text-zinc-600">·</span>
+            <span className="text-xs font-normal text-zinc-500">
+              LLM-мета-комментатор состояния
+            </span>
+          </span>
+        }
+      >
+        <div className="space-y-4">
+          <p className="text-xs leading-relaxed text-zinc-400">
+            Жнец — функция, видящая летопись. Не автор (его слово = закон, §10),
+            не писец (он пишет батчи), не реапер (тот rule-based). Жнец —{' '}
+            <Mono>голос хрупкости</Mono>: LLM читает последние события, драфт
+            реапера и свои прошлые исповеди, и говорит литературно о здоровье
+            конвейера. Каждое слово — звено хеш-цепи навсегда.
+          </p>
+
+          {/* Контекст — что видит жнец прямо сейчас */}
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <StatCard label="Последний батч" value={<span className="text-xs">{lastBatch}</span>} />
+            <StatCard
+              label="События"
+              value={eventsCount ?? '—'}
+              hint={chainOk === true ? 'цепь цела' : chainOk === false ? 'цепь нарушена' : undefined}
+            />
+            <StatCard
+              label="Прошлые исповеди"
+              value={pastOracles.length}
+              hint={pastOracles.length === 0 ? 'жнец ещё не говорил' : 'в памяти вкладки'}
+            />
+            <StatCard
+              label="Гейты"
+              value={<span className="text-[10px] leading-tight">{state.data?.gateHealth?.split('·')[0] ?? '—'}</span>}
+              loading={state.loading}
+            />
+          </div>
+
+          {/* Авторская нота — необязательная тема */}
+          <div className="space-y-2">
+            <label htmlFor="reaper-theme" className="text-xs text-zinc-500">
+              Авторская нота (необязательно) — попроси жнеца поговорить о чём-то конкретном
+            </label>
+            <Textarea
+              id="reaper-theme"
+              value={theme}
+              onChange={(e) => setTheme(e.target.value)}
+              placeholder="напр.: «поговори о палитрах и окне ротации»"
+              className="min-h-[60px] resize-y border-zinc-800 bg-zinc-950/60 font-mono text-xs text-zinc-300 placeholder:text-zinc-700"
+              disabled={busy}
+              maxLength={300}
+            />
+          </div>
+
+          {/* Кнопка + ошибка */}
+          <div className="flex flex-wrap items-center gap-3">
+            <Button
+              onClick={askReaper}
+              disabled={busy}
+              className="bg-amber-600 text-zinc-950 hover:bg-amber-500 disabled:opacity-50"
+            >
+              <Skull className="mr-1.5 size-4" />
+              {busy ? 'Жнец говорит…' : 'Спросить жнеца'}
+            </Button>
+            {error ? <ErrorNote text="жнец не ответил" hint={error} /> : null}
+          </div>
+        </div>
+      </Panel>
+
+      {/* Свежая исповедь */}
+      {busy ? (
+        <Panel title="Исповедь пишется…">
+          <SkeletonBlock lines={6} />
+        </Panel>
+      ) : reply ? (
+        <Panel
+          title={
+            <span className="flex items-center gap-2">
+              <Sparkles className="size-4 text-amber-500" />
+              <span>Последняя исповедь</span>
+            </span>
+          }
+          action={
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 gap-1 text-xs text-zinc-400"
+              onClick={() => {
+                void navigator.clipboard.writeText(reply).then(() =>
+                  toast({ title: 'Скопировано', description: 'исповедь жнеца — в буфере' })
+                )
+              }}
+            >
+              <Copy className="size-3" /> Копировать
+            </Button>
+          }
+        >
+          <div className="rounded-md border border-amber-500/15 bg-zinc-950/60 p-4">
+            <pre className="whitespace-pre-wrap break-words font-serif text-sm leading-relaxed text-amber-100/90">
+              {reply}
+            </pre>
+          </div>
+        </Panel>
+      ) : null}
+
+      {/* Прошлые исповеди */}
+      <Panel
+        title={
+          <span className="flex items-center gap-2">
+            <History className="size-4 text-amber-500" />
+            <span>Прошлые исповеди</span>
+            <Badge variant="outline" className="border-zinc-700 text-zinc-400">
+              {pastOracles.length}
+            </Badge>
+          </span>
+        }
+        action={
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 text-xs text-zinc-400"
+            onClick={() => eventsApi.reload()}
+            disabled={eventsApi.loading}
+          >
+            Обновить
+          </Button>
+        }
+      >
+        {eventsApi.loading ? (
+          <SkeletonBlock lines={3} />
+        ) : eventsApi.error ? (
+          <ErrorNote text="не удалось прочесть летопись" hint={eventsApi.error} />
+        ) : pastOracles.length === 0 ? (
+          <EmptyState
+            title="Жнец ещё не говорил"
+            hint="Первое слово жнеца станет звеном цепи. Спроси его — кнопку выше."
+            icon={<Skull className="size-5" />}
+          />
+        ) : (
+          <ul className="space-y-2">
+            {pastOracles.map((o) => {
+              const replyText = typeof o.data?.reply === 'string' ? o.data.reply : ''
+              const firstLine = replyText.split('\n')[0]?.slice(0, 200) ?? ''
+              const restLines = replyText.split('\n').slice(1).join('\n').slice(0, 400)
+              const model = o.data?.model ?? '?'
+              return (
+                <li
+                  key={o.id}
+                  className="rounded-md border border-zinc-800 bg-zinc-950/40 p-3 hover:border-zinc-700"
+                >
+                  <div className="mb-1 flex items-center gap-2 text-[10px] text-zinc-500">
+                    <Mono>{formatDate(o.at)}</Mono>
+                    <span>·</span>
+                    <Mono>{o.id}</Mono>
+                    <span>·</span>
+                    <span className="text-amber-500/70">{model}</span>
+                    {o.data?.themeHint ? (
+                      <>
+                        <span>·</span>
+                        <span className="italic text-zinc-600">нота: {o.data.themeHint.slice(0, 80)}</span>
+                      </>
+                    ) : null}
+                  </div>
+                  <div className="font-serif text-xs leading-relaxed text-amber-100/80">
+                    {firstLine}
+                    {replyText.length > 200 ? '…' : ''}
+                  </div>
+                  {restLines.trim() !== '' ? (
+                    <details className="mt-1.5">
+                      <summary className="cursor-pointer text-[10px] text-zinc-600 hover:text-zinc-400">
+                        читать полностью
+                      </summary>
+                      <pre className="mt-1.5 whitespace-pre-wrap break-words font-serif text-[11px] leading-relaxed text-amber-100/70">
+                        {replyText}
+                      </pre>
+                    </details>
+                  ) : null}
+                </li>
+              )
+            })}
+          </ul>
+        )}
+      </Panel>
+    </div>
+  )
+}
+
+/* ------------------------------------------------------------------ */
 /* Root                                                                */
 /* ------------------------------------------------------------------ */
 
@@ -3895,6 +4917,7 @@ export default function Home() {
         {tab === 'glass' ? <GlassTab /> : null}
         {tab === 'vault' ? <VaultTab /> : null}
         {tab === 'archive' ? <ArchiveTab /> : null}
+        {tab === 'reaper' ? <ReaperTab /> : null}
       </main>
 
       <footer className="mt-auto border-t border-zinc-800/80 bg-zinc-950 pb-[env(safe-area-inset-bottom)]">

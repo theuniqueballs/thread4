@@ -1027,6 +1027,9 @@ export function planRawPlus(opts: PlanOptions): RawPlusPlan {
         state: code.stateTags,
         underlayer: code.underlayer,
         weights: code.weights,
+        /* Тур 4 (приказ автора 2026-10-15): negWeights — веса в NEG, раз не
+         *  через PH. Копируем из dressFor в контракт, писец вплетает в NEG. */
+        negWeights: code.negWeights,
         law: code.law,
       }
     }

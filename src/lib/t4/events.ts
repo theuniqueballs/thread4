@@ -39,6 +39,11 @@ export const EVENT_TYPES = [
   'author.pinned',
   'channel.retired',
   'scribe.objection',
+  // Преемник Фреда, 2026-10-15: голос жнеца — литературный мета-комментатор
+  // состояния конвейера. LLM-генерируемый, не авторский; data.model + data.reply
+  // обязательны (семантика ниже). Событие пишется в летопись = становится
+  // частью хеш-цепи навсегда. Один оператор (ключ командира), один канал.
+  'oracle.spoke',
   'note',
 ] as const
 
@@ -88,6 +93,24 @@ function assertBornSemantics(type: string, data?: Record<string, unknown>): void
     if (src === 'author' && conf == null) {
       throw new Error(
         `event born wounded: author-verdict требует confidence: ${CONFIDENCE_LEVELS.join(' | ')} (Issue #4 Кенни)`
+      )
+    }
+  }
+  /* oracle.spoke (2026-10-15): жнец говорит — обязательно data.model (какая
+   * LLM сказала) и data.reply (что сказала, 50..4000 симв). data.prompt —
+   * усечённый промпт для воспроизводимости. Семантика на рождении, как у
+   * render.verdict: поле идентичности модели — enum-строка, не проза. */
+  if (type === 'oracle.spoke') {
+    const model = data?.model
+    if (typeof model !== 'string' || model.trim() === '') {
+      throw new Error(
+        'event born wounded: oracle.spoke требует data.model (строка, какая LLM говорила) — анонимный оракул запрещён'
+      )
+    }
+    const reply = data?.reply
+    if (typeof reply !== 'string' || reply.length < 50 || reply.length > 4000) {
+      throw new Error(
+        `event born wounded: oracle.spoke требует data.reply 50..4000 симв (получено ${typeof reply === 'string' ? reply.length : 0}) — пустая или бесконечная исповедь жнеца не пишется в летопись`
       )
     }
   }

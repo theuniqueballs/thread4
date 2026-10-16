@@ -182,7 +182,12 @@ export async function POST(request: Request) {
     appendEvent(
       'note',
       `VAULT: восстановление после сбоя — файлов: ${restored.length}, событий влито: ${mergedEvents} (снимок браузера от ${body.savedAt ?? '—'})`,
-      { restored, mergedEvents, source: 'browser-vault' }
+      /* 2026-10-15: data.kind добавлен явно — state/route.ts lastRecoveryCheck
+       * теперь фильтрует по kind, а не по summary.includes('VAULT'). Это закрывает
+       * prose-matching Issue #1 Кенни для будущих событий, где слово «VAULT»
+       * может появиться в summary случайно (напр., oracle.spoke исповедь жнеца,
+       * рассуждающая о браузерном сейфе — старая эвристика соврала бы). */
+      { restored, mergedEvents, source: 'browser-vault', kind: 'vault-restore' }
     )
     snapshotNow('vault-restore')
   }
