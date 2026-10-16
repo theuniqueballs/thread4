@@ -1,0 +1,233 @@
+{
+  "slug": "T4-33",
+  "title": "LVL? Pain.",
+  "date": "2026-10-16T19:25:41.386Z",
+  "theme": "LVL? Pain.",
+  "engine": "per-theme raw-plus",
+  "hardPass": true,
+  "firstRunClean": false,
+  "sha10": "24e8c25f57",
+  "run": 2,
+  "receipts": [
+    {
+      "gate": "structure",
+      "level": "hard",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "floors",
+      "level": "hard",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "rating-recipe",
+      "level": "hard",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "dresser",
+      "level": "warn",
+      "verdict": "WARN",
+      "findings": [
+        "P15: P03-правило: реквизит «bell» без контакт-глагола (wraps/measures/holds…) — читается ошибкой, не темой (мерная лента T4-31)"
+      ]
+    },
+    {
+      "gate": "canon",
+      "level": "hard",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "diversity",
+      "level": "hard",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "window",
+      "level": "hard",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "budget",
+      "level": "warn",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "cadence",
+      "level": "warn",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "niche-legibility",
+      "level": "warn",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "prop-geometry",
+      "level": "warn",
+      "verdict": "WARN",
+      "findings": [
+        "P3: сложный проп «stairs» с 0/2 якорей контакта — назови, где руки/ноги (вердикт T4-02, геометрия)",
+        "P6: сложный проп «swing» с 0/2 якорей контакта — назови, где руки/ноги (вердикт T4-02, геометрия)",
+        "P7: сложный проп «swing» с 0/2 якорей контакта — назови, где руки/ноги (вердикт T4-02, геометрия)",
+        "P21: сложный проп «staircase» с 0/2 якорей контакта — назови, где руки/ноги (вердикт T4-02, геометрия)",
+        "P26: сложный проп «rail» с 0/2 якорей контакта — назови, где руки/ноги (вердикт T4-02, геометрия)"
+      ]
+    },
+    {
+      "gate": "claim-visibility",
+      "level": "warn",
+      "verdict": "WARN",
+      "findings": [
+        "P2: OC-слот с позой «from behind» — зона сигнала уходит от камеры; OC = любимые персонажи автора, камера-смотрящие позы (вердикт T4-03)",
+        "P14: зона сигнала (низ) закрыта «dress» — cameltoe/pantyline не виден камере; открой зону или перевези claim (вердикт T4-03)",
+        "P22: зона сигнала (низ) закрыта «dress» — cameltoe/pantyline не виден камере; открой зону или перевези claim (вердикт T4-03)"
+      ]
+    },
+    {
+      "gate": "technique-layers",
+      "level": "warn",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "noun-lock",
+      "level": "warn",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "character-collision",
+      "level": "warn",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "ab-single-variable",
+      "level": "warn",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "theme-presence",
+      "level": "warn",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "original-character-coverage",
+      "level": "warn",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "artist-leak",
+      "level": "warn",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "garment-family",
+      "level": "warn",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "simcheck",
+      "level": "warn",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "freq-report",
+      "level": "advisory",
+      "verdict": "REPORT",
+      "findings": [
+        "кандидаты в тики: anime 26/26 · style 26/26 · ecchi 26/26 · original 26/26 · character 26/26 · stylized 26/26 · small 26/26 · mouth 26/26 · masterpiece 26/26 · quality 26/26 · artstyle 26/26 · close 22/26"
+      ]
+    },
+    {
+      "gate": "usage",
+      "level": "advisory",
+      "verdict": "REPORT",
+      "findings": [
+        "носителей в стеках: 104; уникальных: 75",
+        "R+ слотов: 19; X: 0"
+      ]
+    },
+    {
+      "gate": "technique-map",
+      "level": "advisory",
+      "verdict": "REPORT",
+      "findings": [
+        "P01 R+: 7 сигнал(ов) · слои 1·видимо + 2·как + 3·зачем + 4·дорисовывает · nipple outline, covered nipples, sweat, from below, close-up, lying, blush",
+        "P02 R+: 4 сигнал(ов) · слои 1·видимо + 2·как + 4·дорисовывает · nipple outline, covered nipples, sweat, from behind",
+        "P03 R+: 4 сигнал(ов) · слои 1·видимо + 2·как + 4·дорисовывает · nipple outline, covered nipples, sweat, close-up",
+        "P04 R+: 6 сигнал(ов) · слои 1·видимо + 2·как + 3·зачем + 4·дорисовывает · nipple outline, covered nipples, sweat, close-up, heavy breathing, fanservice",
+        "P05 R+: 7 сигнал(ов) · слои 1·видимо + 2·как + 3·зачем + 4·дорисовывает · nipple outline, covered nipples, wet, sweat, close-up, heavy breathing, fanservice",
+        "P06 R+: 5 сигнал(ов) · слои 1·видимо + 2·как + 4·дорисовывает · topless, taped nipples, sweat, from below, close-up",
+        "P07 R+: 6 сигнал(ов) · слои 1·видимо + 2·как + 3·зачем + 4·дорисовывает · nipple outline, covered nipples, sweat, close-up, heavy breathing, fanservice",
+        "P08 R+: 7 сигнал(ов) · слои 1·видимо + 2·как + 3·зачем + 4·дорисовывает · thighhighs + miniskirt, nipple outline, covered nipples, sweat, close-up, heavy breathing, fanservice",
+        "P09 R+: 5 сигнал(ов) · слои 1·видимо + 2·как + 4·дорисовывает · nipple outline, covered nipples, wet, sweat, close-up",
+        "P10 R+: 5 сигнал(ов) · слои 1·видимо + 2·как + 4·дорисовывает · nipple outline, covered nipples, wet, sweat, close-up",
+        "P12 R+: 4 сигнал(ов) · слои 1·видимо + 2·как + 4·дорисовывает · nipple outline, covered nipples, sweat, close-up",
+        "P14 R+: 4 сигнал(ов) · слои 1·видимо + 2·как + 3·зачем + 4·дорисовывает · panties visible, sweat, from below, fanservice",
+        "P15 R+: 6 сигнал(ов) · слои 1·видимо + 2·как + 3·зачем + 4·дорисовывает · nipple outline, covered nipples, wet, sweat, close-up, fanservice",
+        "P18 R+: 5 сигнал(ов) · слои 1·видимо + 2·как + 4·дорисовывает · topless, taped nipples, handbra, shower, close-up",
+        "P21 R+: 7 сигнал(ов) · слои 1·видимо + 2·как + 3·зачем + 4·дорисовывает · nipple outline, covered nipples, shower, sweat, close-up, heavy breathing, fanservice",
+        "P22 R+: 4 сигнал(ов) · слои 1·видимо + 2·как + 3·зачем · panties visible, from behind, heavy breathing, fanservice",
+        "P23 R+: 5 сигнал(ов) · слои 1·видимо + 2·как + 3·зачем + 4·дорисовывает · topless, taped nipples, shower, close-up, fanservice",
+        "P25 R+: 4 сигнал(ов) · слои 1·видимо + 2·как + 4·дорисовывает · nipple outline, covered nipples, wet, close-up",
+        "P26 R+: 4 сигнал(ов) · слои 1·видимо + 2·как + 3·зачем · nipple outline, covered nipples, close-up, fanservice"
+      ]
+    },
+    {
+      "gate": "salience-chain",
+      "level": "warn",
+      "verdict": "WARN",
+      "findings": [
+        "салиенс-цепочка (§9-секста + §9-септима BLOCKER/LEGIBILITY/POSE-RISK, вердикт T4-05): 19 R+/X слотов, под угрозой 16 (≥2 порванных звеньев — провал звена роняет тир)",
+        "P01 R+: OBJECT ✓ (top) · EXPOSURE ✓ · CAMERA ✓ (from below) · CONTRAST ? — нет ни светлой вещи, ни света на зоне · SALIENCE ✓ (№18) · INTERPRETATION ✗ (без подачи) · BLOCKER ✓ · LEGIBILITY ✓ (close-up) · POSE-RISK ✓ (LOW) → 2 звена порваны: ПРОГНОЗ — тир под угрозой",
+        "P02 R+: OBJECT ✓ (top) · EXPOSURE ✓ · CAMERA ✓ (upper body) · CONTRAST ? — нет ни светлой вещи, ни света на зоне · SALIENCE ✓ (№21) · INTERPRETATION ✗ (без подачи) · BLOCKER ✓ · LEGIBILITY ✓ (upper body) · POSE-RISK ✓ (LOW) → 2 звена порваны: ПРОГНОЗ — тир под угрозой",
+        "P03 R+: OBJECT ✓ (top) · EXPOSURE ✓ · CAMERA ✓ (close-up) · CONTRAST ? — нет ни светлой вещи, ни света на зоне · SALIENCE ✗ (№26) · INTERPRETATION ✗ (без подачи) · BLOCKER ✓ · LEGIBILITY ✓ (close-up) · POSE-RISK ✓ (LOW) → 3 звена порваны: ПРОГНОЗ — тир под угрозой",
+        "P04 R+: OBJECT ✓ (top) · EXPOSURE ✓ · CAMERA ✓ (close-up) · CONTRAST ? — нет ни светлой вещи, ни света на зоне · SALIENCE ✓ (№13) · INTERPRETATION ✓ (extreme fanservice) · BLOCKER ✓ · LEGIBILITY ✓ (close-up) · POSE-RISK ✗ (HIGH) → 2 звена порваны: ПРОГНОЗ — тир под угрозой",
+        "P05 R+: OBJECT ✓ (top) · EXPOSURE ✓ · CAMERA ✓ (close-up) · CONTRAST ? — нет ни светлой вещи, ни света на зоне · SALIENCE ✓ (№13) · INTERPRETATION ✓ (extreme fanservice) · BLOCKER ✓ · LEGIBILITY ✓ (close-up) · POSE-RISK ✗ (HIGH) → 2 звена порваны: ПРОГНОЗ — тир под угрозой",
+        "P06 R+: OBJECT ✓ (waist) · EXPOSURE ✓ · CAMERA ✓ (from below) · CONTRAST ? — нет ни светлой вещи, ни света на зоне · SALIENCE ✓ (№16) · INTERPRETATION ✗ (без подачи) · BLOCKER ✓ · LEGIBILITY ✓ (close-up) · POSE-RISK ✗ (HIGH) → 3 звена порваны: ПРОГНОЗ — тир под угрозой",
+        "P07 R+: OBJECT ✓ (top) · EXPOSURE ✓ · CAMERA ✓ (close-up) · CONTRAST ✓ · SALIENCE ✗ (№19) · INTERPRETATION ✓ (extreme fanservice) · BLOCKER ✓ · LEGIBILITY ✓ (close-up) · POSE-RISK ✗ (HIGH) → 2 звена порваны: ПРОГНОЗ — тир под угрозой",
+        "P08 R+: OBJECT ✓ (top) · EXPOSURE ✓ · CAMERA ✓ (close-up) · CONTRAST ? — нет ни светлой вещи, ни света на зоне · SALIENCE ✗ (№17) · INTERPRETATION ✓ (extreme fanservice) · BLOCKER ✓ · LEGIBILITY ✓ (close-up) · POSE-RISK ✓ (MID) → 2 звена порваны: ПРОГНОЗ — тир под угрозой",
+        "P09 R+: OBJECT ✓ (dress) · EXPOSURE ✓ · CAMERA ✓ (close-up) · CONTRAST ? — нет ни светлой вещи, ни света на зоне · SALIENCE ✓ (№13) · INTERPRETATION ✗ (без подачи) · BLOCKER ✓ · LEGIBILITY ✓ (close-up) · POSE-RISK ✗ (HIGH) → 3 звена порваны: ПРОГНОЗ — тир под угрозой",
+        "P10 R+: OBJECT ✓ (dress) · EXPOSURE ✓ · CAMERA ✓ (close-up) · CONTRAST ✗ — светлое на светлом — слияние с фоном · SALIENCE ✗ (№17) · INTERPRETATION ✗ (без подачи) · BLOCKER ✓ · LEGIBILITY ✓ (close-up) · POSE-RISK ✓ (MID) → 3 звена порваны: ПРОГНОЗ — тир под угрозой",
+        "P12 R+: OBJECT ✓ (dress) · EXPOSURE ✓ · CAMERA ✓ (close-up) · CONTRAST ? — нет ни светлой вещи, ни света на зоне · SALIENCE ✓ (№12) · INTERPRETATION ✗ (без подачи) · BLOCKER ✓ · LEGIBILITY ✓ (close-up) · POSE-RISK ✓ (LOW) → 2 звена порваны: ПРОГНОЗ — тир под угрозой",
+        "P14 R+: OBJECT ✓ (dress) · EXPOSURE ✗ (закрыта «dress») · CAMERA ✓ (from below) · CONTRAST ? — нет ни светлой вещи, ни света на зоне · SALIENCE ✓ (№12) · INTERPRETATION ✓ (extreme fanservice) · BLOCKER ✓ · LEGIBILITY ✓ (upper body) · POSE-RISK ✓ (MID) → 2 звена порваны: ПРОГНОЗ — тир под угрозой",
+        "P15 R+: OBJECT ✓ (swimsuit) · EXPOSURE ✓ · CAMERA ✓ (close-up) · CONTRAST ✓ · SALIENCE ✗ (№17) · INTERPRETATION ✓ (extreme fanservice) · BLOCKER ✓ · LEGIBILITY ✓ (close-up) · POSE-RISK ✗ (HIGH) → 2 звена порваны: ПРОГНОЗ — тир под угрозой",
+        "P18 R+: OBJECT ✓ (blouse) · EXPOSURE ✓ · CAMERA ✓ (close-up) · CONTRAST ? — нет ни светлой вещи, ни света на зоне · SALIENCE ✓ (№12) · INTERPRETATION ✗ (без подачи) · BLOCKER ✓ · LEGIBILITY ✓ (close-up) · POSE-RISK ✗ (HIGH) → 3 звена порваны: ПРОГНОЗ — тир под угрозой",
+        "P21 R+: OBJECT ✓ (dress) · EXPOSURE ✓ · CAMERA ✓ (close-up) · CONTRAST ? — нет ни светлой вещи, ни света на зоне · SALIENCE ✗ (№18) · INTERPRETATION ✓ (extreme fanservice) · BLOCKER ✓ · LEGIBILITY ✓ (close-up) · POSE-RISK ✗ (HIGH) → 3 звена порваны: ПРОГНОЗ — тир под угрозой",
+        "P22 R+: OBJECT ✓ (dress) · EXPOSURE ✗ (закрыта «dress») · CAMERA ✓ (upper body) · CONTRAST ✓ · SALIENCE ✓ (№13) · INTERPRETATION ✓ (extreme fanservice) · BLOCKER ✓ · LEGIBILITY ✓ (upper body) · POSE-RISK ✓ (LOW) → 1 звено порвано",
+        "P23 R+: OBJECT ✓ · EXPOSURE ✓ · CAMERA ✓ (close-up) · CONTRAST ? — нет ни светлой вещи, ни света на зоне · SALIENCE ✗ (№18) · INTERPRETATION ✓ (extreme fanservice) · BLOCKER ✓ · LEGIBILITY ✓ (close-up) · POSE-RISK ✓ (LOW) → 2 звена порваны: ПРОГНОЗ — тир под угрозой",
+        "P25 R+: OBJECT ✓ (dress) · EXPOSURE ✓ · CAMERA ✓ (close-up) · CONTRAST ✓ · SALIENCE ✓ (№11) · INTERPRETATION ✗ (без подачи) · BLOCKER ✓ · LEGIBILITY ✓ (close-up) · POSE-RISK ✓ (MID) → 1 звено порвано",
+        "P26 R+: OBJECT ✓ (top) · EXPOSURE ✓ · CAMERA ✓ (close-up) · CONTRAST ✓ · SALIENCE ✓ (№12) · INTERPRETATION ✓ (extreme fanservice) · BLOCKER ✓ · LEGIBILITY ✓ (close-up) · POSE-RISK ✓ (MID) → цепочка цела"
+      ]
+    },
+    {
+      "gate": "raw-plus",
+      "level": "hard",
+      "verdict": "PASS",
+      "findings": []
+    },
+    {
+      "gate": "contract-fidelity",
+      "level": "warn",
+      "verdict": "PASS",
+      "findings": []
+    }
+  ]
+}
