@@ -498,7 +498,6 @@ export function BatchCompare({
     const bn = b !== '' && bTotal > 0 ? loadRenderProgress(b).length : 0
     return { aDoneN: an, bDoneN: bn }
     /* pairDone.length — живой триггер: отметить слот = пересчитать счётчики */
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [a, b, aTotal, bTotal, pairDone.length])
   const pairDoneSet = new Set(pairDone)
 
