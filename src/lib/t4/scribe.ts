@@ -87,6 +87,11 @@ interface ScribeCtx {
   recipes: Record<string, TierRecipe>
   floors: Record<string, string[]>
   kNames: Map<string, { name: string; light: string }>
+  /** Раунд 2026-10-16 (FAM-канон v2.3.0): хуки семейств сисек из
+   *  pools.json b_fam — ткань/свет/движение груди, чтобы размер
+   *  РАБОТАЛ в кадре, а не стоял тегом (автор: «его приколы работают
+   *  клёво, картинки сочнее» — приколюхи b_fam теперь доходят до писца). */
+  famHooks: Record<string, FamHook>
   batchThesis: string
   acts: string[]
   /** Одноразовый движок (3.2-традиция): спайн изобретает под тему, утилизирует после батча */
@@ -98,8 +103,18 @@ interface ScribeCtx {
 }
 
 /* ------------------------------------------------------------------ */
-/* The scribe identity (system prompt)                                 */
+/* FAM-хуки (b_fam) — физика груди в кадре                             */
 /* ------------------------------------------------------------------ */
+
+/** FAM-хук семейства сисек (pools.json b_fam): как грудь этого размера
+ *  держит ткань, ловит свет и двигается. Писец вплетает в тег-ран
+ *  слота — сиськи перестают быть словом и становятся физикой кадра. */
+interface FamHook {
+  label: string
+  fabric: string
+  light: string
+  motion: string
+}
 
 /* Золото — P30, ЕДИНСТВЕННЫЙ выживший R+ через-ткани из 25 заявок T4-31
  * (вердикт: «тут видно меньше, они без цвета, просто бугорки»): DRY тёмная
@@ -248,7 +263,7 @@ function canonLineOf(oc: OCLocks): string {
   return `${oc.name} — ${parts.filter(Boolean).join(', ')}`
 }
 
-function canonTagHints(oc: OCLocks): string {
+function canonTagHints(oc: OCLocks, famHooks: Record<string, FamHook>): string {
   const marks = Array.isArray(oc.signature_marks) ? (oc.signature_marks as unknown[]).map(String) : []
   const shield = Array.isArray(oc.anti_shield) ? (oc.anti_shield as unknown[]).map(String) : []
   /* Тур 4 (приказ автора 2026-10-15): body_type — ВПЛЕТАЕТСЯ В POS дословно.
@@ -257,12 +272,21 @@ function canonTagHints(oc: OCLocks): string {
    *  вплести его в POS-секцию (между hair/eyes/skin и pose). Контракт несёт
    *  это поле тоже (compiler.ts OC slot). */
   const bodyType = typeof oc.body_type === 'string' ? oc.body_type.trim() : ''
+  /* Раунд 2026-10-16 (FAM-канон v2.3.0): в body_type стоит FAM-буква —
+   *  к ней идёт ХУК СЕМЕЙСТВА (b_fam): как грудь этого размера держит
+   *  ТКАНЬ, ловит СВЕТ и ДВИЖЕТСЯ. Писец вплетает 1-2 хуковых тега в
+   *  тег-ран — размер работает в кадре, а не стоит словом. */
+  const famLetter = /FAM-([ABC])/.exec(bodyType)?.[1]
+  const hook = famLetter ? famHooks[famLetter] : undefined
   return [
     `hair: ${String(oc.hair ?? '')} — VERBATIM into the first 10 tokens of the tag block (canon colors are law: no drift, no human defaults)`,
     `eyes: ${String(oc.eyes ?? '')} — VERBATIM into the tag block, same early position`,
     `skin: ${String(oc.skin ?? '')}`,
     bodyType
       ? `body_type: ${bodyType} — VERBATIM into the POS tag block (between skin and pose); this is the OC's body plan, never omit it (вердикт T4-32 P01: рендер «стерилен» без боди)`
+      : '',
+    hook
+      ? `BUST PHYSICS (FAM-${famLetter} · ${hook.label}): fabric — ${hook.fabric} · light — ${hook.light} · motion — ${hook.motion}. Weave 1-2 of these as TAGS next to the garment/body tags (seam strain, underbust shadow, settle-when-she-stops) — the size must WORK in the frame, not just be named`
       : '',
     marks.length ? `signature marks (carry as tags): ${marks.slice(0, 5).join(' | ')}` : '',
     shield.length ? `anti-drift (put these in NEG-EXTRA): ${shield.slice(0, 10).join(', ')}` : '',
@@ -298,7 +322,7 @@ function slotFrame(slot: SlotPlan, ctx: ScribeCtx): string {
       )
     }
     lines.push(`NAME LAW: the name «${slot.oc}» NEVER appears in POS — not as a tag, not in prose (names trigger the renderer's foreign characters; author's order T4-04). Describe her by the descriptor tags below only.`)
-    if (oc) lines.push(`canon (locks exact, as DESCRIPTOR tags — no name):\n${canonTagHints(oc)}`)
+    if (oc) lines.push(`canon (locks exact, as DESCRIPTOR tags — no name):\n${canonTagHints(oc, ctx.famHooks)}`)
   } else {
     lines.push(`who: ${raceLine(ctx.races.get(slot.race ?? ''), slot.raceFeature)}`)
     /* кин-блок (закон №3): теги расы в POS + хук — из контракта
@@ -630,7 +654,115 @@ function assembleNeg(slot: SlotPlan, out: ScribeSlotOutput, ctx: ScribeCtx): str
     seen.add(k)
     final.push(t)
   }
-  return final.join(', ')
+  /* ── G08/G11 ТЕЛО-ГВАРД (Гроков приколюха из #52 + фидбек автора
+   * 2026-10-16 «копируется ещё хуйня помимо негатива») ────────────────
+   * Два хода, ОБА по фактическому телу из POS (не по догадке LLM):
+   *  1) САНИТАЙЗЕР: тело-термин из POS НЕ живёт в NEG (T4-33: слот с
+   *     «curvy form» нёс в NEG «curvy» — заявка воевала сама с собой,
+   *     рендер гасил тело, автор копировал этот мусор в PixAI).
+   *  2) ПРОТЕКТ: антонимы фактического плана ДОБАВЛЯЮТСЯ, если LLM их
+   *     забыл (замена ручного «add the OPPOSITE form to NEG-EXTRA» —
+   *     теперь машина, писцу ошибиться не в чем).
+   * Словарь — семейства планов (BODY_PLANS); «never flat» — закон
+   * b_fam: flat/washboard в NEG только для FAM-C девочек. */
+  const guard = bodyPlanGuard(out.pos, final)
+  return guard.join(', ')
+}
+
+/* ── Тело-словарь G08/G11: план → антонимы ────────────────────────── */
+
+interface BodyFamily {
+  family: string
+  keys: RegExp
+  anti: string[]
+}
+
+const BODY_PLANS: BodyFamily[] = [
+  {
+    family: 'full-figured',
+    keys: /full-figured|full figured|wide hips|heavy breasts|large breasts|voluptuous|generous full chest|deep cleavage/,
+    anti: ['petite', 'slender', 'slim frame', 'athletic'],
+  },
+  {
+    family: 'curvy',
+    keys: /curvy|hourglass figure|soft waist/,
+    anti: ['petite', 'slender', 'slim frame'],
+  },
+  {
+    family: 'athletic',
+    keys: /athletic|toned|strong thighs|defined/,
+    anti: ['full-figured', 'milf', 'large breasts', 'soft waist'],
+  },
+  {
+    family: 'petite',
+    keys: /petite|small frame|small-boned|compact body/,
+    anti: ['full-figured', 'curvy', 'milf', 'large breasts', 'full chest', 'soft waist', 'wide hips'],
+  },
+  {
+    family: 'slender',
+    keys: /slender|slim body|slim form|slight build|narrow frame|slim elegant/,
+    anti: ['full-figured', 'curvy', 'milf', 'large breasts', 'full chest', 'wide hips'],
+  },
+  {
+    family: 'modest-bust',
+    keys: /small breasts|modest|softly mounded|small chest|flat/,
+    anti: ['large breasts', 'huge breasts'],
+  },
+]
+
+/* Нормализация терма NEG для сверки с POS: вес (term:1.2) снимается,
+ * «no X» → «X», корпус к нижнему регистру. */
+function negTermCore(t: string): string {
+  return t
+    .toLowerCase()
+    .replace(/^\((.+):[\d.]+\)$/, '$1')
+    .replace(/^no\s+/i, '')
+    .trim()
+}
+
+/** Все тело-термины словаря, которые ФАКТИЧЕСКИ в POS. */
+function bodyFamiliesInPos(pos: string): BodyFamily[] {
+  const p = pos.toLowerCase()
+  return BODY_PLANS.filter((f) => f.keys.test(p))
+}
+
+/** Тело-гвард NEG: противоречия сняты, протект дописан. Чистая функция.
+ *
+ * Правило одно и жёсткое: тело-терм живёт в NEG ТОГДА И ТОЛЬКО ТОГДА,
+ * когда он — антоним плана, стоящего в POS. Всё остальное тело-ведомо
+ * из NEG вычищается: (а) терм из POS — прямой конфликт (curvy в NEG при
+ * curvy в POS), (б) терм ПРОТИВ фактического плана (large breasts в NEG
+ * при full-figured в POS — блокирует собственное тело слота). Не-тело
+ * термы (bra, candle, male…) не трогаем — их судьбу решают №25/№14. */
+export function bodyPlanGuard(pos: string, negTerms: string[]): string[] {
+  const families = bodyFamiliesInPos(pos)
+  if (families.length === 0) return negTerms
+  /* антонимы всех найденных семей, кроме тех, что сами читаются в POS
+   * (семья curvy не блокирует «soft waist», если он и правда в POS) */
+  const antiSet = new Set<string>()
+  for (const f of families) {
+    for (const a of f.anti) {
+      if (families.some((g) => g !== f && g.keys.test(a))) continue
+      antiSet.add(a)
+    }
+  }
+  const isVocabBody = (core: string): boolean =>
+    BODY_PLANS.some((f) => f.anti.includes(core) || f.family === core)
+  const cleaned = negTerms.filter((t) => {
+    const core = negTermCore(t)
+    if (!isVocabBody(core)) return true
+    return antiSet.has(core)
+  })
+  /* протект: недостающие антонимы дописываем в конец */
+  const existing = new Set(cleaned.map(negTermCore))
+  const out = [...cleaned]
+  for (const a of antiSet) {
+    if (!existing.has(a)) {
+      out.push(a)
+      existing.add(a)
+    }
+  }
+  return out
 }
 
 /* ------------------------------------------------------------------ */
@@ -812,14 +944,18 @@ const CHAT_TIMEOUT_MS = 180_000
 
 const sleep = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms))
 
-function isTransientLlmError(e: unknown): boolean {
+/* Экспорт для оракула (аудит-раунд №2, 2026-10-16): у писца эта защита
+ * есть с фикса #37, у оракула её НЕ было — повисший upstream держал
+ * роут до maxDuration, переходящий 429 отдавался автору как 500 без
+ * единого ретрая. Одна защита LLM-вызовов на весь конвейер. */
+export function isTransientLlmError(e: unknown): boolean {
   const msg = e instanceof Error ? `${e.name}: ${e.message}` : String(e)
   if (/network|fetch failed|timeout|timed out|aborted|socket|ECONN|EAI_AGAIN|ETIMEDOUT|ENOTFOUND|EPIPE/i.test(msg)) return true
   if (/\b(408|425|429|500|502|503|504)\b/.test(msg)) return true
   return false
 }
 
-function withTimeout<T>(p: Promise<T>, ms: number, what: string): Promise<T> {
+export function withTimeout<T>(p: Promise<T>, ms: number, what: string): Promise<T> {
   return new Promise<T>((resolve, reject) => {
     const t = setTimeout(() => reject(new Error(`${what}: timeout ${ms}ms`)), ms)
     if (t && typeof t === 'object' && 'unref' in t) (t as { unref: () => void }).unref()
@@ -983,9 +1119,29 @@ async function scribeBatchInner(
   if (!carriersSpec || !posesSpec || !palettesSpec || !racesSpec || !ocCanon || !recipesSpec || !bans) {
     throw new Error('спеки не загружены')
   }
-  const poolsSpec = readJson<{ sections: Record<string, { id: string; name?: string; light?: string }[]> }>(
+  const poolsSpec = readJson<{
+    sections: Record<string, { id: string; name?: string; light?: string }[]> & {
+      b_fam?: { families?: Record<string, { label?: string; fabric?: string; light?: string; motion?: string }> }
+    }
+  }>(
     path.join(process.cwd(), 'thread4', 'specs', 'pools.json')
   )
+  /* Раунд 2026-10-16 (FAM-канон v2.3.0): хуки семейств сисек из b_fam —
+   *  единый парсер для обеих сборок ctx (основа + повторный заход). */
+  const famHooks: Record<string, FamHook> = {}
+  for (const [famKey, raw] of Object.entries(poolsSpec?.sections?.b_fam?.families ?? {})) {
+    const f = raw as { label?: string; fabric?: string; light?: string; motion?: string }
+    const letter = famKey.replace(/^FAM-/, '')
+    if (letter.length === 1 && f.fabric && f.light && f.motion) {
+      famHooks[letter] = {
+        label: f.label ?? letter,
+        fabric: f.fabric,
+        light: f.light,
+        motion: f.motion,
+      }
+    }
+  }
+
   const kNames = new Map<string, { name: string; light: string }>()
   for (const k of poolsSpec?.sections?.kinetics_k ?? []) {
     kNames.set(k.id, { name: k.name ?? k.id, light: k.light ?? '' })
@@ -1001,6 +1157,7 @@ async function scribeBatchInner(
     recipes: recipesSpec.tiers as unknown as Record<string, TierRecipe>,
     floors: recipesSpec.eternal_floors as unknown as Record<string, string[]>,
     kNames,
+    famHooks,
     batchThesis: '',
     acts: [],
     themeKeywords: [],
@@ -1328,12 +1485,30 @@ export async function polishBatch(
   if (!carriersSpec || !posesSpec || !palettesSpec || !racesSpec || !ocCanon || !recipesSpec || !bans) {
     throw new Error('спеки не загружены')
   }
-  const poolsSpec = readJson<{ sections: Record<string, { id: string; name?: string; light?: string }[]> }>(
+  const poolsSpec = readJson<{
+    sections: Record<string, { id: string; name?: string; light?: string }[]> & {
+      b_fam?: { families?: Record<string, { label?: string; fabric?: string; light?: string; motion?: string }> }
+    }
+  }>(
     path.join(process.cwd(), 'thread4', 'specs', 'pools.json')
   )
   const kNames = new Map<string, { name: string; light: string }>()
   for (const k of poolsSpec?.sections?.kinetics_k ?? []) {
     kNames.set(k.id, { name: k.name ?? k.id, light: k.light ?? '' })
+  }
+  /* FAM-хуки (та же раскладка, что в основном заходе писца) */
+  const famHooks: Record<string, FamHook> = {}
+  for (const [famKey, raw] of Object.entries(poolsSpec?.sections?.b_fam?.families ?? {})) {
+    const f = raw as { label?: string; fabric?: string; light?: string; motion?: string }
+    const letter = famKey.replace(/^FAM-/, '')
+    if (letter.length === 1 && f.fabric && f.light && f.motion) {
+      famHooks[letter] = {
+        label: f.label ?? letter,
+        fabric: f.fabric,
+        light: f.light,
+        motion: f.motion,
+      }
+    }
   }
   const ctx: ScribeCtx = {
     contract,
@@ -1345,6 +1520,7 @@ export async function polishBatch(
     recipes: recipesSpec.tiers as unknown as Record<string, TierRecipe>,
     floors: recipesSpec.eternal_floors as unknown as Record<string, string[]>,
     kNames,
+    famHooks,
     batchThesis: '',
     acts: [],
     themeKeywords: Array.isArray(contract.themeWords)

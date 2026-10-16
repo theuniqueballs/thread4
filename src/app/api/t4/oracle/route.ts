@@ -25,6 +25,7 @@ import ZAI from 'z-ai-web-dev-sdk'
 import { appendEvent, verifyChain } from '@/lib/t4/events'
 import { clientErrorMessage, requireCommander } from '@/lib/t4/apiguard'
 import { isProviderBlocked } from '@/lib/t4/vlm'
+import { isTransientLlmError, withTimeout } from '@/lib/t4/scribe'
 import { buildOracleContext, buildOraclePrompt, REAPER_SYSTEM_PROMPT } from '@/lib/t4/oracle'
 
 export const dynamic = 'force-dynamic'
@@ -32,6 +33,12 @@ export const maxDuration = 60
 
 const ORACLE_MODEL = 'glm-4.5-flash'
 const ORACLE_MAX_TOKENS = 1200
+/* Аудит-раунд №2 (2026-10-16): у писца LLM-вызовы ограничены с фикса #37,
+ * оракул жил БЕЗ таймаута — повисший upstream держал роут до maxDuration,
+ * переходящий 429/сетевой сбой отдавался автору как 500 «жнец не ответил»
+ * без единого ретрая. Теперь: таймаут 45с + один ретрай переходящих. */
+const ORACLE_TIMEOUT_MS = 45_000
+const ORACLE_RETRIES = 1
 
 export async function POST(req: Request) {
   /* Залп 1 (аудит 2026-10-12): платный LLM-вызов + запись oracle.spoke
@@ -69,15 +76,32 @@ export async function POST(req: Request) {
 
   try {
     const zai = await ZAI.create()
-    const completion = await zai.chat.completions.create({
-      messages: [
-        { role: 'system', content: REAPER_SYSTEM_PROMPT },
-        { role: 'user', content: prompt },
-      ],
-      model: ORACLE_MODEL,
-      thinking: { type: 'disabled' },
-      max_tokens: ORACLE_MAX_TOKENS,
-    })
+    /* таймаут + ретрай переходящих (аудит №2): непереходящие (нет ключа,
+     * контент-фильтр) падают сразу — вниз по прежним веткам 502/503 */
+    let completion: Awaited<ReturnType<typeof zai.chat.completions.create>> | null = null
+    let lastErr: unknown = null
+    for (let attempt = 0; attempt <= ORACLE_RETRIES; attempt++) {
+      try {
+        completion = await withTimeout(
+          zai.chat.completions.create({
+            messages: [
+              { role: 'system', content: REAPER_SYSTEM_PROMPT },
+              { role: 'user', content: prompt },
+            ],
+            model: ORACLE_MODEL,
+            thinking: { type: 'disabled' },
+            max_tokens: ORACLE_MAX_TOKENS,
+          }),
+          ORACLE_TIMEOUT_MS,
+          'oracle LLM-вызов'
+        )
+        break
+      } catch (e) {
+        lastErr = e
+        if (!isTransientLlmError(e)) break
+      }
+    }
+    if (completion == null) throw lastErr instanceof Error ? lastErr : new Error('жнец не ответил (LLM)')
     const reply = (completion.choices[0]?.message?.content ?? '').trim()
     if (reply.length < 50) {
       return NextResponse.json(

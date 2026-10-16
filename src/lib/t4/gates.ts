@@ -2240,6 +2240,91 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
     )
   }
 
+  /* ---------------- 27. one-hard-claim G20 (warn) ---------------- */
+  /* Гроков бэклог из #52 (ГРЯЗНЫЙ АУДИТ, приколюхи Коул — автор: «реализуй
+   * потихоньку»): G20 — на R+ слоте ОДНА hard-claim семья. Две заявки
+   * одного тира в одном кадре гасят друг друга (salience-chain §9: claim
+   * борется за внимание с самим собой — вердикты T4-19/T4-32 «стерильно»).
+   * Семьи: through (nipples through/clothed/covered nipples) · wet
+   * (wet clothes/see-through) · pantyline (visible pantyline/cameltoe) ·
+   * on-skin (handbra/tape/arms covering). EXP-слоты — эксперимент по
+   * определению, не судим. */
+  {
+    const f: string[] = []
+    const CLAIM_FAMILIES: { name: string; re: RegExp }[] = [
+      { name: 'through', re: /nipples through clothing|clothed nipples|covered nipples/ },
+      { name: 'wet', re: /wet clothes|see-through|sheer fabric/ },
+      { name: 'pantyline', re: /visible pantyline|cameltoe/ },
+      { name: 'on-skin', re: /handbra|tape on nipples|arms covering (?:her )?chest/ },
+    ]
+    for (const s of batch.slots) {
+      if (tierOf(s.meta) !== 'R+' || s.genre === 'EXP') continue
+      const fams = CLAIM_FAMILIES.filter((c) => c.re.test(s.pos.toLowerCase())).map((c) => c.name)
+      if (fams.length >= 2) {
+        f.push(
+          `P${s.position}: ${fams.length} hard-claim семьи сразу (${fams.join(' + ')}) — заявки делят внимание кадра (G20, №52-бэклог): оставь ОДНУ, вторую перевези в другой слот`
+        )
+      }
+    }
+    warn('one-hard-claim', f)
+  }
+
+  /* ---------------- 28. echo-window ±2 G33 (warn) ---------------- */
+  /* Гроков бэклог из #52: G33 — «запрет эха»: соседние слоты (±2) не
+   * делят сигнатурные токены. simcheck ловит целые близнецы-предложения
+   * (J>0.75), эхо тоньше: та же вещь/проп/деталь в соседнем кадре —
+   * визуальная жвачка без полного клона. Сигнатура: слова ≥5 символов
+   * минус общедоменный стоп-лист; эхо = ≥6 общих сигнатур у соседей. */
+  {
+    const f: string[] = []
+    const ECHO_STOP = new Set(
+      [
+        'anime', 'style', 'ecchi', 'original', 'character', 'girl', 'solo', 'masterpiece',
+        'quality', 'artstyle', 'small', 'nose', 'mouth', 'stylized', 'eyes', 'lighting',
+        'breasts', 'nipples', 'clothed', 'covered', 'underneath', 'nothing', 'fabric',
+        'clinging', 'sweat', 'glistening', 'tight', 'extreme', 'fanservice', 'body',
+        'form', 'frame', 'close', 'camera', 'upper', 'chest', 'dark', 'garment', 'shoulder',
+        'shoulders', 'waist', 'hips', 'thighs', 'skin', 'hair', 'color', 'colors', 'tone',
+        'image', 'figure', 'sitting', 'standing', 'looking', 'viewer', 'full', 'figure',
+        /* тело-планы — территория G12 (interleave), не эха: соседство
+         * «petite↔petite» — вопрос РАСПРЕДЕЛЕНИЯ тел, не вещей кадра */
+        'petite', 'slender', 'athletic', 'curvy', 'full-figured', 'figured', 'slim',
+        'toned', 'compact', 'voluptuous', 'hourglass', 'milf', 'student', 'young',
+        'narrow', 'slight', 'softly', 'mounded', 'modest', 'generous', 'heavy',
+      ].concat(Array.from({ length: 8 }, (_, i) => `p${String(i).padStart(2, '0')}`))
+    )
+    const sigOf = (pos: string): Set<string> =>
+      new Set(
+        (pos.toLowerCase().match(/[a-z][a-z-]{4,}/g) ?? []).filter((w) => !ECHO_STOP.has(w))
+      )
+    const slots = [...batch.slots].sort((a, b) => a.position - b.position)
+    const sigs = new Map(slots.map((s) => [s.position, sigOf(s.pos)]))
+    for (let i = 0; i < slots.length; i++) {
+      for (let d = 1; d <= 2; d++) {
+        const j = i + d
+        if (j >= slots.length) break
+        const a = sigs.get(slots[i].position)!
+        const b = sigs.get(slots[j].position)!
+        if (a.size === 0 || b.size === 0) continue
+        let shared = 0
+        let first = ''
+        for (const w of a) {
+          if (b.has(w)) {
+            shared++
+            if (first === '') first = w
+          }
+        }
+        if (shared >= 6) {
+          f.push(
+            `P${slots[i].position}↔P${slots[j].position}: эхо ${shared} сигнатур (первая «${first}») — соседние кадры жуют одно (G33, №52-бэклог): разведи вещи/пропсы/детали`
+          )
+        }
+      }
+    }
+    if (f.length > 8) f.splice(8, f.length, `…и ещё ${f.length - 8} пар`)
+    warn('echo-window', f)
+  }
+
   /* ---------------- receipt + event ---------------- */
   const sha10 = crypto.createHash('sha256').update(file).digest('hex').slice(0, 10)
   const priorRuns = readEvents().filter(

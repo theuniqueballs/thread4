@@ -88,10 +88,19 @@ function deliverBatchInner(slug: string, text0: string): DeliverResult | null {
   const theme = contract?.theme || parsed.title || ''
   const engine = contract?.engine || (rawFormat ? 'raw-danbooru' : '')
 
-  /* oc.appeared — ростер финален только при сдаче (рекомпиляции не считаются) */
-  const ocRoster = (contract?.slots ?? [])
+  /* oc.appeared — ростер финален только при сдаче (рекомпиляции не считаются).
+   * Раунд 2026-10-16: у Lucy 3 события на 4 появления — контракт одной из
+   * сдач не нёс slots[].oc, и ростер тихо пустел. Фоллбэк — шапки слотов
+   * самого батча («OC · Lucy · R+ · …»): parseBatch их уже держит, имя ОС
+   * — второй сегмент меты. Двойная защита: union контракта и батча. */
+  const ocFromContract = (contract?.slots ?? [])
     .filter((s) => s.kind === 'OC' && s.oc)
     .map((s) => s.oc as string)
+  const ocFromBatch = parsed.slots
+    .filter((s) => s.genre.toUpperCase() === 'OC')
+    .map((s) => s.meta.split('·').map((x) => x.trim()).filter(Boolean)[1] ?? '')
+    .filter((x) => x !== '' && x !== '—')
+  const ocRoster = [...new Set([...ocFromContract, ...ocFromBatch])]
   const existing = readEvents()
   for (const oc of ocRoster) {
     const seen = existing.some(

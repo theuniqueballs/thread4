@@ -29,6 +29,8 @@ import {
 import { cn } from '@/lib/utils'
 import { Input } from '@/components/ui/input'
 import { Checkbox } from '@/components/ui/checkbox'
+import { toast } from '@/hooks/use-toast'
+import { copyText } from '@/lib/clipboard'
 import { formatDate, useApi } from '@/components/t4/api'
 import { Chip, EmptyState, ErrorNote, Mono, Panel, SkeletonBlock } from '@/components/t4/bits'
 import { TIER_RANK } from '@/lib/t4/verdicts'
@@ -98,27 +100,64 @@ export interface BatchVerdictRecord {
 /* Копирование                                                         */
 /* ------------------------------------------------------------------ */
 
-export function CopyBtn({ text, label, title }: { text: string; label: string; title: string }) {
+/* Копирование: тихий сбой буфера — худший враг конвейера рендера (фидбек
+ * автора 2026-10-16: мусор «помимо негатива» + те же картинки дважды —
+ * это СТАРЫЙ буфер после молчаливого NotAllowedError в iframe). Теперь:
+ *  1)Clipboard API → 2)execCommand-фоллбек (lib/clipboard);
+ *  3)отказ виден: красная кнопка + тост с причиной — автор ЗНАЕТ, что
+ *  вставит, а не узнаёт по лишней картинке;
+ *  4)успех тоже говорит: тост несёт слот и сторону — «что в буфере». */
+export function CopyBtn({
+  text,
+  label,
+  title,
+  meta,
+}: {
+  text: string
+  label: string
+  title: string
+  /** кому копируем: «P07 mint-tentacle-press» / «NEG·B из A» — попадает в тост */
+  meta?: string
+}) {
   const [done, setDone] = useState(false)
+  const [failed, setFailed] = useState(false)
+  const empty = text === ''
   async function go() {
-    try {
-      await navigator.clipboard.writeText(text)
+    if (empty) return
+    const res = await copyText(text)
+    if (res.ok) {
       setDone(true)
-      setTimeout(() => setDone(false), 1200)
-    } catch {
-      /* тихо: как остальные копирующие кнопки дашборда */
+      window.setTimeout(() => setDone(false), 1200)
+      toast({
+        title: `В буфере: ${label}${meta ? ` · ${meta}` : ''}`,
+        description: `${text.length} симв.${res.via === 'exec-command' ? ' · резервный путь' : ''} — вставляй смело`,
+      })
+    } else {
+      setFailed(true)
+      window.setTimeout(() => setFailed(false), 2400)
+      toast({
+        title: `НЕ скопировано: ${label}${meta ? ` · ${meta}` : ''}`,
+        description: `${res.reason ?? 'буфер недоступен'} — в поле останется ПРОШЛЫЙ текст, не генерь вслепую`,
+        variant: 'destructive',
+      })
     }
   }
   return (
     <button
       type="button"
       onClick={go}
-      title={title}
+      disabled={empty}
+      title={empty ? `${title} — пусто, копировать нечего` : title}
+      aria-disabled={empty}
       className={cn(
         'relative inline-flex shrink-0 items-center gap-1 rounded-md border px-1.5 py-0.5 text-[10px] font-medium leading-4 transition-all outline-none before:absolute before:-inset-1.5 focus-visible:ring-1 focus-visible:ring-amber-500/60 active:scale-95',
-        done
-          ? 'border-emerald-600/50 bg-emerald-600/10 text-emerald-400'
-          : 'border-zinc-700/70 bg-zinc-800/50 text-zinc-400 hover:border-amber-500/50 hover:text-amber-300'
+        empty
+          ? 'cursor-not-allowed border-zinc-800/60 bg-zinc-900/40 text-zinc-600'
+          : done
+            ? 'border-emerald-600/50 bg-emerald-600/10 text-emerald-400'
+            : failed
+              ? 'border-rose-600/70 bg-rose-950/40 text-rose-300'
+              : 'border-zinc-700/70 bg-zinc-800/50 text-zinc-400 hover:border-amber-500/50 hover:text-amber-300'
       )}
     >
       {done ? <Check className="size-3" /> : <Copy className="size-3" />}
@@ -316,11 +355,13 @@ export function SlotStrip({ slug, markdown }: { slug: string; markdown: string }
         <CopyBtn
           text={allPos}
           label="все POS"
+          meta={`${slug} · все ${total} слотов`}
           title={`Скопировать POS всех ${total} слотов — пронумерованные шапками P01…`}
         />
         <CopyBtn
           text={allNeg}
           label="все NEG"
+          meta={`${slug} · все ${total} слотов`}
           title={`Скопировать NEG всех ${total} слотов — пронумерованные шапками P01…`}
         />
         <button
@@ -368,8 +409,18 @@ export function SlotStrip({ slug, markdown }: { slug: string; markdown: string }
               {s.slug}
               {s.palette ? <span className="text-zinc-600"> · {s.palette}</span> : null}
             </span>
-            <CopyBtn text={s.pos} label="POS" title={`Скопировать POS ${s.id} (${s.slug})`} />
-            <CopyBtn text={s.neg} label="NEG" title={`Скопировать NEG ${s.id} (${s.slug})`} />
+            <CopyBtn
+              text={s.pos}
+              label="POS"
+              meta={`${s.id} · ${s.slug}`}
+              title={`Скопировать POS ${s.id} (${s.slug})`}
+            />
+            <CopyBtn
+              text={s.neg}
+              label="NEG"
+              meta={`${s.id} · ${s.slug}`}
+              title={`Скопировать NEG ${s.id} (${s.slug})`}
+            />
           </div>
         )
       })}
@@ -435,11 +486,20 @@ export function BatchCompare({
     }
   }
 
-  /* Счётчики прогресса пары — те же числа, что трекер Просмотра каждой стороны */
+  /* Счётчики прогресса пары — те же числа, что трекер Просмотра каждой
+   * стороны. Аудит №2 (2026-10-16): чтения localStorage стояли в теле
+   * рендера — sync IО на каждый ре-рендер (пара чекбоксов = пересчёт).
+   * Теперь ключ по паре слагов + счётчикам: ре-рендер фильтра трекер
+   * не дёргает. pairDone в зависимостях — галочка сразу видна в шапке. */
   const aTotal = parsedA?.slots.length ?? 0
   const bTotal = parsedB?.slots.length ?? 0
-  const aDoneN = a !== '' && aTotal > 0 ? loadRenderProgress(a).length : 0
-  const bDoneN = b !== '' && bTotal > 0 ? loadRenderProgress(b).length : 0
+  const { aDoneN, bDoneN } = useMemo(() => {
+    const an = a !== '' && aTotal > 0 ? loadRenderProgress(a).length : 0
+    const bn = b !== '' && bTotal > 0 ? loadRenderProgress(b).length : 0
+    return { aDoneN: an, bDoneN: bn }
+    /* pairDone.length — живой триггер: отметить слот = пересчитать счётчики */
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [a, b, aTotal, bTotal, pairDone.length])
   const pairDoneSet = new Set(pairDone)
 
   /* Дифф-документ пары — квиток одним файлом (сгенерировано buildDiffMarkdown,
@@ -774,11 +834,13 @@ function SlotDiff({
           <CopyBtn
             text={copyPos}
             label={`POS·${srcSide}`}
+            meta={`${(b ?? a)?.id ?? ''} ${(src?.slug ?? '').slice(0, 24)}`}
             title={`Скопировать POS ${(b ?? a)?.id ?? ''} со стороны ${srcSide} (${src?.slug ?? ''}) — сторона меняется тумблером «⧉ из»`}
           />
           <CopyBtn
             text={copyNeg}
             label={`NEG·${srcSide}`}
+            meta={`${(b ?? a)?.id ?? ''} ${(src?.slug ?? '').slice(0, 24)}`}
             title={`Скопировать NEG ${(b ?? a)?.id ?? ''} со стороны ${srcSide} (${src?.slug ?? ''}) — сторона меняется тумблером «⧉ из»`}
           />
         </div>

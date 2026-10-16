@@ -44,10 +44,13 @@ export type StyleAnchor =
   | 'detailed-ink'
   | 'none'
 
-/** Тур 5 (приём G01 от Коул): класс дистанции камеры — ломает
- *  «cowboy на всех 28 слотах». Квота: 6 full-body / 8 cowboy /
- *  6 upper-body / 4 image-close / 2 face / 2 worm's-eye / 2 top-down
- *  на батч = 30 (28 батч берёт почти все, плюс 2 запас). */
+/** Тур 5 (приём G01 от Коул) + раунд 2026-10-16 (фидбек автора «без
+ *  негатив спейса»): класс дистанции камеры — ломает «cowboy на всех 28
+ *  слотах». wide-shot — КОМПОЗИЦИЯ С ВОЗДУХОМ: субъект меньше, воздух
+ *  вокруг, кадр дышит — ровно то, чего просил автор. Квота: 6 full-body /
+ *  8 cowboy / 6 upper-body / 4 image-close / 2 face / 2 worm's-eye /
+ *  2 top-down / 2 over-shoulder / 2 wide-shot = 32 на батч (26-28 берёт
+ *  почти все). */
 export type CameraClass =
   | 'full-body'
   | 'cowboy'
@@ -57,6 +60,7 @@ export type CameraClass =
   | 'worms-eye'
   | 'top-down'
   | 'over-shoulder'
+  | 'wide-shot'
 
 /** Тур 5 (приём G11 от Коул): named body plan для non-OC слотов.
  *  OC берут body_type из oc-canon; NICHE/VOLT/EXQUISITE/EXP —
@@ -204,6 +208,7 @@ export const CAMERA_QUOTA: Record<CameraClass, number> = {
   'worms-eye': 2,
   'top-down': 2,
   'over-shoulder': 2,
+  'wide-shot': 2,
 }
 const CAMERA_POOL: CameraClass[] = Object.entries(CAMERA_QUOTA).flatMap(
   ([c, n]) => Array(n).fill(c) as CameraClass[]
@@ -452,6 +457,8 @@ export const CAMERA_TAGS: Record<CameraClass, string> = {
   'worms-eye': "from below, worm's eye view",
   'top-down': 'from above, top-down view',
   'over-shoulder': 'over shoulder, from behind',
+  'wide-shot':
+    'wide shot, negative space, subject off-center, spacious composition, breathing room, depth of field background',
 }
 
 /** Коул G03: lead-zone = кадр, не подпись. Если lead=nape → камера

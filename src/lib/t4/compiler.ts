@@ -262,6 +262,26 @@ export interface CompileOptions {
 /* Window usage (rotation memory)                                      */
 /* ------------------------------------------------------------------ */
 
+/* Раунд 2026-10-16 (FAM-канон v2.3.0, фидбек автора): регистр ОС выводится
+ * из её канонного body_type. Чистая функция — зовут компилятор и писец
+ * (одна правда о теле). Приоритет: full-figured/wide hips/full chest →
+ * milf · athletic/toned → young · slender/slim/petite/compact → student ·
+ * фоллбек по FAM-букве (A→milf, B→young, C→student). Аргумент base —
+ * план батча, живёт когда канон молчит. */
+export function registerFromBody(
+  bodyType: string | undefined,
+  base: 'student' | 'young' | 'milf'
+): 'student' | 'young' | 'milf' {
+  const bt = (bodyType ?? '').toLowerCase()
+  if (bt === '') return base
+  if (/(full-figured|full figured|wide hips|full chest|heavy breasts|generous)/.test(bt)) return 'milf'
+  if (/(athletic|toned|strong thighs|hourglass|curvy)/.test(bt)) return 'young'
+  if (/(slender|slim|petite|compact|small-boned|slight)/.test(bt)) return 'student'
+  const fam = /fam-([abc])/.exec(bt)
+  if (fam) return fam[1] === 'a' ? 'milf' : fam[1] === 'b' ? 'young' : 'student'
+  return base
+}
+
 interface WindowUsage {
   carriers: Record<string, number>
   poses: Record<string, number>
@@ -408,18 +428,42 @@ export function compileBatch(theme: string, options: CompileOptions = {}): Batch
     law: 'одноразовый движок: писец выводит физический закон ТЕМЫ на этапе спайна; после батча утилизируется',
   }
 
-  /* OC rotation: author orders first, then longest-rested actives */
+  /* OC rotation: author orders first, then longest-rested actives.
+   *
+   * Фидбек автора 2026-10-16 («хватит уже Люси в каждую ротацию пихать,
+   * меняй хоть девчонок целиком»): LRU-счётчик одному не помеха — Lucy
+   * входила 4 батча подряд (T4-30..33), потому что её счётчик всё это
+   * время оставался минимальным среди активных. COOLDOWN: OC из окна
+   * сданных батчей НЕ выбирается, пока хватает других (20 активных / 3
+   * слота — поле всегда широкое). Уровни: 3 батча → 2 → без cooldown;
+   * понижаются только когда поле опустело ДО трёх кандидатов — cooldown
+   * не имеет права завалить сборку. Приказ автора (options.ocOrders)
+   * стоит ABOVE cooldown — его воля. */
   const activeOcs = Object.entries(ocCanon.ocs)
     .filter(([, o]) => (o.active ?? true) !== false)
     .map(([name]) => name)
   const served = (n: string) => state.ocAppearances[n] ?? 0
-  const rotationPool = rng
-    .shuffle(activeOcs)
-    .sort((a, b) => served(a) - served(b))
+  const lastSeenIn = (n: string) => state.ocLastSeen[n] ?? ''
+  /* windowSlugs — ВОЗРАСТАЮЩИЙ (старейший → свежайший из последних 3):
+   * tail = свежие батчи, head — старейший. windowTail(1) = последний
+   * сданный, windowTail(2) = последние два. */
+  const windowTail = (n: number): string[] =>
+    state.windowSlugs.slice(-Math.max(1, n)).filter(Boolean)
   const ocNames: string[] = []
   for (const o of options.ocOrders ?? []) {
     if (ocCanon.ocs[o] && ocNames.length < 3) ocNames.push(o)
   }
+  const byCooldown = (cool: readonly string[]): string[] | null => {
+    const pool = activeOcs.filter(
+      (n) => !ocNames.includes(n) && !cool.includes(lastSeenIn(n))
+    )
+    return pool.length + ocNames.length >= 3 ? pool : null
+  }
+  const coolPool =
+    byCooldown(windowTail(3)) ?? byCooldown(windowTail(2)) ?? activeOcs.filter((n) => !ocNames.includes(n))
+  const rotationPool = rng
+    .shuffle(coolPool)
+    .sort((a, b) => served(a) - served(b))
   for (const o of rotationPool) {
     if (ocNames.length >= 3) break
     if (!ocNames.includes(o)) ocNames.push(o)
@@ -623,7 +667,15 @@ export function compileBatch(theme: string, options: CompileOptions = {}): Batch
         kinetics: [kPool[kIdx++ % kPool.length]?.id].filter(Boolean) as string[],
         carriers: ocCarriers,
         lead,
-        register: ocName === 'Sue' ? 'milf' : register,
+        /* Раунд 2026-10-16 (FAM-канон v2.3.0): регистр ОС ВЫВОДИТСЯ из её
+         * body_type (форма — N30: возраст словами запрещён). Раньше был
+         * хардкод «Sue→milf»: Lucy с канонным FAM-A уезжала студентом,
+         * писец писал в POS «petite body, slender form» — POS воевал с
+         * каноном, NEG копил «хуйню помимо негатива» (тело-протект
+         * зеркалил выдуманное тело, а не настоящее). Приоритет ключей:
+         * full-figured/wide hips → milf · athletic/toned → young ·
+         * slender/slim/petite → student · фоллбек по FAM-букве. */
+        register: registerFromBody(ocBodyType, register),
         closer,
         ...(ocBodyType ? { bodyType: ocBodyType } : {}),
       })

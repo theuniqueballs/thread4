@@ -541,6 +541,11 @@ export interface T4DerivedState {
   batches: BatchRecord[] // compiled batches in slug order
   windowSlugs: string[] // last 3 delivered (or fewer)
   ocAppearances: Record<string, number> // OC name -> times served
+  /** Фидбек автора 2026-10-16 («хватит Люси в каждую ротацию»): имя → слаг
+   *  ПОСЛЕДНЕГО сданного батча с её участием. Ротация ниже даёт OC
+   *  cooldown — одного LRU-счётчика мало: он рос, но Lucy всё равно
+   *  оставалась «наименее сервирована» и входила 4 батча подряд. */
+  ocLastSeen: Record<string, string>
   voidedSlugs: string[] // batch.void — закрытые по приказу автора
   /** Алиасы слагов (ISSUE 17: физическое переименование T4-18→T4-17 без
    *  события оставило state с призрачным delivered-слагом): old → new. */
@@ -553,6 +558,7 @@ export interface T4DerivedState {
 export function foldState(events: T4Event[]): T4DerivedState {
   const batches = new Map<string, BatchRecord>()
   const ocAppearances: Record<string, number> = {}
+  const ocLastSeen: Record<string, string> = {}
   const voidedSlugs: string[] = []
   const openDebts: string[] = []
   const debtIds = new Map<string, string>() // debtId → text (policy.debts, Залп 2)
@@ -589,6 +595,7 @@ export function foldState(events: T4Event[]): T4DerivedState {
     if (e.type === 'oc.appeared' && typeof d.name === 'string') {
       const name = d.name as string
       ocAppearances[name] = (ocAppearances[name] ?? 0) + 1
+      if (typeof d.slug === 'string') ocLastSeen[name] = d.slug as string
     }
     if (e.type === 'note' && d.kind === 'slug-alias') {
       /* ISSUE 17 / #49: алиас слага — переименование, приказанное автором
@@ -664,6 +671,7 @@ export function foldState(events: T4Event[]): T4DerivedState {
     batches: [...batches.values()].sort((a, b) => a.slug.localeCompare(b.slug)),
     windowSlugs,
     ocAppearances,
+    ocLastSeen,
     voidedSlugs,
     slugAliases: Object.fromEntries(
       [...slugAliases.entries()].map(([o, a]) => [o, a.newSlug])
