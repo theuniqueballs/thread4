@@ -14,6 +14,8 @@
 
 import ZAI from 'z-ai-web-dev-sdk'
 
+import { LLM_TIMEOUT_INIT_MS, LLM_TIMEOUT_VISION_MS, withTimeout } from './llm-guard'
+
 export interface BlindCard {
   scene: string
   character: string
@@ -103,23 +105,32 @@ export type BlindVisionResult =
 /** Один слепой VLM-прогон: BLIND_PROMPT + createVision + parseBlindCard +
  *  детекция контент-фильтра провайдера + 503-сигнал «нет .z-ai-config».
  *  Машинные прогоны НЕ пишутся в лог событий (§10-поправка) — флаги
- *  уезжают внутри батч-вердикта через приёмник. */
+ *  уезжают внутри батч-вердикта через приёмник.
+ *
+ *  Аудит №3 (2026-10-16): вызов БЫЛ без таймаута — повисший upstream
+ *  держал /api/t4/vlm и /api/t4/feedback?blind=true бесконечно (тот же
+ *  класс, что закрыт у оракула в №2, — вторая дверь осталась открытой).
+ *  Инициализация SDK 15с, vision-вызов 120с (картинка тяжелее текста). */
 export async function runBlindVision(b64: string, mimeType: string): Promise<BlindVisionResult> {
   try {
-    const zai = await ZAI.create()
-    const completion = await zai.chat.completions.createVision({
-      messages: [
-        {
-          role: 'user',
-          content: [
-            { type: 'text', text: BLIND_PROMPT },
-            { type: 'image_url', image_url: { url: `data:${mimeType};base64,${b64}` } },
-          ],
-        },
-      ],
-      model: 'glm-4.5v',
-      thinking: { type: 'disabled' },
-    })
+    const zai = await withTimeout(ZAI.create(), LLM_TIMEOUT_INIT_MS, 'VLM init')
+    const completion = await withTimeout(
+      zai.chat.completions.createVision({
+        messages: [
+          {
+            role: 'user',
+            content: [
+              { type: 'text', text: BLIND_PROMPT },
+              { type: 'image_url', image_url: { url: `data:${mimeType};base64,${b64}` } },
+            ],
+          },
+        ],
+        model: 'glm-4.5v',
+        thinking: { type: 'disabled' },
+      }),
+      LLM_TIMEOUT_VISION_MS,
+      'VLM-вызов'
+    )
     const raw = completion.choices[0]?.message?.content ?? ''
     if (raw.trim() === '') {
       return { ok: false, error: 'пустой ответ модели' }

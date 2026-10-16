@@ -20,6 +20,7 @@ import ZAI from 'z-ai-web-dev-sdk'
 import { BATCHES_DIR, CONTRACTS_DIR, readJson, readText, writeText } from './fsutil'
 import { appendEvent, foldState, readEvents } from './events'
 import { parseBatch, runGates, type GateReceipt, type GatesResult } from './gates'
+import { isTransientLlmError, withTimeout } from './llm-guard'
 import { TIER_RANK } from './verdicts'
 import { type BatchContract, type SlotPlan } from './compiler'
 import { coerceSlotVariety, varietyLine } from './variety-engine'
@@ -944,33 +945,11 @@ const CHAT_TIMEOUT_MS = 180_000
 
 const sleep = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms))
 
-/* Экспорт для оракула (аудит-раунд №2, 2026-10-16): у писца эта защита
- * есть с фикса #37, у оракула её НЕ было — повисший upstream держал
- * роут до maxDuration, переходящий 429 отдавался автору как 500 без
- * единого ретрая. Одна защита LLM-вызовов на весь конвейер. */
-export function isTransientLlmError(e: unknown): boolean {
-  const msg = e instanceof Error ? `${e.name}: ${e.message}` : String(e)
-  if (/network|fetch failed|timeout|timed out|aborted|socket|ECONN|EAI_AGAIN|ETIMEDOUT|ENOTFOUND|EPIPE/i.test(msg)) return true
-  if (/\b(408|425|429|500|502|503|504)\b/.test(msg)) return true
-  return false
-}
-
-export function withTimeout<T>(p: Promise<T>, ms: number, what: string): Promise<T> {
-  return new Promise<T>((resolve, reject) => {
-    const t = setTimeout(() => reject(new Error(`${what}: timeout ${ms}ms`)), ms)
-    if (t && typeof t === 'object' && 'unref' in t) (t as { unref: () => void }).unref()
-    p.then(
-      (v) => {
-        clearTimeout(t)
-        resolve(v)
-      },
-      (e) => {
-        clearTimeout(t)
-        reject(e)
-      }
-    )
-  })
-}
+/* Аудит №3 (2026-10-16): withTimeout/isTransientLlmError переехали в
+ * llm-guard.ts (VLM-ветка и feedback-роут ходили к upstream без
+ * таймаута — тот же класс бага, что закрыт у оракула в №2). Реэкспорт
+ * для совместимости: роут оракула импортирует их из scribe. */
+export { isTransientLlmError, withTimeout } from './llm-guard'
 
 async function chat(zai: ZAiChat, system: string, user: string, log: string[], retries = 2): Promise<string> {
   let lastErr: unknown = null

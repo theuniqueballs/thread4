@@ -15,6 +15,7 @@ import ZAI from 'z-ai-web-dev-sdk'
 
 import { appendEvent } from '@/lib/t4/events'
 import { clientErrorMessage, requireCommander } from '@/lib/t4/apiguard'
+import { LLM_TIMEOUT_VISION_MS, withTimeout } from '@/lib/t4/llm-guard'
 import { imagePayloadError, isProviderBlocked, runBlindVision } from '@/lib/t4/vlm'
 
 export const dynamic = 'force-dynamic'
@@ -62,11 +63,13 @@ export async function POST(req: Request) {
   const position = (body.position ?? '').trim()
 
   try {
-    const zai = await ZAI.create()
-
     /* ---- слепой режим: единый протокол, карточка, без лога.
        * Ревизия 2026-10-14: вызов консолидирован в runBlindVision (lib) —
-       * один промпт, один парсер, одна детекция фильтра на оба роута. ---- */
+       * один промпт, один парсер, одна детекция фильтра на оба роута.
+       * Аудит №3 (2026-10-16): ZAI.create() больше НЕ создаётся до ветвления —
+       * слепой режим инициализирует СВОЙ клиент внутри runBlindVision,
+       * классический — здесь; двойная инициализация SDK (чтение конфига
+       * дважды + мёртвый клиент в слепой ветке) убрана. ---- */
     if (body.blind) {
       const r = await runBlindVision(b64, mimeType)
       if (r.ok) {
@@ -81,20 +84,28 @@ export async function POST(req: Request) {
       )
     }
 
-    /* ---- классический 5-осевой разбор (с записью события) ---- */
-    const completion = await zai.chat.completions.createVision({
-      messages: [
-        {
-          role: 'user',
-          content: [
-            { type: 'text', text: PROMPT },
-            { type: 'image_url', image_url: { url: `data:${mimeType};base64,${b64}` } },
-          ],
-        },
-      ],
-      model: 'glm-4.5v',
-      thinking: { type: 'disabled' },
-    })
+    /* ---- классический 5-осевой разбор (с записью события) ----
+       * Аудит №3: createVision без таймаута — тот же класс, что VLM-слепой:
+       * повисший upstream держал роут до maxDuration. Теперь 120с из
+       * llm-guard (одна точка правды для всех vision-лимитов). ---- */
+    const zai = await ZAI.create()
+    const completion = await withTimeout(
+      zai.chat.completions.createVision({
+        messages: [
+          {
+            role: 'user',
+            content: [
+              { type: 'text', text: PROMPT },
+              { type: 'image_url', image_url: { url: `data:${mimeType};base64,${b64}` } },
+            ],
+          },
+        ],
+        model: 'glm-4.5v',
+        thinking: { type: 'disabled' },
+      }),
+      LLM_TIMEOUT_VISION_MS,
+      'feedback VLM-вызов'
+    )
     const raw = completion.choices[0]?.message?.content ?? ''
     const jsonMatch = /\{[\s\S]*\}/.exec(raw)
     let analysis: Record<string, unknown> = { raw }
