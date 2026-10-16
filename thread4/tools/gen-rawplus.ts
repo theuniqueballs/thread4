@@ -248,6 +248,9 @@ export interface RawPlusSlot {
     state: string[]
     underlayer: string
     weights: string[]
+    /* Тур 4: веса в NEG (dressFor отдаёт, писец вплетает) — тип забыт при
+     *  слиянии туры 4, tsc ловил как TS2561 (аудит-раунд 2026-10-16). */
+    negWeights: string[]
     law: string
   }
   /** EXP-гипотеза слота (вердикт T4-28: «не забывай про EXP промпты»);

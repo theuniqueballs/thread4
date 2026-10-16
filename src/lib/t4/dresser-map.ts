@@ -105,6 +105,16 @@ export interface DresserMap {
   varietyMatrix: VarietyRow[]
 }
 
+/** Корневая карта БЕЗ поздних надстроек (varietyMatrix строится после
+ *  partial — ей нужны slots + fallback; lessons/counter — после всего).
+ *  Аудит-раунд 2026-10-16: единая истина для buildLessons,
+ *  buildCounterContract и partialWithoutLessons — раньше три разных
+ *  Omit-выражения разъехались (tsc ловил). */
+export type DresserMapCore = Omit<
+  DresserMap,
+  'lessonsForNextBatch' | 'counterContract' | 'varietyMatrix'
+>
+
 /** Строка матрицы разнообразия — что получил слот от Variety Engine. */
 export interface VarietyRow {
   position: string
@@ -227,7 +237,7 @@ const FAILURE_RECOMMENDATIONS: Record<FailureMode, string> = {
 }
 
 /** Собрать рекомендацию в markdown «Уроки для следующего батча». */
-function buildLessons(map: Omit<DresserMap, 'lessonsForNextBatch' | 'counterContract'>): string {
+function buildLessons(map: DresserMapCore): string {
   const lines: string[] = []
   lines.push(`# Уроки для следующего батча (после ${map.slug} «${map.title}»)
 `)
@@ -387,7 +397,7 @@ function proposeWeights(channelMatrix: ChannelStat[]): ProposedWeights[] {
 
 /** Собрать контр-контракт — советник следующего батча. */
 function buildCounterContract(
-  map: Omit<DresserMap, 'counterContract' | 'lessonsForNextBatch'>,
+  map: DresserMapCore,
   events: import('./events').T4Event[]
 ): CounterContract {
   const hd = computeHistoricalDelivery(events, 5)
@@ -642,7 +652,12 @@ export function buildDresserMap(slug: string): DresserMap | null {
   const authorProse =
     typeof verdict?.data?.prose === 'string' ? (verdict.data.prose as string) : ''
 
-  const partialWithoutLessons: Omit<DresserMap, 'lessonsForNextBatch' | 'counterContract'> = {
+  /* Тур 4/5 (тип-фикс аудита 2026-10-16): varietyMatrix строится ПОЗДЕЕ
+   *  partial (нужны slots + fallback пересчёт) — корневой тип без него;
+   *  прежде Omit требовал varietyMatrix у partialWithoutLessons, которого
+   *  там физически нет — tsc ловил, в прод не доходило только потому, что
+   *  дев-режим не гоняет typecheck. */
+  const partialWithoutLessons: DresserMapCore = {
     slug,
     title: contract.theme ?? slug,
     verdictAt: verdict?.at ?? null,

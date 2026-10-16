@@ -104,6 +104,52 @@ export interface SlotVariety {
   seed: number
 }
 
+/* ------------------------------------------------------------------ */
+/* Граница сериализации: контракт JSON несёт variety строками           */
+/* (compiler кладёт каноничные значения, но писец читает файл с диска — */
+/*  ключам словарей доверять нельзя, strict typing на границе).         */
+/* ------------------------------------------------------------------ */
+
+/** Loose-форма SlotVariety из контракта JSON (compiler.ts ContractSlot). */
+export interface SlotVarietyLoose {
+  posOrder: string
+  register: string
+  lengthClass: string
+  styleAnchor: string
+  negVariant: number
+  camera: string
+  bodyPlan: string | null
+  handsHint: string | null
+  themeWordBudget: number
+  seed?: number
+}
+
+function pickKey<T extends string>(raw: string, allowed: readonly T[], fallback: T): T {
+  return (allowed as readonly string[]).includes(raw) ? (raw as T) : fallback
+}
+
+/** Нормализация loose-variety из JSON в строгий SlotVariety: неизвестные
+ *  ключи → безопасные дефолты (varietyLine индексирует словари — мусорный
+ *  ключ не должен ронять рендер слот-фрейма и протекать в подсказку
+ *  писцу). Аудит-раунд 2026-10-16: до этого писец кормил varietyLine
+ *  строками из JSON без всякой проверки. */
+export function coerceSlotVariety(raw: SlotVarietyLoose): SlotVariety {
+  const clampInt = (v: number, min: number, max: number, fallback: number): number =>
+    Number.isFinite(v) ? Math.max(min, Math.min(max, Math.floor(v))) : fallback
+  return {
+    posOrder: pickKey(raw.posOrder, POS_ORDERS, 'body-first'),
+    register: pickKey(raw.register, REGISTERS, 'casual'),
+    lengthClass: pickKey(raw.lengthClass, LENGTHS, 'medium'),
+    styleAnchor: pickKey(raw.styleAnchor, STYLES, 'none'),
+    negVariant: clampInt(raw.negVariant, 0, Math.max(0, NEG_VARIANTS.length - 1), 0),
+    camera: pickKey(raw.camera, Object.keys(CAMERA_QUOTA) as CameraClass[], 'cowboy'),
+    bodyPlan: raw.bodyPlan == null ? null : pickKey(raw.bodyPlan, BODY_PLANS, 'athletic'),
+    handsHint: raw.handsHint == null ? null : pickKey(raw.handsHint, HANDS_HINTS, 'arms-at-sides'),
+    themeWordBudget: clampInt(raw.themeWordBudget, 0, 99, 6),
+    seed: Number.isFinite(raw.seed) ? raw.seed : 0,
+  }
+}
+
 const POS_ORDERS: PosOrder[] = [
   'body-first',
   'pose-first',

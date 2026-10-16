@@ -22,7 +22,7 @@ import { appendEvent, foldState, readEvents } from './events'
 import { parseBatch, runGates, type GateReceipt, type GatesResult } from './gates'
 import { TIER_RANK } from './verdicts'
 import { type BatchContract, type SlotPlan } from './compiler'
-import { varietyLine } from './variety-engine'
+import { coerceSlotVariety, varietyLine } from './variety-engine'
 import {
   getBans,
   getCarriers,
@@ -430,7 +430,11 @@ function slotFrame(slot: SlotPlan, ctx: ScribeCtx): string {
    *  тегов, регистр, длина, стиль-якорь, NEG-вариант). Не закон — канон
    *  и dress code приоритетнее. */
   if (slot.variety) {
-    lines.push(`VARIETY (тура 4): ${varietyLine(slot.variety)}`)
+    /* Аудит-раунд 2026-10-16: variety приходит из контракта JSON строками
+     * (граница сериализации) — прогоняем через coerceSlotVariety: словари
+     * varietyLine индексируются союзами, мусорный ключ не должен ронять
+     * рендер слот-фрейма и протекать в подсказку. */
+    lines.push(`VARIETY (тура 4): ${varietyLine(coerceSlotVariety(slot.variety))}`)
   }
   if (slot.ab) {
     lines.push(
