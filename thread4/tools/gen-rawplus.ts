@@ -454,6 +454,92 @@ export function planRawPlus(opts: PlanOptions): RawPlusPlan {
     ;[laid[bad], laid[swapWith]] = [laid[swapWith], laid[bad]]
   }
 
+  /* --- G40 (Гроков бэклог #52, Коул — «delivery-adaptive spread»,
+   *  тур «потихоньку»): rolling-доставка R+ по вердиктам автора.
+   *  Если в окне последних батчей R+ доставлялся < 40% заявок —
+   *  следующий контракт строится с ужимкой спреда (пропорция Коул
+   *  R+×12/R×10/PG-13×2 на 24 мейна → на законе 21 мейн:
+   *  R+×11 / R×8 / PG-13×2): модель, которая стабильно НЕ ДОДАЁТ
+   *  тиры, не должна заказывать их пачкой — недоставленная заявка
+   *  жрёт слот. Рефлекс, не закон: вердикт ≥ 40% в окне вернёт
+   *  полный спред автоматически на следующей сборке. --- */
+  const adaptiveRating = new Map<number, 'R' | 'PG-13'>()
+  let adaptiveSpread: {
+    rplusDelivery: number
+    claimed: number
+    delivered: number
+    window: string[]
+    spread: string
+  } | null = null
+  {
+    const verdicts = readEvents().filter(
+      (e) =>
+        e.type === 'render.verdict' &&
+        String(e.data?.source ?? '') === 'author-batch' &&
+        String(e.data?.mode ?? '') === 'full'
+    )
+    /* rolling-окно: последние 3 слага с полными вердиктами */
+    const windowSlugs: string[] = []
+    for (const e of [...verdicts].reverse()) {
+      const s = String(e.data?.slug ?? '')
+      if (s && !windowSlugs.includes(s)) windowSlugs.push(s)
+      if (windowSlugs.length >= 3) break
+    }
+    let claimed = 0
+    let delivered = 0
+    for (const e of verdicts) {
+      if (!windowSlugs.includes(String(e.data?.slug ?? ''))) continue
+      const vs = Array.isArray(e.data?.slots)
+        ? (e.data!.slots as { claim?: string; myTier?: string }[])
+        : []
+      for (const v of vs) {
+        if (String(v.claim ?? '').toUpperCase() !== 'R+') continue
+        claimed++
+        const my = String(v.myTier ?? '').toUpperCase()
+        if (my === 'R+' || my === 'X') delivered++
+      }
+    }
+    if (claimed >= 12) {
+      const delivery = delivered / claimed
+      if (delivery < 0.4) {
+        const pg13Target = 2
+        const rplusTarget = Math.max(1, Math.round(law.mainsTotal * 0.5))
+        const rTarget = Math.max(law.nicheCount, law.mainsTotal - rplusTarget - pg13Target)
+        const downR = rTarget - law.nicheCount
+        adaptiveSpread = {
+          rplusDelivery: Math.round(delivery * 100) / 100,
+          claimed,
+          delivered,
+          window: windowSlugs,
+          spread: `R+×${rplusTarget} / R×${rTarget} / PG-13×${pg13Target}`,
+        }
+        /* какие VOLT-мейны даунгрейдятся: детерминированно rng по
+         * позициям VOLT (EXQ — ультра своего жанра, R+ не трогаем) */
+        const voltIdxs: number[] = []
+        laid.forEach((k, idx) => {
+          if (k === 'VOLT') voltIdxs.push(idx)
+        })
+        for (let i = 0; i < downR && i < voltIdxs.length; i++) {
+          adaptiveRating.set(voltIdxs[i], 'R')
+        }
+        for (let i = 0; i < pg13Target && downR + i < voltIdxs.length; i++) {
+          adaptiveRating.set(voltIdxs[downR + i], 'PG-13')
+        }
+        report.push(
+          `G40 (delivery-adaptive): rolling R+ ${delivered}/${claimed} (${Math.round(delivery * 100)}%) за ${windowSlugs.join('/')} < 40% — спред ужат до R+×${rplusTarget} / R×${rTarget} / PG-13×${pg13Target} (${downR} VOLT→R, ${pg13Target} VOLT→PG-13); вердикт ≥ 40% вернёт полный спред сам`
+        )
+      } else {
+        report.push(
+          `G40 (delivery-adaptive): rolling R+ ${delivered}/${claimed} (${Math.round(delivery * 100)}%) за ${windowSlugs.join('/')} ≥ 40% — обычный спред`
+        )
+      }
+    } else {
+      report.push(
+        `G40 (delivery-adaptive): данных мало (${claimed} R+-слотов в окне < 12) — рефлекс не вооружён, обычный спред`
+      )
+    }
+  }
+
   /* --- расовый каст: N уникальных рас на мейнах (закон №3) ---
    * Черновик автора (§10): список видов важнее квоты — бриф задаёт
    * КОНКРЕТНЫЕ расы; ротация из пула — только fallback без брифа. */
@@ -674,7 +760,9 @@ export function planRawPlus(opts: PlanOptions): RawPlusPlan {
     }
     const mainIdx = i - law.ocSlots
     const kind = laid[mainIdx]
-    const rating: 'R' | 'R+' = kind === 'NICHE' ? 'R' : 'R+'
+    /* G40: адаптивный даунгрейд VOLT (delivery-adaptive spread) */
+    const rating: 'PG-13' | 'R' | 'R+' =
+      kind === 'NICHE' ? 'R' : (adaptiveRating.get(mainIdx) ?? 'R+')
     const race = raceByPosition.get(position)
     const kin = race ? buildBlock(race) : undefined
     /* hair/eye: ~50% подсказка палитры (dominant→hair, secondary→eyes), ~50% библиотека */
@@ -935,7 +1023,19 @@ export function planRawPlus(opts: PlanOptions): RawPlusPlan {
    *  covered) = «одна заявка, разная подача» становится невыполнимой.
    *  EXP-болванки не трогаем: их тон — часть гипотезы (полюса №27). --- */
   const rplusSlots = slots.filter((s) => s.rating === 'R+' && s.kind !== 'EXP')
-  const darkCount = Math.max(1, Math.ceil(rplusSlots.length / 3))
+  /* G17 (Гроков бэклог #52, Коул — «bumps ≥ 40% of through-R+»):
+   * dark-сырьё под квоту бугорков. bumps живёт ТОЛЬКО на dark (№28),
+   * а канальная ротация давала ему каждого четвёртого dark-слота —
+   * 8-19% батча (T4-33: bumps 3 из 16, самые живые слоты T4-31 были
+   * bumps×11). Теперь dark-минимум ≥ bumps-квоты = ⌈0.4 × R+-дресс⌉. */
+  const rplusDressCount = slots.filter(
+    (s) => s.kind !== 'OC' && s.kind !== 'EXP' && s.rating === 'R+'
+  ).length
+  const bumpsQuota = Math.min(rplusDressCount, Math.ceil(rplusDressCount * 0.4))
+  const darkCount = Math.min(
+    rplusSlots.length,
+    Math.max(Math.max(1, Math.ceil(rplusSlots.length / 3)), bumpsQuota)
+  )
   const lightCount = Math.min(3, Math.max(1, Math.floor(rplusSlots.length / 5)))
   const tonePlan: Array<'dark' | 'mid' | 'light'> = []
   for (let i = 0; i < rplusSlots.length; i++) {
@@ -990,6 +1090,12 @@ export function planRawPlus(opts: PlanOptions): RawPlusPlan {
       .find((w) => ['beach', 'pool', 'onsen', 'gym', 'stage', 'street', 'hotel', 'bedroom', 'home', 'void', 'пляж', 'бассейн', 'зал', 'сцена', 'улица', 'отель', 'спальня', 'дом'].includes(w)) ?? ''
   let weightsBudget = opts.weights ? 4 : 0 // максимум 4 весовых слота на батч (guard: ≤3 тега/слот)
   const channelRot = new Map<string, number>()
+  /* G17: bumps-квота в СЛОТАХ (гейт меряет контрактом по слотам);
+   * bumps-юнит вычитает свои слоты (пара = 2). EXP-слоты квоту не
+   * тратят (их канал — часть гипотезы полюсов №27), но bumps им
+   * доступен, если квота уже закрыта — нет: bumpsLeft считает только
+   * не-EXP R+-слоты, EXP берёт канал как раньше. */
+  let bumpsLeft = bumpsQuota
   /* канал — на ЕДИНИЦУ слота: §10-пара (ab) и EXP-пара (exp.pairWith) делят
    * канал (одна заявка, разная подача — вердикт атрибутирует канал, не случай) */
   const unitOf = (s: { ab?: { pair: string }; exp?: { pairWith?: number; half?: string } }): string =>
@@ -1005,9 +1111,24 @@ export function planRawPlus(opts: PlanOptions): RawPlusPlan {
     if (!channel) {
       const candidates = channelsForTier(tier, tone)
       if (candidates.length === 0) continue
-      const idx = channelRot.get(tier) ?? 0
-      channelRot.set(tier, idx + 1)
-      channel = candidates[idx % candidates.length]
+      /* G17: bumps — первым в очереди, пока квота не исчерпана
+       * (только R+ не-EXP: у X кандидаты through/bare, bumps там
+       * физически нет — channelsForTier его не предложит) */
+      const slotCount = unit.startsWith('solo:') ? 1 : 2
+      if (
+        tier === 'R+' &&
+        s.kind !== 'EXP' &&
+        bumpsLeft >= slotCount &&
+        candidates.includes('bumps')
+      ) {
+        channel = 'bumps'
+        bumpsLeft -= slotCount
+      } else {
+        const rest = candidates.filter((c) => c !== 'bumps')
+        const idx = channelRot.get(tier) ?? 0
+        channelRot.set(tier, idx + 1)
+        channel = (rest.length > 0 ? rest : candidates)[idx % Math.max(rest.length, 1)]
+      }
       unitChannel.set(unit, channel)
     }
     const wantWeights = weightsBudget > 0 && (channel === 'bumps' || channel === 'through') && s.kind === 'EXP'
@@ -1043,7 +1164,7 @@ export function planRawPlus(opts: PlanOptions): RawPlusPlan {
   report.push(
     `ДРЕССЕР №29: ${dressedCount} слотов одеты по политике — ${Object.entries(channelCounts)
       .map(([k, v]) => `${k} ×${v}`)
-      .join(' · ')} (категория по сцене${sceneHint ? ` «${sceneHint}»` : ''}; конфликты категорий гейтится; веса RAW: ${opts.weights ? 'ВКЛ (≤4 слота, A/B T4-32)' : 'выкл — флаг --weights'})`
+      .join(' · ')} (категория по сцене${sceneHint ? ` «${sceneHint}»` : ''}; конфликты категорий гейтится; G17: bumps-квота ${channelCounts['bumps'] ?? 0}/${dressedCount} ≥ 40% через-ткань-R+; веса RAW: ${opts.weights ? 'ВКЛ (≤4 слота, A/B T4-32)' : 'выкл — флаг --weights'})`
   )
 
   /* --- echo-мотивы: 2-3, арка трёх актов, мутации из разных групп --- */
@@ -1093,10 +1214,16 @@ export function planRawPlus(opts: PlanOptions): RawPlusPlan {
   )
 
   /* --- контракт (форма BatchContract) --- */
-  const spread = [
-    { rating: 'R+', count: slots.filter((s) => s.rating === 'R+').length },
-    { rating: 'R', count: slots.filter((s) => s.rating === 'R').length },
-  ]
+  /* G40: spread честно показывает ВСЕ тиры, включая PG-13 адаптива */
+  const spread = (
+    [
+      ['R+', slots.filter((s) => s.rating === 'R+').length],
+      ['R', slots.filter((s) => s.rating === 'R').length],
+      ['PG-13', slots.filter((s) => s.rating === 'PG-13').length],
+    ] as const
+  )
+    .filter(([, count]) => count > 0)
+    .map(([rating, count]) => ({ rating, count }))
   const wShare = Math.round(
     (slots.flatMap((s) => s.carriers).filter((c) => c.cls === 'W').length /
       (law.slotsTotal * law.core4Groups)) *
@@ -1121,6 +1248,9 @@ export function planRawPlus(opts: PlanOptions): RawPlusPlan {
     seed: opts.seed ?? Date.now(),
     createdAt: new Date().toISOString(),
     spread,
+    /* G40: след адаптивного спреда в контракте — гейты/летопись видят,
+     * ПОЧЕМУ R+ меньше нормы (не «потеряли», а «ужали по вердиктам») */
+    ...(adaptiveSpread ? { adaptiveSpread } : {}),
     slots: slots.map((s) => ({
       position: s.position,
       kind: s.kind,

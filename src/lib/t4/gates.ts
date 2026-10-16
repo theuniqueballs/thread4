@@ -505,14 +505,17 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
     slots: {
       position: number
       rating: string
+      kind?: string
       race?: string
       pose?: string
       palette?: string
-      kind?: string
       oc?: string
       poseRisk?: string
       poseName?: string
       carriers: { id: string }[]
+      /** Дрессер №29: канал дресс-кода слота (генератор контрактов
+       *  пишет; гейт G17 меряет квоту bumps по нему) */
+      dress?: { channel?: string }
     }[]
     /** Ребилд-декларация (вопрос №30 → приказ автора 2026-10-11): слаг
      * батча-источника, чей материал сознательно переиспользуется. Окно
@@ -2323,6 +2326,32 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
     }
     if (f.length > 8) f.splice(8, f.length, `…и ещё ${f.length - 8} пар`)
     warn('echo-window', f)
+  }
+
+  /* ---------------- 29. bumps-квота G17 (warn) ---------------- */
+  /* Гроков бэклог из #52 (Коул, «bumps ≥ 40% of through-R+"): bumps —
+   *  ЕДИНСТВЕННЫЙ через-ткань канал R+ (NIPPLE CHANNEL LAW v2, №28) и
+   *  статистически самый живой (T4-31: bumps×11 — лучшие слоты). Канальная
+   *  ротация без квоты давала ему ~¼ dark-слотов = 8-19% батча (T4-33:
+   *  3 из 16 — вердикт: «модель играла безопасно»). Меряем контрактом:
+   *  доля dress-каналов bumps среди R+-слотов (не-EXP, мейны — OC без
+   *  дресс-кода по политике). RAW/ручной батч без контракта — не судим
+   *  (нет назначений — нет лжи). */
+  {
+    const f: string[] = []
+    const rplusDressed = (contract?.slots ?? []).filter(
+      (cs) => cs.rating === 'R+' && cs.kind !== 'EXP' && cs.dress?.channel
+    )
+    const bumpsN = rplusDressed.filter((cs) => cs.dress?.channel === 'bumps').length
+    if (rplusDressed.length >= 5) {
+      const pct = Math.round((bumpsN / rplusDressed.length) * 100)
+      if (bumpsN / rplusDressed.length < 0.4) {
+        f.push(
+          `bumps-канал ${bumpsN} из ${rplusDressed.length} R+-дресс-слотов (${pct}%) < 40% — самый живой через-ткань сигнал недопредставлен (G17, №52-бэклог): канал бугорков должен получать ⌈0.4×R+⌉ слотов (генератор уже строит dark-минимум под квоту — пересобери контракт)`
+        )
+      }
+    }
+    warn('bumps-quota', f)
   }
 
   /* ---------------- receipt + event ---------------- */
