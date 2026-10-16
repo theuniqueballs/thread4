@@ -146,7 +146,7 @@ export function coerceSlotVariety(raw: SlotVarietyLoose): SlotVariety {
     bodyPlan: raw.bodyPlan == null ? null : pickKey(raw.bodyPlan, BODY_PLANS, 'athletic'),
     handsHint: raw.handsHint == null ? null : pickKey(raw.handsHint, HANDS_HINTS, 'arms-at-sides'),
     themeWordBudget: clampInt(raw.themeWordBudget, 0, 99, 6),
-    seed: Number.isFinite(raw.seed) ? raw.seed : 0,
+    seed: typeof raw.seed === 'number' && Number.isFinite(raw.seed) ? raw.seed : 0,
   }
 }
 
