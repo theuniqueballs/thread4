@@ -345,3 +345,6 @@
 {"id":"915fb00e","at":"2026-10-16T19:25:41.373Z","type":"oc.appeared","summary":"OC Miyu назначен в T4-33","data":{"slug":"T4-33","name":"Miyu"}}
 {"id":"47254ecc","at":"2026-10-16T19:25:41.378Z","type":"oc.appeared","summary":"OC Doe назначен в T4-33","data":{"slug":"T4-33","name":"Doe"}}
 {"id":"9f932177","at":"2026-10-16T19:25:41.387Z","type":"batch.delivered","summary":"T4-33 «LVL? Pain.» сдан: гейты hard PASS (sha 24e8c25f57)","data":{"slug":"T4-33","title":"LVL? Pain.","theme":"LVL? Pain.","engine":"per-theme raw-plus","hardPass":true,"firstRunClean":false,"sha10":"24e8c25f57"}}
+{"id":"4c8a377a","at":"2026-10-16T19:31:30.019Z","type":"note","summary":"Аудит-раунд: events.ts O(1)-цепь + read-through кэш, persist.ts async-git — selftest 145/145","data":{"round":"audit-2026-10-16"}}
+{"id":"09bbecec","at":"2026-10-16T19:31:30.049Z","type":"note","summary":"Второе событие — O(1)-достройка цепи от кэша (fast path под локом)","data":{"round":"audit-2026-10-16","path":"fast"}}
+{"id":"c07c0850","at":"2026-10-16T19:31:30.115Z","type":"note","summary":"CLI-процесс: кросс-процессная запись после рефактора (кэш честно инвалидируется)","data":{"round":"audit-2026-10-16","via":"cli"}}
