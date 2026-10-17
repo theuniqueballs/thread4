@@ -1,7 +1,7 @@
 {
-  "version": "2.2.0",
+  "version": "2.2.1",
   "born": "2026-09-19",
-  "source": "3.2 POOLS_V8 race_pool R01-R15 + race_extension_v2 R16-R22 + Thread-4 extensions R23-R36 + author directives — инвентарь: 34 active · 2 gold (R17 jellyfish-kin, R20 harpy-kin) · 4 banned (BAN-01..04 dwarves/goblins/trolls/orcs) = 40 записей (2.1.1: source-строка догнала фактический состав) + R37-R41 (verdikt T4-33 2026-10-17: «понадобавляй ещё кинов, человекоподобные — суккубы и так далее»)",
+  "source": "3.2 POOLS_V8 race_pool R01-R15 + race_extension_v2 R16-R22 + Thread-4 extensions R23-R36 + author directives — инвентарь: 34 active · 2 gold (R17 jellyfish-kin, R20 harpy-kin) · 4 banned (BAN-01..04 dwarves/goblins/trolls/orcs) = 40 записей (2.1.1: source-строка догнала фактический состав) + R37-R41 (verdikt T4-33 2026-10-17: «понадобавляй ещё кинов, человекоподобные — суккубы и так далее») + R41 → Witch-kin (приказ автора 2026-10-17: «циклопы отстой» — v2.2.1, фонд 45 без изменений)",
   "races": [
     {
       "id": "R01",
@@ -446,7 +446,7 @@
       "name": "Vampire-kin",
       "status": "active",
       "features": [
-        "small fangs when she smiles",
+        "small smile fangs",
         "red-iris eyes under lazy lids",
         "cold-pale skin with a living blush at the cheeks"
       ],
@@ -470,20 +470,20 @@
       "features": [
         "snake-hair coils small and glossy",
         "scaled nape fading into human skin",
-        "slit pupils she can drop on command"
+        "command-drop slit pupils"
       ],
       "note": "вердикт T4-33 (2026-10-17): «плюс-минус человекоподобные — красивое лицо, сладкие ножки» — змеи-локоны ведут себя как укладка: одна прядь-змея может указывать на объект в кадре; skin: human-warm, scales only at nape/wrists; wardrobe: high necklines tease the nape-scales; light: coils carry a reptile sheen — контраст-носитель без хоррора"
     },
     {
       "id": "R41",
-      "name": "Cyclops-kin",
+      "name": "Witch-kin",
       "status": "active",
       "features": [
-        "one large amber eye, lashes long",
-        "petite frame, oversized hoodie",
-        "hair fringe parted to frame the eye"
+        "one silver birth-streak in the fringe",
+        "tiny constellation freckles across cheeks and nose",
+        "small ember-wisp familiar circling the shoulder"
       ],
-      "note": "вердикт T4-33 (2026-10-17): «плюс-минус человекоподобные — красивое лицо, сладкие ножки» — кавайный регистр, не монстр: большой глаз = крупный план читается сразу; skin: soft warm; wardrobe: oversized layers she hides chin in; light: single catchlight in the big eye — композиция строится от глаза"
+      "note": "приказ автора 2026-10-17: «поменяй циклопов на что-нибудь другое, циклопы отстой» — слот R41 заняла Witch-kin (ID закреплён навсегда, Cyclops-kin живёт в летописи); вердикт T4-33 в силе (красивое лицо, сладкие ножки): чистое аниме-лицо, созвездие веснушек — метка вида; skin: candle-warm; wardrobe: brim hat riding low over one eye, star-clasp cape, thigh-high boots — ноги в кадре работают; ember-wisp = закон №3 (раса делает работу): тёплый источник света + проводник взгляда, освещает зону заявки, не particle-spam; light: ember отвечает key light"
     }
   ],
   "directives": {

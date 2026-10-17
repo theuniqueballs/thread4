@@ -28,55 +28,62 @@ export interface RaceEntry {
 
 /** Прицельный anti-shield NEG по семействам — доказанные NEG-сеты живых батчей
  *  (T4-15: fox/cat/elf/harpy) + консервативные расширения. Ключ — маркер
- *  семейства в имени расы. */
+ *  семейства в имени расы.
+ *
+ *  Ревизия 2026-10-17 (аудит-находка №6, сдача T4-34): щит живёт в
+ *  NEG-ЯЗЫКЕ — только реальные риски дрейфа рендера (что НЕЛЬЗЯ
+ *  рисовать). Assert-токены «no X» («no horns» = рога обязаны быть)
+ *  после среза префикса в scribe.ts превращались в запрет самой фичи:
+ *  NEG суккуба запрещал рога/хвост, NEG медузы — змеи-волосы, NEG
+ *  эльфа — ВСЕ уши. Renders спасал только перевес POS (T4-28..T4-33
+ *  вердикты PASS), но каждый кин-слот нёс самострел. Assert-семантика
+ *  удалена; где был реальный риск — заменён дрейф-гвардом. */
 export const FAMILY_SHIELD: { marker: RegExp; neg: string[] }[] = [
-  { marker: /kitsune|fox/i, neg: ['human ears', 'dog ears', 'cat ears', 'no tail', 'multiple tails'] },
-  { marker: /cat/i, neg: ['human ears', 'dog ears', 'fox ears', 'no tail', 'round pupils'] },
-  { marker: /wolf/i, neg: ['human ears', 'dog ears', 'fox ears', 'no tail'] },
-  { marker: /bunny|rabbit/i, neg: ['human ears', 'cat ears', 'no tail'] },
-  { marker: /elf/i, neg: ['human ears', 'no ears', 'drooping ears', 'fox ears'] },
-  { marker: /harpy/i, neg: ['human arms', 'human hands', 'no wings'] },
-  { marker: /dragon/i, neg: ['no horns', 'no tail', 'no wings'] },
-  { marker: /ram|demon|oni/i, neg: ['no horns', 'human ears'] },
+  { marker: /kitsune|fox/i, neg: ['human ears', 'dog ears', 'cat ears', 'multiple tails'] },
+  { marker: /cat/i, neg: ['human ears', 'dog ears', 'fox ears', 'round pupils'] },
+  { marker: /wolf/i, neg: ['human ears', 'dog ears', 'fox ears'] },
+  { marker: /bunny|rabbit/i, neg: ['human ears', 'cat ears'] },
+  { marker: /elf/i, neg: ['human ears', 'drooping ears', 'fox ears'] },
+  { marker: /harpy/i, neg: ['human arms', 'human hands'] },
+  { marker: /dragon/i, neg: ['feathered wings', 'broken horns'] },
+  { marker: /ram|demon|oni/i, neg: ['human ears'] },
   { marker: /serpent|lamia|naga/i, neg: ['human legs', 'legs'] },
   { marker: /merfolk|mermaid/i, neg: ['human legs', 'legs'] },
-  { marker: /cecaelia|octop/i, neg: ['human legs', 'no tentacles'] },
-  { marker: /moth|butterfly/i, neg: ['human arms', 'no wings', 'no antennae'] },
-  { marker: /bee/i, neg: ['no wings', 'no antennae', 'human arms'] },
-  { marker: /bat/i, neg: ['human arms', 'no wings'] },
-  { marker: /jellyfish/i, neg: ['human ears', 'hair tentacles removed'] },
-  { marker: /shark/i, neg: ['human ears', 'no tail', 'no fins'] },
+  { marker: /cecaelia|octop/i, neg: ['human legs'] },
+  { marker: /moth|butterfly/i, neg: ['human arms'] },
+  { marker: /bee/i, neg: ['human arms'] },
+  { marker: /bat/i, neg: ['human arms'] },
+  { marker: /jellyfish/i, neg: ['human ears'] },
+  { marker: /shark/i, neg: ['human ears'] },
   { marker: /slime/i, neg: ['solid skin', 'opaque body'] },
   { marker: /frog/i, neg: ['human ears', 'separate fingers', 'normal eyes'] },
-  { marker: /flower|petal|plant|vine/i, neg: ['no petals', 'no vines', 'plain human skin'] },
-  { marker: /salamander|flame|ember/i, neg: ['no crest', 'no embers', 'normal skin texture'] },
-  { marker: /porcelain|doll|bisque|ball-?joint/i, neg: ['normal human skin', 'no joints', 'subsurface glow'] },
-  /* R37-R41 (вердикт T4-33 2026-10-17: «понадобавляй человекоподобных кинов,
-   * типа суккубы»): маркеры семей без общего корня — щит по имени, фичи
-   * новых кинов не покрываются shieldFromFeatures (Vampire/Cyclops давали
-   * пустой NEG — selftest поймал на живом прогоне). */
-  { marker: /succub|incub/i, neg: ['no horns', 'no tail', 'plain human back'] },
-  { marker: /vampir/i, neg: ['no fangs', 'normal round pupils', 'warm tanned skin'] },
-  { marker: /nephilim|angel|seraph/i, neg: ['no wings', 'no halo'] },
-  { marker: /medusa|gorgon/i, neg: ['human hair', 'no snake hair', 'round pupils'] },
-  { marker: /cyclops/i, neg: ['two eyes', 'two separate eyes'] },
+  { marker: /flower|petal|plant|vine/i, neg: ['plain human skin'] },
+  { marker: /salamander|flame|ember/i, neg: ['normal skin texture'] },
+  { marker: /porcelain|doll|bisque|ball-?joint/i, neg: ['normal human skin'] },
+  /* R37-R41 (вердикт T4-33 2026-10-17 + приказ 2026-10-17 «циклопы
+   * отстой»: R41 заняла Witch-kin): маркеры семей без общего корня —
+   * щит по имени в NEG-языке; фичи новых кинов не покрываются
+   * shieldFromFeatures (Vampire/Cyclops давали пустой NEG — selftest
+   * поймал на живом прогоне). */
+  { marker: /succub|incub/i, neg: ['plain human back', 'large demon wings', 'multiple tails'] },
+  { marker: /vampir/i, neg: ['normal round pupils', 'warm tanned skin'] },
+  { marker: /nephilim|angel|seraph/i, neg: ['black wings', 'dark halo'] },
+  { marker: /medusa|gorgon/i, neg: ['human hair', 'round pupils'] },
+  { marker: /witch/i, neg: ['green skin', 'warts', 'crooked hooked nose', 'halloween costume'] },
 ]
 
-/** anti-shield, выведенный из features, когда семейство не опознано. */
+/** anti-shield, выведенный из features, когда семейство не опознано.
+ *  Ревизия 2026-10-17 (аудит-находка №6): НИКОГДА не эмитим assert-токены
+ *  «no X» — scribe срезает префикс, и NEG запрещает фичу самой расе
+ *  (хвост кота, рога демона, крылья гарпии). Остаются только
+ *  дрейф-гварды: что рендер НЕ должен подставить вместо фичи. */
 export function shieldFromFeatures(features: string[]): string[] {
   const out: string[] = []
   const all = features.join(' ').toLowerCase()
   if (/ears?\b/.test(all)) out.push('human ears')
-  if (/tail/.test(all)) out.push('no tail')
-  if (/horn/.test(all)) out.push('no horns')
-  if (/wing/.test(all)) out.push('no wings')
-  if (/tentacle/.test(all)) out.push('no tentacles')
   if (/pupil/.test(all)) out.push('round pupils')
   if (/webbed/.test(all)) out.push('separate fingers')
   if (/glossy|wide eyes/.test(all)) out.push('normal eyes')
-  if (/petal|vine|pollen/.test(all)) out.push('no petals, no vines')
-  if (/crest|ember|fire/.test(all)) out.push('no crest, no embers')
-  if (/scales?|fin/.test(all)) out.push('no scales')
   return out
 }
 

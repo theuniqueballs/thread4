@@ -623,9 +623,13 @@ function assembleNeg(slot: SlotPlan, out: ScribeSlotOutput, ctx: ScribeCtx): str
       terms.push(...(oc.anti_shield as unknown[]).map(String))
     }
   }
-  /* расовый anti-shield (kin-block, закон №3): kinNeg приходит с «no X»-
-   * префиксом из старого ручного формата — NEG сам негативен, префикс
-   * снимаем («no horns» → «horns»), иначе санитайзер выкинет весь щит */
+  /* расовый anti-shield (kin-block, закон №3). Ревизия 2026-10-17
+   * (аудит-находка №6, сдача T4-34): kin-block теперь эмитит щит в
+   * NEG-ЯЗЫКЕ (дрейф-гварды: human ears, multiple tails…), срез «no X»
+   * остаётся ТОЛЬКО как защита от архивных контрактов со старым
+   * ручным форматом — «no horns» там означал «рога обязаны быть», и
+   * после среза NEG запрещал фичу самой расе (самострел, POS спасал
+   * лишь перевесом). Новые контракты токенов «no X» не несут. */
   if (slot.kinNeg) {
     for (const t of slot.kinNeg.split(',')) {
       const x = t.trim().replace(/^no\s+/i, '').trim()
