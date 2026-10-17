@@ -1606,9 +1606,12 @@ async function main() {
       )
       const g27 = runGates('T4-27', true)
       const ep27 = g27?.receipts.find((r) => r.gate === 'exp-purity')
+      const markerFinds27 = (ep27?.findings ?? []).filter((x) => x.includes('не открывается маркером'))
       check(
-        'exp-purity: чистый канон T4-27 (маркеры на месте, темы в болванках нет) — PASS, ложных срабатываний нет',
-        ep27?.verdict === 'PASS'
+        'exp-purity: канон T4-27 — маркеры гипотез целы (0 потерянных); тема-проза в POS болванок ловится как история («the art of the extraordinary harvest» — та же болезнь, mild-форма)',
+        markerFinds27.length === 0 &&
+          (ep27?.findings ?? []).every((x) => x.includes('тема-слова')) &&
+          (ep27?.findings?.length ?? 0) > 0
       )
     }
 
