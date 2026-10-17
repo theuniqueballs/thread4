@@ -4832,3 +4832,28 @@ Stage Summary:
   (T4-32-вердикт), миграция писца/жнеца/батч-MD на RPC (файловый слой
   работает параллельно, деприкация по плану). Конвейер в патруле,
   cron 464222 жив, движок :3200 в dev-режиме (bun --hot).
+
+---
+Task ID: 1
+Agent: Z.ai Code (main session)
+Task: Полный редизайн дашборда THREAD 4 в «Neon-Anime Cyberpunk / Glassmorphic Tech-Doc» (CENTRAL DOGMA deck) по запросу пользователя: control grid (BURN & REBUILD / FORCE COMPILE / PURGE HEAP), JSONL-визуализатор летописи с крипто-валидацией, rotation window, маскоты-операторы Tsubaki-chan / Charlie-chan, 24-gate матрица.
+
+Work Log:
+- Патч движка: mini-services/t4-engine/src/core/projections.ts — eventToJson теперь отдаёт hash+prev (браузер проверяет prev[i]===hash[i-1] по каждому звену; raw остался внутренним, chain/verify — авторитет). bun --hot подхватил, обратная совместимость сохранена.
+- Старое Стекло заархивировано: .archive/page-glass-cannon-2026-10-18.tsx (233КБ). Новый монолит src/app/page.tsx (~2600 строк) живёт на / (единственный видимый маршрут).
+- layout.tsx: + Orbitron (display) + JetBrains Mono (terminal), lang="en", новая metadata. globals.css: NEON DOGMA-слой — @property conic-ring (вращающаяся неон-рамка BURN), scanline sweep, CRT, перспективная сетка-пол, glow-текст, marquee, nd-red-pulse, неоновые скроллбары, prefers-reduced-motion всё гасит.
+- Компоненты дек-а: boot veil (NERV-стиль, skip по клику), sticky header с LED-кластером и UTC-часами, StatRail (реальные метрики /state, 6 чипов), BURN & REBUILD (двухстадийный ARM→CONFIRM IGNITION, полный ре-аудит цепи в браузере чанками + chain/verify, партиклы, screen shake, read-only), FORCE COMPILE (тема батча + OC-темы 1–3 — обязательный Zod-контракт, rack-LED, sweep 24 ячеек, реальные receipts → вердикт-штамп CLEAN RUN / DRIFT DETECTED / VOID DETECTED / AUTH LOCKED, Idempotency-Key), PURGE HEAP (анимированный коллапс строк, счётчик −N), панель ключа командира (probe без записи).
+- Хроника-терминал: poll /api/t4/engine/events?after=lastSeq каждые 3.5с; каждая строка JSONL — seq/id/type/summary + тик LINKED (зелёный) / MISMATCH (пульсирующий красный) по реальной связке hash; SYS-строки телеметрии; фильтры ALL/CHAIN/SYS, пауза, авто-скролл (замирает на hover), буфер 240.
+- Rotation Window: 3 последние доставленные карточки (T4-34/33/31) — реальные палитры планов, реальные цвета из /api/t4/specs/palettes (словарь названий цветов → HSL с модификаторами deep/pale/neon/dusty), математика FUND 120 − ∪WIN = FREE, «NEXT ROTATION on T4-38 delivery».
+- Операторы: Tsubaki-chan (розовые twin-tails, наушники, компилятор-гейт-контроллер) и Charlie-chan (янтарный боб, HUD-визор, аудитор) — рукописные SVG-чики с настроениями (idle/happy/shock/concerned/focus/sleep), моргание, ахоге-анимация, typewriter-пузыри, ASCII-лица, счётчики гейтов.
+- 24-GATE матрица: реальные слоты плана (kind/rating/paletteId), EXP-полоса ×8, planning gates (structure/exp-purity/floors/window/ab) с реальными вердиктами, штамп-слэм анимация.
+- Live QA (agent-browser + VLM): boot → дек ✓; BURN полный цикл → CLEAN RUN «406 links re-hashed GENESIS→HEAD» ✓; AUTH LOCKED без ключа (LOCK ×5, маскот concerned, «baka»-реплика) ✓; живой compile T4-37 «NEON REQUIEM» (oc×1 «Neon Shrine Maiden») — все 5 гейтов PASS, событие #407 прилетело в терминал живьём с зелёным тиком ✓; PURGE −40 строк ✓; мобайл 390×844 — одна колонка, без переполнений, футер прижат ✓; консоль чистая, ошибок нет.
+- Гигиена канона: T4-37 закрыт void + note-событие «Neon-dogma deck QA» (как T4-35/36 в прошлой фазе). Цепь 409 звеньев, ЦЕЛА, nextSlug T4-38.
+- Инцидент: dev-сервер :3000 умер от промежуточного краша двухшагового редактирования (setOcThemeInput использован до определения) — перезапущен `bun run dev`, 200 на /, pollers живы.
+- lint 0 · tsc 0.
+
+Stage Summary:
+- Дашборд пересобран в киберпанк-эстетику и остался ПОЛНОСТЬЮ реальным: каждая кнопка бьёт в живой RPC-движок :3200, каждый хеш-тик — настоящая браузерная проверка цепи, каждая ячейка матрицы — реальный слот плана.
+- Закрытые классы багов: boot-дедлок (ready&&booted), Zod-контракт compile (ocThemes обязательны → OC-инпуты в UI), set-state-in-effect ×4, ref-during-render, comment-textnodes ×3.
+- Ветка/эра: файловая эра UI официально заменена неон-деком; авторская нумерация продолжается с T4-38 (T4-37 израсходован как честный QA-цикл с note в летописи).
+- Риски/рекомендации следующей фазе: (1) кнопки deliver/void/verdict прямо с дек-а (сейчас только compile), (2) детальный поток gate.run в терминал (сейчас receipts), (3) режим деградации движка — отдельная красивая панель «BATTERY» вместо err-строк, (4) опциональные WebAudio-клики на кнопках, (5) сохранение темы/OC-черновика в localStorage, (6) кэш палитр-спеков (сейчас фетчится каждый boot).

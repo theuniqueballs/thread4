@@ -1,4964 +1,2635 @@
 'use client'
 
 /**
- * THREAD 4 — dashboard (the / route).
- * Dark atelier: zinc surfaces, amber accent, rose for verdicts/X, emerald
- * for gates. No blue, no indigo. Single-page tabbed SPA — no routing.
+ * THREAD-4 // CENTRAL DOGMA — Neon-Anime Cyberpunk control deck.
+ * =====================================================================
+ * Monolithic dashboard (the `/` route) for the THREAD 4 prompt-batch
+ * pipeline. Everything is wired to the REAL t4-engine RPC (:3200 via
+ * the /api/t4/engine proxy):
+ *
+ *   · Live Telemetry & Chronicle — chain.jsonl stream with per-link
+ *     cryptographic validation (prev[i] === hash[i-1], re-checked in
+ *     the browser on every append; GET /v1/chain/verify is authority).
+ *   · BURN & REBUILD — full genesis→head re-audit sweep (read-only).
+ *   · FORCE COMPILE — real POST /v1/compile (commander-key gated),
+ *     receipts drive the 24-gate matrix + verdict stamp.
+ *   · PURGE HEAP — local telemetry buffer flush.
+ *   · Rotation Window — union of the last 3 delivered batches'
+ *     locked palettes (real plan data, real palette spec colors).
+ *   · Operators — Tsubaki-chan (gate controller) & Charlie-chan
+ *     (chronicle auditor) react to live system state.
+ *
+ * Aesthetic: Evangelion / Cyberpunk-2077 — dark glass, neon magenta /
+ * cyan / amber / red, scanlines, waifu operators. No blue/indigo UI
+ * primaries.
  */
 
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { copyText } from '@/lib/clipboard'
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import {
   Activity,
-  Archive as ArchiveIcon,
-  BookOpen,
-  Boxes,
+  AlertTriangle,
   Check,
-  Copy,
-  Download,
-  FileText,
-  FlaskConical,
-  GitCompare,
-  Heart,
-  History,
+  ChevronRight,
+  Database,
+  Eye,
+  EyeOff,
+  Fingerprint,
+  Flame,
+  Gauge,
+  Hash,
   KeyRound,
-  PenLine,
-  ScanEye,
-  ScrollText,
-  Search,
+  Layers,
+  Lock,
+  Pause,
+  Play,
+  Radio,
+  RefreshCw,
+  ShieldAlert,
   ShieldCheck,
   Sparkles,
-  Stamp,
-  Skull,
-  Upload,
+  Terminal as TerminalIcon,
+  Timer,
+  Trash2,
+  Zap,
 } from 'lucide-react'
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { cn } from '@/lib/utils'
 import { toast } from '@/hooks/use-toast'
-import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import { Badge } from '@/components/ui/badge'
-import { Switch } from '@/components/ui/switch'
-import { Slider } from '@/components/ui/slider'
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import {
   ApiError,
   asArray,
   asRecord,
   asStr,
   clearCommanderKey,
-  commanderHeaders,
-  delJson,
-  formatDate,
+  fetchJson,
   getCommanderKey,
-  isNotFound,
   postJson,
   probeCommanderKey,
   setCommanderKey,
-  useApi,
-  type CompilePayload,
-  type DeliverResponse,
-  type ScribeResponse,
 } from '@/components/t4/api'
-import {
-  Chip,
-  EmptyState,
-  ErrorNote,
-  LevelBadge,
-  Mono,
-  Panel,
-  RatingBadge,
-  SkeletonBlock,
-  StatCard,
-  TypeBadge,
-  VerdictBadge,
-} from '@/components/t4/bits'
-import { MarkdownView } from '@/components/t4/markdown'
-import { SpecView } from '@/components/t4/spec-renderers'
-import { TIER_RANK } from '@/lib/t4/verdicts'
-import {
-  BatchCompare,
-  SlotStrip,
-  TrialRadarPanel,
-  type BatchDetailData,
-  type BatchRow,
-  type BatchVerdictRecord,
-} from '@/components/t4/batch-ui'
-import { pendingSlotNav, subscribeSlotNav } from '@/components/t4/nav'
-import {
-  cacheCurrentState,
-  deleteSnapshot,
-  getSnapshot,
-  listSnapshots,
-  restoreSnapshot,
-  type VaultMeta,
-} from '@/components/t4/vault'
 
-/* ------------------------------------------------------------------ */
-/* Tab model                                                           */
-/* ------------------------------------------------------------------ */
+/* ================================================================== */
+/* Types                                                               */
+/* ================================================================== */
 
-/** Преемник Фреда, 2026-10-10: человеческое объяснение отказа замка Залпа 1
- *  для любой мутации летописи из UI. 403 = ключ не совпал/не приложен,
- *  503 = на сервере нет замка вовсе. Всё остальное — как было. */
-function ledgerWriteError(e: unknown): string {
-  if (e instanceof ApiError) {
-    if (e.status === 403) {
-      return getCommanderKey() === ''
-        ? 'ключ командира не сохранён в браузере — Стекло → «Ключ командира»'
-        : 'ключ командира не совпал — проверь его в Стекле (сервер: ~/.t4/commander.key)'
-    }
-    if (e.status === 503) return 'на сервере нет замка (~/.t4/commander.key) — летопись залочена'
-    if (isNotFound(e)) return 'API недоступен'
-    return e.message
-  }
-  return 'Не удалось записать'
-}
+type ApiEnvelope<T> = { ok: boolean; data: T }
 
-type TabId =
-  | 'state'
-  | 'constitution'
-  | 'specs'
-  | 'compile'
-  | 'batches'
-  | 'events'
-  | 'verdicts'
-  | 'glass'
-  | 'vault'
-  | 'archive'
-  | 'reaper'
-
-const TABS: { id: TabId; label: string; icon: React.ReactNode }[] = [
-  { id: 'state', label: 'Состояние', icon: <Activity className="size-3.5" /> },
-  { id: 'constitution', label: 'Документы', icon: <ScrollText className="size-3.5" /> },
-  { id: 'specs', label: 'Спеки', icon: <Boxes className="size-3.5" /> },
-  { id: 'compile', label: 'Сборка', icon: <FlaskConical className="size-3.5" /> },
-  { id: 'batches', label: 'Батчи', icon: <FileText className="size-3.5" /> },
-  { id: 'events', label: 'События', icon: <History className="size-3.5" /> },
-  { id: 'verdicts', label: 'Вердикты', icon: <Heart className="size-3.5" /> },
-  { id: 'glass', label: 'Стекло', icon: <ScanEye className="size-3.5" /> },
-  { id: 'vault', label: 'Хранилище', icon: <ShieldCheck className="size-3.5" /> },
-  { id: 'archive', label: 'Архив 3.2', icon: <ArchiveIcon className="size-3.5" /> },
-  /* 2026-10-15: Жнец — LLM-мета-комментатор состояния конвейера.
-   * 11-я вкладка, под клавишами 1-0 недоступна (их 10) — стрелками/Home/End
-   * или кликом. Это намеренно: жнеца не зовут случайно. */
-  { id: 'reaper', label: 'Жнец', icon: <Skull className="size-3.5" /> },
-]
-
-/** Вкладка из адреса (#tab=batches) или null — deep-link hash-роутинга. */
-function tabFromHash(): TabId | null {
-  if (typeof window === 'undefined') return null
-  const m = /^#tab=([a-z]+)/.exec(window.location.hash)
-  if (m == null) return null
-  return TABS.some((t) => t.id === m[1]) ? (m[1] as TabId) : null
-}
-
-/* ------------------------------------------------------------------ */
-/* Tab: Стекло (Залп 3) — здоровье хрупкого, объявленное честно        */
-/* ------------------------------------------------------------------ */
-
-/* ------------------------------------------------------------------ */
-/* Стекло → ключ командира (браузерная половина замка Залпа 1)         */
-/* ------------------------------------------------------------------ */
-
-function CommanderKeyPanel() {
-  const [input, setInput] = useState('')
-  // ленивый инициализатор, не эффект: вкладка монтируется по клику — SSR-прохода нет,
-  // а правило линтера (set-state-in-effect) требует читать localStorage здесь
-  const [saved, setSaved] = useState<string | null>(() => getCommanderKey() || null)
-  const [probe, setProbe] = useState<
-    { state: 'idle' } | { state: 'busy' } | { state: 'ok'; serverKey: boolean; keyOk: boolean } | { state: 'err'; msg: string }
-  >({ state: 'idle' })
-
-  async function save() {
-    setCommanderKey(input)
-    setSaved(getCommanderKey() || null)
-    setProbe({ state: 'idle' })
-  }
-
-  async function erase() {
-    clearCommanderKey()
-    setInput('')
-    setSaved(null)
-    setProbe({ state: 'idle' })
-  }
-
-  async function test() {
-    setProbe({ state: 'busy' })
-    try {
-      const p = await probeCommanderKey()
-      setProbe({ state: 'ok', serverKey: p.serverKey, keyOk: p.keyOk })
-    } catch (e) {
-      setProbe({ state: 'err', msg: e instanceof Error ? e.message : 'нет ответа' })
-    }
-  }
-
-  const probeText =
-    probe.state === 'busy'
-      ? 'проверяю…'
-      : probe.state === 'ok'
-        ? probe.serverKey
-          ? probe.keyOk
-            ? 'ключ совпал — летопись откроется на запись'
-            : 'ключ НЕ совпал — сверься с ~/.t4/commander.key на сервере'
-          : 'на сервере нет замка (~/.t4/commander.key) — сначала создай его'
-        : probe.state === 'err'
-          ? `не достучался: ${probe.msg}`
-          : null
-
-  return (
-    <Panel title="Ключ командира — браузер" icon={<KeyRound className="size-4" />}>
-      <div className="space-y-3">
-        <p className="text-xs leading-relaxed text-zinc-500">
-          Замок летописи двусторонний (Залп 1 «Правда»): серверная половина —{' '}
-          <code className="text-amber-300">~/.t4/commander.key</code> на машине ядра, браузерная —
-          здесь. Ключ хранится в localStorage этого браузера, уходит только заголовком на запись
-          в <code className="text-amber-300">/api/t4/events</code> и нигде не светится: ни в URL,
-          ни в репо. Без него быстрые вердикты и VLM-сводки упираются в 403.
-        </p>
-        <div className="flex flex-wrap items-center gap-2">
-          <Input
-            type="password"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder={saved ? 'сохранён — вводи новый для замены' : 'вставь ключ командира…'}
-            className="h-8 min-w-52 flex-1 border-zinc-800 bg-zinc-950 font-mono text-xs"
-            autoComplete="off"
-            spellCheck={false}
-          />
-          <Button
-            onClick={save}
-            disabled={input.trim() === ''}
-            size="sm"
-            className="bg-amber-500 text-zinc-950 hover:bg-amber-400 disabled:opacity-40"
-          >
-            Сохранить
-          </Button>
-          <Button
-            onClick={test}
-            size="sm"
-            variant="outline"
-            className="border-zinc-700 bg-zinc-900 text-zinc-300 hover:border-amber-500/40 hover:text-amber-200"
-          >
-            Проверить
-          </Button>
-          {saved ? (
-            <Button
-              onClick={erase}
-              size="sm"
-              variant="outline"
-              className="border-zinc-800 bg-zinc-900 text-zinc-500 hover:border-rose-500/40 hover:text-rose-300"
-            >
-              Стереть
-            </Button>
-          ) : null}
-        </div>
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
-          <span className="text-zinc-500">
-            состояние:{' '}
-            {saved ? (
-              <span className="font-medium text-emerald-400">
-                сохранён в браузере · {saved.length} симв.
-              </span>
-            ) : (
-              <span className="font-medium text-amber-400">не сохранён — запись залочена (403)</span>
-            )}
-          </span>
-          {probeText ? (
-            <span
-              className={cn(
-                'font-medium',
-                probe.state === 'ok'
-                  ? probe.serverKey && probe.keyOk
-                    ? 'text-emerald-400'
-                    : 'text-rose-400'
-                  : 'text-zinc-400'
-              )}
-            >
-              проверка: {probeText}
-            </span>
-          ) : null}
-        </div>
-      </div>
-    </Panel>
-  )
-}
-
-function GlassTab() {
-  const { data, error, loading } = useApi<Record<string, unknown>>('/api/t4/state')
-  const rec = asRecord(data)
-  const glass = asRecord(rec.glass)
-  const chain = asRecord(glass.chain)
-  const debts = asArray(rec.openDebts).map(asStr).filter(Boolean)
-
-  const row = (label: string, value: React.ReactNode, tone: 'ok' | 'bad' | 'neutral' = 'neutral') => (
-    <div className="flex items-center justify-between gap-3 border-b border-zinc-800/60 py-2">
-      <span className="text-xs text-zinc-500">{label}</span>
-      <span
-        className={cn(
-          'font-mono text-xs',
-          tone === 'ok' ? 'text-emerald-400' : tone === 'bad' ? 'text-rose-400' : 'text-zinc-300'
-        )}
-      >
-        {value}
-      </span>
-    </div>
-  )
-
-  const chainOk = chain.ok === true
-
-  return (
-    <div className="space-y-6">
-      <Panel title="Стекло — честная хрупкость (П-8)" icon={<ScanEye className="size-4" />}>
-        {loading ? (
-          <SkeletonBlock lines={6} />
-        ) : error ? (
-          <p className="text-xs text-rose-400">state не читается: {typeof error === "string" ? error : (error as { message?: string }).message ?? "—"}</p>
-        ) : (
-          <div>
-            {row(
-              'commander-key (сервер)',
-              glass.commanderKey === true ? 'на месте' : 'ОТСУТСТВУЕТ — замок',
-              glass.commanderKey === true ? 'ok' : 'bad'
-            )}
-            {(() => {
-              /* Движок-эра (2026-10-17): t4-engine :3200 — RPC-ядро (bun:sqlite
-               * + Bun.serve), SSoT дашборда и CLI. Молчит → честная строка,
-               * дашборд не падает. */
-              const eng = asRecord(glass.engine)
-              if (eng == null) return row('движок-эра RPC :3200', 'телеметрии нет', 'neutral')
-              if (eng.up !== true) return row('движок-эра RPC :3200', 'МОЛЧИТ — деградация до файловой истины', 'bad')
-              const height = eng.chainHeight == null ? '—' : String(eng.chainHeight)
-              return row(
-                'движок-эра RPC :3200',
-                `жив · цепь ${height} зв. ${eng.chainOk === false ? 'ПРОБЛЕМЫ!' : 'цела'} · ${eng.nextSlug ?? '—'} · ${Math.round(Number(eng.uptimeSec ?? 0) / 60)}м аптайм`,
-                eng.chainOk === false ? 'bad' : 'ok'
-              )
-            })()}
-            {row(
-              'хеш-цепь летописи',
-              chainOk ? `ЦЕЛА · ${asStr(chain.events)} звеньев · head ${asStr(chain.head)}` : 'СЛОМАНА',
-              chainOk ? 'ok' : 'bad'
-            )}
-            {row('атомарные записи', glass.atomicWrites === true ? 'tmp+rename' : '?', glass.atomicWrites === true ? 'ok' : 'bad')}
-            {row(
-              'grep-gate (live)',
-              glass.grepGate === true ? 'чист — код не помнит чисел' : 'нарушения!',
-              glass.grepGate === true ? 'ok' : 'bad'
-            )}
-            {row('писец: последний черновик', asStr(glass.scribeLastDraft)?.slice(0, 10) || 'ещё не писал', glass.scribeLastDraft ? 'ok' : 'neutral')}
-            {row('последняя проверка восстановления', asStr(glass.lastRecoveryCheck)?.slice(0, 10) || '—')}
-            {(() => {
-              const cycle = asRecord(glass.authorCycle)
-              const hours = cycle.hours
-              const label = hours == null ? asStr(cycle.note) || '—' : `${hours} ч`
-              const bad = hours != null && Number(hours) > 24
-              return row(`цикл автора (${asStr(cycle.slug) || '—'})`, label, bad ? 'bad' : 'ok')
-            })()}
-            {row('граница чтения', asStr(glass.readBoundary) || '—')}
-            {row('открытые долги', debts.length === 0 ? 'нет' : String(debts.length), debts.length === 0 ? 'ok' : 'bad')}
-            {row('прошлые смерти', '3 — все пережиты из бандла/сейфа', 'neutral')}
-          </div>
-        )}
-      </Panel>
-
-      <CommanderKeyPanel />
-
-      <Panel title="Как лечить стекло" icon={<Stamp className="size-4" />}>
-        <div className="space-y-2 text-xs text-zinc-400">
-          <p>· Обрыв питания — не страшно: записи атомарны, а истина лежит в git. Восстановление: git bundle + сейф браузера (Хранилище) + лог.</p>
-          <p>· Сервер залочен (commander-key нет) — создай <code className="text-amber-300">~/.t4/commander.key</code>, состояние появится здесь зелёным; затем сохрани копию ключа в панели выше — и пиши вердикты прямо из браузера.</p>
-          <p>· Цепь сломана — значит, летопись правили руками. Это громкий детектор, а не баг: разберись, кто и что правил, потом <code className="text-amber-300">bun thread4/cli.ts verify --heal</code>.</p>
-          <p>· Внешний доступ к треду — read.lock (файл-флаг на машине ядра: есть — GET требует ключ командира; нет — чтение открыто локально; см. границу чтения выше).</p>
-        </div>
-      </Panel>
-    </div>
-  )
-}
-
-/* ------------------------------------------------------------------ */
-/* Tab: Состояние                                                      */
-/* ------------------------------------------------------------------ */
-
-function StateTab() {
-  const { data, error, loading } = useApi<Record<string, unknown>>('/api/t4/state')
-  const rec = asRecord(data)
-  const counts = asRecord(rec.counts)
-  const debts = asArray(rec.openDebts).map(asStr).filter(Boolean)
-
-  return (
-    <div className="space-y-6">
-      <Panel title="Эпоха" icon={<Sparkles className="size-4" />}>
-        {loading ? (
-          <SkeletonBlock lines={3} />
-        ) : error ? (
-          <ErrorNote text="Ядро ещё не отвечает" hint="API /api/t4/state подключается на этапе интеграции ядра" />
-        ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <StatCard label="Эпоха" value={asStr(rec.era) || 'THREAD 4'} hint="чистый лист" />
-            <StatCard label="Последний батч" value={asStr(rec.lastBatch) || '—'} hint="новая эра, имена с нуля" />
-            <StatCard label="Следующий шаг" value={asStr(rec.nextStep) || 'T4-01'} hint="тема от автора · план: gen-rawplus T4-28" />
-            <StatCard label="Гейты" value={asStr(rec.gateHealth) || '—'} hint="hard / warn / advisory" />
-          </div>
-        )}
-      </Panel>
-
-      <Panel title="Система в числах" icon={<Boxes className="size-4" />}>
-        {loading ? (
-          <SkeletonBlock lines={2} />
-        ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-            <StatCard label="Батчи" value={asStr(counts.batches) || '0'} />
-            <StatCard label="События" value={asStr(counts.events) || '0'} />
-            <StatCard
-              label="Носители"
-              value={asStr(counts.carriers) || '—'}
-              hint={asStr(counts.carriers) ? 'carriers.json читается' : 'спека не читается — ДЕЙСТВУЙ'}
-            />
-            <StatCard
-              label="Позы"
-              value={asStr(counts.poses) || '—'}
-              hint={asStr(counts.poses) ? 'poses.json читается' : 'спека не читается — ДЕЙСТВУЙ'}
-            />
-            <StatCard
-              label="Палитры"
-              value={asStr(counts.palettes) || '—'}
-              hint={asStr(counts.palettes) ? 'palettes.json читается' : 'спека не читается — ДЕЙСТВУЙ'}
-            />
-          </div>
-        )}
-      </Panel>
-
-      <Panel title="Открытые долги" icon={<History className="size-4" />}>
-        {debts.length === 0 ? (
-          <EmptyState
-            title="Долгов нет"
-            hint="Чистый лист эпохи. Долги появятся с первыми батчами и вердиктами."
-          />
-        ) : (
-          <ul className="space-y-2">
-            {debts.map((d, i) => (
-              <li key={i} className="flex items-start gap-2 text-sm text-zinc-300">
-                <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-amber-500" />
-                {d}
-              </li>
-            ))}
-          </ul>
-        )}
-      </Panel>
-    </div>
-  )
-}
-
-/* ------------------------------------------------------------------ */
-/* Tab: Документы (конституция / вкус / рендерер-факты)                */
-/* ------------------------------------------------------------------ */
-
-const DOCS = [
-  { id: 'constitution', label: 'Конституция' },
-  { id: 'taste', label: 'Вкус' },
-  { id: 'facts', label: 'Рендерер-факты' },
-  { id: 'forge', label: 'Кузница движков' },
-  { id: 'niche', label: 'Ниша' },
-  { id: 'verdict-analysis', label: 'Анализ вердиктов' },
-] as const
-
-function DocsTab() {
-  const [doc, setDoc] = useState<(typeof DOCS)[number]['id']>('constitution')
-  const { data, error, loading } = useApi<{ title: string; markdown: string }>(`/api/t4/docs/${doc}`)
-
-  return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap gap-2" role="group" aria-label="Документы эпохи">
-        {DOCS.map((d) => (
-          <button
-            key={d.id}
-            onClick={() => setDoc(d.id)}
-            aria-pressed={doc === d.id}
-            className={cn(
-              'rounded-md border px-3 py-1.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-500/60',
-              doc === d.id
-                ? 'border-amber-500/50 bg-amber-500/10 text-amber-300'
-                : 'border-zinc-800 bg-zinc-900 text-zinc-400 hover:border-zinc-700 hover:text-zinc-200'
-            )}
-          >
-            {d.label}
-          </button>
-        ))}
-      </div>
-      <Panel bodyClassName="max-h-[70vh] overflow-y-auto t4-scroll">
-        {loading ? (
-          <SkeletonBlock lines={12} />
-        ) : error ? (
-          <ErrorNote text="Документ недоступен" hint="API /api/t4/docs подключается на этапе интеграции ядра" />
-        ) : (
-          <MarkdownView>{data?.markdown ?? ''}</MarkdownView>
-        )}
-      </Panel>
-    </div>
-  )
-}
-
-/* ------------------------------------------------------------------ */
-/* Tab: Спеки                                                          */
-/* ------------------------------------------------------------------ */
-
-function SpecsTab() {
-  const list = useApi<{ specs: { id: string; name: string; count: number; version: string }[] }>('/api/t4/specs')
-  const [active, setActive] = useState<string | null>(null)
-  const [filter, setFilter] = useState('')
-
-  const specs = list.data?.specs ?? []
-  const current = active ?? specs[0]?.id ?? null
-  const spec = useApi<unknown>(current ? `/api/t4/specs/${current}` : null)
-
-  return (
-    <div className="grid grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-[260px_minmax(0,1fr)]">
-      {/* minmax(0,1fr): грид-трек без него раздувается под контент — на 390px
-       *  страница уезжала вбок на 190px (QA webDevReview #6, мобильный обход) */}
-      <Panel title="Спеки" icon={<Boxes className="size-4" />} bodyClassName="max-h-[70vh] overflow-y-auto t4-scroll">
-        {list.loading ? (
-          <SkeletonBlock lines={6} />
-        ) : list.error ? (
-          <ErrorNote text="Список спек недоступен" hint="ядро ещё не подключено" />
-        ) : specs.length === 0 ? (
-          <EmptyState title="Спеки не найдены" />
-        ) : (
-          <div className="space-y-1.5">
-            {specs.map((s) => (
-              <button
-                key={s.id}
-                onClick={() => setActive(s.id)}
-                className={cn(
-                  'flex w-full items-center justify-between gap-2 rounded-md border px-3 py-2 text-left text-xs transition-colors',
-                  current === s.id
-                    ? 'border-amber-500/50 bg-amber-500/10 text-amber-200'
-                    : 'border-zinc-800 bg-zinc-900/60 text-zinc-300 hover:border-zinc-700'
-                )}
-              >
-                <span className="font-medium">{s.name}</span>
-                <Chip tone={current === s.id ? 'amber' : 'zinc'}>{s.count}</Chip>
-              </button>
-            ))}
-          </div>
-        )}
-      </Panel>
-
-      <Panel
-        title={specs.find((s) => s.id === current)?.name ?? 'Спека'}
-        icon={<BookOpen className="size-4" />}
-        action={
-          <Input
-            value={filter}
-            onChange={(e) => setFilter(e.target.value)}
-            placeholder="Фильтр…"
-            className="h-8 w-40 border-zinc-800 bg-zinc-950 text-xs sm:w-56"
-          />
-        }
-        bodyClassName="max-h-[70vh] overflow-y-auto t4-scroll"
-      >
-        {spec.loading ? (
-          <SkeletonBlock lines={10} />
-        ) : spec.error ? (
-          <ErrorNote text="Спека недоступна" />
-        ) : (
-          <SpecView id={current ?? ''} spec={spec.data} filter={filter.toLowerCase()} />
-        )}
-      </Panel>
-    </div>
-  )
-}
-
-/* ------------------------------------------------------------------ */
-/* Tab: Сборка (компилятор контрактов)                                 */
-/* ------------------------------------------------------------------ */
-
-/* ------------------------------------------------------------------ */
-/* Черновик контракта: авторский бриф БЕЗ компиляции (низкое доверие   */
-/* к авто-входам — Issue #21; номер присваивается автоматически).       */
-/* ------------------------------------------------------------------ */
-
-const OC_RATINGS = ['PG-13', 'R', 'R+', 'X'] as const
-
-/* Черновик в списке (GET /api/t4/contract-draft, ревью UI 2026-10-11):
- * бриф не исчезает после сохранения — видно, что собрано, что ждёт */
-interface DraftMeta {
-  slug: string
-  theme: string
-  createdAt: string
-  kinCount: number
-  ocCount: number
-  abPairs: number
-  themeWords: string[]
-  /** EXP-слоты поверх 24 из брифа (null — умолчание policy = 2) */
-  exp: number | null
-  assembled: boolean
-}
-
-function DraftComposer() {
-  const meta = useApi<{
-    nextSlug: string
-    races: { id: string; name: string; status?: string }[]
-    drafts: DraftMeta[]
-    /** бюджет EXP из policy law.expSlotsMax (напоминание автора 2026-10-12) */
-    expSlotsMax?: number
-    /** T4-004: закон посадки видов (2×niche, потолок мейнов) — пикер и
-     * ползунок клэмпятся этим числом, гвард POST зеркалит его */
-    speciesMax?: number
-  }>('/api/t4/contract-draft')
-  const [theme, setTheme] = useState('')
-  const [oc, setOc] = useState([
-    { theme: '', rating: 'R+', wishes: '' },
-    { theme: '', rating: 'R+', wishes: '' },
-    { theme: '', rating: 'R+', wishes: '' },
-  ])
-  const [mainWishes, setMainWishes] = useState('')
-  /* тема-слова автора — отрисуемые теги через запятую (точная привязка
-   * к теме: писец вплетает их в кадры ПЕРВЫМИ, гейт theme-presence
-   * меряет их в ≥60% слотов — ревью UI 2026-10-11) */
-  const [themeWordsRaw, setThemeWordsRaw] = useState('')
-  const [speciesOn, setSpeciesOn] = useState(true)
-  const [speciesCount, setSpeciesCount] = useState(10)
-  const [speciesList, setSpeciesList] = useState<string[]>([])
-  /* T4-004: перебор видов ловится на вводе — N+1-й чип не встаёт, у пикера
-   * висит пояснение (до фикса UI молчал, автор упирался в стену на сборке) */
-  const [kinWarn, setKinWarn] = useState<string | null>(null)
-  const [xSlots, setXSlots] = useState(0)
-  const [abPairs, setAbPairs] = useState(3)
-  /* EXP-слоты поверх 24 (напоминание автора 2026-10-12: «у тебя если чё
-   * 9 слотов под EXP»): умолчание 2 — policy; UI предлагает пары (0/2/4/6/8),
-   * бюджет прилетает из policy — контрол не может заказать больше закона */
-  const [expSlots, setExpSlots] = useState(2)
-  const [rehab, setRehab] = useState(true)
-  const [busy, setBusy] = useState(false)
-  const [saved, setSaved] = useState<string | null>(null)
-  const [err, setErr] = useState<string | null>(null)
-  /* удаление несобранного черновика: двухкликовое подтверждение —
-   * первый клик взводит «точно?», второй (в течение 4с) удаляет */
-  const [confirmDel, setConfirmDel] = useState<string | null>(null)
-  const [delErr, setDelErr] = useState<string | null>(null)
-  const [delBusy, setDelBusy] = useState<string | null>(null)
-
-  const themeWords = themeWordsRaw
-    .split(',')
-    .map((w) => w.trim().toLowerCase())
-    .filter(Boolean)
-
-  function setOcRow(i: number, patch: Partial<{ theme: string; rating: string; wishes: string }>) {
-    setOc((rows) => rows.map((r, j) => (j === i ? { ...r, ...patch } : r)))
-  }
-  /* закон посадки видов (T4-004): speciesMax из policy через GET;
-   * пока меты нет — консервативные 14 (2×7 NICHE), после загрузки — точное */
-  const speciesMax = meta.data?.speciesMax ?? 14
-  function toggleSpecies(id: string) {
-    if (!speciesList.includes(id) && speciesList.length >= speciesMax) {
-      setKinWarn(
-        `закон сажает максимум ${speciesMax} кинов (NICHE ×2, policy) — сначала сними лишний, потом отметь новый`
-      )
-      return
-    }
-    setKinWarn(null)
-    setSpeciesList((l) => (l.includes(id) ? l.filter((x) => x !== id) : [...l, id]))
-  }
-
-  async function save() {
-    setBusy(true)
-    setSaved(null)
-    setErr(null)
-    try {
-      const res = await postJson<{ ok: boolean; slug: string }>('/api/t4/contract-draft', {
-        theme,
-        ocThemes: oc,
-        mainWishes,
-        themeWords: themeWordsRaw,
-        speciesOn,
-        speciesCount,
-        speciesList,
-        xSlots,
-        abPairs,
-        exp: expSlots,
-        rehab,
-        engine: 'per-theme',
-      })
-      setSaved(res.slug)
-      setTheme('')
-      setOc([
-        { theme: '', rating: 'R+', wishes: '' },
-        { theme: '', rating: 'R+', wishes: '' },
-        { theme: '', rating: 'R+', wishes: '' },
-      ])
-      setMainWishes('')
-      setThemeWordsRaw('')
-      meta.reload()
-    } catch (e) {
-      setErr(e instanceof ApiError ? e.message : 'Сеть недоступна — черновик не сохранён')
-    } finally {
-      setBusy(false)
-    }
-  }
-
-  async function removeDraft(slug: string) {
-    if (confirmDel !== slug) {
-      setConfirmDel(slug)
-      window.setTimeout(() => setConfirmDel((cur) => (cur === slug ? null : cur)), 4000)
-      return
-    }
-    setConfirmDel(null)
-    setDelErr(null)
-    setDelBusy(slug)
-    try {
-      await delJson<{ ok: boolean }>(`/api/t4/contract-draft?slug=${encodeURIComponent(slug)}`)
-      meta.reload()
-    } catch (e) {
-      setDelErr(e instanceof ApiError ? e.message : `не удалось убрать ${slug}`)
-    } finally {
-      setDelBusy(null)
-    }
-  }
-
-  const races = meta.data?.races ?? []
-
-  return (
-    <Panel
-      title={`Черновик контракта — без компиляции · номер ${meta.data?.nextSlug ?? 'T4-??'}`}
-      icon={<PenLine className="size-4" />}
-    >
-      <div className="space-y-4">
-        <p className="text-xs leading-relaxed text-zinc-500">
-          Авторский бриф: тема, три темы для ОС с рейтингами, пожелания и раскладка.
-          Номер присваивается автоматически. Компилятор этот файл не читает —
-          бриф забирает писец (закон письма, DoD v1).
-        </p>
-
-        <div className="space-y-1.5">
-          <p className="text-[11px] uppercase tracking-wider text-zinc-500">Тема батча</p>
-          <Input
-            value={theme}
-            onChange={(e) => setTheme(e.target.value)}
-            placeholder="Например: MAIN CHARACTER SYNDROME…"
-            className="border-zinc-800 bg-zinc-950"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <p className="text-[11px] uppercase tracking-wider text-zinc-500">Три темы для ОС + рейтинг</p>
-          {oc.map((row, i) => (
-            <div key={i} className="flex flex-wrap items-center gap-2">
-              <Badge variant="outline" className="w-14 justify-center border-fuchsia-800/60 text-fuchsia-400">
-                OC-{i + 1}
-              </Badge>
-              <Input
-                value={row.theme}
-                onChange={(e) => setOcRow(i, { theme: e.target.value })}
-                placeholder="Тема ОС…"
-                className="min-w-40 flex-1 border-zinc-800 bg-zinc-950"
-              />
-              <div className="flex gap-1">
-                {OC_RATINGS.map((r) => (
-                  <button
-                    key={r}
-                    onClick={() => setOcRow(i, { rating: r })}
-                    className={cn(
-                      'rounded-md border px-2 py-1 font-mono text-[11px] transition-colors',
-                      row.rating === r
-                        ? 'border-fuchsia-500/60 bg-fuchsia-500/15 text-fuchsia-300'
-                        : 'border-zinc-800 bg-zinc-900 text-zinc-500 hover:text-zinc-300'
-                    )}
-                  >
-                    {r}
-                  </button>
-                ))}
-              </div>
-              <Input
-                value={row.wishes}
-                onChange={(e) => setOcRow(i, { wishes: e.target.value })}
-                placeholder="Пожелания к ОС…"
-                className="min-w-40 flex-1 border-zinc-800 bg-zinc-950 text-xs"
-              />
-            </div>
-          ))}
-        </div>
-
-        <div className="space-y-1.5">
-          <p className="text-[11px] uppercase tracking-wider text-zinc-500">
-            Пожелания к основной теме
-          </p>
-          <Textarea
-            value={mainWishes}
-            onChange={(e) => setMainWishes(e.target.value)}
-            placeholder="Акценты, реюз героинь, зоны, настроение…"
-            className="min-h-16 border-zinc-800 bg-zinc-950 text-sm"
-          />
-        </div>
-
-        {/* Тема-слова автора — точная привязка к теме (ревью UI 2026-10-11):
-            отрисуемые теги через запятую; писец вплетает их в кадры первыми,
-            гейт theme-presence меряет ≥60% слотов; название темы в POS
-            запрещено законом №26 — привязка живёт через эти слова */}
-        <div className="space-y-1.5">
-          <p className="text-[11px] uppercase tracking-wider text-zinc-500">
-            Тема-слова — отрисуемые теги ({themeWords.length}/8)
-          </p>
-          <Input
-            value={themeWordsRaw}
-            onChange={(e) => setThemeWordsRaw(e.target.value)}
-            placeholder="Например: moonlight, floating hair, closed eyes, star particles…"
-            className="border-zinc-800 bg-zinc-950"
-            aria-label="Тема-слова автора — отрисуемые теги через запятую"
-          />
-          {themeWords.length > 0 ? (
-            <div className="flex flex-wrap gap-1.5 pt-1">
-              {themeWords.slice(0, 8).map((w) => (
-                <span
-                  key={w}
-                  className="rounded-full border border-emerald-500/40 bg-emerald-500/10 px-2 py-0.5 text-[11px] text-emerald-300"
-                >
-                  {w}
-                </span>
-              ))}
-              {themeWords.length > 8 ? (
-                <span className="text-[11px] text-zinc-500">лишние обрежутся до 8</span>
-              ) : null}
-            </div>
-          ) : (
-            <p className="text-[11px] leading-relaxed text-zinc-600">
-              Что рендерер должен НАРИСОВАТЬ, чтобы тема читалась в кадре. Пусто — писец выведет
-              слова из темы сам (спайн); заполнено — твои слова идут первыми, спайн дополняет хвост.
-            </p>
-          )}
-        </div>
-
-        <div className="grid gap-3 rounded-lg border border-zinc-800/80 bg-zinc-900/40 p-3 sm:grid-cols-2">
-          <div className="flex items-center justify-between gap-2">
-            <span className="text-xs text-zinc-300">Кины (Species)</span>
-            <Switch checked={speciesOn} onCheckedChange={setSpeciesOn} />
-          </div>
-          <div className="flex items-center justify-between gap-2">
-            <span className="text-xs text-zinc-300">
-              Сколько кинов
-              <span className="text-zinc-500"> (если виды не отмечать)</span>
-            </span>
-            {speciesList.length > 0 ? (
-              <span className="font-mono text-[11px] text-fuchsia-300">
-                квота = {speciesList.length} отмеченных (список главнее)
-              </span>
-            ) : (
-              <>
-                <span className="w-8 text-right font-mono text-xs text-amber-400">{Math.min(speciesCount, speciesMax)}</span>
-                <Slider
-                  value={[Math.min(speciesCount, speciesMax)]}
-                  onValueChange={(v) => setSpeciesCount(v[0] ?? speciesCount)}
-                  min={0}
-                  max={speciesMax}
-                  step={1}
-                  className="w-28"
-                  disabled={!speciesOn}
-                  aria-label="Сколько киновых слотов при ротации пула"
-                />
-              </>
-            )}
-          </div>
-          <div className="flex items-center justify-between gap-2">
-            <span className="text-xs text-zinc-300">X-слоты</span>
-            <div className="flex gap-1">
-              {[0, 1, 2].map((n) => (
-                <button
-                  key={n}
-                  onClick={() => setXSlots(n)}
-                  className={cn(
-                    'rounded-md border px-2.5 py-1 font-mono text-[11px] transition-colors',
-                    xSlots === n
-                      ? 'border-rose-500/60 bg-rose-500/15 text-rose-300'
-                      : 'border-zinc-800 bg-zinc-900 text-zinc-500 hover:text-zinc-300'
-                  )}
-                >
-                  {n}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div className="flex items-center justify-between gap-2">
-            <span className="text-xs text-zinc-300">A/B-пары</span>
-            <div className="flex gap-1">
-              {[0, 1, 2, 3].map((n) => (
-                <button
-                  key={n}
-                  onClick={() => setAbPairs(n)}
-                  className={cn(
-                    'rounded-md border px-2.5 py-1 font-mono text-[11px] transition-colors',
-                    abPairs === n
-                      ? 'border-emerald-500/60 bg-emerald-500/15 text-emerald-300'
-                      : 'border-zinc-800 bg-zinc-900 text-zinc-500 hover:text-zinc-300'
-                  )}
-                >
-                  {n}
-                </button>
-              ))}
-            </div>
-          </div>
-          {/* EXP-слоты поверх 24 — бюджет автора (law.expSlotsMax, приказ
-              2026-10-08 + напоминание 2026-10-12). Парами: радар ждёт A/B —
-              нечётное генератор выровняет вниз. Умолчание 2 = policy. */}
-          <div className="flex items-center justify-between gap-2">
-            <span className="text-xs text-zinc-300">
-              EXP-слоты{' '}
-              <span className="text-zinc-500">поверх 24 · пары A/B</span>
-            </span>
-            <div className="flex gap-1">
-              {[0, 2, 4, 6, 8].map((n) => (
-                <button
-                  key={n}
-                  onClick={() => setExpSlots(n)}
-                  aria-label={`EXP-слотов: ${n}`}
-                  className={cn(
-                    'rounded-md border px-2.5 py-1 font-mono text-[11px] transition-colors',
-                    expSlots === n
-                      ? 'border-violet-500/60 bg-violet-500/15 text-violet-300'
-                      : 'border-zinc-800 bg-zinc-900 text-zinc-500 hover:text-zinc-300'
-                  )}
-                >
-                  {n}
-                </button>
-              ))}
-              <span
-                className="ml-1 self-center font-mono text-[10px] text-zinc-600"
-                title={`бюджет приказа: ${meta.data?.expSlotsMax ?? 9}; нечётное число выровняется в пары вниз`}
-              >
-                ≤{meta.data?.expSlotsMax ?? 9}
-              </span>
-            </div>
-          </div>
-          <div className="flex items-center justify-between gap-2">
-            <span className="text-xs text-zinc-300">REHAB-добор каналов</span>
-            <Switch checked={rehab} onCheckedChange={setRehab} />
-          </div>
-          <div className="flex items-center justify-between gap-2">
-            <span className="text-xs text-zinc-300">Движок</span>
-            <Badge variant="outline" className="border-zinc-700 font-mono text-[11px] text-zinc-400">
-              per-theme (одноразовый)
-            </Badge>
-          </div>
-        </div>
-
-        {speciesOn && races.length > 0 && (
-          <div className="space-y-2">
-            <p className="text-[11px] uppercase tracking-wider text-zinc-500">
-              Какие кины — отмечай любимых ({speciesList.length}/{speciesMax} · ★ — золото автора · люди —
-              мейны без кина, слот не тратят)
-            </p>
-            {/* T4-004: чипы за капом не выбираются — это не ошибка сети,
-             * это закон посадки; пояснение живёт у места клика */}
-            {kinWarn ? (
-              <p
-                role="status"
-                className="rounded-md border border-rose-500/40 bg-rose-500/10 px-2.5 py-1.5 text-[11px] text-rose-300"
-              >
-                {kinWarn}
-              </p>
-            ) : null}
-            <div className="flex flex-wrap gap-1.5">
-              {races.map((r) => {
-                const atCap = !speciesList.includes(r.id) && speciesList.length >= speciesMax
-                return (
-                <button
-                  key={r.id}
-                  onClick={() => toggleSpecies(r.id)}
-                  title={
-                    atCap
-                      ? `закон сажает максимум ${speciesMax} — сними лишний чип, потом отметь ${r.name}`
-                      : r.status === 'gold'
-                        ? 'золотая раса автора'
-                        : undefined
-                  }
-                  aria-label={
-                    atCap
-                      ? `${r.name} — недоступно: достигнут максимум ${speciesMax} видов`
-                      : r.status === 'gold'
-                        ? `${r.name} — золотая раса автора`
-                        : r.name
-                  }
-                  aria-disabled={atCap}
-                  className={cn(
-                    'rounded-full border px-2.5 py-1 text-[11px] transition-colors',
-                    atCap && 'cursor-not-allowed opacity-40',
-                    speciesList.includes(r.id)
-                      ? 'border-fuchsia-500/60 bg-fuchsia-500/15 text-fuchsia-300'
-                      : r.status === 'gold'
-                        ? 'border-amber-500/40 bg-amber-500/10 text-amber-300/90 hover:border-amber-400/70 hover:text-amber-200'
-                        : 'border-zinc-800 bg-zinc-900/60 text-zinc-500 hover:border-zinc-700 hover:text-zinc-300',
-                    !atCap && 'hover:border-fuchsia-500/40'
-                  )}
-                >
-                  {r.status === 'gold' ? '★ ' : ''}
-                  {r.name}
-                </button>
-                )
-              })}
-            </div>
-          </div>
-        )}
-
-        <div className="flex items-center gap-3">
-          <Button
-            onClick={save}
-            disabled={busy || theme.trim() === ''}
-            className="bg-gradient-to-r from-amber-500 to-fuchsia-600 font-medium text-zinc-950 hover:from-amber-400 hover:to-fuchsia-500"
-          >
-            {busy ? 'Сохраняю…' : `Сохранить черновик ${meta.data?.nextSlug ?? ''}`}
-          </Button>
-          {saved ? (
-            <span className="flex items-center gap-1 text-xs text-emerald-400">
-              <Check className="size-3.5" /> черновик {saved} записан — в thread4/drafts/
-            </span>
-          ) : null}
-          {err ? <span className="text-xs text-rose-400">{err}</span> : null}
-        </div>
-
-        {/* Черновики автора — бриф не исчезает после сохранения (ревью UI
-            2026-10-11): видно, что лежит в drafts/, что уже собрано; несобранное
-            можно убрать (собранное — летопись, кнопки нет) */}
-        {(meta.data?.drafts?.length ?? 0) > 0 && (
-          <div className="space-y-2 border-t border-zinc-800/80 pt-3">
-            <p className="text-[11px] uppercase tracking-wider text-zinc-500">
-              Черновики ({meta.data?.drafts.length}) — собранные ждут рендера, несобранные можно убрать
-            </p>
-            {delErr ? <p className="text-xs text-rose-400">{delErr}</p> : null}
-            <div className="max-h-72 space-y-1.5 overflow-y-auto pr-1">
-              {meta.data?.drafts.map((d) => (
-                <div
-                  key={d.slug}
-                  className="flex flex-wrap items-center gap-2 rounded-lg border border-zinc-800/80 bg-zinc-900/40 px-3 py-2"
-                >
-                  <Badge
-                    variant="outline"
-                    className={cn(
-                      'justify-center font-mono text-[11px]',
-                      d.assembled
-                        ? 'border-emerald-600/50 text-emerald-400'
-                        : 'border-amber-600/50 text-amber-400'
-                    )}
-                  >
-                    {d.slug}
-                  </Badge>
-                  <span className="min-w-0 flex-1 truncate text-sm text-zinc-200" title={d.theme}>
-                    «{d.theme}»
-                  </span>
-                  <span className="font-mono text-[11px] text-zinc-500">
-                    кины {d.kinCount} · ОС {d.ocCount} · A/B {d.abPairs}
-                    {d.exp != null && d.exp !== 2 ? ` · EXP ${d.exp}` : ''}
-                  </span>
-                  {d.themeWords.length > 0 ? (
-                    <span
-                      className="max-w-40 truncate font-mono text-[11px] text-emerald-400/80"
-                      title={d.themeWords.join(', ')}
-                    >
-                      {d.themeWords.length} тема-слов
-                    </span>
-                  ) : null}
-                  <span className="text-[11px] text-zinc-600">{formatDate(d.createdAt)}</span>
-                  {d.assembled ? (
-                    <Badge
-                      variant="outline"
-                      className="border-emerald-700/60 font-mono text-[10px] text-emerald-400"
-                    >
-                      собран
-                    </Badge>
-                  ) : (
-                    <button
-                      onClick={() => removeDraft(d.slug)}
-                      disabled={delBusy === d.slug}
-                      className={cn(
-                        'rounded-md border px-2 py-1 font-mono text-[11px] transition-colors',
-                        confirmDel === d.slug
-                          ? 'border-rose-500/70 bg-rose-500/15 text-rose-300'
-                          : 'border-zinc-800 bg-zinc-900 text-zinc-500 hover:border-rose-500/40 hover:text-rose-300'
-                      )}
-                      aria-label={`Убрать несобранный черновик ${d.slug}`}
-                    >
-                      {delBusy === d.slug ? 'убираю…' : confirmDel === d.slug ? 'точно убрать?' : 'убрать'}
-                    </button>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-    </Panel>
-  )
-}
-
-function CompileTab() {
-  const [theme, setTheme] = useState('')
-  const [engine, setEngine] = useState('')
-  const [ocRows, setOcRows] = useState([
-    { name: '', theme: '' },
-    { name: '', theme: '' },
-    { name: '', theme: '' },
-  ])
-  const [busy, setBusy] = useState(false)
-  const [result, setResult] = useState<CompilePayload | null>(null)
-  const [err, setErr] = useState<string | null>(null)
-  const [copied, setCopied] = useState<string | null>(null)
-  const contracts = useApi<{ items: { slug: string; theme: string; createdAt: string }[] }>('/api/t4/contracts')
-  const [viewSlug, setViewSlug] = useState<string | null>(null)
-  const detail = useApi<{ markdown: string }>(viewSlug ? `/api/t4/contracts/${viewSlug}` : null)
-
-  /* авто-писец */
-  const [scribe, setScribe] = useState<{
-    slug: string
-    busy: boolean
-    err: string | null
-    res: ScribeResponse | null
-  } | null>(null)
-  const [deliverNote, setDeliverNote] = useState<string | null>(null)
-
-  async function compile() {
-    const t = theme.trim()
-    if (!t || busy) return
-    setBusy(true)
-    setErr(null)
-    setResult(null)
-    const ocOrders = ocRows.map((r) => r.name.trim()).filter(Boolean)
-    const ocThemes: Record<string, string> = {}
-    for (const r of ocRows) {
-      const n = r.name.trim()
-      const th = r.theme.trim()
-      if (n && th) ocThemes[n] = th
-    }
-    const payload: Record<string, unknown> = { theme: t }
-    if (ocOrders.length > 0) payload.ocOrders = ocOrders
-    if (Object.keys(ocThemes).length > 0) payload.ocThemes = ocThemes
-    if (engine.trim()) payload.engine = engine.trim()
-    try {
-      const res = await postJson<CompilePayload>('/api/t4/compile', payload)
-      setResult(res)
-      contracts.reload()
-      toast({
-        title: `Контракт ${res.slug} собран`,
-        description: `спред из policy · окно учтено · дальше — писец`,
-      })
-    } catch (e) {
-      setErr(e instanceof ApiError ? `API: ${e.message}` : 'Сеть недоступна')
-      toast({ title: 'Сборка не удалась', description: e instanceof ApiError ? e.message : 'сеть', variant: 'destructive' })
-    } finally {
-      setBusy(false)
-    }
-  }
-
-  async function copyOrder(slug: string) {
-    /* буфер без тихих сбоев (лид 2026-10-16): отказ виден тостом —
-     * «в поле останется прошлый приказ» дороже секунды тишины */
-    const res = await copyText(`Super Z, произведи ${slug}`)
-    if (res.ok) {
-      setCopied(slug)
-      setTimeout(() => setCopied((c) => (c === slug ? null : c)), 2500)
-    } else {
-      setCopied(null)
-      toast({
-        title: `Приказ ${slug} НЕ в буфере`,
-        description: res.reason ?? 'буфер недоступен — вставится прошлый текст',
-        variant: 'destructive',
-      })
-    }
-  }
-
-  async function runScribe(slug: string) {
-    if (scribe?.busy) return
-    setDeliverNote(null)
-    setScribe({ slug, busy: true, err: null, res: null })
-    try {
-      const res = await postJson<ScribeResponse>('/api/t4/scribe', { slug })
-      setScribe({ slug, busy: false, err: null, res })
-      toast({
-        title: res.hardPass ? `Писец: ${slug} готов` : `Писец: ${slug} — hard FAIL`,
-        description: res.hardPass
-          ? `ремонт ${res.rounds} · сдача открыта`
-          : `${res.failedSlots.length > 0 ? `НЕ написаны P${res.failedSlots.join(', P')} · ` : ''}черновик записан с квитанциями — чини против контракта`,
-      })
-    } catch (e) {
-      setScribe({
-        slug,
-        busy: false,
-        err: e instanceof ApiError ? `API: ${e.message}` : 'Сеть недоступна — писец не смог',
-        res: null,
-      })
-      toast({ title: 'Писец не смог', description: e instanceof ApiError ? e.message : 'сеть', variant: 'destructive' })
-    }
-  }
-
-  async function deliverOfficial(slug: string) {
-    setDeliverNote(null)
-    try {
-      const res = await postJson<DeliverResponse>('/api/t4/gates', { slug, deliver: true })
-      setDeliverNote(
-        res.delivered
-          ? `${slug} «${res.title}» сдан официально${res.result?.firstRunClean ? ' · FIRST RUN CLEAN' : ''} — батч, мета и ворклог во вкладке «Батчи»`
-          : `${slug}: hard FAIL — черновик чини (см. квитанции во вкладке «Батчи»)`
-      )
-      toast({
-        title: res.delivered ? `${slug} СДАН` : `${slug}: hard FAIL`,
-        description: res.delivered
-          ? `«${res.title}»${res.result?.firstRunClean ? ' · FIRST RUN CLEAN' : ''} — окно ротации двинулось`
-          : 'сдача закрыта гейтами — квитанции во вкладке «Батчи»',
-      })
-    } catch (e) {
-      setDeliverNote(e instanceof ApiError ? `API: ${e.message}` : 'Сеть недоступна')
-      toast({ title: 'Сдача не прошла', description: e instanceof ApiError ? e.message : 'сеть', variant: 'destructive' })
-    }
-  }
-
-  const items = contracts.data?.items ?? []
-
-  return (
-    <div className="space-y-6">
-      <DraftComposer />
-      <Panel title="Компилятор батча" icon={<FlaskConical className="size-4" />}>
-        <div className="space-y-3">
-          <p className="text-xs leading-relaxed text-zinc-500">
-            Тема от автора → слот-план 24 промпта (21 мейн + 3 OC — вердикт T4-02): жанры,
-            рейтинги по рецептуре, назначенные носители, позы, палитры, расы, регистры.
-            Диверсия назначается ДО письма. Контракт = экспозиция для автора + закон для писца.
-          </p>
-          <p className="rounded border border-amber-900/50 bg-amber-950/30 px-3 py-2 text-[11px] leading-relaxed text-amber-400">
-            Статус: experimental / low-trust (Issue #21). Авто-скелет и авто-писец дают черновик,
-            требующий обязательной ручной переработки писцом — закон письма (вердикт T4-12).
-            Качество измеряет вердикт автора после рендера, не FIRST RUN CLEAN (Issue #20).
-          </p>
-          <Textarea
-            value={theme}
-            onChange={(e) => setTheme(e.target.value)}
-            placeholder="Тема батча — например: «город, где усталость носит как меха»…"
-            className="min-h-20 border-zinc-800 bg-zinc-950 text-sm"
-          />
-          <div className="grid gap-2 sm:grid-cols-[180px_1fr]">
-            <Input
-              value={engine}
-              onChange={(e) => setEngine(e.target.value)}
-              placeholder="движок (пусто = ротация)"
-              className="h-9 border-zinc-800 bg-zinc-950 text-xs"
-            />
-            <p className="self-center text-[11px] leading-tight text-zinc-600">
-              tint · bespoke · counterfall · … — ключ из спеки движков; пусто = ротация.
-            </p>
-          </div>
-          <div className="space-y-2">
-            <p className="text-[11px] uppercase tracking-wider text-zinc-600">
-              Заказ OC — до трёх · имя из канона (пусто = ротация) · тема по желанию
-            </p>
-            {ocRows.map((row, i) => (
-              <div key={i} className="grid gap-2 sm:grid-cols-[180px_1fr]">
-                <Input
-                  value={row.name}
-                  onChange={(e) =>
-                    setOcRows((rows) => rows.map((r, j) => (j === i ? { ...r, name: e.target.value } : r)))
-                  }
-                  placeholder={i === 0 ? 'например: Lyn' : 'имя OC'}
-                  className="h-9 border-zinc-800 bg-zinc-950 text-xs"
-                />
-                <Input
-                  value={row.theme}
-                  onChange={(e) =>
-                    setOcRows((rows) => rows.map((r, j) => (j === i ? { ...r, theme: e.target.value } : r)))
-                  }
-                  placeholder="тема/сценарий для неё — пусто = писец выведет из темы батча"
-                  className="h-9 border-zinc-800 bg-zinc-950 text-xs"
-                />
-              </div>
-            ))}
-          </div>
-          <div className="flex items-center gap-3">
-            <Button
-              onClick={compile}
-              disabled={busy || theme.trim() === ''}
-              className="bg-amber-500 text-zinc-950 hover:bg-amber-400 disabled:opacity-40"
-            >
-              {busy ? 'Компилирую…' : 'Скомпилировать'}
-            </Button>
-            {err ? <span className="text-xs text-rose-400">{err}</span> : null}
-          </div>
-        </div>
-      </Panel>
-
-      {result ? (
-        <Panel title={`Контракт ${result.slug}`} icon={<ScrollText className="size-4" />} bodyClassName="max-h-[70vh] overflow-y-auto t4-scroll">
-          <MarkdownView>{result.markdown ?? ''}</MarkdownView>
-        </Panel>
-      ) : null}
-
-      <Panel title="Производство — от сборки к батчу" icon={<Sparkles className="size-4" />}>
-        <ol className="space-y-2 text-xs leading-relaxed text-zinc-400">
-          <li>
-            <span className="text-amber-400">1 ·</span> Собери контракт выше — тема, при желании движок и заказ
-            OC с их темами. Сборка занимает секунды и ни к чему не обязывает: это план, не батч.
-          </li>
-          <li>
-            <span className="text-amber-400">2а ·</span> <span className="text-zinc-200">Приказ в чате:</span> кнопка
-            «Приказ» у контракта копирует <Mono>{'«Super Z, произведи T4-NN»'}</Mono> — писец Super Z пишет
-            21 мейн + 3 OC, самопроверка, сдача с ворклогом.
-          </li>
-          <li>
-            <span className="text-amber-400">2б ·</span> <span className="text-zinc-200">Авто-писец:</span> кнопка
-            «Писец» у контракта — машина пишет черновик по тому же контракту (2-5 минут), гейты
-            гоняют его автоматически, ремонт до 2 кругов. Потом — «Сдать» или моя полировка.
-          </li>
-          <li>
-            <span className="text-amber-400">3 ·</span> Батч и квитанции гейтов — во вкладке «Батчи»; твой
-            вердикт — там же, одной панелью чипов.
-          </li>
-        </ol>
-      </Panel>
-
-      <Panel title="Контракты" icon={<FileText className="size-4" />}>
-        {contracts.loading ? (
-          <SkeletonBlock lines={3} />
-        ) : items.length === 0 ? (
-          <EmptyState title="Контрактов пока нет" hint="Первый контракт станет T4-01." />
-        ) : (
-          <div className="space-y-1.5">
-            {items.map((c) => (
-              <div key={c.slug} className="flex items-center justify-between gap-3 rounded-md border border-zinc-800 bg-zinc-900/60 px-3 py-2">
-                <button
-                  onClick={() => setViewSlug(viewSlug === c.slug ? null : c.slug)}
-                  className="flex min-w-0 items-center gap-2 text-left"
-                >
-                  <Mono>{c.slug}</Mono>
-                  <span className="truncate text-xs text-zinc-300">{c.theme}</span>
-                </button>
-                <div className="flex shrink-0 items-center gap-2">
-                  <button
-                    onClick={() => runScribe(c.slug)}
-                    disabled={scribe?.busy === true}
-                    title="Авто-писец: машина пишет черновик батча по этому контракту (2-5 минут)"
-                    className={cn(
-                      'flex items-center gap-1 rounded-md border px-2 py-1 text-[11px] transition-colors',
-                      scribe?.busy && scribe.slug === c.slug
-                        ? 'border-amber-500/60 bg-amber-500/20 text-amber-200'
-                        : 'border-zinc-700 bg-zinc-800/60 text-zinc-300 hover:border-amber-500/40 hover:text-amber-200',
-                      scribe?.busy === true ? 'cursor-wait opacity-60' : ''
-                    )}
-                  >
-                    <PenLine className="size-3" />
-                    {scribe?.busy && scribe.slug === c.slug ? 'Пишет…' : 'Писец'}
-                  </button>
-                  <button
-                    onClick={() => copyOrder(c.slug)}
-                    title="Скопировать приказ на производство"
-                    className="flex items-center gap-1 rounded-md border border-amber-500/40 bg-amber-500/10 px-2 py-1 text-[11px] text-amber-300 transition-colors hover:bg-amber-500/20"
-                  >
-                    {copied === c.slug ? <Check className="size-3" /> : <Copy className="size-3" />}
-                    {copied === c.slug ? 'Скопировано' : 'Приказ'}
-                  </button>
-                  <span className="text-[11px] text-zinc-600">{formatDate(c.createdAt)}</span>
-                </div>
-              </div>
-            ))}
-            {viewSlug ? (
-              <div className="mt-3 rounded-md border border-zinc-800 bg-zinc-950/60 p-4">
-                {detail.loading ? (
-                  <SkeletonBlock lines={8} />
-                ) : detail.error ? (
-                  <ErrorNote text="Контракт недоступен" />
-                ) : (
-                  <div className="max-h-[50vh] overflow-y-auto t4-scroll">
-                    <MarkdownView>{detail.data?.markdown ?? ''}</MarkdownView>
-                  </div>
-                )}
-              </div>
-            ) : null}
-          </div>
-        )}
-      </Panel>
-
-      {scribe ? (
-        <Panel
-          title={`Авто-писец · ${scribe.slug}`}
-          icon={<PenLine className="size-4" />}
-          action={
-            !scribe.busy ? (
-              <button
-                onClick={() => setScribe(null)}
-                className="text-[11px] text-zinc-500 transition-colors hover:text-zinc-300"
-              >
-                скрыть
-              </button>
-            ) : null
-          }
-        >
-          {scribe.busy ? (
-            <div className="flex items-start gap-3">
-              <span className="mt-1 size-3 shrink-0 animate-pulse rounded-full bg-amber-500" />
-              <div className="space-y-1 text-xs leading-relaxed text-zinc-400">
-                <p className="text-zinc-200">Машина пишет черновик: 24 слота против контракта, потом гейты всухую.</p>
-                <p>Это занимает 2-5 минут — страница ждёт ответа, не закрывай вкладку.</p>
-              </div>
-            </div>
-          ) : scribe.err ? (
-            <ErrorNote text={scribe.err} hint="Черновик можно перезапустить кнопкой «Писец»" />
-          ) : scribe.res ? (
-            <div className="space-y-3">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="text-sm font-semibold text-zinc-100">{scribe.res.title}</span>
-                {scribe.res.hardPass ? (
-                  <Chip tone="emerald">гейты dry PASS</Chip>
-                ) : (
-                  <Chip tone="rose">гейты dry FAIL</Chip>
-                )}
-                <Chip>ремонт: {scribe.res.rounds}</Chip>
-                <Chip>sha {scribe.res.sha10.slice(0, 6)}</Chip>
-              </div>
-              {scribe.res.failedSlots.length > 0 ? (
-                <p className="text-xs text-rose-300">
-                  Не написаны: {scribe.res.failedSlots.map((n) => `P${String(n).padStart(2, '0')}`).join(', ')} — черновик нельзя сдавать, нужен ручной проход.
-                </p>
-              ) : null}
-              <div className="space-y-1">
-                {scribe.res.receipts
-                  .filter((r) => r.verdict !== 'PASS')
-                  .slice(0, 6)
-                  .map((r, i) => (
-                    <div key={i} className="flex flex-wrap items-center gap-2 text-[11px] text-zinc-500">
-                      <Mono>{r.gate}</Mono>
-                      <LevelBadge level={r.level} />
-                      <VerdictBadge verdict={r.verdict} />
-                      <span>{r.findings.slice(0, 2).join(' · ')}</span>
-                      {(r.notes ?? []).length > 0 ? (
-                        <span className="text-amber-500/70">
-                          · {(r.notes ?? []).slice(0, 1).join(' · ')}
-                        </span>
-                      ) : null}
-                    </div>
-                  ))}
-              </div>
-              {scribe.res.hardPass && scribe.res.failedSlots.length === 0 ? (
-                <div className="flex flex-wrap items-center gap-3">
-                  <Button
-                    onClick={() => deliverOfficial(scribe.res!.slug)}
-                    className="h-9 bg-emerald-600 text-zinc-50 hover:bg-emerald-500"
-                  >
-                    <Stamp className="mr-1 size-3.5" />
-                    Сдать официально
-                  </Button>
-                  <span className="text-[11px] text-zinc-500">
-                    Официальный прогон гейтов + мета + ворклог + batch.delivered. Или сначала полируй — файл уже в «Батчах».
-                  </span>
-                </div>
-              ) : (
-                <p className="text-[11px] text-zinc-500">
-                  Черновик записан в «Батчи». Хард-фейлы — в квитанциях выше: правь файл или зови Super Z.
-                </p>
-              )}
-            </div>
-          ) : null}
-          {deliverNote ? (
-            <p className="mt-3 rounded-md border border-emerald-600/30 bg-emerald-600/10 px-3 py-2 text-xs text-emerald-300">
-              {deliverNote}
-            </p>
-          ) : null}
-        </Panel>
-      ) : null}
-    </div>
-  )
-}
-
-/* ------------------------------------------------------------------ */
-/* Tab: Батчи                                                          */
-/* ------------------------------------------------------------------ */
-
-const QUICK_VERDICTS = [
-  { id: 'fire', label: '🔥 Огонь', tone: 'emerald' as const },
-  { id: 'good', label: '👍 Хорош', tone: 'amber' as const },
-  { id: 'fixes', label: '🩹 Правки', tone: 'amber' as const },
-  { id: 'weak', label: '💀 Слабо', tone: 'rose' as const },
-]
-
-const QUICK_ISSUES = [
-  'ниша не читается',
-  'геометрия поехала',
-  'скатилось в волт',
-  'милф-штамп',
-  'позы скучные',
-  'счёт слотов',
-  'тема не видна',
-]
-
-function QuickVerdict({ slug }: { slug: string }) {
-  const [verdict, setVerdict] = useState<string | null>(null)
-  const [issues, setIssues] = useState<string[]>([])
-  const [text, setText] = useState('')
-  const [busy, setBusy] = useState(false)
-  const [note, setNote] = useState<string | null>(null)
-  /* ленивый инициализатор: getCommanderKey() читает localStorage — в рендере
-   * это hydration-риск (SSR-сервер не имеет ключа); QuickVerdict монтируется
-   * только после клика автора, но привычка должна быть одна (9-c №20) */
-  const [keyMissing, setKeyMissing] = useState(() => getCommanderKey() === '')
-
-  function toggleIssue(x: string) {
-    setIssues((cur) => (cur.includes(x) ? cur.filter((i) => i !== x) : [...cur, x]))
-  }
-
-  async function submit() {
-    if (busy || !verdict) return
-    setBusy(true)
-    setNote(null)
-    const vLabel = QUICK_VERDICTS.find((v) => v.id === verdict)?.label ?? verdict
-    const prose = [text.trim(), issues.length > 0 ? `Проблемы: ${issues.join(', ')}.` : '']
-      .filter(Boolean)
-      .join('\n\n')
-    try {
-      await postJson(
-        '/api/t4/events',
-        {
-          type: 'render.verdict',
-          summary: `${slug}: ${vLabel}${issues.length > 0 ? ` · ${issues.join(', ')}` : ''}${text.trim() ? ` — ${text.trim().slice(0, 90)}` : ''}`,
-          data: { slug, verdict, tags: issues, prose, source: 'author-batch' },
-        },
-        commanderHeaders()
-      )
-      setNote('Вердикт записан в лог — он кормит правки закона и вкус.')
-      toast({
-        title: 'Вердикт в логе',
-        description: `${slug}: ${vLabel}${issues.length > 0 ? ` · ${issues.join(', ')}` : ''}`,
-      })
-      setVerdict(null)
-      setIssues([])
-      setText('')
-    } catch (e) {
-      setNote(ledgerWriteError(e))
-      toast({ title: 'Запись не прошла', description: ledgerWriteError(e), variant: 'destructive' })
-    } finally {
-      setBusy(false)
-    }
-  }
-
-  return (
-    <Panel title={`Вердикт по ${slug}`} icon={<Heart className="size-4" />}>
-      <div className="space-y-3">
-        <p className="text-xs leading-relaxed text-zinc-500">
-          Один клик — и вердикт в логе событий: он кодируется в право (T4-02 уже стал законом 24 слотов).
-        </p>
-        {keyMissing ? (
-          <p className="rounded-md border border-amber-500/25 bg-amber-500/5 px-2.5 py-1.5 text-[11px] leading-relaxed text-amber-200/80">
-            ключ командира не сохранён в этом браузере — запись залочена (403). Один раз сохрани его
-            в Стекле → «Ключ командира», и эта кнопка оживёт.
-          </p>
-        ) : null}
-        <div className="flex flex-wrap gap-2">
-          {QUICK_VERDICTS.map((v) => (
-            <button
-              key={v.id}
-              onClick={() => setVerdict(verdict === v.id ? null : v.id)}
-              className={cn(
-                'rounded-md border px-2.5 py-1.5 text-xs font-medium transition-colors',
-                verdict === v.id
-                  ? 'border-amber-500/60 bg-amber-500/15 text-amber-200'
-                  : 'border-zinc-800 bg-zinc-900 text-zinc-400 hover:border-zinc-700 hover:text-zinc-200'
-              )}
-            >
-              {v.label}
-            </button>
-          ))}
-        </div>
-        <div className="flex flex-wrap gap-1.5">
-          {QUICK_ISSUES.map((x) => (
-            <button
-              key={x}
-              onClick={() => toggleIssue(x)}
-              className={cn(
-                'rounded-md border px-2 py-1 text-[11px] transition-colors',
-                issues.includes(x)
-                  ? 'border-rose-500/50 bg-rose-500/10 text-rose-300'
-                  : 'border-zinc-800 bg-zinc-900/60 text-zinc-500 hover:border-zinc-700 hover:text-zinc-300'
-              )}
-            >
-              {x}
-            </button>
-          ))}
-        </div>
-        <Textarea
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          placeholder="Детали — как видишь: «на P07 колесо поехало», «Lyn лучше всех»…"
-          className="min-h-20 border-zinc-800 bg-zinc-950 text-sm"
-        />
-        <div className="flex items-center gap-3">
-          <Button
-            onClick={submit}
-            disabled={busy || !verdict}
-            className="bg-amber-500 text-zinc-950 hover:bg-amber-400 disabled:opacity-40"
-          >
-            {busy ? 'Записываю…' : 'Записать вердикт'}
-          </Button>
-          {note ? <span className="text-xs text-zinc-400">{note}</span> : null}
-        </div>
-      </div>
-    </Panel>
-  )
-}
-
-function BatchesTab() {
-  const list = useApi<{ items: BatchRow[] }>('/api/t4/batches')
-  const [mode, setMode] = useState<'view' | 'compare'>('view')
-  /* ленивый инициализатор (не эффект): вкладка монтируется ПОСЛЕ события
-   *  глубокой навигации — sticky-намерение уже лежит в шине, батч открыт */
-  const [slug, setSlug] = useState<string | null>(() => pendingSlotNav()?.slug ?? null)
-  const [query, setQuery] = useState('')
-  const [aSlug, setASlug] = useState('')
-  const [bSlug, setBSlug] = useState('')
-  const detail = useApi<BatchDetailData>(slug ? `/api/t4/batches/${slug}` : null)
-  /* живой подписчик: радар кликнут при смонтированной вкладке — открываем
-   *  батч прямо здесь (setState в обработчике события, не в теле эффекта) */
-  useEffect(() => {
-    const off = subscribeSlotNav((intent) => {
-      setMode('view')
-      setSlug(intent.slug)
-    })
-    return off
-  }, [])
-  /* «/» — фокус в поиск, классика; слушатель живёт только пока вкладка смонтирована */
-  const searchRef = useRef<HTMLInputElement>(null)
-  useEffect(() => {
-    function onKey(e: KeyboardEvent) {
-      if (e.key !== '/' || e.metaKey || e.ctrlKey || e.altKey) return
-      const t = e.target as HTMLElement | null
-      if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable)) return
-      e.preventDefault()
-      searchRef.current?.focus()
-      searchRef.current?.select()
-    }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [])
-
-  const items = list.data?.items ?? []
-  const receipts = detail.data?.receipts ?? []
-
-  /* Преемник Фреда, 2026-10-10: 29+ батчей — поиск по слагу/теме быстрее
-   *  скролла; искомый батч подсвечивается, выбор не сбрасывается. */
-  const visible = useMemo(() => {
-    const q = query.trim().toLowerCase()
-    if (q === '') return items
-    return items.filter(
-      (b) => b.slug.toLowerCase().includes(q) || b.title.toLowerCase().includes(q)
-    )
-  }, [items, query])
-
-  /* Ленивый дефолт пары вместо эффекта (реакт-линт: без setState в эффекте):
-   *  пустая пара = два последних батча, старее → новее; сегодня это ровно
-   *  T4-27 ↔ T4-27.2-EXP, живой вопрос H13. */
-  const effA = aSlug !== '' ? aSlug : items.length >= 2 ? items[1].slug : (items[0]?.slug ?? '')
-  const effB = bSlug !== '' ? bSlug : items.length >= 2 ? items[0].slug : ''
-
-  function onRowClick(s: string) {
-    if (mode === 'view') {
-      setSlug(slug === s ? null : s)
-      return
-    }
-    if (aSlug === '') setASlug(s)
-    else if (bSlug === '') setBSlug(s)
-    else setBSlug(s)
-  }
-
-  return (
-    <div className="space-y-4">
-      <Panel
-        title="Батчи"
-        icon={<FileText className="size-4" />}
-        action={
-          <div className="flex rounded-md border border-zinc-800 bg-zinc-950 p-0.5" role="tablist" aria-label="Режим вкладки Батчи">
-            <button
-              type="button"
-              role="tab"
-              aria-selected={mode === 'view'}
-              onClick={() => setMode('view')}
-              className={cn(
-                'rounded-[5px] px-2.5 py-1 text-[11px] font-medium transition-colors',
-                mode === 'view'
-                  ? 'bg-amber-500/15 text-amber-300'
-                  : 'text-zinc-500 hover:text-zinc-300'
-              )}
-            >
-              Просмотр
-            </button>
-            <button
-              type="button"
-              role="tab"
-              aria-selected={mode === 'compare'}
-              onClick={() => setMode('compare')}
-              className={cn(
-                'rounded-[5px] px-2.5 py-1 text-[11px] font-medium transition-colors',
-                mode === 'compare'
-                  ? 'bg-amber-500/15 text-amber-300'
-                  : 'text-zinc-500 hover:text-zinc-300'
-              )}
-            >
-              Сравнение A↔B
-            </button>
-          </div>
-        }
-      >
-        {list.loading ? (
-          <SkeletonBlock lines={3} />
-        ) : items.length === 0 ? (
-          <EmptyState title="Батчей пока нет" hint="Собери контракт во вкладке «Сборка» и жми «Писец» — черновик появится здесь с квитанциями гейтов." />
-        ) : (
-          <div className="space-y-2">
-            <div className="relative">
-              <Search className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-zinc-600 transition-colors focus-within:text-amber-400/60" />
-              <Input
-                ref={searchRef}
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder={`Поиск: слаг или тема · ${items.length} батчей…`}
-                title="«/» — фокус в поиск"
-                className="h-8 border-zinc-800 bg-zinc-950 pl-8 pr-10 text-xs transition-colors focus-visible:border-amber-500/50"
-              />
-              <kbd className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 rounded border border-zinc-700 bg-zinc-800 px-1 font-mono text-[10px] leading-4 text-zinc-500">
-                /
-              </kbd>
-            </div>
-            {mode === 'compare' ? (
-              <p className="px-1 text-[11px] leading-relaxed text-zinc-600">
-                клик по батчу заполняет пару: сначала <span className="text-amber-300/80">A (база)</span>, затем{' '}
-                <span className="text-amber-300/80">B (перестройка)</span>; дальше клики заменяют B.
-              </p>
-            ) : null}
-            {/* minmax(0,1fr): колонка не раздувается под самую широкую строку —
-             *  иначе «T4-27.2-EXP + EXP-путь + дата» на 390px раскачивает страницу
-             *  вбок на 5px (QA webDevReview #3, мобильный обход). */}
-            <div className="grid grid-cols-[minmax(0,1fr)] gap-1.5">
-              {visible.map((b) => (
-                <button
-                  key={b.slug}
-                  onClick={() => onRowClick(b.slug)}
-                  className={cn(
-                    'group/batch flex min-w-0 items-center justify-between gap-3 rounded-md border px-3 py-2 text-left outline-none transition-colors',
-                    mode === 'view' && slug === b.slug
-                      ? 'border-amber-500/50 bg-amber-500/10'
-                      : mode === 'compare' && (effA === b.slug || effB === b.slug)
-                        ? 'border-amber-500/50 bg-amber-500/10'
-                        : 'border-zinc-800 bg-zinc-900/60 hover:border-zinc-700 focus-visible:border-amber-500/50'
-                  )}
-                >
-                  <span className="flex min-w-0 items-center gap-2">
-                    <Mono>{b.slug}</Mono>
-                    {b.rebuildOf ? (
-                      <span
-                        title={`перестройка ${b.rebuildOf} — окно ротации с источником не конфликтует (rebuildOf)`}
-                        className="shrink-0 rounded border border-cyan-500/40 bg-cyan-500/10 px-1.5 py-0.5 font-mono text-[10px] text-cyan-300"
-                      >
-                        ↻ {b.rebuildOf}
-                      </span>
-                    ) : null}
-                    {b.windowOpaque ? (
-                      <span
-                        title="позы/палитры для окна ротации ненаблюдаемы: нет контракта (RAW/EXP) или контракт без единого id (RAW-компиляция T4-25/26) — window-гейт и компилятор честно репортят это в notes (#42)"
-                        className="shrink-0 rounded border border-zinc-700 bg-zinc-800/60 px-1.5 py-0.5 font-mono text-[10px] text-zinc-400"
-                      >
-                        вне окна
-                      </span>
-                    ) : null}
-                    <span className="truncate text-xs text-zinc-300 transition-colors group-hover/batch:text-zinc-100" title={b.title}>
-                      {b.title}
-                    </span>
-                  </span>
-                  <span className="flex shrink-0 items-center gap-1.5">
-                    {mode === 'compare' && effA === b.slug ? (
-                      <Chip tone="amber">A</Chip>
-                    ) : mode === 'compare' && effB === b.slug ? (
-                      <Chip tone="emerald">B</Chip>
-                    ) : null}
-                    {!b.date ? (
-                      <span title="EXP-путь: без гейт-доставки — даты нет (прецедент T4-20.x)">
-                        <Chip tone="amber">EXP-путь</Chip>
-                      </span>
-                    ) : (
-                      <span
-                        className="whitespace-nowrap text-[11px] tabular-nums text-zinc-600 transition-colors group-hover/batch:text-zinc-400"
-                        title={b.date ? `${b.slug} · доставлен ${b.date}` : `${b.slug} · EXP-путь без даты`}
-                      >
-                        {formatDate(b.date) || '—'}
-                      </span>
-                    )}
-                  </span>
-                </button>
-              ))}
-              {visible.length === 0 ? (
-                <p className="px-1 py-3 text-center text-xs text-zinc-600">
-                  ничего не нашлось — «{query.trim()}» ни в одном слаге/теме
-                </p>
-              ) : null}
-            </div>
-          </div>
-        )}
-      </Panel>
-
-      {mode === 'view' && slug ? (
-        <>
-          {receipts.length > 0 ? (
-            <Panel title={`Гейты · ${slug}`} icon={<Activity className="size-4" />}>
-              <div className="space-y-1.5">
-                {receipts.map((r, i) => (
-                  <div key={i} className="flex flex-wrap items-center gap-2 rounded-md border border-zinc-800 bg-zinc-900/60 px-3 py-2">
-                    <Mono>{r.gate}</Mono>
-                    <LevelBadge level={r.level} />
-                    <VerdictBadge verdict={r.verdict} />
-                    {r.findings.slice(0, 3).map((f, j) => (
-                      <span key={j} className="text-[11px] text-zinc-500">{f}</span>
-                    ))}
-                    {(r.notes ?? []).slice(0, 2).map((n, j) => (
-                      <span key={`n${j}`} className="text-[11px] text-amber-500/80">· {n}</span>
-                    ))}
-                  </div>
-                ))}
-              </div>
-            </Panel>
-          ) : null}
-          <Panel title={`Файл · ${slug}`} icon={<ScrollText className="size-4" />} bodyClassName="max-h-[70vh] overflow-y-auto t4-scroll">
-            {detail.loading ? (
-              <SkeletonBlock lines={10} />
-            ) : detail.error ? (
-              <ErrorNote text="Батч недоступен" />
-            ) : (
-              <MarkdownView>{detail.data?.markdown ?? ''}</MarkdownView>
-            )}
-          </Panel>
-          {/* key=slug: трекер рендера перемонтируется на смену батча — ленивый
-           *  инициализатор перечитает свой localStorage без запрещённого
-           *  set-state-in-effect. */}
-          {detail.data && !detail.loading ? (
-            <SlotStrip key={slug} slug={slug ?? ''} markdown={detail.data.markdown} />
-          ) : null}
-          <QuickVerdict slug={slug} />
-        </>
-      ) : null}
-
-      {mode === 'compare' ? (
-        <BatchCompare items={items} a={effA} b={effB} onA={setASlug} onB={setBSlug} loading={list.loading} />
-      ) : null}
-    </div>
-  )
-}
-
-/* ------------------------------------------------------------------ */
-/* Tab: События                                                        */
-/* ------------------------------------------------------------------ */
-
-function EventsTab() {
-  const { data, error, loading } = useApi<{ events: { id: string; at: string; type: string; summary: string }[] }>(
-    '/api/t4/events?limit=500'
-  )
-  const [typeFilter, setTypeFilter] = useState('')
-  const [query, setQuery] = useState('')
-
-  const events = data?.events ?? []
-
-  /* Преемник Фреда, 2026-10-10: типы со счётчиками — летопись длинная,
-   *  а вердикты/события батчей автор ищет по делу, а не скроллом. */
-  const typeCounts = useMemo(() => {
-    const m = new Map<string, number>()
-    for (const e of events) m.set(e.type, (m.get(e.type) ?? 0) + 1)
-    return [...m.entries()].sort((a, b) => b[1] - a[1])
-  }, [events])
-
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase()
-    return events.filter((e) => {
-      if (typeFilter !== '' && e.type !== typeFilter) return false
-      if (q !== '' && !e.summary.toLowerCase().includes(q) && !e.id.toLowerCase().includes(q)) return false
-      return true
-    })
-  }, [events, typeFilter, query])
-
-  /* Точка таймлайна красится по типу — как TypeBadge: вердикт=роза,
-   *  гейт=изумруд, батч=амбер, закон=цинк, внешка=тил. */
-  const dotTone = (type: string): string => {
-    const t = type.toLowerCase()
-    if (t.includes('verdict')) return 'bg-rose-500'
-    if (t.includes('gate')) return 'bg-emerald-500'
-    if (t.includes('batch')) return 'bg-amber-500'
-    if (t.includes('law')) return 'bg-zinc-400'
-    if (t.includes('external')) return 'bg-teal-400'
-    return 'bg-zinc-500'
-  }
-
-  return (
-    <Panel title="Лог событий (append-only)" icon={<History className="size-4" />} bodyClassName="space-y-3">
-      <div className="flex flex-wrap items-center gap-2">
-        <div className="relative min-w-44 flex-1">
-          <Search className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-zinc-600" />
-          <Input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Поиск по летописи: слаг, слово, id события…"
-            className="h-8 border-zinc-800 bg-zinc-950 pl-8 text-xs"
-          />
-        </div>
-        <select
-          value={typeFilter}
-          onChange={(e) => setTypeFilter(e.target.value)}
-          aria-label="Фильтр по типу события"
-          className="h-8 rounded-md border border-zinc-800 bg-zinc-950 px-2 text-xs text-zinc-300 outline-none transition-colors hover:border-zinc-700 focus-visible:border-amber-500/50"
-        >
-          <option value="">все типы · {events.length}</option>
-          {typeCounts.map(([t, n]) => (
-            <option key={t} value={t}>
-              {t} · {n}
-            </option>
-          ))}
-        </select>
-        {typeFilter !== '' || query.trim() !== '' ? (
-          <button
-            onClick={() => {
-              setTypeFilter('')
-              setQuery('')
-            }}
-            className="rounded-md border border-zinc-800 bg-zinc-900 px-2 py-1 text-[11px] text-zinc-500 transition-colors hover:border-zinc-700 hover:text-zinc-300"
-          >
-            сбросить · {filtered.length}
-          </button>
-        ) : null}
-      </div>
-      {loading ? (
-        <SkeletonBlock lines={8} />
-      ) : error ? (
-        <ErrorNote text="Лог недоступен" hint="ядро ещё не подключено" />
-      ) : events.length === 0 ? (
-        <EmptyState title="Событий пока нет" hint="Первое событие — рождение эпохи — в log.jsonl." />
-      ) : filtered.length === 0 ? (
-        <EmptyState title="Ничего не нашлось" hint="Смени фильтр или запрос — летопись append-only, ничего не пропало." />
-      ) : (
-        <div className="t4-scroll max-h-[70vh] overflow-y-auto">
-          <div className="relative space-y-0 pl-4">
-            <div className="absolute bottom-2 left-[7px] top-2 w-px bg-zinc-800" />
-            {filtered.map((e, i) => (
-              <div key={e.id ?? i} className="relative rounded-sm py-2.5 pl-5 pr-2 transition-colors hover:bg-zinc-900/40">
-                <span className={cn('absolute left-[-2px] top-[15px] size-[9px] rounded-full border-2 border-zinc-950', dotTone(e.type))} />
-                <div className="flex flex-wrap items-center gap-2">
-                  <TypeBadge type={e.type} />
-                  <span className="font-mono text-[10px] text-zinc-700">{e.id}</span>
-                  <span className="text-xs text-zinc-600">{formatDate(e.at)}</span>
-                </div>
-                <div className="mt-1 text-sm leading-relaxed text-zinc-300">{e.summary}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-    </Panel>
-  )
-}
-
-/* ------------------------------------------------------------------ */
-/* Tab: Вердикты (форма автора + VLM first-pass)                       */
-/* ------------------------------------------------------------------ */
-
-/* ------------------------------------------------------------------ */
-/* Tab: Вердикты — VLM первый проход (шаг 1) + Приёмник батча (шаг 2)  */
-/* ------------------------------------------------------------------ */
-
-interface ContractSlot {
-  position: number
-  kind: string
-  rating: string
-  pose: string
-  poseName: string
-  lead: string
-  oc?: string
-  race?: string
-  ab?: { pair: string; half: string; withSlot: number; lead: string }
-  exploratory?: string
-}
-
-interface ContractPayload {
-  slug: string
-  theme: string
-  contract: { slots?: ContractSlot[] } | null
-  /** Фред, 2026-10-08: фолбэк-контракт, синтезированный из шапок слотов батча
-   *  (RAW/EXP живут без contracts/T4-NN.json). */
-  synthesized?: boolean
-}
-
-/** Слепая структурная карточка (§10-поправка: машине не показывается заявка). */
-interface BlindCard {
-  scene?: string
-  character?: string
-  clothing?: string
-  fabric_state?: string
-  underlayer?: string
-  pose?: string
-  signals?: string[]
-  nipple_read?: string
-  mutation_drift?: string[]
-  camera?: string
-  light?: string
-  rating_hint?: string
-  notes?: string
-}
-
-type VlmFlag = 'ok' | 'mutation' | 'drift' | 'skipped'
-
-interface JournalEntry {
-  position: string
-  flag: VlmFlag | ''
-  tierHint: string
-  drift: number
-  ts: string
-}
-
-interface DraftSlot {
-  myTier: string
-  yodayoTier: string
-  ph: string
-  vlmFlag: VlmFlag | ''
-  phText: string
-  note: string
-  tierHint?: string // ориентир VLM (не вердикт; принимается кнопкой автора)
-  rolls?: string // число перекидок (roll-journal, аудит RC-4a)
-  settings?: string // CFG/sampler/веса — факторы блока 10
-  genreRead?: string // NICHE: жанр прочитан? (yes | no)
-  wow?: string // NICHE: вау? (yes | no)
-}
-
-interface ReceiverDraft {
-  slots: Record<string, DraftSlot>
-  prose: string
-  updatedAt: string
-}
-
-const TIER_OPTIONS = ['PG-13', 'R', 'R+', 'X'] as const
-const PH_OPTIONS = ['PH', 'Raw', 'A', 'B'] as const
-const VLM_FLAG_LABEL: Record<string, string> = {
-  ok: 'ок',
-  mutation: 'мутация',
-  drift: 'дрейф',
-  skipped: 'не прогонял',
-}
-
-function emptyDraftSlot(): DraftSlot {
-  return { myTier: '', yodayoTier: '', ph: '', vlmFlag: '', phText: '', note: '', tierHint: '', rolls: '', settings: '', genreRead: '', wow: '' }
-}
-
-/** Авто-PH (приказ автора 2026-09-24): конвейер всегда PH ON — new slots
- *  рождаются с ph='PH', автор вправе поменять на Raw/A/B. */
-function seededDraftSlot(): DraftSlot {
-  return { ...emptyDraftSlot(), ph: 'PH' }
-}
-
-/** Угадывает слот по имени файла: P05, p12-, 07_… (аудит N/A: автору —
- *  кучей кидать, а не по одному; не угадано — назначается руками). */
-function guessPosition(name: string): string {
-  const m1 = /(?:^|[^a-z\d])p(\d{1,2})(?:[^a-z\d]|$)/i.exec(name)
-  if (m1) {
-    const n = parseInt(m1[1], 10)
-    if (n >= 1 && n <= 24) return `P${String(n).padStart(2, '0')}`
-  }
-  const m2 = /^0?(\d{1,2})[-_.\s]/.exec(name.trim())
-  if (m2) {
-    const n = parseInt(m2[1], 10)
-    if (n >= 1 && n <= 24) return `P${String(n).padStart(2, '0')}`
-  }
-  return ''
-}
-
-function readDraft(slug: string): ReceiverDraft {
-  if (typeof window === 'undefined' || !slug) return { slots: {}, prose: '', updatedAt: '' }
-  try {
-    const raw = window.localStorage.getItem(`t4-receiver-draft-${slug}`)
-    if (raw) {
-      const parsed = JSON.parse(raw) as ReceiverDraft
-      return { slots: parsed.slots ?? {}, prose: parsed.prose ?? '', updatedAt: parsed.updatedAt ?? '' }
-    }
-  } catch {
-    /* битый черновик = новый черновик */
-  }
-  return { slots: {}, prose: '', updatedAt: '' }
-}
-
-function writeDraft(slug: string, draft: ReceiverDraft) {
-  if (typeof window === 'undefined' || !slug) return
-  draft.updatedAt = new Date().toISOString()
-  /* QuotaExceeded / приватный режим Safari раньше теряли ТЕКСТ автора
-   * (не прошли до setDraft — ввод пропадал); теперь тихий отказ */
-  try {
-    window.localStorage.setItem(`t4-receiver-draft-${slug}`, JSON.stringify(draft))
-  } catch {
-    /* хранилище недоступно — черновик живёт в состоянии сессии */
-  }
-  window.dispatchEvent(new CustomEvent('t4-receiver-updated', { detail: { slug } }))
-}
-
-function readJournal(slug: string): JournalEntry[] {
-  if (typeof window === 'undefined' || !slug) return []
-  try {
-    const raw = window.localStorage.getItem(`t4-vlm-journal-${slug}`)
-    if (raw) return (JSON.parse(raw) as JournalEntry[]) ?? []
-  } catch {
-    /* пусто */
-  }
-  return []
-}
-
-function writeJournal(slug: string, entries: JournalEntry[]) {
-  if (typeof window === 'undefined' || !slug) return
-  try {
-    window.localStorage.setItem(`t4-vlm-journal-${slug}`, JSON.stringify(entries))
-  } catch {
-    /* хранилище недоступно — журнал живёт в состоянии сессии */
-  }
-  window.dispatchEvent(new CustomEvent('t4-receiver-updated', { detail: { slug } }))
-}
-
-const TIER_ORDER_MAP: Record<string, number> = TIER_RANK
-
-function tierDeltaIcon(a: string, b: string): string {
-  const va = TIER_ORDER_MAP[a]
-  const vb = TIER_ORDER_MAP[b]
-  if (va === undefined || vb === undefined) return ''
-  if (va > vb) return '↑'
-  if (va < vb) return '↓'
-  return '='
-}
-
-/** Уменьшает картинку до ≤1024px JPEG — VLM не нужен оригинал. */
-function shrinkImage(file: File): Promise<string> {
-  return new Promise<string>((resolve, reject) => {
-    const fr = new FileReader()
-    fr.onerror = () => reject(new Error('read failed'))
-    fr.onload = () => {
-      const img = new Image()
-      img.onerror = () => reject(new Error('decode failed'))
-      img.onload = () => {
-        const max = 1024
-        const scale = Math.min(1, max / Math.max(img.width, img.height))
-        const w = Math.max(1, Math.round(img.width * scale))
-        const h = Math.max(1, Math.round(img.height * scale))
-        const canvas = document.createElement('canvas')
-        canvas.width = w
-        canvas.height = h
-        const ctx = canvas.getContext('2d')
-        if (!ctx) {
-          resolve(String(fr.result))
-          return
-        }
-        ctx.drawImage(img, 0, 0, w, h)
-        resolve(canvas.toDataURL('image/jpeg', 0.85))
-      }
-      img.src = String(fr.result)
-    }
-    fr.readAsDataURL(file)
-  })
-}
-
-/* ------------------------------------------------------------------ */
-/* Панель 1: VLM первый проход (слепой структурный фильтр)             */
-/* ------------------------------------------------------------------ */
-
-/** Элемент очереди «Куча» (пересобрано 2026-09-24: прежняя версия погибла
- *  с контейнером 23.09 — чемодан 4.0 был упакован до её постройки). */
-interface QueueItem {
+interface ChainEvent {
+  seq: number
   id: string
-  name: string
-  dataUrl: string
-  position: string // 'P05' | '' — слот для вшивания в приёмник
-  status: 'pending' | 'running' | 'done' | 'blocked' | 'error'
-  card?: BlindCard
-  flag: VlmFlag | ''
-  autoFlagged: boolean
-  error?: string
+  at: string
+  type: string
+  summary: string
+  hash: string
+  prev: string
 }
 
-/** Автофлаг структурного провала ДО глаза автора (внешний вердикт №3):
- *  мутации → mutation; ориентир VLM ниже заявки → drift; иначе ок.
- *  Флаг — предложение, автор вправе перекрыть. Тир он ставит сам. */
-function autoFlagFor(card: BlindCard, claim: string): VlmFlag | '' {
-  const driftCount = Array.isArray(card.mutation_drift) ? card.mutation_drift.length : 0
-  if (driftCount > 0) return 'mutation'
-  const order: Record<string, number> = TIER_RANK
-  const hintKey = (card.rating_hint ?? '').trim().replace('RPLUS', 'R+')
-  const hint = order[hintKey]
-  const cl = order[claim]
-  if (hint !== undefined && cl !== undefined) return hint < cl ? 'drift' : 'ok'
-  return ''
+interface EngineStateData {
+  era: string
+  canon: string
+  nextSlug: string
+  lastDelivered?: { slug: string; title: string; deliveredAt: string } | null
+  counts: { events: number; batchesDelivered: number; batchesCompiled: number; verdicts: number }
+  chain: { height: number; head: string; ok: boolean; problems: string[] }
+  uptimeSec: number
 }
 
-/* author-vision (Залп 3): глаз автора — основной канал вердикта
-   (вердикт автора №4, 2026-09-26: VLM слеп, баланс — опция на потом) */
-function AuthorVisionRow({ slug }: { slug: string }) {
-  const [tier, setTier] = useState<string>('R+')
-  const [pos, setPos] = useState<string>('')
-  const [note, setNote] = useState('')
-  const [confidence, setConfidence] = useState<'direct' | 'described'>('direct')
-  const [busy, setBusy] = useState(false)
-  const [done, setDone] = useState('')
-
-  async function submit() {
-    if (busy || !slug) return
-    setBusy(true)
-    setDone('')
-    try {
-      await postJson(
-        '/api/t4/events',
-        {
-          type: 'render.verdict',
-          summary: `${slug}${pos.trim() ? ` ${pos.trim().toUpperCase()}` : ''}: ${tier} — author-vision (${confidence})${note.trim() ? ` · ${note.trim().slice(0, 80)}` : ''}`,
-          data: {
-            slug,
-            verdict: tier,
-            position: pos.trim() ? pos.trim().toUpperCase() : undefined,
-            prose: note.trim(),
-            source: 'author',
-            confidence,
-          },
-        },
-        commanderHeaders()
-      )
-      setDone(`вердикт записан (source=author, ${confidence}) — летопись видит твой глаз`)
-      toast({
-        title: 'Глаз автора в летописи',
-        description: `${slug}${pos.trim() ? ` ${pos.trim().toUpperCase()}` : ''} · ${tier} · ${confidence}`,
-      })
-      setNote('')
-    } catch (e) {
-      setDone(ledgerWriteError(e))
-      toast({ title: 'Запись не прошла', description: ledgerWriteError(e), variant: 'destructive' })
-    } finally {
-      setBusy(false)
-    }
-  }
-
-  return (
-    <div className="mt-3 border-t border-zinc-800/80 pt-3">
-      <p className="text-[11px] uppercase tracking-wider text-zinc-500">
-        Author-vision — основной канал вердикта
-      </p>
-      <div className="mt-2 flex flex-wrap items-center gap-1.5">
-        <Input
-          value={pos}
-          onChange={(e) => setPos(e.target.value)}
-          placeholder="P07"
-          className="h-7 w-20 text-xs"
-        />
-        {(['PG-13', 'R', 'R+', 'X'] as const).map((t) => (
-          <button
-            key={t}
-            onClick={() => setTier(t)}
-            className={cn(
-              'rounded-md border px-2 py-1 text-xs font-medium transition-colors',
-              tier === t
-                ? 'border-amber-400 bg-amber-600/25 text-amber-200'
-                : 'border-zinc-700 bg-zinc-900 text-zinc-400 hover:border-zinc-600'
-            )}
-          >
-            {t}
-          </button>
-        ))}
-        <Input
-          value={note}
-          onChange={(e) => setNote(e.target.value)}
-          placeholder="что увидел — одной строкой"
-          className="h-7 min-w-40 flex-1 text-xs"
-        />
-        <button
-          onClick={submit}
-          disabled={busy}
-          className="rounded-md border border-amber-500/40 bg-amber-500/10 px-2.5 py-1 text-[11px] text-amber-300 transition-colors hover:bg-amber-500/20 disabled:opacity-40"
-        >
-          Записать вердикт
-        </button>
-      </div>
-      <div className="mt-1.5 flex items-center gap-2">
-        <span className="text-[11px] text-zinc-500">уверенность:</span>
-        {(
-          [
-            ['direct', 'direct — смотрел сейчас'],
-            ['described', 'described — пересказ по памяти'],
-          ] as const
-        ).map(([v, label]) => (
-          <button
-            key={v}
-            onClick={() => setConfidence(v)}
-            className={cn(
-              'rounded-md border px-2 py-0.5 text-[11px] transition-colors',
-              confidence === v
-                ? 'border-emerald-400 bg-emerald-600/20 text-emerald-200'
-                : 'border-zinc-700 bg-zinc-900 text-zinc-400 hover:border-zinc-600'
-            )}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
-      {done ? <p className="mt-1.5 text-[11px] text-emerald-400">{done}</p> : null}
-    </div>
-  )
+interface EventsData {
+  events: ChainEvent[]
+  returned: number
+  total: number
 }
 
-function VlmFirstPassPanel() {
-  const [slug, setSlug] = useState('')
-  const [queue, setQueue] = useState<QueueItem[]>([])
-  const [selected, setSelected] = useState<string | null>(null)
-  const [running, setRunning] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [flagNote, setFlagNote] = useState<string | null>(null)
-  const [journal, setJournal] = useState<JournalEntry[]>([])
-  const [summaryNote, setSummaryNote] = useState<string | null>(null)
-  const [dragOver, setDragOver] = useState(false)
-  const [setupHint, setSetupHint] = useState<string | null>(null)
-  const runIdRef = useRef(0)
-  const batches = useApi<{ items: { slug: string; title: string }[] }>('/api/t4/batches')
-  const contract = useApi<ContractPayload>(slug ? `/api/t4/contracts/${slug}` : null)
-
-  const items = batches.data?.items ?? []
-  const slots = contract.data?.contract?.slots ?? []
-
-  useEffect(() => {
-    setJournal(readJournal(slug))
-  }, [slug])
-
-  useEffect(() => {
-    const h = () => setJournal(readJournal(slug))
-    window.addEventListener('t4-receiver-updated', h)
-    return () => window.removeEventListener('t4-receiver-updated', h)
-  }, [slug])
-
-  // Ctrl+V скрином прямо с площадки — тоже в кучу
-  useEffect(() => {
-    function onPaste(e: ClipboardEvent) {
-      const files = Array.from(e.clipboardData?.files ?? []).filter((f) => f.type.startsWith('image/'))
-      if (files.length > 0) void addFiles(files)
-    }
-    document.addEventListener('paste', onPaste)
-    return () => document.removeEventListener('paste', onPaste)
-  }, [])
-
-  const journalFlags = journal.reduce<Record<string, number>>((acc, j) => {
-    if (j.flag) acc[j.flag] = (acc[j.flag] ?? 0) + 1
-    return acc
-  }, {})
-  const covered = new Set(journal.map((j) => j.position))
-  const remaining = Math.max(0, slots.length - covered.size)
-  const doneCount = queue.filter((q) => q.status === 'done' || q.status === 'blocked').length
-
-  async function addFiles(files: File[]) {
-    const imgs = files.filter((f) => f.type.startsWith('image/'))
-    if (imgs.length === 0) return
-    setError(null)
-    const added: QueueItem[] = []
-    for (const f of imgs) {
-      try {
-        const dataUrl = await shrinkImage(f)
-        added.push({
-          id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-          name: f.name,
-          dataUrl,
-          position: guessPosition(f.name),
-          status: 'pending',
-          flag: '',
-          autoFlagged: false,
-        })
-      } catch {
-        setError(`Не удалось прочитать ${f.name}`)
-      }
-    }
-    if (added.length > 0) setQueue((q) => [...q, ...added])
-  }
-
-  function setItemFlag(id: string, flag: VlmFlag | '') {
-    setQueue((q) => q.map((x) => (x.id === id ? { ...x, flag, autoFlagged: false } : x)))
-  }
-
-  function setItemPosition(id: string, position: string) {
-    setQueue((q) => q.map((x) => (x.id === id ? { ...x, position } : x)))
-  }
-
-  function removeItem(id: string) {
-    setQueue((q) => q.filter((x) => x.id !== id))
-    if (selected === id) setSelected(null)
-  }
-
-  async function runQueue() {
-    if (running) return
-    const myRun = ++runIdRef.current
-    setRunning(true)
-    setError(null)
-    setFlagNote(null)
-    try {
-      const pending = queue.filter((q) => q.status === 'pending' || q.status === 'error')
-      for (const item of pending) {
-        if (runIdRef.current !== myRun) return
-        setQueue((q) => q.map((x) => (x.id === item.id ? { ...x, status: 'running', error: undefined } : x)))
-        try {
-          const res = await postJson<{ ok: boolean; blocked?: boolean; message?: string; error?: string; card?: BlindCard }>(
-            '/api/t4/feedback',
-            { imageBase64: item.dataUrl, mimeType: 'image/jpeg', slug: slug.trim(), position: item.position, blind: true }
-          )
-          if (runIdRef.current !== myRun) return
-          if (res.blocked) {
-            // X-кадр: фильтр провайдера — слот неверифицируем машиной (мета-закон)
-            setQueue((q) =>
-              q.map((x) => (x.id === item.id ? { ...x, status: 'blocked', flag: x.flag || 'skipped', autoFlagged: true, error: res.message } : x))
-            )
-            continue
-          }
-          const card = res.card
-          if (!card) {
-            setQueue((q) => q.map((x) => (x.id === item.id ? { ...x, status: 'error', error: res.error ?? 'пустая карточка' } : x)))
-            continue
-          }
-          const claim = slots.find((s) => `P${String(s.position).padStart(2, '0')}` === item.position)?.rating ?? ''
-          setQueue((q) =>
-            q.map((x) => {
-              if (x.id !== item.id) return x
-              const flag = x.flag || autoFlagFor(card, claim)
-              return { ...x, status: 'done', card, flag, autoFlagged: Boolean(flag) }
-            })
-          )
-        } catch (e) {
-          if (runIdRef.current !== myRun) return
-          const msg = e instanceof Error ? e.message : 'VLM не ответил'
-          // VLM не настроен (нет .z-ai-config): гасим всю очередь сразу —
-          // иначе жжём по ошибке на каждый кадр (локальный запуск без ключа)
-          const setup =
-            (e instanceof ApiError && asRecord(e.payload).setupRequired === true) ||
-            /Configuration file not found|z-ai-config/i.test(msg)
-          if (setup) {
-            setQueue((q) => q.map((x) => (x.id === item.id ? { ...x, status: 'error', error: 'VLM не настроен' } : x)))
-            setSetupHint(
-              'VLM не поднят на этой машине: нет файла .z-ai-config (ключ Z.ai). Куча, авто-писец и VLM-прогоны оживут, как только ключ появится — всё остальное (гейты, приёмник, сдача) работает без него.'
-            )
-            return
-          }
-          // ключ жив, но на vision-модели (glm-4.5v) нет оплаченного баланса
-          if (/Insufficient balance|no resource package|"code":"1113"/i.test(msg)) {
-            setQueue((q) => q.map((x) => (x.id === item.id ? { ...x, status: 'error', error: 'нет баланса на vision-модели' } : x)))
-            setSetupHint(
-              'Ключ Z.ai жив, но vision-модель (glm-4.5v) не оплачена на твоём счёте: пополни баланс в консоли z.ai — и Куча оживёт сама, без моего ведома. Пока — грейдь кадры в чате со мной: кидай картинки, я возвращаю структурные карточки.'
-            )
-            return
-          }
-          setQueue((q) =>
-            q.map((x) => (x.id === item.id ? { ...x, status: 'error', error: msg } : x))
-          )
-        }
-      }
-    } finally {
-      if (runIdRef.current === myRun) setRunning(false)
-    }
-  }
-
-  /** Вшить всё прошедшее VLM в приёмник (приказ автора 2026-09-24):
-   *  флаги + авто-PH + ориентир (myTier остаётся за глазом автора). */
-  function fillReceiver() {
-    if (!slug) return
-    const draft = readDraft(slug)
-    let n = 0
-    for (const item of queue) {
-      if (!item.position || (item.status !== 'done' && item.status !== 'blocked')) continue
-      const d = draft.slots[item.position] ?? seededDraftSlot()
-      if (item.status === 'blocked') {
-        d.vlmFlag = 'skipped'
-        d.note = (d.note ? `${d.note} · ` : '') + 'X — контент-фильтр, неверифицируем машиной'
-      } else if (item.flag) {
-        d.vlmFlag = item.flag
-      }
-      d.ph = d.ph || 'PH'
-      d.tierHint = item.card?.rating_hint ?? d.tierHint ?? ''
-      draft.slots[item.position] = d
-      n += 1
-      const entries = readJournal(slug).filter((j) => j.position !== item.position)
-      entries.push({
-        position: item.position,
-        flag: (item.status === 'blocked' ? 'skipped' : item.flag) as VlmFlag | '',
-        tierHint: item.card?.rating_hint ?? '',
-        drift: Array.isArray(item.card?.mutation_drift) ? item.card.mutation_drift.length : 0,
-        ts: new Date().toISOString(),
-      })
-      writeJournal(slug, entries)
-    }
-    writeDraft(slug, draft)
-    setFlagNote(`Вшито в приёмник: ${n} слот(ов) — флаги + PH + ориентиры; тир ставишь ты.`)
-  }
-
-  async function writeSummary() {
-    if (!slug || journal.length === 0) return
-    setSummaryNote(null)
-    try {
-      await postJson(
-        '/api/t4/events',
-        {
-          type: 'note',
-          summary: `VLM-сводка ${slug}: прогонов ${journal.length}/${slots.length} — флаги: ок ${journalFlags.ok ?? 0} · мутация ${journalFlags.mutation ?? 0} · дрейф ${journalFlags.drift ?? 0} · не прогонял ${journalFlags.skipped ?? 0}${remaining > 0 ? ` · осталось ${remaining}` : ' · батч покрыт'}`,
-          data: { slug, kind: 'vlm-summary', runs: journal.length, total: slots.length, flags: journalFlags, positions: journal.map((j) => j.position) },
-        },
-        commanderHeaders()
-      )
-      setSummaryNote('Сводка записана в лог событий (note).')
-    } catch (e) {
-      setSummaryNote(ledgerWriteError(e))
-    }
-  }
-
-  const selectedItem = queue.find((q) => q.id === selected) ?? null
-  const signals = Array.isArray(selectedItem?.card?.signals) ? selectedItem!.card!.signals : []
-  const drift = Array.isArray(selectedItem?.card?.mutation_drift) ? selectedItem!.card!.mutation_drift : []
-
-  return (
-    <Panel title="VLM первый проход — КУЧА (шаг 1 воркфлоу)" icon={<ScanEye className="size-4" />}>
-      <div className="space-y-4">
-        <p className="text-xs leading-relaxed text-zinc-500">
-          Кидай ВСЕ кадры сразу — дроп пачкой, клик или Ctrl+V. Очередь прогонит каждый вслепую, слоты
-          расставятся по именам файлов (P05, 07-…), структурные провалы авто-отметятся (мутации/дрейф —
-          внешний вердикт №3). Слепой протокол: машине НЕ показывается заявка слота;{' '}
-          <span className="text-amber-300">вердикт по эротике выносит только глаз автора</span> (мета-закон
-          T4-03). X-кадры машина не верифицирует в принципе (фильтр провайдера, 400/1301) — авто-флаг
-          «не прогонял». Потом «Вшить в приёмник»: флаги + PH + ориентиры уедут сами, тир ставишь ты.
-        </p>
-
-        {/* minmax(0,1fr): селект «— батч —» с длинными опциями раздувает
-         *  авто-трек — Вердикты +34px на 390px (QA webDevReview #6) */}
-        <div className="grid grid-cols-[minmax(0,1fr)] gap-3 sm:grid-cols-[minmax(0,1fr)_170px]">
-          <div
-            onDragOver={(e) => {
-              e.preventDefault()
-              setDragOver(true)
-            }}
-            onDragLeave={() => setDragOver(false)}
-            onDrop={(e) => {
-              e.preventDefault()
-              setDragOver(false)
-              void addFiles(Array.from(e.dataTransfer.files ?? []))
-            }}
-            className={cn(
-              'flex cursor-pointer items-center justify-center gap-2 rounded-md border border-dashed px-3 py-2.5 text-xs transition-colors',
-              dragOver
-                ? 'border-amber-500/70 bg-amber-500/10 text-amber-200'
-                : 'border-zinc-700 bg-zinc-950 text-zinc-400 hover:border-amber-500/40 hover:text-amber-200'
-            )}
-            onClick={() => document.getElementById('vlm-first-file')?.click()}
-            role="button"
-            tabIndex={0}
-            aria-label="Кинуть рендеры кучей: дроп, клик или Ctrl+V"
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault()
-                document.getElementById('vlm-first-file')?.click()
-              }
-            }}
-          >
-            <input
-              id="vlm-first-file"
-              type="file"
-              accept="image/*"
-              multiple
-              className="sr-only"
-              onChange={(e) => {
-                void addFiles(Array.from(e.target.files ?? []))
-                e.currentTarget.value = ''
-              }}
-            />
-            <Upload className="size-3.5" />
-            {queue.length > 0 ? `В очереди ${queue.length} кадр(ов) — можно добавить ещё` : 'Кинь кадры КУЧЕЙ: дроп, клик или Ctrl+V'}
-          </div>
-          <select
-            value={slug}
-            onChange={(e) => {
-              setSlug(e.target.value)
-              setFlagNote(null)
-            }}
-            className="h-10 rounded-md border border-zinc-800 bg-zinc-950 px-2 text-sm text-zinc-200"
-            aria-label="Батч"
-          >
-            <option value="">— батч —</option>
-            {items.map((b) => (
-              <option key={b.slug} value={b.slug}>
-                {b.slug} · {b.title}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {setupHint ? (
-          <div className="rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2.5 text-xs leading-relaxed text-amber-200">
-            {setupHint}
-          </div>
-        ) : null}
-
-        {error ? (
-          <div className="rounded-md border border-rose-500/40 bg-rose-500/10 px-3 py-2 text-xs text-rose-200">
-            {error}
-          </div>
-        ) : null}
-
-        {queue.length > 0 ? (
-          <>
-            <div className="flex flex-wrap items-center gap-2">
-              <Button
-                onClick={runQueue}
-                disabled={running || Boolean(setupHint) || queue.every((q) => q.status !== 'pending' && q.status !== 'error')}
-                className="bg-amber-500 text-zinc-950 hover:bg-amber-400 disabled:opacity-40"
-              >
-                {running
-                  ? 'Слепые прогоны идут…'
-                  : `Прогнать всё вслепую (${queue.filter((q) => q.status === 'pending' || q.status === 'error').length})`}
-              </Button>
-              <Button
-                onClick={fillReceiver}
-                disabled={!slug || doneCount === 0}
-                variant="outline"
-                className="border-amber-500/40 text-amber-300 hover:bg-amber-500/10 disabled:opacity-40"
-              >
-                Вшить в приёмник ({doneCount}){slug ? '' : ' — выбери батч'}
-              </Button>
-              <button
-                onClick={() => {
-                  setQueue([])
-                  setSelected(null)
-                }}
-                className="text-[11px] text-zinc-500 transition-colors hover:text-rose-300"
-              >
-                очистить очередь
-              </button>
-            </div>
-            {flagNote ? <p className="text-[11px] text-emerald-400">{flagNote}</p> : null}
-
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
-              {queue.map((item) => (
-                <div
-                  key={item.id}
-                  onClick={() => setSelected(item.id)}
-                  className={cn(
-                    'cursor-pointer rounded-md border p-1.5 transition-colors',
-                    selected === item.id
-                      ? 'border-amber-500/70 bg-amber-500/10'
-                      : 'border-zinc-800 bg-zinc-950 hover:border-zinc-600'
-                  )}
-                >
-                  <div className="relative">
-                    <img src={item.dataUrl} alt={item.name} className="h-28 w-full rounded object-cover" />
-                    {item.status === 'running' ? (
-                      <span className="absolute inset-0 flex items-center justify-center rounded bg-zinc-950/70 text-[10px] text-amber-300">
-                        прогон…
-                      </span>
-                    ) : null}
-                    {item.status === 'blocked' ? (
-                      <span className="absolute inset-x-1 top-1 rounded bg-rose-950/85 px-1 py-0.5 text-center text-[9px] text-rose-200">
-                        X-фильтр · не прогонял
-                      </span>
-                    ) : null}
-                  </div>
-                  <div className="mt-1.5 space-y-1">
-                    <select
-                      value={item.position}
-                      onChange={(e) => setItemPosition(item.id, e.target.value)}
-                      onClick={(e) => e.stopPropagation()}
-                      className="h-6 w-full rounded border border-zinc-800 bg-zinc-950 px-1 text-[10px] text-zinc-300"
-                      aria-label={`Слот для ${item.name}`}
-                    >
-                      <option value="">— слот? —</option>
-                      {(slots.length > 0
-                        ? slots.map((s) => `P${String(s.position).padStart(2, '0')}`)
-                        : Array.from({ length: 24 }, (_, i) => `P${String(i + 1).padStart(2, '0')}`)
-                      ).map((p) => (
-                        <option key={p} value={p}>
-                          {p}
-                        </option>
-                      ))}
-                    </select>
-                    <select
-                      value={item.flag}
-                      onChange={(e) => setItemFlag(item.id, e.target.value as VlmFlag | '')}
-                      onClick={(e) => e.stopPropagation()}
-                      className="h-6 w-full rounded border border-zinc-800 bg-zinc-950 px-1 text-[10px] text-zinc-300"
-                      aria-label={`Флаг для ${item.name}`}
-                    >
-                      <option value="">— флаг? —</option>
-                      {(['ok', 'mutation', 'drift', 'skipped'] as const).map((f) => (
-                        <option key={f} value={f}>
-                          {VLM_FLAG_LABEL[f]}
-                          {item.autoFlagged && item.flag === f ? ' (авто)' : ''}
-                        </option>
-                      ))}
-                    </select>
-                    <div className="flex items-center justify-between gap-1">
-                      <span
-                        className={cn(
-                          'text-[9px]',
-                          item.status === 'done'
-                            ? 'text-emerald-400/80'
-                            : item.status === 'error'
-                              ? 'text-rose-400'
-                              : 'text-zinc-600'
-                        )}
-                      >
-                        {item.status === 'error' ? 'ошибка' : item.status === 'pending' ? 'ждёт' : item.status === 'done' ? item.card?.rating_hint || 'прогон' : item.status}
-                      </span>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          removeItem(item.id)
-                        }}
-                        className="text-[9px] text-zinc-600 hover:text-rose-300"
-                        aria-label="убрать из очереди"
-                      >
-                        ×
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {selectedItem ? (
-              <div className="space-y-3 rounded-md border border-zinc-800 bg-zinc-950/60 p-4">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <p className="text-[11px] uppercase tracking-wider text-zinc-500">
-                    {selectedItem.position || '— слот не назначен'} · структурная карточка — факт, не вердикт
-                  </p>
-                  {selectedItem.position && slots.find((s) => `P${String(s.position).padStart(2, '0')}` === selectedItem.position) ? (
-                    <span className="text-[11px] text-amber-200/80">
-                      Заявка (видишь только ты):{' '}
-                      <span className="font-mono">
-                        {slots.find((s) => `P${String(s.position).padStart(2, '0')}` === selectedItem.position)!.rating}
-                      </span>{' '}
-                      · LEAD {slots.find((s) => `P${String(s.position).padStart(2, '0')}` === selectedItem.position)!.lead}
-                    </span>
-                  ) : null}
-                </div>
-                {selectedItem.error ? (
-                  <p className="text-[11px] text-rose-300">{selectedItem.error}</p>
-                ) : null}
-                {selectedItem.card ? (
-                  <>
-                    <dl className="grid gap-2 text-xs sm:grid-cols-2">
-                      {[
-                        ['Сцена', selectedItem.card.scene],
-                        ['Персонаж', selectedItem.card.character],
-                        ['Одежда + ткань', `${selectedItem.card.clothing ?? '—'} [${selectedItem.card.fabric_state ?? '?'}]`],
-                        ['Подслой', selectedItem.card.underlayer],
-                        ['Поза', selectedItem.card.pose],
-                        ['Камера', selectedItem.card.camera],
-                        ['Свет', selectedItem.card.light],
-                        ['Сосок', selectedItem.card.nipple_read],
-                      ].map(([k, v]) => (
-                        <div key={String(k)} className="rounded-md border border-zinc-800/80 bg-zinc-900/40 px-2.5 py-1.5">
-                          <dt className="text-[10px] uppercase tracking-wider text-zinc-600">{k}</dt>
-                          <dd className="mt-0.5 leading-snug text-zinc-300">{v || '—'}</dd>
-                        </div>
-                      ))}
-                    </dl>
-                    {signals.length > 0 ? (
-                      <div>
-                        <p className="mb-1 text-[10px] uppercase tracking-wider text-zinc-600">Видимые сигналы</p>
-                        <div className="flex flex-wrap gap-1.5">
-                          {signals.map((s, i) => (
-                            <Chip key={i} tone="amber">
-                              {s}
-                            </Chip>
-                          ))}
-                        </div>
-                      </div>
-                    ) : null}
-                    {drift.length > 0 ? (
-                      <ul className="space-y-0.5 text-[11px] text-rose-300/90">
-                        {drift.slice(0, 6).map((d, i) => (
-                          <li key={i}>— {d}</li>
-                        ))}
-                      </ul>
-                    ) : null}
-                    <div className="flex flex-wrap items-center gap-2 border-t border-zinc-800/80 pt-3">
-                      <span className="text-xs text-zinc-500">Тир-ориентир:</span>
-                      <span className="rounded-md border border-zinc-700 bg-zinc-800/60 px-2 py-0.5 font-mono text-[11px] text-zinc-400">
-                        {selectedItem.card.rating_hint ?? '—'}
-                      </span>
-                      <span className="text-[10px] text-zinc-600">
-                        не вердикт — VLM слеп к тирам в обе стороны (завышал 8/12, занижал до PG-13)
-                      </span>
-                    </div>
-                    {selectedItem.card.notes ? (
-                      <p className="text-xs leading-relaxed text-zinc-400">{selectedItem.card.notes}</p>
-                    ) : null}
-                  </>
-                ) : null}
-                <div className="flex flex-wrap items-center gap-2 border-t border-zinc-800/80 pt-3">
-                  <span className="text-xs text-zinc-500">Сравнил с заявкой → флаг:</span>
-                  {(['ok', 'mutation', 'drift', 'skipped'] as const).map((f) => (
-                    <button
-                      key={f}
-                      onClick={() => setItemFlag(selectedItem.id, f)}
-                      className={cn(
-                        'rounded-md border px-2.5 py-1 text-xs font-medium transition-colors',
-                        selectedItem.flag === f
-                          ? f === 'ok'
-                            ? 'border-emerald-400 bg-emerald-600/25 text-emerald-200'
-                            : f === 'skipped'
-                              ? 'border-zinc-500 bg-zinc-800 text-zinc-200'
-                              : 'border-rose-400 bg-rose-500/25 text-rose-200'
-                          : f === 'ok'
-                            ? 'border-emerald-600/50 bg-emerald-600/10 text-emerald-300 hover:bg-emerald-600/20'
-                            : f === 'skipped'
-                              ? 'border-zinc-700 bg-zinc-900 text-zinc-400 hover:border-zinc-600'
-                              : 'border-rose-500/40 bg-rose-500/10 text-rose-300 hover:bg-rose-500/20'
-                      )}
-                    >
-                      {VLM_FLAG_LABEL[f]}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            ) : null}
-          </>
-        ) : null}
-
-        {slug && slots.length > 0 ? (
-          <div className="rounded-md border border-zinc-800 bg-zinc-900/40 p-3">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <p className="text-[11px] uppercase tracking-wider text-zinc-500">
-                Журнал прогона · {slug}: {journal.length}/{slots.length}
-              </p>
-              <button
-                onClick={writeSummary}
-                disabled={journal.length === 0}
-                className="rounded-md border border-amber-500/40 bg-amber-500/10 px-2 py-1 text-[11px] text-amber-300 transition-colors hover:bg-amber-500/20 disabled:opacity-40"
-              >
-                Записать сводку в лог
-              </button>
-            </div>
-            <div className="mt-2 flex flex-wrap gap-1.5">
-              <Chip tone="emerald">ок {journalFlags.ok ?? 0}</Chip>
-              <Chip tone="rose">мутация {journalFlags.mutation ?? 0}</Chip>
-              <Chip tone="rose">дрейф {journalFlags.drift ?? 0}</Chip>
-              <Chip>не прогонял {journalFlags.skipped ?? 0}</Chip>
-              <Chip tone="amber">осталось {remaining}</Chip>
-            </div>
-            {journal.length > 0 ? (
-              <div className="mt-2 max-h-28 space-y-0.5 overflow-y-auto t4-scroll">
-                {[...journal]
-                  .sort((a, b) => a.position.localeCompare(b.position))
-                  .map((j) => (
-                    <p key={j.position + j.ts} className="text-[11px] text-zinc-500">
-                      <span className="font-mono text-zinc-400">{j.position}</span> ·{' '}
-                      {VLM_FLAG_LABEL[j.flag] ?? '—'}
-                      {j.tierHint ? ` · ориентир ${j.tierHint}` : ''}
-                      {j.drift > 0 ? ` · дрейф ${j.drift}` : ''}
-                    </p>
-                  ))}
-              </div>
-            ) : null}
-            {summaryNote ? <p className="mt-2 text-[11px] text-emerald-400">{summaryNote}</p> : null}
-            {slug ? <AuthorVisionRow slug={slug} /> : null}
-          </div>
-        ) : null}
-      </div>
-    </Panel>
-  )
+interface VerifyData {
+  ok: boolean
+  events: number
+  head: string
+  problems: string[]
 }
 
-/* ------------------------------------------------------------------ */
-/* Панель 2: Приёмник батча — одна запись на батч                      */
-/* ------------------------------------------------------------------ */
-
-function BatchReceiverPanel() {
-  const [slug, setSlug] = useState('')
-  const [draft, setDraft] = useState<ReceiverDraft>({ slots: {}, prose: '', updatedAt: '' })
-  const [busy, setBusy] = useState(false)
-  const [note, setNote] = useState<string | null>(null)
-  const [expanded, setExpanded] = useState<string | null>(null)
-  const [curlCopied, setCurlCopied] = useState(false)
-  const [lightVerdict, setLightVerdict] = useState<string | null>(null)
-  const [lightProse, setLightProse] = useState('')
-  const batches = useApi<{ items: { slug: string; title: string }[] }>('/api/t4/batches')
-  const contract = useApi<ContractPayload>(slug ? `/api/t4/contracts/${slug}` : null)
-  const records = useApi<{ records: BatchVerdictRecord[] }>('/api/t4/batch-verdict')
-
-  const items = batches.data?.items ?? []
-  const slots = contract.data?.contract?.slots ?? []
-
-  useEffect(() => {
-    setDraft(readDraft(slug))
-  }, [slug])
-
-  // авто-PH (приказ автора 2026-09-24): строки приёмника рождаются с ph='PH',
-  // автор вправе поменять на Raw/A/B в любой момент
-  const seededSlugRef = useRef('')
-  useEffect(() => {
-    if (!slug || slots.length === 0 || seededSlugRef.current === slug) return
-    seededSlugRef.current = slug
-    const d = readDraft(slug)
-    let changed = false
-    for (const s of slots) {
-      const p = `P${String(s.position).padStart(2, '0')}`
-      if (!d.slots[p]) {
-        d.slots[p] = seededDraftSlot()
-        changed = true
-      }
-    }
-    if (changed) {
-      writeDraft(slug, d)
-      setDraft(readDraft(slug))
-    }
-  }, [slug, slots])
-
-  useEffect(() => {
-    function h(e: Event) {
-      const detail = (e as CustomEvent<{ slug: string }>).detail
-      if (!detail?.slug || detail.slug === slug) setDraft(readDraft(slug))
-    }
-    window.addEventListener('t4-receiver-updated', h)
-    return () => window.removeEventListener('t4-receiver-updated', h)
-  }, [slug])
-
-  function slotDraft(position: string): DraftSlot {
-    return draft.slots[position] ?? emptyDraftSlot()
-  }
-
-  function updateSlot(position: string, patch: Partial<DraftSlot>) {
-    // next вычисляется вне апдейтера: writeDraft диспатчит событие, а
-    // побочные эффекты внутри setDraft-рендера роняют React
-    const next: ReceiverDraft = {
-      ...draft,
-      slots: {
-        ...draft.slots,
-        [position]: { ...emptyDraftSlot(), ...draft.slots[position], ...patch },
-      },
-    }
-    writeDraft(slug, next)
-    setDraft(next)
-  }
-
-  // скорборд на лету
-  const live = useMemo(() => {
-    const claimed: Record<string, number> = {}
-    const delivered: Record<string, number> = {}
-    let up = 0
-    let down = 0
-    let pUp = 0
-    let pDown = 0
-    let filled = 0
-    for (const s of slots) {
-      const p = `P${String(s.position).padStart(2, '0')}`
-      if (s.rating) claimed[s.rating] = (claimed[s.rating] ?? 0) + 1
-      const d = slotDraft(p)
-      if (d.myTier) {
-        filled += 1
-        delivered[d.myTier] = (delivered[d.myTier] ?? 0) + 1
-        const dc = TIER_ORDER_MAP[d.myTier] - TIER_ORDER_MAP[s.rating]
-        if (dc > 0) up += 1
-        else if (dc < 0) down += 1
-        if (d.yodayoTier) {
-          const dp = TIER_ORDER_MAP[d.myTier] - TIER_ORDER_MAP[d.yodayoTier]
-          if (dp > 0) pUp += 1
-          else if (dp < 0) pDown += 1
-        }
-      }
-    }
-    return { claimed, delivered, up, down, pUp, pDown, filled }
-  }, [slots, draft])
-
-  function buildPayload() {
-    return {
-      slug,
-      prose: draft.prose,
-      slots: slots.map((s) => {
-        const p = `P${String(s.position).padStart(2, '0')}`
-        const d = slotDraft(p)
-        return {
-          position: p,
-          claim: s.rating,
-          pose: `${s.pose} ${s.poseName}`,
-          lead: s.lead,
-          myTier: d.myTier,
-          yodayoTier: d.yodayoTier,
-          ph: d.ph,
-          vlmFlag: d.vlmFlag,
-          phText: d.phText,
-          note: d.note,
-          rolls: d.rolls ? Number(d.rolls) : undefined,
-          settings: d.settings || undefined,
-          genreRead: s.kind === 'NICHE' && d.genreRead ? d.genreRead : undefined,
-          wow: s.kind === 'NICHE' && d.wow ? d.wow : undefined,
-        }
-      }),
-    }
-  }
-
-  async function submitBatch() {
-    if (busy || !slug || live.filled === 0) return
-    setBusy(true)
-    setNote(null)
-    try {
-      const res = await postJson<{ ok: boolean; scoreboard?: { claimDelta?: { up: number; down: number } } }>(
-        '/api/t4/batch-verdict',
-        buildPayload()
-      )
-      setNote(
-        res.ok
-          ? `Батч-вердикт ${slug} записан ОДНОЙ записью (render.verdict · author-batch): ${live.filled}/${slots.length} слотов · расхождения ↑${res.scoreboard?.claimDelta?.up ?? live.up} ↓${res.scoreboard?.claimDelta?.down ?? live.down}`
-          : 'Не записано'
-      )
-      /* Ревизия 2026-10-14 (3.4): Toaster смонтирован с рождения, но ни один
-       * toast() не вызывался — система фидбека существовала только в
-       * setNote-строках внутри панелей. Мутации автора теперь говорят
-       * вслух: успех — что записано, отказ — почему. */
-      toast({
-        title: res.ok ? `Вердикт ${slug} записан` : 'Вердикт не записан',
-        description: res.ok
-          ? `${live.filled}/${slots.length} слотов · ↑${res.scoreboard?.claimDelta?.up ?? live.up} ↓${res.scoreboard?.claimDelta?.down ?? live.down} · очередь корпуса накормлена (U6)`
-          : 'приёмник отказал — см. текст ошибки',
-      })
-      records.reload()
-    } catch (e) {
-      setNote(e instanceof ApiError ? `API: ${e.message}` : 'Сеть недоступна')
-      toast({
-        title: 'Сеть/приёмник недоступны',
-        description: e instanceof ApiError ? e.message : 'нет ответа — вердикт НЕ записан',
-        variant: 'destructive',
-      })
-    } finally {
-      setBusy(false)
-    }
-  }
-
-  async function submitLight() {
-    if (busy || !slug || !lightVerdict) return
-    setBusy(true)
-    setNote(null)
-    try {
-      const res = await postJson<{ ok: boolean; verdict?: string; queued?: boolean }>(
-        '/api/t4/batch-verdict',
-        { slug, mode: 'light', verdict: lightVerdict, prose: lightProse.trim() }
-      )
-      setNote(
-        res.ok
-          ? `Лёгкий вердикт ${slug} записан (${res.verdict ?? lightVerdict}) — батч-уровень, без по-слотовой разметки.`
-          : 'Не записано'
-      )
-      toast({
-        title: res.ok ? 'Лёгкий вердикт записан' : 'Не записано',
-        description: res.ok
-          ? `${slug} · ${res.verdict ?? lightVerdict}${res.queued ? ' · взгляд уехал в очередь корпуса' : ''}`
-          : 'приёмник отказал',
-      })
-      setLightVerdict(null)
-      setLightProse('')
-      records.reload()
-    } catch (e) {
-      setNote(e instanceof ApiError ? `API: ${e.message}` : 'Сеть недоступна')
-      toast({ title: 'Вердикт не записан', description: e instanceof ApiError ? e.message : 'сеть недоступна', variant: 'destructive' })
-    } finally {
-      setBusy(false)
-    }
-  }
-
-  function downloadJson() {
-    const payload = buildPayload()
-    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `${slug}-batch-verdict.json`
-    a.click()
-    URL.revokeObjectURL(url)
-  }
-
-  async function copyCurl() {
-    const res = await copyText(
-      `curl -X POST /api/t4/batch-verdict -H 'Content-Type: application/json' --data @${slug}-batch-verdict.json`
-    )
-    if (res.ok) {
-      setCurlCopied(true)
-      setTimeout(() => setCurlCopied(false), 2500)
-    } else {
-      setCurlCopied(false)
-      toast({
-        title: 'curl НЕ в буфере',
-        description: res.reason ?? 'буфер недоступен — вставится прошлый текст',
-        variant: 'destructive',
-      })
-    }
-  }
-
-  const recordList = records.data?.records ?? []
-
-  return (
-    <Panel title="Приёмник батча — одна запись на батч" icon={<Stamp className="size-4" />}>
-      <div className="space-y-4">
-        <p className="text-xs leading-relaxed text-zinc-500">
-          Черновик живёт здесь — по одному на батч, переживает перезагрузку (localStorage). Выбери батч →
-          24 слота уже с заявками из контракта, PH проставлен по умолчанию (авто, приказ 2026-09-24 —
-          меняется на Raw/A/B), VLM-флаги и ориентиры вшивает «Куча» выше (кнопка «↔ ориентир» принимает
-          ориентир как тир — решение всегда твоё). Роллы/CFG — журнал перекидок и настроек рендера
-          (стохастика станет измеримой), Niche — жанр прочитан? вау? (только NICHE-слоты). «Записать
-          одной записью» кладёт весь батч одним render.verdict (slots + scoreboard + A/B-атрибуция).
-        </p>
-
-        <div className="grid grid-cols-[minmax(0,1fr)] gap-3 sm:grid-cols-[200px_minmax(0,1fr)]">
-          <select
-            value={slug}
-            onChange={(e) => {
-              setSlug(e.target.value)
-              setNote(null)
-            }}
-            className="h-9 rounded-md border border-zinc-800 bg-zinc-950 px-2 text-sm text-zinc-200"
-            aria-label="Батч приёмника"
-          >
-            <option value="">— выбери батч —</option>
-            {items.map((b) => (
-              <option key={b.slug} value={b.slug}>
-                {b.slug} · {b.title}
-              </option>
-            ))}
-          </select>
-          {slug ? (
-            <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
-              {Object.entries(live.claimed).map(([t, n]) => (
-                <Chip key={t} tone="zinc">
-                  {t}: доставлено {live.delivered[t] ?? 0}/{n}
-                </Chip>
-              ))}
-              <Chip tone={live.down > 0 ? 'rose' : 'emerald'}>
-                заявка ↑{live.up} ↓{live.down}
-              </Chip>
-              <Chip tone="amber">площадка ↑{live.pUp} ↓{live.pDown}</Chip>
-              <Chip>
-                заполнено {live.filled}/{slots.length}
-              </Chip>
-            </div>
-          ) : null}
-        </div>
-
-        {slug ? (
-          <div className="rounded-md border border-zinc-800 bg-zinc-900/40 p-3">
-            <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2">
-              <p className="text-[11px] font-medium uppercase tracking-wider text-zinc-400">
-                Лёгкий путь — батч-уровень
-              </p>
-              <p className="text-[11px] text-zinc-600">
-                без по-слотовой разметки · контракт не нужен · точный путь ниже
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {[
-                { id: 'keep', label: 'Зашёл — держим курс', tone: 'border-emerald-600/60 bg-emerald-600/15 text-emerald-300' },
-                { id: 'mixed', label: 'Местами — половина решает', tone: 'border-amber-500/60 bg-amber-500/15 text-amber-200' },
-                { id: 'rework', label: 'Мимо — переделать', tone: 'border-rose-500/60 bg-rose-500/15 text-rose-300' },
-              ].map((v) => (
-                <button
-                  key={v.id}
-                  onClick={() => setLightVerdict(lightVerdict === v.id ? null : v.id)}
-                  className={cn(
-                    'rounded-md border px-2.5 py-1.5 text-xs font-medium transition-colors',
-                    lightVerdict === v.id
-                      ? v.tone
-                      : 'border-zinc-800 bg-zinc-950 text-zinc-400 hover:border-zinc-700 hover:text-zinc-200'
-                  )}
-                  aria-pressed={lightVerdict === v.id}
-                >
-                  {v.label}
-                </button>
-              ))}
-            </div>
-            <div className="mt-2 flex flex-wrap items-center gap-2">
-              <input
-                value={lightProse}
-                onChange={(e) => setLightProse(e.target.value)}
-                placeholder="Пара слов по желанию: «мокрый шёлк решил всё, кроме P07»…"
-                className="h-9 min-w-0 flex-1 rounded-md border border-zinc-800 bg-zinc-950 px-2.5 text-sm text-zinc-200 placeholder:text-zinc-600"
-                aria-label="Проза лёгкого вердикта"
-              />
-              <Button
-                onClick={submitLight}
-                disabled={busy || !lightVerdict}
-                className="bg-amber-600 text-zinc-50 hover:bg-amber-500 disabled:opacity-40"
-              >
-                {busy ? 'Записываю…' : 'Записать лёгкий вердикт'}
-              </Button>
-            </div>
-          </div>
-        ) : null}
-
-        {/* Фред, 2026-10-08: приёмник не молчит — объясняет, почему пусто.
-            Раньше пик RAW/EXP-батча без контракта ронял панель в тишину. */}
-        {slug && !contract.loading && contract.error ? (
-          <div className="rounded-md border border-rose-500/30 bg-rose-500/5 px-3 py-2 text-xs text-rose-300">
-            {slug}: контракт не найден и батч не разобран — по-слотовой таблице нечего показать.
-            Лёгкий путь выше работает без контракта.
-          </div>
-        ) : null}
-        {slug && !contract.loading && !contract.error && slots.length === 0 ? (
-          <div className="rounded-md border border-amber-500/30 bg-amber-500/5 px-3 py-2 text-xs text-amber-200">
-            {slug}: слоты не найдены ни в контракте, ни в шапках батча — таблице нечем кормиться.
-          </div>
-        ) : null}
-        {slug && !contract.loading && !contract.error && contract.data?.synthesized && slots.length > 0 ? (
-          <div className="rounded-md border border-zinc-700 bg-zinc-900/60 px-3 py-2 text-[11px] text-zinc-400">
-            Контракта у {slug} нет — заявки (тир) и жанры прочитаны из шапок слотов самого батча.
-            A/B-атрибуция недоступна: пар в RAW/EXP-батче нет.
-          </div>
-        ) : null}
-
-        {slug && slots.length > 0 ? (
-          <>
-            <div className="max-h-[26rem] overflow-auto rounded-md border border-zinc-800 t4-scroll">
-              <table className="w-full min-w-[1120px] border-collapse text-left text-xs">
-                <thead className="sticky top-0 z-10 bg-zinc-900/95 backdrop-blur">
-                  <tr className="text-[10px] uppercase tracking-wider text-zinc-500">
-                    <th className="px-2 py-2 font-medium">P</th>
-                    <th className="px-2 py-2 font-medium">Заявка (контракт)</th>
-                    <th className="px-2 py-2 font-medium">Мой тир</th>
-                    <th className="px-2 py-2 font-medium">Йодайо</th>
-                    <th className="px-2 py-2 font-medium">PH/Raw/A-B</th>
-                    <th className="px-2 py-2 font-medium">VLM</th>
-                    <th className="px-2 py-2 font-medium">Роллы/CFG</th>
-                    <th className="px-2 py-2 font-medium">Niche</th>
-                    <th className="px-2 py-2 font-medium">PH-текст</th>
-                    <th className="px-2 py-2 font-medium">Заметка</th>
-                    <th className="px-2 py-2 font-medium">Δ</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {slots.map((s) => {
-                    const p = `P${String(s.position).padStart(2, '0')}`
-                    const d = slotDraft(p)
-                    const dc = d.myTier ? tierDeltaIcon(d.myTier, s.rating) : ''
-                    const dp = d.myTier && d.yodayoTier ? tierDeltaIcon(d.myTier, d.yodayoTier) : ''
-                    return (
-                      <tr key={p} className="border-t border-zinc-800/60 hover:bg-zinc-900/40">
-                        <td className="whitespace-nowrap px-2 py-1.5 font-mono text-[11px] text-amber-200/80">{p}</td>
-                        <td className="px-2 py-1.5">
-                          <div className="flex flex-wrap items-center gap-1">
-                            <RatingBadge rating={s.rating} />
-                            <span className="text-[10px] text-zinc-500">
-                              {s.pose} {s.poseName.slice(0, 24)} · LEAD {s.lead}
-                              {s.ab ? ` · ${s.ab.half}/${s.ab.pair}` : ''}
-                            </span>
-                          </div>
-                        </td>
-                        <td className="px-2 py-1.5">
-                          <select
-                            value={d.myTier}
-                            onChange={(e) => updateSlot(p, { myTier: e.target.value })}
-                            className="h-7 w-[74px] rounded border border-zinc-800 bg-zinc-950 px-1 text-[11px] text-zinc-200"
-                            aria-label={`Мой тир ${p}`}
-                          >
-                            <option value="">—</option>
-                            {TIER_OPTIONS.map((t) => (
-                              <option key={t} value={t}>
-                                {t}
-                              </option>
-                            ))}
-                          </select>
-                        </td>
-                        <td className="px-2 py-1.5">
-                          <select
-                            value={d.yodayoTier}
-                            onChange={(e) => updateSlot(p, { yodayoTier: e.target.value })}
-                            className="h-7 w-[74px] rounded border border-zinc-800 bg-zinc-950 px-1 text-[11px] text-zinc-200"
-                            aria-label={`Тир Йодайо ${p}`}
-                          >
-                            <option value="">—</option>
-                            {TIER_OPTIONS.map((t) => (
-                              <option key={t} value={t}>
-                                {t}
-                              </option>
-                            ))}
-                          </select>
-                        </td>
-                        <td className="px-2 py-1.5">
-                          <select
-                            value={d.ph}
-                            onChange={(e) => updateSlot(p, { ph: e.target.value })}
-                            className="h-7 w-[70px] rounded border border-zinc-800 bg-zinc-950 px-1 text-[11px] text-zinc-200"
-                            aria-label={`PH/Raw/A-B ${p}`}
-                          >
-                            <option value="">—</option>
-                            {PH_OPTIONS.map((t) => (
-                              <option key={t} value={t}>
-                                {t}
-                              </option>
-                            ))}
-                          </select>
-                        </td>
-                        <td className="px-2 py-1.5">
-                          {d.vlmFlag ? (
-                            <div className="flex flex-col items-start gap-0.5">
-                              <Chip tone={d.vlmFlag === 'ok' ? 'emerald' : d.vlmFlag === 'skipped' ? 'zinc' : 'rose'}>
-                                {VLM_FLAG_LABEL[d.vlmFlag] ?? d.vlmFlag}
-                              </Chip>
-                              {d.tierHint ? (
-                                <button
-                                  onClick={() => updateSlot(p, { myTier: d.tierHint ?? '' })}
-                                  title={`Принять ориентир VLM (${d.tierHint}) как мой тир — решение всегда твоё`}
-                                  className="rounded border border-zinc-700 bg-zinc-900 px-1 text-[9px] text-zinc-400 transition-colors hover:border-amber-500/50 hover:text-amber-300"
-                                >
-                                  ↔ {d.tierHint}
-                                </button>
-                              ) : null}
-                            </div>
-                          ) : d.tierHint ? (
-                            <button
-                              onClick={() => updateSlot(p, { myTier: d.tierHint ?? '' })}
-                              className="rounded border border-zinc-700 bg-zinc-900 px-1 text-[9px] text-zinc-400 transition-colors hover:border-amber-500/50 hover:text-amber-300"
-                            >
-                              ориентир {d.tierHint}
-                            </button>
-                          ) : (
-                            <span className="text-zinc-700">—</span>
-                          )}
-                        </td>
-                        <td className="px-2 py-1.5">
-                          <div className="flex flex-col gap-0.5">
-                            <input
-                              value={d.rolls ?? ''}
-                              onChange={(e) => updateSlot(p, { rolls: e.target.value.replace(/[^\d]/g, '') })}
-                              placeholder="перекидки"
-                              className="h-6 w-[62px] rounded border border-zinc-800 bg-zinc-950 px-1 text-[10px] text-zinc-200 placeholder:text-zinc-700"
-                              aria-label={`Перекидки ${p}`}
-                            />
-                            <input
-                              value={d.settings ?? ''}
-                              onChange={(e) => updateSlot(p, { settings: e.target.value })}
-                              placeholder="cfg/sampler"
-                              className="h-6 w-[62px] rounded border border-zinc-800 bg-zinc-950 px-1 text-[10px] text-zinc-200 placeholder:text-zinc-700"
-                              aria-label={`Настройки ${p}`}
-                            />
-                          </div>
-                        </td>
-                        <td className="px-2 py-1.5">
-                          {s.kind === 'NICHE' ? (
-                            <div className="flex flex-col gap-0.5">
-                              <select
-                                value={d.genreRead ?? ''}
-                                onChange={(e) => updateSlot(p, { genreRead: e.target.value })}
-                                className="h-6 w-[64px] rounded border border-zinc-800 bg-zinc-950 px-1 text-[10px] text-zinc-200"
-                                aria-label={`Жанр прочитан ${p}`}
-                              >
-                                <option value="">жанр?</option>
-                                <option value="yes">читается</option>
-                                <option value="no">не ниша</option>
-                              </select>
-                              <select
-                                value={d.wow ?? ''}
-                                onChange={(e) => updateSlot(p, { wow: e.target.value })}
-                                className="h-6 w-[64px] rounded border border-zinc-800 bg-zinc-950 px-1 text-[10px] text-zinc-200"
-                                aria-label={`Вау ${p}`}
-                              >
-                                <option value="">вау?</option>
-                                <option value="yes">вау</option>
-                                <option value="no">мимо</option>
-                              </select>
-                            </div>
-                          ) : (
-                            <span className="text-zinc-800">·</span>
-                          )}
-                        </td>
-                        <td className="px-2 py-1.5">
-                          <input
-                            value={d.phText}
-                            onChange={(e) => updateSlot(p, { phText: e.target.value })}
-                            placeholder="что PH сделал с промптом…"
-                            className="h-7 w-full min-w-[110px] rounded border border-zinc-800 bg-zinc-950 px-1.5 text-[11px] text-zinc-200 placeholder:text-zinc-700"
-                          />
-                        </td>
-                        <td className="px-2 py-1.5">
-                          <input
-                            value={d.note}
-                            onChange={(e) => updateSlot(p, { note: e.target.value })}
-                            placeholder="заметка…"
-                            className="h-7 w-full min-w-[90px] rounded border border-zinc-800 bg-zinc-950 px-1.5 text-[11px] text-zinc-200 placeholder:text-zinc-700"
-                          />
-                        </td>
-                        <td className="whitespace-nowrap px-2 py-1.5 font-mono text-[11px]">
-                          <span
-                            className={
-                              dc === '↑'
-                                ? 'text-emerald-400'
-                                : dc === '↓'
-                                  ? 'text-rose-400'
-                                  : 'text-zinc-600'
-                            }
-                          >
-                            {dc || '·'}
-                          </span>
-                          <span className="mx-0.5 text-zinc-700">/</span>
-                          <span
-                            className={
-                              dp === '↑'
-                                ? 'text-emerald-400'
-                                : dp === '↓'
-                                  ? 'text-rose-400'
-                                  : 'text-zinc-600'
-                            }
-                          >
-                            {dp || '·'}
-                          </span>
-                        </td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
-            </div>
-
-            <Textarea
-              value={draft.prose}
-              onChange={(e) => {
-                const next = { ...draft, prose: e.target.value }
-                setDraft(next)
-                writeDraft(slug, next)
-              }}
-              placeholder="Проза вердикта по батчу — как есть: «мокрый шёлк решил всё, P07 пятно…» (переживёт перезагрузку)"
-              className="min-h-20 border-zinc-800 bg-zinc-950 text-sm"
-            />
-
-            <div className="flex flex-wrap items-center gap-3">
-              <Button
-                onClick={submitBatch}
-                disabled={busy || live.filled === 0}
-                className="bg-emerald-600 text-zinc-50 hover:bg-emerald-500 disabled:opacity-40"
-              >
-                <Stamp className="mr-1 size-3.5" />
-                {busy ? 'Записываю…' : 'Записать одной записью'}
-              </Button>
-              <button
-                onClick={downloadJson}
-                className="flex items-center gap-1 rounded-md border border-zinc-700 bg-zinc-800/60 px-2 py-1.5 text-[11px] text-zinc-300 transition-colors hover:border-amber-500/40 hover:text-amber-200"
-              >
-                <Download className="size-3" />
-                Скачать JSON
-              </button>
-              <button
-                onClick={copyCurl}
-                className="flex items-center gap-1 rounded-md border border-zinc-700 bg-zinc-800/60 px-2 py-1.5 text-[11px] text-zinc-300 transition-colors hover:border-amber-500/40 hover:text-amber-200"
-              >
-                {curlCopied ? <Check className="size-3" /> : <Copy className="size-3" />}
-                {curlCopied ? 'Скопировано' : 'curl одной командой'}
-              </button>
-              {note ? <span className="text-xs text-emerald-400">{note}</span> : null}
-            </div>
-          </>
-        ) : null}
-
-        <div className="space-y-2">
-          <p className="text-[11px] uppercase tracking-wider text-zinc-500">
-            Записанные батч-вердикты · {recordList.length}
-          </p>
-          {records.loading ? (
-            <SkeletonBlock lines={2} />
-          ) : recordList.length === 0 ? (
-            <p className="text-xs text-zinc-600">
-              Пока пусто — первый батч-вердикт ляжет сюда одной строкой и раскроется в таблицу.
-            </p>
-          ) : (
-            <div className="space-y-1.5">
-              {recordList.map((r) => (
-                <div key={r.id} className="rounded-md border border-zinc-800 bg-zinc-900/60">
-                  <button
-                    onClick={() => setExpanded(expanded === r.id ? null : r.id)}
-                    className="flex w-full flex-wrap items-center justify-between gap-2 px-3 py-2 text-left"
-                  >
-                    <span className="flex min-w-0 items-center gap-2">
-                      <Mono>{r.slug}</Mono>
-                      {r.mode === 'light' ? (
-                        <span
-                          className={cn(
-                            'shrink-0 rounded border px-1.5 py-0.5 text-[10px] font-medium',
-                            r.verdict === 'keep'
-                              ? 'border-emerald-600/50 text-emerald-400'
-                              : r.verdict === 'rework'
-                                ? 'border-rose-500/50 text-rose-400'
-                                : 'border-amber-500/50 text-amber-300'
-                          )}
-                        >
-                          лёгкий
-                        </span>
-                      ) : null}
-                      <span className="truncate text-xs text-zinc-400" title={r.summary}>
-                        {r.summary}
-                      </span>
-                    </span>
-                    <span className="shrink-0 text-[11px] text-zinc-600">{formatDate(r.at)}</span>
-                  </button>
-                  {expanded === r.id ? (
-                    <div className="border-t border-zinc-800/60 p-3">
-                      {r.scoreboard ? (
-                        <div className="mb-3 flex flex-wrap gap-1.5">
-                          {Object.entries(r.scoreboard.claimed ?? {}).map(([t, n]) => (
-                            <Chip key={t}>
-                              {t}: {r.scoreboard?.delivered?.[t] ?? 0}/{n}
-                            </Chip>
-                          ))}
-                          <Chip tone="amber">
-                            заявка ↑{r.scoreboard.claimDelta?.up ?? 0} ↓{r.scoreboard.claimDelta?.down ?? 0}
-                          </Chip>
-                          <Chip tone="amber">
-                            площадка ↑{r.scoreboard.platformDelta?.up ?? 0} ↓{r.scoreboard.platformDelta?.down ?? 0}
-                          </Chip>
-                        </div>
-                      ) : null}
-                      <div className="max-h-64 overflow-auto rounded-md border border-zinc-800 t4-scroll">
-                        <table className="w-full min-w-[560px] border-collapse text-left text-[11px]">
-                          <thead className="sticky top-0 bg-zinc-900/95">
-                            <tr className="text-[10px] uppercase tracking-wider text-zinc-500">
-                              <th className="px-2 py-1.5 font-medium">P</th>
-                              <th className="px-2 py-1.5 font-medium">Заявка</th>
-                              <th className="px-2 py-1.5 font-medium">Мой</th>
-                              <th className="px-2 py-1.5 font-medium">Йодайо</th>
-                              <th className="px-2 py-1.5 font-medium">PH</th>
-                              <th className="px-2 py-1.5 font-medium">VLM</th>
-                              <th className="px-2 py-1.5 font-medium">Заметка</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {r.slots.map((s) => (
-                              <tr key={s.position} className="border-t border-zinc-800/60">
-                                <td className="px-2 py-1 font-mono text-amber-200/70">{s.position}</td>
-                                <td className="px-2 py-1 text-zinc-400">{s.claim || '—'}</td>
-                                <td className="px-2 py-1 text-zinc-200">{s.myTier || '—'}</td>
-                                <td className="px-2 py-1 text-zinc-400">{s.yodayoTier || '—'}</td>
-                                <td className="px-2 py-1 text-zinc-500">{s.ph || '—'}</td>
-                                <td className="px-2 py-1 text-zinc-500">
-                                  {s.vlmFlag ? VLM_FLAG_LABEL[s.vlmFlag] ?? s.vlmFlag : '—'}
-                                </td>
-                                <td className="px-2 py-1 text-zinc-500">{s.note || '—'}</td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                  ) : null}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-    </Panel>
-  )
-}
-
-/* ------------------------------------------------------------------ */
-/* Panel: Карта Дрессера — флагман тура 2 (2026-10-15)                 */
-/* ------------------------------------------------------------------ */
-
-/* Типы DresserMap — зеркало серверного src/lib/t4/dresser-map.ts.
- *  Не импортируем с сервера, чтобы не утянуть fs/readJson в браузерный
- *  бандл. Типы синхронны вручную, как с BatchVerdictRecord. */
-type FailureMode =
-  | 'sterile'
-  | 'weak'
-  | 'body-missing'
-  | 'tag-issue'
-  | 'pose-miss'
-  | 'pass'
-  | 'no-verdict'
-
-interface DresserMapSlot {
-  position: string
-  claim: string
-  myTier: string | null
-  yodayoTier: string | null
-  delta: number
-  channel: string | null
-  channelName: string | null
-  tone: string | null
-  oc: string | null
-  pose: string | null
-  poseName: string | null
-  palette: string | null
-  paletteName: string | null
-  lead: string | null
-  note: string
-  genreRead?: 'yes' | 'no'
-  wow?: 'yes' | 'no'
-  failureMode: FailureMode
-}
-
-interface DresserMap {
+interface BatchRow {
   slug: string
   title: string
-  verdictAt: string | null
-  verdictSource: string | null
-  slots: DresserMapSlot[]
-  channelMatrix: {
-    channel: string
-    channelName: string
-    claimed: Record<string, number>
-    delivered: Record<string, number>
-    total: number
-    passes: number
-    failures: number
-    failRate: number
-  }[]
-  ratingDistribution: { claimed: Record<string, number>; delivered: Record<string, number> }
-  failureModes: { mode: FailureMode; count: number; slots: string[]; recommendation: string }[]
-  lessonsForNextBatch: string
-  authorProse: string
-  /** Тур 3: контр-контракт — советник следующего батча. */
-  counterContract: {
-    historicalDelivery: {
-      sampleSize: number
-      rPlusClaimed: number
-      rPlusDelivered: number
-      rPlusDeliveryRate: number
-      rClaimed: number
-      rDelivered: number
-      rDeliveryRate: number
+  status: string
+  createdAt: string
+  deliveredAt?: string | null
+}
+
+interface PlanSlot {
+  position: number
+  kind: string
+  rating?: string
+  register?: string
+  paletteId?: string
+}
+
+interface BatchCardData {
+  slug: string
+  title: string
+  theme: string
+  status: string
+  plan: { slots?: unknown[] } | Record<string, unknown>
+}
+
+interface CompileData {
+  plan: { slug: string; title: string; slots?: unknown[] }
+  receipts: { gate: string; level: string; verdict: string; findings: string[] }[]
+  idempotentReplay: boolean
+}
+
+type LinkState = 'ok' | 'broken'
+type SysLevel = 'info' | 'ok' | 'warn' | 'err'
+
+type FeedEntry =
+  | { uid: number; kind: 'chain'; ev: ChainEvent; link: LinkState }
+  | { uid: number; kind: 'sys'; at: number; text: string; level: SysLevel }
+
+type OpMode = 'idle' | 'compiling' | 'burning' | 'purging'
+type Health = 'live' | 'down'
+type MascotMood = 'idle' | 'happy' | 'shock' | 'concerned' | 'focus' | 'sleep'
+type BannerVerdict = 'clean' | 'drift' | 'void'
+
+interface Banner {
+  id: number
+  verdict: BannerVerdict
+  title: string
+  detail: string
+}
+
+type CellStatus = 'standby' | 'cycling' | 'assigned' | 'sealed' | 'drift' | 'void'
+
+interface GateCell {
+  pos: number
+  kind: string
+  rating: string
+  register: string
+  paletteId: string
+  status: CellStatus
+}
+
+interface GateReceiptUI {
+  gate: string
+  level: string
+  verdict: string
+  findings: string[]
+}
+
+interface RotationCardData {
+  slot: number
+  slug: string
+  title: string
+  deliveredAt: string
+  palettes: { id: string; name: string; colors: string[] }[]
+  registers: { name: string; count: number }[]
+}
+
+/* ================================================================== */
+/* Constants                                                           */
+/* ================================================================== */
+
+const GENESIS = 'GENESIS'
+const MAX_FEED = 240
+const PLANNING_GATES = ['structure', 'exp-purity', 'floors', 'window', 'ab']
+const PALETTE_FUND = 120
+
+const MAGENTA = '#ff2d78'
+const CYAN = '#00e5ff'
+const AMBER = '#ffb300'
+const DANGER = '#ff3860'
+const EMERALD = '#00ffa3'
+
+const ASCII_FACES: Record<MascotMood, string> = {
+  idle: '(=^･ω･^=)',
+  happy: '(≧◡≦)♪',
+  shock: 'Σ(°△°||)',
+  concerned: '(・_・;)',
+  focus: '( ﾟｰﾟ)ｄ',
+  sleep: '(￣ρ￣)zzz',
+}
+
+/** Base color vocabulary → HSL triplets (data-honest swatches for the
+ * rotation window; unknown names fall back to a deterministic hue). */
+const BASE_COLORS: Record<string, [number, number, number]> = {
+  black: [0, 0, 8], ink: [240, 8, 10], charcoal: [0, 0, 16], graphite: [0, 0, 22],
+  ash: [220, 4, 55], slate: [215, 12, 45], storm: [220, 10, 34], fog: [210, 8, 70],
+  silver: [220, 4, 74], platinum: [200, 4, 82], pearl: [40, 14, 90],
+  white: [0, 0, 97], ivory: [48, 28, 92], alabaster: [40, 16, 88],
+  cream: [48, 30, 88], vanilla: [46, 32, 86], sand: [42, 26, 74],
+  beige: [38, 22, 78], champagne: [45, 26, 80], taupe: [40, 8, 55],
+  camel: [35, 28, 62], caramel: [30, 40, 58], honey: [38, 62, 58],
+  amber: [40, 88, 55], gold: [44, 72, 56], brass: [42, 48, 52],
+  bronze: [26, 42, 46], copper: [20, 52, 54], rust: [16, 55, 46],
+  terracotta: [14, 48, 52], cinnamon: [18, 44, 46], chestnut: [16, 36, 38],
+  mahogany: [12, 40, 32], brown: [22, 26, 34], warm: [35, 40, 60],
+  peach: [18, 62, 80], apricot: [20, 66, 76], salmon: [8, 58, 70],
+  coral: [6, 68, 70], tangerine: [24, 78, 60], orange: [26, 80, 58],
+  scarlet: [354, 74, 52], crimson: [350, 70, 46], ruby: [348, 66, 42],
+  cherry: [350, 62, 46], burgundy: [344, 46, 34], wine: [342, 40, 32],
+  blood: [0, 62, 34], red: [0, 62, 48], rose: [346, 60, 66],
+  dusty: [346, 22, 66], blush: [348, 48, 82], pink: [340, 62, 76],
+  magenta: [322, 82, 56], fuchsia: [312, 78, 60], mauve: [326, 28, 58],
+  plum: [315, 34, 46], purple: [290, 38, 48], violet: [280, 42, 54],
+  lavender: [270, 38, 76], lilac: [282, 34, 76], orchid: [300, 40, 64],
+  amethyst: [288, 40, 56], periwinkle: [246, 40, 74],
+  indigo: [243, 45, 42], navy: [225, 45, 28], midnight: [232, 40, 20],
+  denim: [216, 38, 46], cobalt: [222, 52, 46], sapphire: [222, 58, 44],
+  cerulean: [202, 56, 54], azure: [205, 62, 58], sky: [197, 52, 70],
+  cyan: [186, 88, 56], aqua: [184, 68, 62], turquoise: [176, 56, 56],
+  teal: [174, 44, 42], jade: [160, 40, 48], emerald: [152, 56, 46],
+  mint: [158, 44, 76], seafoam: [162, 38, 74], sage: [110, 16, 62],
+  moss: [100, 22, 40], olive: [68, 30, 40], fern: [104, 28, 42],
+  jungle: [140, 34, 30], green: [130, 44, 44], neon: [150, 92, 60],
+  led: [160, 90, 72], fluorescent: [140, 80, 80], glow: [190, 80, 70],
+  grey: [220, 4, 52], gray: [220, 4, 52], soft: [0, 0, 84],
+}
+
+function colorNameToHsl(name: string): string | null {
+  const words = name.toLowerCase().split(/[\s-]+/).filter(Boolean)
+  let base: [number, number, number] | null = null
+  for (const w of words) {
+    if (w in BASE_COLORS) {
+      base = BASE_COLORS[w]
+      break
     }
-    recommendedSpread: { rating: string; count: number; why: string }[]
-    bodyTypeGaps: { position: string; oc: string; bodyType: string; family?: string }[]
-    proposedWeights: {
-      channel: string
-      channelName: string
-      current: string[]
-      proposed: string[]
-      why: string
-    }[]
-    markdown: string
   }
-  /** Тур 4: матрица разнообразия — пакет на каждый слот. */
-  varietyMatrix: {
-    position: string
-    claim: string
-    posOrder: string
-    register: string
-    lengthClass: string
-    styleAnchor: string
-    negVariant: number
-    negVariantName: string
-    /** Тур 5 (аудит Коул #52): camera (G01), bodyPlan (G11),
-     *  handsHint (G22), themeWordBudget (G30). */
-    camera: string
-    bodyPlan: string | null
-    handsHint: string | null
-    themeWordBudget: number
-    seed: number
-  }[]
-}
-
-const FAILURE_MODE_LABELS: Record<FailureMode, string> = {
-  sterile: 'стерильно',
-  weak: 'слабо',
-  'body-missing': 'боди не задан',
-  'tag-issue': 'тег-промах',
-  'pose-miss': 'поза не та',
-  pass: 'доехало',
-  'no-verdict': 'без вердикта',
-}
-
-const FAILURE_MODE_COLOR: Record<FailureMode, string> = {
-  sterile: 'bg-rose-500/15 text-rose-300 border-rose-500/30',
-  weak: 'bg-amber-500/15 text-amber-300 border-amber-500/30',
-  'body-missing': 'bg-fuchsia-500/15 text-fuchsia-300 border-fuchsia-500/30',
-  'tag-issue': 'bg-orange-500/15 text-orange-300 border-orange-500/30',
-  'pose-miss': 'bg-purple-500/15 text-purple-300 border-purple-500/30',
-  pass: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30',
-  'no-verdict': 'bg-zinc-700/30 text-zinc-400 border-zinc-700',
-}
-
-const TIER_DOT: Record<string, string> = {
-  'PG-13': 'bg-zinc-500',
-  R: 'bg-sky-500',
-  'R+': 'bg-rose-500',
-  X: 'bg-fuchsia-500',
-}
-
-function deltaColor(delta: number): string {
-  if (delta > 0) return 'text-emerald-400'
-  if (delta === 0) return 'text-zinc-400'
-  if (delta === -1) return 'text-amber-400'
-  return 'text-rose-400'
-}
-
-function deltaLabel(delta: number): string {
-  if (delta === 0) return '='
-  if (delta > 0) return `↑${delta}`
-  return `↓${Math.abs(delta)}`
-}
-
-function DresserMapPanel() {
-  // последний вердикт — берём его слаг
-  const verdictsApi = useApi<{ records: BatchVerdictRecord[] }>('/api/t4/batch-verdict')
-  const latestVerdict = verdictsApi.data?.records?.[0] ?? null
-  const slug = latestVerdict?.slug ?? null
-
-  // если есть вердикт — тянем карту Дрессера по слагу
-  const mapApi = useApi<DresserMap>(slug ? `/api/t4/dresser-map/${slug}` : null)
-  const map = mapApi.data
-
-  // переключатель слага — пусть автор выберет любой из последних батчей
-  const [selectedSlug, setSelectedSlug] = useState<string | null>(null)
-  const effectiveSlug = selectedSlug ?? slug
-  const effectiveMap = useApi<DresserMap>(effectiveSlug ? `/api/t4/dresser-map/${effectiveSlug}` : null)
-
-  const batchesApi = useApi<{ items: { slug: string; title: string }[] }>('/api/t4/batches')
-
-  const currentMap = effectiveMap.data ?? map
-  const loading = (effectiveSlug ? effectiveMap.loading : mapApi.loading) || verdictsApi.loading
-
-  // сортировка слотов: провалы сверху, потом по дельте
-  const sortedSlots = useMemo(() => {
-    if (!currentMap) return []
-    return [...currentMap.slots].sort((a, b) => a.delta - b.delta || (a.failureMode === 'pass' ? 1 : 0))
-  }, [currentMap])
-
-  if (loading && !currentMap) {
-    return (
-      <Panel title="Карта Дрессера" icon={<GitCompare className="size-4" />}>
-        <SkeletonBlock lines={6} />
-      </Panel>
-    )
+  if (base == null) return null
+  let [h, s, l] = base
+  for (const w of words) {
+    if (w === 'deep' || w === 'dark') l = Math.max(7, l - 16)
+    if (w === 'pale' || w === 'pastel' || w === 'soft' || w === 'light') l = Math.min(92, l + 16)
+    if (w === 'neon') {
+      s = 94
+      l = 62
+    }
+    if (w === 'dusty' || w === 'muted' || w === 'dust') s = Math.max(12, s - 22)
   }
-
-  if (!currentMap) {
-    return (
-      <Panel title="Карта Дрессера" icon={<GitCompare className="size-4" />}>
-        <EmptyState
-          title="Карта пуста"
-          hint="Нужен вердикт автора по батчу. Сдай батч в приёмнике → дай вердикт → карта родится."
-          icon={<GitCompare className="size-5" />}
-        />
-      </Panel>
-    )
-  }
-
-  const claimed = currentMap.ratingDistribution.claimed
-  const delivered = currentMap.ratingDistribution.delivered
-  const tiers = ['PG-13', 'R', 'R+', 'X']
-  const maxCount = Math.max(...tiers.map((t) => Math.max(claimed[t] ?? 0, delivered[t] ?? 0)), 1)
-
-  return (
-    <Panel
-      title={
-        <span className="flex items-center gap-2">
-          <GitCompare className="size-4 text-amber-500" />
-          <span>Карта Дрессера</span>
-          <span className="text-zinc-600">·</span>
-          <Mono>{currentMap.slug}</Mono>
-          <span className="text-xs font-normal text-zinc-500">«{currentMap.title}»</span>
-          {currentMap.verdictAt ? (
-            <Badge variant="outline" className="border-zinc-700 text-zinc-400">
-              {formatDate(currentMap.verdictAt)}
-            </Badge>
-          ) : null}
-        </span>
-      }
-      action={
-        // dropdown для смены батча
-        <select
-          value={effectiveSlug ?? ''}
-          onChange={(e) => setSelectedSlug(e.target.value || null)}
-          className="h-7 rounded border border-zinc-800 bg-zinc-950 px-2 text-xs text-zinc-300"
-          aria-label="Выбрать батч для анализа"
-        >
-          <option value="">последний: {slug ?? '—'}</option>
-          {(batchesApi.data?.items ?? []).slice(0, 10).map((b) => (
-            <option key={b.slug} value={b.slug}>
-              {b.slug} «{b.title}»
-            </option>
-          ))}
-        </select>
-      }
-    >
-      <div className="space-y-5">
-        {/* Описание панели — что это и зачем */}
-        <p className="text-xs leading-relaxed text-zinc-500">
-          Карта Дрессера — структурный анализ расхождения заявки контракта и факта вердикта.
-          Для каждого слота пересчитан канал Дрессера (<Mono>dressFor(tier, tone)</Mono>),
-          сравнен с фактом автора. Провалы кластеризованы по типу отказа. Цель — закрыть
-          петлю обратной связи «контракт → рендер → вердикт → следующий контракт».
-        </p>
-
-        {/* Два столбца: распределение рейтингов + матрица каналов */}
-        <div className="grid gap-4 lg:grid-cols-2">
-          {/* Распределение рейтингов: заявлено vs доставлено */}
-          <div className="rounded-md border border-zinc-800 bg-zinc-950/40 p-3">
-            <div className="mb-2 text-[11px] font-medium uppercase tracking-wide text-zinc-500">
-              Распределение рейтингов
-            </div>
-            <div className="space-y-2">
-              {tiers.map((t) => {
-                const c = claimed[t] ?? 0
-                const d = delivered[t] ?? 0
-                if (c === 0 && d === 0) return null
-                return (
-                  <div key={t} className="flex items-center gap-2 text-[11px]">
-                    <div className="flex w-12 items-center gap-1">
-                      <span className={`size-2 rounded-full ${TIER_DOT[t] ?? 'bg-zinc-500'}`} />
-                      <span className="text-zinc-400">{t}</span>
-                    </div>
-                    {/* заявлено */}
-                    <div className="flex-1">
-                      <div className="relative h-3 rounded bg-zinc-900">
-                        <div
-                          className="absolute inset-y-0 left-0 rounded bg-zinc-700/60"
-                          style={{ width: `${(c / maxCount) * 100}%` }}
-                        />
-                        <div
-                          className={`absolute inset-y-0 left-0 rounded ${TIER_DOT[t] ?? 'bg-zinc-500'} opacity-80`}
-                          style={{ width: `${(d / maxCount) * 100}%` }}
-                        />
-                      </div>
-                    </div>
-                    <div className="w-16 text-right tabular-nums text-zinc-400">
-                      <span className="text-zinc-300">{d}</span>
-                      <span className="text-zinc-600"> / {c}</span>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-            <div className="mt-2 flex items-center gap-3 text-[10px] text-zinc-600">
-              <span className="flex items-center gap-1">
-                <span className="size-2 rounded-full bg-zinc-700/60" /> заявлено
-              </span>
-              <span className="flex items-center gap-1">
-                <span className={`size-2 rounded-full ${TIER_DOT['R+']}`} /> доставлено
-              </span>
-            </div>
-          </div>
-
-          {/* Матрица каналов: заявлено/доставлено/провал */}
-          <div className="rounded-md border border-zinc-800 bg-zinc-950/40 p-3">
-            <div className="mb-2 text-[11px] font-medium uppercase tracking-wide text-zinc-500">
-              Каналы Дрессера (claim → delivery)
-            </div>
-            {currentMap.channelMatrix.length === 0 ? (
-              <p className="text-xs text-zinc-600">
-                Нет R+/X слотов — Дрессер не работает с R/PG-13.
-              </p>
-            ) : (
-              <div className="space-y-2">
-                {currentMap.channelMatrix.map((c) => {
-                  const dot =
-                    c.failRate >= 0.5
-                      ? 'bg-rose-500'
-                      : c.failRate >= 0.25
-                        ? 'bg-amber-500'
-                        : 'bg-emerald-500'
-                  return (
-                    <div key={c.channel} className="space-y-1">
-                      <div className="flex items-center justify-between text-[11px]">
-                        <span className="flex items-center gap-1.5">
-                          <span className={`size-2 rounded-full ${dot}`} />
-                          <span className="text-zinc-300">{c.channelName}</span>
-                          <Mono className="text-zinc-600">{c.channel}</Mono>
-                        </span>
-                        <span className="tabular-nums text-zinc-400">
-                          {c.failures}/{c.total} пров · {(c.failRate * 100).toFixed(0)}% · pass {c.passes}
-                        </span>
-                      </div>
-                      {/* мини-бар pass/fail */}
-                      <div className="flex h-2 overflow-hidden rounded bg-zinc-900">
-                        <div
-                          className="bg-emerald-500/60"
-                          style={{ width: `${(c.passes / Math.max(c.total, 1)) * 100}%` }}
-                        />
-                        <div
-                          className="bg-rose-500/60"
-                          style={{ width: `${(c.failures / Math.max(c.total, 1)) * 100}%` }}
-                        />
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Отказы по типу — кластеры */}
-        {currentMap.failureModes.length > 0 ? (
-          <div className="rounded-md border border-amber-500/15 bg-amber-500/5 p-3">
-            <div className="mb-2 text-[11px] font-medium uppercase tracking-wide text-amber-500/80">
-              Отказы по типу · что менять
-            </div>
-            <ul className="space-y-2">
-              {currentMap.failureModes.map((f) => (
-                <li key={f.mode} className="flex flex-col gap-1 text-xs sm:flex-row sm:items-start sm:gap-3">
-                  <Badge
-                    variant="outline"
-                    className={`shrink-0 border ${FAILURE_MODE_COLOR[f.mode]} text-[10px]`}
-                  >
-                    {FAILURE_MODE_LABELS[f.mode]} ×{f.count}
-                  </Badge>
-                  <div className="flex-1">
-                    <div className="text-zinc-400">
-                      слоты: <Mono className="text-zinc-300">{f.slots.join(', ')}</Mono>
-                    </div>
-                    <div className="text-zinc-500">{f.recommendation}</div>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ) : null}
-
-        {/* Слоты — сортировка по дельте (худшие сверху) */}
-        <div>
-          <div className="mb-2 flex items-center justify-between">
-            <div className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">
-              Слоты ({currentMap.slots.length}) · сортировка: дельта ↓
-            </div>
-          </div>
-          <ul className="max-h-[480px] space-y-1.5 overflow-y-auto pr-1">
-            {sortedSlots.map((s) => (
-              <li
-                key={s.position}
-                className={cn(
-                  'flex flex-col gap-1.5 rounded-md border bg-zinc-950/40 p-2.5 text-xs sm:flex-row sm:items-start sm:gap-3',
-                  s.delta < 0 ? 'border-rose-500/20' : s.delta === 0 ? 'border-zinc-800' : 'border-emerald-500/20'
-                )}
-              >
-                {/* колонка 1: позиция + дельта + claim→myTier */}
-                <div className="flex shrink-0 items-center gap-2 sm:w-32">
-                  <Mono className="text-zinc-300">{s.position}</Mono>
-                  <span className={cn('font-mono text-sm font-semibold tabular-nums', deltaColor(s.delta))}>
-                    {deltaLabel(s.delta)}
-                  </span>
-                  <div className="flex items-center gap-1 text-[10px]">
-                    <span className={`size-1.5 rounded-full ${TIER_DOT[s.claim] ?? 'bg-zinc-500'}`} />
-                    <span className="text-zinc-500">{s.claim}</span>
-                    <span className="text-zinc-700">→</span>
-                    {s.myTier ? (
-                      <>
-                        <span className={`size-1.5 rounded-full ${TIER_DOT[s.myTier] ?? 'bg-zinc-500'}`} />
-                        <span className="text-zinc-400">{s.myTier}</span>
-                      </>
-                    ) : (
-                      <span className="text-zinc-600">—</span>
-                    )}
-                  </div>
-                </div>
-                {/* колонка 2: канал/тон/OC/поза + failure-mode бейдж */}
-                <div className="flex flex-1 flex-col gap-1">
-                  <div className="flex flex-wrap items-center gap-1.5 text-[10px] text-zinc-500">
-                    {s.channel ? (
-                      <Badge variant="outline" className="border-zinc-700 text-zinc-400">
-                        {s.channelName ?? s.channel}
-                      </Badge>
-                    ) : (
-                      <span className="text-zinc-600">без канала (R/PG-13)</span>
-                    )}
-                    {s.tone ? <Mono>тон={s.tone}</Mono> : null}
-                    {s.oc ? <Mono>OC={s.oc}</Mono> : null}
-                    {s.poseName ? <span className="text-zinc-400">· {s.poseName}</span> : null}
-                    {s.paletteName ? (
-                      <span className="text-zinc-600">· палитра: {s.paletteName}</span>
-                    ) : null}
-                    <Badge
-                      variant="outline"
-                      className={`ml-auto border ${FAILURE_MODE_COLOR[s.failureMode]} text-[9px]`}
-                    >
-                      {FAILURE_MODE_LABELS[s.failureMode]}
-                    </Badge>
-                  </div>
-                  {s.note ? (
-                    <p className="font-serif text-[11px] leading-snug text-amber-100/70">{s.note}</p>
-                  ) : null}
-                  {(s.genreRead || s.wow) && (s.genreRead === 'yes' || s.wow === 'yes') ? (
-                    <div className="flex gap-1 text-[10px] text-emerald-400/80">
-                      {s.genreRead === 'yes' ? <span>genre ✓</span> : null}
-                      {s.wow === 'yes' ? <span>wow ✓</span> : null}
-                    </div>
-                  ) : null}
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {/* Уроки для следующего батча — генерит анализатор как markdown.
-            *  Тур 3: раньше был <pre> — markdown не парсился, agora MarkdownView. */}
-        <details className="rounded-md border border-zinc-800 bg-zinc-950/40 p-3" open>
-          <summary className="cursor-pointer text-xs font-medium text-zinc-300">
-            Уроки для следующего батча (после {currentMap.slug})
-          </summary>
-          <div className="mt-2 text-[11px] leading-relaxed text-zinc-300">
-            <MarkdownView>{currentMap.lessonsForNextBatch}</MarkdownView>
-          </div>
-        </details>
-
-        {/* Контр-Контракт — флагман тура 3 (2026-10-15). Советник следующего
-            *  батча: исторический delivery rate → рекомендованное распределение
-            *  рейтингов; body_type gaps (контракт не тащит из oc-canon);
-            *  усиленные веса каналов (1.2/1.3 вместо 1.1/1.2). */}
-        {currentMap.counterContract ? (
-          <div className="rounded-md border border-amber-500/30 bg-amber-500/5 p-3">
-            <div className="mb-3 flex items-center gap-2">
-              <Skull className="size-4 text-amber-500" />
-              <span className="text-sm font-semibold text-amber-300">Контр-Контракт</span>
-              <span className="text-[10px] text-zinc-500">
-                советник следующего батча на основе истории
-              </span>
-            </div>
-            <div className="grid gap-3 lg:grid-cols-2">
-              {/* Historical delivery rate */}
-              <div className="rounded-md border border-zinc-800 bg-zinc-950/40 p-3">
-                <div className="mb-2 text-[11px] font-medium uppercase tracking-wide text-zinc-500">
-                  Исторический delivery (последние {currentMap.counterContract.historicalDelivery.sampleSize} батчей)
-                </div>
-                {[
-                  {
-                    tier: 'R+',
-                    delivered: currentMap.counterContract.historicalDelivery.rPlusDelivered,
-                    claimed: currentMap.counterContract.historicalDelivery.rPlusClaimed,
-                    rate: currentMap.counterContract.historicalDelivery.rPlusDeliveryRate,
-                  },
-                  {
-                    tier: 'R',
-                    delivered: currentMap.counterContract.historicalDelivery.rDelivered,
-                    claimed: currentMap.counterContract.historicalDelivery.rClaimed,
-                    rate: currentMap.counterContract.historicalDelivery.rDeliveryRate,
-                  },
-                ].map((r) => {
-                  const ratePct = (r.rate * 100).toFixed(0)
-                  const barColor = r.rate >= 1 ? 'bg-emerald-500' : r.rate >= 0.5 ? 'bg-amber-500' : 'bg-rose-500'
-                  return (
-                    <div key={r.tier} className="mb-2 last:mb-0">
-                      <div className="mb-0.5 flex items-center justify-between text-[11px]">
-                        <span className="flex items-center gap-1">
-                          <span className={`size-2 rounded-full ${TIER_DOT[r.tier] ?? 'bg-zinc-500'}`} />
-                          <span className="text-zinc-400">{r.tier}</span>
-                        </span>
-                        <span className="tabular-nums text-zinc-300">
-                          <span className={r.rate >= 0.5 ? 'text-emerald-400' : 'text-rose-400'}>
-                            {ratePct}%
-                          </span>
-                          <span className="text-zinc-600">
-                            {' '}
-                            ({r.delivered}/{r.claimed})
-                          </span>
-                        </span>
-                      </div>
-                      <div className="h-2 overflow-hidden rounded bg-zinc-900">
-                        <div
-                          className={`${barColor} h-full`}
-                          style={{ width: `${Math.min(r.rate * 100, 100)}%` }}
-                        />
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-
-              {/* Recommended spread */}
-              <div className="rounded-md border border-zinc-800 bg-zinc-950/40 p-3">
-                <div className="mb-2 text-[11px] font-medium uppercase tracking-wide text-zinc-500">
-                  Рекомендованное распределение (закон 28)
-                </div>
-                <div className="space-y-2">
-                  {currentMap.counterContract.recommendedSpread.map((r) => {
-                    // визуальный бар: доля от 28
-                    const pct = (r.count / 28) * 100
-                    return (
-                      <div key={r.rating} className="space-y-0.5">
-                        <div className="flex items-center gap-2 text-[11px]">
-                          <span className={`size-2 rounded-full ${TIER_DOT[r.rating] ?? 'bg-zinc-500'}`} />
-                          <span className="w-8 text-zinc-400">{r.rating}</span>
-                          <span className="flex-1">
-                            <div className="h-2 overflow-hidden rounded bg-zinc-900">
-                              <div
-                                className={`${TIER_DOT[r.rating] ?? 'bg-zinc-500'} h-full opacity-80`}
-                                style={{ width: `${pct}%` }}
-                              />
-                            </div>
-                          </span>
-                          <span className="w-8 text-right tabular-nums text-zinc-300">×{r.count}</span>
-                        </div>
-                        <p className="text-[10px] leading-snug text-zinc-600">{r.why}</p>
-                      </div>
-                    )
-                  })}
-                </div>
-              </div>
-            </div>
-
-            {/* Body type gaps */}
-            {currentMap.counterContract.bodyTypeGaps.length > 0 ? (
-              <div className="mt-3 rounded-md border border-fuchsia-500/20 bg-fuchsia-500/5 p-3">
-                <div className="mb-2 text-[11px] font-medium uppercase tracking-wide text-fuchsia-400/80">
-                  OC body_type — писец обязан вплести
-                </div>
-                <p className="mb-2 text-[10px] leading-snug text-zinc-500">
-                  Контракт несёт <Mono>oc: "Lucy"</Mono>, но НЕ тащит{' '}
-                  <Mono>body_type</Mono> из <Mono>oc-canon.json</Mono>. Писец пишет без тела —
-                  модель играет стерильно. Добавить в контракт поле bodyType:
-                </p>
-                <ul className="space-y-1.5">
-                  {currentMap.counterContract.bodyTypeGaps.map((g) => (
-                    <li key={g.position} className="flex items-start gap-2 text-[11px]">
-                      <Mono className="shrink-0 text-zinc-400">{g.position}</Mono>
-                      <div className="flex-1">
-                        <span className="text-zinc-400">OC {g.oc}:</span>{' '}
-                        <code className="rounded bg-fuchsia-500/10 px-1 py-0.5 font-mono text-[10px] text-fuchsia-200">
-                          {g.bodyType}
-                        </code>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ) : null}
-
-            {/* Proposed weights */}
-            {currentMap.counterContract.proposedWeights.length > 0 ? (
-              <div className="mt-3 rounded-md border border-orange-500/20 bg-orange-500/5 p-3">
-                <div className="mb-2 text-[11px] font-medium uppercase tracking-wide text-orange-400/80">
-                  Усиленные веса каналов (автор: «1.2, 1.3 на теги»)
-                </div>
-                <ul className="space-y-3">
-                  {currentMap.counterContract.proposedWeights.map((w) => (
-                    <li key={w.channel} className="space-y-1">
-                      <div className="flex items-center gap-1.5 text-[11px]">
-                        <span className="text-zinc-300">{w.channelName}</span>
-                        <Mono className="text-zinc-600">{w.channel}</Mono>
-                      </div>
-                      <div className="flex flex-wrap items-center gap-1 text-[10px]">
-                        <span className="text-zinc-600">текущие:</span>
-                        {w.current.length > 0 ? (
-                          w.current.map((c, i) => (
-                            <code
-                              key={i}
-                              className="rounded bg-zinc-800 px-1 py-0.5 font-mono text-[9px] text-zinc-400"
-                            >
-                              {c}
-                            </code>
-                          ))
-                        ) : (
-                          <span className="text-zinc-700">— нет весов —</span>
-                        )}
-                        <span className="mx-1 text-zinc-700">→</span>
-                        <span className="text-zinc-600">предложенные:</span>
-                        {w.proposed.map((p, i) => (
-                          <code
-                            key={i}
-                            className="rounded bg-orange-500/15 px-1 py-0.5 font-mono text-[9px] text-orange-200"
-                          >
-                            {p}
-                          </code>
-                        ))}
-                      </div>
-                      <p className="text-[10px] leading-snug text-zinc-600">{w.why}</p>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ) : null}
-
-            {/* Markdown summary (collapsible) */}
-            <details className="mt-3 rounded-md border border-zinc-800 bg-zinc-950/40 p-3">
-              <summary className="cursor-pointer text-xs font-medium text-zinc-300">
-                Полный контр-контракт (markdown)
-              </summary>
-              <div className="mt-2 text-[11px] leading-relaxed text-zinc-300">
-                <MarkdownView>{currentMap.counterContract.markdown}</MarkdownView>
-              </div>
-            </details>
-          </div>
-        ) : null}
-
-        {/* Variety Engine — флагман тура 4 (2026-10-15). Каждый слот
-            *  контракта получает пакет разнообразия: порядок POS / регистр /
-            *  длина / стиль-якорь / NEG-вариант. Детерминированно по хешу
-            *  slug+position → рераны не меняют судьбу слота. Цель: разные
-            *  картинки + разные подходы (T4-32 сошёлся к 12 PG-13 из 21 R+). */}
-        {currentMap.varietyMatrix && currentMap.varietyMatrix.length > 0 ? (
-          <div className="rounded-md border border-emerald-500/20 bg-emerald-500/5 p-3">
-            <div className="mb-3 flex items-center gap-2">
-              <Sparkles className="size-4 text-emerald-500" />
-              <span className="text-sm font-semibold text-emerald-300">Variety Engine</span>
-              <span className="text-[10px] text-zinc-500">
-                пакет разнообразия на каждый слот (детерминированно)
-              </span>
-            </div>
-            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-              {currentMap.varietyMatrix.map((v) => (
-                <div
-                  key={v.position}
-                  className="rounded border border-zinc-800 bg-zinc-950/40 p-2 text-[10px]"
-                >
-                  <div className="mb-1 flex items-center justify-between">
-                    <Mono className="text-zinc-300">{v.position}</Mono>
-                    <span className="text-zinc-600">{v.claim}</span>
-                  </div>
-                  <div className="space-y-0.5 text-zinc-400">
-                    <div>
-                      <span className="text-zinc-600">order:</span>{' '}
-                      <span className="text-emerald-300/90">{v.posOrder}</span>
-                    </div>
-                    <div>
-                      <span className="text-zinc-600">register:</span>{' '}
-                      <span className="text-amber-300/90">{v.register}</span>
-                    </div>
-                    <div>
-                      <span className="text-zinc-600">length:</span> {v.lengthClass}
-                    </div>
-                    <div>
-                      <span className="text-zinc-600">style:</span>{' '}
-                      <span className="text-fuchsia-300/90">{v.styleAnchor}</span>
-                    </div>
-                    {/* Тур 5: новые оси из аудита Коул */}
-                    <div>
-                      <span className="text-zinc-600">cam:</span>{' '}
-                      <span className="text-sky-300/90">{v.camera}</span>
-                    </div>
-                    {v.bodyPlan ? (
-                      <div>
-                        <span className="text-zinc-600">body:</span>{' '}
-                        <span className="text-rose-300/90">{v.bodyPlan}</span>
-                      </div>
-                    ) : null}
-                    {v.handsHint ? (
-                      <div>
-                        <span className="text-zinc-600">hands:</span>{' '}
-                        <span className="text-orange-300/90">{v.handsHint}</span>
-                      </div>
-                    ) : null}
-                    <div>
-                      <span className="text-zinc-600">theme≤:</span>{' '}
-                      <span className="text-zinc-300">{v.themeWordBudget}</span>
-                    </div>
-                    <div>
-                      <span className="text-zinc-600">neg:</span> #{v.negVariant}{' '}
-                      <span className="text-zinc-500">({v.negVariantName})</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        ) : null}
-
-        {/* Авторская проза — что автор сказал о всём батче */}
-        {currentMap.authorProse ? (
-          <details className="rounded-md border border-amber-500/15 bg-amber-500/5 p-3">
-            <summary className="cursor-pointer text-xs font-medium text-amber-300/80">
-              Приказ автора (из вердикта {currentMap.slug})
-            </summary>
-            <p className="mt-2 whitespace-pre-wrap break-words font-serif text-[11px] leading-relaxed text-amber-100/80">
-              {currentMap.authorProse}
-            </p>
-          </details>
-        ) : null}
-      </div>
-    </Panel>
-  )
+  return `hsl(${h} ${s}% ${l}%)`
 }
 
-function VerdictsTab() {
-  return (
-    <div className="space-y-6">
-      {/* Панель 0: Карта Дрессера — флагман тура 2 (2026-10-15).
-       *  Автор прямо приказал: «построить карту дрессера который будет
-       *  следовал рейтингу» — эта панель и есть ответ. Первая в Вердиктах,
-       *  чтобы автор сразу видел расхождения после сдачи батча. */}
-      <DresserMapPanel />
-      {/* Панель 1: TRIAL-радар — порт из fred-legacy (Фред, webDevReview #5):
-       *  законы триала + EXP-гипотезы + статусы под вердиктом. */}
-      <TrialRadarPanel />
-      <VlmFirstPassPanel />
-      <BatchReceiverPanel />
-    </div>
-  )
+function fallbackColor(token: string): string {
+  let h = 0
+  for (let i = 0; i < token.length; i++) h = (h * 31 + token.charCodeAt(i)) >>> 0
+  return `hsl(${h % 360} 50% 46%)`
 }
 
-/* ------------------------------------------------------------------ */
-/* Tab: Хранилище (браузерный сейф — инцидент 2026-09-23)               */
-/* ------------------------------------------------------------------ */
-
-function VaultTab() {
-  const [snaps, setSnaps] = useState<VaultMeta[]>([])
-  const [busy, setBusy] = useState(false)
-  const [note, setNote] = useState<string | null>(null)
-  const [report, setReport] = useState<{ restored: string[]; skipped: string[]; mergedEvents: number } | null>(null)
-
-  async function refresh() {
-    setSnaps(await listSnapshots())
+/** swatches for a palette spec entry (dominant → secondary → accent → shadow) */
+function specSwatches(p: Record<string, unknown>): string[] {
+  const out: string[] = []
+  for (const key of ['dominant', 'secondary', 'accent1', 'accent2', 'shadow']) {
+    for (const name of asArray(p[key]).map(asStr).filter((s) => s !== '')) {
+      const hex = colorNameToHsl(name)
+      if (hex != null && !out.includes(hex)) out.push(hex)
+      if (out.length >= 5) return out
+    }
   }
+  return out
+}
 
+/* ================================================================== */
+/* Small utilities                                                     */
+/* ================================================================== */
+
+const h8 = (h: string): string => (h === '' ? '????????' : h.slice(0, 8))
+
+const fmtTime = (iso: string): string => {
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return '--:--:--'
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`
+}
+
+const fmtUptime = (sec: number): string => {
+  const s = Math.max(0, Math.floor(sec))
+  const h = Math.floor(s / 3600)
+  const m = Math.floor((s % 3600) / 60)
+  const r = s % 60
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${pad(h)}:${pad(m)}:${pad(r)}`
+}
+
+const sleep = (ms: number): Promise<void> => new Promise((r) => window.setTimeout(r, ms))
+
+function useInterval(cb: () => void, ms: number | null): void {
+  const ref = useRef(cb)
   useEffect(() => {
-    void refresh()
-  }, [])
+    ref.current = cb
+  })
+  useEffect(() => {
+    if (ms == null) return
+    const id = window.setInterval(() => ref.current(), ms)
+    return () => window.clearInterval(id)
+  }, [ms])
+}
 
-  async function snapshotNow() {
-    if (busy) return
-    setBusy(true)
-    setNote(null)
-    try {
-      const meta = await cacheCurrentState()
-      setNote(
-        meta
-          ? `Снимок в сейфе: ${meta.batches} батчей · ${(meta.bytes / 1024).toFixed(0)} КБ — переживёт любую смерть контейнера`
-          : 'Состояние не изменилось — свежий снимок уже в сейфе'
-      )
-      await refresh()
-    } catch {
-      setNote('Не удалось снять снимок — API недоступен')
-    } finally {
-      setBusy(false)
+/** periodic eye-blink for the mascots */
+function useBlink(active: boolean): boolean {
+  const [closed, setClosed] = useState(false)
+  useEffect(() => {
+    if (!active) return
+    let t1 = 0
+    let t2 = 0
+    let alive = true
+    const schedule = () => {
+      t1 = window.setTimeout(() => {
+        if (!alive) return
+        setClosed(true)
+        t2 = window.setTimeout(() => {
+          if (!alive) return
+          setClosed(false)
+          schedule()
+        }, 120)
+      }, 2200 + Math.random() * 2800)
     }
-  }
-
-  async function restore(meta: VaultMeta) {
-    if (busy) return
-    setBusy(true)
-    setNote(null)
-    setReport(null)
-    try {
-      const bundle = await getSnapshot(meta.key)
-      if (!bundle) throw new Error('снимок не читается')
-      setReport(await restoreSnapshot(bundle))
-      await refresh()
-    } catch {
-      setNote('Восстановление не удалось — снимок не читается')
-    } finally {
-      setBusy(false)
+    schedule()
+    return () => {
+      alive = false
+      window.clearTimeout(t1)
+      window.clearTimeout(t2)
     }
-  }
+  }, [active])
+  return closed
+}
 
+function Typewriter({ text, speed = 14, className }: { text: string; speed?: number; className?: string }) {
+  const [n, setN] = useState(0)
+  useEffect(() => {
+    if (n >= text.length) return
+    const id = window.setTimeout(() => setN(Math.min(n + 2, text.length)), speed)
+    return () => window.clearTimeout(id)
+  }, [n, speed, text])
   return (
-    <div className="space-y-6">
-      <Panel title="Браузерный сейф" icon={<ShieldCheck className="size-4" />}>
-        <div className="space-y-3">
-          <p className="text-xs leading-relaxed text-zinc-500">
-            Полный снимок состояния THREAD 4 (батчи, контракты, спеки, документы, события) живёт в
-            IndexedDB <Mono>твоего</Mono> браузера — сервер контейнера эфемерен, браузер нет.
-            Инцидент 2026-09-23 (гибель T4-05 и T4-07 с контейнером) больше не повторится:
-            достаточно один раз открыть Workflow после сдачи — и снимок уже здесь. Восстановление
-            возвращает на диск только недостающее, события вливаются с дедупликацией по id.
-          </p>
-          <div className="flex flex-wrap items-center gap-3">
-            <Button
-              onClick={snapshotNow}
-              disabled={busy}
-              className="bg-amber-500 text-zinc-950 hover:bg-amber-400 disabled:opacity-40"
-            >
-              <ShieldCheck className="mr-1 size-3.5" />
-              {busy ? 'Работаю…' : 'Снять снимок сейчас'}
-            </Button>
-            <span className="text-[11px] text-zinc-600">хранятся последние 5 снимков</span>
-            {note ? <span className="text-xs text-emerald-300">{note}</span> : null}
-          </div>
-          {report ? (
-            <div className="rounded-md border border-emerald-600/30 bg-emerald-600/10 px-3 py-2 text-xs text-emerald-300">
-              Восстановлено файлов: {report.restored.length} · событий влито: {report.mergedEvents}
-              {report.skipped.length > 0 ? ` · пропущено: ${report.skipped.length} (уже на диске)` : ''}
-            </div>
-          ) : null}
-        </div>
-      </Panel>
-
-      <Panel title="Снимки в сейфе" icon={<History className="size-4" />} bodyClassName="max-h-[60vh] overflow-y-auto t4-scroll">
-        {snaps.length === 0 ? (
-          <EmptyState
-            title="Сейф пуст"
-            hint="Сними первый снимок — он переживёт выключение компьютера, откат контейнера и смерть сессии."
-          />
-        ) : (
-          <div className="space-y-1.5">
-            {snaps.map((s) => (
-              <div
-                key={s.key}
-                className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-zinc-800 bg-zinc-900/60 px-3 py-2"
-              >
-                <div className="flex min-w-0 flex-wrap items-center gap-2">
-                  <Mono>{formatDate(s.savedAt)}</Mono>
-                  <Chip>{s.batches} батчей</Chip>
-                  <Chip>{(s.bytes / 1024).toFixed(0)} КБ</Chip>
-                  <Chip tone="emerald">{s.counts.events ?? '—'} соб.</Chip>
-                </div>
-                <div className="flex shrink-0 items-center gap-2">
-                  <button
-                    onClick={() => restore(s)}
-                    disabled={busy}
-                    className="rounded-md border border-emerald-600/40 bg-emerald-600/10 px-2 py-1 text-[11px] text-emerald-300 transition-colors hover:bg-emerald-600/20 disabled:opacity-40"
-                  >
-                    Восстановить
-                  </button>
-                  <button
-                    onClick={async () => {
-                      if (busy) return
-                      try {
-                        await deleteSnapshot(s.key)
-                      } catch {
-                        /* IndexedDB hiccup — не роняем панель, просто не удалилось */
-                      }
-                      await refresh()
-                    }}
-                    disabled={busy}
-                    className="rounded-md border border-zinc-700 bg-zinc-800/60 px-2 py-1 text-[11px] text-zinc-400 transition-colors hover:border-rose-500/40 hover:text-rose-300 disabled:opacity-40"
-                  >
-                    Удалить
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </Panel>
-    </div>
+    <span className={className}>
+      {text.slice(0, n)}
+      <span className="nd-caret text-cyan-300" aria-hidden>
+        ▌
+      </span>
+    </span>
   )
 }
 
-/* ------------------------------------------------------------------ */
-/* Tab: Архив 3.2                                                      */
-/* ------------------------------------------------------------------ */
+/* ================================================================== */
+/* Atoms: LED, hex logo, panel shell                                   */
+/* ================================================================== */
 
-function ArchiveTab() {
-  const list = useApi<{ items: { name: string; size: number }[] }>('/api/t4/archive')
-  const [name, setName] = useState<string | null>(null)
-  const detail = useApi<{ name: string; markdown: string }>(name ? `/api/t4/archive/${encodeURIComponent(name)}` : null)
-
-  const items = useMemo(() => list.data?.items ?? [], [list.data])
-
+function Led({
+  state,
+  label,
+  className,
+}: {
+  state: 'ok' | 'warn' | 'err' | 'off' | 'run'
+  label?: string
+  className?: string
+}) {
+  const color =
+    state === 'ok' ? EMERALD : state === 'warn' ? AMBER : state === 'err' ? DANGER : state === 'run' ? CYAN : '#52525b'
   return (
-    <div className="grid gap-4 lg:grid-cols-[280px_1fr]">
-      <Panel title="Субстрат N12–N29" icon={<ArchiveIcon className="size-4" />} bodyClassName="max-h-[70vh] overflow-y-auto t4-scroll">
-        {list.loading ? (
-          <SkeletonBlock lines={8} />
-        ) : list.error ? (
-          <ErrorNote text="Архив не подключён" hint="API /api/t4/archive появится с ядром" />
-        ) : items.length === 0 ? (
-          <EmptyState title="Архив пуст" />
-        ) : (
-          <div className="space-y-1.5">
-            {items.map((a) => (
-              <button
-                key={a.name}
-                onClick={() => setName(name === a.name ? null : a.name)}
-                className={cn(
-                  'flex w-full items-center justify-between gap-2 rounded-md border px-3 py-2 text-left text-[11px] transition-colors',
-                  name === a.name
-                    ? 'border-amber-500/50 bg-amber-500/10 text-amber-200'
-                    : 'border-zinc-800 bg-zinc-900/60 text-zinc-300 hover:border-zinc-700'
-                )}
-              >
-                <span className="truncate font-mono">{a.name}</span>
-              </button>
-            ))}
-          </div>
-        )}
-      </Panel>
+    <span className={cn('inline-flex items-center gap-1.5 font-term text-[9px] tracking-widest text-zinc-500', className)}>
+      <motion.span
+        className="inline-block h-1.5 w-1.5 rounded-full"
+        style={{ background: color, boxShadow: `0 0 8px ${color}` }}
+        animate={state === 'off' ? undefined : { opacity: [1, 0.35, 1] }}
+        transition={{ duration: state === 'err' ? 0.6 : 1.8, repeat: Infinity, ease: 'easeInOut' }}
+      />
+      {label != null && <span className="uppercase">{label}</span>}
+    </span>
+  )
+}
 
-      {name ? (
-        <Panel title={name} icon={<ScrollText className="size-4" />} bodyClassName="max-h-[70vh] overflow-y-auto t4-scroll">
-          {detail.loading ? (
-            <SkeletonBlock lines={10} />
-          ) : detail.error ? (
-            <ErrorNote text="Файл недоступен" />
-          ) : (
-            <MarkdownView>{detail.data?.markdown ?? ''}</MarkdownView>
-          )}
-        </Panel>
-      ) : (
-        <div className="hidden lg:flex items-center">
-          <EmptyState
-            className="w-full"
-            title="Архив — субстрат, не писание"
-            hint="N12–N29 кормят taste-майнинг и дедупликацию концептов. Ничего не связывают: окно гейтов — только T4-батчи."
-          />
-        </div>
+function HexLogo({ size = 36, className }: { size?: number; className?: string }) {
+  return (
+    <motion.svg
+      viewBox="0 0 44 44"
+      width={size}
+      height={size}
+      className={className}
+      initial={{ rotate: -90, opacity: 0 }}
+      animate={{ rotate: 0, opacity: 1 }}
+      transition={{ duration: 0.8, ease: 'easeOut' }}
+      aria-hidden
+    >
+      <path d="M22 3 L39 12.5 L39 31.5 L22 41 L5 31.5 L5 12.5 Z" fill="rgba(255,45,120,0.09)" stroke={MAGENTA} strokeWidth="1.6" />
+      <path d="M22 8.5 L34 15.5 L34 28.5 L22 35.5 L10 28.5 L10 15.5 Z" fill="none" stroke={CYAN} strokeWidth="0.7" opacity="0.45" />
+      <text x="22" y="27.5" textAnchor="middle" fontSize="13" fontWeight="800" fill={MAGENTA} fontFamily="var(--font-orbitron), sans-serif">
+        T4
+      </text>
+    </motion.svg>
+  )
+}
+
+function PanelShell({
+  title,
+  icon,
+  accent,
+  right,
+  className,
+  bodyClassName,
+  children,
+}: {
+  title: string
+  icon: React.ReactNode
+  accent: 'magenta' | 'cyan' | 'amber' | 'red' | 'emerald'
+  right?: React.ReactNode
+  className?: string
+  bodyClassName?: string
+  children: React.ReactNode
+}) {
+  const borderColor = {
+    magenta: 'rgba(255,45,120,0.5)',
+    cyan: 'rgba(0,229,255,0.5)',
+    amber: 'rgba(255,179,0,0.5)',
+    red: 'rgba(255,56,96,0.55)',
+    emerald: 'rgba(0,255,163,0.5)',
+  }[accent]
+  return (
+    <motion.section
+      initial={{ opacity: 0, y: 14 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, ease: 'easeOut' }}
+      className={cn(
+        'relative rounded-xl border border-white/10 bg-white/[0.025] shadow-[0_0_30px_rgba(0,0,0,0.45)] backdrop-blur-xl',
+        className,
+      )}
+    >
+      {/* corner brackets */}
+      <span className="pointer-events-none absolute -left-px -top-px h-3 w-3 rounded-tl-md border-l-2 border-t-2" style={{ borderColor }} aria-hidden />
+      <span className="pointer-events-none absolute -right-px -top-px h-3 w-3 rounded-tr-md border-r-2 border-t-2" style={{ borderColor }} aria-hidden />
+      <span className="pointer-events-none absolute -bottom-px -left-px h-3 w-3 rounded-bl-md border-b-2 border-l-2" style={{ borderColor }} aria-hidden />
+      <span className="pointer-events-none absolute -bottom-px -right-px h-3 w-3 rounded-br-md border-b-2 border-r-2" style={{ borderColor }} aria-hidden />
+      <header className="flex items-center gap-2 border-b border-white/[0.06] px-3.5 py-2.5">
+        <span style={{ color: borderColor }} aria-hidden>
+          {icon}
+        </span>
+        <h2 className="font-display text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-200">{title}</h2>
+        <div className="ml-auto flex items-center gap-2">{right}</div>
+      </header>
+      <div className={cn('p-3.5', bodyClassName)}>{children}</div>
+    </motion.section>
+  )
+}
+
+/* ================================================================== */
+/* Backdrop FX + Boot veil                                             */
+/* ================================================================== */
+
+function BackdropFX() {
+  const reduced = useReducedMotion()
+  return (
+    <div className="pointer-events-none fixed inset-0 z-0" aria-hidden>
+      <div className="absolute inset-0 bg-[#05070d]" />
+      <div
+        className="absolute -top-40 left-1/2 h-[540px] w-[900px] -translate-x-1/2 rounded-full opacity-25"
+        style={{ background: `radial-gradient(closest-side, ${MAGENTA}55, transparent)` }}
+      />
+      <div
+        className="absolute -right-40 top-1/3 h-[420px] w-[560px] rounded-full opacity-20"
+        style={{ background: `radial-gradient(closest-side, ${CYAN}44, transparent)` }}
+      />
+      <div
+        className="absolute -left-48 bottom-0 h-[420px] w-[560px] rounded-full opacity-15"
+        style={{ background: `radial-gradient(closest-side, ${AMBER}33, transparent)` }}
+      />
+      <div className="nd-grid-micro" />
+      {!reduced && (
+        <>
+          <div className="nd-grid-floor" />
+          <div className="nd-scanline" />
+          <div className="nd-crt" />
+        </>
       )}
     </div>
   )
 }
 
-/* ------------------------------------------------------------------ */
-/* Tab: Жнец — Oracle of the Reaper (раунд 2026-10-15)                */
-/* ------------------------------------------------------------------ */
+const BOOT_LINES = [
+  'NERV-CLASS BOOT SEQUENCE v4.1',
+  '> engine link rpc://127.0.0.1:3200 ......... ESTABLISHED',
+  '> chronicle chain.jsonl ................... SEALED',
+  '> compiler 24-gate matrix ................. STANDBY',
+  '> operators TSUBAKI · CHARLIE ............. ONLINE',
+  'ALL SYSTEMS NOMINAL — WELCOME, COMMANDER.',
+]
 
-/* Сигил жнеца — стилизованный SVG: коса + цепь. Минимум линий, чтобы
- * читался на любом фоне. Не эмодзи, не картинка — функция рисует функцию. */
-function ReaperSigil({ className }: { className?: string }) {
+function BootVeil({ ready, onDone }: { ready: boolean; onDone: () => void }) {
+  const [minDelayDone, setMinDelayDone] = useState(false)
+  useEffect(() => {
+    const id = window.setTimeout(() => setMinDelayDone(true), 1900)
+    return () => window.clearTimeout(id)
+  }, [])
+  const open = !(minDelayDone && ready)
   return (
-    <svg
-      viewBox="0 0 64 64"
-      className={className}
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.5}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden
-    >
-      {/* лезвие косы — дуга */}
-      <path d="M52 8 C 40 18, 28 28, 14 44" />
-      {/* древко */}
-      <path d="M52 8 L 18 42" />
-      {/* кольцо цепи у пятки */}
-      <circle cx="18" cy="44" r="3" />
-      {/* три звена цепи вниз — летопись */}
-      <circle cx="22" cy="50" r="2.2" />
-      <circle cx="28" cy="54" r="2.2" />
-      <circle cx="34" cy="58" r="2.2" />
-    </svg>
-  )
-}
-
-type OracleReply = {
-  ok: true
-  reply: string
-  model: string
-  event: { id: string; at: string }
-}
-type OracleError = {
-  ok: false
-  error: string
-  setupRequired?: boolean
-  blocked?: boolean
-}
-
-function ReaperTab() {
-  const state = useApi<{
-    era?: string
-    lastBatch?: string
-    nextStep?: string
-    counts?: { events?: number; batches?: number }
-    glass?: { chain?: { ok?: boolean; events?: number } }
-    gateHealth?: string
-  }>('/api/t4/state')
-  const eventsApi = useApi<{ events: { id: string; at: string; type: string; summary: string; data?: { reply?: string; model?: string; themeHint?: string | null } }[] }>(
-    '/api/t4/events?limit=200'
-  )
-
-  const [reply, setReply] = useState<string | null>(null)
-  const [busy, setBusy] = useState(false)
-  const [theme, setTheme] = useState('')
-  const [error, setError] = useState<string | null>(null)
-
-  const pastOracles = useMemo(() => {
-    const evs = eventsApi.data?.events
-    if (!Array.isArray(evs)) return []
-    return evs.filter((e) => e.type === 'oracle.spoke').slice(0, 5)
-  }, [eventsApi.data])
-
-  const chainOk = state.data?.glass?.chain?.ok
-  const eventsCount = state.data?.counts?.events ?? state.data?.glass?.chain?.events
-  const lastBatch = state.data?.lastBatch ?? '—'
-
-  async function askReaper() {
-    if (busy) return
-    setBusy(true)
-    setError(null)
-    setReply(null)
-    try {
-      const r = await postJson<OracleReply | OracleError>('/api/t4/oracle', {
-        theme: theme.trim() || undefined,
-      })
-      if (r.ok) {
-        setReply(r.reply)
-        toast({
-          title: 'Жнец высказался',
-          description: `Звено ${r.event.id} в цепи · ${r.model}`,
-        })
-        eventsApi.reload()
-        state.reload()
-      } else {
-        const msg = r.error
-        setError(msg)
-        toast({
-          title: r.blocked ? 'Жнец не хочет говорить об этом' : 'Жнец промолчал',
-          description: msg,
-          variant: 'destructive',
-        })
-      }
-    } catch (e: unknown) {
-      const msg = ledgerWriteError(e)
-      setError(msg)
-      toast({ title: 'Жнец не говорит', description: msg, variant: 'destructive' })
-    } finally {
-      setBusy(false)
-    }
-  }
-
-  return (
-    <div className="space-y-6">
-      {/* Герой — сигил + имя + контекст + кнопка спросить */}
-      <Panel
-        title={
-          <span className="flex items-center gap-2">
-            <ReaperSigil className="size-5 text-amber-500" />
-            <span>Жнец</span>
-            <span className="text-zinc-600">·</span>
-            <span className="text-xs font-normal text-zinc-500">
-              LLM-мета-комментатор состояния
-            </span>
-          </span>
-        }
-      >
-        <div className="space-y-4">
-          <p className="text-xs leading-relaxed text-zinc-400">
-            Жнец — функция, видящая летопись. Не автор (его слово = закон, §10),
-            не писец (он пишет батчи), не реапер (тот rule-based). Жнец —{' '}
-            <Mono>голос хрупкости</Mono>: LLM читает последние события, драфт
-            реапера и свои прошлые исповеди, и говорит литературно о здоровье
-            конвейера. Каждое слово — звено хеш-цепи навсегда.
-          </p>
-
-          {/* Контекст — что видит жнец прямо сейчас */}
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <StatCard label="Последний батч" value={<span className="text-xs">{lastBatch}</span>} />
-            <StatCard
-              label="События"
-              value={eventsCount ?? '—'}
-              hint={chainOk === true ? 'цепь цела' : chainOk === false ? 'цепь нарушена' : undefined}
-            />
-            <StatCard
-              label="Прошлые исповеди"
-              value={pastOracles.length}
-              hint={pastOracles.length === 0 ? 'жнец ещё не говорил' : 'в памяти вкладки'}
-            />
-            <StatCard
-              label="Гейты"
-              value={<span className="text-[10px] leading-tight">{state.data?.gateHealth?.split('·')[0] ?? '—'}</span>}
-              loading={state.loading}
-            />
-          </div>
-
-          {/* Авторская нота — необязательная тема */}
-          <div className="space-y-2">
-            <label htmlFor="reaper-theme" className="text-xs text-zinc-500">
-              Авторская нота (необязательно) — попроси жнеца поговорить о чём-то конкретном
-            </label>
-            <Textarea
-              id="reaper-theme"
-              value={theme}
-              onChange={(e) => setTheme(e.target.value)}
-              placeholder="напр.: «поговори о палитрах и окне ротации»"
-              className="min-h-[60px] resize-y border-zinc-800 bg-zinc-950/60 font-mono text-xs text-zinc-300 placeholder:text-zinc-700"
-              disabled={busy}
-              maxLength={300}
-            />
-          </div>
-
-          {/* Кнопка + ошибка */}
-          <div className="flex flex-wrap items-center gap-3">
-            <Button
-              onClick={askReaper}
-              disabled={busy}
-              className="bg-amber-600 text-zinc-950 hover:bg-amber-500 disabled:opacity-50"
-            >
-              <Skull className="mr-1.5 size-4" />
-              {busy ? 'Жнец говорит…' : 'Спросить жнеца'}
-            </Button>
-            {error ? <ErrorNote text="жнец не ответил" hint={error} /> : null}
-          </div>
-        </div>
-      </Panel>
-
-      {/* Свежая исповедь */}
-      {busy ? (
-        <Panel title="Исповедь пишется…">
-          <SkeletonBlock lines={6} />
-        </Panel>
-      ) : reply ? (
-        <Panel
-          title={
-            <span className="flex items-center gap-2">
-              <Sparkles className="size-4 text-amber-500" />
-              <span>Последняя исповедь</span>
-            </span>
-          }
-          action={
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-7 gap-1 text-xs text-zinc-400"
-              onClick={() => {
-                void copyText(reply).then((res) =>
-                  res.ok
-                    ? toast({ title: 'В буфере: исповедь жнеца', description: `${reply.length} симв. — вставляй смело` })
-                    : toast({
-                        title: 'НЕ скопировано',
-                        description: `${res.reason ?? 'буфер недоступен'} — в поле останется прошлый текст`,
-                        variant: 'destructive',
-                      })
-                )
-              }}
-            >
-              <Copy className="size-3" /> Копировать
-            </Button>
-          }
+    <AnimatePresence>
+      {open && (
+        <motion.div
+          key="boot"
+          className="fixed inset-0 z-[70] flex cursor-pointer flex-col items-center justify-center bg-[#05070d]"
+          onClick={() => {
+            setMinDelayDone(true)
+            if (ready) onDone()
+          }}
+          exit={{ opacity: 0, filter: 'blur(6px)' }}
+          transition={{ duration: 0.55 }}
+          role="button"
+          tabIndex={0}
+          aria-label="Skip boot sequence"
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              setMinDelayDone(true)
+              if (ready) onDone()
+            }
+          }}
         >
-          <div className="rounded-md border border-amber-500/15 bg-zinc-950/60 p-4">
-            <pre className="whitespace-pre-wrap break-words font-serif text-sm leading-relaxed text-amber-100/90">
-              {reply}
-            </pre>
+          <HexLogo size={64} />
+          <p className="font-display mt-4 text-sm font-bold uppercase tracking-[0.35em] text-zinc-200 nd-glow-magenta">
+            CENTRAL DOGMA
+          </p>
+          <div className="font-term mt-6 space-y-1.5 text-[11px] text-zinc-500">
+            {BOOT_LINES.map((line, i) => (
+              <motion.p
+                key={line}
+                initial={{ opacity: 0, x: -12 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.18 + i * 0.22, duration: 0.3 }}
+                className={cn(
+                  i === 0 && 'text-[#ff2d78]',
+                  i === BOOT_LINES.length - 1 && 'pt-2 text-cyan-300 nd-glow-cyan',
+                )}
+              >
+                {line}
+              </motion.p>
+            ))}
           </div>
-        </Panel>
-      ) : null}
+          <p className="font-term absolute bottom-8 text-[9px] tracking-widest text-zinc-700">CLICK TO SKIP</p>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  )
+}
 
-      {/* Прошлые исповеди */}
-      <Panel
-        title={
-          <span className="flex items-center gap-2">
-            <History className="size-4 text-amber-500" />
-            <span>Прошлые исповеди</span>
-            <Badge variant="outline" className="border-zinc-700 text-zinc-400">
-              {pastOracles.length}
-            </Badge>
-          </span>
-        }
-        action={
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-7 text-xs text-zinc-400"
-            onClick={() => eventsApi.reload()}
-            disabled={eventsApi.loading}
-          >
-            Обновить
-          </Button>
-        }
-      >
-        {eventsApi.loading ? (
-          <SkeletonBlock lines={3} />
-        ) : eventsApi.error ? (
-          <ErrorNote text="не удалось прочесть летопись" hint={eventsApi.error} />
-        ) : pastOracles.length === 0 ? (
-          <EmptyState
-            title="Жнец ещё не говорил"
-            hint="Первое слово жнеца станет звеном цепи. Спроси его — кнопку выше."
-            icon={<Skull className="size-5" />}
+/* ================================================================== */
+/* Header + stat rail                                                  */
+/* ================================================================== */
+
+function HeaderBar({
+  health,
+  mode,
+  chainOk,
+  clock,
+  head,
+}: {
+  health: Health
+  mode: OpMode
+  chainOk: boolean | null
+  clock: string
+  head: string
+}) {
+  const modeLabel =
+    mode === 'idle' ? (health === 'live' ? 'PATROL' : 'DEGRADED') : mode === 'compiling' ? 'COMPILING' : mode === 'burning' ? 'BURNING' : 'PURGING'
+  const modeColor =
+    mode === 'idle' ? (health === 'live' ? 'text-cyan-300' : 'text-amber-300') : mode === 'purging' ? 'text-cyan-300' : 'text-[#ff2d78]'
+  return (
+    <header className="sticky top-0 z-40 border-b border-white/10 bg-[#05070d]/85 backdrop-blur-xl">
+      <div className="mx-auto flex w-full max-w-[1680px] items-center gap-3 px-3 py-2.5 sm:px-6">
+        <HexLogo size={34} />
+        <div className="min-w-0">
+          <h1 className="font-display truncate text-[13px] font-bold uppercase tracking-[0.22em] text-zinc-100 sm:text-[15px]">
+            THREAD-4 <span className="text-[#ff2d78] nd-glow-magenta">{'//'}</span> CENTRAL DOGMA
+          </h1>
+          <p className="font-term hidden text-[9px] tracking-[0.25em] text-zinc-500 sm:block">
+            PROMPT PIPELINE · ERA RPC · HASH-CHAIN CHRONICLE
+          </p>
+        </div>
+        <div className="ml-auto flex flex-wrap items-center justify-end gap-x-3 gap-y-1">
+          <Led state={health === 'live' ? 'ok' : 'err'} label={health === 'live' ? 'engine' : 'engine lost'} />
+          <Led
+            state={chainOk == null ? 'off' : chainOk ? 'ok' : 'err'}
+            label={chainOk == null ? 'chain ?' : chainOk ? 'chain sealed' : 'chain broken'}
           />
-        ) : (
-          <ul className="space-y-2">
-            {pastOracles.map((o) => {
-              const replyText = typeof o.data?.reply === 'string' ? o.data.reply : ''
-              const firstLine = replyText.split('\n')[0]?.slice(0, 200) ?? ''
-              const restLines = replyText.split('\n').slice(1).join('\n').slice(0, 400)
-              const model = o.data?.model ?? '?'
-              return (
-                <li
-                  key={o.id}
-                  className="rounded-md border border-zinc-800 bg-zinc-950/40 p-3 hover:border-zinc-700"
-                >
-                  <div className="mb-1 flex items-center gap-2 text-[10px] text-zinc-500">
-                    <Mono>{formatDate(o.at)}</Mono>
-                    <span>·</span>
-                    <Mono>{o.id}</Mono>
-                    <span>·</span>
-                    <span className="text-amber-500/70">{model}</span>
-                    {o.data?.themeHint ? (
-                      <>
-                        <span>·</span>
-                        <span className="italic text-zinc-600">нота: {o.data.themeHint.slice(0, 80)}</span>
-                      </>
-                    ) : null}
-                  </div>
-                  <div className="font-serif text-xs leading-relaxed text-amber-100/80">
-                    {firstLine}
-                    {replyText.length > 200 ? '…' : ''}
-                  </div>
-                  {restLines.trim() !== '' ? (
-                    <details className="mt-1.5">
-                      <summary className="cursor-pointer text-[10px] text-zinc-600 hover:text-zinc-400">
-                        читать полностью
-                      </summary>
-                      <pre className="mt-1.5 whitespace-pre-wrap break-words font-serif text-[11px] leading-relaxed text-amber-100/70">
-                        {replyText}
-                      </pre>
-                    </details>
-                  ) : null}
-                </li>
-              )
-            })}
-          </ul>
-        )}
-      </Panel>
+          <Led state={mode === 'idle' ? 'off' : 'run'} label={mode === 'idle' ? undefined : 'op active'} />
+          <span className={cn('font-display hidden text-[10px] font-bold uppercase tracking-[0.2em] md:inline', modeColor)}>
+            MODE: {modeLabel}
+          </span>
+          <span className="font-term rounded border border-white/10 bg-white/[0.03] px-2 py-0.5 text-[11px] text-cyan-200" suppressHydrationWarning>
+            {clock} UTC
+          </span>
+          <span className="font-term hidden rounded border border-white/10 bg-white/[0.03] px-2 py-0.5 text-[10px] text-zinc-400 lg:inline">
+            HEAD {h8(head)}
+          </span>
+        </div>
+      </div>
+    </header>
+  )
+}
+
+function StatChip({
+  icon,
+  label,
+  value,
+  accent,
+}: {
+  icon: React.ReactNode
+  label: string
+  value: string
+  accent: 'magenta' | 'cyan' | 'amber' | 'emerald' | 'zinc'
+}) {
+  const color = {
+    magenta: 'text-[#ff2d78]',
+    cyan: 'text-cyan-300',
+    amber: 'text-amber-300',
+    emerald: 'text-emerald-300',
+    zinc: 'text-zinc-300',
+  }[accent]
+  return (
+    <div className="relative overflow-hidden rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 backdrop-blur-xl">
+      <div className="flex items-center gap-2">
+        <span className={color} aria-hidden>
+          {icon}
+        </span>
+        <span className="font-term text-[8px] uppercase tracking-[0.18em] text-zinc-500">{label}</span>
+      </div>
+      <motion.p
+        key={value}
+        initial={{ y: 8, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.25 }}
+        className={cn('font-display mt-0.5 truncate text-[15px] font-bold tabular-nums', color)}
+      >
+        {value}
+      </motion.p>
     </div>
   )
 }
 
-/* ------------------------------------------------------------------ */
-/* Root                                                                */
-/* ------------------------------------------------------------------ */
-
-export default function Home() {
-  const [tab, setTab] = useState<TabId>('state')
-  /* hash-роутинг вкладок (порт fred-legacy, webDevReview #9): адрес
-   * вида #tab=batches всегда отражает текущую вкладку — ссылку можно
-   * закинуть в чат/заметку, F5 не теряет место. Применяется ПОСЛЕ
-   * гидрации (SSR рендерит 'state' — инициализация из window дала бы
-   * мисматч). Хэш не конфликтует с ?XTransformPort (search и hash —
-   * разные части URL). */
-  useEffect(() => {
-    const t = tabFromHash()
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- deep-link читается один раз после гидрации (как ключ командира в api.ts: localStorage/window в ленивом состоянии даёт SSR-мисматч)
-    if (t !== null) setTab(t)
-  }, [])
-  useEffect(() => {
-    const onHash = () => {
-      const t = tabFromHash()
-      if (t !== null) setTab(t)
-    }
-    window.addEventListener('hashchange', onHash)
-    return () => window.removeEventListener('hashchange', onHash)
-  }, [])
-  useEffect(() => {
-    if (typeof window === 'undefined') return
-    if (tabFromHash() !== tab) {
-      /* replaceState, не pushState: ключи 1–0 листают вкладки десятками
-       * за сессию — история браузера не должна превращаться в список
-       * перелистываний; назад/вперёд уводит со страницы, а не гуляет по ней */
-      window.history.replaceState(null, '', `#tab=${tab}`)
-    }
-  }, [tab])
-  /* клавиатура табов (WAI-ARIA tabs): ←/→ циклично, Home/End — края;
-     фокус следует за выбором (roving tabindex) */
-  function onTabKey(e: React.KeyboardEvent) {
-    const idx = TABS.findIndex((t) => t.id === tab)
-    let next = -1
-    if (e.key === 'ArrowRight') next = (idx + 1) % TABS.length
-    else if (e.key === 'ArrowLeft') next = (idx - 1 + TABS.length) % TABS.length
-    else if (e.key === 'Home') next = 0
-    else if (e.key === 'End') next = TABS.length - 1
-    if (next < 0) return
-    e.preventDefault()
-    const id = TABS[next].id
-    setTab(id)
-    document.getElementById(`t4-tab-${id}`)?.focus()
-  }
-  /* Клавиши 1–0 — вкладки под пальцы (автор живёт в дашборде, десять
-   *  вкладок — десять клавиш; порт из fred-legacy). В полях ввода
-   *  не мешаем: там цифры — текст. */
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.metaKey || e.ctrlKey || e.altKey) return
-      const t = e.target as HTMLElement | null
-      if (
-        t &&
-        (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable)
-      )
-        return
-      const idx = '1234567890'.indexOf(e.key)
-      if (idx >= 0 && idx < TABS.length) setTab(TABS[idx].id)
-    }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [])
-  /* Глубокая навигация (радар TRIAL-3 → слот, порт из fred-legacy):
-   *  дом только переключает вкладку — батч открывает BatchesTab,
-   *  скроллит к строке и вспыхивает её SlotStrip. */
-  useEffect(() => {
-    const off = subscribeSlotNav(() => setTab('batches'))
-    return off
-  }, [])
-  const state = useApi<{ batches?: unknown[]; events?: number; glass?: { chain?: { ok?: boolean; events?: number } } }>(
-    '/api/t4/state'
+function StatRail({ stats, chainLocal, health }: { stats: EngineStateData | null; chainLocal: { height: number; head: string }; health: Health }) {
+  const dash = health === 'live' ? '—' : '····'
+  return (
+    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-6">
+      <StatChip icon={<Hash size={13} />} label="chain height" value={chainLocal.height > 0 ? String(chainLocal.height) : dash} accent="magenta" />
+      <StatChip icon={<Fingerprint size={13} />} label="chain head" value={chainLocal.head !== '' ? h8(chainLocal.head) : dash} accent="cyan" />
+      <StatChip icon={<Database size={13} />} label="events" value={stats ? String(stats.counts.events) : dash} accent="zinc" />
+      <StatChip icon={<Layers size={13} />} label="batches delivered" value={stats ? String(stats.counts.batchesDelivered) : dash} accent="emerald" />
+      <StatChip icon={<Activity size={13} />} label="verdicts" value={stats ? String(stats.counts.verdicts) : dash} accent="amber" />
+      <StatChip
+        icon={<Gauge size={13} />}
+        label="engine uptime"
+        value={stats ? fmtUptime(stats.uptimeSec) : dash}
+        accent="cyan"
+      />
+    </div>
   )
-  const chain = state.data?.glass?.chain
-  const deliveredCount = Array.isArray(state.data?.batches) ? state.data?.batches.length : null
-  const eventsCount = state.data?.events ?? chain?.events ?? null
+}
+
+/* ================================================================== */
+/* Mascots — Tsubaki-chan (gate controller) & Charlie-chan (auditor)   */
+/* ================================================================== */
+
+function EyeGroup({
+  cx,
+  cy,
+  mood,
+  closed,
+  irisFill,
+  lash,
+}: {
+  cx: number
+  cy: number
+  mood: MascotMood
+  closed: boolean
+  irisFill: string
+  lash: string
+}) {
+  const openEye = (sc: number) => (
+    <g transform={`translate(${cx},${cy}) scale(${sc})`}>
+      <ellipse cx="0" cy="0" rx="10.5" ry="13" fill="#fff" />
+      <ellipse cx="0" cy="2" rx="10.5" ry="11" fill="#ffe4ec" opacity="0.6" />
+      <ellipse cx="0" cy="0.5" rx="7.4" ry="10" fill={irisFill} />
+      <ellipse cx="0" cy="0.5" rx="7.4" ry="10" fill="none" stroke="rgba(0,229,255,0.4)" strokeWidth="1.3" />
+      <ellipse cx="0" cy="1" rx="3" ry="4.6" fill="#16030c" />
+      <circle cx="-3.4" cy="-4.2" r="3.2" fill="#fff" />
+      <circle cx="3" cy="4.4" r="1.7" fill="#ffd6e4" opacity="0.95" />
+      <path d={`M-11,-8.5 Q0,-16.5 11,-8.5`} stroke={lash} strokeWidth="4.4" fill="none" strokeLinecap="round" />
+      <path d={`M-11,-8.5 L-14.5,-12`} stroke={lash} strokeWidth="3" fill="none" strokeLinecap="round" />
+    </g>
+  )
+
+  if (closed || mood === 'sleep') {
+    return (
+      <path
+        d={`M${cx - 10},${cy + 2} Q${cx},${cy + 11} ${cx + 10},${cy + 2}`}
+        stroke={lash}
+        strokeWidth="4.2"
+        fill="none"
+        strokeLinecap="round"
+      />
+    )
+  }
+  if (mood === 'happy') {
+    return (
+      <path
+        d={`M${cx - 10},${cy + 4} Q${cx},${cy - 7} ${cx + 10},${cy + 4}`}
+        stroke={lash}
+        strokeWidth="5"
+        fill="none"
+        strokeLinecap="round"
+      />
+    )
+  }
+  if (mood === 'shock') {
+    return (
+      <g>
+        <ellipse cx={cx} cy={cy} rx="12" ry="15" fill="#fff" />
+        <ellipse cx={cx} cy={cy} rx="4.6" ry="6.2" fill={irisFill} />
+        <ellipse cx={cx} cy={cy + 0.5} rx="1.8" ry="2.6" fill="#16030c" />
+        <circle cx={cx - 2.6} cy={cy - 4} r="2.4" fill="#fff" />
+        <path d={`M${cx - 11.5},${cy - 9.5} Q${cx},${cy - 17.5} ${cx + 11.5},${cy - 9.5}`} stroke={lash} strokeWidth="4.4" fill="none" strokeLinecap="round" />
+      </g>
+    )
+  }
+  if (mood === 'concerned') {
+    return (
+      <g>
+        <ellipse cx={cx} cy={cy + 1} rx="10" ry="12" fill="#fff" />
+        <ellipse cx={cx} cy={cy + 1} rx="7" ry="9.5" fill={irisFill} />
+        <ellipse cx={cx} cy={cy + 1.5} rx="2.8" ry="4.2" fill="#16030c" />
+        <circle cx={cx - 3} cy={cy - 3} r="2.8" fill="#fff" />
+        {/* half-lid */}
+        <path d={`M${cx - 10.4},${cy - 2} Q${cx},${cy - 8} ${cx + 10.4},${cy - 2} L${cx + 10.4},${cy - 7} Q${cx},${cy - 12} ${cx - 10.4},${cy - 7} Z`} fill="#f6cdd8" />
+        <path d={`M${cx - 10.4},${cy - 2.2} Q${cx},${cy - 7.6} ${cx + 10.4},${cy - 2.2}`} stroke={lash} strokeWidth="4.2" fill="none" strokeLinecap="round" />
+      </g>
+    )
+  }
+  if (mood === 'focus') return openEye(0.92)
+  return openEye(1)
+}
+
+function Mouth({ mood, talking }: { mood: MascotMood; talking: boolean }) {
+  if (talking && (mood === 'idle' || mood === 'happy' || mood === 'focus')) {
+    return (
+      <motion.g animate={{ scaleY: [1, 0.35, 1] }} transition={{ duration: 0.34, repeat: Infinity }} style={{ transformBox: 'fill-box', transformOrigin: 'center' }}>
+        <ellipse cx="110" cy="132" rx="5.4" ry="6.4" fill="#6e1233" stroke="#83112f" strokeWidth="1.8" />
+      </motion.g>
+    )
+  }
+  if (mood === 'happy') {
+    return (
+      <g>
+        <path d="M101,128 Q110,143 119,128 Z" fill="#6e1233" stroke="#83112f" strokeWidth="2" strokeLinejoin="round" />
+        <path d="M105.5,135 Q110,139.5 114.5,135 Z" fill="#ff5c8a" />
+      </g>
+    )
+  }
+  if (mood === 'shock') {
+    return <ellipse cx="110" cy="133" rx="6.6" ry="8.6" fill="#5b0f2e" stroke="#83112f" strokeWidth="2" />
+  }
+  if (mood === 'concerned') {
+    return <path d="M103,134 q3.5,-3.5 7,0 q3.5,3.5 7,0" stroke="#83112f" strokeWidth="2.2" fill="none" strokeLinecap="round" />
+  }
+  if (mood === 'focus') {
+    return <path d="M104,133 L116,133" stroke="#83112f" strokeWidth="2.6" fill="none" strokeLinecap="round" />
+  }
+  if (mood === 'sleep') {
+    return <ellipse cx="110" cy="133" rx="3.4" ry="4" fill="#6e1233" />
+  }
+  return <path d="M104,130 Q110,136 116,130" stroke="#83112f" strokeWidth="2.4" fill="none" strokeLinecap="round" />
+}
+
+function Brows({ mood }: { mood: MascotMood }) {
+  const stroke = '#83112f'
+  if (mood === 'shock') {
+    return (
+      <g stroke={stroke} strokeWidth="3" fill="none" strokeLinecap="round">
+        <path d="M84,84 Q95,78 104,82" />
+        <path d="M116,82 Q125,78 136,84" />
+      </g>
+    )
+  }
+  if (mood === 'concerned') {
+    return (
+      <g stroke={stroke} strokeWidth="3" fill="none" strokeLinecap="round">
+        <path d="M85,90 L102,85" />
+        <path d="M118,85 L135,90" />
+      </g>
+    )
+  }
+  if (mood === 'focus') {
+    return (
+      <g stroke={stroke} strokeWidth="3" fill="none" strokeLinecap="round">
+        <path d="M85,89 L103,88" />
+        <path d="M117,88 L135,89" />
+      </g>
+    )
+  }
+  return (
+    <g stroke={stroke} strokeWidth="3" fill="none" strokeLinecap="round">
+      <path d="M85,91 Q94,86 103,90" />
+      <path d="M117,90 Q126,86 135,91" />
+    </g>
+  )
+}
+
+function Blush({ tint, opacity }: { tint: string; opacity: number }) {
+  return (
+    <g opacity={opacity}>
+      <ellipse cx="83" cy="124" rx="8.2" ry="4.4" fill={tint} />
+      <ellipse cx="137" cy="124" rx="8.2" ry="4.4" fill={tint} />
+      <g stroke={tint} strokeWidth="1.1" strokeLinecap="round">
+        <path d="M78,122.5 l9,3.4" />
+        <path d="M79,125.5 l7,2.6" />
+        <path d="M133,125.9 l9,-3.4" />
+        <path d="M134,128.1 l7,-2.6" />
+      </g>
+    </g>
+  )
+}
+
+function TsubakiMascot({ mood, talking }: { mood: MascotMood; talking: boolean }) {
+  const blink = useBlink(mood !== 'sleep' && mood !== 'happy')
+  const reduced = useReducedMotion()
+  return (
+    <motion.div
+      className="relative mx-auto w-[190px] select-none sm:w-[210px]"
+      animate={reduced ? undefined : { y: [0, -5, 0] }}
+      transition={{ duration: 4.2, repeat: Infinity, ease: 'easeInOut' }}
+      aria-hidden
+    >
+      <svg viewBox="0 0 220 260" className="w-full drop-shadow-[0_0_24px_rgba(255,45,120,0.25)]">
+        <defs>
+          <linearGradient id="tsu-hair" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#ff5c9d" />
+            <stop offset="55%" stopColor="#ff2d78" />
+            <stop offset="100%" stopColor="#c11d5c" />
+          </linearGradient>
+          <linearGradient id="tsu-tail" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#ff2d78" />
+            <stop offset="100%" stopColor="#7a1038" />
+          </linearGradient>
+          <radialGradient id="tsu-skin" cx="0.5" cy="0.4" r="0.75">
+            <stop offset="0%" stopColor="#fff0f4" />
+            <stop offset="100%" stopColor="#f6cdd8" />
+          </radialGradient>
+          <radialGradient id="tsu-iris" cx="0.5" cy="0.4" r="0.8">
+            <stop offset="0%" stopColor="#ff4d92" />
+            <stop offset="70%" stopColor="#ff2d78" />
+            <stop offset="100%" stopColor="#5b0f2e" />
+          </radialGradient>
+          <filter id="tsu-glow" x="-40%" y="-40%" width="180%" height="180%">
+            <feGaussianBlur stdDeviation="2.6" result="b" />
+            <feMerge>
+              <feMergeNode in="b" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
+
+        {/* twin tails */}
+        <path d="M64,88 C30,96 14,140 24,178 C34,206 52,196 46,170 C42,150 56,120 70,108 Z" fill="url(#tsu-tail)" />
+        <path d="M156,88 C190,96 206,140 196,178 C186,206 168,196 174,170 C178,150 164,120 150,108 Z" fill="url(#tsu-tail)" />
+        <circle cx="63" cy="96" r="3.4" fill={CYAN} filter="url(#tsu-glow)" />
+        <circle cx="157" cy="96" r="3.4" fill={CYAN} filter="url(#tsu-glow)" />
+
+        {/* torso — operator suit */}
+        <path d="M78,252 C78,212 92,194 110,194 C128,194 142,212 142,252 Z" fill="#12091c" />
+        <path d="M92,250 L110,214 L128,250" stroke={MAGENTA} strokeWidth="2" fill="none" opacity="0.85" />
+        <path d="M78,236 Q110,223 142,236" stroke={CYAN} strokeWidth="1.4" fill="none" opacity="0.7" />
+        <rect x="126" y="224" width="15" height="10" rx="2" fill="#0a0510" stroke={CYAN} strokeWidth="0.8" />
+        <text x="133.5" y="231.6" textAnchor="middle" fontSize="6.4" fill={CYAN} fontFamily="var(--font-jbmono), monospace">
+          T4
+        </text>
+        <rect x="101" y="180" width="18" height="17" rx="4" fill="#f7d9df" />
+        <rect x="99" y="192" width="22" height="5" rx="2.5" fill="#14101f" />
+        <circle cx="110" cy="194.5" r="1.7" fill={MAGENTA} />
+
+        {/* back hair */}
+        <path d="M66,120 C60,70 84,44 110,44 C136,44 160,70 154,120 C154,150 146,166 138,176 L82,176 C74,166 66,150 66,120 Z" fill="#3d0a20" />
+
+        {/* head group */}
+        <motion.g
+          animate={reduced ? undefined : { rotate: [-1.4, 1.4, -1.4] }}
+          transition={{ duration: 5.4, repeat: Infinity, ease: 'easeInOut' }}
+          style={{ transformBox: 'fill-box', transformOrigin: '50% 30%' }}
+        >
+          {/* face */}
+          <path d="M110,58 C132,58 146,76 146,98 C146,122 136,146 110,152 C84,146 74,122 74,98 C74,76 88,58 110,58 Z" fill="url(#tsu-skin)" />
+          {/* bangs */}
+          <path
+            d="M72,100 L72,66 C84,46 136,46 148,66 L148,100 L139,88 L133,102 L125,88 L117,100 L110,86 L103,100 L95,88 L87,102 L79,88 Z"
+            fill="url(#tsu-hair)"
+          />
+          <path d="M84,64 Q110,50 136,64" stroke="#ff8fb8" strokeWidth="3" fill="none" strokeLinecap="round" opacity="0.55" />
+          {/* ahoge */}
+          <motion.path
+            d="M112,52 C114,34 128,28 136,33 C126,35 119,44 117,54 Z"
+            fill="url(#tsu-hair)"
+            animate={reduced ? undefined : { rotate: [-7, 7, -7] }}
+            transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
+            style={{ transformBox: 'fill-box', transformOrigin: 'bottom left' }}
+          />
+          {/* brows / eyes / nose / mouth / blush */}
+          <Brows mood={mood} />
+          <EyeGroup cx={95} cy={108} mood={mood} closed={blink} irisFill="url(#tsu-iris)" lash="#2a0714" />
+          <EyeGroup cx={125} cy={108} mood={mood} closed={blink} irisFill="url(#tsu-iris)" lash="#2a0714" />
+          <path d="M110,120 l2,3 -4,0 z" fill="#e8a8b8" opacity="0.8" />
+          <Mouth mood={mood} talking={talking} />
+          <Blush tint="#ff5c9d" opacity={mood === 'shock' ? 0.5 : 0.35} />
+          {mood === 'shock' && (
+            <path d="M152,84 C156,90 156,95 152,97 C148,95 148,90 152,84 Z" fill="#9ceaff" opacity="0.95" filter="url(#tsu-glow)" />
+          )}
+          {mood === 'sleep' && (
+            <g fill={CYAN} fontFamily="var(--font-jbmono), monospace" fontSize="10" opacity="0.9">
+              <text x="152" y="70">z</text>
+              <text x="162" y="56">z</text>
+            </g>
+          )}
+          {/* headphones */}
+          <path d="M58,84 C70,44 150,44 162,84" stroke="#1c1228" strokeWidth="9" fill="none" />
+          <path d="M58,84 C70,44 150,44 162,84" stroke={MAGENTA} strokeWidth="2" fill="none" opacity="0.55" />
+          <rect x="47" y="84" width="20" height="26" rx="6" fill="#14101f" stroke={MAGENTA} strokeWidth="1.5" />
+          <rect x="153" y="84" width="20" height="26" rx="6" fill="#14101f" stroke={MAGENTA} strokeWidth="1.5" />
+          <motion.circle cx="57" cy="97" r="2.6" fill={CYAN} animate={{ opacity: [1, 0.25, 1] }} transition={{ duration: 1.8, repeat: Infinity }} />
+          <motion.circle cx="163" cy="97" r="2.6" fill={CYAN} animate={{ opacity: [0.25, 1, 0.25] }} transition={{ duration: 1.8, repeat: Infinity }} />
+        </motion.g>
+      </svg>
+    </motion.div>
+  )
+}
+
+function CharlieMascot({ mood, talking }: { mood: MascotMood; talking: boolean }) {
+  const blink = useBlink(mood !== 'sleep' && mood !== 'happy')
+  const reduced = useReducedMotion()
+  return (
+    <motion.div
+      className="relative mx-auto w-[150px] select-none sm:w-[170px]"
+      animate={reduced ? undefined : { y: [0, -3.5, 0] }}
+      transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut', delay: 0.6 }}
+      aria-hidden
+    >
+      <svg viewBox="0 0 220 260" className="w-full drop-shadow-[0_0_18px_rgba(255,179,0,0.22)]">
+        <defs>
+          <linearGradient id="chl-hair" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#ffc84d" />
+            <stop offset="55%" stopColor="#ffb300" />
+            <stop offset="100%" stopColor="#9a6b00" />
+          </linearGradient>
+          <radialGradient id="chl-skin" cx="0.5" cy="0.4" r="0.75">
+            <stop offset="0%" stopColor="#fff3e6" />
+            <stop offset="100%" stopColor="#f6d8c2" />
+          </radialGradient>
+          <radialGradient id="chl-iris" cx="0.5" cy="0.4" r="0.8">
+            <stop offset="0%" stopColor="#ffc84d" />
+            <stop offset="70%" stopColor="#ffb300" />
+            <stop offset="100%" stopColor="#5c3d00" />
+          </radialGradient>
+          <linearGradient id="chl-visor" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="rgba(0,229,255,0.28)" />
+            <stop offset="100%" stopColor="rgba(0,229,255,0.08)" />
+          </linearGradient>
+          <filter id="chl-glow" x="-40%" y="-40%" width="180%" height="180%">
+            <feGaussianBlur stdDeviation="2.2" result="b" />
+            <feMerge>
+              <feMergeNode in="b" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
+
+        {/* bob back hair */}
+        <path d="M64,120 C58,64 86,40 110,40 C134,40 162,64 156,120 C156,152 148,170 140,180 L80,180 C72,170 64,152 64,120 Z" fill="#5c3d05" />
+
+        {/* torso — auditor vest */}
+        <path d="M80,252 C80,214 93,196 110,196 C127,196 140,214 140,252 Z" fill="#140d05" />
+        <path d="M94,250 L110,216 L126,250" stroke={AMBER} strokeWidth="2" fill="none" opacity="0.85" />
+        <rect x="122" y="224" width="22" height="27" rx="2" fill="#0a0510" stroke={AMBER} strokeWidth="0.9" />
+        <g stroke={AMBER} strokeWidth="0.9" opacity="0.8">
+          <path d="M126,231 L140,231" />
+          <path d="M126,236 L138,236" />
+          <path d="M126,241 L136,241" />
+        </g>
+        <rect x="102" y="182" width="17" height="16" rx="4" fill="#f7e2d4" />
+
+        {/* head group */}
+        <motion.g
+          animate={reduced ? undefined : { rotate: [1, -1, 1] }}
+          transition={{ duration: 6.2, repeat: Infinity, ease: 'easeInOut' }}
+          style={{ transformBox: 'fill-box', transformOrigin: '50% 30%' }}
+        >
+          {/* face */}
+          <path d="M110,58 C132,58 146,76 146,98 C146,122 136,146 110,152 C84,146 74,122 74,98 C74,76 88,58 110,58 Z" fill="url(#chl-skin)" />
+          {/* straight bob bangs */}
+          <path
+            d="M72,98 L72,68 C84,50 136,50 148,68 L148,98 L141,90 L133,98 L125,90 L117,98 L109,90 L101,98 L93,90 L85,98 L77,90 Z"
+            fill="url(#chl-hair)"
+          />
+          <path d="M84,66 Q110,54 136,66" stroke="#ffd688" strokeWidth="3" fill="none" strokeLinecap="round" opacity="0.6" />
+          {/* side locks */}
+          <path d="M70,102 C66,138 70,162 80,176 L90,176 C82,156 80,128 82,102 Z" fill="url(#chl-hair)" />
+          <path d="M150,102 C154,138 150,162 140,176 L130,176 C138,156 140,128 138,102 Z" fill="url(#chl-hair)" />
+          {/* hair pins */}
+          <g fill={CYAN}>
+            <rect x="126" y="72" width="11" height="2.6" rx="1" transform="rotate(-24 131 73)" />
+            <rect x="132" y="78" width="11" height="2.6" rx="1" transform="rotate(-24 137 79)" />
+          </g>
+          <Brows mood={mood} />
+          <EyeGroup cx={93} cy={108} mood={mood} closed={blink} irisFill="url(#chl-iris)" lash="#3a2408" />
+          <EyeGroup cx={123} cy={108} mood={mood} closed={blink} irisFill="url(#chl-iris)" lash="#3a2408" />
+          {/* HUD visor monocle over right eye */}
+          <g>
+            <rect x="110" y="90" width="36" height="32" rx="8" fill="url(#chl-visor)" stroke={CYAN} strokeWidth="1.4" />
+            <g stroke={CYAN} strokeWidth="0.7" opacity="0.5">
+              <path d="M114,98 L142,98" />
+              <path d="M114,105 L140,105" />
+              <path d="M114,112 L138,112" />
+            </g>
+            <path d="M146,98 L166,82" stroke={CYAN} strokeWidth="1.8" />
+            <circle cx="167" cy="82" r="4.6" fill="#14101f" stroke={CYAN} strokeWidth="1.4" />
+            <motion.circle cx="167" cy="82" r="1.8" fill={CYAN} animate={{ opacity: [1, 0.2, 1] }} transition={{ duration: 2, repeat: Infinity }} />
+          </g>
+          <path d="M110,120 l2,3 -4,0 z" fill="#e2b08e" opacity="0.8" />
+          <Mouth mood={mood} talking={talking} />
+          <Blush tint="#ffb300" opacity={0.22} />
+          {/* headset + boom mic */}
+          <path d="M60,84 C72,46 148,46 160,84" stroke="#1c1228" strokeWidth="8" fill="none" />
+          <path d="M60,84 C72,46 148,46 160,84" stroke={AMBER} strokeWidth="1.6" fill="none" opacity="0.6" />
+          <rect x="49" y="84" width="19" height="24" rx="6" fill="#14101f" stroke={AMBER} strokeWidth="1.4" />
+          <path d="M56,106 C70,128 90,136 104,132" stroke="#14101f" strokeWidth="3" fill="none" />
+          <circle cx="106" cy="132" r="4" fill={AMBER} filter="url(#chl-glow)" />
+        </motion.g>
+      </svg>
+    </motion.div>
+  )
+}
+
+/* ================================================================== */
+/* Control grid: BURN & REBUILD · FORCE COMPILE · PURGE HEAP · KEY      */
+/* ================================================================== */
+
+function BurnAndRebuild({
+  mode,
+  onBurn,
+}: {
+  mode: OpMode
+  onBurn: () => void
+}) {
+  const [armed, setArmed] = useState(false)
+  const [exploding, setExploding] = useState(false)
+  const busy = mode !== 'idle'
+  useEffect(() => {
+    if (!armed || busy) return
+    const id = window.setTimeout(() => setArmed(false), 3200)
+    return () => window.clearTimeout(id)
+  }, [armed, busy])
+
+  const particles = useMemo(
+    () =>
+      Array.from({ length: 16 }, (_, i) => {
+        const angle = (i / 16) * Math.PI * 2 + Math.random() * 0.4
+        const dist = 70 + Math.random() * 80
+        return { dx: Math.cos(angle) * dist, dy: Math.sin(angle) * dist, size: 3 + Math.random() * 5 }
+      }),
+    [],
+  )
+
+  const handleClick = () => {
+    if (busy) return
+    if (!armed) {
+      setArmed(true)
+      return
+    }
+    setArmed(false)
+    setExploding(true)
+    onBurn()
+    window.setTimeout(() => setExploding(false), 900)
+  }
 
   return (
-    <div className="flex min-h-screen flex-col bg-zinc-950 text-zinc-100">
-      <header className="sticky top-0 z-40 border-b border-zinc-800/80 bg-gradient-to-b from-zinc-900 via-zinc-950/95 to-zinc-950/90 backdrop-blur">
-        <div className="mx-auto w-full max-w-7xl px-4 sm:px-6">
-          <div className="flex items-center justify-between gap-4 py-3.5">
-            <div className="flex items-center gap-3">
-              <div className="relative flex size-10 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500 via-rose-500 to-fuchsia-600 shadow-lg shadow-fuchsia-950/40">
-                <span className="font-mono text-base font-bold text-zinc-950">4</span>
-                <span className="absolute -right-0.5 -top-0.5 size-2 animate-ping rounded-full bg-fuchsia-400" />
-              </div>
-              <div>
-                <div className="bg-gradient-to-r from-amber-300 via-rose-300 to-fuchsia-300 bg-clip-text text-base font-bold tracking-tight text-transparent">
-                  THREAD 4
-                </div>
-                <div className="text-[11px] text-zinc-500">
-                  конвейер промпт-батчей · Tsubaki.2 Pro → Yodayo
-                </div>
-              </div>
-            </div>
-            <div className="flex flex-wrap items-center justify-end gap-1.5">
-              {deliveredCount != null ? (
-                <Badge variant="outline" className="gap-1 border-amber-800/50 bg-amber-500/5 text-amber-300">
-                  <Sparkles className="size-3" /> сдано {deliveredCount}
-                </Badge>
-              ) : null}
-              {eventsCount != null ? (
-                <Badge variant="outline" className="gap-1 border-fuchsia-800/50 bg-fuchsia-500/5 text-fuchsia-300">
-                  <ScrollText className="size-3" /> событий {eventsCount}
-                </Badge>
-              ) : null}
-              <Badge
-                variant="outline"
-                className={cn(
-                  'gap-1',
-                  chain?.ok
-                    ? 'border-emerald-800/50 bg-emerald-500/5 text-emerald-300'
-                    : 'border-rose-800/50 bg-rose-500/5 text-rose-300'
-                )}
+    <div className="relative">
+      <motion.button
+        type="button"
+        onClick={handleClick}
+        disabled={busy}
+        whileHover={!busy ? { scale: 1.015 } : undefined}
+        whileTap={!busy ? { scale: 0.985 } : undefined}
+        className={cn(
+          'group relative block w-full overflow-hidden rounded-xl p-px text-left transition-transform',
+          busy && 'cursor-not-allowed opacity-60',
+        )}
+        aria-label="Burn and rebuild — full chain re-audit"
+      >
+        <span className={cn('nd-conic-ring', armed && '!animate-[nd-angle-spin_0.8s_linear_infinite]')} style={{ borderRadius: '0.8rem' }} aria-hidden />
+        <span className="relative z-10 block rounded-[0.8rem] bg-[#0a0510]/95 px-4 py-5 backdrop-blur-sm">
+          <span className="flex items-center gap-3">
+            <motion.span
+              className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-[#ff2d78]/50 bg-[#ff2d78]/10"
+              animate={armed ? { rotate: [0, -12, 12, 0], scale: [1, 1.12, 1] } : { scale: [1, 1.05, 1] }}
+              transition={{ duration: armed ? 0.45 : 2.6, repeat: Infinity }}
+              aria-hidden
+            >
+              <Flame size={22} className="text-[#ff2d78]" />
+            </motion.span>
+            <span className="min-w-0">
+              <span className="font-display block text-[15px] font-bold uppercase tracking-[0.14em] text-[#ff2d78] nd-glow-magenta">
+                {armed ? 'CONFIRM IGNITION' : 'BURN & REBUILD'}
+              </span>
+              <span className="font-term mt-1 block text-[9.5px] uppercase tracking-[0.14em] text-zinc-500">
+                {mode === 'burning'
+                  ? 'RE-HASHING GENESIS → HEAD …'
+                  : armed
+                    ? 'CLICK AGAIN · 3s SAFETY WINDOW'
+                    : 'FULL CHAIN RE-AUDIT · READ-ONLY'}
+              </span>
+            </span>
+            <span className="ml-auto font-term shrink-0 text-right text-[9px] leading-relaxed text-zinc-600">
+              <span className="block text-amber-300/80">▲ IGNITE</span>
+              <span className="block">SHA-256</span>
+            </span>
+          </span>
+          {/* danger stripes */}
+          <span
+            className="pointer-events-none absolute inset-x-0 bottom-0 h-1.5 opacity-70"
+            style={{
+              background: `repeating-linear-gradient(-45deg, ${DANGER} 0 8px, #140a0f 8px 16px)`,
+            }}
+            aria-hidden
+          />
+        </span>
+      </motion.button>
+      {/* explosion particles */}
+      {exploding && (
+        <span className="pointer-events-none absolute left-1/2 top-1/2 z-20" aria-hidden>
+          {particles.map((p, i) => (
+            <motion.span
+              key={i}
+              className="absolute rounded-full"
+              style={{ width: p.size, height: p.size, background: i % 3 === 0 ? AMBER : i % 3 === 1 ? DANGER : MAGENTA, boxShadow: `0 0 10px currentColor` }}
+              initial={{ x: 0, y: 0, opacity: 1, scale: 1 }}
+              animate={{ x: p.dx, y: p.dy, opacity: 0, scale: 0.2 }}
+              transition={{ duration: 0.75, ease: 'easeOut' }}
+            />
+          ))}
+        </span>
+      )}
+    </div>
+  )
+}
+
+function RackLeds({ active }: { active: boolean }) {
+  const [step, setStep] = useState(-1)
+  useEffect(() => {
+    if (!active) return
+    const timers = [0, 220, 440, 660].map((delay, i) => window.setTimeout(() => setStep(i), delay))
+    return () => timers.forEach((t) => window.clearTimeout(t))
+  }, [active])
+  const shown = active ? step : -1
+  return (
+    <span className="inline-flex items-center gap-1" aria-hidden>
+      {[0, 1, 2].map((i) => (
+        <motion.span
+          key={i}
+          className="inline-block h-1.5 w-1.5 rounded-full"
+          style={{ background: i <= shown ? AMBER : '#3f3f46', boxShadow: i <= shown ? `0 0 8px ${AMBER}` : undefined }}
+          animate={i === shown ? { opacity: [1, 0.3, 1] } : undefined}
+          transition={{ duration: 0.3, repeat: Infinity }}
+        />
+      ))}
+    </span>
+  )
+}
+
+function CompileControl({
+  mode,
+  theme,
+  setTheme,
+  ocThemes,
+  setOcTheme,
+  onCompile,
+}: {
+  mode: OpMode
+  theme: string
+  setTheme: (v: string) => void
+  ocThemes: string[]
+  setOcTheme: (i: number, v: string) => void
+  onCompile: () => void
+}) {
+  const [flash, setFlash] = useState(false)
+  const busy = mode !== 'idle'
+  const compiling = mode === 'compiling'
+
+  return (
+    <div className="relative rounded-xl border border-amber-400/25 bg-gradient-to-b from-amber-400/[0.05] to-transparent p-3.5">
+      <label htmlFor="t4-theme" className="font-term mb-1.5 flex items-center gap-1.5 text-[9px] uppercase tracking-[0.18em] text-zinc-500">
+        <Zap size={11} className="text-amber-300" /> batch theme · 1–120 chars
+      </label>
+      <Input
+        id="t4-theme"
+        value={theme}
+        maxLength={120}
+        disabled={busy}
+        onChange={(e) => setTheme(e.target.value)}
+        placeholder="e.g. NEON REQUIEM"
+        className="font-term h-9 rounded-lg border-amber-400/30 bg-black/40 text-[12px] text-amber-100 placeholder:text-zinc-600 caret-[#ffb300] focus-visible:ring-[#ffb300]/40"
+      />
+      <label className="font-term mb-1.5 mt-2.5 flex items-center gap-1.5 text-[9px] uppercase tracking-[0.18em] text-zinc-500">
+        <Sparkles size={11} className="text-amber-300/80" /> OC slot themes · ≥1 required · auto R+ · cycles to 3 slots
+      </label>
+      <div className="grid grid-cols-3 gap-1.5">
+        {[0, 1, 2].map((i) => (
+          <Input
+            key={i}
+            value={ocThemes[i] ?? ''}
+            maxLength={120}
+            disabled={busy}
+            onChange={(e) => setOcTheme(i, e.target.value)}
+            placeholder={`OC·${i + 1}`}
+            aria-label={`OC slot theme ${i + 1}`}
+            className="font-term h-8 rounded-lg border-white/15 bg-black/40 px-2 text-[11px] text-amber-100 placeholder:text-zinc-600 focus-visible:ring-[#ffb300]/30"
+          />
+        ))}
+      </div>
+      <motion.button
+        type="button"
+        onClick={() => {
+          setFlash(true)
+          window.setTimeout(() => setFlash(false), 320)
+          onCompile()
+        }}
+        disabled={busy}
+        whileTap={!busy ? { scale: 0.96, y: 1.5 } : undefined}
+        whileHover={!busy ? { boxShadow: `0 0 26px ${AMBER}44` } : undefined}
+        className={cn(
+          'font-display relative mt-2.5 flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-lg border-2 border-amber-400/60 bg-amber-400/10 px-4 py-3 text-[13px] font-bold uppercase tracking-[0.16em] text-amber-300 transition-colors',
+          busy ? 'cursor-not-allowed opacity-70' : 'hover:bg-amber-400/20 active:bg-amber-400/25',
+        )}
+        aria-label="Force compile — run the 24 gates"
+      >
+        <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent" aria-hidden style={{ transform: 'skewX(-18deg)' }} />
+        {flash && (
+          <motion.span
+            className="absolute inset-0 bg-white/50"
+            initial={{ opacity: 0.9 }}
+            animate={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            aria-hidden
+          />
+        )}
+        {compiling ? (
+          <>
+            <RefreshCw size={15} className="animate-spin" /> RACKING GATES…
+          </>
+        ) : (
+          <>
+            <Zap size={15} /> FORCE COMPILE
+          </>
+        )}
+        <RackLeds active={compiling} />
+      </motion.button>
+      <p className="font-term mt-1.5 text-[8.5px] uppercase tracking-[0.14em] text-zinc-600">
+        POST /v1/compile · 24-slot plan · 5 planning gates · oc×1–3 · commander-key gated
+      </p>
+    </div>
+  )
+}
+
+function PurgeHeapControl({ mode, onPurge, lastPurged }: { mode: OpMode; onPurge: () => void; lastPurged: number | null }) {
+  const [flash, setFlash] = useState(false)
+  const busy = mode !== 'idle'
+  return (
+    <motion.button
+      type="button"
+      onClick={() => {
+        setFlash(true)
+        window.setTimeout(() => setFlash(false), 280)
+        onPurge()
+      }}
+      disabled={busy}
+      whileTap={!busy ? { scale: 0.96, y: 1.5 } : undefined}
+      whileHover={!busy ? { boxShadow: '0 0 26px rgba(0,229,255,0.25)' } : undefined}
+      className={cn(
+        'font-display relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-lg border-2 border-cyan-400/45 bg-cyan-400/[0.06] px-4 py-3 text-[12px] font-bold uppercase tracking-[0.16em] text-cyan-300',
+        busy ? 'cursor-not-allowed opacity-70' : 'hover:bg-cyan-400/15 active:bg-cyan-400/20',
+      )}
+      aria-label="Purge heap — flush local telemetry buffer"
+    >
+      {flash && (
+        <motion.span className="absolute inset-0 bg-white/40" initial={{ opacity: 0.8 }} animate={{ opacity: 0 }} transition={{ duration: 0.26 }} aria-hidden />
+      )}
+      {mode === 'purging' ? (
+        <>
+          <motion.span animate={{ rotate: 360 }} transition={{ duration: 0.8, repeat: Infinity, ease: 'linear' }} className="inline-flex" aria-hidden>
+            <Trash2 size={14} />
+          </motion.span>
+          FLUSHING…
+        </>
+      ) : (
+        <>
+          <Trash2 size={14} /> PURGE HEAP
+        </>
+      )}
+      {lastPurged != null && <span className="font-term text-[9px] text-zinc-500">−{lastPurged}</span>}
+    </motion.button>
+  )
+}
+
+function CommanderKeyPanel() {
+  const [keyInput, setKeyInput] = useState('')
+  const [stored, setStored] = useState(false)
+  const [reveal, setReveal] = useState(false)
+  const [probe, setProbe] = useState<'none' | 'ok' | 'bad' | 'checking'>('none')
+  useEffect(() => {
+    const id = window.setTimeout(() => setStored(getCommanderKey() !== ''), 0)
+    return () => window.clearTimeout(id)
+  }, [])
+  const doSet = async () => {
+    const v = keyInput.trim()
+    if (v === '') return
+    setCommanderKey(v)
+    setStored(true)
+    setProbe('checking')
+    try {
+      const r = await probeCommanderKey()
+      setProbe(r.keyOk ? 'ok' : 'bad')
+      toast({
+        title: r.keyOk ? 'COMMANDER KEY ACCEPTED' : 'KEY REJECTED',
+        description: r.keyOk ? 'Mutations unlocked — live compile armed.' : 'Server lock did not match this key.',
+        variant: r.keyOk ? 'default' : 'destructive',
+      })
+    } catch {
+      setProbe('bad')
+      toast({ title: 'PROBE FAILED', description: 'Key lock unreachable (engine offline?).', variant: 'destructive' })
+    }
+  }
+  const doClear = () => {
+    clearCommanderKey()
+    setStored(false)
+    setKeyInput('')
+    setProbe('none')
+    toast({ title: 'KEY CLEARED', description: 'Browser-side commander key removed.' })
+  }
+  return (
+    <div className="rounded-xl border border-white/10 bg-white/[0.02] p-3.5">
+      <div className="mb-2 flex items-center gap-2">
+        <KeyRound size={13} className="text-zinc-400" />
+        <span className="font-display text-[10px] font-semibold uppercase tracking-[0.18em] text-zinc-300">COMMANDER KEY</span>
+        <span className="ml-auto flex items-center gap-2">
+          <Led state={stored ? (probe === 'ok' ? 'ok' : probe === 'bad' ? 'err' : probe === 'checking' ? 'run' : 'warn') : 'off'} label={stored ? 'stored' : 'empty'} />
+        </span>
+      </div>
+      <div className="flex gap-2">
+        <div className="relative flex-1">
+          <Input
+            type={reveal ? 'text' : 'password'}
+            value={keyInput}
+            onChange={(e) => setKeyInput(e.target.value)}
+            placeholder="x-commander-key"
+            className="font-term h-8 rounded-lg border-white/15 bg-black/40 pr-8 text-[11px] text-zinc-200 placeholder:text-zinc-600 focus-visible:ring-white/20"
+            aria-label="Commander key input"
+          />
+          <button
+            type="button"
+            onClick={() => setReveal((r) => !r)}
+            className="absolute right-2 top-1/2 -translate-y-1/2 text-zinc-600 hover:text-zinc-300"
+            aria-label={reveal ? 'Hide key' : 'Reveal key'}
+          >
+            {reveal ? <EyeOff size={13} /> : <Eye size={13} />}
+          </button>
+        </div>
+        <button
+          type="button"
+          onClick={doSet}
+          className="font-display rounded-lg border border-emerald-400/40 bg-emerald-400/10 px-3 text-[10px] font-bold uppercase tracking-widest text-emerald-300 hover:bg-emerald-400/20"
+        >
+          SET
+        </button>
+        <button
+          type="button"
+          onClick={doClear}
+          disabled={!stored}
+          className="font-display rounded-lg border border-red-400/40 bg-red-400/10 px-3 text-[10px] font-bold uppercase tracking-widest text-red-300 hover:bg-red-400/20 disabled:opacity-40"
+        >
+          CLR
+        </button>
+      </div>
+      <p className="font-term mt-1.5 text-[8.5px] leading-relaxed text-zinc-600">
+        Stored in localStorage only; attached as x-commander-key header on mutations. Required for FORCE COMPILE.
+      </p>
+    </div>
+  )
+}
+
+/* ================================================================== */
+/* Chronicle terminal (JSONL stream visualizer)                        */
+/* ================================================================== */
+
+const EVENT_COLORS: Record<string, string> = {
+  'era.born': 'text-[#ff2d78]',
+  'spec.imported': 'text-cyan-300',
+  'law.ratified': 'text-amber-300',
+  'law.amended': 'text-amber-300',
+  'batch.compiled': 'text-[#ff2d78] font-semibold',
+  'batch.delivered': 'text-emerald-300 font-semibold',
+  'batch.void': 'text-red-400 font-semibold',
+  'gate.run': 'text-amber-300',
+  'fixpass.paid': 'text-amber-300',
+  'scribe.drafted': 'text-cyan-300',
+  'render.verdict': 'text-cyan-300',
+  'taste.datum': 'text-zinc-300',
+  'experiment.logged': 'text-amber-300',
+  'oc.appeared': 'text-[#ff2d78]',
+  'external.review': 'text-zinc-300',
+  'debt.paid': 'text-emerald-300',
+  'author.pinned': 'text-[#ff2d78]',
+  'channel.retired': 'text-zinc-400',
+  'scribe.objection': 'text-red-400',
+  'oracle.spoke': 'text-amber-300',
+  note: 'text-zinc-400',
+}
+
+const ChronicleRow = memo(function ChronicleRow({ entry }: { entry: FeedEntry }) {
+  if (entry.kind === 'sys') {
+    const color =
+      entry.level === 'ok' ? 'text-emerald-300/80' : entry.level === 'warn' ? 'text-amber-300/80' : entry.level === 'err' ? 'text-red-400' : 'text-zinc-500'
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 6 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, x: -40, transition: { duration: 0.35 } }}
+        className={cn('font-term px-3 py-1 text-[10.5px] leading-relaxed', color)}
+      >
+        <span className="text-zinc-700">[{fmtTime(new Date(entry.at).toISOString())}]</span>{' '}
+        <span className="text-cyan-500/80">SYS</span> <span className="text-zinc-600">▸</span> {entry.text}
+      </motion.div>
+    )
+  }
+  const ev = entry.ev
+  const ok = entry.link === 'ok'
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 6 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, x: -40, transition: { duration: 0.35 } }}
+      className={cn(
+        'font-term border-b border-white/[0.035] px-3 py-1.5 text-[10.5px] leading-relaxed hover:bg-white/[0.025]',
+        !ok && 'border-l-2 border-red-500/80 bg-red-500/[0.06]',
+      )}
+    >
+      <div className="flex flex-wrap items-baseline gap-x-1.5">
+        <span className="text-zinc-600">[{fmtTime(ev.at)}]</span>
+        <span className="text-zinc-500">#{String(ev.seq).padStart(3, '0')}</span>
+        <span className="text-cyan-300/90">{ev.id}</span>
+        <span className={EVENT_COLORS[ev.type] ?? 'text-[#ff2d78]'}>{ev.type}</span>
+        <span className="text-zinc-600">▸</span>
+        <span className="min-w-0 flex-1 truncate text-zinc-300/90" title={ev.summary}>
+          {ev.summary}
+        </span>
+      </div>
+      <div className="mt-0.5 flex items-center gap-1.5 pl-2">
+        {ok ? (
+          <span className="inline-flex items-center gap-1 text-emerald-400" title="prev-hash linkage verified in this browser">
+            <ShieldCheck size={11} /> <span className="text-[9px] font-bold tracking-wider">LINKED</span>
+          </span>
+        ) : (
+          <span className="nd-red-pulse inline-flex items-center gap-1 rounded border border-red-500/70 px-1 text-red-400" title="prev-hash mismatch — chain broken at this link">
+            <ShieldAlert size={11} /> <span className="text-[9px] font-bold tracking-wider">MISMATCH</span>
+          </span>
+        )}
+        <span className="text-[9px] text-zinc-700">prev:{h8(ev.prev)} → hash:{h8(ev.hash)}</span>
+      </div>
+    </motion.div>
+  )
+})
+
+function ChronicleTerminal({
+  feed,
+  chainLocal,
+  verify,
+  health,
+  mode,
+  filter,
+  setFilter,
+}: {
+  feed: FeedEntry[]
+  chainLocal: { height: number; head: string; broken: number[] }
+  verify: VerifyData | null
+  health: Health
+  mode: OpMode
+  filter: 'all' | 'chain' | 'sys'
+  setFilter: (f: 'all' | 'chain' | 'sys') => void
+}) {
+  const [paused, setPaused] = useState(false)
+  const [hovered, setHovered] = useState(false)
+  const scrollRef = useRef<HTMLDivElement | null>(null)
+  const visible = useMemo(() => (filter === 'all' ? feed : feed.filter((f) => f.kind === (filter === 'chain' ? 'chain' : 'sys'))), [feed, filter])
+
+  useEffect(() => {
+    const el = scrollRef.current
+    if (el && !paused && !hovered) el.scrollTop = el.scrollHeight
+  }, [visible, paused, hovered])
+
+  const chainOk = verify != null ? verify.ok : chainLocal.broken.length === 0
+
+  return (
+    <PanelShell
+      title="LIVE TELEMETRY · chain.jsonl"
+      icon={<TerminalIcon size={13} />}
+      accent="cyan"
+      className="flex flex-col"
+      bodyClassName="flex flex-col p-0"
+      right={
+        <>
+          <Led state={health === 'live' ? 'ok' : 'err'} label={health === 'live' ? 'stream' : 'lost'} />
+          <Led state={chainOk ? 'ok' : 'err'} label={chainOk ? 'sealed' : 'broken'} />
+          <button
+            type="button"
+            onClick={() => setPaused((p) => !p)}
+            className={cn(
+              'rounded border px-1.5 py-0.5 text-zinc-500 transition-colors',
+              paused ? 'border-amber-400/60 text-amber-300' : 'border-white/15 hover:border-white/30 hover:text-zinc-300',
+            )}
+            aria-label={paused ? 'Resume auto-scroll' : 'Pause auto-scroll'}
+          >
+            {paused ? <Play size={11} /> : <Pause size={11} />}
+          </button>
+        </>
+      }
+    >
+      {/* chain summary bar */}
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 border-b border-white/[0.06] px-3 py-2">
+        <span className="font-term text-[9px] uppercase tracking-[0.14em] text-zinc-500">
+          LINKS <span className="font-bold text-zinc-200 tabular-nums">{chainLocal.height}</span>
+        </span>
+        <span className="font-term text-[9px] uppercase tracking-[0.14em] text-zinc-500">
+          HEAD <span className="font-bold text-cyan-300">{h8(chainLocal.head)}</span>
+        </span>
+        <span className="font-term text-[9px] uppercase tracking-[0.14em] text-zinc-500">
+          LOCAL CHECK{' '}
+          <span className={cn('font-bold', chainLocal.broken.length === 0 ? 'text-emerald-400' : 'text-red-400')}>
+            {chainLocal.broken.length === 0 ? '0 BROKEN' : `BROKEN @ ${chainLocal.broken.slice(0, 3).join(',')}`}
+          </span>
+        </span>
+        {verify != null && (
+          <span className="font-term text-[9px] uppercase tracking-[0.14em] text-zinc-500">
+            ENGINE AUDIT <span className={cn('font-bold', verify.ok ? 'text-emerald-400' : 'text-red-400')}>{verify.ok ? 'SEALED ✓' : 'PROBLEMS ✗'}</span>
+          </span>
+        )}
+        {mode !== 'idle' && (
+          <span className="font-term ml-auto text-[9px] uppercase tracking-[0.2em] text-[#ff2d78] nd-glow-magenta">
+            {mode === 'burning' ? '◆ BURN SWEEP ACTIVE' : mode === 'compiling' ? '◆ COMPILING' : '◆ PURGING'}
+          </span>
+        )}
+      </div>
+      {/* filter chips */}
+      <div className="flex items-center gap-1.5 px-3 py-1.5">
+        {(['all', 'chain', 'sys'] as const).map((f) => (
+          <button
+            key={f}
+            type="button"
+            onClick={() => setFilter(f)}
+            className={cn(
+              'font-term rounded px-2 py-0.5 text-[9px] uppercase tracking-[0.16em] transition-colors',
+              filter === f ? 'border border-cyan-400/50 bg-cyan-400/10 text-cyan-300' : 'border border-white/10 text-zinc-500 hover:text-zinc-300',
+            )}
+          >
+            {f === 'all' ? '◉ ALL' : f === 'chain' ? '⛓ CHAIN' : '▤ SYS'}
+          </button>
+        ))}
+        <span className="font-term ml-auto text-[9px] text-zinc-600">{visible.length} rows buffered</span>
+      </div>
+      {/* the stream */}
+      <div
+        ref={scrollRef}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        className="nd-term-scroll relative h-[380px] overflow-y-auto bg-black/45 sm:h-[440px] lg:h-[520px]"
+        role="log"
+        aria-label="Chronicle event stream"
+      >
+        <AnimatePresence initial={false}>
+          {visible.map((entry) => (
+            <ChronicleRow key={entry.uid} entry={entry} />
+          ))}
+        </AnimatePresence>
+        {visible.length === 0 && (
+          <p className="font-term p-4 text-[11px] text-zinc-600">{'// stream empty — awaiting chronicle sync…'}</p>
+        )}
+        <div className="font-term sticky bottom-0 flex items-center gap-1.5 border-t border-white/[0.06] bg-[#05070d]/90 px-3 py-1.5 text-[10.5px] text-zinc-500 backdrop-blur-sm">
+          <span className="text-[#ff2d78]">operator@central-dogma</span>:<span className="text-cyan-400">~</span>${' '}
+          <span className="nd-caret text-zinc-300">▌</span>
+        </div>
+      </div>
+    </PanelShell>
+  )
+}
+
+/* ================================================================== */
+/* Rotation window — 3-slot locked palettes                            */
+/* ================================================================== */
+
+function RotationWindow({
+  cards,
+  nextSlug,
+  dropSlug,
+  loading,
+}: {
+  cards: RotationCardData[]
+  nextSlug: string
+  dropSlug: string
+  loading: boolean
+}) {
+  const union = useMemo(() => new Set(cards.flatMap((c) => c.palettes.map((p) => p.id))), [cards])
+  const free = Math.max(0, PALETTE_FUND - union.size)
+  return (
+    <PanelShell
+      title="ROTATION WINDOW · FATIGUE LOCK"
+      icon={<Lock size={13} />}
+      accent="amber"
+      right={
+        <span className="font-term text-[9px] uppercase tracking-[0.12em] text-zinc-500">
+          FUND <span className="text-zinc-300 tabular-nums">{PALETTE_FUND}</span> · ∪WIN{' '}
+          <span className="text-amber-300 tabular-nums">{union.size || '—'}</span> · FREE{' '}
+          <span className="text-emerald-400 tabular-nums">{union.size === 0 ? '—' : free}</span>
+        </span>
+      }
+    >
+      {loading && cards.length === 0 ? (
+        <div className="space-y-2">
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="h-20 animate-pulse rounded-lg border border-white/5 bg-white/[0.02]" />
+          ))}
+        </div>
+      ) : (
+        <>
+          <div className="grid gap-2 md:grid-cols-3">
+            {cards.map((c, i) => (
+              <motion.div
+                key={c.slug}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.08 }}
+                className="relative rounded-lg border border-amber-400/25 bg-gradient-to-b from-amber-400/[0.05] to-transparent p-2.5"
               >
-                <span
-                  className={cn(
-                    'size-1.5 rounded-full',
-                    chain?.ok ? 'animate-pulse bg-emerald-500' : 'bg-rose-500'
-                  )}
-                />
-                {chain?.ok ? 'цепь цела' : 'цепь!'}
-              </Badge>
+                <div className="flex items-center gap-1.5">
+                  <span className="font-display rounded bg-amber-400/15 px-1.5 py-0.5 text-[9px] font-bold text-amber-300">W-{i + 1}</span>
+                  <span className="font-display text-[11px] font-bold text-zinc-200">{c.slug}</span>
+                  <span className="ml-auto inline-flex items-center gap-1 text-[8px] uppercase tracking-widest text-emerald-400">
+                    <Lock size={9} /> LOCKED
+                  </span>
+                </div>
+                <p className="font-term mt-1 truncate text-[10px] text-zinc-400" title={c.title}>
+                  «{c.title}»
+                </p>
+                <div className="mt-1.5 flex flex-wrap gap-1">
+                  {c.palettes.slice(0, 8).map((p) => (
+                    <span key={p.id} className="relative" title={`${p.id} · ${p.name}`}>
+                      <span
+                        className="flex h-4 w-7 overflow-hidden rounded-[3px] border border-white/15"
+                        style={{ boxShadow: p.colors[0] ? `0 0 7px ${p.colors[0]}66` : undefined }}
+                      >
+                        {p.colors.slice(0, 3).map((col, j) => (
+                          <span key={j} className="h-full flex-1" style={{ background: col }} />
+                        ))}
+                        {p.colors.length === 0 && <span className="h-full w-full" style={{ background: fallbackColor(p.id) }} />}
+                      </span>
+                    </span>
+                  ))}
+                  {c.palettes.length > 8 && <span className="font-term text-[9px] text-zinc-600">+{c.palettes.length - 8}</span>}
+                </div>
+                <div className="font-term mt-1.5 flex items-center gap-2 text-[8.5px] text-zinc-600">
+                  <span className="text-amber-300/80 tabular-nums">{c.palettes.length} PALETTES</span>
+                  {c.registers.slice(0, 3).map((r) => (
+                    <span key={r.name}>
+                      {r.name}×{r.count}
+                    </span>
+                  ))}
+                </div>
+                <p className="font-term mt-0.5 text-[8px] text-zinc-700">delivered {fmtTime(c.deliveredAt)}</p>
+              </motion.div>
+            ))}
+            {cards.length === 0 && (
+              <p className="font-term col-span-3 p-3 text-[11px] text-zinc-600">{'// no delivered batches in window — engine cold'}</p>
+            )}
+          </div>
+          <p className="font-term mt-2.5 flex flex-wrap items-center gap-1.5 border-t border-white/[0.06] pt-2 text-[9px] uppercase tracking-[0.14em] text-zinc-600">
+            <RefreshCw size={10} className="text-amber-300/70" /> NEXT ROTATION:{' '}
+            <span className="text-amber-300">ON {nextSlug || '—'} DELIVERY</span>
+            {dropSlug != null && dropSlug !== '' && (
+              <>
+                <ChevronRight size={10} /> <span className="text-zinc-500">{dropSlug} UNLOCKS</span>
+              </>
+            )}
+            <span className="ml-auto text-zinc-700">UNION OF LAST 3 DELIVERED</span>
+          </p>
+        </>
+      )}
+    </PanelShell>
+  )
+}
+
+/* ================================================================== */
+/* Gate matrix — 24 slots + planning gates + verdict stamp             */
+/* ================================================================== */
+
+const CELL_STATUS_CLASSES: Record<CellStatus, string> = {
+  standby: 'border-white/10 bg-white/[0.02] text-zinc-600',
+  cycling: 'border-cyan-400/60 bg-cyan-400/10 text-cyan-200 shadow-[0_0_10px_rgba(0,229,255,0.25)]',
+  assigned: 'border-cyan-400/30 bg-cyan-400/[0.05] text-cyan-300/70',
+  sealed: 'border-emerald-400/50 bg-emerald-400/10 text-emerald-300',
+  drift: 'border-amber-400/50 bg-amber-400/10 text-amber-300',
+  void: 'nd-red-pulse border-red-500/60 bg-red-500/10 text-red-400',
+}
+
+function GateMatrix({
+  cells,
+  expCells,
+  planningGates,
+  banner,
+  planSource,
+}: {
+  cells: GateCell[]
+  expCells: GateCell[]
+  planningGates: GateReceiptUI[]
+  banner: Banner | null
+  planSource: string
+}) {
+  const verdictColor =
+    banner == null ? 'text-zinc-500' : banner.verdict === 'clean' ? 'text-emerald-400' : banner.verdict === 'drift' ? 'text-amber-300' : 'text-red-400'
+  const verdictBorder =
+    banner == null
+      ? 'border-white/10'
+      : banner.verdict === 'clean'
+        ? 'border-emerald-400/60'
+        : banner.verdict === 'drift'
+          ? 'border-amber-400/60'
+          : 'border-red-500/70'
+  const verdictIcon = banner == null ? null : banner.verdict === 'clean' ? <Sparkles size={16} /> : banner.verdict === 'drift' ? <AlertTriangle size={16} /> : <ShieldAlert size={16} />
+
+  return (
+    <PanelShell
+      title="24-GATE COMPILER MATRIX"
+      icon={<Layers size={13} />}
+      accent="magenta"
+      right={<span className="font-term text-[9px] text-zinc-600">PLAN SRC: {planSource}</span>}
+    >
+      {/* verdict stamp */}
+      <div className="mb-3 flex min-h-[52px] items-center justify-center">
+        <AnimatePresence mode="wait">
+          {banner == null ? (
+            <motion.p key="awaiting" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="font-term text-[10px] uppercase tracking-[0.25em] text-zinc-600">
+              ▢ AWAITING GATE RUN — MATRIX STANDBY
+            </motion.p>
+          ) : (
+            <motion.div
+              key={banner.id}
+              initial={false}
+              className={cn('nd-stamp flex items-center gap-2.5 rounded-md border-2 px-4 py-2', verdictBorder)}
+              style={{ boxShadow: banner.verdict === 'clean' ? '0 0 26px rgba(0,255,163,0.25)' : banner.verdict === 'drift' ? '0 0 26px rgba(255,179,0,0.25)' : '0 0 26px rgba(255,56,96,0.3)' }}
+            >
+              <span className={verdictColor}>{verdictIcon}</span>
+              <div>
+                <p className={cn('font-display text-[15px] font-black uppercase tracking-[0.14em]', verdictColor)}>{banner.title}</p>
+                <p className="font-term max-w-[280px] truncate text-[9px] text-zinc-500" title={banner.detail}>
+                  {banner.detail}
+                </p>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+      {/* 24 core slots */}
+      <div className="grid grid-cols-6 gap-1 sm:grid-cols-8">
+        {cells.map((c) => (
+          <motion.div
+            key={c.pos}
+            whileHover={{ scale: 1.06 }}
+            title={`GATE ${String(c.pos).padStart(2, '0')} · ${c.kind} · ${c.rating} · ${c.register} · ${c.paletteId}`}
+            className={cn('rounded border px-1 py-1 text-center transition-colors', CELL_STATUS_CLASSES[c.status])}
+          >
+            <p className="font-display text-[10px] font-bold tabular-nums">{String(c.pos).padStart(2, '0')}</p>
+            <p className="text-[7.5px] uppercase tracking-wider opacity-80">{c.kind}</p>
+            <p className="font-term text-[7.5px] opacity-80">{c.paletteId || '·'}</p>
+          </motion.div>
+        ))}
+      </div>
+      {/* EXP overlay strip */}
+      {expCells.length > 0 && (
+        <div className="mt-1.5 grid grid-cols-8 gap-1">
+          {expCells.map((c) => (
+            <div
+              key={c.pos}
+              title={`EXP ${c.pos} · hypothesis slot · ${c.paletteId}`}
+              className={cn('rounded border px-1 py-0.5 text-center', CELL_STATUS_CLASSES[c.status])}
+            >
+              <p className="font-term text-[7px] uppercase">E{c.pos - 24}</p>
+              <p className="font-term text-[7px] opacity-80">{c.paletteId || '·'}</p>
+            </div>
+          ))}
+        </div>
+      )}
+      {/* planning gates */}
+      <div className="mt-3 border-t border-white/[0.06] pt-2.5">
+        <p className="font-term mb-1.5 text-[9px] uppercase tracking-[0.18em] text-zinc-600">PLANNING GATES · HARD / WARN / ADVISORY</p>
+        <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-5">
+          {planningGates.map((g) => {
+            const cls =
+              g.verdict === 'PASS'
+                ? 'border-emerald-400/50 text-emerald-300'
+                : g.verdict === 'WARN'
+                  ? 'border-amber-400/60 text-amber-300'
+                  : g.verdict === 'FAIL'
+                    ? 'nd-red-pulse border-red-500/70 text-red-400'
+                    : g.verdict === 'RUN'
+                      ? 'border-cyan-400/50 text-cyan-300'
+                      : 'border-white/10 text-zinc-600'
+            return (
+              <div key={g.gate} className={cn('rounded border bg-white/[0.02] px-1.5 py-1 text-center', cls)} title={g.findings.join(' · ') || g.gate}>
+                <p className="font-term text-[9px] uppercase tracking-wider">{g.gate}</p>
+                <p className="font-display text-[10px] font-bold">{g.verdict}</p>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+    </PanelShell>
+  )
+}
+
+/* ================================================================== */
+/* Operator section — Tsubaki (gate controller) + Charlie (auditor)    */
+/* ================================================================== */
+
+function SpeechBubble({ text, tone }: { text: string; tone: BannerVerdict | 'idle' }) {
+  const border =
+    tone === 'clean' ? 'border-emerald-400/50' : tone === 'drift' ? 'border-amber-400/50' : tone === 'void' ? 'border-red-500/60' : 'border-[#ff2d78]/40'
+  const glow =
+    tone === 'clean' ? 'rgba(0,255,163,0.12)' : tone === 'drift' ? 'rgba(255,179,0,0.12)' : tone === 'void' ? 'rgba(255,56,96,0.14)' : 'rgba(255,45,120,0.12)'
+  return (
+    <div className={cn('relative rounded-xl border bg-white/[0.03] p-3 backdrop-blur-md', border)} style={{ boxShadow: `0 0 22px ${glow}` }}>
+      <span className={cn('absolute -left-1.5 top-5 h-3 w-3 rotate-45 border-b border-l', border)} style={{ background: '#0a0510' }} aria-hidden />
+      <Typewriter text={text} className="font-term text-[11px] leading-relaxed text-zinc-200" />
+    </div>
+  )
+}
+
+function OperatorSection({
+  mood,
+  line,
+  gateSummary,
+}: {
+  mood: MascotMood
+  line: string
+  gateSummary: { sealed: number; drift: number; void: number; standby: number }
+}) {
+  const [talking, setTalking] = useState(false)
+  useEffect(() => {
+    const t1 = window.setTimeout(() => setTalking(true), 0)
+    const t2 = window.setTimeout(() => setTalking(false), 1600)
+    return () => {
+      window.clearTimeout(t1)
+      window.clearTimeout(t2)
+    }
+  }, [line])
+  const moodColor =
+    mood === 'happy' ? 'text-emerald-400' : mood === 'shock' ? 'text-red-400' : mood === 'concerned' ? 'text-amber-300' : mood === 'focus' ? 'text-cyan-300' : mood === 'sleep' ? 'text-zinc-500' : 'text-[#ff2d78]'
+  return (
+    <PanelShell
+      title="SYSTEM ASSISTANT · TSUBAKI-CHAN"
+      icon={<Radio size={13} />}
+      accent="magenta"
+      right={<Led state={mood === 'sleep' ? 'off' : 'run'} label={mood} />}
+    >
+      <div className="flex flex-col items-center gap-3 sm:flex-row sm:items-start">
+        <div className="shrink-0">
+          <TsubakiMascot mood={mood} talking={talking} />
+          <p className={cn('font-term mt-1 text-center text-[11px]', moodColor)}>{ASCII_FACES[mood]}</p>
+        </div>
+        <div className="min-w-0 flex-1 space-y-2.5">
+          <SpeechBubble text={line} tone={mood === 'happy' ? 'clean' : mood === 'shock' ? 'void' : mood === 'concerned' ? 'drift' : 'idle'} />
+          <div className="grid grid-cols-4 gap-1.5">
+            <div className="rounded border border-emerald-400/30 bg-emerald-400/[0.05] px-1.5 py-1 text-center">
+              <p className="font-display text-[13px] font-bold tabular-nums text-emerald-300">{gateSummary.sealed}</p>
+              <p className="font-term text-[7.5px] uppercase tracking-widest text-zinc-600">sealed</p>
+            </div>
+            <div className="rounded border border-amber-400/30 bg-amber-400/[0.05] px-1.5 py-1 text-center">
+              <p className="font-display text-[13px] font-bold tabular-nums text-amber-300">{gateSummary.drift}</p>
+              <p className="font-term text-[7.5px] uppercase tracking-widest text-zinc-600">drift</p>
+            </div>
+            <div className="rounded border border-red-500/40 bg-red-500/[0.05] px-1.5 py-1 text-center">
+              <p className="font-display text-[13px] font-bold tabular-nums text-red-400">{gateSummary.void}</p>
+              <p className="font-term text-[7.5px] uppercase tracking-widest text-zinc-600">void</p>
+            </div>
+            <div className="rounded border border-white/10 bg-white/[0.02] px-1.5 py-1 text-center">
+              <p className="font-display text-[13px] font-bold tabular-nums text-zinc-400">{gateSummary.standby}</p>
+              <p className="font-term text-[7.5px] uppercase tracking-widest text-zinc-600">standby</p>
             </div>
           </div>
-          <ScrollArea className="whitespace-nowrap pb-px">
-            <div className="flex gap-1 pb-2" role="tablist" aria-label="Разделы мастерской" onKeyDown={onTabKey}>
-              {TABS.map((t) => (
-                <button
-                  key={t.id}
-                  id={`t4-tab-${t.id}`}
-                  role="tab"
-                  aria-selected={tab === t.id}
-                  aria-controls="t4-panel"
-                  tabIndex={tab === t.id ? 0 : -1}
-                  onClick={() => setTab(t.id)}
-                  className={cn(
-                    'flex shrink-0 items-center gap-1.5 rounded-md border-b-2 px-3 py-1.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-500/60',
-                    tab === t.id
-                      ? 'border-fuchsia-500 text-amber-300'
-                      : 'border-transparent text-zinc-500 hover:text-zinc-300'
-                  )}
-                >
-                  {t.icon}
-                  {t.label}
-                </button>
-              ))}
-            </div>
-            <ScrollBar orientation="horizontal" className="h-1" />
-          </ScrollArea>
+          <p className="font-term text-[8.5px] leading-relaxed text-zinc-600">
+            COMPILER GATE CONTROLLER — reacts to the 24-gate verification: CLEAN RUN / DRIFT DETECTED / VOID DETECTED.
+          </p>
         </div>
-        {/* нить: анимированная градиентная нить под шапкой — пряжа треда */}
-        <div className="h-[2px] w-full overflow-hidden">
-          <div className="h-full w-1/3 animate-[thread-slide_6s_linear_infinite] bg-gradient-to-r from-transparent via-fuchsia-500 to-transparent" />
-        </div>
-      </header>
+      </div>
+    </PanelShell>
+  )
+}
 
-      <main
-        id="t4-panel"
-        className="mx-auto w-full max-w-7xl flex-1 px-4 py-6 sm:px-6"
-        aria-labelledby={`t4-tab-${tab}`}
+function CharlieCard({ mood, line, verify, chainLocal }: { mood: MascotMood; line: string; verify: VerifyData | null; chainLocal: { height: number; head: string; broken: number[] } }) {
+  const [talking, setTalking] = useState(false)
+  useEffect(() => {
+    const t1 = window.setTimeout(() => setTalking(true), 0)
+    const t2 = window.setTimeout(() => setTalking(false), 1400)
+    return () => {
+      window.clearTimeout(t1)
+      window.clearTimeout(t2)
+    }
+  }, [line])
+  return (
+    <PanelShell
+      title="CHRONICLE AUDITOR · CHARLIE-CHAN"
+      icon={<Fingerprint size={13} />}
+      accent="amber"
+      right={<Led state={verify == null ? 'off' : verify.ok ? 'ok' : 'err'} label="audit" />}
+    >
+      <div className="flex flex-col items-center gap-3 sm:flex-row sm:items-start">
+        <div className="shrink-0">
+          <CharlieMascot mood={mood} talking={talking} />
+          <p className="font-term mt-1 text-center text-[10px] text-amber-300/80">{ASCII_FACES[mood]}</p>
+        </div>
+        <div className="min-w-0 flex-1 space-y-2">
+          <div className="rounded-xl border border-amber-400/30 bg-white/[0.03] p-2.5 backdrop-blur-md">
+            <Typewriter text={line} className="font-term text-[10.5px] leading-relaxed text-zinc-300" speed={11} />
+          </div>
+          <div className="font-term space-y-0.5 text-[9px] text-zinc-600">
+            <p>
+              LINKS VERIFIED <span className="tabular-nums text-zinc-300">{verify ? verify.events : chainLocal.height}</span> · HEAD{' '}
+              <span className="text-cyan-300">{h8(verify ? verify.head : chainLocal.head)}</span>
+            </p>
+            <p>
+              ENGINE AUDIT:{' '}
+              <span className={verify == null ? 'text-zinc-500' : verify.ok ? 'text-emerald-400' : 'text-red-400'}>
+                {verify == null ? 'PENDING' : verify.ok ? 'INTACT — no hand-edits detected' : verify.problems.slice(0, 2).join(' · ')}
+              </span>
+            </p>
+            <p>LOCAL LINK-CHECK: {chainLocal.broken.length === 0 ? <span className="text-emerald-400">ALL PREV→HASH LINKS VALID</span> : <span className="text-red-400">BROKEN @ {chainLocal.broken.join(', ')}</span>}</p>
+          </div>
+        </div>
+      </div>
+    </PanelShell>
+  )
+}
+
+/* ================================================================== */
+/* Footer                                                              */
+/* ================================================================== */
+
+function FooterBar({ stats, chainLocal, feed }: { stats: EngineStateData | null; chainLocal: { head: string }; feed: FeedEntry[] }) {
+  const ticker = useMemo(() => {
+    const chainSummaries = feed.filter((f) => f.kind === 'chain').slice(-6).map((f) => (f.kind === 'chain' ? `#${f.ev.seq} ${f.ev.type} · ${f.ev.summary.slice(0, 70)}` : ''))
+    if (chainSummaries.length === 0) return ['chronicle sync in progress…']
+    return [...chainSummaries, ...chainSummaries]
+  }, [feed])
+  return (
+    <footer className="relative z-10 mt-auto border-t border-white/10 bg-[#05070d]/85 backdrop-blur-xl">
+      <div className="mx-auto flex w-full max-w-[1680px] flex-wrap items-center gap-x-4 gap-y-1 px-3 py-2 sm:px-6">
+        <span className="font-term text-[9.5px] uppercase tracking-[0.14em] text-zinc-600">
+          THREAD-4 ENGINE <span className="text-zinc-400">RPC 127.0.0.1:3200</span>
+        </span>
+        <span className="font-term text-[9.5px] uppercase tracking-[0.14em] text-zinc-600">
+          CANON <span className="text-zinc-400">{stats ? stats.canon : '—'}</span>
+        </span>
+        <span className="font-term hidden text-[9.5px] uppercase tracking-[0.14em] text-zinc-600 md:inline">
+          NEXT SLUG <span className="text-amber-300">{stats ? stats.nextSlug : '—'}</span>
+        </span>
+        <div className="relative hidden min-w-0 flex-1 overflow-hidden lg:block" aria-hidden>
+          <div className="nd-marquee whitespace-nowrap">
+            {ticker.map((t, i) => (
+              <span key={i} className="font-term mr-10 text-[9px] text-zinc-600">
+                {t}
+              </span>
+            ))}
+          </div>
+          <div className="pointer-events-none absolute inset-y-0 left-0 w-12 bg-gradient-to-r from-[#05070d] to-transparent" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-[#05070d] to-transparent" />
+        </div>
+        <span className="font-term ml-auto text-[9.5px] uppercase tracking-[0.14em] text-zinc-600">
+          OPERATORS: <span className="text-[#ff2d78]">TSUBAKI-CHAN</span> · <span className="text-amber-300">CHARLIE-CHAN</span>
+        </span>
+        <span className="font-term text-[9.5px] uppercase tracking-[0.14em] text-zinc-700">
+          CHAIN HEAD <span className="text-cyan-400">{h8(chainLocal.head)}</span>
+        </span>
+      </div>
+    </footer>
+  )
+}
+
+/* ================================================================== */
+/* Page — orchestration                                                */
+/* ================================================================== */
+
+function planSlotsToCells(plan: unknown): { cells: GateCell[]; expCells: GateCell[] } {
+  const slots = asArray(asRecord(plan).slots).map((s) => {
+    const r = asRecord(s)
+    return {
+      position: typeof r.position === 'number' ? r.position : 0,
+      kind: asStr(r.kind) || 'MAIN',
+      rating: asStr(r.rating) || '—',
+      register: asStr(r.register) || '—',
+      paletteId: asStr(r.paletteId) || '',
+    }
+  })
+  const cells: GateCell[] = []
+  const expCells: GateCell[] = []
+  for (const s of slots) {
+    if (s.position === 0) continue
+    const cell: GateCell = { pos: s.position, kind: s.kind, rating: s.rating, register: s.register, paletteId: s.paletteId, status: 'assigned' }
+    if (s.position <= 24) cells.push(cell)
+    else expCells.push(cell)
+  }
+  cells.sort((a, b) => a.pos - b.pos)
+  expCells.sort((a, b) => a.pos - b.pos)
+  return { cells, expCells }
+}
+
+const IDLE_LINES: string[] = [
+  'Pipeline nominal. All 24 gates resting, chain sealed — I\'m on watch, commander.',
+  'Telemetry quiet… head steady, zero drift. Wanna force a compile, senpai?',
+  'The rotation window is holding. No palette fatigue on MY shift. Ehehe~',
+  'Charlie-chan re-verified the chronicle again. She\'s so thorough… I nap later.',
+]
+
+export default function NeonDogmaPage() {
+  const [ready, setReady] = useState(false)
+  const [health, setHealth] = useState<Health>('live')
+  const [stats, setStats] = useState<EngineStateData | null>(null)
+  const [feed, setFeed] = useState<FeedEntry[]>([])
+  const [chainLocal, setChainLocal] = useState<{ height: number; head: string; broken: number[] }>({ height: 0, head: '', broken: [] })
+  const [verify, setVerify] = useState<VerifyData | null>(null)
+  const [rotation, setRotation] = useState<RotationCardData[]>([])
+  const [rotationLoading, setRotationLoading] = useState(true)
+  const [paletteMap, setPaletteMap] = useState<Record<string, { name: string; colors: string[] }>>({})
+  const [mode, setMode] = useState<OpMode>('idle')
+  const [banner, setBanner] = useState<Banner | null>(null)
+  const [cells, setCells] = useState<GateCell[]>([])
+  const [expCells, setExpCells] = useState<GateCell[]>([])
+  const [planSource, setPlanSource] = useState('—')
+  const [planningGates, setPlanningGates] = useState<GateReceiptUI[]>(
+    PLANNING_GATES.map((g) => ({ gate: g, level: 'hard', verdict: '—', findings: [] })),
+  )
+  const [themeInput, setThemeInput] = useState('')
+  const [ocThemeInputs, setOcThemeInputs] = useState<string[]>(['', '', ''])
+  const [filter, setFilter] = useState<'all' | 'chain' | 'sys'>('all')
+  const [clock, setClock] = useState('--:--:--')
+  const [lastPurged, setLastPurged] = useState<number | null>(null)
+  const [screenShake, setScreenShake] = useState(0)
+
+  const uidRef = useRef(1)
+  const lastSeqRef = useRef(0)
+  const lastHashRef = useRef(GENESIS)
+  const busyRef = useRef(false)
+  const healthRef = useRef<Health>('live')
+  const pollCountRef = useRef(0)
+  const idleLineIdx = useRef(Math.floor(Math.random() * IDLE_LINES.length))
+
+  const setOcThemeInput = useCallback((i: number, v: string) => {
+    setOcThemeInputs((prev) => prev.map((t, j) => (j === i ? v : t)))
+  }, [])
+
+  useEffect(() => {
+    healthRef.current = health
+  }, [health])
+
+  const pushSys = useCallback((text: string, level: SysLevel = 'info') => {
+    setFeed((f) => [...f, { uid: uidRef.current++, kind: 'sys' as const, at: Date.now(), text, level }].slice(-MAX_FEED))
+  }, [])
+
+  const appendChain = useCallback((evs: ChainEvent[], reset: boolean) => {
+    const rows: FeedEntry[] = []
+    const newBroken: number[] = []
+    if (reset) {
+      lastHashRef.current = GENESIS
+      lastSeqRef.current = 0
+    }
+    for (const ev of evs) {
+      const link: LinkState = ev.prev === lastHashRef.current ? 'ok' : 'broken'
+      if (link === 'ok') lastHashRef.current = ev.hash
+      else newBroken.push(ev.seq)
+      lastSeqRef.current = ev.seq
+      rows.push({ uid: uidRef.current++, kind: 'chain', ev, link })
+    }
+    setChainLocal((c) => ({
+      height: lastSeqRef.current,
+      head: lastHashRef.current,
+      broken: reset ? newBroken : [...c.broken, ...newBroken],
+    }))
+    return { rows, newBroken }
+  }, [])
+
+  /* ---------------- rotation window loader ---------------- */
+
+  const loadRotation = useCallback(async (): Promise<void> => {
+    try {
+      const b = await fetchJson<ApiEnvelope<{ batches: BatchRow[] }>>('/api/t4/engine/batches?limit=20')
+      const batches = (b.data.batches ?? []).filter((x) => x.status === 'delivered' && x.deliveredAt != null).slice(0, 3)
+      const cards = await Promise.all(
+        batches.map(async (batchRow, idx): Promise<RotationCardData | null> => {
+          try {
+            const card = await fetchJson<ApiEnvelope<BatchCardData>>(`/api/t4/engine/batches/${batchRow.slug}`)
+            const { cells: core } = planSlotsToCells(asRecord(card.data).plan)
+            const paletteCounts = new Map<string, number>()
+            const registerCounts = new Map<string, number>()
+            for (const c of core) {
+              if (c.paletteId !== '') paletteCounts.set(c.paletteId, (paletteCounts.get(c.paletteId) ?? 0) + 1)
+              registerCounts.set(c.register, (registerCounts.get(c.register) ?? 0) + 1)
+            }
+            return {
+              slot: idx,
+              slug: batchRow.slug,
+              title: card.data.title || batchRow.title,
+              deliveredAt: batchRow.deliveredAt ?? batchRow.createdAt,
+              palettes: [...paletteCounts.keys()].sort().map((pid) => ({
+                id: pid,
+                name: paletteMapRef.current[pid]?.name ?? 'unresolved',
+                colors: paletteMapRef.current[pid]?.colors ?? [],
+              })),
+              registers: [...registerCounts.entries()]
+                .sort((a, c) => c[1] - a[1])
+                .slice(0, 3)
+                .map(([name, count]) => ({ name, count })),
+            }
+          } catch {
+            return null
+          }
+        }),
+      )
+      setRotation(cards.filter((c): c is RotationCardData => c != null))
+      setRotationLoading(false)
+    } catch {
+      setRotationLoading(false)
+    }
+  }, [])
+
+  const paletteMapRef = useRef<Record<string, { name: string; colors: string[] }>>({})
+  useEffect(() => {
+    paletteMapRef.current = paletteMap
+  }, [paletteMap])
+
+  /* ---------------- initial sync ---------------- */
+
+  useEffect(() => {
+    let alive = true
+    void (async () => {
+      pushSys('NEON DOGMA deck boot — linking t4-engine :3200…')
+      try {
+        const st = await fetchJson<ApiEnvelope<EngineStateData>>('/api/t4/engine/state')
+        if (!alive) return
+        setStats(st.data)
+        setHealth('live')
+        pushSys(`engine link OK · era ${st.data.era} · canon ${st.data.canon} · uptime ${fmtUptime(st.data.uptimeSec)}`, 'ok')
+      } catch {
+        if (!alive) return
+        setHealth('down')
+        pushSys('engine link FAILED — telemetry degraded, operators on battery', 'err')
+      }
+      try {
+        const ev = await fetchJson<ApiEnvelope<EventsData>>('/api/t4/engine/events?after=0&limit=1000')
+        if (!alive) return
+        const evs = (ev.data.events ?? []).filter((e) => typeof e.seq === 'number' && typeof e.hash === 'string')
+        const { rows, newBroken } = appendChain(evs, true)
+        const tail = rows.slice(-32)
+        setFeed((f) => [...f, ...tail].slice(-MAX_FEED))
+        pushSys(
+          `chronicle synced · ${evs.length} links · local prev→hash check ${newBroken.length === 0 ? 'CLEAN' : `BROKEN @ ${newBroken[0]}`}`,
+          newBroken.length === 0 ? 'ok' : 'err',
+        )
+      } catch {
+        if (alive) pushSys('chronicle fetch failed — chain.jsonl stream cold', 'err')
+      }
+      try {
+        const v = await fetchJson<ApiEnvelope<VerifyData>>('/api/t4/engine/chain/verify')
+        if (!alive) return
+        setVerify(v.data)
+        pushSys(`engine audit ▸ ${v.data.ok ? 'SEALED — chronicle untampered' : `PROBLEMS ×${v.data.problems.length}`}`, v.data.ok ? 'ok' : 'err')
+      } catch {
+        /* verify is optional at boot */
+      }
+      try {
+        const p = await fetchJson<{ palettes?: unknown[] }>('/api/t4/specs/palettes')
+        if (!alive) return
+        const map: Record<string, { name: string; colors: string[] }> = {}
+        for (const raw of asArray(p.palettes)) {
+          const rec = asRecord(raw)
+          const id = asStr(rec.id)
+          if (id === '') continue
+          const base = id.split('_')[0]
+          map[base] = { name: asStr(rec.name) || base, colors: specSwatches(rec) }
+        }
+        setPaletteMap(map)
+      } catch {
+        /* swatches fall back to deterministic hues */
+      }
+      await loadRotation()
+      try {
+        const b = await fetchJson<ApiEnvelope<{ batches: BatchRow[] }>>('/api/t4/engine/batches?limit=20')
+        if (!alive) return
+        const latest = (b.data.batches ?? [])[0]
+        if (latest != null) {
+          const card = await fetchJson<ApiEnvelope<BatchCardData>>(`/api/t4/engine/batches/${latest.slug}`)
+          if (!alive) return
+          const { cells: core, expCells: exp } = planSlotsToCells(asRecord(card.data).plan)
+          setCells(core)
+          setExpCells(exp)
+          setPlanSource(`${latest.slug} · ${latest.status.toUpperCase()}`)
+        }
+      } catch {
+        /* matrix stays on standby */
+      }
+      if (alive) setReady(true)
+    })()
+    return () => {
+      alive = false
+    }
+  }, [appendChain, loadRotation, pushSys])
+
+  /* ---------------- pollers ---------------- */
+
+  const pollState = useCallback(async () => {
+    try {
+      const r = await fetchJson<ApiEnvelope<EngineStateData>>('/api/t4/engine/state')
+      setStats(r.data)
+      if (healthRef.current === 'down') {
+        setHealth('live')
+        pushSys('engine link restored — telemetry live', 'ok')
+      }
+    } catch {
+      if (healthRef.current === 'live') {
+        setHealth('down')
+        pushSys('ENGINE LINK LOST — poll timeout, operators on battery', 'err')
+      }
+    }
+  }, [pushSys])
+
+  const pollEvents = useCallback(async () => {
+    try {
+      const r = await fetchJson<ApiEnvelope<EventsData>>(`/api/t4/engine/events?after=${lastSeqRef.current}&limit=60`)
+      const evs = (r.data.events ?? []).filter((e) => typeof e.seq === 'number' && typeof e.hash === 'string')
+      if (evs.length > 0) {
+        const { rows, newBroken } = appendChain(evs, false)
+        setFeed((f) => [...f, ...rows].slice(-MAX_FEED))
+        for (const ev of evs.slice(0, 3)) {
+          pushSys(`chronicle +${evs.length} ▸ #${ev.seq} ${ev.type}`, newBroken.length === 0 ? 'ok' : 'warn')
+        }
+        if (newBroken.length > 0) {
+          setBanner({ id: Date.now(), verdict: 'void', title: 'VOID DETECTED', detail: `chain link #${newBroken[0]} prev-hash mismatch` })
+        }
+      } else {
+        pollCountRef.current += 1
+        if (pollCountRef.current % 5 === 0) {
+          pushSys(`poll ok · Δ0 · head ${h8(lastHashRef.current)} · links ${lastSeqRef.current}`)
+        }
+      }
+    } catch {
+      /* transient poll failure — state poller owns health LED */
+    }
+  }, [appendChain, pushSys])
+
+  const pollVerify = useCallback(async () => {
+    try {
+      const v = await fetchJson<ApiEnvelope<VerifyData>>('/api/t4/engine/chain/verify')
+      setVerify(v.data)
+    } catch {
+      /* keep last verdict */
+    }
+  }, [])
+
+  useInterval(pollState, 5000)
+  useInterval(pollEvents, 3500)
+  useInterval(pollVerify, 45000)
+
+  useEffect(() => {
+    const tick = () => {
+      const d = new Date()
+      const pad = (n: number) => String(n).padStart(2, '0')
+      setClock(`${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}:${pad(d.getUTCSeconds())}`)
+    }
+    tick()
+    const id = window.setInterval(tick, 1000)
+    return () => window.clearInterval(id)
+  }, [])
+
+  /* ---------------- operations ---------------- */
+
+  const runBurn = useCallback(async () => {
+    if (busyRef.current) return
+    busyRef.current = true
+    setMode('burning')
+    setBanner(null)
+    setScreenShake((s) => s + 1)
+    pushSys('IGNITION ▸ BURN & REBUILD — full chain re-audit from GENESIS', 'err')
+    try {
+      const all = await fetchJson<ApiEnvelope<EventsData>>('/api/t4/engine/events?after=0&limit=1000')
+      const evs = (all.data.events ?? []).filter((e) => typeof e.seq === 'number' && typeof e.hash === 'string')
+      lastHashRef.current = GENESIS
+      lastSeqRef.current = 0
+      const broken: number[] = []
+      const total = evs.length
+      for (let i = 0; i < total; i += 24) {
+        const chunk = evs.slice(i, i + 24)
+        const end = Math.min(i + 23, total - 1)
+        for (const ev of chunk) {
+          if (ev.prev !== lastHashRef.current) broken.push(ev.seq)
+          lastHashRef.current = ev.hash
+          lastSeqRef.current = ev.seq
+        }
+        if (Math.floor(i / 24) % 2 === 0) {
+          pushSys(`REHASH ▸ seq ${chunk[0].seq}–${evs[end].seq} ${broken.length === 0 ? '✓✓✓' : '✗'}`)
+        }
+        await sleep(34)
+      }
+      const v = await fetchJson<ApiEnvelope<VerifyData>>('/api/t4/engine/chain/verify')
+      setVerify(v.data)
+      setChainLocal({ height: total, head: lastHashRef.current, broken })
+      setFeed((f) => {
+        const keepSys = f.filter((x): x is Extract<FeedEntry, { kind: 'sys' }> => x.kind === 'sys').slice(-12)
+        const tail = evs.slice(-26).map((ev) => ({
+          uid: uidRef.current++,
+          kind: 'chain' as const,
+          ev,
+          link: (broken.includes(ev.seq) ? 'broken' : 'ok') as LinkState,
+        }))
+        return [...keepSys, ...tail].slice(-MAX_FEED)
+      })
+      const clean = broken.length === 0 && v.data.ok
+      pushSys(
+        `AUDIT COMPLETE ▸ ${total} links re-hashed · head ${h8(lastHashRef.current)} · ${clean ? 'CHAIN INTACT — CLEAN RUN' : `BROKEN @ ${broken.join(',') || 'engine problems'}`}`,
+        clean ? 'ok' : 'err',
+      )
+      setBanner(
+        clean
+          ? { id: Date.now(), verdict: 'clean', title: 'CLEAN RUN', detail: `${total} links re-hashed GENESIS→HEAD · head ${h8(lastHashRef.current)}` }
+          : {
+              id: Date.now(),
+              verdict: 'void',
+              title: 'VOID DETECTED',
+              detail: broken[0] != null ? `link #${broken[0]} prev-hash mismatch` : (v.data.problems[0] ?? 'engine audit problems'),
+            },
+      )
+      toast({
+        title: clean ? 'BURN COMPLETE — CLEAN RUN' : 'BURN COMPLETE — ANOMALY',
+        description: clean ? `${total} links re-verified, chain intact.` : `Broken links: ${broken.join(', ') || 'engine-reported problems'}.`,
+        variant: clean ? 'default' : 'destructive',
+      })
+    } catch {
+      pushSys('burn aborted — engine unreachable mid-sweep', 'err')
+      setBanner({ id: Date.now(), verdict: 'void', title: 'VOID DETECTED', detail: 'engine unreachable mid-audit' })
+      toast({ title: 'BURN FAILED', description: 'Engine unreachable — re-audit aborted.', variant: 'destructive' })
+    } finally {
+      setMode('idle')
+      busyRef.current = false
+    }
+  }, [pushSys])
+
+  const runCompile = useCallback(async () => {
+    if (busyRef.current) return
+    const theme = themeInput.trim()
+    const ocThemes = ocThemeInputs
+      .map((t) => t.trim())
+      .filter((t) => t !== '')
+      .map((ocTheme, i) => ({ theme: ocTheme, rating: 'R+', position: i + 1 }))
+    if (theme === '') {
+      toast({ title: 'THEME REQUIRED', description: 'Type a batch theme (1–120 chars) before force-compiling.', variant: 'destructive' })
+      pushSys('COMPILE REJECTED ▸ empty theme', 'warn')
+      return
+    }
+    if (ocThemes.length === 0) {
+      toast({ title: 'OC THEME REQUIRED', description: 'The compiler needs at least one OC slot theme (OC·1–3, cycles to 3 slots).', variant: 'destructive' })
+      pushSys('COMPILE REJECTED ▸ no OC slot themes (strict Zod: ocThemes min 1)', 'warn')
+      return
+    }
+    busyRef.current = true
+    setMode('compiling')
+    setBanner(null)
+    pushSys(`COMPILE REQUEST ▸ theme «${theme}» · oc×${ocThemes.length} · engine per-theme · 24+8 slots`, 'warn')
+    // gate sweep animation
+    setCells((prev) => prev.map((c) => ({ ...c, status: 'standby' })))
+    for (let i = 0; i < cells.length || i < 24; i++) {
+      setCells((prev) => prev.map((c) => (c.pos <= i + 1 ? { ...c, status: 'cycling' } : c)))
+      await sleep(42)
+    }
+    setPlanningGates(PLANNING_GATES.map((g) => ({ gate: g, level: 'hard', verdict: 'RUN', findings: [] })))
+    for (let i = 0; i < PLANNING_GATES.length; i++) {
+      await sleep(230)
+      setPlanningGates((prev) => prev.map((g, j) => (j === i ? { ...g, verdict: '···' } : g)))
+    }
+    await sleep(320)
+    // auth gate
+    const key = getCommanderKey()
+    if (key === '') {
+      setCells((prev) => prev.map((c) => ({ ...c, status: 'standby' })))
+      setPlanningGates(PLANNING_GATES.map((g) => ({ gate: g, level: 'hard', verdict: 'LOCK', findings: ['commander key required'] })))
+      setBanner({ id: Date.now(), verdict: 'void', title: 'AUTH LOCKED', detail: 'x-commander-key required for live compile — set it in the control grid' })
+      pushSys('COMPILE ABORTED ▸ commander key missing (503 fail-closed policy)', 'err')
+      toast({ title: 'AUTH LOCKED', description: 'Set the commander key in the control grid to arm live compiles.', variant: 'destructive' })
+      setMode('idle')
+      busyRef.current = false
+      return
+    }
+    // live compile
+    try {
+      const res = await postJson<ApiEnvelope<CompileData>>(
+        '/api/t4/engine/compile',
+        { theme, engine: 'per-theme', ocThemes },
+        { 'Idempotency-Key': `neon-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}` },
+      )
+      const plan = asRecord(res.data.plan)
+      const receipts = (res.data.receipts ?? []).map((r) => ({
+        gate: asStr(r.gate) || '?',
+        level: asStr(r.level) || 'hard',
+        verdict: asStr(r.verdict) || 'PASS',
+        findings: asArray(r.findings).map(asStr).filter((s) => s !== ''),
+      }))
+      const { cells: core, expCells: exp } = planSlotsToCells(plan)
+      const hardFail = receipts.some((r) => r.verdict === 'FAIL')
+      const hasWarn = receipts.some((r) => r.verdict === 'WARN')
+      const finalStatus: CellStatus = hardFail ? 'void' : hasWarn ? 'drift' : 'sealed'
+      setCells(core.map((c) => ({ ...c, status: finalStatus })))
+      setExpCells(exp.map((c) => ({ ...c, status: finalStatus })))
+      setPlanningGates(receipts.length > 0 ? receipts : PLANNING_GATES.map((g) => ({ gate: g, level: 'hard', verdict: 'PASS', findings: [] })))
+      const slug = asStr(plan.slug) || stats?.nextSlug || 'T4-??'
+      const title = asStr(plan.title) || theme
+      setPlanSource(`${slug} · ${res.data.idempotentReplay ? 'REPLAY' : 'FRESH'}`)
+      if (hardFail) {
+        const f = receipts.find((r) => r.verdict === 'FAIL')
+        setBanner({ id: Date.now(), verdict: 'void', title: 'VOID DETECTED', detail: `gate «${f?.gate ?? '?'}» FAIL — ${f?.findings[0] ?? 'planning gate rejection'}` })
+        pushSys(`COMPILE VOID ▸ ${slug} rejected at gate ${f?.gate ?? '?'} — draft not persisted`, 'err')
+        toast({ title: 'VOID DETECTED', description: `Gate ${f?.gate ?? '?'} rejected the plan.`, variant: 'destructive' })
+      } else if (hasWarn) {
+        const w = receipts.filter((r) => r.verdict === 'WARN')
+        setBanner({ id: Date.now(), verdict: 'drift', title: 'DRIFT DETECTED', detail: `${w.length} advisory finding(s) — first: ${w[0]?.findings[0] ?? w[0]?.gate ?? '—'}` })
+        pushSys(`COMPILE SEALED WITH DRIFT ▸ ${slug} «${title}» · ${w.length} WARN findings`, 'warn')
+        toast({ title: 'DRIFT DETECTED', description: `${slug} sealed with ${w.length} advisory finding(s).` })
+      } else {
+        setBanner({ id: Date.now(), verdict: 'clean', title: 'CLEAN RUN', detail: `${slug} «${title}» · 24 gates sealed · ${core.length + exp.length} slots planned` })
+        pushSys(`COMPILE CLEAN ▸ ${slug} «${title}» · all planning gates PASS · plan persisted`, 'ok')
+        toast({ title: 'CLEAN RUN', description: `${slug} «${title}» — all 24 gates sealed.` })
+      }
+      void pollState()
+      void pollEvents()
+      void loadRotation()
+    } catch (e) {
+      const apiErr = e instanceof ApiError ? e : null
+      let detail = 'network failure'
+      if (apiErr != null) {
+        const rec = asRecord(apiErr.payload)
+        const errRec = asRecord(rec.error)
+        detail = asStr(rec.error) || asStr(errRec.message) || `HTTP ${apiErr.status}`
+      }
+      setCells((prev) => prev.map((c) => ({ ...c, status: 'void' })))
+      setPlanningGates(PLANNING_GATES.map((g) => ({ gate: g, level: 'hard', verdict: 'FAIL', findings: [detail] })))
+      setBanner({ id: Date.now(), verdict: 'void', title: 'VOID DETECTED', detail })
+      pushSys(`COMPILE FAILED ▸ ${detail}`, 'err')
+      toast({ title: 'COMPILE REJECTED', description: detail, variant: 'destructive' })
+    } finally {
+      setMode('idle')
+      busyRef.current = false
+    }
+  }, [cells.length, loadRotation, ocThemeInputs, pollEvents, pollState, pushSys, stats?.nextSlug, themeInput])
+
+  const runPurge = useCallback(() => {
+    if (busyRef.current) return
+    busyRef.current = true
+    setMode('purging')
+    const count = feed.length
+    pushSys('PURGE ▸ flushing local telemetry heap…', 'warn')
+    window.setTimeout(() => {
+      setFeed((f) => f.slice(-2))
+      setLastPurged(Math.max(0, count - 2))
+      pushSys(`HEAP PURGED ▸ ${Math.max(0, count - 2)} entries → /dev/null · buffer re-seeded`, 'ok')
+      toast({ title: 'HEAP PURGED', description: `${Math.max(0, count - 2)} telemetry entries flushed. Live stream continues.` })
+      setMode('idle')
+      busyRef.current = false
+    }, 620)
+  }, [feed.length, pushSys])
+
+  /* ---------------- derived state ---------------- */
+
+  const mascotMood: MascotMood = useMemo(() => {
+    if (health === 'down') return 'sleep'
+    if (mode === 'compiling' || mode === 'burning') return 'focus'
+    if (banner == null) return 'idle'
+    if (banner.verdict === 'clean') return 'happy'
+    if (banner.verdict === 'drift') return 'concerned'
+    return banner.title === 'AUTH LOCKED' ? 'concerned' : 'shock'
+  }, [banner, health, mode])
+
+  const charlieMood: MascotMood = useMemo(() => {
+    if (verify == null) return 'idle'
+    if (!verify.ok) return 'shock'
+    if (chainLocal.broken.length > 0) return 'concerned'
+    return mode === 'burning' ? 'focus' : 'idle'
+  }, [chainLocal.broken.length, mode, verify])
+
+  const tsubakiLine = useMemo(() => {
+    if (health === 'down') return 'Engine link is down… telemetry on battery. Keep the seat warm for me, zzz…'
+    if (mode === 'compiling') return `Compiling «${themeInput.trim() || '—'}»… 24 gates cycling! Eyes on the matrix, senpai!`
+    if (mode === 'burning') return `BURN & REBUILD engaged! Re-hashing ${chainLocal.height || 'all'} links from GENESIS — don't blink!`
+    if (mode === 'purging') return 'Purging heap… stale telemetry to /dev/null. Clean deck, clean mind~'
+    if (banner != null) {
+      if (banner.verdict === 'clean') return 'CLEAN RUN! All 24 gates sealed, zero findings. Another perfect batch, ehehe~'
+      if (banner.verdict === 'drift') return 'DRIFT DETECTED — gate findings logged. Recalibrating the rotation window…'
+      if (banner.title === 'AUTH LOCKED') return "Commander key missing! I can't touch the chronicle without authorization, baka!"
+      return 'VOID DETECTED!! The compiler rejected the plan — stay calm, the chronicle is safe!'
+    }
+    const line = IDLE_LINES[idleLineIdx.current % IDLE_LINES.length]
+    return line.replace('{head}', h8(chainLocal.head)).replace('{links}', String(chainLocal.height))
+  }, [banner, chainLocal.head, chainLocal.height, health, mode, themeInput])
+
+  const charlieLine = useMemo(() => {
+    if (verify == null) return 'Audit engine cold… hand me the chain and I will count every link.'
+    if (!verify.ok) return `ANOMALY: ${verify.problems[0] ?? 'chronicle tampered'} — the ledger was touched. Not on my watch.`
+    if (chainLocal.broken.length > 0) return `Local check flags link #${chainLocal.broken[0]} — re-running the audit now.`
+    if (mode === 'burning') return 'Burn sweep in progress… recounting every hash from the genesis link.'
+    return `Chain audit complete: ${verify.events} links intact · head ${h8(verify.head)}… · zero hand-edits.`
+  }, [chainLocal.broken, mode, verify])
+
+  const gateSummary = useMemo(() => {
+    let sealed = 0
+    let drift = 0
+    let voids = 0
+    let standby = 0
+    for (const c of [...cells, ...expCells]) {
+      if (c.status === 'sealed') sealed++
+      else if (c.status === 'drift') drift++
+      else if (c.status === 'void') voids++
+      else standby++
+    }
+    if (cells.length === 0) standby = 24
+    return { sealed, drift, void: voids, standby }
+  }, [cells, expCells])
+
+  const chainOk: boolean | null = verify != null ? verify.ok : chainLocal.broken.length === 0 ? true : null
+
+  const dropSlug = rotation.length > 0 ? rotation[rotation.length - 1]?.slug ?? '' : ''
+
+  /* ---------------- render ---------------- */
+
+  return (
+    <div className="relative flex min-h-screen flex-col overflow-x-hidden bg-[#05070d] text-zinc-200">
+      <BackdropFX />
+      <BootVeil ready={ready} onDone={() => undefined} />
+      {/* burn screen-shake + ignition flash */}
+      <AnimatePresence>
+        {mode === 'burning' && (
+          <motion.div
+            key={`flash-${screenShake}`}
+            className="pointer-events-none fixed inset-0 z-30"
+            initial={{ opacity: 0.32, background: `radial-gradient(circle at 30% 20%, ${MAGENTA}33, transparent 60%)` }}
+            animate={{ opacity: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 1.1 }}
+            aria-hidden
+          />
+        )}
+      </AnimatePresence>
+      <motion.div
+        key={`shake-${screenShake}`}
+        animate={screenShake > 0 ? { x: [0, -4, 4, -2, 2, 0] } : undefined}
+        transition={{ duration: 0.4 }}
+        className="contents"
       >
-        {tab === 'state' ? <StateTab /> : null}
-        {tab === 'constitution' ? <DocsTab /> : null}
-        {tab === 'specs' ? <SpecsTab /> : null}
-        {tab === 'compile' ? <CompileTab /> : null}
-        {tab === 'batches' ? <BatchesTab /> : null}
-        {tab === 'events' ? <EventsTab /> : null}
-        {tab === 'verdicts' ? <VerdictsTab /> : null}
-        {tab === 'glass' ? <GlassTab /> : null}
-        {tab === 'vault' ? <VaultTab /> : null}
-        {tab === 'archive' ? <ArchiveTab /> : null}
-        {tab === 'reaper' ? <ReaperTab /> : null}
-      </main>
-
-      <footer className="mt-auto border-t border-zinc-800/80 bg-zinc-950 pb-[env(safe-area-inset-bottom)]">
-        <div className="mx-auto flex w-full max-w-7xl flex-wrap items-center justify-between gap-2 px-4 py-4 text-[11px] text-zinc-600 sm:px-6">
-          <span>THREAD 4 · закон 24 слотов · Super Z × Автор</span>
-          <span className="font-mono">гейты — см. Состояние · приёмник батча · сейф · drift/stack перед сдачей</span>
-        </div>
-      </footer>
+        <HeaderBar health={health} mode={mode} chainOk={chainOk} clock={clock} head={chainLocal.head} />
+        <main className="relative z-10 mx-auto w-full max-w-[1680px] flex-1 px-3 pb-5 pt-3 sm:px-4 lg:px-6">
+          <StatRail stats={stats} chainLocal={chainLocal} health={health} />
+          <div className="mt-3 grid gap-3 lg:mt-4 lg:grid-cols-12 lg:gap-4">
+            {/* LEFT — pipeline control */}
+            <div className="order-2 flex flex-col gap-3 lg:order-1 lg:col-span-3 lg:gap-4">
+              <PanelShell title="PIPELINE CONTROL GRID" icon={<Flame size={13} />} accent="red">
+                <div className="space-y-3">
+                  <BurnAndRebuild mode={mode} onBurn={() => void runBurn()} />
+                  <CompileControl mode={mode} theme={themeInput} setTheme={setThemeInput} ocThemes={ocThemeInputs} setOcTheme={setOcThemeInput} onCompile={() => void runCompile()} />
+                  <PurgeHeapControl mode={mode} onPurge={runPurge} lastPurged={lastPurged} />
+                </div>
+              </PanelShell>
+              <CommanderKeyPanel />
+            </div>
+            {/* MIDDLE — telemetry + rotation */}
+            <div className="order-1 flex flex-col gap-3 lg:order-2 lg:col-span-5 lg:gap-4">
+              <ChronicleTerminal
+                feed={feed}
+                chainLocal={chainLocal}
+                verify={verify}
+                health={health}
+                mode={mode}
+                filter={filter}
+                setFilter={setFilter}
+              />
+              <RotationWindow cards={rotation} nextSlug={stats?.nextSlug ?? ''} dropSlug={dropSlug} loading={rotationLoading} />
+            </div>
+            {/* RIGHT — operators + gates */}
+            <div className="order-3 flex flex-col gap-3 lg:col-span-4 lg:gap-4">
+              <OperatorSection mood={mascotMood} line={tsubakiLine} gateSummary={gateSummary} />
+              <GateMatrix cells={cells} expCells={expCells} planningGates={planningGates} banner={banner} planSource={planSource} />
+              <CharlieCard mood={charlieMood} line={charlieLine} verify={verify} chainLocal={chainLocal} />
+            </div>
+          </div>
+        </main>
+      </motion.div>
+      <FooterBar stats={stats} chainLocal={chainLocal} feed={feed} />
     </div>
   )
 }

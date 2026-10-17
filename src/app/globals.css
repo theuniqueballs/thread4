@@ -240,3 +240,292 @@
     animation: none;
   }
 }
+
+/* ================================================================== */
+/* NEON DOGMA LAYER (2026-10-18) — cyberpunk dashboard skin            */
+/* Palette: magenta #ff2d78 · cyan #00e5ff · amber #ffb300 ·           */
+/* danger #ff3860 · emerald #00ffa3. No blue/indigo primaries.         */
+/* ================================================================== */
+
+.font-display {
+  font-family: var(--font-orbitron), var(--font-geist-sans), ui-sans-serif, sans-serif;
+  letter-spacing: 0.06em;
+}
+.font-term {
+  font-family: var(--font-jbmono), var(--font-geist-mono), ui-monospace, monospace;
+}
+
+/* Text glows */
+.nd-glow-magenta {
+  text-shadow: 0 0 10px rgba(255, 45, 120, 0.55), 0 0 34px rgba(255, 45, 120, 0.22);
+}
+.nd-glow-cyan {
+  text-shadow: 0 0 10px rgba(0, 229, 255, 0.55), 0 0 34px rgba(0, 229, 255, 0.22);
+}
+.nd-glow-amber {
+  text-shadow: 0 0 10px rgba(255, 179, 0, 0.55), 0 0 34px rgba(255, 179, 0, 0.22);
+}
+.nd-glow-red {
+  text-shadow: 0 0 10px rgba(255, 56, 96, 0.65), 0 0 36px rgba(255, 56, 96, 0.3);
+}
+.nd-glow-emerald {
+  text-shadow: 0 0 10px rgba(0, 255, 163, 0.55), 0 0 34px rgba(0, 255, 163, 0.22);
+}
+
+/* Rotating conic border for BURN & REBUILD (registered custom property) */
+@property --nd-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+@keyframes nd-angle-spin {
+  to {
+    --nd-angle: 360deg;
+  }
+}
+.nd-conic-ring {
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  background: conic-gradient(
+    from var(--nd-angle),
+    rgba(255, 45, 120, 0) 0deg,
+    rgba(255, 45, 120, 0.95) 40deg,
+    rgba(255, 179, 0, 0.9) 70deg,
+    rgba(255, 45, 120, 0) 120deg,
+    rgba(0, 229, 255, 0.7) 200deg,
+    rgba(255, 45, 120, 0) 260deg,
+    rgba(255, 56, 96, 0.85) 320deg,
+    rgba(255, 45, 120, 0) 360deg
+  );
+  animation: nd-angle-spin 3.2s linear infinite;
+  filter: blur(1px);
+}
+.nd-conic-ring::after {
+  content: "";
+  position: absolute;
+  inset: 2px;
+  border-radius: inherit;
+  background: #0a0510;
+}
+
+/* Scanline sweep across the viewport */
+@keyframes nd-scan-sweep {
+  0% {
+    transform: translateY(-12vh);
+    opacity: 0;
+  }
+  8% {
+    opacity: 0.55;
+  }
+  92% {
+    opacity: 0.55;
+  }
+  100% {
+    transform: translateY(112vh);
+    opacity: 0;
+  }
+}
+.nd-scanline {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 10vh;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 229, 255, 0) 0%,
+    rgba(0, 229, 255, 0.05) 45%,
+    rgba(255, 45, 120, 0.12) 50%,
+    rgba(0, 229, 255, 0.05) 55%,
+    rgba(0, 229, 255, 0) 100%
+  );
+  animation: nd-scan-sweep 9s linear infinite;
+  z-index: 5;
+}
+
+/* Perspective floor grid drift */
+@keyframes nd-grid-drift {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 0 72px;
+  }
+}
+.nd-grid-floor {
+  position: fixed;
+  left: -20%;
+  right: -20%;
+  bottom: -18vh;
+  height: 52vh;
+  pointer-events: none;
+  background-image: linear-gradient(rgba(255, 45, 120, 0.14) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 229, 255, 0.12) 1px, transparent 1px);
+  background-size: 72px 72px;
+  transform: perspective(640px) rotateX(62deg);
+  transform-origin: top center;
+  mask-image: linear-gradient(to top, rgba(0, 0, 0, 0.85), transparent 78%);
+  -webkit-mask-image: linear-gradient(to top, rgba(0, 0, 0, 0.85), transparent 78%);
+  animation: nd-grid-drift 3.6s linear infinite;
+  z-index: 0;
+}
+
+/* Static micro-grid overlay */
+.nd-grid-micro {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+  background-size: 36px 36px;
+  z-index: 0;
+}
+
+/* CRT scanlines (thin, over everything but subtle) */
+.nd-crt {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0) 0px,
+    rgba(0, 0, 0, 0) 2px,
+    rgba(0, 0, 0, 0.16) 3px,
+    rgba(0, 0, 0, 0) 4px
+  );
+  mix-blend-mode: multiply;
+  z-index: 6;
+  opacity: 0.5;
+}
+
+/* Pulsing red mismatch (hash-chain violation) */
+@keyframes nd-red-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 56, 96, 0.55);
+    border-color: rgba(255, 56, 96, 0.8);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(255, 56, 96, 0.12);
+    border-color: rgba(255, 56, 96, 1);
+  }
+}
+.nd-red-pulse {
+  animation: nd-red-pulse 0.9s ease-in-out infinite;
+}
+
+/* Terminal caret */
+@keyframes nd-caret {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+.nd-caret {
+  animation: nd-caret 1s step-end infinite;
+}
+
+/* Verdict stamp slam */
+@keyframes nd-stamp {
+  0% {
+    transform: scale(2.1) rotate(-9deg);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(0.94) rotate(-3deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(-4deg);
+    opacity: 1;
+  }
+}
+.nd-stamp {
+  animation: nd-stamp 0.45s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+
+/* Footer marquee ticker */
+@keyframes nd-marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+.nd-marquee {
+  animation: nd-marquee 36s linear infinite;
+  will-change: transform;
+}
+
+/* Hard flicker for glitch moments */
+@keyframes nd-flicker {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  41% {
+    opacity: 1;
+  }
+  42% {
+    opacity: 0.4;
+  }
+  43% {
+    opacity: 1;
+  }
+  71% {
+    opacity: 1;
+  }
+  72% {
+    opacity: 0.55;
+  }
+  73% {
+    opacity: 1;
+  }
+}
+.nd-flicker {
+  animation: nd-flicker 5s linear infinite;
+}
+
+/* Terminal scrollbars — neon */
+.nd-term-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 229, 255, 0.35) transparent;
+}
+.nd-term-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+.nd-term-scroll::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+}
+.nd-term-scroll::-webkit-scrollbar-thumb {
+  background: linear-gradient(rgba(255, 45, 120, 0.5), rgba(0, 229, 255, 0.5));
+  border-radius: 8px;
+}
+.nd-term-scroll::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(rgba(255, 45, 120, 0.85), rgba(0, 229, 255, 0.85));
+}
+
+/* Neon reduced-motion: kill the deck's movement, keep legibility */
+@media (prefers-reduced-motion: reduce) {
+  .nd-conic-ring,
+  .nd-scanline,
+  .nd-grid-floor,
+  .nd-red-pulse,
+  .nd-caret,
+  .nd-marquee,
+  .nd-flicker,
+  .nd-stamp {
+    animation: none !important;
+  }
+  .nd-conic-ring {
+    background: rgba(255, 45, 120, 0.5);
+  }
+}
+
