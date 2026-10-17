@@ -579,7 +579,16 @@ export interface T4DerivedState {
   lastEventAt: string | null
 }
 
-/** Delivered = batch.delivered present; window = last 3 delivered. */
+/** Ранг слага для ocLastSeen: T4-NN монотонны; суффикс (.2-EXP и т.п.)
+ *  добавляет вес после основной цифры. Неизвестный формат → −1 (слабее
+ *  любого валидного). Экспорт — для selftest. */
+export function ocSlugRank(slug: string | undefined): number {
+  if (!slug) return -1
+  const m = /^T4-(\d+)(.*)$/.exec(slug)
+  if (!m) return -1
+  return Number(m[1]) * 1000 + Math.min(999, m[2] ? m[2].length * 100 + m[2].charCodeAt(0) % 100 : 0)
+}
+
 export function foldState(events: T4Event[]): T4DerivedState {
   const batches = new Map<string, BatchRecord>()
   const ocAppearances: Record<string, number> = {}
@@ -620,7 +629,19 @@ export function foldState(events: T4Event[]): T4DerivedState {
     if (e.type === 'oc.appeared' && typeof d.name === 'string') {
       const name = d.name as string
       ocAppearances[name] = (ocAppearances[name] ?? 0) + 1
-      if (typeof d.slug === 'string') ocLastSeen[name] = d.slug as string
+      /* Приказ автора 2026-10-17 («ты опять запихнул Люси на первый слот —
+       * где ротация ОС»): lastSeen берётся по РАНГУ слага, а не по порядку
+       * лога. События могут приходить задним числом (компенсация пропущенных
+       * oc.appeared у T4-32 — сдан по старому пути без slots[].oc), и
+       * «последний по порядку» затирал свежей(batch T4-34) записи старой
+       * (T4-32) — кулдаун компилятора открывал только что показанную ОС.
+       * Ранг: числовая часть T4-NN (+суффикс) — слаги монотонны. */
+      if (typeof d.slug === 'string') {
+        const cur = ocLastSeen[name]
+        if (cur === undefined || ocSlugRank(d.slug) > ocSlugRank(cur)) {
+          ocLastSeen[name] = d.slug as string
+        }
+      }
     }
     if (e.type === 'note' && d.kind === 'slug-alias') {
       /* ISSUE 17 / #49: алиас слага — переименование, приказанное автором

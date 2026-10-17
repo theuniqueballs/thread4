@@ -285,6 +285,13 @@ export interface PlanOptions {
   /** Живое состояние (main) или синтетика (selftest). Чистая функция. */
   windowSlugs: string[]
   ocAppearances: Record<string, number>
+  /** Приказ автора 2026-10-17 («ты опять запихнул Люси на первый слот — где
+   *  ротация ОС»): имя → слаг последнего участия. Кулдаун-окно — ОС
+   *  последних 2 батчей НЕ участвуют в выборе ВООБЩЕ (компилятор так
+   *  умеет с 2026-10-16; --from-draft путь T4-30..34 оставался без
+   *  окна — Люси собирала 5 первых слотов подряд). Опционально для
+   *  обратной совместимости selftest-синтетики. */
+  ocLastSeen?: Record<string, string>
   /** Веса RAW (v1.9.0 weights_raw, легализация — вердикт T4-31): EXP-режим
    *  Дрессера — до 4 слотов несут весовые теги (A/B T4-32); по умолчанию выкл. */
   weights?: boolean
@@ -414,15 +421,46 @@ export function planRawPlus(opts: PlanOptions): RawPlusPlan {
     ocPicks = [...opts.ocOrder]
   }
   if (ocPicks.length < law.ocSlots) {
+    /* КУЛДАУН-ОКНО ОС (приказ автора 2026-10-17: «ты опять запихнул Люси на
+     * первый слот — где ротация ОС»): LRU по served НЕ гарантирует смену
+     * лиц — при дрейфе счётчика (T4-32 сдался без oc.appeared: старый путь
+     * не нёс slots[].oc) «наименее обслуженная» залипает в P01 батч за
+     * батчем (Люси × 5). Жёсткое правило как у компилятора: ОС из
+     * последних 2 батчей окна исключаются из пула; при исчерпании —
+     * окно сужается до 1 батча, затем фоллбэк на весь канон (пул 20 ≥ 3,
+     * исчерпание гипотетично — 6 ОС из окна ≤ 20 − 3). Заказ автора
+     * (--oc) стоит выше окна — его воля (§10). */
+    const ocLastSeen = opts.ocLastSeen ?? {}
+    const windowTail = (n: number): string[] =>
+      (opts.windowSlugs ?? []).slice(-Math.max(1, n))
+    const seenIn = (slugs: string[]) => new Set(
+      Object.entries(ocLastSeen)
+        .filter(([, ls]) => slugs.includes(ls))
+        .map(([name]) => name)
+    )
+    const canonNames = ocNames.filter((n) => !ocPicks.includes(n))
+    const cool2 = seenIn(windowTail(2))
+    const cool1 = seenIn(windowTail(1))
+    const pool =
+      canonNames.length - cool2.size >= law.ocSlots - ocPicks.length
+        ? canonNames.filter((n) => !cool2.has(n))
+        : canonNames.length - cool1.size >= law.ocSlots - ocPicks.length
+          ? canonNames.filter((n) => !cool1.has(n))
+          : canonNames
     /* ротация по served: наименее обслуженные вперёд (T4-27-традиция);
      * перемешивание ДО стабильной сортировки — равные по served расы/имена
      * получают случайный порядок, но приоритет счётчика не разрушается
      * (фикс: раньше shuffle шёл ПОСЛЕ sort и рвал приоритет — брифы автора
      * получали давно обслуженных OC вместо свежих) */
     const rest = rng
-      .shuffle(ocNames.filter((n) => !ocPicks.includes(n)))
+      .shuffle(pool)
       .sort((a, b) => (opts.ocAppearances[a] ?? 0) - (opts.ocAppearances[b] ?? 0))
     ocPicks = [...ocPicks, ...rest.slice(0, law.ocSlots - ocPicks.length)]
+    if (cool2.size > 0) {
+      report.push(
+        `OC-кулдаун: ${[...cool2].join(', ')} — в последних 2 батчах, из пула исключены (приказ 2026-10-17 «где ротация ОС»)`
+      )
+    }
   }
   ocPicks = ocPicks.slice(0, law.ocSlots)
   /* OC-рейтинг — рефлекс статы доставки (oc-rplus): жив → R+, мёртв → R */
@@ -1550,6 +1588,9 @@ function main() {
     ...(weights ? { weights } : {}),
     windowSlugs: state.windowSlugs,
     ocAppearances: state.ocAppearances,
+    /* приказ 2026-10-17 «где ротация ОС»: кулдаун-окно — ОС последних
+     * 2 батчей не участвуют в выборе (генератор ниже) */
+    ocLastSeen: state.ocLastSeen,
   })
 
   console.log(`\n${slug} «${theme}» — план RAW+`)
