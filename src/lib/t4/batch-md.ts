@@ -295,8 +295,8 @@ const LAW_REF_RE = /закон\s*№\s*\d+/
  * Слова «нет EXP-слотов» на батче С программой — прямое следствие:
  * признанная парой буква вне алфавита радара. Ряд — весь, до ω. */
 const GREEK = 'αβγδεζηθικλμνξοπρστυφχψω'
-const HYPO_PAIR_RE = new RegExp(`^EXP\s+([${GREEK}])-(A|B)(?![A-Za-z0-9])\s*·?\s*(H\d+)?\s*(.*)$`, 'u')
-const HYPO_SINGLE_RE = new RegExp(`^EXP\s+single\s*·\s+([${GREEK}])(?![A-Za-z0-9])\s*(H\d+)?\s*(.*)$`, 'u')
+const HYPO_PAIR_RE = new RegExp(`^EXP\\s+([${GREEK}])-(A|B)(?![A-Za-z0-9])\\s*·?\\s*(H\\d+)?\\s*(.*)$`, 'u')
+const HYPO_SINGLE_RE = new RegExp(`^EXP\\s+single\\s*·\\s+([${GREEK}])(?![A-Za-z0-9])\\s*(H\\d+)?\\s*(.*)$`, 'u')
 const HYPO_LAW_RE = /закон\s*№\s*(\d+)/
 const ALCHEMY_ROW_RE = /^P(\d+)\s+—\s+\S+\s+\(.*\)\s*⚗/
 
