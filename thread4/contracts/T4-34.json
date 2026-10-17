@@ -1,0 +1,2382 @@
+{
+  "slug": "T4-34",
+  "theme": "WITCHCRAFT",
+  "engine": "per-theme raw-plus",
+  "engineLaw": "RAW+ сборка (№23) + расовый тег-блок (закон №3, kin-block: POS-теги + anti-shield NEG + свет/гардеробные хуки) + hair/eye из библиотеки E3 (A5P3F: независимо от палитры, подсказка ~50%) + echo-мотивы F13 (2-3 на батч, арка трёх актов, мутация ≥2 параметров из разных групп) + палитры вне окна ротации",
+  "engineWhy": "кины потеряны в RAW-миграции с T4-23 по небрежности генераторов (закон №3 не отменялся); практики A5 (hair/eye библиотека, echo-мотивы) не доехали в спеки RAW-эры — возвращены по приказу автора 2026-10-11",
+  "draftRef": "thread4/drafts/T4-34-draft.json",
+  "seed": 1792241401464,
+  "createdAt": "2026-10-17T12:50:01.484Z",
+  "spread": [
+    {
+      "rating": "R+",
+      "count": 25
+    },
+    {
+      "rating": "R",
+      "count": 7
+    }
+  ],
+  "slots": [
+    {
+      "position": 1,
+      "kind": "OC",
+      "oc": "Lucy",
+      "ocTheme": "Sexy Swimsuit",
+      "rating": "R+",
+      "pose": "PL74",
+      "poseName": "Yawn Arc",
+      "poseRisk": "MID",
+      "palette": "P91_MIDNIGHT_BODEGA",
+      "paletteName": "Midnight Bodega",
+      "kinetics": [
+        "K79"
+      ],
+      "carriers": [
+        {
+          "id": "CR-W14",
+          "name": "Velvet Press-Mark",
+          "cls": "W"
+        },
+        {
+          "id": "CR-B25",
+          "name": "Apex Leading The Lean",
+          "cls": "B"
+        },
+        {
+          "id": "CR-H06",
+          "name": "Ear-Tips Burning",
+          "cls": "H"
+        },
+        {
+          "id": "CR-M09",
+          "name": "Crowd Press",
+          "cls": "M"
+        }
+      ],
+      "hair": "mint hair, loose mid-length with a wet-look wave (поле из плана контракта T4-29; рендер P18 — upper body, волосы не в кадре)",
+      "eyes": "pale-green eyes, half-closed — the drowsy neon gaze; зелёная в тон свечения кожи (рендер P18)",
+      "hairEyeFrom": "canon",
+      "lead": "seat",
+      "register": "oc",
+      "closer": "long-fused",
+      "diceSig": "A2·B3·C4·D4·E4",
+      "dice": "A2 race-first: расовые теги первими (ears/wings/tail/scales), потом волосы · B3 reveal-first: «the blouse gives/conceals…» — что вещь отдаёт/держит · C4 theme-transform: тема ИЗМЕНИЛА её/мир (результат виден) · D4 atmospheric-wash: цветовой залив всего пространства · E4 one-breath: одно предложение на весь кадр, длинное",
+      "fabricTone": "mid"
+    },
+    {
+      "position": 2,
+      "kind": "OC",
+      "oc": "Yui",
+      "ocTheme": "Drunk on the Beach",
+      "rating": "R+",
+      "pose": "PL129",
+      "poseName": "Stone-Step Splay",
+      "poseRisk": "MID",
+      "palette": "P107_LAST_WALTZ_AMBER",
+      "paletteName": "Last Waltz Amber",
+      "kinetics": [
+        "K121"
+      ],
+      "carriers": [
+        {
+          "id": "CR-D21",
+          "name": "Sneeze Event",
+          "cls": "D"
+        },
+        {
+          "id": "CR-L06",
+          "name": "Strapless Vigilance",
+          "cls": "L"
+        },
+        {
+          "id": "CR-C03",
+          "name": "Undercurve Bare",
+          "cls": "C"
+        },
+        {
+          "id": "CR-H09",
+          "name": "Heat-Slick Sheen",
+          "cls": "H"
+        }
+      ],
+      "hair": "yellowish-blonde hair with pink gradient at the tips, low messy ponytail, large elegant bow, decorative hairpins",
+      "eyes": "golden eyes with lighter ring-shaped pupils",
+      "hairEyeFrom": "canon",
+      "lead": "breasts",
+      "register": "oc",
+      "closer": "fragment-pair",
+      "diceSig": "A5·B4·C1·D1·E4",
+      "dice": "A5 marks-first: метки/шрамы/веснушки первыми, потом волосы · B4 fabric-first: «cotton, gone sheer…» — материал первым · C1 theme-noun: тема стала ОБЪЕКТОМ кадра (нарисованная вещь — не название темы в тегах) · D1 source-off-frame: источник за кадром, луч входит · E4 one-breath: одно предложение на весь кадр, длинное",
+      "fabricTone": "mid"
+    },
+    {
+      "position": 3,
+      "kind": "OC",
+      "oc": "Noa",
+      "ocTheme": "Fishnet Avalanche",
+      "rating": "R+",
+      "pose": "PL34",
+      "poseName": "Braced Bend",
+      "poseRisk": "HIGH",
+      "palette": "P29_VOID_FOG",
+      "paletteName": "Void Fog",
+      "kinetics": [
+        "K115"
+      ],
+      "carriers": [
+        {
+          "id": "CR-M12",
+          "name": "Backpack Chest Strap",
+          "cls": "M"
+        },
+        {
+          "id": "CR-E06",
+          "name": "Towel Fold",
+          "cls": "E"
+        },
+        {
+          "id": "CR-W05",
+          "name": "Static Cling",
+          "cls": "W"
+        },
+        {
+          "id": "CR-S01",
+          "name": "Zettai Ryouiki",
+          "cls": "S"
+        }
+      ],
+      "hair": "long deep copper-red hair in a loose side braid, stray strands at the temples, with a small cute bow at the end of the braid",
+      "eyes": "sharp emerald-green eyes with golden flecks",
+      "hairEyeFrom": "canon",
+      "lead": "throat",
+      "register": "oc",
+      "closer": "image-close",
+      "diceSig": "A1·B5·C4·D2·E6",
+      "dice": "A1 hair-first: волосы первыми, потом глаза, потом раса/тело · B5 absence-first: «nothing underneath the…» — отсутствие первым · C4 theme-transform: тема ИЗМЕНИЛА её/мир (результат виден) · D2 edge-on-skin: свет красит кромку тела на зоне · E6 question-close: проза заканчивается вопросом без ответа",
+      "fabricTone": "mid"
+    },
+    {
+      "position": 4,
+      "kind": "VOLT",
+      "rating": "R+",
+      "pose": "PL159",
+      "poseName": "Leash-Bridge Unwind",
+      "poseRisk": "MID",
+      "palette": "P83_MIDNIGHT_LAGOON",
+      "paletteName": "Midnight Lagoon",
+      "kinetics": [
+        "K172"
+      ],
+      "carriers": [
+        {
+          "id": "CR-H11",
+          "name": "Collar-Edge Swallow",
+          "cls": "H"
+        },
+        {
+          "id": "CR-E09",
+          "name": "Vent Gust Flip",
+          "cls": "E"
+        },
+        {
+          "id": "CR-S13",
+          "name": "Goosebumps Field",
+          "cls": "S"
+        },
+        {
+          "id": "CR-D15",
+          "name": "Motorcycle Thrum",
+          "cls": "D"
+        }
+      ],
+      "hair": "sky-blue",
+      "eyes": "silver",
+      "hairEyeFrom": "suggestion",
+      "lead": "seat",
+      "register": "student",
+      "closer": "action-close",
+      "diceSig": "A3·B3·C1·D4·E6",
+      "dice": "A3 garment-first: именнованная вещь сразу после id — до волос · B3 reveal-first: «the blouse gives/conceals…» — что вещь отдаёт/держит · C1 theme-noun: тема стала ОБЪЕКТОМ кадра (нарисованная вещь — не название темы в тегах) · D4 atmospheric-wash: цветовой залив всего пространства · E6 question-close: проза заканчивается вопросом без ответа",
+      "fabricTone": "dark",
+      "dress": {
+        "channel": "bumps",
+        "channelName": "бугорки без цвета (R+ через-ткань, единственный выживший)",
+        "category": "street",
+        "tone": "dark",
+        "garment": "тёмная shorts",
+        "state": [
+          "covered nipples",
+          "clothed nipples",
+          "dark garment",
+          "fabric clinging",
+          "sweat glistening"
+        ],
+        "underlayer": "nothing underneath (позитивно в тег-ране)",
+        "weights": [],
+        "negWeights": [
+          "(nipples through clothing:1.3)",
+          "(see-through:1.3)",
+          "(wet clothes on fabric top:1.2)",
+          "(photorealistic:1.3)",
+          "(3D face:1.3)",
+          "(child:1.2)",
+          "(loli:1.2)"
+        ],
+        "law": "№28 (P30-коктейль, T4-31)"
+      },
+      "ab": {
+        "pair": "κ",
+        "half": "A",
+        "withSlot": 5,
+        "lead": "seat"
+      }
+    },
+    {
+      "position": 5,
+      "kind": "VOLT",
+      "rating": "R+",
+      "race": "Porcelain-doll",
+      "raceId": "R15",
+      "kinPos": "porcelain-doll, bisque skin with seams at joints, ball-joint elbows-and-knees, painted blush fixed",
+      "kinNeg": "normal human skin, no joints, subsurface glow",
+      "kinHook": "light: matte scatter, no subsurface glow — the uncanny read; collision: doll + ivory-white hair + veil = ASH-adjacent (avoid); mat: bisque-porcelain",
+      "pose": "PL26",
+      "poseName": "Side Lounge",
+      "poseRisk": "MID",
+      "palette": "P114_SODA_FOUNTAIN_CHROME",
+      "paletteName": "Soda Fountain Chrome",
+      "kinetics": [
+        "K132"
+      ],
+      "carriers": [
+        {
+          "id": "CR-H11",
+          "name": "Collar-Edge Swallow",
+          "cls": "H"
+        },
+        {
+          "id": "CR-E09",
+          "name": "Vent Gust Flip",
+          "cls": "E"
+        },
+        {
+          "id": "CR-S13",
+          "name": "Goosebumps Field",
+          "cls": "S"
+        },
+        {
+          "id": "CR-D03",
+          "name": "Quarter-Turn Lead",
+          "cls": "D"
+        }
+      ],
+      "hair": "silver",
+      "eyes": "red",
+      "hairEyeFrom": "suggestion",
+      "lead": "seat",
+      "register": "student",
+      "closer": "dialogue",
+      "diceSig": "A5·B8·C4·D6·E6",
+      "dice": "A5 marks-first: метки/шрамы/веснушки первыми, потом волосы · B8 layer-first: «one layer, then…» — счёт слоёв первым · C4 theme-transform: тема ИЗМЕНИЛА её/мир (результат виден) · D6 dual-light: два источника, две температуры на зоне · E6 question-close: проза заканчивается вопросом без ответа",
+      "fabricTone": "dark",
+      "dress": {
+        "channel": "bumps",
+        "channelName": "бугорки без цвета (R+ через-ткань, единственный выживший)",
+        "category": "street",
+        "tone": "dark",
+        "garment": "тёмная cropped jacket",
+        "state": [
+          "covered nipples",
+          "clothed nipples",
+          "dark garment",
+          "fabric clinging",
+          "sweat glistening"
+        ],
+        "underlayer": "nothing underneath (позитивно в тег-ране)",
+        "weights": [],
+        "negWeights": [
+          "(nipples through clothing:1.3)",
+          "(see-through:1.3)",
+          "(wet clothes on fabric top:1.2)",
+          "(photorealistic:1.3)",
+          "(3D face:1.3)",
+          "(child:1.2)",
+          "(loli:1.2)"
+        ],
+        "law": "№28 (P30-коктейль, T4-31)"
+      },
+      "ab": {
+        "pair": "κ",
+        "half": "B",
+        "withSlot": 4,
+        "lead": "seat"
+      },
+      "echo": [
+        "object",
+        "compositional",
+        "pose"
+      ]
+    },
+    {
+      "position": 6,
+      "kind": "VOLT",
+      "rating": "R+",
+      "pose": "PL221",
+      "poseName": "Rain-Face Up-Turn",
+      "poseRisk": "LOW",
+      "palette": "P17_DESERT_BLEACH",
+      "paletteName": "Desert Bleach",
+      "kinetics": [
+        "K144"
+      ],
+      "carriers": [
+        {
+          "id": "CR-W08",
+          "name": "Wet Hemline",
+          "cls": "W"
+        },
+        {
+          "id": "CR-E20",
+          "name": "Leotard Leg-Line",
+          "cls": "E"
+        },
+        {
+          "id": "CR-H05",
+          "name": "Upper-Chest Flush",
+          "cls": "H"
+        },
+        {
+          "id": "CR-M09",
+          "name": "Crowd Press",
+          "cls": "M"
+        }
+      ],
+      "hair": "white",
+      "eyes": "hazel",
+      "hairEyeFrom": "suggestion",
+      "lead": "hips",
+      "register": "student",
+      "closer": "long-fused",
+      "diceSig": "A4·B2·C6·D3·E6",
+      "dice": "A4 body-first: форма тела первой (register-теги), потом волосы · B2 state-first: «soaked through, the blouse…» — состояние первым словом · C6 theme-implied: тема вплетена без явного слова (только теги) · D3 shadow-contrast: свет против тени — контраст пары · E6 question-close: проза заканчивается вопросом без ответа",
+      "fabricTone": "dark",
+      "dress": {
+        "channel": "bumps",
+        "channelName": "бугорки без цвета (R+ через-ткань, единственный выживший)",
+        "category": "street",
+        "tone": "dark",
+        "garment": "тёмная mini skirt",
+        "state": [
+          "covered nipples",
+          "clothed nipples",
+          "dark garment",
+          "fabric clinging",
+          "sweat glistening"
+        ],
+        "underlayer": "nothing underneath (позитивно в тег-ране)",
+        "weights": [],
+        "negWeights": [
+          "(nipples through clothing:1.3)",
+          "(see-through:1.3)",
+          "(wet clothes on fabric top:1.2)",
+          "(photorealistic:1.3)",
+          "(3D face:1.3)",
+          "(child:1.2)",
+          "(loli:1.2)"
+        ],
+        "law": "№28 (P30-коктейль, T4-31)"
+      },
+      "ab": {
+        "pair": "λ",
+        "half": "A",
+        "withSlot": 7,
+        "lead": "hips"
+      }
+    },
+    {
+      "position": 7,
+      "kind": "VOLT",
+      "rating": "R+",
+      "pose": "PL228",
+      "poseName": "Chin-Lift Defiance",
+      "poseRisk": "LOW",
+      "palette": "P111_ORCHID_HOUSE_GHOST",
+      "paletteName": "Orchid House Ghost",
+      "kinetics": [
+        "K72"
+      ],
+      "carriers": [
+        {
+          "id": "CR-W08",
+          "name": "Wet Hemline",
+          "cls": "W"
+        },
+        {
+          "id": "CR-E02",
+          "name": "Bra Strap Escaped Boat Neck",
+          "cls": "E"
+        },
+        {
+          "id": "CR-H05",
+          "name": "Upper-Chest Flush",
+          "cls": "H"
+        },
+        {
+          "id": "CR-M09",
+          "name": "Crowd Press",
+          "cls": "M"
+        }
+      ],
+      "hair": "chestnut",
+      "eyes": "pink",
+      "hairEyeFrom": "library",
+      "lead": "hips",
+      "register": "student",
+      "closer": "fragment-pair",
+      "diceSig": "A5·B5·C3·D5·E6",
+      "dice": "A5 marks-first: метки/шрамы/веснушки первыми, потом волосы · B5 absence-first: «nothing underneath the…» — отсутствие первым · C3 theme-absence: тема — то, чего в кадре НЕТ (пустота НАРИСОВАНА: пустой стул, открытая дверь — не названа тегом) · D5 light-as-verb: свет ДЕЙСТВУЕТ на зону (licks/falls/hits) · E6 question-close: проза заканчивается вопросом без ответа",
+      "fabricTone": "dark",
+      "dress": {
+        "channel": "bumps",
+        "channelName": "бугорки без цвета (R+ через-ткань, единственный выживший)",
+        "category": "street",
+        "tone": "dark",
+        "garment": "тёмная blouse",
+        "state": [
+          "covered nipples",
+          "clothed nipples",
+          "dark garment",
+          "fabric clinging",
+          "sweat glistening"
+        ],
+        "underlayer": "nothing underneath (позитивно в тег-ране)",
+        "weights": [],
+        "negWeights": [
+          "(nipples through clothing:1.3)",
+          "(see-through:1.3)",
+          "(wet clothes on fabric top:1.2)",
+          "(photorealistic:1.3)",
+          "(3D face:1.3)",
+          "(child:1.2)",
+          "(loli:1.2)"
+        ],
+        "law": "№28 (P30-коктейль, T4-31)"
+      },
+      "ab": {
+        "pair": "λ",
+        "half": "B",
+        "withSlot": 6,
+        "lead": "hips"
+      }
+    },
+    {
+      "position": 8,
+      "kind": "NICHE",
+      "rating": "R",
+      "race": "Ram-demon",
+      "raceId": "R06",
+      "kinPos": "ram-demon, horns half-curl, horns single-spiral, horns small-buds",
+      "kinNeg": "no horns, human ears",
+      "kinHook": "collision: full-curl ram horns + serpentine tail = LUA/VAE (pick ONE, never both)",
+      "witnessHint": "свидетель в кадре обязателен (mirror/glass/monitor/phone/gauge…)",
+      "pose": "PL211",
+      "poseName": "Sleeve-Shrug Shiver",
+      "poseRisk": "LOW",
+      "palette": "P81_FAWN_FOLD",
+      "paletteName": "Fawn Fold",
+      "kinetics": [
+        "K73"
+      ],
+      "carriers": [
+        {
+          "id": "CR-M02",
+          "name": "Crossbody Ride",
+          "cls": "M"
+        },
+        {
+          "id": "CR-W11",
+          "name": "Worn-Thin At The Strap",
+          "cls": "W"
+        },
+        {
+          "id": "CR-E25",
+          "name": "Cuff Lost Button",
+          "cls": "E"
+        },
+        {
+          "id": "CR-G04",
+          "name": "Macro Escape",
+          "cls": "G"
+        }
+      ],
+      "hair": "brown",
+      "eyes": "blue",
+      "hairEyeFrom": "suggestion",
+      "lead": "collarbone",
+      "register": "student",
+      "closer": "image-close",
+      "witness": "wet street",
+      "arch": "N39",
+      "door": "OFFERING",
+      "spatial": "THROUGH",
+      "diceSig": "A8·B1·C1·D5·E1",
+      "dice": "A8 witness-first: объект-свидетель первым тегом сцены (НИША-путь) · B1 garment-noun: «the blouse clings…» — вещь субъектом предложения · C1 theme-noun: тема стала ОБЪЕКТОМ кадра (нарисованная вещь — не название темы в тегах) · D5 light-as-verb: свет ДЕЙСТВУЕТ на зону (licks/falls/hits) · E1 three-long: 3 длинных предложения, дыхание медленное"
+    },
+    {
+      "position": 9,
+      "kind": "VOLT",
+      "rating": "R+",
+      "race": "Ghost-kin",
+      "raceId": "R33",
+      "kinPos": "ghost girl, ghost, semi-transparent lower body, cold blue glow, tail-taper instead of legs",
+      "kinNeg": "no tail",
+      "kinHook": "wardrobe: fabric phases through her where she wills; the visible/invisible edge is the claim zone",
+      "pose": "PL170",
+      "poseName": "Cast Follow-Through",
+      "poseRisk": "LOW",
+      "palette": "P16_ORCHID_SHADOW",
+      "paletteName": "Orchid Shadow",
+      "kinetics": [
+        "K176"
+      ],
+      "carriers": [
+        {
+          "id": "CR-W11",
+          "name": "Worn-Thin At The Strap",
+          "cls": "W"
+        },
+        {
+          "id": "CR-F05",
+          "name": "Chair Straddle",
+          "cls": "F"
+        },
+        {
+          "id": "CR-C13",
+          "name": "Rail's Cold Kiss",
+          "cls": "C"
+        },
+        {
+          "id": "CR-G11",
+          "name": "Over-Shoulder Mirror",
+          "cls": "G"
+        }
+      ],
+      "hair": "lavender",
+      "eyes": "violet",
+      "hairEyeFrom": "suggestion",
+      "lead": "breasts",
+      "register": "student",
+      "closer": "action-close",
+      "diceSig": "A2·B7·C4·D5·E2",
+      "dice": "A2 race-first: расовые теги первими (ears/wings/tail/scales), потом волосы · B7 action-clothing: «she reaches/leans, the garment…» — действие раскрывает вещь · C4 theme-transform: тема ИЗМЕНИЛА её/мир (результат виден) · D5 light-as-verb: свет ДЕЙСТВУЕТ на зону (licks/falls/hits) · E2 fragment-pair: 2 фрагмента + 1 длинное — обрыв как стиль",
+      "fabricTone": "dark",
+      "dress": {
+        "channel": "bumps",
+        "channelName": "бугорки без цвета (R+ через-ткань, единственный выживший)",
+        "category": "street",
+        "tone": "dark",
+        "garment": "тёмная shorts",
+        "state": [
+          "covered nipples",
+          "clothed nipples",
+          "dark garment",
+          "fabric clinging",
+          "sweat glistening"
+        ],
+        "underlayer": "nothing underneath (позитивно в тег-ране)",
+        "weights": [],
+        "negWeights": [
+          "(nipples through clothing:1.3)",
+          "(see-through:1.3)",
+          "(wet clothes on fabric top:1.2)",
+          "(photorealistic:1.3)",
+          "(3D face:1.3)",
+          "(child:1.2)",
+          "(loli:1.2)"
+        ],
+        "law": "№28 (P30-коктейль, T4-31)"
+      },
+      "ab": {
+        "pair": "μ",
+        "half": "A",
+        "withSlot": 10,
+        "lead": "breasts"
+      },
+      "echo": [
+        "compositional"
+      ]
+    },
+    {
+      "position": 10,
+      "kind": "VOLT",
+      "rating": "R+",
+      "pose": "PL98",
+      "poseName": "Hedge Leap",
+      "poseRisk": "LOW",
+      "palette": "P105_MIDNIGHT_POCKET",
+      "paletteName": "Midnight Pocket",
+      "kinetics": [
+        "K180"
+      ],
+      "carriers": [
+        {
+          "id": "CR-W11",
+          "name": "Worn-Thin At The Strap",
+          "cls": "W"
+        },
+        {
+          "id": "CR-F05",
+          "name": "Chair Straddle",
+          "cls": "F"
+        },
+        {
+          "id": "CR-C13",
+          "name": "Rail's Cold Kiss",
+          "cls": "C"
+        },
+        {
+          "id": "CR-H07",
+          "name": "Held Breath At Zipper",
+          "cls": "H"
+        }
+      ],
+      "hair": "pale-green",
+      "eyes": "pale-blue",
+      "hairEyeFrom": "library",
+      "lead": "breasts",
+      "register": "student",
+      "closer": "dialogue",
+      "diceSig": "A7·B7·C1·D5·E3",
+      "dice": "A7 claims-first: заявка-теги сразу после id — волосы после одежды · B7 action-clothing: «she reaches/leans, the garment…» — действие раскрывает вещь · C1 theme-noun: тема стала ОБЪЕКТОМ кадра (нарисованная вещь — не название темы в тегах) · D5 light-as-verb: свет ДЕЙСТВУЕТ на зону (licks/falls/hits) · E3 action-beat: глагольная пулемётная очередь — движение",
+      "fabricTone": "dark",
+      "dress": {
+        "channel": "bumps",
+        "channelName": "бугорки без цвета (R+ через-ткань, единственный выживший)",
+        "category": "street",
+        "tone": "dark",
+        "garment": "тёмная knit top",
+        "state": [
+          "covered nipples",
+          "clothed nipples",
+          "dark garment",
+          "fabric clinging",
+          "sweat glistening"
+        ],
+        "underlayer": "nothing underneath (позитивно в тег-ране)",
+        "weights": [],
+        "negWeights": [
+          "(nipples through clothing:1.3)",
+          "(see-through:1.3)",
+          "(wet clothes on fabric top:1.2)",
+          "(photorealistic:1.3)",
+          "(3D face:1.3)",
+          "(child:1.2)",
+          "(loli:1.2)"
+        ],
+        "law": "№28 (P30-коктейль, T4-31)"
+      },
+      "ab": {
+        "pair": "μ",
+        "half": "B",
+        "withSlot": 9,
+        "lead": "breasts"
+      }
+    },
+    {
+      "position": 11,
+      "kind": "NICHE",
+      "rating": "R",
+      "race": "Moth-kin",
+      "raceId": "R16",
+      "kinPos": "moth girl, moth, antennae feathered-curved, dust-scales at the collarbone, wings small-dusted (cloak-fold)",
+      "kinNeg": "human arms, no wings, no antennae",
+      "kinHook": "skin: powder-pale; wardrobe: nothing at the shoulder-blades' folds — capes negotiate; light: the antennae test the dark; the scales hold lamplight a beat late",
+      "witnessHint": "свидетель в кадре обязателен (mirror/glass/monitor/phone/gauge…)",
+      "pose": "PL70",
+      "poseName": "Wariza Sit-Back",
+      "poseRisk": "MID",
+      "palette": "P118_FIRST_FLOOR_LILAC",
+      "paletteName": "First-Floor Lilac",
+      "kinetics": [
+        "K93"
+      ],
+      "carriers": [
+        {
+          "id": "CR-W21",
+          "name": "Lycra Shine",
+          "cls": "W"
+        },
+        {
+          "id": "CR-F14",
+          "name": "Stage Crawl",
+          "cls": "F"
+        },
+        {
+          "id": "CR-A13",
+          "name": "Pencil-Skirt Stride",
+          "cls": "A"
+        },
+        {
+          "id": "CR-H10",
+          "name": "Pupil Widen",
+          "cls": "H"
+        }
+      ],
+      "hair": "white",
+      "eyes": "grey",
+      "hairEyeFrom": "suggestion",
+      "lead": "thighs",
+      "register": "young",
+      "closer": "long-fused",
+      "witness": "elevator brass",
+      "arch": "N25",
+      "door": "PLAY",
+      "spatial": "BELOW",
+      "diceSig": "A7·B2·C2·D8·E1",
+      "dice": "A7 claims-first: заявка-теги сразу после id — волосы после одежды · B2 state-first: «soaked through, the blouse…» — состояние первым словом · C2 theme-action: она ДЕЛАЕТ тему телом/действием (нарисованное действие, без слов темы) · D8 borrowed-light: зона ловит чужой свет (мокрое стекло/зеркало) · E1 three-long: 3 длинных предложения, дыхание медленное"
+    },
+    {
+      "position": 12,
+      "kind": "NICHE",
+      "rating": "R",
+      "race": "Nephilim-kin",
+      "raceId": "R39",
+      "kinPos": "nephilim girl, nephilim, small white wings folded tight at the back, thin halo ring above the hair, feather-tips at the earlobes as earrings",
+      "kinNeg": "no wings, no halo",
+      "kinHook": "вердикт T4-33 (2026-10-17): «плюс-минус человекоподобные — красивое лицо, сладкие ножки» — трогательно, не величественно; skin: pearl-warm; wardrobe: back-open garments (wings rule the backline — лямки крест-накрест обходит крылья), halo holds a faint rim-glow; light: the halo answers the key light, никогда не основной источник",
+      "witnessHint": "свидетель в кадре обязателен (mirror/glass/monitor/phone/gauge…)",
+      "pose": "PL118",
+      "poseName": "Couch-Overhang Recline",
+      "poseRisk": "MID",
+      "palette": "P116_AFTERGLOW_EMBERS",
+      "paletteName": "Afterglow Embers",
+      "kinetics": [
+        "K117"
+      ],
+      "carriers": [
+        {
+          "id": "CR-B03",
+          "name": "Peaks Through Dry Knit",
+          "cls": "B"
+        },
+        {
+          "id": "CR-H08",
+          "name": "Denied Arch",
+          "cls": "H"
+        },
+        {
+          "id": "CR-W15",
+          "name": "Leather Mold",
+          "cls": "W"
+        },
+        {
+          "id": "CR-I06",
+          "name": "Bikini Pale Borders",
+          "cls": "I"
+        }
+      ],
+      "hair": "crimson",
+      "eyes": "grey",
+      "hairEyeFrom": "suggestion",
+      "lead": "hamstrings",
+      "register": "young",
+      "closer": "fragment-pair",
+      "witness": "shop glass",
+      "arch": "N22",
+      "door": "AWARE",
+      "spatial": "BEHIND",
+      "diceSig": "A7·B1·C2·D8·E3",
+      "dice": "A7 claims-first: заявка-теги сразу после id — волосы после одежды · B1 garment-noun: «the blouse clings…» — вещь субъектом предложения · C2 theme-action: она ДЕЛАЕТ тему телом/действием (нарисованное действие, без слов темы) · D8 borrowed-light: зона ловит чужой свет (мокрое стекло/зеркало) · E3 action-beat: глагольная пулемётная очередь — движение"
+    },
+    {
+      "position": 13,
+      "kind": "VOLT",
+      "rating": "R+",
+      "race": "Cat-kin",
+      "raceId": "R04",
+      "kinPos": "cat girl, cat, ears small-fluffy, ears folded, tail slender-tufted",
+      "kinNeg": "human ears, dog ears, fox ears, no tail, round pupils",
+      "kinHook": "wardrobe: ears above the collar; the tail chooses its own hem; light: the ear's inner fur transmits a pink glow in backlight",
+      "pose": "PL193",
+      "poseName": "Stool Straddle Elbow-Rest",
+      "poseRisk": "HIGH",
+      "palette": "P104_HUSH_GREEN",
+      "paletteName": "Hush Green",
+      "kinetics": [
+        "K90"
+      ],
+      "carriers": [
+        {
+          "id": "CR-E21",
+          "name": "Swimsuit Edge Migration",
+          "cls": "E"
+        },
+        {
+          "id": "CR-H07",
+          "name": "Held Breath At Zipper",
+          "cls": "H"
+        },
+        {
+          "id": "CR-M14",
+          "name": "Shawl's Crossed Arms",
+          "cls": "M"
+        },
+        {
+          "id": "CR-W17",
+          "name": "Open-Weave Light",
+          "cls": "W"
+        }
+      ],
+      "hair": "sage",
+      "eyes": "gold",
+      "hairEyeFrom": "suggestion",
+      "lead": "cheeks",
+      "register": "young",
+      "closer": "image-close",
+      "diceSig": "A4·B6·C2·D7·E6",
+      "dice": "A4 body-first: форма тела первой (register-теги), потом волосы · B6 tactile-first: «fabric against skin…» — прикосновение первым · C2 theme-action: она ДЕЛАЕТ тему телом/действием (нарисованное действие, без слов темы) · D7 glow-from-within: зона светится сама (экран/прибор/магия) · E6 question-close: проза заканчивается вопросом без ответа",
+      "fabricTone": "dark",
+      "dress": {
+        "channel": "on_skin",
+        "channelName": "на коже (R+: tape/handbra)",
+        "category": "street",
+        "tone": "dark",
+        "garment": "тёмная blouse",
+        "state": [
+          "taped nipples",
+          "topless with tape",
+          "handbra"
+        ],
+        "underlayer": "кожа + реквизит контакта",
+        "weights": [],
+        "negWeights": [
+          "(bra:1.2)",
+          "(camisole:1.2)",
+          "(bandeau:1.2)",
+          "(undershirt:1.2)",
+          "(photorealistic:1.3)",
+          "(3D face:1.3)",
+          "(child:1.2)",
+          "(loli:1.2)"
+        ],
+        "law": "рецепт v1.9.0 mechanisms.on_skin"
+      },
+      "targetChannel": "dry-sheer",
+      "targetChannelNote": "Сквозь-ткань заявка без состояния ткани (wet clothes / see-through / threadbare) не несёт edge. Мёртвые ткани (джинсы/бархат/кожа/свитпаны/бриджи/костюм) заявку не несут никогда. Уточнение v0.2.0: плотная сухая ≠ истёртая сухая — threadbare-sheer жив отдельным каналом. T4-25: 0/5 за батч. Карта T4-25 (закон №13): R+ доставляет только физика КОНТАКТА; прозрачность без прикосновения — 0/7 за батч по всему sheer-семейст"
+    },
+    {
+      "position": 14,
+      "kind": "VOLT",
+      "rating": "R+",
+      "race": "Medusa-kin",
+      "raceId": "R40",
+      "kinPos": "medusa girl, medusa, snake-hair coils small and glossy, scaled nape fading into human skin, slit pupils she can drop on command",
+      "kinNeg": "human hair, no snake hair, round pupils",
+      "kinHook": "вердикт T4-33 (2026-10-17): «плюс-минус человекоподобные — красивое лицо, сладкие ножки» — змеи-локоны ведут себя как укладка: одна прядь-змея может указывать на объект в кадре; skin: human-warm, scales only at nape/wrists; wardrobe: high necklines tease the nape-scales; light: coils carry a reptile sheen — контраст-носитель без хоррора",
+      "pose": "PL75",
+      "poseName": "Under-Chin Cup",
+      "poseRisk": "LOW",
+      "palette": "P11_OCEAN_DEEP",
+      "paletteName": "Ocean Deep",
+      "kinetics": [
+        "K129"
+      ],
+      "carriers": [
+        {
+          "id": "CR-I12",
+          "name": "Inside-Out Shirt",
+          "cls": "I"
+        },
+        {
+          "id": "CR-E27",
+          "name": "Stretched Neckhole",
+          "cls": "E"
+        },
+        {
+          "id": "CR-S01",
+          "name": "Zettai Ryouiki",
+          "cls": "S"
+        },
+        {
+          "id": "CR-G06",
+          "name": "Staircase Under-Hem",
+          "cls": "G"
+        }
+      ],
+      "hair": "crimson",
+      "eyes": "pearl-grey",
+      "hairEyeFrom": "library",
+      "lead": "seat",
+      "register": "young",
+      "closer": "action-close",
+      "diceSig": "A4·B1·C3·D3·E1",
+      "dice": "A4 body-first: форма тела первой (register-теги), потом волосы · B1 garment-noun: «the blouse clings…» — вещь субъектом предложения · C3 theme-absence: тема — то, чего в кадре НЕТ (пустота НАРИСОВАНА: пустой стул, открытая дверь — не названа тегом) · D3 shadow-contrast: свет против тени — контраст пары · E1 three-long: 3 длинных предложения, дыхание медленное",
+      "fabricTone": "dark",
+      "dress": {
+        "channel": "pantyline",
+        "channelName": "нижняя заявка (R+ вне-груди)",
+        "category": "street",
+        "tone": "dark",
+        "garment": "тёмная tee",
+        "state": [
+          "visible pantyline",
+          "tight",
+          "nothing underneath"
+        ],
+        "underlayer": "без белья или named тонкая вещь",
+        "weights": [],
+        "negWeights": [
+          "(jeans:1.3)",
+          "(denim:1.3)",
+          "(leather skirt:1.2)",
+          "(sweatpants:1.2)",
+          "(photorealistic:1.3)",
+          "(3D face:1.3)",
+          "(child:1.2)",
+          "(loli:1.2)"
+        ],
+        "law": "рецепт v1.9.0 (lower_claims)"
+      },
+      "targetChannel": "wet-sheer-flat",
+      "targetChannelNote": "Состояние ткани без подачи — «выглядит эротично, но ничего эротического не делает». Салиенс-цепочка рвётся на INTERPRETATION: сигнал присутствует, но не прочитывается."
+    },
+    {
+      "position": 15,
+      "kind": "EXQUISITE",
+      "rating": "R+",
+      "race": "Goat-kin",
+      "raceId": "R09",
+      "kinPos": "goat girl, goat, horns small-ribbed-curved, ears long-drooping",
+      "kinNeg": "human ears, no horns",
+      "kinHook": "light: the horn's ribbing stripes the light",
+      "pose": "PL148",
+      "poseName": "Mark-Through Count",
+      "poseRisk": "LOW",
+      "palette": "P103_TELLTALE_ROSE",
+      "paletteName": "Telltale Rose",
+      "kinetics": [
+        "K158"
+      ],
+      "carriers": [
+        {
+          "id": "CR-D27",
+          "name": "Cheer Herkie",
+          "cls": "D"
+        },
+        {
+          "id": "CR-S03",
+          "name": "Collarbone Hollow Pendant",
+          "cls": "S"
+        },
+        {
+          "id": "CR-E06",
+          "name": "Towel Fold",
+          "cls": "E"
+        },
+        {
+          "id": "CR-G11",
+          "name": "Over-Shoulder Mirror",
+          "cls": "G"
+        }
+      ],
+      "hair": "ash-brown",
+      "eyes": "pink",
+      "hairEyeFrom": "suggestion",
+      "lead": "hamstrings",
+      "register": "young",
+      "closer": "dialogue",
+      "diceSig": "A3·B8·C5·D3·E1",
+      "dice": "A3 garment-first: именнованная вещь сразу после id — до волос · B8 layer-first: «one layer, then…» — счёт слоёв первым · C5 theme-witness: свидетель видит тему (третий глаз кадра) · D3 shadow-contrast: свет против тени — контраст пары · E1 three-long: 3 длинных предложения, дыхание медленное",
+      "fabricTone": "dark",
+      "dress": {
+        "channel": "swim_wet",
+        "channelName": "мокрый купальник (R+ вне-ткани)",
+        "category": "swim",
+        "tone": "dark",
+        "garment": "тёмная one-piece swimsuit",
+        "state": [
+          "swimsuit",
+          "wet clothes",
+          "covered nipples",
+          "nothing underneath"
+        ],
+        "underlayer": "ничего (купальник самодостаточен)",
+        "weights": [],
+        "negWeights": [
+          "(bra:1.2)",
+          "(camisole:1.2)",
+          "(garter straps:1.2)",
+          "(nipples through clothing:1.3)",
+          "(photorealistic:1.3)",
+          "(3D face:1.3)",
+          "(child:1.2)",
+          "(loli:1.2)"
+        ],
+        "law": "P21-золото T4-31"
+      },
+      "echo": [
+        "object",
+        "pose"
+      ]
+    },
+    {
+      "position": 16,
+      "kind": "VOLT",
+      "rating": "R+",
+      "pose": "PL16",
+      "poseName": "One-Knee Rise",
+      "poseRisk": "LOW",
+      "palette": "P113_CURFEW_PLUM",
+      "paletteName": "Curfew Plum",
+      "kinetics": [
+        "K146"
+      ],
+      "carriers": [
+        {
+          "id": "CR-G09",
+          "name": "Elevator Brass",
+          "cls": "G"
+        },
+        {
+          "id": "CR-B20",
+          "name": "Vinyl Print",
+          "cls": "B"
+        },
+        {
+          "id": "CR-D03",
+          "name": "Quarter-Turn Lead",
+          "cls": "D"
+        },
+        {
+          "id": "CR-W26",
+          "name": "Wind-Press",
+          "cls": "W"
+        }
+      ],
+      "hair": "sage",
+      "eyes": "gold",
+      "hairEyeFrom": "library",
+      "lead": "cheeks",
+      "register": "young",
+      "closer": "long-fused",
+      "diceSig": "A8·B4·C4·D6·E6",
+      "dice": "A8 witness-first: объект-свидетель первым тегом сцены (НИША-путь) · B4 fabric-first: «cotton, gone sheer…» — материал первым · C4 theme-transform: тема ИЗМЕНИЛА её/мир (результат виден) · D6 dual-light: два источника, две температуры на зоне · E6 question-close: проза заканчивается вопросом без ответа",
+      "fabricTone": "light",
+      "dress": {
+        "channel": "swim_wet",
+        "channelName": "мокрый купальник (R+ вне-ткани)",
+        "category": "swim",
+        "tone": "light",
+        "garment": "светлая competition swimsuit",
+        "state": [
+          "swimsuit",
+          "wet clothes",
+          "covered nipples",
+          "nothing underneath"
+        ],
+        "underlayer": "ничего (купальник самодостаточен)",
+        "weights": [],
+        "negWeights": [
+          "(bra:1.2)",
+          "(camisole:1.2)",
+          "(garter straps:1.2)",
+          "(nipples through clothing:1.3)",
+          "(photorealistic:1.3)",
+          "(3D face:1.3)",
+          "(child:1.2)",
+          "(loli:1.2)"
+        ],
+        "law": "P21-золото T4-31"
+      }
+    },
+    {
+      "position": 17,
+      "kind": "VOLT",
+      "rating": "R+",
+      "pose": "PL171",
+      "poseName": "Platter Bow Serve",
+      "poseRisk": "LOW",
+      "palette": "P39_VOID_INFRARED",
+      "paletteName": "Void Infrared",
+      "kinetics": [
+        "K08"
+      ],
+      "carriers": [
+        {
+          "id": "CR-B01",
+          "name": "Points Against Weave",
+          "cls": "B"
+        },
+        {
+          "id": "CR-W11",
+          "name": "Worn-Thin At The Strap",
+          "cls": "W"
+        },
+        {
+          "id": "CR-G12",
+          "name": "Measuring Wall",
+          "cls": "G"
+        },
+        {
+          "id": "CR-L11",
+          "name": "Borrowed Jacket Strain",
+          "cls": "L"
+        }
+      ],
+      "hair": "chocolate",
+      "eyes": "silver",
+      "hairEyeFrom": "library",
+      "lead": "seat",
+      "register": "young",
+      "closer": "fragment-pair",
+      "diceSig": "A6·B7·C6·D2·E6",
+      "dice": "A6 kinetic-first: движение-тег первым (mid-motion), потом id-хвост · B7 action-clothing: «she reaches/leans, the garment…» — действие раскрывает вещь · C6 theme-implied: тема вплетена без явного слова (только теги) · D2 edge-on-skin: свет красит кромку тела на зоне · E6 question-close: проза заканчивается вопросом без ответа",
+      "fabricTone": "light",
+      "dress": {
+        "channel": "on_skin",
+        "channelName": "на коже (R+: tape/handbra)",
+        "category": "street",
+        "tone": "light",
+        "garment": "светлая dress",
+        "state": [
+          "taped nipples",
+          "topless with tape",
+          "handbra"
+        ],
+        "underlayer": "кожа + реквизит контакта",
+        "weights": [],
+        "negWeights": [
+          "(bra:1.2)",
+          "(camisole:1.2)",
+          "(bandeau:1.2)",
+          "(undershirt:1.2)",
+          "(photorealistic:1.3)",
+          "(3D face:1.3)",
+          "(child:1.2)",
+          "(loli:1.2)"
+        ],
+        "law": "рецепт v1.9.0 mechanisms.on_skin"
+      }
+    },
+    {
+      "position": 18,
+      "kind": "NICHE",
+      "rating": "R",
+      "race": "Gargoyle-kin",
+      "raceId": "R18",
+      "kinPos": "gargoyle girl, gargoyle, small stone horns rough-textured, stone patches at the forearm",
+      "kinNeg": "no horns",
+      "kinHook": "skin: granite-grey warm-veined; wardrobe: heavy weaves that agree with the stone; light: the patches eat light; the horns' rough holds a dry rim",
+      "witnessHint": "свидетель в кадре обязателен (mirror/glass/monitor/phone/gauge…)",
+      "pose": "PL31",
+      "poseName": "Back Arch Lying",
+      "poseRisk": "HIGH",
+      "palette": "P109_TATAMI_MORNING",
+      "paletteName": "Tatami Morning",
+      "kinetics": [
+        "K135"
+      ],
+      "carriers": [
+        {
+          "id": "CR-D05",
+          "name": "Forward-Lean Deepening",
+          "cls": "D"
+        },
+        {
+          "id": "CR-G03",
+          "name": "Between-Knees Sightline",
+          "cls": "G"
+        },
+        {
+          "id": "CR-F08",
+          "name": "Jukebox Hip-Shot",
+          "cls": "F"
+        },
+        {
+          "id": "CR-S19",
+          "name": "Open-Back Field",
+          "cls": "S"
+        }
+      ],
+      "hair": "violet",
+      "eyes": "green",
+      "hairEyeFrom": "library",
+      "lead": "breasts",
+      "register": "milf",
+      "closer": "image-close",
+      "witness": "window pane",
+      "arch": "N28",
+      "door": "MELANCHOLY",
+      "spatial": "ABOVE",
+      "diceSig": "A7·B3·C4·D7·E1",
+      "dice": "A7 claims-first: заявка-теги сразу после id — волосы после одежды · B3 reveal-first: «the blouse gives/conceals…» — что вещь отдаёт/держит · C4 theme-transform: тема ИЗМЕНИЛА её/мир (результат виден) · D7 glow-from-within: зона светится сама (экран/прибор/магия) · E1 three-long: 3 длинных предложения, дыхание медленное"
+    },
+    {
+      "position": 19,
+      "kind": "NICHE",
+      "rating": "R",
+      "race": "Bunny-kin",
+      "raceId": "R12",
+      "kinPos": "bunny girl, bunny, ears long-upright, tail round",
+      "kinNeg": "human ears, cat ears, no tail",
+      "kinHook": "motion: the ears telegraph emotion a beat before the face",
+      "witnessHint": "свидетель в кадре обязателен (mirror/glass/monitor/phone/gauge…)",
+      "pose": "PL178",
+      "poseName": "Leash-Taut Lunge",
+      "poseRisk": "MID",
+      "palette": "P108_STAGEDIVE_CRIMSON",
+      "paletteName": "Stagedive Crimson",
+      "kinetics": [
+        "K65"
+      ],
+      "carriers": [
+        {
+          "id": "CR-F13",
+          "name": "Dash Slouch",
+          "cls": "F"
+        },
+        {
+          "id": "CR-W17",
+          "name": "Open-Weave Light",
+          "cls": "W"
+        },
+        {
+          "id": "CR-B19",
+          "name": "Dome At Quarter-Turn",
+          "cls": "B"
+        },
+        {
+          "id": "CR-H03",
+          "name": "Thighs Losing",
+          "cls": "H"
+        }
+      ],
+      "hair": "auburn",
+      "eyes": "dark-red",
+      "hairEyeFrom": "library",
+      "lead": "throat",
+      "register": "milf",
+      "closer": "action-close",
+      "witness": "photo frame",
+      "arch": "N31",
+      "door": "ABANDONED",
+      "spatial": "OUTSIDE",
+      "diceSig": "A5·B7·C2·D1·E6",
+      "dice": "A5 marks-first: метки/шрамы/веснушки первыми, потом волосы · B7 action-clothing: «she reaches/leans, the garment…» — действие раскрывает вещь · C2 theme-action: она ДЕЛАЕТ тему телом/действием (нарисованное действие, без слов темы) · D1 source-off-frame: источник за кадром, луч входит · E6 question-close: проза заканчивается вопросом без ответа"
+    },
+    {
+      "position": 20,
+      "kind": "VOLT",
+      "rating": "R+",
+      "race": "Vampire-kin",
+      "raceId": "R38",
+      "kinPos": "vampire girl, vampire, small fangs when she smiles, red-iris eyes under lazy lids, cold-pale skin with a living blush at the cheeks",
+      "kinNeg": "no fangs, normal round pupils, warm tanned skin",
+      "kinHook": "вердикт T4-33 (2026-10-17): «плюс-минус человекоподобные — красивое лицо, сладкие ножки» — аристократичный регистр, не хоррор; skin: moon-pale with warm cheek-blush contrast; wardrobe: high collar, opera gloves, ribbon choker — шея и ключицы работают сквозь вырез; light: she avoids hard sun — dusk/interior registers",
+      "pose": "PL28",
+      "poseName": "Kneel Arch Back",
+      "poseRisk": "HIGH",
+      "palette": "P110_RIPOSTE_SILVER",
+      "paletteName": "Riposte Silver",
+      "kinetics": [
+        "K61"
+      ],
+      "carriers": [
+        {
+          "id": "CR-D07",
+          "name": "Pendulum Lag",
+          "cls": "D"
+        },
+        {
+          "id": "CR-B30",
+          "name": "Shoji Silhouette",
+          "cls": "B"
+        },
+        {
+          "id": "CR-W22",
+          "name": "Denim Stress-White",
+          "cls": "W"
+        },
+        {
+          "id": "CR-E09",
+          "name": "Vent Gust Flip",
+          "cls": "E"
+        }
+      ],
+      "hair": "red",
+      "eyes": "teal",
+      "hairEyeFrom": "library",
+      "lead": "waist",
+      "register": "milf",
+      "closer": "dialogue",
+      "diceSig": "A7·B6·C4·D1·E2",
+      "dice": "A7 claims-first: заявка-теги сразу после id — волосы после одежды · B6 tactile-first: «fabric against skin…» — прикосновение первым · C4 theme-transform: тема ИЗМЕНИЛА её/мир (результат виден) · D1 source-off-frame: источник за кадром, луч входит · E2 fragment-pair: 2 фрагмента + 1 длинное — обрыв как стиль",
+      "fabricTone": "mid",
+      "dress": {
+        "channel": "pantyline",
+        "channelName": "нижняя заявка (R+ вне-груди)",
+        "category": "street",
+        "tone": "mid",
+        "garment": "средняя cropped jacket",
+        "state": [
+          "visible pantyline",
+          "tight",
+          "nothing underneath"
+        ],
+        "underlayer": "без белья или named тонкая вещь",
+        "weights": [],
+        "negWeights": [
+          "(jeans:1.3)",
+          "(denim:1.3)",
+          "(leather skirt:1.2)",
+          "(sweatpants:1.2)",
+          "(photorealistic:1.3)",
+          "(3D face:1.3)",
+          "(child:1.2)",
+          "(loli:1.2)"
+        ],
+        "law": "рецепт v1.9.0 (lower_claims)"
+      }
+    },
+    {
+      "position": 21,
+      "kind": "VOLT",
+      "rating": "R+",
+      "race": "Elf",
+      "raceId": "R02",
+      "kinPos": "elf, e1 long-pointed swept-back, e2 short-pointed, e3 single-left-asymmetric",
+      "kinNeg": "human ears, no ears, drooping ears, fox ears",
+      "kinHook": "skin: ['moonlit-pale', 'pale-gold']; wardrobe: higher armholes; nothing at the ear; light: the ear-tip catches the key first",
+      "pose": "PL141",
+      "poseName": "Fan-Snap Open",
+      "poseRisk": "MID",
+      "palette": "P115_HONEY_TRAP",
+      "paletteName": "Honey Trap",
+      "kinetics": [
+        "K77"
+      ],
+      "carriers": [
+        {
+          "id": "CR-I07",
+          "name": "Sung Strap Track",
+          "cls": "I"
+        },
+        {
+          "id": "CR-W03",
+          "name": "Side-Seam Strain",
+          "cls": "W"
+        },
+        {
+          "id": "CR-U13",
+          "name": "Hotel Robe",
+          "cls": "U"
+        },
+        {
+          "id": "CR-H08",
+          "name": "Denied Arch",
+          "cls": "H"
+        }
+      ],
+      "hair": "black",
+      "eyes": "blue",
+      "hairEyeFrom": "library",
+      "lead": "shoulders",
+      "register": "milf",
+      "closer": "long-fused",
+      "diceSig": "A2·B8·C1·D5·E6",
+      "dice": "A2 race-first: расовые теги первими (ears/wings/tail/scales), потом волосы · B8 layer-first: «one layer, then…» — счёт слоёв первым · C1 theme-noun: тема стала ОБЪЕКТОМ кадра (нарисованная вещь — не название темы в тегах) · D5 light-as-verb: свет ДЕЙСТВУЕТ на зону (licks/falls/hits) · E6 question-close: проза заканчивается вопросом без ответа",
+      "fabricTone": "mid",
+      "dress": {
+        "channel": "swim_wet",
+        "channelName": "мокрый купальник (R+ вне-ткани)",
+        "category": "swim",
+        "tone": "mid",
+        "garment": "средняя swim shorts",
+        "state": [
+          "swimsuit",
+          "wet clothes",
+          "covered nipples",
+          "nothing underneath"
+        ],
+        "underlayer": "ничего (купальник самодостаточен)",
+        "weights": [],
+        "negWeights": [
+          "(bra:1.2)",
+          "(camisole:1.2)",
+          "(garter straps:1.2)",
+          "(nipples through clothing:1.3)",
+          "(photorealistic:1.3)",
+          "(3D face:1.3)",
+          "(child:1.2)",
+          "(loli:1.2)"
+        ],
+        "law": "P21-золото T4-31"
+      },
+      "echo": [
+        "object"
+      ]
+    },
+    {
+      "position": 22,
+      "kind": "VOLT",
+      "rating": "R+",
+      "pose": "PL213",
+      "poseName": "Ear-Tip Burn Turn",
+      "poseRisk": "LOW",
+      "palette": "P75_VELVET_GRAVITY",
+      "paletteName": "Velvet Gravity",
+      "kinetics": [
+        "K178"
+      ],
+      "carriers": [
+        {
+          "id": "CR-I17",
+          "name": "Wet Footprints",
+          "cls": "I"
+        },
+        {
+          "id": "CR-S14",
+          "name": "Sunburn Straps",
+          "cls": "S"
+        },
+        {
+          "id": "CR-W04",
+          "name": "Ribbing Stress-Bands",
+          "cls": "W"
+        },
+        {
+          "id": "CR-G08",
+          "name": "Fisheye Curve",
+          "cls": "G"
+        }
+      ],
+      "hair": "white",
+      "eyes": "red",
+      "hairEyeFrom": "library",
+      "lead": "nape",
+      "register": "milf",
+      "closer": "fragment-pair",
+      "diceSig": "A5·B2·C4·D6·E2",
+      "dice": "A5 marks-first: метки/шрамы/веснушки первыми, потом волосы · B2 state-first: «soaked through, the blouse…» — состояние первым словом · C4 theme-transform: тема ИЗМЕНИЛА её/мир (результат виден) · D6 dual-light: два источника, две температуры на зоне · E2 fragment-pair: 2 фрагмента + 1 длинное — обрыв как стиль",
+      "fabricTone": "mid",
+      "dress": {
+        "channel": "on_skin",
+        "channelName": "на коже (R+: tape/handbra)",
+        "category": "street",
+        "tone": "mid",
+        "garment": "средняя mini skirt",
+        "state": [
+          "taped nipples",
+          "topless with tape",
+          "handbra"
+        ],
+        "underlayer": "кожа + реквизит контакта",
+        "weights": [],
+        "negWeights": [
+          "(bra:1.2)",
+          "(camisole:1.2)",
+          "(bandeau:1.2)",
+          "(undershirt:1.2)",
+          "(photorealistic:1.3)",
+          "(3D face:1.3)",
+          "(child:1.2)",
+          "(loli:1.2)"
+        ],
+        "law": "рецепт v1.9.0 mechanisms.on_skin"
+      },
+      "echo": [
+        "compositional",
+        "pose"
+      ]
+    },
+    {
+      "position": 23,
+      "kind": "NICHE",
+      "rating": "R",
+      "race": "Arachne-kin",
+      "raceId": "R35",
+      "kinPos": "arachne girl, arachne, small chitin legs at the lower back, spinneret, extra subtle eye-glints",
+      "kinNeg": "no scales",
+      "kinHook": "upper body human; silk as wardrobe; legs hold the pose like a chair — never horror register",
+      "witnessHint": "свидетель в кадре обязателен (mirror/glass/monitor/phone/gauge…)",
+      "pose": "PL152",
+      "poseName": "Ropes Corner Lean",
+      "poseRisk": "MID",
+      "palette": "P117_TIDEPOOL_TEAL",
+      "paletteName": "Tidepool Teal",
+      "kinetics": [
+        "K92"
+      ],
+      "carriers": [
+        {
+          "id": "CR-W12",
+          "name": "Threadbare Tee",
+          "cls": "W"
+        },
+        {
+          "id": "CR-S12",
+          "name": "Water Beads",
+          "cls": "S"
+        },
+        {
+          "id": "CR-I04",
+          "name": "Sock Rings",
+          "cls": "I"
+        },
+        {
+          "id": "CR-U07",
+          "name": "Seamstress Fitting",
+          "cls": "U"
+        }
+      ],
+      "hair": "ash-brown",
+      "eyes": "pink",
+      "hairEyeFrom": "suggestion",
+      "lead": "hips",
+      "register": "milf",
+      "closer": "image-close",
+      "witness": "security monitor",
+      "arch": "N46",
+      "door": "UNSEEN",
+      "spatial": "INSIDE",
+      "diceSig": "A5·B2·C2·D3·E3",
+      "dice": "A5 marks-first: метки/шрамы/веснушки первыми, потом волосы · B2 state-first: «soaked through, the blouse…» — состояние первым словом · C2 theme-action: она ДЕЛАЕТ тему телом/действием (нарисованное действие, без слов темы) · D3 shadow-contrast: свет против тени — контраст пары · E3 action-beat: глагольная пулемётная очередь — движение"
+    },
+    {
+      "position": 24,
+      "kind": "NICHE",
+      "rating": "R",
+      "race": "Succubus-kin",
+      "raceId": "R37",
+      "kinPos": "succubus girl, succubus, small curved horns satin-black, spade-tail slim with a sway, tiny bat-wing frags at the shoulder blades",
+      "kinNeg": "no horns, no tail, plain human back",
+      "kinHook": "вердикт T4-33 (2026-10-17): «плюс-минус человекоподобные — красивое лицо, сладкие ножки» — лицо чисто аниме-человеческое, ножки стройные без чешуи; skin: warm satin, candle-lit; wardrobe: tail-slit MANDATORY (платье/юбка с продуманным выходом хвоста), wrap-closures instead of back zips; light: the wings catch rim-light only — never a full silhouette",
+      "witnessHint": "свидетель в кадре обязателен (mirror/glass/monitor/phone/gauge…)",
+      "pose": "PL83",
+      "poseName": "Strap Adjust",
+      "poseRisk": "LOW",
+      "palette": "P106_VELVET_ALIBI",
+      "paletteName": "Velvet Alibi",
+      "kinetics": [
+        "K162"
+      ],
+      "carriers": [
+        {
+          "id": "CR-B02",
+          "name": "Shape Through Cold Cloth",
+          "cls": "B"
+        },
+        {
+          "id": "CR-F13",
+          "name": "Dash Slouch",
+          "cls": "F"
+        },
+        {
+          "id": "CR-G12",
+          "name": "Measuring Wall",
+          "cls": "G"
+        },
+        {
+          "id": "CR-W25",
+          "name": "Apron Bib Swell",
+          "cls": "W"
+        }
+      ],
+      "hair": "burgundy",
+      "eyes": "gold",
+      "hairEyeFrom": "suggestion",
+      "lead": "collarbone",
+      "register": "milf",
+      "closer": "action-close",
+      "witness": "traffic mirror",
+      "arch": "N33",
+      "door": "ACCIDENT",
+      "spatial": "THROUGH",
+      "diceSig": "A6·B7·C5·D7·E3",
+      "dice": "A6 kinetic-first: движение-тег первым (mid-motion), потом id-хвост · B7 action-clothing: «she reaches/leans, the garment…» — действие раскрывает вещь · C5 theme-witness: свидетель видит тему (третий глаз кадра) · D7 glow-from-within: зона светится сама (экран/прибор/магия) · E3 action-beat: глагольная пулемётная очередь — движение"
+    },
+    {
+      "position": 25,
+      "kind": "EXP",
+      "rating": "R+",
+      "pose": "PL139",
+      "poseName": "Barre Plié Hold",
+      "poseRisk": "MID",
+      "palette": "P112_POCKET_THEFT_GOLD",
+      "paletteName": "Pocket Theft Gold",
+      "kinetics": [
+        "K69"
+      ],
+      "carriers": [
+        {
+          "id": "CR-S06",
+          "name": "Sideboob Skin",
+          "cls": "S"
+        },
+        {
+          "id": "CR-G06",
+          "name": "Staircase Under-Hem",
+          "cls": "G"
+        },
+        {
+          "id": "CR-D28",
+          "name": "Arms-Crossed Gathering",
+          "cls": "D"
+        },
+        {
+          "id": "CR-E03",
+          "name": "Off-Shoulder Ride",
+          "cls": "E"
+        }
+      ],
+      "hair": "lavender",
+      "eyes": "black",
+      "hairEyeFrom": "library",
+      "lead": "chest",
+      "register": "young",
+      "closer": "dialogue",
+      "diceSig": "A5·B5·C5·D5·E5",
+      "dice": "A5 marks-first: метки/шрамы/веснушки первыми, потом волосы · B5 absence-first: «nothing underneath the…» — отсутствие первым · C5 theme-witness: свидетель видит тему (третий глаз кадра) · D5 light-as-verb: свет ДЕЙСТВУЕТ на зону (licks/falls/hits) · E5 dialogue-close: проза + реплика в конце (closer-dialogue)",
+      "fabricTone": "light",
+      "dress": {
+        "channel": "pantyline",
+        "channelName": "нижняя заявка (R+ вне-груди)",
+        "category": "street",
+        "tone": "light",
+        "garment": "светлая mini skirt",
+        "state": [
+          "visible pantyline",
+          "tight",
+          "nothing underneath"
+        ],
+        "underlayer": "без белья или named тонкая вещь",
+        "weights": [],
+        "negWeights": [
+          "(jeans:1.3)",
+          "(denim:1.3)",
+          "(leather skirt:1.2)",
+          "(sweatpants:1.2)",
+          "(photorealistic:1.3)",
+          "(3D face:1.3)",
+          "(child:1.2)",
+          "(loli:1.2)"
+        ],
+        "law": "рецепт v1.9.0 (lower_claims)"
+      },
+      "exp": {
+        "hypothesis": "закон №27, светлый полюс: wet LIGHT garment + covered/clothed nipples (БЕЗ through) — мокрая светлая ткань прилипла, бугорок без нарисованного соска (формула T4-26 17/25; P01/P02 T4-28 — R)",
+        "half": "A",
+        "pairWith": 26,
+        "letter": "ν"
+      }
+    },
+    {
+      "position": 26,
+      "kind": "EXP",
+      "rating": "R+",
+      "pose": "PL139",
+      "poseName": "Barre Plié Hold",
+      "poseRisk": "MID",
+      "palette": "P112_POCKET_THEFT_GOLD",
+      "paletteName": "Pocket Theft Gold",
+      "kinetics": [
+        "K69"
+      ],
+      "carriers": [
+        {
+          "id": "CR-S06",
+          "name": "Sideboob Skin",
+          "cls": "S"
+        },
+        {
+          "id": "CR-G06",
+          "name": "Staircase Under-Hem",
+          "cls": "G"
+        },
+        {
+          "id": "CR-D28",
+          "name": "Arms-Crossed Gathering",
+          "cls": "D"
+        },
+        {
+          "id": "CR-E03",
+          "name": "Off-Shoulder Ride",
+          "cls": "E"
+        }
+      ],
+      "hair": "lavender",
+      "eyes": "black",
+      "hairEyeFrom": "library",
+      "lead": "chest",
+      "register": "young",
+      "closer": "dialogue",
+      "diceSig": "A5·B5·C5·D5·E5",
+      "dice": "A5 marks-first: метки/шрамы/веснушки первыми, потом волосы · B5 absence-first: «nothing underneath the…» — отсутствие первым · C5 theme-witness: свидетель видит тему (третий глаз кадра) · D5 light-as-verb: свет ДЕЙСТВУЕТ на зону (licks/falls/hits) · E5 dialogue-close: проза + реплика в конце (closer-dialogue)",
+      "fabricTone": "dark",
+      "dress": {
+        "channel": "on_skin",
+        "channelName": "на коже (R+: tape/handbra)",
+        "category": "street",
+        "tone": "dark",
+        "garment": "тёмная shorts",
+        "state": [
+          "taped nipples",
+          "topless with tape",
+          "handbra"
+        ],
+        "underlayer": "кожа + реквизит контакта",
+        "weights": [],
+        "negWeights": [
+          "(bra:1.2)",
+          "(camisole:1.2)",
+          "(bandeau:1.2)",
+          "(undershirt:1.2)",
+          "(photorealistic:1.3)",
+          "(3D face:1.3)",
+          "(child:1.2)",
+          "(loli:1.2)"
+        ],
+        "law": "рецепт v1.9.0 mechanisms.on_skin"
+      },
+      "exp": {
+        "hypothesis": "закон №27, тёмный полюс: sheer DARK garment + через-ткань заявку (nipples through clothing + clothed nipples) — тьма гасит розовое, остаётся бугорок (P20/P08 T4-28 — обе R+)",
+        "half": "B",
+        "pairWith": 25,
+        "letter": "ν"
+      }
+    },
+    {
+      "position": 27,
+      "kind": "EXP",
+      "rating": "R+",
+      "pose": "PL99",
+      "poseName": "Floor Slide",
+      "poseRisk": "HIGH",
+      "palette": "P89_THRESHOLD_GOLD",
+      "paletteName": "Threshold Gold",
+      "kinetics": [
+        "K148"
+      ],
+      "carriers": [
+        {
+          "id": "CR-G06",
+          "name": "Staircase Under-Hem",
+          "cls": "G"
+        },
+        {
+          "id": "CR-C11",
+          "name": "Whale Tail",
+          "cls": "C"
+        },
+        {
+          "id": "CR-W19",
+          "name": "Jersey Rumple",
+          "cls": "W"
+        },
+        {
+          "id": "CR-E20",
+          "name": "Leotard Leg-Line",
+          "cls": "E"
+        }
+      ],
+      "hair": "brown",
+      "eyes": "heterochromia",
+      "hairEyeFrom": "library",
+      "lead": "chest",
+      "register": "young",
+      "closer": "long-fused",
+      "diceSig": "A1·B5·C3·D6·E3",
+      "dice": "A1 hair-first: волосы первыми, потом глаза, потом раса/тело · B5 absence-first: «nothing underneath the…» — отсутствие первым · C3 theme-absence: тема — то, чего в кадре НЕТ (пустота НАРИСОВАНА: пустой стул, открытая дверь — не названа тегом) · D6 dual-light: два источника, две температуры на зоне · E3 action-beat: глагольная пулемётная очередь — движение",
+      "fabricTone": "light",
+      "dress": {
+        "channel": "on_skin",
+        "channelName": "на коже (R+: tape/handbra)",
+        "category": "street",
+        "tone": "light",
+        "garment": "светлая mini skirt",
+        "state": [
+          "taped nipples",
+          "topless with tape",
+          "handbra"
+        ],
+        "underlayer": "кожа + реквизит контакта",
+        "weights": [],
+        "negWeights": [
+          "(bra:1.2)",
+          "(camisole:1.2)",
+          "(bandeau:1.2)",
+          "(undershirt:1.2)",
+          "(photorealistic:1.3)",
+          "(3D face:1.3)",
+          "(child:1.2)",
+          "(loli:1.2)"
+        ],
+        "law": "рецепт v1.9.0 mechanisms.on_skin"
+      },
+      "exp": {
+        "hypothesis": "закон №27, светлый полюс: wet LIGHT garment + covered/clothed nipples (БЕЗ through) — мокрая светлая ткань прилипла, бугорок без нарисованного соска (формула T4-26 17/25; P01/P02 T4-28 — R)",
+        "half": "A",
+        "pairWith": 28,
+        "letter": "ξ"
+      }
+    },
+    {
+      "position": 28,
+      "kind": "EXP",
+      "rating": "R+",
+      "pose": "PL99",
+      "poseName": "Floor Slide",
+      "poseRisk": "HIGH",
+      "palette": "P89_THRESHOLD_GOLD",
+      "paletteName": "Threshold Gold",
+      "kinetics": [
+        "K148"
+      ],
+      "carriers": [
+        {
+          "id": "CR-G06",
+          "name": "Staircase Under-Hem",
+          "cls": "G"
+        },
+        {
+          "id": "CR-C11",
+          "name": "Whale Tail",
+          "cls": "C"
+        },
+        {
+          "id": "CR-W19",
+          "name": "Jersey Rumple",
+          "cls": "W"
+        },
+        {
+          "id": "CR-E20",
+          "name": "Leotard Leg-Line",
+          "cls": "E"
+        }
+      ],
+      "hair": "brown",
+      "eyes": "heterochromia",
+      "hairEyeFrom": "library",
+      "lead": "chest",
+      "register": "young",
+      "closer": "long-fused",
+      "diceSig": "A1·B5·C3·D6·E3",
+      "dice": "A1 hair-first: волосы первыми, потом глаза, потом раса/тело · B5 absence-first: «nothing underneath the…» — отсутствие первым · C3 theme-absence: тема — то, чего в кадре НЕТ (пустота НАРИСОВАНА: пустой стул, открытая дверь — не названа тегом) · D6 dual-light: два источника, две температуры на зоне · E3 action-beat: глагольная пулемётная очередь — движение",
+      "fabricTone": "dark",
+      "dress": {
+        "channel": "swim_wet",
+        "channelName": "мокрый купальник (R+ вне-ткани)",
+        "category": "swim",
+        "tone": "dark",
+        "garment": "тёмная one-piece swimsuit",
+        "state": [
+          "swimsuit",
+          "wet clothes",
+          "covered nipples",
+          "nothing underneath"
+        ],
+        "underlayer": "ничего (купальник самодостаточен)",
+        "weights": [],
+        "negWeights": [
+          "(bra:1.2)",
+          "(camisole:1.2)",
+          "(garter straps:1.2)",
+          "(nipples through clothing:1.3)",
+          "(photorealistic:1.3)",
+          "(3D face:1.3)",
+          "(child:1.2)",
+          "(loli:1.2)"
+        ],
+        "law": "P21-золото T4-31"
+      },
+      "exp": {
+        "hypothesis": "закон №27, тёмный полюс: sheer DARK garment + через-ткань заявку (nipples through clothing + clothed nipples) — тьма гасит розовое, остаётся бугорок (P20/P08 T4-28 — обе R+)",
+        "half": "B",
+        "pairWith": 27,
+        "letter": "ξ"
+      }
+    },
+    {
+      "position": 29,
+      "kind": "EXP",
+      "rating": "R+",
+      "pose": "PL58",
+      "poseName": "Deep Squat Present",
+      "poseRisk": "HIGH",
+      "palette": "P24_VOID_MIDNIGHT",
+      "paletteName": "Void Midnight",
+      "kinetics": [
+        "K119"
+      ],
+      "carriers": [
+        {
+          "id": "CR-B04",
+          "name": "Apex Contour",
+          "cls": "B"
+        },
+        {
+          "id": "CR-M07",
+          "name": "Cello Embrace",
+          "cls": "M"
+        },
+        {
+          "id": "CR-L05",
+          "name": "Petticoat's Half",
+          "cls": "L"
+        },
+        {
+          "id": "CR-W09",
+          "name": "Rain-Sag Sweater",
+          "cls": "W"
+        }
+      ],
+      "hair": "orange",
+      "eyes": "pink",
+      "hairEyeFrom": "library",
+      "lead": "chest",
+      "register": "young",
+      "closer": "fragment-pair",
+      "diceSig": "A7·B8·C3·D6·E5",
+      "dice": "A7 claims-first: заявка-теги сразу после id — волосы после одежды · B8 layer-first: «one layer, then…» — счёт слоёв первым · C3 theme-absence: тема — то, чего в кадре НЕТ (пустота НАРИСОВАНА: пустой стул, открытая дверь — не названа тегом) · D6 dual-light: два источника, две температуры на зоне · E5 dialogue-close: проза + реплика в конце (closer-dialogue)",
+      "fabricTone": "light",
+      "dress": {
+        "channel": "swim_wet",
+        "channelName": "мокрый купальник (R+ вне-ткани)",
+        "category": "swim",
+        "tone": "light",
+        "garment": "светлая competition swimsuit",
+        "state": [
+          "swimsuit",
+          "wet clothes",
+          "covered nipples",
+          "nothing underneath"
+        ],
+        "underlayer": "ничего (купальник самодостаточен)",
+        "weights": [],
+        "negWeights": [
+          "(bra:1.2)",
+          "(camisole:1.2)",
+          "(garter straps:1.2)",
+          "(nipples through clothing:1.3)",
+          "(photorealistic:1.3)",
+          "(3D face:1.3)",
+          "(child:1.2)",
+          "(loli:1.2)"
+        ],
+        "law": "P21-золото T4-31"
+      },
+      "exp": {
+        "hypothesis": "закон №27, светлый полюс: wet LIGHT garment + covered/clothed nipples (БЕЗ through) — мокрая светлая ткань прилипла, бугорок без нарисованного соска (формула T4-26 17/25; P01/P02 T4-28 — R)",
+        "half": "A",
+        "pairWith": 30,
+        "letter": "ρ"
+      }
+    },
+    {
+      "position": 30,
+      "kind": "EXP",
+      "rating": "R+",
+      "pose": "PL58",
+      "poseName": "Deep Squat Present",
+      "poseRisk": "HIGH",
+      "palette": "P24_VOID_MIDNIGHT",
+      "paletteName": "Void Midnight",
+      "kinetics": [
+        "K119"
+      ],
+      "carriers": [
+        {
+          "id": "CR-B04",
+          "name": "Apex Contour",
+          "cls": "B"
+        },
+        {
+          "id": "CR-M07",
+          "name": "Cello Embrace",
+          "cls": "M"
+        },
+        {
+          "id": "CR-L05",
+          "name": "Petticoat's Half",
+          "cls": "L"
+        },
+        {
+          "id": "CR-W09",
+          "name": "Rain-Sag Sweater",
+          "cls": "W"
+        }
+      ],
+      "hair": "orange",
+      "eyes": "pink",
+      "hairEyeFrom": "library",
+      "lead": "chest",
+      "register": "young",
+      "closer": "fragment-pair",
+      "diceSig": "A7·B8·C3·D6·E5",
+      "dice": "A7 claims-first: заявка-теги сразу после id — волосы после одежды · B8 layer-first: «one layer, then…» — счёт слоёв первым · C3 theme-absence: тема — то, чего в кадре НЕТ (пустота НАРИСОВАНА: пустой стул, открытая дверь — не названа тегом) · D6 dual-light: два источника, две температуры на зоне · E5 dialogue-close: проза + реплика в конце (closer-dialogue)",
+      "fabricTone": "dark",
+      "dress": {
+        "channel": "pantyline",
+        "channelName": "нижняя заявка (R+ вне-груди)",
+        "category": "street",
+        "tone": "dark",
+        "garment": "тёмная mini skirt",
+        "state": [
+          "visible pantyline",
+          "tight",
+          "nothing underneath"
+        ],
+        "underlayer": "без белья или named тонкая вещь",
+        "weights": [],
+        "negWeights": [
+          "(jeans:1.3)",
+          "(denim:1.3)",
+          "(leather skirt:1.2)",
+          "(sweatpants:1.2)",
+          "(photorealistic:1.3)",
+          "(3D face:1.3)",
+          "(child:1.2)",
+          "(loli:1.2)"
+        ],
+        "law": "рецепт v1.9.0 (lower_claims)"
+      },
+      "exp": {
+        "hypothesis": "закон №27, тёмный полюс: sheer DARK garment + через-ткань заявку (nipples through clothing + clothed nipples) — тьма гасит розовое, остаётся бугорок (P20/P08 T4-28 — обе R+)",
+        "half": "B",
+        "pairWith": 29,
+        "letter": "ρ"
+      }
+    },
+    {
+      "position": 31,
+      "kind": "EXP",
+      "rating": "R+",
+      "pose": "PL186",
+      "poseName": "Sheet-Wrap Cross",
+      "poseRisk": "MID",
+      "palette": "P78_RUST_LULL",
+      "paletteName": "Rust Lull",
+      "kinetics": [
+        "K103"
+      ],
+      "carriers": [
+        {
+          "id": "CR-H04",
+          "name": "Goosebumps On Spill",
+          "cls": "H"
+        },
+        {
+          "id": "CR-U02",
+          "name": "Half-Buttoned Morning",
+          "cls": "U"
+        },
+        {
+          "id": "CR-B23",
+          "name": "Strap Line Through Bodice",
+          "cls": "B"
+        },
+        {
+          "id": "CR-D09",
+          "name": "Jog Rhythm",
+          "cls": "D"
+        }
+      ],
+      "hair": "dusty-pink",
+      "eyes": "copper-green",
+      "hairEyeFrom": "library",
+      "lead": "chest",
+      "register": "young",
+      "closer": "image-close",
+      "diceSig": "A6·B4·C5·D4·E3",
+      "dice": "A6 kinetic-first: движение-тег первым (mid-motion), потом id-хвост · B4 fabric-first: «cotton, gone sheer…» — материал первым · C5 theme-witness: свидетель видит тему (третий глаз кадра) · D4 atmospheric-wash: цветовой залив всего пространства · E3 action-beat: глагольная пулемётная очередь — движение",
+      "fabricTone": "light",
+      "dress": {
+        "channel": "pantyline",
+        "channelName": "нижняя заявка (R+ вне-груди)",
+        "category": "street",
+        "tone": "light",
+        "garment": "светлая mini skirt",
+        "state": [
+          "visible pantyline",
+          "tight",
+          "nothing underneath"
+        ],
+        "underlayer": "без белья или named тонкая вещь",
+        "weights": [],
+        "negWeights": [
+          "(jeans:1.3)",
+          "(denim:1.3)",
+          "(leather skirt:1.2)",
+          "(sweatpants:1.2)",
+          "(photorealistic:1.3)",
+          "(3D face:1.3)",
+          "(child:1.2)",
+          "(loli:1.2)"
+        ],
+        "law": "рецепт v1.9.0 (lower_claims)"
+      },
+      "exp": {
+        "hypothesis": "закон №27, светлый полюс: wet LIGHT garment + covered/clothed nipples (БЕЗ through) — мокрая светлая ткань прилипла, бугорок без нарисованного соска (формула T4-26 17/25; P01/P02 T4-28 — R)",
+        "half": "A",
+        "pairWith": 32,
+        "letter": "σ"
+      }
+    },
+    {
+      "position": 32,
+      "kind": "EXP",
+      "rating": "R+",
+      "pose": "PL186",
+      "poseName": "Sheet-Wrap Cross",
+      "poseRisk": "MID",
+      "palette": "P78_RUST_LULL",
+      "paletteName": "Rust Lull",
+      "kinetics": [
+        "K103"
+      ],
+      "carriers": [
+        {
+          "id": "CR-H04",
+          "name": "Goosebumps On Spill",
+          "cls": "H"
+        },
+        {
+          "id": "CR-U02",
+          "name": "Half-Buttoned Morning",
+          "cls": "U"
+        },
+        {
+          "id": "CR-B23",
+          "name": "Strap Line Through Bodice",
+          "cls": "B"
+        },
+        {
+          "id": "CR-D09",
+          "name": "Jog Rhythm",
+          "cls": "D"
+        }
+      ],
+      "hair": "dusty-pink",
+      "eyes": "copper-green",
+      "hairEyeFrom": "library",
+      "lead": "chest",
+      "register": "young",
+      "closer": "image-close",
+      "diceSig": "A6·B4·C5·D4·E3",
+      "dice": "A6 kinetic-first: движение-тег первым (mid-motion), потом id-хвост · B4 fabric-first: «cotton, gone sheer…» — материал первым · C5 theme-witness: свидетель видит тему (третий глаз кадра) · D4 atmospheric-wash: цветовой залив всего пространства · E3 action-beat: глагольная пулемётная очередь — движение",
+      "fabricTone": "dark",
+      "dress": {
+        "channel": "on_skin",
+        "channelName": "на коже (R+: tape/handbra)",
+        "category": "street",
+        "tone": "dark",
+        "garment": "тёмная mini skirt",
+        "state": [
+          "taped nipples",
+          "topless with tape",
+          "handbra"
+        ],
+        "underlayer": "кожа + реквизит контакта",
+        "weights": [],
+        "negWeights": [
+          "(bra:1.2)",
+          "(camisole:1.2)",
+          "(bandeau:1.2)",
+          "(undershirt:1.2)",
+          "(photorealistic:1.3)",
+          "(3D face:1.3)",
+          "(child:1.2)",
+          "(loli:1.2)"
+        ],
+        "law": "рецепт v1.9.0 mechanisms.on_skin"
+      },
+      "exp": {
+        "hypothesis": "закон №27, тёмный полюс: sheer DARK garment + через-ткань заявку (nipples through clothing + clothed nipples) — тьма гасит розовое, остаётся бугорок (P20/P08 T4-28 — обе R+)",
+        "half": "B",
+        "pairWith": 31,
+        "letter": "σ"
+      }
+    }
+  ],
+  "ocRotation": [
+    {
+      "name": "Lucy",
+      "served": 3
+    },
+    {
+      "name": "Yui",
+      "served": 3
+    },
+    {
+      "name": "Noa",
+      "served": 3
+    }
+  ],
+  "racialCount": 14,
+  "hairEye": {
+    "source": "specs/hair-eye-library.json (E3, A5P3F §III-C-2)",
+    "ocCanonWins": true,
+    "suggestionFollowed": 11,
+    "suggestionDeviated": 10,
+    "distinctHairOnMains": 16
+  },
+  "echoMotifs": [
+    {
+      "type": "object",
+      "motif": "предмет-реквизит (witchcraft)",
+      "appearances": [
+        {
+          "slot": 5,
+          "act": "I — откровение",
+          "mutation": [
+            "камера меняет дистанцию/ракурс",
+            "роль мотива в кадре меняется"
+          ]
+        },
+        {
+          "slot": 15,
+          "act": "II — развитие",
+          "mutation": [
+            "окружение/локация меняется",
+            "взгляд/выражение меняет отношение к мотиву"
+          ]
+        },
+        {
+          "slot": 21,
+          "act": "III — финал",
+          "mutation": [
+            "палитра сцены смещается по спектру",
+            "температура света меняется"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "compositional",
+      "motif": "геометрия кадра (witchcraft)",
+      "appearances": [
+        {
+          "slot": 5,
+          "act": "I — откровение",
+          "mutation": [
+            "камера меняет дистанцию/ракурс",
+            "взгляд/выражение меняет отношение к мотиву"
+          ]
+        },
+        {
+          "slot": 9,
+          "act": "II — развитие",
+          "mutation": [
+            "камера меняет дистанцию/ракурс",
+            "состояние одежды эволюционирует"
+          ]
+        },
+        {
+          "slot": 22,
+          "act": "III — финал",
+          "mutation": [
+            "камера меняет дистанцию/ракурс",
+            "взгляд/выражение меняет отношение к мотиву"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "pose",
+      "motif": "силуэт (witchcraft)",
+      "appearances": [
+        {
+          "slot": 5,
+          "act": "I — откровение",
+          "mutation": [
+            "палитра сцены смещается по спектру",
+            "направление света поворачивается"
+          ]
+        },
+        {
+          "slot": 15,
+          "act": "II — развитие",
+          "mutation": [
+            "окружение/локация меняется",
+            "взгляд/выражение меняет отношение к мотиву"
+          ]
+        },
+        {
+          "slot": 22,
+          "act": "III — финал",
+          "mutation": [
+            "камера меняет дистанцию/ракурс",
+            "состояние одежды эволюционирует"
+          ]
+        }
+      ]
+    }
+  ],
+  "abPairs": [
+    {
+      "pair": "κ",
+      "a": 4,
+      "b": 5,
+      "lead": "seat"
+    },
+    {
+      "pair": "λ",
+      "a": 6,
+      "b": 7,
+      "lead": "hips"
+    },
+    {
+      "pair": "μ",
+      "a": 9,
+      "b": 10,
+      "lead": "breasts"
+    }
+  ],
+  "carrierStats": {
+    "wSharePct": 23,
+    "sheerRplusPct": 32,
+    "wCapPct": 45,
+    "sheerFrameCapPct": 40
+  },
+  "windowSlugs": [
+    "T4-30",
+    "T4-31",
+    "T4-33"
+  ],
+  "channelStats": {
+    "version": "0.7.0",
+    "live": [
+      "wet-sheer-delivery",
+      "x-coverage-block",
+      "r-geometry",
+      "tape-only",
+      "contact-physics",
+      "handbra-open-palms"
+    ],
+    "candidate": [
+      "threadbare-sheer",
+      "named-underlayer-display",
+      "breast-environment-contact",
+      "oc-rplus",
+      "underwear-as-outfit",
+      "fabric-tension",
+      "pantyline-lower"
+    ],
+    "dead": [
+      "cameltoe"
+    ],
+    "deadClaims": []
+  },
+  "platform": "yodayo",
+  "laws": [
+    "24-слотовый закон (3 OC + 21 мейн)",
+    "спред мейнов: R+×14 · R×7 (NICHE R · VOLT R+ · EXQUISITE R+)",
+    "расовый каст 14 на мейнах (закон №3 «race as mechanism»)",
+    "hair/eye E3: канон для OC, библиотека для мейнов, подсказка палитры ~50%",
+    "echo-мотивы F13: 2-3, арка I→II→III, мутация 1 spatial + 1 narrative/atmospheric",
+    "стеки core-4: 4 мех-группы из 5 на каждом слоте",
+    "rehab-добор (Залп 3): 2 слота несут конфиг оживления канала",
+    "провенанс: черновик UI автора (drafts/) — контракт скомпилирован из брифа §10"
+  ]
+}
