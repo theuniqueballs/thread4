@@ -12,9 +12,9 @@
  * Порт из fred-legacy (2026-10-12, преемник): путь вывода — репо-относительный
  * download/; логика без изменений.
  */
-import { parseBatchMd, extractTrialLaws, extractHypotheses, buildTrialRadarMarkdown } from '../../src/lib/t4/batch-md'
+import { parseBatchMd, extractTrialLaws, extractHypotheses, contractExpProgram, buildTrialRadarMarkdown } from '../../src/lib/t4/batch-md'
 import { readEvents } from '../../src/lib/t4/events'
-import { readText, writeText } from '../../src/lib/t4/fsutil'
+import { readJson, readText, writeText } from '../../src/lib/t4/fsutil'
 import path from 'node:path'
 
 export function run(args: string[]) {
@@ -49,7 +49,10 @@ export function run(args: string[]) {
     const b = load(slug)
     if (!b) continue
     const laws = extractTrialLaws(b.md)
-    const hypos = extractHypotheses(b.md, b.parsed)
+    /* Вердикт T4-34: программа EXP восстанавливается из контракта,
+     * если писец терял маркеры THESIS — та же правда, что радар дашборда. */
+    const contractJson = readJson<unknown>(path.join('thread4', 'contracts', `${slug}.json`))
+    const hypos = extractHypotheses(b.md, b.parsed, contractExpProgram(contractJson))
     if (laws.length === 0 && hypos.length === 0) {
       console.log(`${slug}: ни законов, ни EXP-слотов — сводка пуста, пропуск`)
       continue
