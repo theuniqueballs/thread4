@@ -1530,6 +1530,86 @@ async function main() {
           return withStack.length >= 30 && stackIds(withStack[0].stack).length >= 2
         })()
       )
+      /* Вердикт T4-34 («в рендере законов пишет, что в батче нет ехп
+       * слотов»): полный греческий ряд радара + восстановление программы
+       * из контракта + механическая чистота болванок (три слоя защиты). */
+      const md31 = readText(path.join('thread4', 'batches', 'T4-31.md')) ?? ''
+      const md34 = readText(path.join('thread4', 'batches', 'T4-34.md')) ?? ''
+      const p31 = parseBatchMd(md31)
+      const p34 = parseBatchMd(md34)
+      const { contractExpProgram, stripThemeTokens } = await import('../src/lib/t4/batch-md')
+      const fsMod = await import('node:fs')
+      const c34Exp = contractExpProgram(
+        JSON.parse(fsMod.readFileSync('thread4/contracts/T4-34.json', 'utf-8'))
+      )
+      check(
+        'batch-md: σ-пара T4-31 читается радаром (греческий ряд полный, не κλμνξρ)',
+        (() => {
+          const h31 = extractHypotheses(md31, p31!)
+          const sigma = h31.find((h) => h.greek === 'σ')
+          return Boolean(sigma && sigma.kind === 'pair' && sigma.a && sigma.b && sigma.lawNo === '27')
+        })()
+      )
+      check(
+        'batch-md: σ-пара T4-34 (маркер P31 уцелел) — читается без контракта',
+        (() => {
+          const h34 = extractHypotheses(md34, p34!)
+          const sigma = h34.find((h) => h.greek === 'σ')
+          return Boolean(sigma && sigma.a && !sigma.a.recovered)
+        })()
+      )
+      check(
+        'batch-md: программа T4-34 восстанавливается из контракта — 4 пары (ν ξ ρ σ), потерянные половины помечены ⚑',
+        (() => {
+          const h34 = extractHypotheses(md34, p34!, c34Exp)
+          const greeks = new Set(h34.map((h) => h.greek))
+          const sigma = h34.find((h) => h.greek === 'σ')
+          return (
+            ['ν', 'ξ', 'ρ', 'σ'].every((g) => greeks.has(g)) &&
+            h34.filter((h) => h.kind === 'pair').length === 4 &&
+            Boolean(sigma?.b?.recovered) &&
+            h34.some((h) => h.lawNo === '27')
+          )
+        })()
+      )
+      check(
+        'batch-md: stripThemeTokens вычищает тему из POS болванки, честные теги живы',
+        (() => {
+          const polluted =
+            'anime style, 1girl, theft-gold-bright sweater, covered nipples, glowing runes, arcane energy, spellcasting, streetlamp_goldslice_hard lighting, masterpiece, best quality, anime artstyle.'
+          const clean = stripThemeTokens(polluted, [
+            'runes', 'glowing', 'spellcasting', 'energy', 'incantation', 'arcane', 'ethereal', 'magical',
+          ])
+          return (
+            !/runes|glowing|spellcasting|arcane/i.test(clean) &&
+            clean.includes('covered nipples') &&
+            clean.includes('streetlamp_goldslice_hard') &&
+            clean.includes('masterpiece')
+          )
+        })()
+      )
+    }
+
+    // Вердикт T4-34: гейт exp-purity ловит загрязнение живого батча
+    {
+      const g34 = runGates('T4-34', true)
+      const ep34 = g34?.receipts.find((r) => r.gate === 'exp-purity')
+      const markerFinds = (ep34?.findings ?? []).filter((x) => x.includes('не открывается маркером'))
+      const themeFinds = (ep34?.findings ?? []).filter((x) => x.includes('тема-слова в POS'))
+      check(
+        `exp-purity: T4-34 (сдан до фикса) — гейт видит историю: ${markerFinds.length} потерянных маркеров THESIS, вердикт истины`,
+        ep34?.verdict === 'FAIL' && markerFinds.length >= 6
+      )
+      check(
+        `exp-purity: тема-слова в POS болванок T4-34 — ${themeFinds.length} слотов с witchcraft-тегами (то, что видел автор)`,
+        themeFinds.length >= 5
+      )
+      const g27 = runGates('T4-27', true)
+      const ep27 = g27?.receipts.find((r) => r.gate === 'exp-purity')
+      check(
+        'exp-purity: чистый канон T4-27 (маркеры на месте, темы в болванках нет) — PASS, ложных срабатываний нет',
+        ep27?.verdict === 'PASS'
+      )
     }
 
     // Аудит 2026-10-12: регрессии целостности летописи и окна ротации

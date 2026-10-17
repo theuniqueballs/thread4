@@ -43,6 +43,7 @@ import {
   parseBatchMd,
   stackIds,
   type BatchMd,
+  type ContractExpSlot,
   type Hypothesis,
   type HypothesisHalf,
   type SlotMd,
@@ -68,6 +69,9 @@ export interface BatchDetailData {
   title: string
   markdown: string
   receipts: { gate: string; level: string; verdict: string; findings: string[]; notes?: string[] }[]
+  /** EXP-программа контракта (вердикт T4-34): буквы/половины/гипотезы —
+   *  фолбэк радара, когда писец терял маркеры THESIS */
+  expProgram?: ContractExpSlot[]
 }
 
 export interface BatchVerdictRecord {
@@ -1131,6 +1135,11 @@ function RadarHypoRow({
                   <Chip>{h.greek} · одиночка</Chip>
                 )}
                 {half.alchemy ? <Chip tone="rose">⚗ осознанный нарушитель</Chip> : null}
+                {half.recovered ? (
+                  <span title="Маркер THESIS был потерян писцом — половина восстановлена из контракта (вердикт T4-34)">
+                    <Chip>⚑ из контракта</Chip>
+                  </span>
+                ) : null}
                 {record && tierByPos.get(half.slotId) ? (
                   <Chip tone="emerald" className="font-mono">
                     глаз автора: {tierByPos.get(half.slotId)}
@@ -1180,7 +1189,7 @@ export function TrialRadarPanel() {
   const parsed = useMemo(() => (detail.data ? parseBatchMd(detail.data.markdown) : null), [detail.data])
   const ownLaws = useMemo(() => (detail.data ? extractTrialLaws(detail.data.markdown) : []), [detail.data])
   const hypos = useMemo(
-    () => (parsed && detail.data ? extractHypotheses(detail.data.markdown, parsed) : []),
+    () => (parsed && detail.data ? extractHypotheses(detail.data.markdown, parsed, detail.data.expProgram) : []),
     [parsed, detail.data]
   )
   /* трекер рендера — та же черновая память, что Слоты и Сравнение.

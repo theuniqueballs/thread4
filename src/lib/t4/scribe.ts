@@ -24,6 +24,7 @@ import { isTransientLlmError, withTimeout } from './llm-guard'
 import { TIER_RANK } from './verdicts'
 import { type BatchContract, type SlotPlan } from './compiler'
 import { coerceSlotVariety, varietyLine } from './variety-engine'
+import { stripThemeTokens } from './batch-md'
 import {
   getBans,
   getCarriers,
@@ -825,6 +826,33 @@ function normalizePos(pos: string, slot: SlotPlan, ctx: ScribeCtx): string {
 /* Batch file assembly                                                 */
 /* ------------------------------------------------------------------ */
 
+/* ── EXP-оверлей: механическая гварда чистоты (вердикт T4-34: «ты
+ * используешь EXP слоты как ещё слоты под тему — отстой») ──────────
+ * Маркер THESIS и безтемность EXP-слота — машинные инварианты, не
+ * поручения писцу. THESIS собирается из контракта ДОСЛОВНО
+ * («EXP σ-A · <гипотеза>»), тема-слова вычищаются из POS токен-фильтром
+ * (batch-md.stripThemeTokens — ту же правду несёт гейт exp-purity),
+ * якорь — механический (тон × поза). Дискреция писца на EXP-слотах
+ * после LLM-шага — нулевая: болванку доделяет машина. Экспорт — для
+ * самотеста (чище, чем гонять весь scribeBatch). */
+export function expThesisOf(slot: SlotPlan, llmThesis: string): string {
+  const e = slot.exp
+  if (!e || !e.hypothesis) return llmThesis
+  return `EXP ${e.letter ?? 'α'}-${e.half ?? 'A'} · ${e.hypothesis}`
+}
+
+/** Механический якорь EXP-слота: тон вещи × поза — тема не входит. */
+export function expAnchorOf(slot: SlotPlan): string {
+  const tone = slot.fabricTone ?? 'mid'
+  const pose = (slot.pose ?? 'PL00').replace(/^PL/i, '').toLowerCase()
+  return `exp-${tone}-pl${pose}`
+}
+
+/** POS EXP-слота: тема-слова батча вычищаются (болванка без темы). */
+export function expPosOf(llmPos: string, themeKeywords: string[]): string {
+  return stripThemeTokens(llmPos, themeKeywords)
+}
+
 function assembleBatch(
   ctx: ScribeCtx,
   outputs: Map<number, ScribeSlotOutput>,
@@ -910,8 +938,11 @@ function assembleBatch(
       const out = outputs.get(slot.position)
       if (!out) continue
       const who = stripRaceParens(slot.race)
-      L.push(`P${String(slot.position).padStart(2, '0')} — ${out.anchor} (EXP · ${who} · ${slot.rating} · ${slot.pose} · ${slot.palette})`)
-      L.push(`THESIS: ${out.thesis}`)
+      /* Вердикт T4-34: якорь/THESIS/POS EXP-слота — машинные, не LLM:
+       * маркер из контракта (радар видит программу), тема-слова из
+       * POS вычищены, якорь без темы (тон × поза). */
+      L.push(`P${String(slot.position).padStart(2, '0')} — ${expAnchorOf(slot)} (EXP · ${who} · ${slot.rating} · ${slot.pose} · ${slot.palette})`)
+      L.push(`THESIS: ${expThesisOf(slot, out.thesis)}`)
       const k = ctx.kNames.get(slot.kinetics[0] ?? '')
       const spineParts = [
         `${slot.pose} ${slot.poseName}`,
@@ -932,7 +963,7 @@ function assembleBatch(
       L.push(`Stack: ${slot.carriers.map((x) => x.id).join(' + ')}`)
       L.push('POS:')
       L.push('')
-      L.push(normalizePos(out.pos, slot, ctx))
+      L.push(normalizePos(expPosOf(out.pos, ctx.themeKeywords), slot, ctx))
       L.push('')
       L.push('NEG:')
       L.push('')
@@ -942,6 +973,8 @@ function assembleBatch(
   }
   return L.join('\n').trimEnd() + '\n'
 }
+
+/* ── END: EXP-оверлей — механическая гварда ─────────────────────────── */
 
 /* ------------------------------------------------------------------ */
 /* LLM plumbing                                                        */
@@ -1244,7 +1277,7 @@ async function scribeBatchInner(
   for (let i = 0; i < contract.slots.length; i += chunkSize) {
     chunks.push(contract.slots.slice(i, i + chunkSize))
   }
-    const batchLawBlock = `BATCH ${slug} «${title}» — theme: ${theme}${contract.authorWishes ? `\nAUTHOR'S WISHES (приказ автора — закон энергии этого батча): ${contract.authorWishes}` : ''}\nENGINE (одноразовый, ваш): ${ctx.engineName} — ${ctx.engineLaw}\nBATCH THESIS (yours, keep it): ${ctx.batchThesis}\nTHEME-KEYWORDS (weave ≥1 into EVERY slot's tags or prose — the theme must be VISIBLE in the frame, not in the header): ${ctx.themeKeywords.join(', ') || '—'}\nGENRE PLAN: ${contract.slots.filter((s) => s.kind === 'NICHE').length} NICHE (R) · ${contract.slots.filter((s) => s.kind === 'VOLT' || s.kind === 'EXQUISITE').length} VOLT/EXQUISITE (R+ incl. ${contract.slots.filter((s) => s.kind === 'OC' && s.rating === 'R+').length} OC) · ${contract.slots.filter((s) => s.rating === 'X').length} X${contract.slots.some((s) => s.kind === 'EXP') ? ` · ${contract.slots.filter((s) => s.kind === 'EXP').length} EXP (без темы)` : ''}`
+    const batchLawBlock = `BATCH ${slug} «${title}» — theme: ${theme}${contract.authorWishes ? `\nAUTHOR'S WISHES (приказ автора — закон энергии этого батча): ${contract.authorWishes}` : ''}\nENGINE (одноразовый, ваш): ${ctx.engineName} — ${ctx.engineLaw}\nBATCH THESIS (yours, keep it): ${ctx.batchThesis}\nTHEME-KEYWORDS (weave ≥1 into every MAIN/OC slot's tags or prose — the theme must be VISIBLE in the frame, not in the header; EXP slots are theme-free test blanks — theme words NEVER enter them, вердикт T4-34): ${ctx.themeKeywords.join(', ') || '—'}\nGENRE PLAN: ${contract.slots.filter((s) => s.kind === 'NICHE').length} NICHE (R) · ${contract.slots.filter((s) => s.kind === 'VOLT' || s.kind === 'EXQUISITE').length} VOLT/EXQUISITE (R+ incl. ${contract.slots.filter((s) => s.kind === 'OC' && s.rating === 'R+').length} OC) · ${contract.slots.filter((s) => s.rating === 'X').length} X${contract.slots.some((s) => s.kind === 'EXP') ? ` · ${contract.slots.filter((s) => s.kind === 'EXP').length} EXP (без темы)` : ''}`
 
   for (let ci = 0; ci < chunks.length; ci++) {
     const chunk = chunks[ci]

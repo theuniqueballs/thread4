@@ -3,8 +3,9 @@ import { NextResponse } from 'next/server'
 import { requireRead } from '@/lib/t4/apiguard'
 import path from 'node:path'
 
-import { BATCHES_DIR, readJson, readText } from '@/lib/t4/fsutil'
+import { BATCHES_DIR, CONTRACTS_DIR, readJson, readText } from '@/lib/t4/fsutil'
 import { extractBatchTitle } from '@/lib/t4/gates'
+import { contractExpProgram, type ContractExpSlot } from '@/lib/t4/batch-md'
 
 export const dynamic = 'force-dynamic'
 
@@ -54,10 +55,17 @@ export async function GET(
         : {}),
     }
   })
+  /* Вердикт T4-34 («в рендере законов — нет ехп слотов»): EXP-программа
+   *  контракта — источник истины для восстановления гипотез радара,
+   *  когда писец терял маркеры THESIS. Контракт может отсутствовать
+   *  (RAW-батчи) — тогда []. */
+  const contractJson = readJson<unknown>(path.join(CONTRACTS_DIR, `${slug}.json`))
+  const expProgram: ContractExpSlot[] = contractExpProgram(contractJson)
   return NextResponse.json({
     slug,
     title,
     markdown,
     receipts,
+    expProgram,
   })
 }

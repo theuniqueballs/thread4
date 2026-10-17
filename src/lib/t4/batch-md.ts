@@ -264,6 +264,9 @@ export interface HypothesisHalf {
   alchemy: boolean
   /** POS слота — для диффа половинок прямо в радаре */
   pos: string
+  /** маркер THESIS был потерян писцом — половина восстановлена из
+   *  контракта (вердикт T4-34: «в рендере законов нет ехп слотов») */
+  recovered?: boolean
 }
 
 /** EXP-гипотеза батча: пара κ/λ/μ (A/B) или одиночка ν/ξ/ρ. */
@@ -286,8 +289,14 @@ const LAW_HEAD_RE = /^\s*\d+\.\s+\*\*(M\d+)\s+([^*]+?)\s*\*\*\s*(?:\(([^)]*)\))?
 const LAW_REF_RE = /закон\s*№\s*\d+/
 /* NB: \b после греческой буквы не существует (\b — ASCII-граница, буква
  * не-ASCII) — поэтому lookahead (?![A-Za-z0-9]), а не \b. */
-const HYPO_PAIR_RE = /^EXP\s+([κλμνξρ])-(A|B)(?![A-Za-z0-9])\s*·?\s*(H\d+)?\s*(.*)$/u
-const HYPO_SINGLE_RE = /^EXP\s+single\s*·\s*([κλμνξρ])(?![A-Za-z0-9])\s*(H\d+)?\s*(.*)$/u
+/* Вердикт T4-34 («средненько… в рендере законов — нет ехп слотов»):
+ * алфавит радара был урезан до κλμνξρ (буквы T4-27), а генераторы
+ * продолжили греческий ряд: T4-25/26 писали α-ι, EXP-оверлей — σ/τ.
+ * Слова «нет EXP-слотов» на батче С программой — прямое следствие:
+ * признанная парой буква вне алфавита радара. Ряд — весь, до ω. */
+const GREEK = 'αβγδεζηθικλμνξοπρστυφχψω'
+const HYPO_PAIR_RE = new RegExp(`^EXP\s+([${GREEK}])-(A|B)(?![A-Za-z0-9])\s*·?\s*(H\d+)?\s*(.*)$`, 'u')
+const HYPO_SINGLE_RE = new RegExp(`^EXP\s+single\s*·\s+([${GREEK}])(?![A-Za-z0-9])\s*(H\d+)?\s*(.*)$`, 'u')
 const HYPO_LAW_RE = /закон\s*№\s*(\d+)/
 const ALCHEMY_ROW_RE = /^P(\d+)\s+—\s+\S+\s+\(.*\)\s*⚗/
 
@@ -322,10 +331,112 @@ function hypoTitle(rest: string): string {
   return collapse(rest.split(/[(—:]/)[0])
 }
 
-/** EXP-программа батча: THESIS слотов несут маркеры «EXP κ-A · H10 …»
- *  (формат стабилен с T4-25). Половинки одной буквы склеиваются в пару;
- *  ⚗-марки ловятся по строке шапки слота. */
-export function extractHypotheses(md: string, batch: BatchMd): Hypothesis[] {
+/* ------------------------------------------------------------------ */
+/* Тема-токены (вердикт T4-34: «EXP слоты — не слоты под тему»)        */
+/* ------------------------------------------------------------------ */
+
+/** Экранирование для RegExp-вставки слова. */
+function escapeRe(word: string): string {
+  return word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
+/** Нормализованные тема-слова: <3 символов и пустые отсекаются —
+ *  короткие («wet», «red») с too-широким охватом роняют честные теги. */
+export function normalizeThemeWords(words: string[]): string[] {
+  const seen = new Set<string>()
+  const out: string[] = []
+  for (const w of words) {
+    const k = w.trim().toLowerCase()
+    if (k.length < 3 || seen.has(k)) continue
+    seen.add(k)
+    out.push(k)
+  }
+  return out
+}
+
+/** Один скомпилированный матчер тема-слов: `(^|[\s_-])(w1|w2…)([\s_-]|$)`
+ *  на нижнем регистре — слово целиком, не подстрокой («energy» не режет
+ *  «streetlamp_goldslice_hard»). Пустой список — null (zero-cost). */
+export function themeWordMatcher(words: string[]): RegExp | null {
+  const kws = normalizeThemeWords(words)
+  if (kws.length === 0) return null
+  const alt = kws.map(escapeRe).join('|')
+  return new RegExp(`(^|[\\s_-])(${alt})([\\s_-]|$)`)
+}
+
+/** Токен POS содержит тема-слово как отдельное слово. */
+export function themeTokenHit(token: string, matcher: RegExp | string[]): string | null {
+  const re = typeof matcher === 'string' ? themeWordMatcher([matcher]) : Array.isArray(matcher) ? themeWordMatcher(matcher) : matcher
+  if (!re) return null
+  const m = token.toLowerCase().match(re)
+  return m ? m[2] : null
+}
+
+/** Вычистить тему-слова из POS EXP-болванки: токены, содержащие
+ *  тема-слово, удаляются целиком («glowing runes», «arcane energy»).
+ *  Чистая функция — гейт exp-purity и механика писца делят одну правду. */
+export function stripThemeTokens(pos: string, themeWords: string[]): string {
+  const re = themeWordMatcher(themeWords)
+  if (!re) return pos
+  const kept: string[] = []
+  for (const token of pos.split(',')) {
+    const t = token.trim()
+    if (t === '' || re.test(t.toLowerCase())) continue
+    kept.push(t)
+  }
+  return kept
+    .join(', ')
+    .replace(/\s{2,}/g, ' ')
+    .replace(/,\s*,/g, ',')
+    .replace(/[\s,]+$/, '')
+    .replace(/^[\s,]+/, '')
+}
+
+/** EXP-программа контракта — проекция slots[].exp для восстановления
+ *  гипотез в радаре (вердикт T4-34: писец терял маркеры THESIS и мешал
+ *  тему в тезисы — контракт остаётся источником истины букв/половин). */
+export interface ContractExpSlot {
+  position: number
+  letter: string
+  half?: 'A' | 'B'
+  hypothesis?: string
+  pairWith?: number
+}
+
+/** Проекция EXP-программы из сырого JSON контракта (генератор пишет
+ *  slots[].exp { letter, half, hypothesis, pairWith }). Робастна к
+ *  отсутствию поля и мусорным типам — RAW-батчи без контракта дают []. */
+export function contractExpProgram(contractJson: unknown): ContractExpSlot[] {
+  const c = contractJson as { slots?: unknown[] } | null | undefined
+  if (!c || !Array.isArray(c.slots)) return []
+  const out: ContractExpSlot[] = []
+  for (const raw of c.slots) {
+    const s = (raw ?? {}) as Record<string, unknown>
+    const e = (s.exp ?? null) as Record<string, unknown> | null
+    if (!e || typeof s.position !== 'number') continue
+    const letter = typeof e.letter === 'string' && e.letter ? e.letter : 'α'
+    const half = e.half === 'A' || e.half === 'B' ? e.half : undefined
+    out.push({
+      position: s.position,
+      letter,
+      half,
+      hypothesis: typeof e.hypothesis === 'string' ? e.hypothesis : '',
+      pairWith: typeof e.pairWith === 'number' ? e.pairWith : undefined,
+    })
+  }
+  return out
+}
+
+/** EXP-программа батча: THESIS слотов несут маркеры «EXP κ-A · H10 …».
+ *  Половинки одной буквы склеиваются в пару; ⚗-марки ловятся по строке
+ *  шапки слота. Вердикт T4-34: маркеры, потерянные писцом, дополняются
+ *  программой контракта (recovered-половинки — буква/половина/гипотеза
+ *  из генератора, тезис как написан — радар честен и насчёт потери). */
+export function extractHypotheses(
+  md: string,
+  batch: BatchMd,
+  contractExp?: ContractExpSlot[]
+): Hypothesis[] {
   if (!md || batch.slots.length === 0) return []
   const alchemy = new Set<string>()
   for (const line of md.split('\n')) {
@@ -333,6 +444,7 @@ export function extractHypotheses(md: string, batch: BatchMd): Hypothesis[] {
     if (m) alchemy.add(`P${m[1].padStart(2, '0')}`)
   }
   const out = new Map<string, Hypothesis>()
+  const matched = new Set<string>()
   for (const s of batch.slots) {
     if (s.kind !== 'EXP' || !s.thesis) continue
     const half: HypothesisHalf = {
@@ -357,6 +469,7 @@ export function extractHypotheses(md: string, batch: BatchMd): Hypothesis[] {
       else h.b = half
       if (pair[3]) h.hid = pair[3]
       out.set(pair[1], h)
+      matched.add(s.id)
       continue
     }
     if (single) {
@@ -368,6 +481,51 @@ export function extractHypotheses(md: string, batch: BatchMd): Hypothesis[] {
         title: hypoTitle(single[3] ?? ''),
         single: half,
       })
+      matched.add(s.id)
+    }
+  }
+  /* восстановление из контракта — только для EXP-слотов, чей THESIS
+   * маркер не распознан (потерян/загрязнён темой). Позиция слота — из
+   * его id («P25» → 25), контракт нумерует позиции числами. */
+  if (contractExp && contractExp.length > 0) {
+    const byPos = new Map(contractExp.map((x) => [x.position, x]))
+    for (const s of batch.slots) {
+      if (s.kind !== 'EXP' || matched.has(s.id)) continue
+      const ce = byPos.get(Number.parseInt(s.id.replace(/^P/i, ''), 10) || 0)
+      if (!ce) continue
+      const half: HypothesisHalf = {
+        slotId: s.id,
+        slotSlug: s.slug,
+        thesis: s.thesis,
+        alchemy: alchemy.has(s.id),
+        pos: s.pos,
+        recovered: true,
+      }
+      const hypoText = ce.hypothesis ?? ''
+      const lawNo = hypoText.match(HYPO_LAW_RE)?.[1] ?? ''
+      if (ce.half === 'A' || ce.half === 'B') {
+        const h = out.get(ce.letter) ?? {
+          greek: ce.letter,
+          kind: 'pair' as const,
+          hid: '',
+          lawNo,
+          title: hypoTitle(hypoText),
+        }
+        if (lawNo) h.lawNo = lawNo
+        if (ce.half === 'A') h.a = half
+        else h.b = half
+        out.set(ce.letter, h)
+      } else {
+        out.set(ce.letter, {
+          greek: ce.letter,
+          kind: 'single',
+          hid: '',
+          lawNo,
+          title: hypoTitle(hypoText),
+          single: half,
+        })
+      }
+      matched.add(s.id)
     }
   }
   return [...out.values()]
@@ -469,9 +627,10 @@ export function buildTrialRadarMarkdown(x: TrialRadarExport): string {
       const present = halves.filter((xh): xh is { half: HypothesisHalf; side: 'A' | 'B' | '' } => xh.half != null)
       for (const { half, side } of present) {
         const mark = half.alchemy ? ' · ⚗ осознанный нарушитель' : ''
+        const rec = half.recovered ? ' · ⚑ маркер THESIS потерян — из контракта' : ''
         const rend = x.rendered.includes(half.slotId) ? 'отрендерен' : 'ждёт рендер'
         L.push(
-          `${side ? `${side} · ` : ''}${half.slotId} ${half.slotSlug}${mark} — ${rend}`
+          `${side ? `${side} · ` : ''}${half.slotId} ${half.slotSlug}${mark}${rec} — ${rend}`
         )
         L.push(`  тезис: ${half.thesis}`)
       }

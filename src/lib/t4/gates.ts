@@ -15,6 +15,7 @@ import { getBans, getCarriers, getOCCanon, getRaces, getRatingRecipes, getRating
 import { checkCoherence } from './dresser'
 import { LAWS, observableSlotCount } from './compiler'
 import { TIER_RANK as TIER_ORDER } from './verdicts'
+import { themeTokenHit, themeWordMatcher } from './batch-md'
 
 export type GateLevel = 'hard' | 'warn' | 'advisory'
 export type Verdict = 'PASS' | 'FAIL' | 'WARN' | 'REPORT'
@@ -518,7 +519,13 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
       /** Дрессер №29: канал дресс-кода слота (генератор контрактов
        *  пишет; гейт G17 меряет квоту bumps по нему) */
       dress?: { channel?: string }
+      /** EXP-программа слота (gen-rawplus: letter/half/pairWith/
+       *  hypothesis) — гейт exp-purity сверяет маркер THESIS и план пар */
+      exp?: { hypothesis?: string; half?: string; pairWith?: number; letter?: string }
     }[]
+    /** Тема батча — фолбэк тема-слов для exp-purity (нет ТЕМА-СЛОВА в
+     *  шапке — фильтр строится из слов темы контракта) */
+    theme?: string
     /** Ребилд-декларация (вопрос №30 → приказ автора 2026-10-11): слаг
      * батча-источника, чей материал сознательно переиспользуется. Окно
      * ротации с источником не конфликтует — переиспользование и есть
@@ -588,6 +595,104 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
       if (s.canon === '') f.push(`P${s.position} (OC): нет Canon-строки`)
     }
     hard('structure', f)
+  }
+
+  /* ---------------- 1b. exp-purity (hard, вердикт T4-34) ----------------
+   * Батч-вердикт T4-34 (author-batch): «ты используешь EXP слоты как
+   * ещё слоты под тему, а не для проверки чего-либо, из-за чего в
+   * рендере законов пишет, что в батче нет ехп слотов». Три инварианта
+   * EXP-болванки, все машинные (дискреция писца — нулевая):
+   *  (1) THESIS открывается маркером «EXP <буква>-<половина>» —
+   *      буква/половина из контракта; маркер читает ТРИАЛ-радар
+   *      дашборда, потерянный маркер = «в батче нет EXP-слотов»;
+   *  (2) POS не содержит тема-слов батча (болванка БЕЗ темы);
+   *  (3) A/B-пара делит план — поза та же («разница пар ровно
+   *      одна», канон T4-27.2). -------------------------------------------- */
+  {
+    const f: string[] = []
+    const notes: string[] = []
+    const expSlots = batch.slots.filter((s) => s.genre === 'EXP')
+    if (expSlots.length === 0) {
+      notes.push(
+        'EXP-оверлея нет — гейт молчит (EXP — не обязанность каждого батча: пара по умолчанию, 0 — явным приказом)'
+      )
+    } else {
+      /* тема-слова: строка ТЕМА-СЛОВА из шапки батча (та же, что видит
+       * автор); фолбэк — слова темы контракта */
+      const themeLine = file.split('\n').find((l) => l.startsWith('ТЕМА-СЛОВА:')) ?? ''
+      let themeWords = themeLine
+        .replace(/^ТЕМА-СЛОВА:\s*/, '')
+        .split(',')
+        .map((w) => w.trim())
+        .filter(Boolean)
+      if (themeWords.length === 0 && contract?.theme) {
+        themeWords = contract.theme.split(/[\s_-]+/).filter((w) => w.length >= 3)
+      }
+      const matcher = themeWordMatcher(themeWords)
+      const contractExp = new Map<
+        number,
+        { letter: string; half: string; pairWith?: number; hypothesis: string }
+      >()
+      for (const cs of contract?.slots ?? []) {
+        if (!cs.exp) continue
+        contractExp.set(cs.position, {
+          letter: cs.exp.letter ?? 'α',
+          half: cs.exp.half ?? 'A',
+          pairWith: cs.exp.pairWith,
+          hypothesis: cs.exp.hypothesis ?? '',
+        })
+      }
+      const poseOf = (s: ParsedSlot): string => /PL\d+/i.exec(s.header)?.[0]?.toUpperCase() ?? ''
+      for (const s of expSlots) {
+        const ce = contractExp.get(s.position)
+        /* (1) маркер THESIS — из контракта, если он есть */
+        if (ce) {
+          const esc = ce.letter.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+          const markerRe = new RegExp(`^EXP\\s+${esc}-${ce.half}(?![A-Za-z0-9])`, 'u')
+          if (!markerRe.test(s.thesis)) {
+            f.push(
+              `P${s.position}: THESIS EXP-слота не открывается маркером «EXP ${ce.letter}-${ce.half} · …» (гипотеза: ${ce.hypothesis.slice(0, 60)}…) — радар не увидит программу, вердикт T4-34`
+            )
+          }
+        } else if (!/^EXP\s+(?:single\s*·\s*)?[\u03B1-\u03C9]/u.test(s.thesis)) {
+          f.push(
+            `P${s.position}: THESIS EXP-слота без маркера «EXP <буква>-<половина> · …» (контракт exp-данных тоже не дал) — гипотеза нечитаема радаром`
+          )
+        }
+        /* (2) тема-слова в POS болванки */
+        if (matcher) {
+          const hits = new Set<string>()
+          for (const token of s.pos.split(',')) {
+            const hit = themeTokenHit(token.trim(), matcher)
+            if (hit) hits.add(hit)
+          }
+          if (hits.size > 0) {
+            f.push(
+              `P${s.position}: тема-слова в POS EXP-болванки (${[...hits].join(', ')}) — EXP без темы (вердикт T4-34)`
+            )
+          }
+        }
+        /* (3) пара делит план: поза общая */
+        if (ce?.pairWith) {
+          const other = batch.slots.find((x) => x.position === ce.pairWith)
+          if (!other || genreOf(other.meta) !== 'EXP') {
+            f.push(`P${s.position}: пара EXP указывает на P${ce.pairWith}, но его нет в батче или он не EXP-слот`)
+          } else {
+            const mine = poseOf(s)
+            const theirs = poseOf(other)
+            if (mine && theirs && mine !== theirs) {
+              f.push(
+                `P${s.position}: пара делит план — поза ${mine} ≠ ${theirs} у P${ce.pairWith} (разница пар ровно одна, канон T4-27.2)`
+              )
+            }
+          }
+        }
+      }
+      notes.push(
+        `EXP-слотов ${expSlots.length} · с exp-контрактом ${contractExp.size} · тема-слов для фильтра ${matcher ? themeWords.length : 0}`
+      )
+    }
+    hard('exp-purity', f, notes)
   }
 
   /* ---------------- 2. floors (hard) ---------------- */
