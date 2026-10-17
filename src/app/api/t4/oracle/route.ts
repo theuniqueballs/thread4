@@ -25,7 +25,7 @@ import ZAI from 'z-ai-web-dev-sdk'
 import { appendEvent, verifyChain } from '@/lib/t4/events'
 import { clientErrorMessage, requireCommander } from '@/lib/t4/apiguard'
 import { isProviderBlocked } from '@/lib/t4/vlm'
-import { isTransientLlmError, withTimeout } from '@/lib/t4/scribe'
+import { isTransientLlmError, withTimeout } from '@/lib/t4/llm-guard'
 import { buildOracleContext, buildOraclePrompt, REAPER_SYSTEM_PROMPT } from '@/lib/t4/oracle'
 
 export const dynamic = 'force-dynamic'

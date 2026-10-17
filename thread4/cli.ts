@@ -1720,6 +1720,66 @@ async function main() {
           return p.slots.length === 1 && p.slots[0].pos === 'one, two, three' && p.slots[0].neg === 'no-four, no-five'
         })()
       )
+      /* Аудит 2026-10-17 «двойной парсер»: гейты и радар читают ОДИН разбор
+       * (parseBatch — адаптер над parseBatchMd). Инварианты на живом классе
+       * бага: 55 NEG с мусором (═══/ACT/EXP OVERLAY/---) и 33 THESIS,
+       * обрезанных до первой строки. */
+      {
+        const { parseBatchMd } = await import('../src/lib/t4/batch-md')
+        const dirty = [
+          '# T4-97 — тест',
+          '',
+          'P01 — anchor-one (NICHE · R · PL01 · P01_TEST_X)',
+          'THESIS: первая строка тезиса',
+          'вторая строка тезиса — гейты обязаны видеть её целиком',
+          'POS:',
+          'tag1, tag2',
+          'NEG:',
+          'bad1, bad2',
+          '══════════════════════════════════════════',
+          'ACT II — THE LAW WORN IN',
+          '══════════════════════════════════════════',
+          '',
+          'P02 — anchor-two (EXP · — · R+ · PL02 · P02_TEST_Y)',
+          'THESIS: EXP σ-A · гипотеза пары',
+          'POS:',
+          'plain, pose, only',
+          'NEG:',
+          'boring, neg',
+          '══════════════════════════════════════════',
+          'EXP OVERLAY — 2 болванки (без темы; policy expSlotsMax)',
+          '══════════════════════════════════════════',
+          '---',
+        ].join('\n')
+        const g = parseBatch('T4-97', dirty)
+        const b = parseBatchMd(dirty)
+        const g1 = g.slots.find((s) => s.position === 1)
+        const g2 = g.slots.find((s) => s.position === 2)
+        const b1 = b?.slots.find((s) => s.id === 'P01')
+        const b2 = b?.slots.find((s) => s.id === 'P02')
+        check(
+          'одна правда: NEG гейтов не несёт структурный мусор (═══/ACT/EXP OVERLAY/---) — 55 слотов живой истории',
+          Boolean(g1 && g2) &&
+            !/═|ACT\s+[IVX]+\b|EXP OVERLAY|---/.test(g1!.neg) &&
+            !/═|ACT\s+[IVX]+\b|EXP OVERLAY|---/.test(g2!.neg) &&
+            !/═|ACT\s+[IVX]+\b|EXP OVERLAY|---/.test(g2!.pos)
+        )
+        check(
+          'одна правда: POS/NEG/THESIS гейтов == радару (parseBatch ≡ parseBatchMd, слот к слоту)',
+          Boolean(b1 && b2) &&
+            g1!.pos === b1!.pos && g1!.neg === b1!.neg && g1!.thesis === b1!.thesis &&
+            g2!.pos === b2!.pos && g2!.neg === b2!.neg && g2!.thesis === b2!.thesis
+        )
+        check(
+          'одна правда: многострочный THESIS не обрезается до первой строки (33 слота живой истории)',
+          g1 != null && g1.thesis.includes('вторая строка тезиса')
+        )
+        check(
+          'одна правда: шапка слота сохранена сырьём (rawHeader) — маркеры ⚗/PL##/палитры читаются гейтами как раньше',
+          g2 != null && g2.header.includes('(EXP ·') && /PL02/.test(g2.header) &&
+            g1 != null && /P01_TEST_X/.test(g1.header) && g1.meta === 'NICHE · R · PL01 · P01_TEST_X'
+        )
+      }
     }
 
     console.log(`\nselftest: ${ok} pass, ${fail} fail`)

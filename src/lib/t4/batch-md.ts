@@ -20,6 +20,13 @@ export interface SlotMd {
   id: string
   /** slug слота из шапки, например «aob-walking-block» */
   slug: string
+  /** полная строка шапки слота, как записана («P01 — x (OC · Rue · R+…)») —
+   *  сырьё для гейтов и инструментов, которым нужны маркеры шапки (⚗, PL##,
+   *  палитра P##_NAME, «(EXP ·»): гейт-парсер читает ТОТ ЖЕ слот, что и
+   *  радар дашборда (одна правда, аудит 2026-10-17 «двойной парсер») */
+  rawHeader: string
+  /** содержимое скобки меты шапки (сырое, до последней «)») */
+  rawMeta: string
   /** жанр: OC / VOLT / NICHE / EXQUISITE / EXP (пусто — не распознан) */
   kind: string
   /** имя ОС или раса («Lyn», «Mushroom-kin») — первый неклассифицированный сегмент */
@@ -139,6 +146,8 @@ export function parseBatchMd(md: string): BatchMd | null {
       cur = {
         id: `P${m[1].padStart(2, '0')}`,
         slug: m[2],
+        rawHeader: line,
+        rawMeta: m[3],
         ...parseMeta(m[3]),
         thesis: '',
         canon: '',

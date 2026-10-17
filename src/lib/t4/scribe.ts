@@ -991,12 +991,6 @@ const CHAT_TIMEOUT_MS = 180_000
 
 const sleep = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms))
 
-/* Аудит №3 (2026-10-16): withTimeout/isTransientLlmError переехали в
- * llm-guard.ts (VLM-ветка и feedback-роут ходили к upstream без
- * таймаута — тот же класс бага, что закрыт у оракула в №2). Реэкспорт
- * для совместимости: роут оракула импортирует их из scribe. */
-export { isTransientLlmError, withTimeout } from './llm-guard'
-
 async function chat(zai: ZAiChat, system: string, user: string, log: string[], retries = 2): Promise<string> {
   let lastErr: unknown = null
   for (let attempt = 0; attempt <= retries; attempt++) {

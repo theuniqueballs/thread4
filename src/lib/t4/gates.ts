@@ -15,7 +15,7 @@ import { getBans, getCarriers, getOCCanon, getRaces, getRatingRecipes, getRating
 import { checkCoherence } from './dresser'
 import { LAWS, observableSlotCount } from './compiler'
 import { TIER_RANK as TIER_ORDER } from './verdicts'
-import { themeTokenHit, themeWordMatcher } from './batch-md'
+import { parseBatchMd, themeTokenHit, themeWordMatcher } from './batch-md'
 
 export type GateLevel = 'hard' | 'warn' | 'advisory'
 export type Verdict = 'PASS' | 'FAIL' | 'WARN' | 'REPORT'
@@ -170,53 +170,32 @@ export function extractBatchTitle(text: string): string {
   return modern ? modern[1].trim() : ''
 }
 
-/** Границы секций слот-блока для многострочного POS/NEG. Аудит
- *  2026-10-12: прежний lookahead (\n[^ \n]) обрывал блок на ПЕРВОЙ строке
- *  без отступа — многострочные POS/NEG тихо теряли хвост, гейты судили
- *  по неполным данным (floors мог не увидеть запрещённое на 2-й строке).
- *  Граница теперь — только ключ секций, шапка следующего слота или
- *  markdown-заголовок. */
-const SLOT_SECTION_BOUNDARY = String.raw`(?=\n(?:NEG|POS|THESIS|Canon|Spine|Stack|ENGINE|KIN|PROTOCOL|HEROINE-BATCH)\s*:|\nP\d{1,2}\s*[—-]|\n#{1,3}\s|(?![\s\S]))`
-
+/* Аудит 2026-10-17 (строгий, «двойной парсер»): parseBatch жил СВОИМ
+ * разбором .md рядом с parseBatchMd радара — и они расходились по факту
+ * живых данных (65 файлов, 886 слотов): NEG гейтов в 55 слотах нёс
+ * структурный мусор (═══-разделители, ACT-хедеры, EXP OVERLAY-баннер,
+ * хвостовые «---»), THESIS в 33 слотах обрезался до первой строки.
+ * Машина судила ДРУГОЙ батч, чем видел автор в радаре. Теперь parseBatch —
+ * тонкий адаптер над parseBatchMd (одна правда слота), интерфейс
+ * ParsedSlot/ParsedBatch неизменен для потребителей (deliver, роуты,
+ * инструменты). Заголовок обязан нести мету в скобках — как и радар. */
 export function parseBatch(slug: string, text: string): ParsedBatch {
   const title = extractBatchTitle(text)
-  const slots: ParsedSlot[] = []
-  const slotRe = /^P(\d{1,2})\s*—\s*(.+)$/gm
-  const marks: { pos: number; n: number; anchor: string }[] = []
-  let m: RegExpExecArray | null
-  while ((m = slotRe.exec(text)) !== null) {
-    marks.push({ pos: m.index, n: parseInt(m[1], 10), anchor: m[2] })
-  }
-  for (let i = 0; i < marks.length; i++) {
-    const from = marks[i].pos
-    const to = i + 1 < marks.length ? marks[i + 1].pos : text.length
-    const block = text.slice(from, to)
-    const lines = block.split('\n')
-    const header = lines[0] ?? ''
-    const grab = (key: string): string => {
-      const re = new RegExp(`^${key}:\\s*(.*)$`, 'm')
-      const mm = re.exec(block)
-      return mm ? mm[1].trim() : ''
-    }
-    const posMatch = new RegExp(`^POS:\\s*\\n([\\s\\S]*?)${SLOT_SECTION_BOUNDARY}`, 'm').exec(block)
-    const negMatch = new RegExp(`^NEG:\\s*\\n([\\s\\S]*?)${SLOT_SECTION_BOUNDARY}`, 'm').exec(block)
-    const stackLine = grab('Stack')
-    slots.push({
-      position: marks[i].n,
-      header,
-      anchor: marks[i].anchor.replace(/\s*\(.*$/, ''),
-      meta: header.replace(/^[^（(]*[（(]/, '').replace(/[)）]\s*$/, ''),
-      genre: genreOf(header.replace(/^[^（(]*[（(]/, '').replace(/[)）]\s*$/, '')),
-      thesis: grab('THESIS'),
-      canon: grab('Canon'),
-      spine: grab('Spine'),
-      stack: stackLine
-        ? (stackLine.match(/CR-[A-Z]\d{2}/g) ?? [])
-        : [],
-      pos: posMatch ? posMatch[1].trim() : '',
-      neg: negMatch ? negMatch[1].trim() : '',
-    })
-  }
+  const parsed = parseBatchMd(text)
+  if (parsed == null) return { slug, text, title, slots: [] }
+  const slots: ParsedSlot[] = parsed.slots.map((s) => ({
+    position: Number.parseInt(s.id.replace(/^P/i, ''), 10) || 0,
+    header: s.rawHeader,
+    anchor: s.slug,
+    meta: s.rawMeta,
+    genre: genreOf(s.rawMeta),
+    thesis: s.thesis,
+    canon: s.canon,
+    spine: s.spine,
+    stack: s.stack ? (s.stack.match(/CR-[A-Z]\d{2}/g) ?? []) : [],
+    pos: s.pos,
+    neg: s.neg,
+  }))
   return { slug, text, title, slots }
 }
 
