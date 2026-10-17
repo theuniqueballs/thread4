@@ -21,7 +21,8 @@
 import { compileBatch, contractMarkdown } from '../src/lib/t4/compiler'
 import { runGates, parseBatch } from '../src/lib/t4/gates'
 import { deliverBatch } from '../src/lib/t4/deliver'
-import { scribeBatch } from '../src/lib/t4/scribe'
+import { chat, scribeBatch, systemPrompt } from '../src/lib/t4/scribe'
+import { resolveLlmProvider, type LlmProvider } from '../src/lib/t4/llm-provider'
 import fs from 'node:fs'
 import path from 'node:path'
 import { appendEvent, bootstrapChain, foldState, healChainTail, nextBatchNumber, readEvents, verifyChain, type T4Event } from '../src/lib/t4/events'
@@ -161,9 +162,9 @@ async function main() {
       console.error('usage: scribe T4-NN [maxRepairRounds]')
       process.exit(1)
     }
-    const maxRepairRounds = process.argv[4] ? parseInt(process.argv[4], 10) : 2
+    const maxRepairRounds = process.argv[4] ? parseInt(process.argv[4], 10) : 3
     scribeBatch(slug, {
-      maxRepairRounds: Number.isFinite(maxRepairRounds) ? maxRepairRounds : 2,
+      maxRepairRounds: Number.isFinite(maxRepairRounds) ? maxRepairRounds : 3,
       onLog: (line) => console.log(line),
     })
       .then((res) => {
@@ -1780,6 +1781,62 @@ async function main() {
             g1 != null && /P01_TEST_X/.test(g1.header) && g1.meta === 'NICHE · R · PL01 · P01_TEST_X'
         )
       }
+    }
+
+    /* ---- Задача 1 «МОЩНОСТЬ»: писец-автоматизация (mock-API, без сети) ---- */
+    {
+      /* резолвер провайдера: дефолт zai, конфиг-ошибки — понятные,
+       * с именем переменной окружения (хардкод ключей запрещён) */
+      const zaiDefault = resolveLlmProvider({})
+      check('llm-provider: дефолт zai без ключа (T4_SCRIBE_PROVIDER не задан)', zaiDefault.name === 'zai')
+      let msgKey = ''
+      try { resolveLlmProvider({ T4_SCRIBE_PROVIDER: 'openai' }) } catch (e) { msgKey = (e as Error).message }
+      check('llm-provider: openai без ключа — понятная ошибка с именем переменной', msgKey.includes('T4_SCRIBE_API_KEY'))
+      let msgModel = ''
+      try { resolveLlmProvider({ T4_SCRIBE_PROVIDER: 'openai', T4_SCRIBE_API_KEY: 'k' }) } catch (e) { msgModel = (e as Error).message }
+      check('llm-provider: openai без модели — ошибка называет T4_SCRIBE_MODEL', msgModel.includes('T4_SCRIBE_MODEL'))
+      const openai = resolveLlmProvider({ T4_SCRIBE_PROVIDER: 'openai', T4_SCRIBE_API_KEY: 'k', T4_SCRIBE_MODEL: 'm' })
+      check('llm-provider: openai собирается с ключом из env (bearer, не хардкод)', openai.name === 'openai')
+      let msgCustom = ''
+      try { resolveLlmProvider({ T4_SCRIBE_PROVIDER: 'custom', T4_SCRIBE_MODEL: 'm' }) } catch (e) { msgCustom = (e as Error).message }
+      check('llm-provider: custom без эндпоинта — ошибка называет T4_SCRIBE_BASE_URL', msgCustom.includes('T4_SCRIBE_BASE_URL'))
+      let msgUnknown = ''
+      try { resolveLlmProvider({ T4_SCRIBE_PROVIDER: 'grok' }) } catch (e) { msgUnknown = (e as Error).message }
+      check('llm-provider: неизвестный провайдер — перечислены допустимые и переменная', msgUnknown.includes('zai') && msgUnknown.includes('T4_SCRIBE_PROVIDER'))
+
+      /* retry-петля chat(): переходящие сбои ретраятся (максимум retries+1),
+       * непереходящие падают сразу без траты кругов — mock-API, сеть не трогаем */
+      const attempts: number[] = []
+      const flaky: LlmProvider = {
+        name: 'mock-flaky',
+        complete: async (_s, _u, opts) => {
+          attempts.push(opts.attempt)
+          if (opts.attempt < 2) throw new Error('HTTP 429 от mock — переходящий')
+          return 'ok-content'
+        },
+      }
+      const chatLog: string[] = []
+      const chatOut = await chat(flaky, 'sys', 'usr', chatLog, 2)
+      check('chat(): переходящий 429 ретраится — успех на 3-й попытке', chatOut === 'ok-content' && attempts.length === 3)
+      check('chat(): ретрай логируется с именем провайдера и номером попытки', chatLog.some((l) => l.includes('mock-flaky') && l.includes('1/3')))
+
+      let hardErr = ''
+      let hardCalls = 0
+      const hard: LlmProvider = {
+        name: 'mock-hard',
+        complete: async () => {
+          hardCalls++
+          throw new Error('LLM-провайдер «openai»: T4_SCRIBE_API_KEY не задан')
+        },
+      }
+      try { await chat(hard, 's', 'u', [], 2) } catch (e) { hardErr = (e as Error).message }
+      check('chat(): непереходящая ошибка НЕ ретраится (1 вызов, исходное сообщение)', hardCalls === 1 && hardErr.includes('T4_SCRIBE_API_KEY'))
+
+      /* системный промпт: конституция и вкус читаются с диска при прогоне */
+      const sp = systemPrompt()
+      check('systemPrompt(): конституция читается с диска (блок-маркеры)', sp.includes('--- CONSTITUTION') && sp.includes('--- END CONSTITUTION'))
+      check('systemPrompt(): вкус читается с диска (блок-маркеры + канон-сигналы)', sp.includes('--- TASTE') && sp.includes('--- END TASTE') && sp.includes('CANON'))
+      check('systemPrompt(): дистилляция законов на месте (роль писца + формат выдачи)', sp.includes('THE HOUSE SCRIBE') && sp.includes('OUTPUT FORMAT'))
     }
 
     console.log(`\nselftest: ${ok} pass, ${fail} fail`)

@@ -10,13 +10,14 @@
  * отдельный шаг (deliverBatch), first-run-clean семантика сохраняется.
  *
  * z-ai-web-dev-sdk — ТОЛЬКО бэкенд (сюда импортируется и из API-роута,
- * и из bun-CLI).
+ * и из bun-CLI). С 2026-10-17 (Задача 1 «МОЩНОСТЬ») фактический провайдер
+ * конфигурируется через .env (T4_SCRIBE_PROVIDER: zai|openai|anthropic|
+ * custom) — см. ./llm-provider.ts; этот файл знает только интерфейс.
  */
 import fs from 'node:fs'
 import path from 'node:path'
 
-import ZAI from 'z-ai-web-dev-sdk'
-
+import { resolveLlmProvider, type LlmProvider } from './llm-provider'
 import { BATCHES_DIR, CONTRACTS_DIR, readJson, readText, writeText } from './fsutil'
 import { appendEvent, foldState, readEvents } from './events'
 import { parseBatch, runGates, type GateReceipt, type GatesResult } from './gates'
@@ -70,7 +71,7 @@ export interface ScribeResult {
 }
 
 export interface ScribeOptions {
-  maxRepairRounds?: number // default 2
+  maxRepairRounds?: number // default 3 (Задача 1: retry-петля гейтов, максимум 3 попытки ремонта)
   chunkSize?: number // default 6
   /** полирующий круг WARN-гейтов (noun-lock/claim-visibility/prop-geometry/
    *  simcheck) после hard PASS — качество черновика до сдачи; откат
@@ -234,8 +235,41 @@ function goldenCorpusBlock(): string {
   )
 }
 
-function systemPrompt(): string {
-  return SYSTEM_PROMPT.replace('___GOLD_CORPUS___', goldenCorpusBlock())
+/* Задача 1 (МОЩНОСТЬ, 2026-10-17): конституция и вкус читаются с диска при
+ * каждом прогоне писца — системный промпт перестал быть статичной копией,
+ * которая может дрейфовать от документов. Файлы — источник права
+ * (CONSTITUTION §0: «When a spec, a gate, or a habit disagrees with this
+ * file, this file wins»). Отсутствие файла — честная пометка в промпте,
+ * не краш: дистилляция выше самодостаточна для формата выдачи. */
+const DOCS_CAP = 32_768
+
+let docBlocksCache: { constitution: string; taste: string } | null = null
+
+function readDocBlock(rel: string, label: string): string {
+  try {
+    const file = path.join(process.cwd(), rel)
+    let text = fs.readFileSync(file, 'utf-8')
+    if (text.length > DOCS_CAP) {
+      text = `${text.slice(0, DOCS_CAP)}\n[… ${label}: усечён до ${DOCS_CAP} символов из ${text.length}; полный текст — ${rel}]`
+    }
+    return `\n--- ${label} — источник права, прочитан с диска при этом прогоне; при конфликте с дистилляцией выше ВЫИГРЫВАЕТ этот документ (CONSTITUTION §0) ---\n${text}\n--- END ${label} ---\n`
+  } catch {
+    return `\n[${label}: файл ${rel} не найден — пишем по дистилляции правил выше; восстанови файл, чтобы закон шёл из источника]\n`
+  }
+}
+
+export function systemPrompt(): string {
+  if (docBlocksCache == null) {
+    docBlocksCache = {
+      constitution: readDocBlock('thread4/CONSTITUTION.md', 'CONSTITUTION'),
+      taste: readDocBlock('thread4/TASTE.md', 'TASTE'),
+    }
+  }
+  return (
+    SYSTEM_PROMPT.replace('___GOLD_CORPUS___', goldenCorpusBlock()) +
+    docBlocksCache.constitution +
+    docBlocksCache.taste
+  )
 }
 
 function recipeKeyOf(tier: string): string {
@@ -980,35 +1014,26 @@ function assembleBatch(
 /* LLM plumbing                                                        */
 /* ------------------------------------------------------------------ */
 
-type ZAiChat = Awaited<ReturnType<typeof ZAI.create>>
-
 /* Аудит 2026-10-12: LLM-цепь жила без таймаутов — повисший upstream держал
  * роут (maxDuration 600с) и CLI до упора, ретраились и непереходящие 4xx.
  * Теперь каждый вызов ограничен, между попытками backoff, а ретраятся
  * только переходящие сбои (сеть/429/5xx). Request после таймаута НЕ
- * отменяем (SDK не несёт AbortSignal наружу) — просто перестаём ждать. */
+ * отменяем (SDK не несёт AbortSignal наружу) — просто перестаём ждать.
+ * 2026-10-17 (Задача 1): провайдер приходит из llm-provider (.env),
+ * логика таймаута/ретраев остаётся здесь — одна на всех провайдеров. */
 const CHAT_TIMEOUT_MS = 180_000
 
 const sleep = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms))
 
-async function chat(zai: ZAiChat, system: string, user: string, log: string[], retries = 2): Promise<string> {
+export async function chat(provider: LlmProvider, system: string, user: string, log: string[], retries = 2): Promise<string> {
   let lastErr: unknown = null
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {
-      const completion = await withTimeout(
-        zai.chat.completions.create({
-          messages: [
-            /* Залп 3: system — системной ролью (аудит v1 🟡); при капризах
-               upstream первый ретрай откатывается на assistant-совместимость */
-            { role: attempt === 0 ? 'system' : 'assistant', content: system },
-            { role: 'user', content: user },
-          ],
-          thinking: { type: 'disabled' },
-        }),
+      const content = await withTimeout(
+        provider.complete(system, user, { attempt }),
         CHAT_TIMEOUT_MS,
         'LLM-вызов'
       )
-      const content = completion.choices[0]?.message?.content ?? ''
       if (content.trim().length > 0) return content
       lastErr = new Error('empty completion') /* переходящий брак модели — ретраим */
     } catch (e) {
@@ -1017,7 +1042,7 @@ async function chat(zai: ZAiChat, system: string, user: string, log: string[], r
        * ни одного повтора — падаем сразу с исходной ошибкой */
       if (!isTransientLlmError(e)) break
     }
-    log.push(`  · LLM-вызов не удался (${attempt + 1}/${retries + 1})${attempt < retries ? ' — повтор' : ''}`)
+    log.push(`  · LLM-вызов не удался (${attempt + 1}/${retries + 1}, провайдер ${provider.name})${attempt < retries ? ' — повтор' : ''}`)
     if (attempt < retries) await sleep(1_500 * 2 ** attempt)
   }
   throw lastErr instanceof Error ? lastErr : new Error('LLM failed')
@@ -1101,7 +1126,7 @@ async function scribeBatchInner(
   options: ScribeOptions = {}
 ): Promise<ScribeResult> {
   const log: string[] = []
-  const maxRepairRounds = options.maxRepairRounds ?? 2
+  const maxRepairRounds = options.maxRepairRounds ?? 3
   const chunkSize = options.chunkSize ?? 6
   const say = (s: string) => {
     log.push(s)
@@ -1189,15 +1214,14 @@ async function scribeBatchInner(
 
   say(`Писец: ${slug} «${theme}» · движок ${contract.engine} · ${contract.slots.length} слотов`)
 
-  const zai = await ZAI.create()
-
-  /* ---- call 0: batch spine (title, thesis, acts) ---- */
+  const provider = resolveLlmProvider()
+  say(`LLM-провайдер: ${provider.name} (T4_SCRIBE_PROVIDER)`)
   say('Шаг 1/4: закон батча, название, три акта…')
   const wishesBlock = contract.authorWishes
     ? `\nAUTHOR'S WISHES (приказ автора этому батчу — закон энергии §10, виден в каждом кадре, не только в шапке): ${contract.authorWishes}`
     : ''
   const spineRaw = await chat(
-    zai,
+    provider,
     systemPrompt(),
     `BATCH ${slug} «${theme}». THE THEME IS THE LAW.${wishesBlock}\n\nInvent a ONE-BATCH ENGINE for this theme (3.2-традиция, одноразовый): a physical law SPECIFIC to this theme that bends fabric, light, physics and wardrobe in every frame — not a generic style. The engine lives for this batch only. Return EXACTLY, nothing else:\nENGINE: <2-4 words, name of the engine>\nLAW: <1-2 sentences: the physical law and how the wardrobe obeys it>\nTHEME-KEYWORDS: <5-8 English tag-safe words from the THEME itself — drawable objects, places, materials, physical states that can appear INSIDE tags (NOT style words, NOT the theme title verbatim, NOT abstractions — only what a renderer can draw)>\nTHESIS: <one paragraph, 90-140 words: the batch's ONE law, physical and testable in-frame, how the THEME (not the engine) is delivered across the 24 frames, and how the three acts escalate it>\nACT I: <WIDE sub-theme name, 2-5 words — each act must hold VERY different pictures>\nACT II: <WIDE sub-theme name>\nACT III: <WIDE sub-theme name>`,
     log
@@ -1278,13 +1302,13 @@ async function scribeBatchInner(
     const positions = chunk.map((s) => `P${String(s.position).padStart(2, '0')}`).join(', ')
     say(`Шаг 2/4: пишу слоты ${positions} (чанк ${ci + 1}/${chunks.length})…`)
     const user = `${batchLawBlock}\n\nSLOTS (write ALL of them, in order):\n\n${chunk.map((s) => slotFrame(s, ctx)).join('\n\n')}`
-    const raw = await chat(zai, systemPrompt(), user, log)
+    const raw = await chat(provider, systemPrompt(), user, log)
     const parsed = parseSlots(raw)
     let missing = chunk.filter((s) => !parsed.has(s.position) || !(parsed.get(s.position)?.pos ?? '').trim())
     if (missing.length > 0) {
       say(`  · чанк ${ci + 1}: пропущены ${missing.map((s) => s.position).join(', ')} — повтор`)
       const retry = await chat(
-        zai,
+        provider,
         systemPrompt(),
         `${user}\n\nREMINDER: output EVERY slot above in the exact format. Do not skip any.`,
         log
@@ -1344,7 +1368,7 @@ async function scribeBatchInner(
     const repairSlots = contract.slots.filter((s) => failed.has(s.position))
     say(`  · ремонт слотов: ${[...failed].sort((a, b) => a - b).join(', ')}`)
     const repairUser = `${batchLawBlock}\n\nREWRITE THESE SLOTS — they failed the machine gates. Keep what worked, fix what is flagged. Same exact format.\n\n${REPAIR_BOILERPLATE}\n\n${REPAIR_TIER_BUDGET}\n\n${repairSlots.map((s) => slotFrame(s, ctx)).join('\n\n')}\n\nGATE FAILURES TO FIX:\n${hardFails.flatMap((r) => r.findings.map((f) => `- [${r.gate}] ${f}`)).slice(0, 24).join('\n')}`
-    const raw = await chat(zai, systemPrompt(), repairUser, log)
+    const raw = await chat(provider, systemPrompt(), repairUser, log)
     for (const [n, o] of parseSlots(raw)) {
       /* аудит 2026-10-12: ремонт пишет ТОЛЬКО позиции ремонт-набора —
        * раньше модель могла вернуть «лишний» слот и затереть здоровый */
@@ -1388,7 +1412,7 @@ async function scribeBatchInner(
       const backupOutputs = new Map(outputs)
       const repairSlots = contract.slots.filter((s) => failedPolish.has(s.position))
       const repairUser = `${batchLawBlock}\n\nREWRITE THESE SLOTS — they carry WARN-level QUALITY findings (the batch already passed all HARD gates — do NOT introduce any new fabric/claim/underlayer that could break them, and NEVER import signals from the slot's FORBIDDEN tier list — T4-005). Keep the same anchor, pose, palette, canon and stack. Keep what worked, fix what is flagged. Same exact format.\n\n${REPAIR_TIER_BUDGET}\n\n${repairSlots.map((s) => slotFrame(s, ctx)).join('\n\n')}\n\nQUALITY FINDINGS TO FIX:\n${warnFindings.flatMap((r) => r.findings.map((f) => `- [${r.gate}] ${f}`)).slice(0, 24).join('\n')}`
-      const raw = await chat(zai, systemPrompt(), repairUser, log)
+      const raw = await chat(provider, systemPrompt(), repairUser, log)
       for (const [n, o] of parseSlots(raw)) {
         /* аудит 2026-10-12: полировка тоже ограничена своим набором */
         if (failedPolish.has(n) && o.pos.trim()) outputs.set(n, o)
@@ -1477,7 +1501,7 @@ export async function polishBatch(
   options: { maxRepairRounds?: number; onLog?: (s: string) => void } = {}
 ): Promise<ScribeResult> {
   const log: string[] = []
-  const maxRepairRounds = options.maxRepairRounds ?? 2
+  const maxRepairRounds = options.maxRepairRounds ?? 3
   const say = (s: string) => {
     log.push(s)
     options.onLog?.(s)
@@ -1577,7 +1601,8 @@ export async function polishBatch(
   const outputs = outputsFromBatchText(slug, text0)
   say(`Polish: ${slug} «${contract.theme}» — ${outputs.size} слотов из черновика, движок ${contract.engine}`)
 
-  const zai = await ZAI.create()
+  const provider = resolveLlmProvider()
+  say(`LLM-провайдер: ${provider.name} (T4_SCRIBE_PROVIDER)`)
   const batchLawBlock = `BATCH ${slug} «${contract.theme}» — theme: ${contract.theme}${contract.authorWishes ? `\nAUTHOR'S WISHES: ${contract.authorWishes}` : ''}\nENGINE: ${ctx.engineName} — ${ctx.engineLaw}\nBATCH THESIS: ${ctx.batchThesis}`
 
   let markdown = assembleBatch(ctx, outputs, contract.theme)
@@ -1612,7 +1637,7 @@ export async function polishBatch(
     say(`  · ремонт слотов: ${[...failed].sort((a, b) => a - b).join(', ')}`)
     const repairSlots = contract.slots.filter((s) => failed.has(s.position))
     const repairUser = `${batchLawBlock}\n\nREWRITE THESE SLOTS — they failed the machine gates. Keep what worked, fix what is flagged. Same exact format.\n\n${REPAIR_BOILERPLATE}\n\n${REPAIR_TIER_BUDGET}\n\n${repairSlots.map((s) => slotFrame(s, ctx)).join('\n\n')}\n\nGATE FAILURES TO FIX:\n${hardFails.flatMap((r) => r.findings.map((f) => `- [${r.gate}] ${f}`)).slice(0, 24).join('\n')}`
-    const raw = await chat(zai, systemPrompt(), repairUser, log)
+    const raw = await chat(provider, systemPrompt(), repairUser, log)
     for (const [n, o] of parseSlots(raw)) {
       if (failed.has(n) && o.pos.trim()) outputs.set(n, o)
     }
@@ -1642,7 +1667,7 @@ export async function polishBatch(
       const backupOutputs = new Map(outputs)
       const repairSlots = contract.slots.filter((s) => failedPolish.has(s.position))
       const repairUser = `${batchLawBlock}\n\nREWRITE THESE SLOTS — they carry WARN-level QUALITY findings (the batch already passed all HARD gates — do NOT introduce any new fabric/claim/underlayer that could break them, and NEVER import signals from the slot's FORBIDDEN tier list — T4-005). Keep the same anchor, pose, palette, canon and stack. Same exact format.\n\n${REPAIR_TIER_BUDGET}\n\n${repairSlots.map((s) => slotFrame(s, ctx)).join('\n\n')}\n\nQUALITY FINDINGS TO FIX:\n${warnFindings.flatMap((r) => r.findings.map((f) => `- [${r.gate}] ${f}`)).slice(0, 24).join('\n')}`
-      const raw = await chat(zai, systemPrompt(), repairUser, log)
+      const raw = await chat(provider, systemPrompt(), repairUser, log)
       for (const [n, o] of parseSlots(raw)) {
         if (failedPolish.has(n) && o.pos.trim()) outputs.set(n, o)
       }

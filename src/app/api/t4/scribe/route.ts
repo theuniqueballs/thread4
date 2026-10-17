@@ -30,7 +30,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'slug expected: T4-NN[-suffix]' }, { status: 400 })
   }
   const maxRepairRounds =
-    typeof body.maxRepairRounds === 'number' ? Math.max(0, Math.min(4, Math.floor(body.maxRepairRounds))) : 2
+    typeof body.maxRepairRounds === 'number' ? Math.max(0, Math.min(4, Math.floor(body.maxRepairRounds))) : 3
 
   try {
     const result = await scribeBatch(slug, { maxRepairRounds })
