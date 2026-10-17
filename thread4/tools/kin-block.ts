@@ -51,6 +51,15 @@ export const FAMILY_SHIELD: { marker: RegExp; neg: string[] }[] = [
   { marker: /flower|petal|plant|vine/i, neg: ['no petals', 'no vines', 'plain human skin'] },
   { marker: /salamander|flame|ember/i, neg: ['no crest', 'no embers', 'normal skin texture'] },
   { marker: /porcelain|doll|bisque|ball-?joint/i, neg: ['normal human skin', 'no joints', 'subsurface glow'] },
+  /* R37-R41 (вердикт T4-33 2026-10-17: «понадобавляй человекоподобных кинов,
+   * типа суккубы»): маркеры семей без общего корня — щит по имени, фичи
+   * новых кинов не покрываются shieldFromFeatures (Vampire/Cyclops давали
+   * пустой NEG — selftest поймал на живом прогоне). */
+  { marker: /succub|incub/i, neg: ['no horns', 'no tail', 'plain human back'] },
+  { marker: /vampir/i, neg: ['no fangs', 'normal round pupils', 'warm tanned skin'] },
+  { marker: /nephilim|angel|seraph/i, neg: ['no wings', 'no halo'] },
+  { marker: /medusa|gorgon/i, neg: ['human hair', 'no snake hair', 'round pupils'] },
+  { marker: /cyclops/i, neg: ['two eyes', 'two separate eyes'] },
 ]
 
 /** anti-shield, выведенный из features, когда семейство не опознано. */
