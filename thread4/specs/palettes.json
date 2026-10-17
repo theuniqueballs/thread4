@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
   "born": "2026-09-19",
-  "source": "3.2 PALETTE_LIBRARY v1.0.0 (P21-P105, 6-slot) + ONTOLOGY P01-P20 (legacy 3-slot)",
+  "source": "3.2 PALETTE_LIBRARY v1.0.0 (P21-P105, 6-slot) + ONTOLOGY P01-P20 (legacy 3-slot) + PALETTE_EXTENSION_v5 (P106-P120, 15 новых: окно EXP-бюджета 9 слотов не голодает даже при нулевом перекрытии окна из 3 батчей)",
   "palettes": [
     {
       "id": "P01_NOIR_VELVET",
@@ -3489,6 +3489,486 @@
       "family": "SECRET (arcana engine families)",
       "legacy_3slot": false,
       "source": "PALETTE_LIBRARY.yaml"
+    },
+    {
+      "id": "P106_VELVET_ALIBI",
+      "name": "Velvet Alibi",
+      "dominant": [
+        "aubergine-velvet-deep",
+        "wine-shadow"
+      ],
+      "secondary": [
+        "dusted-rose-muted"
+      ],
+      "accent1": [
+        "gold-thread-bright",
+        "the-seam-catch"
+      ],
+      "accent2": [
+        "candle-amber-edge"
+      ],
+      "shadow": "black-plum",
+      "forbidden": [
+        "fluorescent",
+        "pure-white",
+        "neon-green",
+        "electric-blue",
+        "saturated-cyan"
+      ],
+      "light_type": "candle_side_single_lowkey",
+      "sd_fragment": "aubergine-velvet-deep wine-shadow with dusted-rose-muted secondary, gold-thread-bright accent, candle-amber-edge glint",
+      "mood": "the-dress-answers-later",
+      "family": "EXP-WINDOW (PALETTE_EXTENSION_v5 · приказ 2026-10-17 «чтобы хватало на 9 слотов EXP»)",
+      "legacy_3slot": false,
+      "source": "PALETTE_EXTENSION_v5 (2026-10-17, вердикт T4-33 + палитрный приказ)"
+    },
+    {
+      "id": "P107_LAST_WALTZ_AMBER",
+      "name": "Last Waltz Amber",
+      "dominant": [
+        "ballroom-amber-deep",
+        "gilded-oak"
+      ],
+      "secondary": [
+        "oxblood-satin"
+      ],
+      "accent1": [
+        "chandelier-spark-gold",
+        "the-turn"
+      ],
+      "accent2": [
+        "brass-heel-flash"
+      ],
+      "shadow": "burnt-umber",
+      "forbidden": [
+        "fluorescent",
+        "pure-white",
+        "saturated-cyan",
+        "electric-violet",
+        "neon-pink-dominant"
+      ],
+      "light_type": "chandelier_scatter_warm",
+      "sd_fragment": "ballroom-amber-deep gilded-oak with oxblood-satin secondary, chandelier-spark-gold accent, brass-heel-flash edge",
+      "mood": "one-more-song-then-the-door",
+      "family": "EXP-WINDOW (PALETTE_EXTENSION_v5 · приказ 2026-10-17 «чтобы хватало на 9 слотов EXP»)",
+      "legacy_3slot": false,
+      "source": "PALETTE_EXTENSION_v5 (2026-10-17, вердикт T4-33 + палитрный приказ)"
+    },
+    {
+      "id": "P108_STAGEDIVE_CRIMSON",
+      "name": "Stagedive Crimson",
+      "dominant": [
+        "stage-crimson-deep",
+        "amp-black"
+      ],
+      "secondary": [
+        "wine-coke-glass"
+      ],
+      "accent1": [
+        "followspot-gold-bright",
+        "the-fall"
+      ],
+      "accent2": [
+        "sweat-sheen-silver"
+      ],
+      "shadow": "pit-black",
+      "forbidden": [
+        "pastel",
+        "powder-blue",
+        "mint",
+        "pure-white",
+        "lavender-dominant"
+      ],
+      "light_type": "followspot_single_hard",
+      "sd_fragment": "stage-crimson-deep amp-black with wine-coke-glass secondary, followspot-gold-bright accent, sweat-sheen-silver edge",
+      "mood": "the-crowd-catches-what-she-drops",
+      "family": "EXP-WINDOW (PALETTE_EXTENSION_v5 · приказ 2026-10-17 «чтобы хватало на 9 слотов EXP»)",
+      "legacy_3slot": false,
+      "source": "PALETTE_EXTENSION_v5 (2026-10-17, вердикт T4-33 + палитрный приказ)"
+    },
+    {
+      "id": "P109_TATAMI_MORNING",
+      "name": "Tatami Morning",
+      "dominant": [
+        "straw-honey-warm",
+        "paper-lamp-cream"
+      ],
+      "secondary": [
+        "moss-ink-green"
+      ],
+      "accent1": [
+        "morning-gold-soft",
+        "the-shoji-glow"
+      ],
+      "accent2": [
+        "lacquer-red-edge"
+      ],
+      "shadow": "tatami-brown-deep",
+      "forbidden": [
+        "neon-pink",
+        "electric-violet",
+        "saturated-cyan",
+        "fluorescent",
+        "hot-magenta"
+      ],
+      "light_type": "shoji_diffuse_early_gold",
+      "sd_fragment": "straw-honey-warm paper-lamp-cream with moss-ink-green secondary, morning-gold-soft accent, lacquer-red-edge rim",
+      "mood": "the-house-still-asleep",
+      "family": "EXP-WINDOW (PALETTE_EXTENSION_v5 · приказ 2026-10-17 «чтобы хватало на 9 слотов EXP»)",
+      "legacy_3slot": false,
+      "source": "PALETTE_EXTENSION_v5 (2026-10-17, вердикт T4-33 + палитрный приказ)"
+    },
+    {
+      "id": "P110_RIPOSTE_SILVER",
+      "name": "Riposte Silver",
+      "dominant": [
+        "fencing-steel-cool",
+        "ink-blue-deep"
+      ],
+      "secondary": [
+        "piste-grey-bound"
+      ],
+      "accent1": [
+        "copper-wire-bright",
+        "the-touch-hit"
+      ],
+      "accent2": [
+        "glove-leather-tan"
+      ],
+      "shadow": "guard-black",
+      "forbidden": [
+        "pastel",
+        "peach",
+        "coral",
+        "mint",
+        "powder-pink-dominant"
+      ],
+      "light_type": "piste_lamp_hard_cool",
+      "sd_fragment": "fencing-steel-cool ink-blue-deep with piste-grey-bound secondary, copper-wire-bright accent, glove-leather-tan edge",
+      "mood": "the-point-arrives-first",
+      "family": "EXP-WINDOW (PALETTE_EXTENSION_v5 · приказ 2026-10-17 «чтобы хватало на 9 слотов EXP»)",
+      "legacy_3slot": false,
+      "source": "PALETTE_EXTENSION_v5 (2026-10-17, вердикт T4-33 + палитрный приказ)"
+    },
+    {
+      "id": "P111_ORCHID_HOUSE_GHOST",
+      "name": "Orchid House Ghost",
+      "dominant": [
+        "greenhouse-green-deep",
+        "leaf-shadow"
+      ],
+      "secondary": [
+        "orchid-magenta-saturated"
+      ],
+      "accent1": [
+        "glass-caustic-white-green",
+        "the-pane-light"
+      ],
+      "accent2": [
+        "terracotta-pot-edge"
+      ],
+      "shadow": "soil-black-rich",
+      "forbidden": [
+        "neon-cyan",
+        "fluorescent-orange",
+        "pure-white",
+        "hot-pink-dominant",
+        "electric-yellow"
+      ],
+      "light_type": "glass_caustics_through_leaves",
+      "sd_fragment": "greenhouse-green-deep leaf-shadow with orchid-magenta-saturated secondary, glass-caustic-white-green accent, terracotta-pot-edge rim",
+      "mood": "humid-air-keeps-secrets",
+      "family": "EXP-WINDOW (PALETTE_EXTENSION_v5 · приказ 2026-10-17 «чтобы хватало на 9 слотов EXP»)",
+      "legacy_3slot": false,
+      "source": "PALETTE_EXTENSION_v5 (2026-10-17, вердикт T4-33 + палитрный приказ)"
+    },
+    {
+      "id": "P112_POCKET_THEFT_GOLD",
+      "name": "Pocket Theft Gold",
+      "dominant": [
+        "theft-gold-bright",
+        "asphalt-black"
+      ],
+      "secondary": [
+        "denim-night-blue"
+      ],
+      "accent1": [
+        "ticket-red-vivid",
+        "the-palmed-slip"
+      ],
+      "accent2": [
+        "streetlamp-silver-edge"
+      ],
+      "shadow": "alley-black",
+      "forbidden": [
+        "pastel",
+        "powder-blue",
+        "mint",
+        "cream-dominant",
+        "baby-pink"
+      ],
+      "light_type": "streetlamp_goldslice_hard",
+      "sd_fragment": "theft-gold-bright asphalt-black with denim-night-blue secondary, ticket-red-vivid accent, streetlamp-silver-edge glint",
+      "mood": "lighter-than-she-arrived",
+      "family": "EXP-WINDOW (PALETTE_EXTENSION_v5 · приказ 2026-10-17 «чтобы хватало на 9 слотов EXP»)",
+      "legacy_3slot": false,
+      "source": "PALETTE_EXTENSION_v5 (2026-10-17, вердикт T4-33 + палитрный приказ)"
+    },
+    {
+      "id": "P113_CURFEW_PLUM",
+      "name": "Curfew Plum",
+      "dominant": [
+        "plum-dusk-deep",
+        "bruise-violet-soft"
+      ],
+      "secondary": [
+        "sodium-vapor-amber"
+      ],
+      "accent1": [
+        "street-sodium-orange-warm",
+        "the-last-lamp"
+      ],
+      "accent2": [
+        "window-teal-remote"
+      ],
+      "shadow": "midnight-violet-black",
+      "forbidden": [
+        "fluorescent",
+        "pure-white",
+        "neon-green",
+        "electric-blue",
+        "hot-magenta-dominant"
+      ],
+      "light_type": "sodium_vapor_off_frame_warm",
+      "sd_fragment": "plum-dusk-deep bruise-violet-soft with sodium-vapor-amber secondary, street-sodium-orange-warm accent, window-teal-remote edge",
+      "mood": "streets-empty-heres-still-lit",
+      "family": "EXP-WINDOW (PALETTE_EXTENSION_v5 · приказ 2026-10-17 «чтобы хватало на 9 слотов EXP»)",
+      "legacy_3slot": false,
+      "source": "PALETTE_EXTENSION_v5 (2026-10-17, вердикт T4-33 + палитрный приказ)"
+    },
+    {
+      "id": "P114_SODA_FOUNTAIN_CHROME",
+      "name": "Soda Fountain Chrome",
+      "dominant": [
+        "chrome-mirror-bright",
+        "mint-cream-pale"
+      ],
+      "secondary": [
+        "cherry-syrup-red"
+      ],
+      "accent1": [
+        "jukebox-bubblegum-pink",
+        "the-straw-twist"
+      ],
+      "accent2": [
+        "checkered-red-edge"
+      ],
+      "shadow": "booth-vinyl-red-deep",
+      "forbidden": [
+        "gothic-black-dominant",
+        "neon-green",
+        "electric-violet",
+        "saturated-cyan",
+        "ash-grey-dominant"
+      ],
+      "light_type": "jukebox_tube_glow_warm",
+      "sd_fragment": "chrome-mirror-bright mint-cream-pale with cherry-syrup-red secondary, jukebox-bubblegum-pink accent, checkered-red-edge rim",
+      "mood": "two-straws-one-glass",
+      "family": "EXP-WINDOW (PALETTE_EXTENSION_v5 · приказ 2026-10-17 «чтобы хватало на 9 слотов EXP»)",
+      "legacy_3slot": false,
+      "source": "PALETTE_EXTENSION_v5 (2026-10-17, вердикт T4-33 + палитрный приказ)"
+    },
+    {
+      "id": "P115_HONEY_TRAP",
+      "name": "Honey Trap",
+      "dominant": [
+        "honey-amber-deep",
+        "beeswax-gold"
+      ],
+      "secondary": [
+        "beekeeper-khaki-warm"
+      ],
+      "accent1": [
+        "sting-gold-bright",
+        "the-wrist-flick"
+      ],
+      "accent2": [
+        "comb-ivory-wax"
+      ],
+      "shadow": "hive-shadow-brown",
+      "forbidden": [
+        "saturated-cyan",
+        "electric-blue",
+        "neon-purple",
+        "pure-white",
+        "fluorescent-green"
+      ],
+      "light_type": "afternoon_through_honeycomb",
+      "sd_fragment": "honey-amber-deep beeswax-gold with beekeeper-khaki-warm secondary, sting-gold-bright accent, comb-ivory-wax edge",
+      "mood": "sweet-until-it-isnt",
+      "family": "EXP-WINDOW (PALETTE_EXTENSION_v5 · приказ 2026-10-17 «чтобы хватало на 9 слотов EXP»)",
+      "legacy_3slot": false,
+      "source": "PALETTE_EXTENSION_v5 (2026-10-17, вердикт T4-33 + палитрный приказ)"
+    },
+    {
+      "id": "P116_AFTERGLOW_EMBERS",
+      "name": "Afterglow Embers",
+      "dominant": [
+        "ember-rose-deep",
+        "ash-warm-grey"
+      ],
+      "secondary": [
+        "smoked-plum-soft"
+      ],
+      "accent1": [
+        "last-coal-orange-bright",
+        "the-held-heat"
+      ],
+      "accent2": [
+        "dawn-grey-thread"
+      ],
+      "shadow": "hearth-black-soft",
+      "forbidden": [
+        "fluorescent",
+        "neon-green",
+        "electric-blue",
+        "saturated-cyan",
+        "hot-magenta"
+      ],
+      "light_type": "ember_settle_off_frame",
+      "sd_fragment": "ember-rose-deep ash-warm-grey with smoked-plum-soft secondary, last-coal-orange-bright accent, dawn-grey-thread edge",
+      "mood": "the-room-keeps-her-warmth",
+      "family": "EXP-WINDOW (PALETTE_EXTENSION_v5 · приказ 2026-10-17 «чтобы хватало на 9 слотов EXP»)",
+      "legacy_3slot": false,
+      "source": "PALETTE_EXTENSION_v5 (2026-10-17, вердикт T4-33 + палитрный приказ)"
+    },
+    {
+      "id": "P117_TIDEPOOL_TEAL",
+      "name": "Tidepool Teal",
+      "dominant": [
+        "tidepool-teal-deep",
+        "wet-stone-grey-blue"
+      ],
+      "secondary": [
+        "anemone-pink-vivid"
+      ],
+      "accent1": [
+        "sea-glass-glow-mint",
+        "the-retreat"
+      ],
+      "accent2": [
+        "salt-crust-white-edge"
+      ],
+      "shadow": "deep-water-navy",
+      "forbidden": [
+        "earth-brown-dominant",
+        "rust",
+        "mustard",
+        "fluorescent-orange",
+        "deep-red-dominant"
+      ],
+      "light_type": "shallow_water_caustic_wash",
+      "sd_fragment": "tidepool-teal-deep wet-stone-grey-blue with anemone-pink-vivid secondary, sea-glass-glow-mint accent, salt-crust-white-edge rim",
+      "mood": "the-sea-shows-then-takes-back",
+      "family": "EXP-WINDOW (PALETTE_EXTENSION_v5 · приказ 2026-10-17 «чтобы хватало на 9 слотов EXP»)",
+      "legacy_3slot": false,
+      "source": "PALETTE_EXTENSION_v5 (2026-10-17, вердикт T4-33 + палитрный приказ)"
+    },
+    {
+      "id": "P118_FIRST_FLOOR_LILAC",
+      "name": "First-Floor Lilac",
+      "dominant": [
+        "lilac-dawn-pale",
+        "linen-white-soft"
+      ],
+      "secondary": [
+        "grey-silk-morning"
+      ],
+      "accent1": [
+        "milk-glass-glow-lavender",
+        "the-curtain-breathe"
+      ],
+      "accent2": [
+        "radiator-paint-rose-edge"
+      ],
+      "shadow": "morning-grey-shadow",
+      "forbidden": [
+        "neon-pink",
+        "electric-violet",
+        "saturated-cyan",
+        "hot-magenta",
+        "fluorescent-yellow"
+      ],
+      "light_type": "curtain_diffuse_lilac_dawn",
+      "sd_fragment": "lilac-dawn-pale linen-white-soft with grey-silk-morning secondary, milk-glass-glow-lavender accent, radiator-paint-rose-edge rim",
+      "mood": "she-hears-the-city-wake-first",
+      "family": "EXP-WINDOW (PALETTE_EXTENSION_v5 · приказ 2026-10-17 «чтобы хватало на 9 слотов EXP»)",
+      "legacy_3slot": false,
+      "source": "PALETTE_EXTENSION_v5 (2026-10-17, вердикт T4-33 + палитрный приказ)"
+    },
+    {
+      "id": "P119_METRO_NAP_BRASS",
+      "name": "Metro Nap Brass",
+      "dominant": [
+        "subway-brass-warm-deep",
+        "tunnel-black"
+      ],
+      "secondary": [
+        "map-blue-faded"
+      ],
+      "accent1": [
+        "door-chime-amber-bright",
+        "the-last-stop"
+      ],
+      "accent2": [
+        "pole-steel-sheen"
+      ],
+      "shadow": "underground-black",
+      "forbidden": [
+        "pastel",
+        "mint",
+        "powder-pink",
+        "cream-dominant",
+        "baby-blue"
+      ],
+      "light_type": "car_interior_fluoresce_warm_brass",
+      "sd_fragment": "subway-brass-warm-deep tunnel-black with map-blue-faded secondary, door-chime-amber-bright accent, pole-steel-sheen edge",
+      "mood": "two-stops-past-her-station",
+      "family": "EXP-WINDOW (PALETTE_EXTENSION_v5 · приказ 2026-10-17 «чтобы хватало на 9 слотов EXP»)",
+      "legacy_3slot": false,
+      "source": "PALETTE_EXTENSION_v5 (2026-10-17, вердикт T4-33 + палитрный приказ)"
+    },
+    {
+      "id": "P120_FEATHERWEIGHT_PEARL",
+      "name": "Featherweight Pearl",
+      "dominant": [
+        "pearl-white-luminous",
+        "feather-grey-soft"
+      ],
+      "secondary": [
+        "blush-rose-pale"
+      ],
+      "accent1": [
+        "mirror-flash-silver-bright",
+        "the-turn-of-her-shoulder"
+      ],
+      "accent2": [
+        "satin-stitch-gold-thread"
+      ],
+      "shadow": "cloud-grey-shadow-soft",
+      "forbidden": [
+        "saturated-cyan",
+        "neon-green",
+        "hot-magenta",
+        "fluorescent-orange",
+        "electric-violet"
+      ],
+      "light_type": "north_window_pearl_diffuse",
+      "sd_fragment": "pearl-white-luminous feather-grey-soft with blush-rose-pale secondary, mirror-flash-silver-bright accent, satin-stitch-gold-thread edge",
+      "mood": "weightless-on-purpose",
+      "family": "EXP-WINDOW (PALETTE_EXTENSION_v5 · приказ 2026-10-17 «чтобы хватало на 9 слотов EXP»)",
+      "legacy_3slot": false,
+      "source": "PALETTE_EXTENSION_v5 (2026-10-17, вердикт T4-33 + палитрный приказ)"
     }
   ],
   "saturation_doctrine": "Five Locks (RULES §51, binding from N21): (1) DEEP-ANCHOR — dominant anchored as DEPTH, never pallor; (2) SATURATED ANCHOR — one full-saturation element per prompt named in POS; (3) CONTRAST CARRIER — >=1 light-contrast carrier (rim/specular/hard shadow/caustic); (4) ANTI-WASH NEG — 'washed-out, faded colors, low contrast' always in scene-block; (5) COLOR GATE — per-prompt DESAT/SAT <= 1.2 with SAT >= 3 unless MUTED-BY-ORDER.",

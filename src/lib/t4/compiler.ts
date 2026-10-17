@@ -586,6 +586,14 @@ export function compileBatch(theme: string, options: CompileOptions = {}): Batch
   /* slot assembly */
   const slots: SlotPlan[] = []
   const leads = lruPick(LEAD_ZONES.map((id) => ({ id })), usage.leads, rng)
+  /* Вердикт T4-33 (2026-10-17, автор): «почему мы перестали показывать
+   * сочные попки? надо бы вернуть». Корень: LRU демотирует зону после
+   * плотного батча — T4-31 израсходовал ass-семью (9 слотов), и T4-32/33
+   * получили 3 и 5. Квота-пол: ASS-семья (seat/cheeks/hamstrings) входит
+   * в цикл с весом ×2 — стабильно ~9/26 слотов (уровень T4-31, который
+   * хвалил автор), независимо от истории окна. */
+  const ASS_FAMILY = new Set(['seat', 'cheeks', 'hamstrings'])
+  const leadCycle = [...leads, ...leads.filter((l) => ASS_FAMILY.has(l.id))]
   const closers = lruPick(CLOSER_CLASSES.map((id) => ({ id })), usage.closers, rng)
   const witnesses = lruPick(WITNESS_TYPES.map((id) => ({ id })), usage.witnesses, rng)
   const registers: SlotPlan['register'][] = []
@@ -621,7 +629,7 @@ export function compileBatch(theme: string, options: CompileOptions = {}): Batch
   const ocPinnedChannels = (options.authorPin ?? []).filter((c) => !c.startsWith('engine:'))
 
   for (let pos = 1; pos <= LAWS.slotsTotal; pos++) {
-    const lead = leads[leadIdx % leads.length].id
+    const lead = leadCycle[leadIdx % leadCycle.length].id
     leadIdx += 1
     const closer = closers[closerIdx % closers.length].id
     closerIdx += 1

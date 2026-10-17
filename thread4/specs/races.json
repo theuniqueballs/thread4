@@ -1,7 +1,7 @@
 {
-  "version": "2.1.1",
+  "version": "2.2.0",
   "born": "2026-09-19",
-  "source": "3.2 POOLS_V8 race_pool R01-R15 + race_extension_v2 R16-R22 + Thread-4 extensions R23-R36 + author directives — инвентарь: 34 active · 2 gold (R17 jellyfish-kin, R20 harpy-kin) · 4 banned (BAN-01..04 dwarves/goblins/trolls/orcs) = 40 записей (2.1.1: source-строка догнала фактический состав)",
+  "source": "3.2 POOLS_V8 race_pool R01-R15 + race_extension_v2 R16-R22 + Thread-4 extensions R23-R36 + author directives — инвентарь: 34 active · 2 gold (R17 jellyfish-kin, R20 harpy-kin) · 4 banned (BAN-01..04 dwarves/goblins/trolls/orcs) = 40 записей (2.1.1: source-строка догнала фактический состав) + R37-R41 (verdikt T4-33 2026-10-17: «понадобавляй ещё кинов, человекоподобные — суккубы и так далее»)",
   "races": [
     {
       "id": "R01",
@@ -428,6 +428,62 @@
         "raccoon-mask blush patch"
       ],
       "note": "wardrobe: leaf-magic over classic apron; the tail is the extra guest under every hem"
+    },
+    {
+      "id": "R37",
+      "name": "Succubus-kin",
+      "status": "active",
+      "features": [
+        "small curved horns satin-black",
+        "spade-tail slim with a sway",
+        "tiny bat-wing frags at the shoulder blades",
+        "heart-shaped pupils on option"
+      ],
+      "note": "вердикт T4-33 (2026-10-17): «плюс-минус человекоподобные — красивое лицо, сладкие ножки» — лицо чисто аниме-человеческое, ножки стройные без чешуи; skin: warm satin, candle-lit; wardrobe: tail-slit MANDATORY (платье/юбка с продуманным выходом хвоста), wrap-closures instead of back zips; light: the wings catch rim-light only — never a full silhouette"
+    },
+    {
+      "id": "R38",
+      "name": "Vampire-kin",
+      "status": "active",
+      "features": [
+        "small fangs when she smiles",
+        "red-iris eyes under lazy lids",
+        "cold-pale skin with a living blush at the cheeks"
+      ],
+      "note": "вердикт T4-33 (2026-10-17): «плюс-минус человекоподобные — красивое лицо, сладкие ножки» — аристократичный регистр, не хоррор; skin: moon-pale with warm cheek-blush contrast; wardrobe: high collar, opera gloves, ribbon choker — шея и ключицы работают сквозь вырез; light: she avoids hard sun — dusk/interior registers"
+    },
+    {
+      "id": "R39",
+      "name": "Nephilim-kin",
+      "status": "active",
+      "features": [
+        "small white wings folded tight at the back",
+        "thin halo ring above the hair",
+        "feather-tips at the earlobes as earrings"
+      ],
+      "note": "вердикт T4-33 (2026-10-17): «плюс-минус человекоподобные — красивое лицо, сладкие ножки» — трогательно, не величественно; skin: pearl-warm; wardrobe: back-open garments (wings rule the backline — лямки крест-накрест обходит крылья), halo holds a faint rim-glow; light: the halo answers the key light, никогда не основной источник"
+    },
+    {
+      "id": "R40",
+      "name": "Medusa-kin",
+      "status": "active",
+      "features": [
+        "snake-hair coils small and glossy",
+        "scaled nape fading into human skin",
+        "slit pupils she can drop on command"
+      ],
+      "note": "вердикт T4-33 (2026-10-17): «плюс-минус человекоподобные — красивое лицо, сладкие ножки» — змеи-локоны ведут себя как укладка: одна прядь-змея может указывать на объект в кадре; skin: human-warm, scales only at nape/wrists; wardrobe: high necklines tease the nape-scales; light: coils carry a reptile sheen — контраст-носитель без хоррора"
+    },
+    {
+      "id": "R41",
+      "name": "Cyclops-kin",
+      "status": "active",
+      "features": [
+        "one large amber eye, lashes long",
+        "petite frame, oversized hoodie",
+        "hair fringe parted to frame the eye"
+      ],
+      "note": "вердикт T4-33 (2026-10-17): «плюс-минус человекоподобные — красивое лицо, сладкие ножки» — кавайный регистр, не монстр: большой глаз = крупный план читается сразу; skin: soft warm; wardrobe: oversized layers she hides chin in; light: single catchlight in the big eye — композиция строится от глаза"
     }
   ],
   "directives": {

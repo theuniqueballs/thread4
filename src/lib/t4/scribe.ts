@@ -342,7 +342,16 @@ function slotFrame(slot: SlotPlan, ctx: ScribeCtx): string {
   lines.push(`carriers — weave ALL of these into the frame, one per mechanism group:\n${carriers}`)
   const k = ctx.kNames.get(slot.kinetics[0] ?? '')
   lines.push(`kinetic: ${slot.kinetics[0] ?? '—'}${k ? ` ${k.name}${k.light ? ` (${k.light})` : ''}` : ''}`)
-  lines.push(`lead zone (FIRST read of the silhouette): ${slot.lead}`)
+  /* Вердикт T4-33 (2026-10-17): «почему мы перестали показывать сочные
+   * попки? надо бы вернуть» — для ass-семьи лида подача явная: кадр
+   * строится от ягодиц, а не «упомянутых вскользь». */
+  const ASS_LEADS = new Set(['seat', 'cheeks', 'hamstrings'])
+  lines.push(
+    `lead zone (FIRST read of the silhouette): ${slot.lead}` +
+      (ASS_LEADS.has(slot.lead)
+        ? ' — JUICY ASS LEADS THE FRAME: rear-view or over-the-shoulder pose, garment stretched/shaped over the seat (fabric-on-form, не просто «girl standing»), hips carry the silhouette FIRST; legs sweet (вердикт: «сладкие ножки»)'
+        : '')
+  )
   lines.push(`register: ${slot.register} — convey by BODY FORM TAGS (petite/slender → student · athletic/curvy → young · full-figured, full chest, soft waist → milf; N30: age words are forbidden); add the OPPOSITE form to NEG-EXTRA (body-plan protection, T4-27.2)`)
   lines.push(`closer (final beat of the tag run, NO prose — ${slot.closer}): ${closerHint(slot.closer)}`)
   if (slot.witness) lines.push(`witness: the ${slot.witness} — one object that holds the frame's law`)

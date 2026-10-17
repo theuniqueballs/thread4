@@ -709,7 +709,14 @@ export function planRawPlus(opts: PlanOptions): RawPlusPlan {
   const witnessPool = rng.shuffle(WITNESS_TYPES)
   const closerPool = rng.shuffle(CLOSER_CLASSES)
   const registers: ('student' | 'young' | 'milf')[] = ['student', 'young', 'milf']
+  /* Вердикт T4-33 (2026-10-17, автор): «почему мы перестали показывать
+   * сочные попки? надо бы вернуть». LRU/шаффл демотирует ass-семью после
+   * плотного батча (T4-31: 9 слотов → T4-32/33: 3 и 5). Квота-пол: ASS-семья
+   * (seat/cheeks/hamstrings) в цикле с весом ×2 — стабильно ~9/26 слотов
+   * (уровень T4-31, который хвалил автор). */
+  const ASS_FAMILY = new Set(['seat', 'cheeks', 'hamstrings'])
   const leadPool = rng.shuffle(LEAD_ZONES)
+  const leadCycle = [...leadPool, ...leadPool.filter((z) => ASS_FAMILY.has(z))]
   let leadIdx = 0
   let closerIdx = 0
   let kIdx = 0
@@ -752,7 +759,7 @@ export function planRawPlus(opts: PlanOptions): RawPlusPlan {
         hair: canon?.hair ?? '',
         eyes: canon?.eyes ?? '',
         hairEyeFrom: 'canon',
-        lead: leadPool[leadIdx++ % leadPool.length],
+        lead: leadCycle[leadIdx++ % leadCycle.length],
         register: 'oc',
         closer: closerPool[closerIdx++ % closerPool.length],
       })
@@ -813,7 +820,7 @@ export function planRawPlus(opts: PlanOptions): RawPlusPlan {
       hair,
       eyes,
       hairEyeFrom: from,
-      lead: leadPool[leadIdx % leadPool.length],
+      lead: leadCycle[leadIdx % leadCycle.length],
       register: registers[Math.floor(mainIdx / (law.mainsTotal / 3))] ?? 'student',
       closer: closerPool[closerIdx++ % closerPool.length],
       /* НИША-50: архетип невозможного + свидетель + A3P5-дверь + оператор
@@ -849,7 +856,11 @@ export function planRawPlus(opts: PlanOptions): RawPlusPlan {
         ? Math.max(0, Math.min(opts.draft.abPairs, law.abPairsMax))
         : law.abPairsMin
     const letters = ['κ', 'λ', 'μ', 'ν', 'ξ']
+    /* пары: взвешенный цикл перемешан ЦЕЛИКОМ — иначе ass-дубли в хвосте
+     * цикла не доезжают до первых 2-3 пар (мёртвые записи). κ на cheeks в
+     * T4-33 автор отметил отдельно — канал должен доезжать регулярно. */
     const zones = rng.shuffle(LEAD_ZONES)
+    const zoneCycle = rng.shuffle([...zones, ...zones.filter((z) => ASS_FAMILY.has(z))])
     let cursor = 0
     for (let pi = 0; pi < wanted && cursor + 1 < voltPositions.length; pi++) {
       const aPos = voltPositions[cursor]
@@ -870,7 +881,7 @@ export function planRawPlus(opts: PlanOptions): RawPlusPlan {
         sb.carriers = stack
         break
       }
-      const lead = zones[pi % zones.length]
+      const lead = zoneCycle[pi % zoneCycle.length]
       sa.ab = { pair: letters[pi], half: 'A', withSlot: bPos, lead }
       sb.ab = { pair: letters[pi], half: 'B', withSlot: aPos, lead }
       /* LEAD-зона пары общая — перекрывает индивидуальные лиды половин */
