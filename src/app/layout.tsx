@@ -21,10 +21,10 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "THREAD 4 — Pipeline Console",
+  title: "THREAD 4 — Мастерская промпт-батчей",
   description:
-    "Developer console for the THREAD 4 prompt-batch pipeline: hash-chain chronicle stream with live validation, burn & rebuild re-audit, force compile with 24-gate receipts, rotation window fatigue lock.",
-  keywords: ["THREAD 4", "prompt pipeline", "hash chain", "chain.jsonl", "rotation window"],
+    "Конвейер THREAD 4: табовая мастерская (состояние, документы, спеки, сборка, батчи, события-хеш-цепь, вердикты, стекло, хранилище, архив) + движок-эра: ротационное окно, BURN & REBUILD, валидация цепи chain.jsonl.",
+  keywords: ["THREAD 4", "prompt pipeline", "hash chain", "chain.jsonl", "rotation window", "burn and rebuild"],
 };
 
 export default function RootLayout({
@@ -33,7 +33,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning className="dark">
+    <html lang="ru" suppressHydrationWarning className="dark">
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${jetbrainsMono.variable} antialiased bg-background text-foreground`}
       >
