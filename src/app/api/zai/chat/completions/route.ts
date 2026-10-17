@@ -7,32 +7,19 @@
  * (2) glm-5.3 всегда думает — thinking:{type:'disabled'} переписывается в low;
  * (3) модель подставляется из конфига, если тело её не несёт.
  * Ключ читается из .z-ai-config (в gitignored) — в репо не попадает.
+ *
+ * Аудит 2026-10-17 (strict): конфиг и upstream-вызов ушли в общий слой
+ * src/lib/t4/zai-bridge.ts (кэш size+mtime — без reparse на каждый вызов;
+ * жёсткий дедлайн AbortSignal — повисший провайдер получает 504, а не
+ * вечный висячий роут). Роут — тонкий валидатор + маппинг ошибок.
  */
 import { NextResponse } from 'next/server'
-import path from 'node:path'
-import fs from 'node:fs'
 
 import { requireCommander } from '@/lib/t4/apiguard'
+import { isBridgeTimeout, loadZaiBridgeConfig, postChatCompletion } from '@/lib/t4/zai-bridge'
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 300
-
-interface ZaiConfig {
-  apiKey: string
-  upstream: string
-  textModel: string
-}
-
-function loadConfig(): ZaiConfig | null {
-  try {
-    const raw = fs.readFileSync(path.join(process.cwd(), '.z-ai-config'), 'utf-8')
-    const cfg = JSON.parse(raw) as ZaiConfig
-    if (cfg.apiKey && cfg.upstream) return cfg
-    return null
-  } catch {
-    return null
-  }
-}
 
 export async function POST(req: Request) {
   /* Аудит 2026-10-12 (High): роут — платный LLM-прокси с Bearer-ключом
@@ -40,10 +27,10 @@ export async function POST(req: Request) {
    * гонял модель за счёт автора. Ключ командира обязателен. */
   const guard = requireCommander(req)
   if (!guard.ok) return guard.response
-  const cfg = loadConfig()
+  const cfg = loadZaiBridgeConfig('text')
   if (!cfg) {
     return NextResponse.json(
-      { error: '.z-ai-config не найден или неполон (нужны apiKey + upstream)' },
+      { error: '.z-ai-config не найден или неполон (нужны apiKey + upstream + textModel)' },
       { status: 503 }
     )
   }
@@ -55,24 +42,22 @@ export async function POST(req: Request) {
   }
 
   // модель из конфига, если запрос её не назвал
-  if (!body.model) body.model = cfg.textModel
+  if (!body.model) body.model = cfg.model
   // thinking не трогаем: glm-4.5-flash принимает disabled как есть
 
   try {
-    const upstream = await fetch(`${cfg.upstream}/chat/completions`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${cfg.apiKey}`,
-      },
-      body: JSON.stringify(body),
-    })
-    const text = await upstream.text()
-    return new NextResponse(text, {
+    const upstream = await postChatCompletion(cfg, body)
+    return new NextResponse(upstream.text, {
       status: upstream.status,
       headers: { 'Content-Type': 'application/json' },
     })
   } catch (e) {
+    if (isBridgeTimeout(e)) {
+      return NextResponse.json(
+        { error: 'upstream не ответил за дедлайн моста — прокси закрыл соединение' },
+        { status: 504 }
+      )
+    }
     const msg = e instanceof Error ? e.message : String(e)
     return NextResponse.json({ error: `upstream: ${msg.slice(0, 300)}` }, { status: 502 })
   }
