@@ -29,6 +29,7 @@ import {
   getNicheArchetypes,
   getOCCanon,
   getPalettes,
+  getPools,
   getPolicy,
   getPoses,
   getRaces,
@@ -384,10 +385,6 @@ const WITNESS_TYPES = [
   'photo frame', 'spoon', 'watch face', 'car hood', 'fountain edge',
 ]
 
-interface PoolsFile {
-  sections: Record<string, { id: string; name?: string }[]>
-}
-
 /* ------------------------------------------------------------------ */
 /* The compiler                                                        */
 /* ------------------------------------------------------------------ */
@@ -504,10 +501,11 @@ export function compileBatch(theme: string, options: CompileOptions = {}): Batch
     rng
   )
   /* kinetics from the pools spec */
-  const poolsSpec = readJson<PoolsFile>(
-    path.join(process.cwd(), 'thread4', 'specs', 'pools.json')
-  )
-  const poolsK: { id: string; name?: string }[] = poolsSpec?.sections?.kinetics_k ?? []
+  /* аудит 2026-10-17 (Задача 2 MERGE): единственный вход в pools.json —
+   * геттер specs (§2: одна правда на факт); прямой readJson дублировал
+   * путь чтения в обход кэша/strict-ревизии */
+  const poolsK: { id: string; name?: string }[] =
+    (getPools()?.sections?.kinetics_k as { id: string; name?: string }[] | undefined) ?? []
   const kPool = lruPick(poolsK, usage.kinetics, rng)
 
   /* carrier assignment helpers */

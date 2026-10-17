@@ -46,6 +46,7 @@ import {
   getNicheDoors,
   getOCCanon,
   getPalettes,
+  getPools,
   getPolicy,
   getPoses,
 } from '../../src/lib/t4/specs'
@@ -732,10 +733,8 @@ export function planRawPlus(opts: PlanOptions): RawPlusPlan {
     throw new Error(`поз вне окна мало: ${posePool.length} < ${law.slotsTotal + expPairCount} (EXP-пары делят позу — pairCount, не 2×)`)
   }
   const chosenPoses = posePool.slice(0, law.slotsTotal + expPairCount)
-  const poolsSpec = readJson<{ sections: Record<string, { id: string; name?: string }[]> }>(
-    path.join(process.cwd(), 'thread4', 'specs', 'pools.json')
-  )
-  const kPool = rng.shuffle(poolsSpec?.sections?.kinetics_k ?? []).map((k) => k.id)
+  /* аудит 2026-10-17 (Задача 2 MERGE): вход в pools.json через геттер specs (§2) */
+  const kPool = rng.shuffle((getPools()?.sections?.kinetics_k as { id: string }[] | undefined) ?? []).map((k) => k.id)
   const archPool = rng.shuffle(getNicheArchetypes()?.archetypes ?? []).map((a) => a.id)
   /* A3P5-двери + операторы (ревизия 2026-10-14): момент входа в кадр и
    * положение камеры — последний непереплавленный кусок A3 в конвейер */

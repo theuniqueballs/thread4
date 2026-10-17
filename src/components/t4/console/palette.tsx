@@ -28,6 +28,7 @@ import {
   Sparkles,
   Trash2,
   Upload,
+  PenLine,
   Zap,
 } from 'lucide-react'
 
@@ -65,6 +66,7 @@ interface CommandPaletteProps {
 const ACTION_ITEMS: { id: ActionId; label: string; icon: React.ReactNode; hint: string; hotkey: string }[] = [
   { id: 'burn', label: 'BURN & REBUILD', icon: <FlaskConical className="size-4" />, hint: 'ре-аудит цепи + перестройка батча', hotkey: 'B' },
   { id: 'compile', label: 'FORCE COMPILE', icon: <Zap className="size-4" />, hint: 'план 24 слотов из темы', hotkey: 'C' },
+  { id: 'scribe', label: 'SCRIBE', icon: <PenLine className="size-4" />, hint: 'писец пишет батч по контракту (LLM + гейты + ремонт)', hotkey: 'I' },
   { id: 'verify', label: 'VERIFY', icon: <ShieldCheck className="size-4" />, hint: 'хеш-цепь: движок + браузер', hotkey: 'T' },
   { id: 'purge', label: 'PURGE HEAP', icon: <Trash2 className="size-4" />, hint: 'буфер ленты: предпросмотр + сброс', hotkey: 'P' },
   { id: 'deliver', label: 'DELIVER', icon: <Upload className="size-4" />, hint: 'сдать батч официально', hotkey: 'D' },

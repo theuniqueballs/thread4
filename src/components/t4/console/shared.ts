@@ -23,6 +23,7 @@ import type { Envelope, EngineBatchRow } from '@/components/t4/console/panels'
 export type ActionId =
   | 'burn'
   | 'compile'
+  | 'scribe'
   | 'purge'
   | 'verify'
   | 'void'

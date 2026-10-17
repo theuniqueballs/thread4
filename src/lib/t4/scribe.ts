@@ -34,6 +34,7 @@ import {
   getNicheDoors,
   getOCCanon,
   getPalettes,
+  getPools,
   getPoses,
   getRatingRecipes,
   getRaces,
@@ -1163,13 +1164,13 @@ async function scribeBatchInner(
   if (!carriersSpec || !posesSpec || !palettesSpec || !racesSpec || !ocCanon || !recipesSpec || !bans) {
     throw new Error('спеки не загружены')
   }
-  const poolsSpec = readJson<{
+  /* аудит 2026-10-17 (Задача 2 MERGE): вход в pools.json через геттер specs
+   * (§2: одна правда на факт; прямой readJson дублировал путь чтения) */
+  const poolsSpec = getPools() as {
     sections: Record<string, { id: string; name?: string; light?: string }[]> & {
       b_fam?: { families?: Record<string, { label?: string; fabric?: string; light?: string; motion?: string }> }
     }
-  }>(
-    path.join(process.cwd(), 'thread4', 'specs', 'pools.json')
-  )
+  } | null
   /* Раунд 2026-10-16 (FAM-канон v2.3.0): хуки семейств сисек из b_fam —
    *  единый парсер для обеих сборок ctx (основа + повторный заход). */
   const famHooks: Record<string, FamHook> = {}
@@ -1528,13 +1529,13 @@ export async function polishBatch(
   if (!carriersSpec || !posesSpec || !palettesSpec || !racesSpec || !ocCanon || !recipesSpec || !bans) {
     throw new Error('спеки не загружены')
   }
-  const poolsSpec = readJson<{
+  /* аудит 2026-10-17 (Задача 2 MERGE): вход в pools.json через геттер specs
+   * (§2: одна правда на факт; прямой readJson дублировал путь чтения) */
+  const poolsSpec = getPools() as {
     sections: Record<string, { id: string; name?: string; light?: string }[]> & {
       b_fam?: { families?: Record<string, { label?: string; fabric?: string; light?: string; motion?: string }> }
     }
-  }>(
-    path.join(process.cwd(), 'thread4', 'specs', 'pools.json')
-  )
+  } | null
   const kNames = new Map<string, { name: string; light: string }>()
   for (const k of poolsSpec?.sections?.kinetics_k ?? []) {
     kNames.set(k.id, { name: k.name ?? k.id, light: k.light ?? '' })

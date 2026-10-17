@@ -39,6 +39,7 @@ import {
   Sparkles,
   Trash2,
   Upload,
+  PenLine,
   Zap,
 } from 'lucide-react'
 
@@ -1736,9 +1737,167 @@ interface ActionCardMeta {
   tone: 'amber' | 'emerald' | 'rose' | 'zinc' | 'fuchsia'
 }
 
+/* ------------------------------------------------------------------ */
+/* 10 · SCRIBE — авто-писец: контракт → LLM → гейты → черновик        */
+/* ------------------------------------------------------------------ */
+
+interface ScribeResponse {
+  ok: boolean
+  slug: string
+  title: string
+  rounds: number
+  hardPass: boolean
+  sha10: string
+  failedSlots: number[]
+  log: string[]
+  receipts: { gate: string; level: string; verdict: string; findings: string[] }[]
+}
+
+function ScribePanel({ ctx }: { ctx: DeckCtx }) {
+  const [slug, setSlug] = useState('')
+  const [phase, setPhase] = useState<'form' | 'run' | 'done'>('form')
+  const [elapsed, setElapsed] = useState(0)
+  const [steps, setSteps] = useState<Step[]>([])
+  const [result, setResult] = useState<{ ok: boolean; text: string } | null>(null)
+  const [res, setRes] = useState<ScribeResponse | null>(null)
+  const busyRef = useRef(false)
+  const timerRef = useRef<number | null>(null)
+
+  const slugOk = /^T4-\d{2}$/.test(slug.trim())
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current != null) window.clearInterval(timerRef.current)
+    }
+  }, [])
+
+  async function run() {
+    if (busyRef.current || !slugOk) return
+    busyRef.current = true
+    setResult(null)
+    setRes(null)
+    setPhase('run')
+    setElapsed(0)
+    const startedAt = Date.now()
+    const target = slug.trim()
+    setSteps([
+      {
+        label: `POST /api/t4/scribe — писец пишет ${target} (промпт: конституция+вкус+контракт → LLM: спайн → чанки слотов → гейты → ремонт ≤3 кругов)`,
+        state: 'active',
+      },
+    ])
+    timerRef.current = window.setInterval(() => setElapsed((s) => s + 1), 1000)
+    try {
+      const r = await postJson<ScribeResponse>('/api/t4/scribe', { slug: target, maxRepairRounds: 3 }, {})
+      if (timerRef.current != null) window.clearInterval(timerRef.current)
+      const secs = Math.round((Date.now() - startedAt) / 1000)
+      setSteps([
+        {
+          label: `POST /api/t4/scribe — писец написал ${r.slug} «${r.title}»`,
+          state: r.hardPass ? 'ok' : 'err',
+          detail: `ремонт ${r.rounds} круг(а) · ${secs}с · sha10 ${r.sha10}${r.failedSlots.length > 0 ? ` · НЕ написаны: P${r.failedSlots.join(', P')}` : ''}`,
+        },
+      ])
+      setRes(r)
+      setResult({
+        ok: r.hardPass,
+        text: r.hardPass
+          ? `черновик готов — batches/${r.slug}.md · гейты hard PASS · сдача — отдельное решение автора`
+          : `hard FAIL остался (sha10 ${r.sha10}) — черновик записан с квитанциями; следующий шаг — polish (CLI) или ручная доводка`,
+      })
+      notify(r.hardPass ? 'success' : 'info', 'SCRIBE', `${r.slug}: ${r.hardPass ? 'hard PASS' : 'hard FAIL'} · ремонт ${r.rounds} · sha10 ${r.sha10}`)
+      ctx.onMutated()
+    } catch (e) {
+      if (timerRef.current != null) window.clearInterval(timerRef.current)
+      setSteps([
+        { label: `POST /api/t4/scribe — писец ${target}`, state: 'err', detail: errText(e).slice(0, 220) },
+      ])
+      setResult({ ok: false, text: errText(e) })
+      notify('error', 'SCRIBE', errText(e).slice(0, 120))
+    } finally {
+      busyRef.current = false
+      setPhase('done')
+    }
+  }
+
+  return (
+    <div className="space-y-3">
+      <KeyGate onOpenSettings={ctx.onOpenSettings} />
+      <p className="text-xs leading-relaxed text-zinc-500">
+        Авто-писец: машина пишет черновик батча по контракту — <span className="text-zinc-300">CONSTITUTION.md + TASTE.md + контракт слота</span> собираются в единый системный промпт, LLM пишет все слоты, гейты гоняют файл всухую, провалы уходят обратно в модель (до 3 кругов). Провайдер — из <Mono>.env</Mono> (<Mono>T4_SCRIBE_PROVIDER</Mono>: zai · openai · anthropic · custom). Результат — <Mono>batches/T4-NN.md</Mono> + событие в летопись.
+      </p>
+      <div>
+        <FieldLabel>слаг батча (контракт обязан существовать)</FieldLabel>
+        <Input
+          value={slug}
+          onChange={(e) => setSlug(e.target.value)}
+          disabled={phase === 'run'}
+          placeholder="T4-41"
+          aria-label="слаг батча для писца"
+          className="h-9 w-40 border-zinc-800 bg-zinc-950 font-mono text-xs"
+        />
+        {!slugOk && slug.trim() !== '' ? (
+          <p className="mt-1 font-mono text-[10px] text-rose-400/80">формат: T4-NN (две цифры)</p>
+        ) : null}
+      </div>
+      <DryRunPreview
+        body={{ slug: slugOk ? slug.trim() : 'T4-…', maxRepairRounds: 3 }}
+        note="контракт — contracts/T4-NN.json (компиляция или gen-rawplus); сданный батч писец не перезапишет (first-run-clean)"
+      />
+      {phase === 'run' ? (
+        <div className="space-y-2">
+          <div className="flex items-center gap-3 rounded-md border border-emerald-600/60 bg-emerald-950/20 px-3 py-2.5 font-mono text-xs text-emerald-300">
+            <Loader2 className="size-4 animate-spin" />
+            писец пишет… {elapsed}с
+            {elapsed > 120 ? ' · это нормально: спайн + чанки + ремонт — минуты' : ' · LLM, обычно 2–6 минут'}
+          </div>
+          <p className="text-[10px] leading-relaxed text-zinc-600">
+            Панель можно свернуть — прогон живёт на сервере (до 10 минут). Не перезапускай тот же слаг до конца прогона.
+          </p>
+        </div>
+      ) : (
+        <Button
+          onClick={() => void run()}
+          disabled={!slugOk || getCommanderKey() === ''}
+          className="bg-emerald-600 font-semibold text-zinc-50 hover:bg-emerald-500 disabled:opacity-40"
+        >
+          <PenLine className="mr-1.5 size-3.5" /> Запустить писца
+        </Button>
+      )}
+      {steps.length > 0 && phase !== 'form' ? <StepLog steps={steps} /> : null}
+      <AnimatePresence>{result != null ? <ResultBanner ok={result.ok}>{result.text}</ResultBanner> : null}</AnimatePresence>
+      {res != null ? (
+        <div className="space-y-2">
+          {res.log.length > 0 ? (
+            <div className="t4-scroll max-h-48 overflow-y-auto rounded-md border border-zinc-800 bg-zinc-950/60 p-2">
+              {res.log.map((l, i) => (
+                <p key={i} className="font-mono text-[10px] leading-relaxed text-zinc-500">
+                  {l}
+                </p>
+              ))}
+            </div>
+          ) : null}
+          <ReceiptTable receipts={res.receipts as unknown[]} />
+          <div className="flex flex-wrap gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => ctx.onOpenBatch(res.slug)}
+              className="h-8 border-zinc-700 text-xs"
+            >
+              <ExternalLink className="mr-1 size-3" /> открыть {res.slug} в Батчах
+            </Button>
+          </div>
+        </div>
+      ) : null}
+    </div>
+  )
+}
+
 const CARDS: ActionCardMeta[] = [
   { id: 'burn', label: 'BURN & REBUILD', icon: <Flame className="size-4" />, hint: 'аудит цепи + перестройка', hotkey: 'B', tone: 'amber' },
   { id: 'compile', label: 'FORCE COMPILE', icon: <Zap className="size-4" />, hint: 'план из темы', hotkey: 'C', tone: 'amber' },
+  { id: 'scribe', label: 'SCRIBE', icon: <PenLine className="size-4" />, hint: 'писец пишет батч', hotkey: 'I', tone: 'emerald' },
   { id: 'verify', label: 'VERIFY', icon: <Activity className="size-4" />, hint: 'цепь: браузер + движок', hotkey: 'T', tone: 'emerald' },
   { id: 'purge', label: 'PURGE HEAP', icon: <Trash2 className="size-4" />, hint: 'буфер ленты', hotkey: 'P', tone: 'zinc' },
   { id: 'deliver', label: 'DELIVER', icon: <Upload className="size-4" />, hint: 'сдать батч', hotkey: 'D', tone: 'emerald' },
@@ -1767,6 +1926,7 @@ const TONE_ACTIVE: Record<ActionCardMeta['tone'], string> = {
 const PANEL_TITLES: Record<ActionId, string> = {
   burn: 'BURN & REBUILD — аудит цепи + перестройка',
   compile: 'FORCE COMPILE — план 24 слотов',
+  scribe: 'SCRIBE — авто-писец: контракт → LLM → гейты → черновик',
   purge: 'PURGE HEAP — гигиена буфера',
   verify: 'VERIFY — двойная проверка цепи',
   void: 'VOID — закрыть батч',
@@ -1864,6 +2024,7 @@ export function ActionDeck(props: ActionDeckProps) {
             >
               {activeMeta.id === 'burn' ? <BurnPanel rows={rows} ctx={ctx} /> : null}
               {activeMeta.id === 'compile' ? <CompilePanel ctx={ctx} /> : null}
+              {activeMeta.id === 'scribe' ? <ScribePanel ctx={ctx} /> : null}
               {activeMeta.id === 'purge' ? <PurgePanel heapCount={props.heapCount} onPurgeHeap={props.onPurgeHeap} /> : null}
               {activeMeta.id === 'verify' ? <VerifyPanel /> : null}
               {activeMeta.id === 'void' ? <VoidPanel rows={rows} ctx={ctx} /> : null}
