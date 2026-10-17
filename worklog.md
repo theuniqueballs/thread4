@@ -4452,3 +4452,67 @@ Stage Summary:
   каждом падении треда — мастер-копии в my-project спасают.
 - Pending у автора: вердикт T4-32 (9 слотов rating-recipe + палитры
   EXP=8), вердикт T4-33, тема T4-34 (§10). Конвейер в патруле.
+
+---
+Task ID: verdict-round-2026-10-17
+Agent: Super Z (main)
+Task: вердикт-раунд (T4-33 успех + T4-32 light) + палитры под 9 EXP +
+кины-суккубы + сочные попки + аудит №4 strict → гит (PAT).
+
+Work Log:
+- Вердикты найдены в летописи (автор внёс сам через UI batch-verdict):
+  T4-33 full (26 слотов, R+ 13/19, ↓9, «соски сквозь свитера не видно —
+  просто отлично») + T4-32 light mixed. Корпус-очередь накормлена обеими
+  прозами автоматически (queued). Приказы извлечены: палитры, кины,
+  попки.
+- Палитры v5: P106-P120 (+15, семейство EXP-WINDOW) → фонд 120. Мотив:
+  окно банна при нулевом перекрытии 3 батчей = 90 → пул 30 ≥ 24+4
+  (бюджет 9 EXP-слотов = 4 пары). Реальное окно сейчас: 54 бана, пул 66.
+- Расы v2.2.0: R37 Succubus-kin, R38 Vampire-kin, R39 Nephilim-kin,
+  R40 Medusa-kin, R41 Cyclops-kin — все человекоподобные (приказ
+  «красивое лицо, сладкие ножки»), features + note в регистре R17/R19.
+  Anti-shield: +5 семей в FAMILY_SHIELD kin-block.ts (Vampire/Cyclops
+  давали ПУСТОЙ NEG — selftest поймал на живом прогоне, закрыто).
+- ASS-квота: вес ×2 для seat/cheeks/hamstrings в цикле лида (gen-rawplus:
+  мейны + OC + A/B-пары — взвешенный цикл перемешан ЦЕЛИКОМ, иначе
+  ass-дубли в хвосте мертвы для первых 2-3 пар; compiler.ts — та же
+  квота). Писец: JUICY ASS LEADS THE FRAME для ass-семьи (поза от
+  камеры/через плечо, ткань по форме). Демо 5 сидов: ass в парах 3/5;
+  полный контракт: 8/26 слотов (уровень T4-31, который хвалил автор).
+  Корень демотива: LRU после плотного T4-31 (9 слотов) давал T4-32/33
+  по 3-5.
+- Аудит №4 (strict, 5 находок — см. Stage Summary): specs-кэш
+  бессрочный (доказано живьём: сервер репортил 105 при файле на 120 —
+  после фикса mtime-ключа state показал 120 БЕЗ перезапуска), verifyChain
+  кэш, corpus-лок, scanSource TTL, in-flight dedupe fetchJson.
+- Верификация: tsc 0, eslint 0, selftest 145/145 (FAIL расового каста
+  из-за пустых NEG пойман и закрыт в раунде), verify 374/374 ЦЕЛА,
+  живые POST-события (5) в летопись, push 5c511f9..7caba58 по PAT.
+- Браузер QA: 374 · цепь цела · ПАЛИТРЫ 120 · T4-33 в фокусе · консоль
+  чистая, скрин /tmp/t4-qa-verdict-round.png.
+
+Stage Summary:
+- Аудит №4 в строгом формате:
+  1) Bug/Bottleneck: specs-кэш бессрочный — правка данных невидима
+     живому процессу (сервер репортил палитр 105 при 120 в файле)
+     -> src/lib/t4/specs.ts:370-395. Refactored: ключ size+mtime,
+     statSync на хит, null не кэшируется (Залп 2 сохранён).
+  2) Bug/Bottleneck: verifyChain — полный SHA-256 проход (O(n) хешей +
+     двойной reparse) на КАЖДЫЙ /state, дашборд монтирует два useApi
+     -> src/lib/t4/events.ts:466-496. Refactored: memo-кэш с ключом
+     size+mtime лога+цепи (appendEvent меняет статы — сброс сам).
+  3) Bug/Bottleneck (race): corpus-queue append ВНЕ событийного лока +
+     жёсткий JSON.parse в CLI-ридере — параллельный verdict-POST ронял
+     команду `corpus` -> src/lib/t4/corpus.ts:37-72 + thread4/cli.ts:389-408.
+     Refactored: withEventLock вокруг append + терпимый flatMap-парсер.
+  4) Bug/Bottleneck: scanSource — walk + чтение всех файлов на каждый
+     /state (grep-gate булев) -> src/lib/t4/hygiene.ts:37-52.
+     Refactored: TTL-кэш 5с по root.
+  5) Bug/Bottleneck: двойной fetch /api/t4/state при монтировании
+     дашборда -> src/components/t4/api.ts:162-191. Refactored: in-flight
+     dedupe (JOIN параллельных запросов, без кэша данных).
+- Конвейер готов к T4-34: 120 палитр, 45 рас, ass-квота, FAM v2.3.0,
+  дистанции (G01 wide-shot). Тема — за автором (§10); вердикт T4-33
+  «теперь будем работать над темами, но после нового батча».
+- Ожидание автора: тема/бриф T4-34 (или собрать по умолчанию с новыми
+  кинами и квотой — «посмотрим на новый батч»).
