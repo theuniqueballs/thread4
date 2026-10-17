@@ -61,6 +61,7 @@ import {
 const ACTION_HOTKEYS: Record<string, ActionId> = {
   b: 'burn',
   c: 'compile',
+  i: 'scribe',
   t: 'verify',
   p: 'purge',
   d: 'deliver',
