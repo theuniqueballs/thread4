@@ -69,6 +69,17 @@ export const FAMILY_SHIELD: { marker: RegExp; neg: string[] }[] = [
   { marker: /vampir/i, neg: ['normal round pupils', 'warm tanned skin'] },
   { marker: /nephilim|angel|seraph/i, neg: ['black wings', 'dark halo'] },
   { marker: /medusa|gorgon/i, neg: ['human hair', 'round pupils'] },
+  /* добор пустого щита (аудит-находка №6, selftest T4-98): расы без
+   * маркера получали ПУСТОЙ NEG —Invariant «у каждого кина есть щит»
+   * падал. Гварды в NEG-языке против реальных дрейфов рендера. */
+  { marker: /deer/i, neg: ['branched antlers', 'animal muzzle', 'fur-covered body'] },
+  { marker: /dryad/i, neg: ['bark-covered skin', 'tree-branch arms'] },
+  { marker: /gargoyle/i, neg: ['bat wings', 'smooth skin'] },
+  { marker: /mushroom|fungus|toadstool|spore/i, neg: ['gills', 'red toadstool cap with white dots'] },
+  { marker: /golem/i, neg: ['robot parts', 'metal plating', 'rivets'] },
+  { marker: /ghost|spirit|wraith|phantasm/i, neg: ['human legs'] },
+  { marker: /phoenix/i, neg: ['beak', 'feathered legs', 'bird claws'] },
+  { marker: /arachne|spider/i, neg: ['separate spider abdomen', 'mandibles'] },
   { marker: /witch/i, neg: ['green skin', 'warts', 'crooked hooked nose', 'halloween costume'] },
 ]
 
