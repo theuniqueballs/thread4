@@ -162,6 +162,27 @@
   background-clip: padding-box;
 }
 
+/* Эра «МОЩНОСТЬ» (2026-10-18): горизонтальный вариант для статус-ряда
+ * и читального зала — высота 5px, не отбирает вертикальное место. */
+.t4-scroll-x {
+  scrollbar-width: thin;
+  scrollbar-color: #3f3f46 transparent;
+}
+.t4-scroll-x::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+.t4-scroll-x::-webkit-scrollbar-track {
+  background: transparent;
+}
+.t4-scroll-x::-webkit-scrollbar-thumb {
+  background: #3f3f46;
+  border-radius: 8px;
+}
+.t4-scroll-x::-webkit-scrollbar-thumb:hover {
+  background: #52525b;
+}
+
 /* THREAD 4: вспышка строки слота после глубокой ссылки (радар → Батчи).
  * Янтарное кольцо два раза — глаз автора находит строку без поиска.
  * Порт из fred-legacy (2026-10-12, преемник). */

@@ -21,10 +21,10 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "THREAD 4 — Мастерская промпт-батчей",
+  title: "THREAD 4 — Консоль «МОЩНОСТЬ»",
   description:
-    "Конвейер THREAD 4: табовая мастерская (состояние, документы, спеки, сборка, батчи, события-хеш-цепь, вердикты, стекло, хранилище, архив) + движок-эра: ротационное окно, BURN & REBUILD, валидация цепи chain.jsonl.",
-  keywords: ["THREAD 4", "prompt pipeline", "hash chain", "chain.jsonl", "rotation window", "burn and rebuild"],
+    "Конвейер THREAD 4: один рабочий экран — Action Deck (BURN & REBUILD, FORCE COMPILE, VERIFY, PURGE, VOID, DELIVER, REAPER, SHORE-MERGE, вердикт), окно ротации, живая лента хеш-цепи + читальный зал в drawer'ах и палитра команд ⌘K.",
+  keywords: ["THREAD 4", "prompt pipeline", "hash chain", "chain.jsonl", "rotation window", "burn and rebuild", "command palette"],
 };
 
 export default function RootLayout({
