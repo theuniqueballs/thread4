@@ -195,7 +195,13 @@ export function batchHardPass(db: Database, slug: string): boolean {
   return row != null && row.hard_pass === 1
 }
 
-/** Event row → public JSON shape (raw and prev stay internal). */
+/**
+ * Event row → public JSON shape. hash + prev are exposed (2026-10-18,
+ * neon-dogma dashboard): the browser-side chronicle visualizer re-validates
+ * every link client-side (prev[i] === hash[i-1]) so each JSONL row can carry
+ * an honest crypto tick. raw bytes stay internal — only the engine
+ * recomputes sha256 from raw (chain/verify remains the authority).
+ */
 export function eventToJson(e: EventRow): Record<string, unknown> {
   return {
     seq: e.seq,
@@ -203,6 +209,8 @@ export function eventToJson(e: EventRow): Record<string, unknown> {
     at: e.at,
     type: e.type,
     summary: e.summary,
+    hash: e.hash,
+    prev: e.prev_hash,
     ...(e.data ? { data: JSON.parse(e.data) as unknown } : {}),
   }
 }
