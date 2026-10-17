@@ -1233,6 +1233,30 @@ async function main() {
           kinSlots.every((s) => (s.kinPos ?? '').length > 0 && (s.kinNeg ?? '').length > 0) &&
           kinSlots.every((s) => s.position > law2.ocSlots)
       )
+      /* Приказ автора 2026-10-17 («ты опять запихнул Люси на первый слот —
+       * где ротация ОС»): кулдаун-окно ОС в генераторе RAW+. T4-30..34
+       * шли путём --from-draft без окна (куулдаун жил только в компиляторе)
+       * + счётчик Люси отставал на 1 (T4-32 без oc.appeared) — она
+       * держала P01 пять батчей подряд. Инвариант: ОС последних 2 батчей
+       * окна не попадают в тройку, счётчик на это не влияет. */
+      {
+        const p2 = planRawPlus({
+          slug: 'T4-97',
+          theme: 'SELFTEST OC COOLDOWN',
+          seed: 777,
+          windowSlugs: ['T4-95', 'T4-96'],
+          ocAppearances: { Lucy: 0, Noa: 0, Yui: 0 },
+          ocLastSeen: { Lucy: 'T4-95', Noa: 'T4-96' },
+        })
+        const ocNames2 = p2.slots.filter((s) => s.kind === 'OC').map((s) => s.oc as string)
+        check(
+          'gen-rawplus: OC-кулдаун — ОС последних 2 батчей вне тройки даже при нулевом served (приказ 2026-10-17 «где ротация ОС»)',
+          ocNames2.length === law2.ocSlots &&
+            !ocNames2.includes('Lucy') &&
+            !ocNames2.includes('Noa') &&
+            p2.report.some((r) => r.includes('OC-кулдаун'))
+        )
+      }
       /* A3P5-двери (ревизия 2026-10-14): 15 дверей + 6 операторов из легаси
        * (legacy/a3/A3P5_Core.txt:20 + QUICK REFERENCE) — NICHE-слот несёт
        * дверь (момент входа в кадр) и оператора камеры (ракурс) ротацией */
