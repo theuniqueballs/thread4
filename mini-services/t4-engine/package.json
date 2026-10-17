@@ -1,0 +1,17 @@
+{
+  "name": "t4-engine",
+  "version": "1.0.0",
+  "dependencies": {
+    "zod": "^4.0.2"
+  },
+  "description": "THREAD 4 unified engine core — bun:sqlite state + hash chain + Bun.serve RPC (Single Source of Truth)",
+  "private": true,
+  "scripts": {
+    "dev": "bun --hot index.ts",
+    "start": "bun index.ts"
+  },
+  "type": "module",
+  "devDependencies": {
+    "@types/bun": "^1.4.3"
+  }
+}

@@ -322,6 +322,20 @@ function GlassTab() {
               glass.commanderKey === true ? 'на месте' : 'ОТСУТСТВУЕТ — замок',
               glass.commanderKey === true ? 'ok' : 'bad'
             )}
+            {(() => {
+              /* Движок-эра (2026-10-17): t4-engine :3200 — RPC-ядро (bun:sqlite
+               * + Bun.serve), SSoT дашборда и CLI. Молчит → честная строка,
+               * дашборд не падает. */
+              const eng = asRecord(glass.engine)
+              if (eng == null) return row('движок-эра RPC :3200', 'телеметрии нет', 'neutral')
+              if (eng.up !== true) return row('движок-эра RPC :3200', 'МОЛЧИТ — деградация до файловой истины', 'bad')
+              const height = eng.chainHeight == null ? '—' : String(eng.chainHeight)
+              return row(
+                'движок-эра RPC :3200',
+                `жив · цепь ${height} зв. ${eng.chainOk === false ? 'ПРОБЛЕМЫ!' : 'цела'} · ${eng.nextSlug ?? '—'} · ${Math.round(Number(eng.uptimeSec ?? 0) / 60)}м аптайм`,
+                eng.chainOk === false ? 'bad' : 'ok'
+              )
+            })()}
             {row(
               'хеш-цепь летописи',
               chainOk ? `ЦЕЛА · ${asStr(chain.events)} звеньев · head ${asStr(chain.head)}` : 'СЛОМАНА',

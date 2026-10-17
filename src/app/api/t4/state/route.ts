@@ -11,6 +11,56 @@ import path from 'node:path'
 
 export const dynamic = 'force-dynamic'
 
+/* Движок-эра (2026-10-17): t4-engine (:3200, bun:sqlite + Bun.serve) —
+ * SSoT. Стекло показывает его телеметрию рядом с файловой истиной —
+ * честная миграция: движок молчит → строка честно говорит «молчит»,
+ * дашборд не падает (degrade, не блокировка). */
+const ENGINE_ORIGIN = process.env.T4_ENGINE_ORIGIN ?? 'http://127.0.0.1:3200'
+
+async function engineTelemetry(): Promise<{
+  up: boolean
+  port: number
+  chainHeight?: number
+  chainOk?: boolean
+  head10?: string | null
+  events?: number
+  nextSlug?: string
+  uptimeSec?: number
+  version?: string
+  canon?: string
+} | null> {
+  try {
+    const res = await fetch(`${ENGINE_ORIGIN}/v1/state`, {
+      signal: AbortSignal.timeout(1500),
+      cache: 'no-store',
+    })
+    if (!res.ok) return { up: false, port: 3200 }
+    const json = (await res.json()) as {
+      data?: {
+        chain?: { height?: number; ok?: boolean; head?: string | null }
+        counts?: { events?: number }
+        nextSlug?: string
+        uptimeSec?: number
+        canon?: string
+      }
+    }
+    const d = json.data ?? {}
+    return {
+      up: true,
+      port: 3200,
+      chainHeight: d.chain?.height,
+      chainOk: d.chain?.ok,
+      head10: d.chain?.head?.slice(0, 10) ?? null,
+      events: d.counts?.events,
+      nextSlug: d.nextSlug,
+      uptimeSec: d.uptimeSec,
+      canon: d.canon,
+    }
+  } catch {
+    return { up: false, port: 3200 }
+  }
+}
+
 export async function GET(req: Request) {
   const read = requireRead(req)
   if (!read.ok) return read.response
@@ -45,6 +95,7 @@ export async function GET(req: Request) {
    * легенда «№23/№25/№26/№27 + 25–27 квитанций» протухла бы с первым же
    * новым гейтом/батчем — числа теперь живые, источник один: летопись. */
   const health = gatesHealthFromEvents(events)
+  const engine = await engineTelemetry()
   const gateHealth = health.lastRun
     ? `hard ${health.hard} · warn ${health.warn} · advisory ${health.advisory}${health.conditional ? ` · +${health.conditional} условных (RAW+/⚗)` : ''} = ${health.runTotal} квитанций — последний прогон ${health.lastRun.slug} #${health.lastRun.run} (${health.lastRun.at.slice(0, 16).replace('T', ' ')}, hard ${health.lastRun.hardPass ? 'PASS' : 'FAIL'}) — счёт из receipts, не из легенды`
     : `hard / warn / advisory — прогонов в летописи нет, база из кода: ${GATES_TOTAL}`
@@ -66,6 +117,8 @@ export async function GET(req: Request) {
     openDebts: state.openDebts,
     /* Залп 1 «Правда» — здоровье стекла (полный таб «Стекло» — Залп 3) */
     glass: {
+      /* Движок-эра: телеметрия RPC-ядра (SSoT) рядом с файловой истиной */
+      engine,
       commanderKey: readCommanderKey() != null,
       chain: (() => {
         const v = verifyChain()

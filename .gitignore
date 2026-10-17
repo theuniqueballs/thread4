@@ -83,7 +83,12 @@ db/
 prisma/
 examples/
 tests/
-mini-services/
+# Движок-эра (2026-10-17): t4-engine — НЕ платформенный скелет, это ядро
+# THREAD 4 (bun:sqlite + Bun.serve, SSoT) — трекается в гите полностью,
+# включая data/t4.db (снапшот-доктрина: состояние в гите; -wal/-shm
+# отфильтрованы .gitignore'ом самого движка).
+mini-services/*
+!mini-services/t4-engine/
 
 # аудит 2026-10-12: атомарные tmp-файлы writeText (*.tmp-<pid>-<ts>),
 # браузерные QA-скриншоты, ключ командира (страховка поверх ~/.t4/)
