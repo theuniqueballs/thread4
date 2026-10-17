@@ -2,6 +2,7 @@
  * THREAD 4 core — typed spec loaders (constitution §2: specs are the one
  * source of truth for pools/recipes/laws-data). Cached per process.
  */
+import fs from 'node:fs'
 import path from 'node:path'
 
 import { readJson, SPECS_DIR } from './fsutil'
@@ -367,14 +368,30 @@ export interface PoolsSpec {
 
 /* --------------------------- load + cache -------------------------- */
 
-const cache = new Map<string, unknown>()
+/* Аудит №4 (2026-10-17, strict): кэш был бессрочным — правка спеки
+ * (палитры 105→120, расы 40→45 в этом раунде) НЕ видна живому процессу
+ * до перезапуска: Стекло репортило протухший счёт фонда, писец/
+ * компилятор работали по старым данным — «source of truth» молчал.
+ * Ключ size+mtime (паттерн readEvents): statSync на хит дешевле reparse,
+ * append-правки сбрасывают сами. */
+const cache = new Map<string, { size: number; mtimeMs: number; data: unknown }>()
 
 function load<T>(file: string): T | null {
-  if (cache.has(file)) return cache.get(file) as T | null
-  const data = readJson<T>(path.join(SPECS_DIR, file))
+  const full = path.join(SPECS_DIR, file)
+  let st: fs.Stats | null = null
+  try {
+    st = fs.statSync(full)
+  } catch {
+    /* файла нет — ниже честный null */
+  }
+  if (st) {
+    const hit = cache.get(file)
+    if (hit && hit.size === st.size && hit.mtimeMs === st.mtimeMs) return hit.data as T
+  }
+  const data = readJson<T>(full)
   /* Залп 2: null не кэшируется — единичный сбой чтения больше не портит
      спеку на весь жизнь процесса (аудит: кэш кэшировал и null) */
-  if (data !== null) cache.set(file, data)
+  if (data !== null && st) cache.set(file, { size: st.size, mtimeMs: st.mtimeMs, data })
   return data
 }
 

@@ -464,7 +464,32 @@ export interface ChainVerdict {
 }
 
 /** Проверка целостности: эталон (log) vs хранимая цепь. */
+/* Аудит №4 (2026-10-17, strict, Big-O): полный SHA-256 проход по летописи
+ * (O(n) хешей + двойной reparse log+chain) на КАЖДЫЙ запрос
+ * /api/t4/state — а дашборд монтирует два useApi(state) → две полные
+ * сверки цепи на загрузку страницы, стоимость растёт с каждым звеном.
+ * Кэш size+mtime обох файлов: appendEvent меняет оба стата — ключ
+ * протухает сам, честность та же, стоимость хита — два statSync. */
+let chainVerifyCache: { key: string; verdict: ChainVerdict } | null = null
+
+function statKeyOf(p: string): string {
+  try {
+    const st = fs.statSync(p)
+    return `${st.size}:${st.mtimeMs}`
+  } catch {
+    return 'none'
+  }
+}
+
 export function verifyChain(): ChainVerdict {
+  const key = `${statKeyOf(EVENT_LOG)}|${statKeyOf(CHAIN_LOG)}`
+  if (chainVerifyCache && chainVerifyCache.key === key) return chainVerifyCache.verdict
+  const verdict = verifyChainUncached()
+  chainVerifyCache = { key, verdict }
+  return verdict
+}
+
+function verifyChainUncached(): ChainVerdict {
   const { links, rawLines } = computeChainOverLog()
   const stored = readChain()
   const problems: string[] = []

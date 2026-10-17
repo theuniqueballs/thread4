@@ -387,12 +387,24 @@ async function main() {
        corpus take <N>      — кандидат N → golden-corpus (author_note = взгляд)
        corpus drop <N>      — кандидат N → мусор */
     const qPath = path.join(process.cwd(), 'thread4', 'corpus-queue.jsonl')
+    /* Аудит №4 (2026-10-17, strict, race): жёсткий JSON.parse на строке
+     * очереди ронял всю команду `corpus`, если роут дописывал хвост в
+     * момент чтения (разорванная строка). Терпи́мый парсер: битые строки
+     * пропускаются с предупреждением, нумерация честная (по сырому
+     * индексу — команды take/drop не сдвигаются). */
     const queue = fs.existsSync(qPath)
       ? fs
           .readFileSync(qPath, 'utf8')
           .split('\n')
           .filter(Boolean)
-          .map((l, i): { n: number } & Record<string, unknown> => ({ n: i + 1, ...(JSON.parse(l) as Record<string, unknown>) }))
+          .flatMap((l, i): ({ n: number } & Record<string, unknown>)[] => {
+            try {
+              return [{ n: i + 1, ...(JSON.parse(l) as Record<string, unknown>) }]
+            } catch {
+              console.error(`  очередь: строка №${i + 1} битая (параллельная запись) — пропущена`)
+              return []
+            }
+          })
       : []
     const act = process.argv[3]
     if (!act) {

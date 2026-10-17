@@ -159,7 +159,27 @@ export function isNotFound(err: unknown): boolean {
   return err instanceof ApiError && (err.status === 404 || err.status === 501)
 }
 
+/* Аудит №4 (2026-10-17, strict, perf): дашборд монтирует ДВА
+ * useApi('/api/t4/state') — каждый state-зап previously платил полную
+ * сверку цепи + fold + scan. In-flight dedupe: параллельные fetchJson
+ * одного URL JOINят первый запрос (один ответ шарится обоим подписантам);
+ * после завершения карта чистится — данные не кэшируются, только
+ * двойной одновременно запущенный поход убран. */
+const inflight = new Map<string, Promise<unknown>>()
+
 export async function fetchJson<T>(path: string): Promise<T> {
+  const existing = inflight.get(path)
+  if (existing) return existing as Promise<T>
+  const req = fetchJsonUncached<T>(path)
+  inflight.set(path, req)
+  try {
+    return await req
+  } finally {
+    inflight.delete(path)
+  }
+}
+
+async function fetchJsonUncached<T>(path: string): Promise<T> {
   /* ISSUE 15 / #47 (read.lock): GET несёт ключ командира, если браузер его
    * хранит. Без read.lock на сервере заголовок безвреден (игнорируется);
    * с read.lock — чтение конвейера открывается автору без отдельного

@@ -15,7 +15,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 
-import type { T4Event } from './events'
+import { withEventLock, type T4Event } from './events'
 
 /** Порог «взгляда» (U6): короче — это клик, не высказывание. */
 export const AUTHOR_GAZE_MIN = 40
@@ -42,20 +42,28 @@ export function feedCorpusQueue(
   if (!worthy) return false
   try {
     const d = (evt.data ?? {}) as Record<string, unknown>
-    fs.appendFileSync(
-      queuePath,
-      JSON.stringify({
-        id: evt.id,
-        at: evt.at,
-        slug: String(d.slug ?? ''),
-        position: String(d.position ?? ''),
-        verdict: String(d.verdict ?? (d.mode === 'light' ? 'light' : 'batch')),
-        source,
-        confidence: String(d.confidence ?? ''),
-        prose: prose.slice(0, 400),
-      }) + '\n',
-      'utf-8'
-    )
+    /* Аудит №4 (2026-10-17, strict, race): запись очереди шла ВНЕ
+     * событийного лока — параллельные batch-verdict/feedback POSTы могли
+     * интерливить строки, а читатель CLI (`corpus`) падал жёстким
+     * JSON.parse на разорванной строке. Теперь под withEventLock: append
+     * сериализуется с летописью и с себе подобными; читатель
+     * терпи́м к хвосту (cli.ts). */
+    withEventLock(() => {
+      fs.appendFileSync(
+        queuePath,
+        JSON.stringify({
+          id: evt.id,
+          at: evt.at,
+          slug: String(d.slug ?? ''),
+          position: String(d.position ?? ''),
+          verdict: String(d.verdict ?? (d.mode === 'light' ? 'light' : 'batch')),
+          source,
+          confidence: String(d.confidence ?? ''),
+          prose: prose.slice(0, 400),
+        }) + '\n',
+        'utf-8'
+      )
+    })
     return true
   } catch {
     /* очередь не критична для записи вердикта (U6) */

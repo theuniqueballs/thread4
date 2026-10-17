@@ -34,7 +34,24 @@ const RULES: Rule[] = [
 /** Строки с этой пометкой исключаются (оправданный кейс — комментируй почему). */
 const ALLOW_MARK = 'hygiene-allow'
 
+/* Аудит №4 (2026-10-17, strict, Big-O): scanSource — walk каталога +
+ * чтение ВСЕХ .t4-файлов на каждый запрос /api/t4/state (grep-gate булев
+ * в Стекле). TTL-кэш 5с: два useApi(state) на монтирование дашборда
+ * больше не платят двойной обход; свежесть для живого булева достаточна
+ * (правка кода видна через ≤5с). */
+let scanCache: { root: string; at: number; hits: HygieneViolation[] } | null = null
+const SCAN_TTL_MS = 5_000
+
 export function scanSource(root: string): HygieneViolation[] {
+  if (scanCache && scanCache.root === root && Date.now() - scanCache.at < SCAN_TTL_MS) {
+    return scanCache.hits
+  }
+  const violations = scanSourceUncached(root)
+  scanCache = { root, at: Date.now(), hits: violations }
+  return violations
+}
+
+function scanSourceUncached(root: string): HygieneViolation[] {
   const violations: HygieneViolation[] = []
   let files: string[] = []
   try {
