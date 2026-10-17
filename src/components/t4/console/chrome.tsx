@@ -374,7 +374,7 @@ export function EventsStrip({
   }, [feed.events])
 
   return (
-    <section className="rounded-lg border border-zinc-800 bg-zinc-900 p-4 sm:p-5" aria-label="живая лента событий">
+    <section className="min-w-0 rounded-lg border border-zinc-800 bg-zinc-900 p-4 sm:p-5" aria-label="живая лента событий">
       <header className="mb-3 flex items-center justify-between gap-3">
         <h2 className="flex items-center gap-2 text-sm font-semibold tracking-tight text-zinc-200">
           <Radio className="size-4 text-amber-500" />
@@ -462,7 +462,7 @@ export function BatchFocus({
   const batch = rows[0]
 
   return (
-    <section className="rounded-lg border border-zinc-800 bg-zinc-900 p-4 sm:p-5" aria-label="текущий батч">
+    <section className="min-w-0 rounded-lg border border-zinc-800 bg-zinc-900 p-4 sm:p-5" aria-label="текущий батч">
       <header className="mb-3 flex items-center justify-between gap-3">
         <h2 className="flex items-center gap-2 text-sm font-semibold tracking-tight text-zinc-200">
           <FileText className="size-4 text-amber-500" /> Текущий батч
