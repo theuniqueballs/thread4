@@ -937,8 +937,8 @@
           "cls": "A"
         },
         {
-          "id": "CR-G11",
-          "name": "Over-Shoulder Mirror",
+          "id": "CR-G08",
+          "name": "Fisheye Curve",
           "cls": "G"
         },
         {
@@ -1283,8 +1283,8 @@
           "cls": "D"
         },
         {
-          "id": "CR-G11",
-          "name": "Over-Shoulder Mirror",
+          "id": "CR-G05",
+          "name": "Water-Level Lens",
           "cls": "G"
         },
         {
