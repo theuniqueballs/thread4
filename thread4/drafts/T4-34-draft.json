@@ -1,0 +1,54 @@
+{
+  "slug": "T4-34",
+  "kind": "draft",
+  "status": "draft — без компиляции (Issue #21: авто-входы low-trust; это письменный бриф писцу)",
+  "createdAt": "2026-10-17T12:47:05.204Z",
+  "theme": "WITCHCRAFT",
+  "ocThemes": [
+    {
+      "theme": "Sexy Swimsuit",
+      "rating": "R+",
+      "wishes": "",
+      "position": 1
+    },
+    {
+      "theme": "Drunk on the Beach",
+      "rating": "R+",
+      "wishes": "",
+      "position": 2
+    },
+    {
+      "theme": "Fishnet Avalanche",
+      "rating": "R+",
+      "wishes": "",
+      "position": 3
+    }
+  ],
+  "mainWishes": "",
+  "species": {
+    "on": true,
+    "count": 14,
+    "list": [
+      "R37",
+      "R38",
+      "R39",
+      "R40",
+      "R02",
+      "R04",
+      "R06",
+      "R09",
+      "R18",
+      "R15",
+      "R16",
+      "R12",
+      "R35",
+      "R33"
+    ]
+  },
+  "xSlots": 0,
+  "abPairs": 3,
+  "exp": 8,
+  "rehab": true,
+  "engine": "per-theme",
+  "notes": ""
+}
