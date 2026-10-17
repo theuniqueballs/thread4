@@ -4857,3 +4857,28 @@ Stage Summary:
 - Закрытые классы багов: boot-дедлок (ready&&booted), Zod-контракт compile (ocThemes обязательны → OC-инпуты в UI), set-state-in-effect ×4, ref-during-render, comment-textnodes ×3.
 - Ветка/эра: файловая эра UI официально заменена неон-деком; авторская нумерация продолжается с T4-38 (T4-37 израсходован как честный QA-цикл с note в летописи).
 - Риски/рекомендации следующей фазе: (1) кнопки deliver/void/verdict прямо с дек-а (сейчас только compile), (2) детальный поток gate.run в терминал (сейчас receipts), (3) режим деградации движка — отдельная красивая панель «BATTERY» вместо err-строк, (4) опциональные WebAudio-клики на кнопках, (5) сохранение темы/OC-черновика в localStorage, (6) кэш палитр-спеков (сейчас фетчится каждый boot).
+
+---
+Task ID: 1
+Agent: Z.ai Code (main session)
+Task: Полный редизайн дашборда THREAD 4 по жалобе автора («полная некликабельная хуйня»): чистая, интерактивная, читаемая dev-консоль вместо неон-монолита. Сохранить реальную логику, поднять юзабилити.
+
+Work Log:
+- Диагноз: старый неон-дек (src/app/page.tsx, ~2600 строк) задушен boot-veil, двухстадийным ARM-кнопками и анимацией; заархивирован в .archive/page-neon-dogma-2026-10-18-redesign.tsx.
+- Новый монолит src/app/dashboard/page.tsx (~1560 строк, полный код, ноль заглушек): чистая тёмная dev-консоль, zinc/emerald/red/amber, моно-таблицы, крупные кликабельные кнопки. Аниме сведено к тегам [T4-Core: ACTIVE] / [OP: TSUBAKI].
+- layout.tsx: убран Orbitron, метадата «THREAD 4 — Pipeline Console». globals.css: NEON DOGMA-слой (nd-*) срезан, добавлен PIPELINE CONSOLE-слой (t4-row-sweep, t4-link-broken, t4-shake, t4-press-flash; reduced-motion гасит всё).
+- Маршрут: полный код в src/app/dashboard/page.tsx, src/app/page.tsx рендерит тот же компонент на / (единственный видимый маршрут платформы). /dashboard тоже работает (200).
+- Все контролы реально работают через движок :3200 (прокси /api/t4/engine):
+  · BURN & REBUILD — ре-аудит всей цепи в браузере чанками (48 ссылок/14мс, видимый sweep по хронике) + авторитет /v1/chain/verify; внутри кнопки живой прогресс-бар.
+  · FORCE COMPILE — форма THEME + OC·1-3 + ключ командира (password input, SAVE/CLR, live-probe чип KEY OK/MISMATCH/NO KEY), Zod-валидация клиентом (shake + inline error), POST /v1/compile с Idempotency-Key; баннеры CLEAN RUN / DRIFT / VOID / AUTH LOCKED / FAILED; receipts заполняют GATE MATRIX.
+  · PURGE HEAP — сброс локального буфера (счётчик −N), ре-сид хвоста (последние 40 событий).
+- CHRONICLE & HASH-CHAIN: лог-таблица с единым grid-шаблоном (✓|#|TIME|TYPE|EVENT|HASH·PREV), зелёная галка = prev[i]===hash[i-1] пересчитывается в браузере на каждый poll, битая ссылка = мигающий красный X + красная строка; poll 2.5s, LIVE/PAUSED, фильтры ALL/CHAIN/SYS, follow-mode с кнопкой FOLLOW LIVE, буфер 220.
+- ROTATION WINDOW: явный 3-слотовый ряд из последних 3 доставленных (T4-34/33/32); легаси-планы парсятся из MD (реальные P### из палитр), цвета из /api/t4/specs/palettes (словарь цветоимен → HSL), математика FUND 120 − ∪WIN = FREE, кнопка reload.
+- SYSTEM-панель: era/canon/next/delivered/verdicts/db/uptime/head. GATE MATRIX: 24 ячеек + EXP-ряд + planning gates с PASS/WARN/FAIL чипами + легенда.
+- Live QA (agent-browser): boot ✓; BURN полный цикл → «409/409 LINKS VERIFIED · CHAIN INTACT · ENGINE SEALED · head 15ba8845» ✓; compile без темы → inline ошибка ✓; compile без ключа → реальный 403 → AUTH LOCKED ✓; SAVE ключа → «KEY OK — mutations armed» ✓; живой compile T4-38 «CONSOLE QA PROBE» → CLEAN RUN, 5 гейтов PASS, событие #410 прилетело в терминал живьём с зелёным тиком ✓; PURGE 150→40 строк ✓; фильтры SYS/CHAIN ✓; пауза/резюм стрима ✓; мобайл 390×844 без горизонтального переполнения, футер прижат ✓; ошибок страницы 0, консоль чистая, lint 0.
+- Гигиена канона: T4-38 закрыт void + note-событие «консоль-редизайн QA» (как T4-37 в прошлой фазе). Цепь 412 звеньев, ЦЕЛА. Нумерация автора продолжится с T4-39.
+
+Stage Summary:
+- Дашборд теперь КЛИКАБЕЛЕН и честен: каждая кнопка бьёт в реальный RPC движка, каждый тик строки — настоящая браузерная проверка хеша, каждый слот ротации — реальный заблокированный палитр-план.
+- Приоритеты автора соблюдены: читаемость текста и юзабилити кнопок абсолютны; аниме-присутствие минимально (текст-теги).
+- Риски/рекомендации следующей фазе: (1) кнопки deliver/void/verdict прямо с консоли, (2) WebSocket вместо poll-2.5s, (3) поиск/фильтр по seq в хронике, (4) сохранение черновика темы в localStorage, (5) клавиши-хоткеи (B=burn, C=compile focus).
