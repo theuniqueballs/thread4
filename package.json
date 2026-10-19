@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev -p 3000 -H 127.0.0.1 2>&1 | tee dev.log",
+    "db:push": "echo \"[boot] prisma не используется в THREAD 4 (движок — bun:sqlite в mini-services/t4-engine) — db:push no-op\"",
     "build": "next build && cp -r .next/static .next/standalone/.next/ && cp -r public .next/standalone/",
     "start": "NODE_ENV=production HOSTNAME=127.0.0.1 bun .next/standalone/server.js 2>&1 | tee server.log",
     "lint": "eslint .",
