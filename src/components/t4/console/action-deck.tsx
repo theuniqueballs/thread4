@@ -1794,7 +1794,6 @@ function ScribePanel({ ctx }: { ctx: DeckCtx }) {
         '/api/t4/scribe',
         { slug: target, maxRepairRounds: 3 },
         (line) => {
-          seen.push(line)
           setSteps([
             {
               label: `POST /api/t4/scribe (поток) — писец пишет ${target}`,
