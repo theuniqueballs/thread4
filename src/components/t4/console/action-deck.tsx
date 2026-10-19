@@ -3,7 +3,7 @@
 /**
  * THREAD 4 — Action Deck (первый уровень, эра «МОЩНОСТЬ» 2026-10-18).
  *
- * Девять рабочих действий, каждое — честный workflow:
+ * Десять рабочих действий, каждое — честный workflow:
  *   idle (форма) → dry-run превью → подтверждение → шаги с логом →
  *   результат (success/error) + уведомление + перезарядка данных.
  * Кнопка не «стреляет в пустоту»: у каждого действия виден исход.
@@ -439,7 +439,7 @@ function BurnPanel({ rows, ctx }: { rows: EngineBatchRow[]; ctx: DeckCtx }) {
       if (broken.length > 0) {
         setResult({
           ok: false,
-          text: <>ЦЕПЬ РАЗОРВАНА — rebuild отменён (нельзя строить на сломанной летописи). Лечение: bun thread4/cli.ts verify --heal</>,
+          text: <>ЦЕПЬ РАЗОРВАНА — rebuild отменён (нельзя строить на сломанной летописи). Восстановление цепи запрещено доктриной append-only — break = ручной аудит летописи</>,
         })
         notify('error', 'BURN & REBUILD', `цепь разорвана (${broken.length} разрывов) — rebuild отменён`)
         busyRef.current = false
@@ -1134,7 +1134,7 @@ function VerifyPanel() {
             {evs.length}/{evs.length} звеньев проверены{broken.length > 0 ? ` · РАЗРЫВЫ: seq ${broken.join(', ')}` : ''} ·
             движок {verify.ok ? 'SEALED' : `ПРОБЛЕМ ×${verify.problems.length}`} · head {h8(head)}
             {!ok ? (
-              <span className="mt-1 block text-zinc-400">лечение: bun thread4/cli.ts verify --heal</span>
+              <span className="mt-1 block text-zinc-400">восстановление цепи запрещено доктриной append-only — break = ручной аудит летописи</span>
             ) : null}
           </div>
         ),

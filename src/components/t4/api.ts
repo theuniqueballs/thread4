@@ -190,10 +190,15 @@ async function fetchJsonUncached<T>(path: string): Promise<T> {
   return (await res.json()) as T
 }
 
+/* 3-b (abort-эра): опциональный AbortSignal — прокидывается в fetch.
+ * Все прежние вызовы без signal работают как раньше (обратная
+ * совместимость); прерванный запрос падает с DOMException AbortError —
+ * вызывающая сторона читает это как «отменено оператором», не как сбой. */
 export async function postJson<T>(
   path: string,
   body: unknown,
-  extraHeaders: Record<string, string> = {}
+  extraHeaders: Record<string, string> = {},
+  signal?: AbortSignal
 ): Promise<T> {
   const res = await fetch(withGatewayPort(path), {
     method: 'POST',
@@ -203,6 +208,7 @@ export async function postJson<T>(
      * кросс-доменно без preflight. */
     headers: { 'Content-Type': 'application/json', ...commanderHeaders(), ...extraHeaders },
     body: JSON.stringify(body),
+    signal,
   })
   if (!res.ok) {
     // тело ошибки пробрасываем наверх: UI имеет право знать ПОЧЕМУ (а не только код)
@@ -229,12 +235,14 @@ export async function postScribeStream<T>(
   path: string,
   body: unknown,
   onLog: (line: string) => void,
-  extraHeaders: Record<string, string> = {}
+  extraHeaders: Record<string, string> = {},
+  signal?: AbortSignal
 ): Promise<T> {
   const res = await fetch(withGatewayPort(path), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...commanderHeaders(), ...extraHeaders },
     body: JSON.stringify(body),
+    signal,
   })
   if (!res.ok || res.body == null) {
     let msg = `HTTP ${res.status}`

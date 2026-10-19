@@ -5622,3 +5622,283 @@ Stage Summary:
 - Бут бокса теперь самоподъёмен: db:push no-op + rustup self-heal в dev.sh
   (остаётся риск: network недоступен при установке rustup — тогда близнец
   молча не поднимется, но остальной стек жив).
+
+---
+Task ID: 1-a
+Agent: Explore (Task 1-a — полная инвентаризация системы гейтов THREAD 4)
+
+Task: Инвентаризация гейтов для решения о портировании оставшихся гейтов
+TS→Rust. RESEARCH ONLY — код не тронут, один аппенд в worklog.
+
+Work Log:
+- Прочитаны секции worklog: Task ID: 1 (архитектура Thread 4 от CHEMODAN 3.2),
+  3-inv (инвентаризация CLI/UI/гейтов), rust-port-t441-delivery (twin, dual-DB,
+  байт-паритет), rust-migration-2026-10-19 (Фазы 1-3: theme.rs, live.rs, CLI,
+  аудит GATES_TOTAL 27→30), audit8/audit9 (exp-purity, one-truth-parser).
+- GATES-AUDIT-RUST-ERA.md разобран полностью: таблица 30+3, KEEP/MERGE/PRUNE
+  вердикты, §5 приоритет порта (rating-recipe → canon → diversity → simcheck/
+  echo-window; сирота polish = LLM-мост).
+- gates.ts (2496 строк) прочитан построчно: карта всех 30 безусловных + 3
+  условных гейтов с точными строками (см. Stage Summary), для каждого —
+  уровень, входы, что проверяет, ~строк кода.
+- compile.ts:441-451 == compile.rs:765-965 сверен: 5 планировочных гейтов
+  (structure, exp-purity, floors, window, ab-single-variable) — PORTED с
+  дословными текстами квитанций; ВАЖНО: это PLAN-уровень, текстовые
+  двойники в gates.ts (scribe-time) НЕ портированы.
+- theme.rs: гейт №25 NATIVE RUST — expand() якоря (seed sha256(theme|slug|v1)
+  → mulberry32, лексикон RU+EN поверх кубика), plan_gate() (флоры/токен-бюджет
+  6..12/OC-противоречия), text_gate() (adherence ≥50%), exp_off_receipt()
+  (EXP → verdict OFF честной квитанцией).
+- Поток результатов: файл-эра — cli.ts gates → runGates → receipts +
+  appendEvent('gate.run') в events/log.jsonl (полный слепок receipts в data);
+  движок-эра — зеркало событий в t4.db (POST /v1/events); Rust CLI t4 gates
+  → compile::audit_plan (5 квитанций) → gate.run в scratch-цепь + строка
+  t4_gate_runs (в продакшн-базе t4_gate_runs ПУСТА — пишет только twin).
+- Продакшн t4.db проверен живым readonly-запросом (bun:sqlite): 434 события
+  (ПОЛНАЯ миграция файловой летописи 413 + движковые зеркала; gate.run 62==62
+  файловых), t4_batches.payload = план-скелет (position/kind/rating/register/
+  ocTheme/paletteId/race/ab/exp — БЕЗ pose/carriers/dress/oc-имени),
+  t4_drafts = intake compile-запросов (НЕ текст батча), scribe.drafted data
+  без body. ВЫВОД: 21-промптный текст и полные контракты живут ТОЛЬКО в
+  файлах (thread4/batches/*.md, contracts/*.json) — для текстовых гейтов
+  Rust обязан читать файлы репо + прод-базу RO (окно/runIndex/OC-ростер).
+- Самотесты: TS cli.ts selftest гоняет живую историю T4-27.2-EXP/27/24/28/31/
+  34 (window, raw-plus №27, rating-recipe №28, dresser, exp-purity,
+  GATES_TOTAL=30 живым прогоном); Rust selftest.rs 78/78 — планировочные
+  гейты + тема №25 + паритет (прод-цепь 434, sha10 T4-41 байт-в-байт),
+  текстовая батарея НЕ покрыта.
+- Ключевой риск паритета: JS RegExp с lookbehind/lookahead
+  (sentenceDots (?<!...)..., character-collision (?!...)) — regex-crate их
+  НЕ умеет, переписывать ручным сканом + сверять по golden-corpus (≥20) и
+  живым прогонам.
+
+Stage Summary:
+- Полная карта 33 гейтов: 5 PORTED (планировочные, тексты дословные) + 1
+  NATIVE (№25 theme.rs) + 1 PORTED-частично (ab-single-variable — план-уровень)
+  + 24 текстовых в TS + 3 условных (raw-plus/rating-recipe-exploratory/
+  raw-plus-exploratory). Живой прогон = 30-33 квитанции.
+- Данные текстовых гейтов: batches/*.md (POS/NEG/THESIS/шапки/маркеры
+  RAW+/ТЕМА-СЛОВА/HEROINE-BATCH), contracts/*.json (pose/palette/carriers/
+  dress/oc/abPairs/rebuildOf), specs/*.json (rating-recipes, bans, carriers,
+  oc-canon, races, rating-techniques, dresser, policy), прод-база RO
+  (окно=3 сданных, deliveredAt, gate.run-счёт, oc.appeared). В sqlite
+  текста/контрактов НЕТ — порты читают файлы репо.
+- Рекомендованный порядок порта: (0) parse_batch_md + файловые загрузчики;
+  (1) простые warn/advisory словарные (budget, cadence, noun-lock,
+  character-collision, one-hard-claim, echo-window, theme-presence,
+  artist-leak, garment-family, original-character-coverage, prop-geometry,
+  freq-report, usage); (2) rating-recipe (сердце PH-доктрины) → canon →
+  diversity → window-текст → floors-текст; (3) контрактные (contract-
+  fidelity, bumps-quota, niche-legibility, ab-text); (4) метрики (simcheck,
+  technique-layers/map, salience-chain, dresser); (5) raw-plus последним
+  (условный, ~280 строк, батчи RAW+ редки).
+- Для следующего агента: Rust-скелет — Receipt (compile.rs:282), hard()/
+  warn_receipt() (compile.rs:306+), audit_plan (compile.rs:991), SlotPlan
+  (compile.rs:971), тема (theme.rs), канон (canonical.rs), базы (db.rs:
+  open_production_ro/open_scratch_rw), цепь (chain.rs append_event_tx), SSE
+  (live.rs BLOCK_GATES), CLI-хук Cmd::Gates (bin/t4.rs:377), маршрут
+  route_match (rpc.rs:277 — /v1/gates НЕТ, добавлять). TS-эталоны: runGates
+  (gates.ts:477), parseBatchMd (batch-md.ts:122), contractFidelity
+  (gates.ts:275), windowOthersFor/historicalWindowFor (gates.ts:421/448),
+  checkCoherence (dresser.ts:163), sentenceDots/closerClassOf (gates.ts:463/470).
+
+---
+Task ID: 1-b
+Agent: Explore (READ-ONLY, карта UI-разрывов против директивы автора)
+Task: Сверка текущего Command Center (:3000) с директивой (Фаза 3 rust-migration:
+God-Tier UI — единый воркфлоу, Live Console SSE, Theme Expansion + гейт №25,
+действия Action Deck, палитра ⌘K, drawer'ы, ключ командира). Код не тронут.
+
+Work Log:
+- Прочитан хвост worklog (секции 3-inv, rust-migration-2026-10-19,
+  relaunch-2026-10-19-2) — карта UI из 3-inv сверкана со свежим кодом.
+- Прочитаны ЦЕЛИКОМ: page.tsx:1-437, layout.tsx:1-45, workflow.tsx:1-832,
+  live-console.tsx:1-280, palette.tsx:1-261, chrome.tsx:1-633, shared.ts:1-278,
+  api.ts:1-452, nav.ts:1-54, globals.css; структурно: action-deck.tsx (10 панелей,
+  строки 341/661/1013/1086/1178/1282/1403/1509/1573/1757), panels.tsx (361/515/640/
+  757/797/1127/1603/1845/3624/3640/3772); роуты: twin/[...path] (152), engine/
+  [...path] (110), gates (47), batch-verdict (309), state (245); twin-исходники
+  compile.rs (квитанции 601-610 — 5 планировочных) + rpc.rs (allowlist 284-295,
+  themeGate 704) — чтобы точно посчитать квитанции воркфлоу (5+№25=6).
+- ЧЕКЛИСТ 16 ПУНКТОВ: 15 «есть», 1 «частично» (полная батарея 30+3 в Review —
+  см. разрыв). BURN(341)/COMPILE(661)/PURGE(1013)/VERIFY(1086)/VOID(1178)/
+  DELIVER(1282)/REAPER(1403)/SHORE(1509)/ВЕРДИКТ(1573) — все живые панели;
+  SCRIBE (1757) — NDJSON-поток, слаг-регэксп T4-\d{2}. Theme Expansion — шаг 1
+  воркфлоу (якоря правятся, 9 полей, tokens не правится); гейт №25 показан
+  (workflow.tsx:643-682), FAIL НЕ блокирует кнопку Compile в UI — строгий
+  перепровер делает twin на компиляции (744-зеркало strict), UI только текст
+  703-707. RotationWindowPanel: 3 слота, свотчи, фонд 120. Live Console: SSE
+  twin/live, 6 блоков, Pause/Clear/Copy — Abort НЕТ. Палитра: 10 действий +
+  8 drawer'ов + батчи(≤8) + 5 служебных. Ключ командира — SettingsDialog
+  (Sheet), 3 входа (шестерёнка, статус-чип, палитра).
+- ГЛАВНЫЕ РАЗРЫВЫ против директивы (полный список в ответе-отчёте):
+  1) Review-батарея: воркфлоу показывает только 5 планировочных + №25; полные
+     30+3 (файл-эра runGates, /api/t4/gates) фронт вызывает лишь в файл-эра
+     delivery (panels.tsx:1215) и писце; для twin-scratch-батчей текста НЕТ —
+     батарея физически неприменима до писца (двух-Б доктрина).
+  2) Draft воркфлоу НЕ персистится: workflow.tsx — только useState, ни
+     localStorage, ни sessionStorage; смена вида V размонтирует WorkflowDeck
+     (AnimatePresence mode="wait") → тема/OC/якоря теряются. Контраст: FORCE
+     COMPILE хранит черновик в localStorage t4-compile-draft
+     (action-deck.tsx:636-685). Возврата «отклонить → к якорям» нет: шаги
+     только вперёд, Void — навсегда (window.confirm), Reset степпера нет.
+  3) Live Console: без Abort, без сворачивания блоков, без fade-in строк
+     (framer-motion в файле отсутствует), Copy for AI — плоский ТЕКСТ
+     (не JSON; без seq/at), класс t4-live-scroll (live-console.tsx:238) в
+     globals.css НЕ ОПРЕДЕЛЕН (мёртвый класс, скроллбар дефолтный).
+  4) В Console-виде Live Console недоступна (только правая колонка
+     Воркфлоу-вида, page.tsx:351); нижней выдвижной консоли нет, левой
+     навигации/истории нет — история = колокол-поповер + drawer.
+  5) Мелочи доктрины: UI дважды советует «verify --heal» (action-deck:1137,
+     panels:2006) — Rust-CLI --heal запрещён append-only; в шапке action-deck
+     комментарий «девять действий» при 10 карточках; twin-прокси POST 15с —
+     длинный compile упрётся в 503.
+- F (API для Review): twin GET allowlist: health/meta/state/live/events/
+  batches/chain/verify/batches/T4-NN(карта плана PROD, receipts планировочные);
+  POST: theme/expand, theme/check, compile, events, deliver, void. Файл-эра
+  POST /api/t4/gates {slug} = полная батарея 30+3 (route.ts:42 runGates);
+  /api/t4/batch-verdict: POST light (keep|mixed|rework) / full (slots+
+  scoreboard+A/B-атрибуция) → файл-эра цепь + corpus-очередь, GET — список.
+  ЕДИНОГО endpoint «все гейты по twin-батчу» НЕТ.
+- Код НЕ менялся; lint/tsc не гонялись (не требуется READ-ONLY задачей).
+
+Stage Summary:
+- UI-карта разрывов готова: 15/16 функций директивы уже в коде; единственный
+  содержательный функциональный гэп — Review-батарея 30+3 в воркфлоу (упирается
+  в двух-Б доктрину: у twin-scratch нет прозы до писца), остальные гэпы —
+  UX-класс: персист черновика, Abort, сворачивание/анимации консоли, JSON в
+  Copy for AI, reset степпера, отсутствие консоли в Console-виде.
+- Дизайн-система: zinc-950/900 + amber/rose/fuchsia/emerald/cyan, Geist/Geist
+  Mono/JetBrains Mono (.font-term), backdrop-blur в 5 файлах, framer-motion в
+  5 файлах (spring 260/26 + useReducedMotion), кастомные keyframes в
+  globals.css; border-white/10 НЕ используется (директивная нотация не совпала).
+- Объём: большинство гэпов «маленькие» (кнопки/CSS/localStorage), батарея в
+  Review — «большой» (порт 20 текстовых гейтов в Rust или мост файл-эра),
+  реорганизация layout (левый рельс/нижняя консоль) — «большой», не обязателен.
+
+---
+Task ID: 3-b
+Agent: UI-инженер THREAD 4 (3-b, general-purpose)
+Task: Карта 1-b часть C/D/F — Live Console: ABORT + сворачивание блоков +
+анимации строк + Copy-for-AI JSON; палитра: 4 live-команды; гигиена
+action-deck (verify --heal, счётчик действий); globals .t4-live-scroll;
+AbortSignal в POST-хелперах. workflow.tsx и Rust НЕ тронуты (параллельные
+агенты владеют ими).
+
+Work Log:
+- Прочитано ТЗ: worklog секции Task ID: 1-b (карта UI-разрывов) и
+  rust-migration-2026-10-19; снята текущая реализация live-console.tsx,
+  palette.tsx, api.ts, shared.ts, action-deck.tsx (verify/burn-тексты,
+  CARDS=10), globals.css, page.tsx (хоткеи/виды), nav.ts (switchView-хелпера
+  НЕТ — вид переключается существующим onMisc({kind:'view'})).
+- 1 · ABORT (live-console.tsx:200-227, 430-443, 474-489): кнопка ABORT
+  (Square, видна при live/reconnect/paused) → закрывает EventSource, гасит
+  таймер, abort'ит in-flight AbortController'ы (abortersRef — консоль пока
+  не POSTит, механизм подключён на вырост), статус 'down' + багровая плашка
+  «прервано оператором» с кнопкой RECONNECT. Флаг manualAbortRef: onerror
+  (live-console.tsx:185) и listener 'bye' (:177) проверяют его и НЕ
+  переподключаются молча после ручного прерывания. RECONNECT (:222-227)
+  снимает флаг и поднимает подписку заново через reconnectNonce (dep
+  SSE-эффекта :137-197). Палитра шлёт CustomEvent 't4:live-abort' —
+  консоль слушает (:216-220) и делает тот же ручной abort.
+- 1 · AbortSignal (api.ts:197-212 postJson, api.ts:234-246 postScribeStream,
+  shared.ts:80-98 enginePost): опциональный signal прокинут в fetch, все
+  прежние вызовы без signal совместимы (tsc подтвердил). twinPost в api.ts
+  НЕ ЖИВЁТ — он локален в workflow.tsx:285 (чужой файл, не трогал);
+  инфраструктура signal готова, workflow-агент может прокинуть в свой
+  twinPost без моих файлов.
+- 2 · Сворачивание (live-console.tsx:257-276 группы, 278-288
+  isGroupCollapsed, 290-324 toggleGroup): последовательные кадры одного
+  блока собираются в группу; заголовок = имя блока (BLOCK_STYLE) + счётчик
+  строк (русская плюрализация) + тяжелейшая level-точка (error>warn>info,
+  rose/amber/zinc) + счётчик error-кадров; collapsed error-группа показывает
+  последнюю error-строку. Клик — chevron rotate-180, aria-expanded. Стейт —
+  ДВА Set: collapsed (ручные) + expandedManually (ручные раскрытия,
+  отключают автосворачивание). «Индекс группы» = seq первого кадра
+  (позиция массива съезжает при слайде буфера MAX_LINES=400, seq стабилен).
+  Автосворачивание ЧЕРЕЗ ДЕРИВАЦИЮ (без setState-in-effect): группа
+  без error, >12 строк (AUTO_COLLAPSE_LINES), не раскрытая руками —
+  свёрнута; пересечение порога происходит только у растущей (новой)
+  группы — старые развёрнутые не сжимаются; error-группы никогда сами.
+- 3 · Анимации (live-console.tsx:122-132, 508-581): AnimatePresence
+  initial={false} + motion.li initial={{opacity:0,y:6}} animate={{opacity:1,
+  y:0}} spring 260/26 — паттерн workflow.tsx:207/action-deck.tsx:342;
+  useReducedMotion → только opacity, duration 0.18, БЕЗ transform; chevron
+  rotate тоже гейтится reduced.
+- 4 · Copy for AI JSON (live-console.tsx:328-372): {"tool":"t4-live-console",
+  "at":ISO,"status":live|paused|down (reconnect→down честно),"lastSeq":N,
+  "slugHint":регэксп \bT4-\d{2,}(\.\d+)?(-EXP)?\b по текстам кадров
+  (последний), "errors":[{block,text}] — ВСЕ error-строки буфера,
+  "recent":[{block,level,text,seq}] — хвост 12 строк ТОЛЬКО при пустых
+  errors, "note":"THREAD 4 live console dump — errors first"}. Запись через
+  writeClipboard (shared.ts:217-240): navigator.clipboard → fallback
+  textarea+execCommand. Тост «скопировано для AI: N ошибок»; кнопка
+  получает подпись «copy for ai» → «copy for ai (N err)» + багровый акцент
+  (border-rose-600/60, bg-rose-950/30, text-rose-300). Тосты — use-toast
+  (в layout смонтирован ui/toaster; sonner-компонент в проекте НЕ смонтирован
+  — использован рабочий канал, консистентно с остальной консолью).
+- 5 · Гигиена action-deck.tsx: :442 и :1137 «verify --heal» → «восстановление
+  цепи запрещено доктриной append-only — break = ручной аудит летописи»;
+  :6 «Девять» → «Десять» (CARDS=10). В palette.tsx:6 «9 действий» → 10.
+  page.tsx:9 «9 действий» и panels.tsx:2006 «--heal» — НЕ мои файлы, не тронуты
+  (в список разрывов хозяину).
+- 6 · globals.css:165-189 — .t4-live-scroll определён (был мёртвым):
+  webkit 6px, thumb #3f3f46 (zinc-700) → hover #71717a (zinc-500), track
+  прозрачный, Firefox scrollbar-width:thin + scrollbar-color,
+  scroll-behavior:smooth; reduced-motion override → auto (:355-357).
+  Существующие keyframes/классы не тронуты. Полотно консоли переведено
+  на .font-term (JetBrains Mono) — строки лога по директиве стиля.
+- 7 · Палитра (palette.tsx:139-195 команды, 199-229 хоткеи, 310-354 группа
+  «Live-консоль · воркфлоу»): «Прервать Live-консоль» (hotkey A) — проверяет
+  mounted/status из внешнего стора shared.ts (setLiveConsoleUi пишет
+  live-console:377-383): не смонтирована → честный тост «не в эфире»,
+  уже 'down' → «уже стоит», иначе dispatch 't4:live-abort' + тост;
+  «Новый батч — сброс воркфлоу» (N) — dispatch 't4:workflow-reset'
+  (слушатель — workflow.tsx, хозяин параллельный агент) + switchView через
+  существующий onMisc({kind:'view',view:'workflow'}) + тост; «Скопировать
+  стейт-снимок (JSON)» (J) — {tool,at,view,lastSeq,status,errors,note} из
+  стора: lastSeq/статус пишутся live-консолью, view выведен честно из её
+  монтирования (пояснено в note), НЕ выдуман; «Verify цепи — движок» —
+  БЕЗ отдельного хоткея и БЕЗ дублирования логики: onAction('verify') =
+  существующий фокус действия (вид Консоль + карточка + скролл), глобальный
+  T уже ведёт туда же. Глобальные A/N/J повешены В palette.tsx (page.tsx
+  не тронут — он хозяин B/C/I/T/P/D/X/R/S/W): guards — модификаторы,
+  открытая палитра, typing target, открытый Radix-оверлей
+  (role=dialog/alertdialog ≈ sheet/dialog page.tsx-стейтов). Подсказка
+  хоткеев добавлена в футер палитры.
+- Browser smoke (agent-browser, headless :3000): группы рендерятся
+  (SYSTEM/EXPAND с aria-expanded), ABORT-клик → статус down + плашка
+  «прервано оператором», поток мёртв (seq заморожен), RECONNECT → эфир
+  жив + ABORT вернулся; палитра: abort из вида Воркфлоу → прерывание,
+  из вида Консоль → честное «не в эфире»; hotkey A → прерывание;
+  N → тост сброса + вид; J → «Стейт-снимок скопирован»; verify-команда →
+  вид Консоль, карточка VERIFY aria-pressed=true; collapse/expand групп
+  (строки честно скрываются/возвращаются); Copy for AI trusted-клик →
+  «скопировано для AI: 0 ошибок — приложен хвост 12 строк» (в headless
+  синтетический клик без user-activation даёт честный тост «Копирование
+  не удалось» — fallback-ветка работает). theme/expand в чистом браузере
+  даёт 403 — нет ключа командира (замок жив, не мой дефект). Консоль
+  браузера чиста (только HMR). Скрин: /tmp/t4-3b-live-console.png.
+- bun run typecheck — 0 ошибок; bun run lint — 0 ошибок (по всему проекту,
+  чужих параллельных поломок на момент прогона не было).
+
+Stage Summary:
+- Live Console вышла из «плоского хвоста»: ручной ABORT/RECONNECT с
+  manualAbort-флагом (onerror не лезет в эфир молча), сворачиваемые группы
+  блоков с автосжатием floods >12 строк (error-группы исключены), spring-
+  анимации строк с уважением reduced-motion, Copy for AI — структурированный
+  JSON errors-first с честным clipboard-fallback.
+- Палитра: +4 live-команды с реальными глобальными хоткеями A/N/J
+  (wired внутри palette.tsx — page.tsx не тронут), стыковка с консолью —
+  CustomEvent + внешний стор shared.ts; verify-команда переиспользует
+  фокус карточки, логика не дублирована.
+- Гигиена доктрины: --heal-подсказки в action-deck заменены на честный
+  append-only текст (panels.tsx:2006 остался — чужой файл, в список
+  хозяину), счётчик действий поправлен (10).
+- AbortSignal: postJson/postScribeStream/enginePost принимают опциональный
+  signal (обратная совместимость подтверждена tsc); twinPost — локален в
+  workflow.tsx, за параллельным агентом.
+- За хозяином: вшить слушатель 't4:workflow-reset' в workflow.tsx
+  (событие уже летает), прокинуть signal в twinPost при желании, поправить
+  «9 действий» в page.tsx:9 и --heal в panels.tsx:2006, внести A/N/J в
+  футер-подсказку page.tsx (там перечислены B C T P D X R S W).

@@ -3,19 +3,27 @@
 /**
  * THREAD 4 — палитра команд (⌘K / Ctrl+K).
  *
- * Быстрый доступ ко всему: 9 рабочих действий, 8 разделов читального
- * зала, недавние батчи (прыжок в детали), служебные команды (обновить
- * всё, настройки с ключом командира, экспорт летописи). Построена на
- * shadcn Command (cmdk): стрелки + Enter, Esc — закрыть.
+ * Быстрый доступ ко всему: 10 рабочих действий, 8 разделов читального
+ * зала, недавние батчи (прыжок в детали), live-команды воркфлоу (3-b:
+ * прервать консоль, сброс воркфлоу, стейт-снимок, verify-цепи) и служебные
+ * команды (обновить всё, настройки с ключом командира, экспорт летописи).
+ * Построена на shadcn Command (cmdk): стрелки + Enter, Esc — закрыть.
+ *
+ * 3-b: глобальные хоткеи новых команд (A/N/J) живут здесь — page.tsx
+ * (хозяин B/C/I/T/P/D/X/R/S/W) не трогается; стыковка с live-консолью —
+ * через CustomEvent 't4:live-abort' и внешний стор shared.ts.
  */
 
+import { useCallback, useEffect } from 'react'
 import {
   Activity,
   Archive,
   BookOpen,
   Boxes,
+  Braces,
   Command as CommandIcon,
   Download,
+  FilePlus2,
   FileText,
   FlaskConical,
   Heart,
@@ -28,6 +36,7 @@ import {
   ShieldCheck,
   Skull,
   Sparkles,
+  Square,
   Trash2,
   Upload,
   PenLine,
@@ -44,9 +53,14 @@ import {
   CommandSeparator,
   CommandShortcut,
 } from '@/components/ui/command'
+import { toast } from '@/hooks/use-toast'
 import type { EngineBatchRow } from '@/components/t4/console/panels'
 import {
   DRAWER_META,
+  LIVE_ABORT_EVENT,
+  WORKFLOW_RESET_EVENT,
+  getLiveConsoleUi,
+  writeClipboard,
   type ActionId,
   type DrawerId,
 } from '@/components/t4/console/shared'
@@ -65,6 +79,15 @@ interface CommandPaletteProps {
   onBatch: (slug: string) => void
   onMisc: (m: PaletteMisc) => void
   batches: EngineBatchRow[]
+}
+
+/** Клавиша ушла в поле ввода — глобальный перехват не мешает набору. */
+function isTypingTarget(t: EventTarget | null): boolean {
+  const el = t as HTMLElement | null
+  if (el == null) return false
+  return (
+    el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT' || el.isContentEditable
+  )
 }
 
 const ACTION_ITEMS: { id: ActionId; label: string; icon: React.ReactNode; hint: string; hotkey: string }[] = [
@@ -111,6 +134,101 @@ export function CommandPalette({
   onMisc,
   batches,
 }: CommandPaletteProps) {
+  /* ── live-команды (3-b): палитра — диспетчер, работа — в хозяевах ── */
+
+  const abortLiveCmd = useCallback(() => {
+    const live = getLiveConsoleUi()
+    if (!live.mounted) {
+      toast({
+        title: 'Live-консоль не в эфире',
+        description: 'консоль смонтирована только в виде «Воркфлоу» — прерывать нечего',
+      })
+      return
+    }
+    if (live.status === 'down') {
+      toast({
+        title: 'Live-консоль уже стоит',
+        description: 'поток прерван ранее — RECONNECT на плашке, если нужен эфир',
+      })
+      return
+    }
+    window.dispatchEvent(new CustomEvent(LIVE_ABORT_EVENT))
+    toast({
+      title: 'Live-консоль прервана',
+      description: 'ручное прерывание оператора — RECONNECT на плашке консоли',
+    })
+  }, [])
+
+  const resetWorkflowCmd = useCallback(() => {
+    /* слушатель — workflow.tsx (владелец степпера); вид переключаем
+     * существующим механизмом onMisc — как служебная команда «Воркфлоу» */
+    window.dispatchEvent(new CustomEvent(WORKFLOW_RESET_EVENT))
+    onMisc({ kind: 'view', view: 'workflow' })
+    toast({
+      title: 'Новый батч — сброс воркфлоу',
+      description: 'команда сброса отправлена, вид переключён на воркфлоу',
+    })
+  }, [onMisc])
+
+  const snapshotCmd = useCallback(() => {
+    const live = getLiveConsoleUi()
+    const payload = {
+      tool: 't4-state-snapshot',
+      at: new Date().toISOString(),
+      /* view выведен честно: live-консоль смонтирована только в правой
+       * колонке Воркфлоу-вида (page.tsx) — выдумывать не приходится */
+      view: live.mounted ? 'workflow' : 'console',
+      lastSeq: live.lastSeq,
+      status: live.status,
+      errors: live.errorCount,
+      note: 'THREAD 4 snapshot из палитры — lastSeq/status из live-консоли, view выведен из её монтирования',
+    }
+    void writeClipboard(JSON.stringify(payload, null, 2)).then((ok) =>
+      ok
+        ? toast({ title: 'Стейт-снимок скопирован', description: 'JSON в буфере — вставляй куда нужно' })
+        : toast({
+            title: 'Копирование не удалось',
+            description: 'Буфер обмена недоступен',
+            variant: 'destructive',
+          })
+    )
+  }, [])
+
+  const verifyCmd = useCallback(() => {
+    /* verify-логика живёт в ActionDeck (VerifyPanel) — не дублируем,
+     * переиспользуем существующий фокус действия (вид + карточка + скролл) */
+    onAction('verify')
+    toast({ title: 'Verify — карточка в ActionDeck', description: 'движок + браузер: двойная проверка цепи' })
+  }, [onAction])
+
+  /* глобальные хоткеи новых команд: A/N/J свободны (page.tsx владеет
+   * B/C/I/T/P/D/X/R/S/W, 1–8, V, «/»); оверлеи Radix — модальны для нас */
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.metaKey || e.ctrlKey || e.altKey) return
+      if (open) return // палитра открыта — клавиши читает cmdk
+      if (isTypingTarget(e.target)) return
+      if (document.querySelector('[role="dialog"], [role="alertdialog"]') != null) return
+      const k = e.key.toLowerCase()
+      if (k === 'a') {
+        e.preventDefault()
+        abortLiveCmd()
+        return
+      }
+      if (k === 'n') {
+        e.preventDefault()
+        resetWorkflowCmd()
+        return
+      }
+      if (k === 'j') {
+        e.preventDefault()
+        snapshotCmd()
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [open, abortLiveCmd, resetWorkflowCmd, snapshotCmd])
+
   return (
     <CommandDialog
       open={open}
@@ -189,6 +307,62 @@ export function CommandPalette({
 
         <CommandSeparator className="bg-zinc-800" />
 
+        <CommandGroup heading="Live-консоль · воркфлоу (3-b)">
+          <CommandItem
+            value="live abort прервать консоль sse поток стоп оператор"
+            onSelect={() => {
+              abortLiveCmd()
+              onOpenChange(false)
+            }}
+            className="text-sm text-zinc-200"
+          >
+            <Square className="size-4 text-rose-400/80" />
+            <span>Прервать Live-консоль</span>
+            <span className="hidden text-xs text-zinc-600 sm:inline">— SSE twin’а оборван руками · RECONNECT на плашке</span>
+            <CommandShortcut className="font-mono text-[10px] text-zinc-600">A</CommandShortcut>
+          </CommandItem>
+          <CommandItem
+            value="workflow reset новый батч сброс воркфлоу тема якоря компиляция"
+            onSelect={() => {
+              resetWorkflowCmd()
+              onOpenChange(false)
+            }}
+            className="text-sm text-zinc-200"
+          >
+            <FilePlus2 className="size-4 text-amber-500/80" />
+            <span>Новый батч — сброс воркфлоу</span>
+            <span className="hidden text-xs text-zinc-600 sm:inline">— чистый приказ: тема → якоря → компиляция</span>
+            <CommandShortcut className="font-mono text-[10px] text-zinc-600">N</CommandShortcut>
+          </CommandItem>
+          <CommandItem
+            value="snapshot стейт-снимок json копия lastseq буфер"
+            onSelect={() => {
+              snapshotCmd()
+              onOpenChange(false)
+            }}
+            className="text-sm text-zinc-200"
+          >
+            <Braces className="size-4 text-cyan-300/80" />
+            <span>Скопировать стейт-снимок (JSON)</span>
+            <span className="hidden text-xs text-zinc-600 sm:inline">— at · view · lastSeq · note — честный срез</span>
+            <CommandShortcut className="font-mono text-[10px] text-zinc-600">J</CommandShortcut>
+          </CommandItem>
+          <CommandItem
+            value="verify цепи движок проверка карточка action deck хеш"
+            onSelect={() => {
+              verifyCmd()
+              onOpenChange(false)
+            }}
+            className="text-sm text-zinc-200"
+          >
+            <ShieldCheck className="size-4 text-emerald-400/80" />
+            <span>Verify цепи — движок</span>
+            <span className="hidden text-xs text-zinc-600 sm:inline">— карточка VERIFY в ActionDeck (глобальный T)</span>
+          </CommandItem>
+        </CommandGroup>
+
+        <CommandSeparator className="bg-zinc-800" />
+
         <CommandGroup heading="Служебное">
           <CommandItem
             value="view воркфлоу workflow тема якоря compile deliver rust"
@@ -253,7 +427,7 @@ export function CommandPalette({
           <span className="flex items-center gap-1">
             <CommandIcon className="size-3" /> THREAD 4 · консоль
           </span>
-          <span>↑↓ выбор · Enter — пуск · Esc — закрыть</span>
+          <span>↑↓ выбор · Enter — пуск · Esc — закрыть · A/N/J live-команды</span>
         </div>
       </CommandList>
     </CommandDialog>

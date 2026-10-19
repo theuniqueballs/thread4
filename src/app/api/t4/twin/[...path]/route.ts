@@ -22,11 +22,14 @@ const TWIN_ORIGIN = process.env.T4_RUST_ORIGIN ?? 'http://127.0.0.1:3201'
 /** GET-пути (чтение): allowlist, никаких wildcard'ов. */
 const GET_ALLOW = new Set(['health', 'meta', 'state', 'live', 'events', 'batches', 'chain/verify'])
 
-/** POST-пути: theme (expand/check — чистые вычисления) + compile + deliver/void + events. */
+/** POST-пути: theme (expand/check — чистые вычисления) + compile + gates
+ * (батарея Review: twin гоняет квитанции по scratch-драфту, ключ командира
+ * проксируется как у compile) + deliver/void + events. */
 const POST_ALLOW_RE = [
   /^theme\/expand$/,
   /^theme\/check$/,
   /^compile$/,
+  /^gates$/,
   /^events$/,
   /^batches\/T4-\d{2,3}\/deliver$/,
   /^batches\/T4-\d{2,3}\/void$/,

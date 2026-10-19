@@ -74,11 +74,13 @@ export class EngineError extends Error {
 }
 
 /** POST в движок: прикладывает ключ командира, Idempotency-Key, честно
- *  разбирает конверт ошибок (код + сообщение + подсказка движка). */
+ *  разбирает конверт ошибок (код + сообщение + подсказка движка).
+ *  3-b: opts.signal (опционально) прокидывается в fetch — долгие операции
+ *  движка можно прервать оператору (AbortError ловится вызывающей стороной). */
 export async function enginePost<T>(
   path: string,
   body: unknown,
-  opts: { idempotencyKey?: string } = {}
+  opts: { idempotencyKey?: string; signal?: AbortSignal } = {}
 ): Promise<T> {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
@@ -92,6 +94,7 @@ export async function enginePost<T>(
     headers,
     body: JSON.stringify(body),
     cache: 'no-store',
+    signal: opts.signal,
   })
   if (!res.ok) {
     let code = 'http'
@@ -160,6 +163,79 @@ export function subscribeNotify(l: NotifyListener): () => void {
   notifyListeners.add(l)
   return () => {
     notifyListeners.delete(l)
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Live-консоль: внешнее состояние + шина команд (3-b)                  */
+/* ------------------------------------------------------------------ */
+
+export type LiveConsoleStatus = 'live' | 'paused' | 'reconnect' | 'down'
+
+/** Снимок live-консоли для тех, кто не может подписаться на её стейт
+ *  (палитра команд): пишется консолью при монтировании и на каждом
+ *  изменении статуса/seq. Модульный стор без реативности — читается
+ *  по требованию, в момент команды. */
+export interface LiveConsoleUiState {
+  /** консоль смонтирована (вид «Воркфлоу» — правая колонка) */
+  mounted: boolean
+  status: LiveConsoleStatus
+  /** последний seq SSE-кадра (0 — тишина в эфире) */
+  lastSeq: number
+  /** error-кадры в текущем буфере кадра (окно MAX_LINES) */
+  errorCount: number
+}
+
+let liveConsoleUi: LiveConsoleUiState = {
+  mounted: false,
+  status: 'reconnect',
+  lastSeq: 0,
+  errorCount: 0,
+}
+
+export function setLiveConsoleUi(patch: Partial<LiveConsoleUiState>): void {
+  liveConsoleUi = { ...liveConsoleUi, ...patch }
+}
+
+export function getLiveConsoleUi(): LiveConsoleUiState {
+  return liveConsoleUi
+}
+
+/* Имена событий шины команд (CustomEvent на window): палитра
+ * dispatch'ит — консоль/воркфлоу слушают. Строки — в одном месте,
+ * чтобы не разъехались по файлам. */
+export const LIVE_ABORT_EVENT = 't4:live-abort'
+export const WORKFLOW_RESET_EVENT = 't4:workflow-reset'
+
+/* ------------------------------------------------------------------ */
+/* Буфер обмена с честным fallback (3-b)                                */
+/* ------------------------------------------------------------------ */
+
+/** navigator.clipboard.writeText, а в незащищённом контексте/отказе —
+ *  textarea + document.execCommand('copy'). Возвращает true/false:
+ *  вызывающая сторона честно тостит исход, не молчит. */
+export async function writeClipboard(text: string): Promise<boolean> {
+  try {
+    if (navigator.clipboard != null && window.isSecureContext) {
+      await navigator.clipboard.writeText(text)
+      return true
+    }
+  } catch {
+    /* Permissions API отказала — пробуем легаси-путь ниже */
+  }
+  try {
+    const ta = document.createElement('textarea')
+    ta.value = text
+    ta.setAttribute('readonly', '')
+    ta.style.position = 'fixed'
+    ta.style.opacity = '0'
+    document.body.appendChild(ta)
+    ta.select()
+    const ok = document.execCommand('copy')
+    document.body.removeChild(ta)
+    return ok
+  } catch {
+    return false
   }
 }
 
