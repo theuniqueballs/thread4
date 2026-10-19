@@ -1,23 +1,29 @@
-//! THREAD 4 ENGINE (RUST TWIN) — entry point.
+//! THREAD 4 ENGINE (UNIFIED) — entry point.
 //!
-//! «Разбери по полочкам движок и перенеси всё что можно на Rust» —
-//! this binary is the shelf-by-shelf port of mini-services/t4-engine:
+//! CUTOVER 2026-10-20 (приказ «МОЩНОСТЬ»): это ЕДИНЫЙ движок THREAD 4.
+//! Прежняя схема «bun-движок :3200 пишет прод, Rust-twin :3201 пишет
+//! scratch» закрыта — один бинарник, одна база, один писатель:
 //!
 //!   полка 1  canonical.rs   — stable JSON + chain formula (byte-exact)
-//!   полка 2  db.rs          — sqlite storage, DDL, meta/chain pointer
-//!   полка 3  chain.rs       — append-only hash-chained chronicle + audit
-//!   полка 4  compile.rs     — deterministic plan compiler + planning gates
-//!   полка 5  rpc.rs         — route table, envelope, auth, rate limits
-//!   полка 6  canon.rs       — Code-as-Config (numbers with provenance)
-//!   полка 7  theme.rs       — Фаза 2: Theme Expansion (гейт №25, EXP-оф)
-//!   полка 8  live.rs        — Фаза 2: SSE-шина живой консоли (heartbeat)
+//!   полка 2  db.rs           — sqlite storage (прод RW), DDL, meta/chain
+//!   полка 3  chain.rs        — append-only hash-chained chronicle + audit
+//!   полка 4  compile.rs      — deterministic plan compiler + planning gates
+//!   полка 5  rpc.rs          — route table, envelope, auth, rate limits
+//!   полка 6  canon.rs        — Code-as-Config (numbers with provenance)
+//!   полка 7  theme.rs        — Theme Expansion (гейт темы, EXP-оф)
+//!   полка 8  live.rs         — SSE-шина живой консоли (heartbeat)
+//!   полка 9  textgates.rs    — текст-батарея (порт gates.ts)
+//!   полка 10 bridge.rs       — LLM-мост к Next-слою (compute-only)
+//!   полка 11 pipeline.rs     — КОНВЕЙЕР: 5 этапов, авто + ручной + abort
 //!
 //! Acceptance bar (checked at boot, logged loudly):
 //!   · verify_chain over the PRODUCTION chronicle → same verdict as bun
 //!   · payload_sha10 over the stored T4-41 plan → same fingerprint
+//!   · НИКАКОГО второго писателя: если :3200 (старый bun-движок) ещё
+//!     отвечает — движок отказывается подниматься (две цепи = враньё).
 //!
 //! Boot order mirrors the TS engine: canon arithmetic → open handles →
-//! serve. A broken canon kills the twin before it answers anything.
+//! serve. A broken canon kills the engine before it answers anything.
 
 use std::sync::Arc;
 
@@ -33,18 +39,27 @@ fn main() {
         std::process::exit(1);
     }
 
+    /* ---- гвард единственного писателя: старый bun-движок обязан быть мёртв ---- */
+    if let Ok(stream) = std::net::TcpStream::connect(("127.0.0.1", 3200)) {
+        drop(stream);
+        eprintln!("t4-engine-rs: ОТКАЗ ПОДЪЁМА — на :3200 отвечает старый bun-движок.");
+        eprintln!("  Единая база = один писатель: останови mini-services/t4-engine (kill pid) и поднимись снова.");
+        std::process::exit(1);
+    }
+
+    /* ---- handles: прод RW — чтения и записи через одну и ту же базу ---- */
     let prod = match db::open_production_ro() {
         Ok(c) => c,
         Err(e) => {
             eprintln!("t4-engine-rs: продакшн t4.db не открывается (RO) — {e}");
-            eprintln!("  (t4-engine должен быть поднят первым; twin только читает его)");
             std::process::exit(1);
         }
     };
-    let scratch = match db::open_scratch_rw() {
+    let scratch = match db::open_production_rw() {
         Ok(c) => c,
         Err(e) => {
-            eprintln!("t4-engine-rs: scratch-база не создаётся — {e}");
+            eprintln!("t4-engine-rs: продакшн t4.db не открывается (RW) — {e}");
+            eprintln!("  (cutover: единый движок пишет прод; проверь, что файл не повреждён и валидация схемы проходит)");
             std::process::exit(1);
         }
     };
@@ -76,8 +91,8 @@ fn main() {
         Err(e) => eprintln!("t4-engine-rs: parity-проверка пропущена — {e}"),
     }
 
-    /* ---- Фаза 2: тема-модуль заряжен ---- */
-    eprintln!("t4-engine-rs: Фаза 2 — Theme Expansion (гейт №25) и live-SSE /v1/live готовы");
+    /* ---- cutover-эра: конвейер заряжен ---- */
+    eprintln!("t4-engine-rs: CUTOVER — единый движок: прод RW (один писатель), конвейер 5 этапов готов, live-SSE /v1/live");
 
     let twin = Arc::new(rpc::Twin {
         prod,

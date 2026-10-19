@@ -19,10 +19,14 @@ use serde_json::json;
 
 pub const BLOCK_EXPAND: &str = "expand";
 pub const BLOCK_COMPILE: &str = "compile";
+pub const BLOCK_BUILD: &str = "build";
 pub const BLOCK_GATES: &str = "gates";
 pub const BLOCK_SCRIBE: &str = "scribe";
 pub const BLOCK_DELIVER: &str = "deliver";
 pub const BLOCK_SYSTEM: &str = "system";
+/// Cutover-эра: переходы этапов конвейера (старт/готово/провал этапа,
+/// старт/финиш прогона) — консоль рисует полосу «PIPELINE» между блоками.
+pub const BLOCK_PIPELINE: &str = "pipeline";
 
 const RING_CAP: usize = 2000;
 const HEARTBEAT_EVERY: Duration = Duration::from_secs(15);
@@ -280,9 +284,13 @@ mod tests {
 
     #[test]
     fn head_seq_monotonic() {
+        // Гонка тестов: шина ГЛОБАЛЬНАЯ, другие тесты публикуют параллельно
+        // (cargo test мультипоточен) — head может уйти выше нашего seq.
+        // Инвариант: seq монотонен и наш publish виден в head (≥), а не
+        // «head == ровно наш seq» (гонка со соседним публикатором).
         let before = head_seq();
         let s = publish(BLOCK_SYSTEM, "info", "head-тест");
-        assert!(head_seq() >= before);
-        assert_eq!(s, head_seq());
+        assert!(s >= before);
+        assert!(head_seq() >= s, "publish обязан попадать в голову не ниже своего seq");
     }
 }

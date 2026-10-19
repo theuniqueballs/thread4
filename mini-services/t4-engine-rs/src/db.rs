@@ -1,18 +1,20 @@
-//! THREAD 4 ENGINE (RUST TWIN) — storage.
+//! THREAD 4 ENGINE (UNIFIED) — storage.
 //!
-//! DUAL-DB doctrine, declared on the box:
-//!   · PRODUCTION  (../t4-engine/data/t4.db) — READ-ONLY handle. The twin
-//!     verifies the real chronicle and reads real state; it never writes
-//!     the SSoT (the bun engine stays the ONE writer).
-//!   · SCRATCH     (data/t4-rs-scratch.db) — read-write chronicle of the
-//!     twin itself: compiles, appended events, the Rust chain extending.
-//! DDL mirrors t4-engine/src/core/ddl.ts statement-for-statement.
+//! CUTOVER 2026-10-20 (приказ «МОЩНОСТЬ» — единый движок): доктрина
+//! dual-DB ЗАКРЫТА. Единая база — ПРОДАКШН (../t4-engine/data/t4.db),
+//! один процесс-писатель = этот бинарник (bun-движок :3200 остановлен,
+//! scratch-эра архивирована на месте: data/t4-rs-scratch.db больше НЕ
+//! открывается — превентивная копия осталась на диске как архив репетиций).
+//!   · PROD-READ   (read-only флаги) — телеметрия/чтения RPC.
+//!   · PROD-RW     (WAL + NORMAL) — ВСЕ записи: compile, deliver, void,
+//!                  gate.run, scribe.drafted, engine.built, pipeline.
+//! DDL зеркалит t4-engine/src/core/ddl.ts построчно (+ t4_builds, schema v2).
 
 use std::path::{Path, PathBuf};
 
 use rusqlite::Connection;
 
-pub const SCHEMA_VERSION: u32 = 1;
+pub const SCHEMA_VERSION: u32 = 2;
 
 pub const DDL: &[&str] = &[
     "CREATE TABLE IF NOT EXISTS t4_meta (
@@ -89,6 +91,19 @@ pub const DDL: &[&str] = &[
        created_at TEXT NOT NULL
      )",
     "CREATE INDEX IF NOT EXISTS idx_idem_created ON t4_idempotency (created_at)",
+    /* Cutover-эра (schema v2): одноразовый движок батча — спайн писца.
+     * Этап 3 «Сборка» конвейера: имя/закон/тезис/акты/тема-слова живут
+     * здесь до утилизации (3.2-традиция: движок умирает вместе с батчем). */
+    "CREATE TABLE IF NOT EXISTS t4_builds (
+       slug           TEXT PRIMARY KEY,
+       engine_name    TEXT NOT NULL,
+       engine_law     TEXT NOT NULL,
+       thesis         TEXT NOT NULL,
+       acts           TEXT NOT NULL,
+       theme_keywords TEXT NOT NULL,
+       created_at     TEXT NOT NULL,
+       event_id       TEXT NOT NULL UNIQUE
+     )",
 ];
 
 pub fn production_db_path() -> PathBuf {
@@ -111,18 +126,24 @@ pub fn open_production_ro() -> rusqlite::Result<Connection> {
     Ok(conn)
 }
 
-/// Read-write scratch handle (WAL + NORMAL — same doctrine as the engine).
-pub fn open_scratch_rw() -> rusqlite::Result<Connection> {
-    let path = scratch_db_path();
-    if let Some(dir) = path.parent() {
-        let _ = std::fs::create_dir_all(dir);
-    }
-    let conn = Connection::open(&path)?;
+/// Read-write PRODUCTION handle — ЕДИНСТВЕННЫЙ писатель cutover-эры.
+/// WAL + busy_timeout, как был scratch до cutover; миграция схемы
+/// идемпотентна, даунгрейд (v>N в базе) отклоняется.
+pub fn open_production_rw() -> rusqlite::Result<Connection> {
+    let conn = Connection::open(production_db_path())?;
     conn.pragma_update(None, "journal_mode", "WAL")?;
     conn.pragma_update(None, "synchronous", "NORMAL")?;
     conn.pragma_update(None, "busy_timeout", 5000)?;
     migrate_schema(&conn)?;
     Ok(conn)
+}
+
+/// Read-write scratch handle (WAL + NORMAL — same doctrine as the engine).
+/// Cutover 2026-10-20: scratch-эра закрыта — хендл теперь открывает
+/// ПРОДАКШН RW (единое пространство слагов T4-NN, дублей «два T4-42»
+/// больше не существует конструктивно).
+pub fn open_scratch_rw() -> rusqlite::Result<Connection> {
+    open_production_rw()
 }
 
 pub fn migrate_schema(conn: &Connection) -> rusqlite::Result<()> {

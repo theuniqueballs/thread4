@@ -24,6 +24,7 @@ use crate::compile;
 use crate::db;
 use crate::live;
 use crate::live::{BLOCK_COMPILE, BLOCK_DELIVER, BLOCK_EXPAND, BLOCK_GATES, BLOCK_SYSTEM};
+use crate::pipeline;
 use crate::ratelimit::{BucketName, Limiter};
 use crate::theme;
 
@@ -148,7 +149,7 @@ pub fn serve(twin: Arc<Twin>) {
             Some(r) => r,
             None => {
                 let (status, body) = err_envelope(&RpcError::bad_request(format!(
-                    "путь «{path}» вне allowlist — маршруты: /v1/health · /v1/meta · /v1/state · /v1/events · /v1/live · /v1/batches[/:slug] · /v1/scratch/batches[/:slug] · /v1/chain/verify · /v1/theme/expand · /v1/theme/check · POST /v1/compile · POST /v1/events · POST /v1/gates · POST /v1/batches/:slug/deliver · POST /v1/batches/:slug/void"
+                    "путь «{path}» вне allowlist — маршруты: /v1/health · /v1/meta · /v1/state · /v1/events · /v1/live · /v1/batches[/:slug] · /v1/chain/verify · /v1/theme/expand · /v1/theme/check · /v1/pipeline · POST /v1/pipeline/auto · POST /v1/pipeline/abort · POST /v1/pipeline/stage/:имя · POST /v1/compile · POST /v1/events · POST /v1/gates · POST /v1/batches/:slug/deliver · POST /v1/batches/:slug/void"
                 )));
                 respond(request, status, body);
                 continue;
@@ -255,8 +256,21 @@ pub fn serve(twin: Arc<Twin>) {
             RouteKey::Void => void_route(&twin, &segments[2]),
             RouteKey::Gates => match parse_json_body(&body_bytes) {
                 Err(e) => Err(e),
-                Ok(body) => gates_route(&twin, &body),
+                Ok(body) => {
+                    let _g = pipeline::chain_lock();
+                    gates_route(&twin, &body)
+                }
             },
+            RouteKey::PipelineGet => Ok(ok_envelope(pipeline::state_snapshot())),
+            RouteKey::PipelineAuto => match parse_json_body(&body_bytes) {
+                Err(e) => Err(e),
+                Ok(body) => pipeline_auto_route(&body),
+            },
+            RouteKey::PipelineStage => match parse_json_body(&body_bytes) {
+                Err(e) => Err(e),
+                Ok(body) => pipeline_stage_route(&segments[3], &body),
+            },
+            RouteKey::PipelineAbort => pipeline_abort_route(),
             RouteKey::Live => unreachable!("SSE обрабатывается до auth"),
         };
 
@@ -288,6 +302,10 @@ enum RouteKey {
     Gates,
     ScratchBatches,
     ScratchBatchDetail,
+    PipelineGet,
+    PipelineAuto,
+    PipelineStage,
+    PipelineAbort,
 }
 
 fn route_match(method: &str, segs: &[String]) -> Option<(RouteKey, BucketName, AuthLevel)> {
@@ -331,6 +349,18 @@ fn route_match(method: &str, segs: &[String]) -> Option<(RouteKey, BucketName, A
         /* текст-батарея файл-эры (этапы 0-1, textgates.rs): файлы репо RO,
          * продакшн-контекст RO, записи — только scratch-слаги twin'а */
         ("POST", "gates") => Some((RouteKey::Gates, BucketName::Mutation, AuthLevel::Locked)),
+        /* КОНВЕЙЕР (cutover-эра): снимок прогона открыт, запуск/стоп —
+         * только командир. Слаг этапа: theme|compile|build|scribe|deliver. */
+        ("GET", "pipeline") => Some((RouteKey::PipelineGet, BucketName::Read, AuthLevel::Open)),
+        ("POST", "pipeline") if segs.len() == 3 && segs[2] == "auto" => {
+            Some((RouteKey::PipelineAuto, BucketName::Mutation, AuthLevel::Locked))
+        }
+        ("POST", "pipeline") if segs.len() == 3 && segs[2] == "abort" => {
+            Some((RouteKey::PipelineAbort, BucketName::Mutation, AuthLevel::Locked))
+        }
+        ("POST", "pipeline") if segs.len() == 4 && segs[2] == "stage" => {
+            Some((RouteKey::PipelineStage, BucketName::Mutation, AuthLevel::Locked))
+        }
         _ => None,
     }
 }
@@ -399,13 +429,14 @@ fn health(t: &Twin) -> Value {
         "ok": true,
         "era": ERA,
         "engine": "t4-engine-rs",
-        "version": "1.1.0",
+        "version": "2.0.0",
         "canon": CANON_VERSION,
         "fam": FAM,
-        "role": "Rust twin: читает продакшн-летопись (RO), пишет собственную scratch-летопись; Фаза 2: Theme Expansion (гейт №25) + live SSE",
-        "production": { "db": "t4-engine/data/t4.db", "mode": "read-only" },
-        "scratch": { "db": "t4-engine-rs/data/t4-rs-scratch.db", "mode": "read-write" },
-        "live": { "endpoint": "/v1/live", "blocks": ["expand", "compile", "gates", "scribe", "deliver", "system"], "heartbeatSec": 15 },
+        "role": "ЕДИНЫЙ движок (cutover 2026-10-20): прод-летопись RW, один писатель, конвейер 5 этапов (авто + ручной), полная батарея, live SSE",
+        "production": { "db": "t4-engine/data/t4.db", "mode": "read-write (единственный писатель)" },
+        "scratch": { "retired": true, "note": "scratch-эра закрыта (архив на месте); слаги едины — дублей больше нет" },
+        "pipeline": { "endpoint": "/v1/pipeline", "stages": pipeline::STAGE_KEYS, "auto": "POST /v1/pipeline/auto", "manual": "POST /v1/pipeline/stage/:имя", "abort": "POST /v1/pipeline/abort" },
+        "live": { "endpoint": "/v1/live", "blocks": ["expand", "compile", "build", "gates", "scribe", "deliver", "pipeline", "system"], "heartbeatSec": 15 },
         "uptimeSec": t.boot_at.elapsed().as_secs(),
     })
 }
@@ -425,7 +456,6 @@ fn meta() -> Value {
 
 fn state(t: &Twin) -> Value {
     let prod_chain = chain::verify_chain(&t.prod);
-    let scratch_chain = chain::verify_chain(&t.scratch);
     json!({
         "era": ERA,
         "canon": CANON_VERSION,
@@ -437,27 +467,11 @@ fn state(t: &Twin) -> Value {
                 "ok": prod_chain.ok,
                 "problems": prod_chain.problems,
             },
-            "nextSlug": format!("T4-{:02}", compile::next_batch_number(&t.prod)),
+            /* Cutover: единое пространство — подсказка одна, дублей нет */
+            "nextSlug": format!("T4-{:02}", compile::next_batch_number(&t.prod).max(compile::next_batch_number(&t.scratch))),
             "lastDelivered": last_delivered(&t.prod),
         },
-        "scratch": {
-            "events": db::count_events(&t.scratch),
-            "chain": {
-                "height": scratch_chain.events,
-                "head": scratch_chain.head,
-                "ok": scratch_chain.ok,
-                "problems": scratch_chain.problems,
-            },
-            /* Против коллизии namespace'ов: scratch-подсказка продолжает ПРОД-нумерацию
-             * (max(prod, scratch)+1). Инцидент E2E 2026-10-19: свежий scratch советовал
-             * T4-07, а батарея текст-гейтов читала ЛЕГАСИ-драфт thread4/batches/T4-07.md
-             * от 10 октября (файл-эра живёт в том же репо) — Review показал rating-recipe
-             * FAIL чужого батча. Теперь подсказка ≥ T4-42 (прод-максимум T4-41). */
-            "nextSlug": format!(
-                "T4-{:02}",
-                compile::next_batch_number(&t.prod).max(compile::next_batch_number(&t.scratch))
-            ),
-        },
+        "pipeline": pipeline::state_snapshot(),
         "uptimeSec": t.boot_at.elapsed().as_secs(),
     })
 }
@@ -893,6 +907,37 @@ fn append_event_route(t: &Twin, body: &Value) -> Result<(u16, String), RpcError>
     tx.commit().map_err(|e| RpcError::unprocessable(e.to_string()))?;
     live::info("system", &format!("событие «{typ}» записано в scratch (seq {})", evt.seq));
     Ok(ok_envelope(json!({ "id": evt.id, "at": evt.at, "type": evt.r#type, "chainHead": evt.hash })))
+}
+
+/* ---------------- pipeline (cutover-эра: конвейер 5 этапов) ---------------- */
+
+/// Одна кнопка: POST /v1/pipeline/auto — машина ведёт 1→5 сама.
+fn pipeline_auto_route(body: &Value) -> Result<(u16, String), RpcError> {
+    match pipeline::start_auto(body.clone()) {
+        Ok(v) => Ok(ok_envelope(v)),
+        Err(m) => {
+            live::error("pipeline", &format!("авто-запуск отклонён: {m}"));
+            let (status, code) = crate::classify_core_error(&m);
+            Err(RpcError { status, code, message: m, hint: None })
+        }
+    }
+}
+
+/// Ручной override: POST /v1/pipeline/stage/:имя — один этап,
+/// нижележащие помечаются устаревшими.
+fn pipeline_stage_route(stage: &str, body: &Value) -> Result<(u16, String), RpcError> {
+    match pipeline::start_stage(stage, body.clone()) {
+        Ok(v) => Ok(ok_envelope(v)),
+        Err(m) => {
+            live::error("pipeline", &format!("ручной этап «{stage}» отклонён: {m}"));
+            let (status, code) = crate::classify_core_error(&m);
+            Err(RpcError { status, code, message: m, hint: None })
+        }
+    }
+}
+
+fn pipeline_abort_route() -> Result<(u16, String), RpcError> {
+    Ok(ok_envelope(pipeline::request_abort()))
 }
 
 /* ---------------- deliver / void (общее ядро lib.rs, зеркало handlers.ts) ---------------- */

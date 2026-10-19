@@ -1,16 +1,20 @@
-//! THREAD 4 ENGINE (RUST TWIN) — библиотечный корень.
+//! THREAD 4 ENGINE (UNIFIED) — библиотечный корень.
 //!
-//! Полки дважды используется: серверный бин (src/main.rs — twin :3201) и
-//! CLI (src/bin/t4.rs — прямые операции с базами без HTTP). Одна логика —
-//! один источник права: CLI и RPC НЕ могут разъехаться.
+//! Cutover-эра (2026-10-20, приказ «МОЩНОСТЬ»): ЕДИНЫЙ движок. Полки
+//! используются трёмя потребителями — серверный бин (src/main.rs,
+//! единый сервис :3201), CLI (src/bin/t4.rs) и конвейер (pipeline.rs).
+//! Одна логика — один источник права: CLI, RPC и КОНВЕЙЕР не могут
+//! разъехаться.
 
 pub mod auth;
+pub mod bridge;
 pub mod canon;
 pub mod canonical;
 pub mod chain;
 pub mod compile;
 pub mod db;
 pub mod live;
+pub mod pipeline;
 pub mod ratelimit;
 pub mod rpc;
 pub mod selftest;

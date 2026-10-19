@@ -52,6 +52,13 @@ impl KeyCache {
         }
         Ok(())
     }
+
+    /// Cutover-эра (мост писца): движок сам прикладывает ключ командира к
+    /// вызовам /api/t4/bridge/* — один оператор, один секрет, оба слоя.
+    /// Никаких новых тайников: тот же ~/.t4/commander.key, тот же кэш mtime.
+    pub fn peek(&self) -> Option<String> {
+        self.read_key()
+    }
 }
 
 impl Default for KeyCache {

@@ -13,7 +13,7 @@ pub const RATINGS: [&str; 4] = ["PG-13", "R", "R+", "X"];
 pub const REGISTERS: [&str; 3] = ["student", "young", "milf"];
 pub const ENGINE_MODES: [&str; 2] = ["per-theme", "per-theme raw-plus"];
 
-pub const EVENT_TYPES: [&str; 21] = [
+pub const EVENT_TYPES: [&str; 22] = [
     "era.born",
     "spec.imported",
     "law.ratified",
@@ -21,6 +21,9 @@ pub const EVENT_TYPES: [&str; 21] = [
     "batch.compiled",
     "batch.delivered",
     "batch.void",
+    // Cutover-эра (2026-10-20, единый движок): одноразовый движок батча
+    // получает собственный тип — спайн больше не прячется в note.
+    "engine.built",
     "gate.run",
     "fixpass.paid",
     "scribe.drafted",
