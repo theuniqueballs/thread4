@@ -921,6 +921,15 @@ async function main() {
           x.includes('T4-27.2-EXP')
         )
       )
+      check(
+        'GATES_TOTAL: живой прогон держит 30 безусловных квитанций (7 hard + 20 warn + 3 advisory) — дрейф счётчика пойман (аудит Rust-эры 2026-10-19)',
+        g27
+          ? g27.receipts.filter(
+                (r) =>
+                  !['raw-plus', 'rating-recipe-exploratory', 'raw-plus-exploratory'].includes(r.gate)
+              ).length === 30
+          : false
+      )
       const g24 = runGates('T4-24', true)
       check(
         'window-гейт: RAW-батч получает явную квитанцию о неприменимости (не молчаливый пропуск)',
@@ -1754,8 +1763,8 @@ async function main() {
             gh.lastRun.hardPass === false
         )
         check(
-          'gateHealth: прогонов нет — фолбэк на кодовую базу GATES_TOTAL (не ноль, не легенда; №28/№29 + G17-bumps → 27)',
-          gatesHealthFromEvents([]).base === 27 && gatesHealthFromEvents([]).lastRun === null
+          'gateHealth: прогонов нет — фолбэк на кодовую базу GATES_TOTAL (не ноль, не легенда; аудит Rust-эры → 30)',
+          gatesHealthFromEvents([]).base === 30 && gatesHealthFromEvents([]).lastRun === null
         )
       }
       const { isSafeSlug } = await import('../src/lib/t4/fsutil')

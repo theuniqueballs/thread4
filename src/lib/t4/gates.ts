@@ -41,20 +41,20 @@ export interface GatesResult {
 }
 
 /** Всего гейтов в прогоне (state-панель читает отсюда — одна истина).
- *  База 25 = 6 hard (structure, floors, rating-recipe, canon, diversity,
- *  window) + 16 warn (budget, cadence, niche-legibility, prop-geometry,
- *  claim-visibility, technique-layers, noun-lock, character-collision,
- *  ab-single-variable, theme-presence, original-character-coverage,
- *  artist-leak, garment-family, simcheck, salience-chain,
- *  contract-fidelity) + 3 advisory (freq-report, usage, technique-map).
+ *  Ревизия 2026-10-19 (аудит Rust-эры, MERGE-фикс дрейфа): БАЗА 30 =
+ *  7 hard (structure, exp-purity, floors, rating-recipe, canon,
+ *  diversity, window) + 20 warn (dresser, budget, cadence,
+ *  niche-legibility, prop-geometry, claim-visibility, technique-layers,
+ *  noun-lock, character-collision, ab-single-variable, theme-presence,
+ *  original-character-coverage, artist-leak, garment-family, simcheck,
+ *  salience-chain, contract-fidelity, one-hard-claim, echo-window,
+ *  bumps-quota) + 3 advisory (freq-report, usage, technique-map).
  *  Условные ВНЕ счёта базы: raw-plus (hard — при маркере RAW+ в H1 или
  *  engine контракта raw-plus), rating-recipe-exploratory и
  *  raw-plus-exploratory (warn — при ⚗-маркерах): живой прогон даёт
- *  27–29 квитанций. Ревизия 2026-10-14: +contract-fidelity (warn) —
- *  сверка батча с контрактом, кино-сдвиг T4-30. Ревизия 2026-10-16
- *  (Гроков бэклог #52, тур «потихоньку»): +bumps-quota G17 (warn) —
- *  квота канала бугорков ≥40% R+-дресс-слотов. */
-export const GATES_TOTAL = 27
+ *  30–33 квитанции. Прежний комментарий «25/27» протух — самотест
+ *  сверяет и константу, и ЖИВОЙ прогон (cli.ts: 30 безусловных). */
+export const GATES_TOTAL = 30
 
 /* ------------------------------------------------------------------ */
 /* Gates health — живой счётчик из летописи (ревизия 2026-10-14, 3.8/3.13) */

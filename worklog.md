@@ -5393,3 +5393,76 @@ Stage Summary:
   rustup minimal → cargo build --release → bun run dev (путь в cron-STATE).
 - За автором: вердикт по рендеру T4-41, тема T4-42, судьба scratch-летописи
   twin (демо/птичка для сравнения поведения с bun-движком).
+
+---
+Task ID: 3-inv
+Agent: Explore (inventory)
+Task: Инвентаризация ТРЕДА 4 (RESEARCH ONLY, файлы не тронуты): CLI-поверхность,
+реестр гейтов, карта UI-компонентов, аудит мёртвых правил/дублей, базлайн selftest.
+
+Work Log:
+- Прочитан хвост worklog (5190→конец): контекст движок-эры (:3200 bun + :3201
+  Rust twin, цепи 413/434 ЦЕЛЫ, selftest 173, scribe-поток с heartbeat).
+- thread4/cli.ts (1918 строк) разобран ЦЕЛИКОМ: 23 команды файл-эры (seed,
+  recompile, compile --pin, polish, scribe, void, check, gates, deliver,
+  state, drift, stack, lists, diff, trial, chain, verify --heal, shore-merge,
+  reaper, corpus take/drop, recover --apply, grep-gate, selftest). Ни одного
+  HTTP-вызова — чисто файл-эра; движковый CLI отдельно:
+  mini-services/t4-engine/bin/t4.ts (health/state/compile --oc --exp --ab
+  --engine --slug --species --notes --idem/deliver/void/verdict/events
+  --after/verify/batch, всё через RPC :3200, ключ из ~/.t4/commander.key).
+- gates.ts (2496 строк): НЕ 24 гейта. 30 безусловных квитанций = 7 hard
+  (structure, exp-purity, floors, rating-recipe, canon, diversity, window)
+  + 20 warn (dresser, budget, cadence, niche-legibility, prop-geometry,
+  claim-visibility, technique-layers, noun-lock, character-collision,
+  ab-single-variable, theme-presence, original-character-coverage,
+  artist-leak, garment-family, simcheck, salience-chain, contract-fidelity,
+  one-hard-claim, echo-window, bumps-quota) + 3 advisory (freq-report, usage,
+  technique-map); условные +3 (raw-plus hard при маркере RAW+, два
+  exploratory-warn при ⚗-находках). GATES_TOTAL=27 устарел (шапка-enum
+  не знает exp-purity/dresser/one-hard-claim/echo-window; selftest
+  1758-й строкой ассертит константу, не живой счёт) — кандидат №1 на чистку.
+- 5 планировочных гейтов движка (engine compile.ts:441-451 == Rust
+  compile.rs:738-935, тексты дословные): structure, exp-purity, floors,
+  window (все hard) + ab-single-variable (warn).
+- UI-карта: page.tsx (консоль «МОЩНОСТЬ», 1-й уровень: StatusBar,
+  RotationWindowPanel, ActionDeck 10 действий, BatchFocus+EventsStrip poll
+  4с, DocsZone 8 drawer'ов) + console/{chrome,panels,action-deck,palette,
+  shared}.tsx + api.ts; framer-motion стоит (^12.23.2) и живёт ровно в 3
+  файлах консоли; шрифты Geist/Geist Mono/JetBrains Mono (--font-jbmono,
+  .font-term); nav.ts — мини-шина slot-навигации.
+- Аудит дублей: комментированного кода в gates.ts НЕТ (eslint 0);
+  дубли-кандидаты — GATES_TOTAL vs живой счёт, пересечение rating-recipe
+  №28-bumps-dark ↔ raw-plus №27-кластер (per-slot vs batch-уровень,
+  сознательное), CONSTITUTION §9-терция «светлая тонкая вещь» противоречит
+  закону №27/№28 (тёмная ткань), §11 ссылается на ../chemodan/... —
+  каталога в боксе НЕТ (перезалив), DoD-1 «батч пишется вручную»
+  фактически превзойдён писцом (T4-41 FIRST RUN CLEAN через scribe).
+- Selftest: bun thread4/cli.ts selftest (package.json scripts.selftest),
+  174 check()-вызова в исходнике, исполняется 173 при отсутствии
+  несданной компиляции с ростером ОС (ветка live-инварианта каскада);
+  само-покрытие: specs, компилятор, генератор, dice, batch-md, цепь,
+  событийный лок, apiguard, parseBatch≡parseBatchMd, провайдеры LLM
+  (mock), гейты на живой истории (T4-27/27.2/28/31/34: window, raw-plus,
+  rating-recipe, dresser, exp-purity), golden corpus ≥20. Движок bun
+  selftest-а НЕ ИМЕЕТ (он — эталон); паритет twin'а — boot-принт (перечит
+  прод-цепи + sha10 плана байт-в-байт) + POST /v1/compile c полем
+  parityCreatedAt (compile.rs:84) на scratch-базе + GET /v1/chain/verify.
+
+Stage Summary:
+- Полная карта CLI: 23 файл-эра команды (cli.ts) + 9 RPC-команд движка
+  (bin/t4.ts, :3200, x-commander-key); env: T4_SCRIBE_PROVIDER/_API_KEY/
+  _MODEL/_BASE_URL, T4_ENGINE_URL, T4_ENGINE_ORIGIN, T4_RUST_ORIGIN,
+  T4_PERSIST, T4_REPO.
+- Гейты текста: 30 безусловных + 3 условных (не 24 и не 27); GATES_TOTAL=27
+  и шапка-перечисление gates.ts:43-56 отстают от кода — синхронизировать
+  вместе с selftest-ассертом (cli.ts:1758).
+- UI: одноэкранная консоль + 8 drawer'ов + ⌘K-палитра; 10 действий Action
+  Deck (burn/compile/scribe/verify/purge/deliver/void/reaper/shore/verdict);
+  лента = poll 4с (incremental after=lastSeq), состояние = poll 15с.
+- Кандидаты чистки (консервативно, с доказательствами): GATES_TOTAL-дрейф,
+  CONSTITUTION-дрейф (§9-терция, §11 chemodan, DoD-1), дубли-тексты
+  selftest-счёта в thread4/tools/{trace-run.ts («118 регрессий»),
+  tmp/fixpass-law26.ts («96/96»)} — чистить только вместе с реальным
+  прогоном, ничего из гейтов не удалять: selftest опирается на живые
+  прогоны T4-27/27.2-EXP/28/31/34 и golden-corpus (≥20 записей).
