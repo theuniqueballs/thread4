@@ -5466,3 +5466,102 @@ Stage Summary:
   tmp/fixpass-law26.ts («96/96»)} — чистить только вместе с реальным
   прогоном, ничего из гейтов не удалять: selftest опирается на живые
   прогоны T4-27/27.2-EXP/28/31/34 и golden-corpus (≥20 записей).
+
+---
+Task ID: rust-migration-2026-10-19 (приказ Tech Lead «Фазы 1–3»)
+Agent: Z.ai Code (main session)
+Task: приказ автора: миграция ядра на Rust (CLI + бизнес-логика, те же
+команды/флаги, 24-гейтовая логика 1-в-1), восстановление+аудит гейтов и
+правил (MERGE/PRUNE/KEEP), Theme Expansion + гейт №25 (EXP-оф), God-Tier
+UI (Command Center, единый воркфлоу, Live Console SSE), защита от потерь
+(тег pre-rust-migration, ветка feat/rust-engine-and-ui, пуш по PAT).
+
+Work Log:
+- ЗАЩИТА ОТ ПОТЕРЬ (первым делом): git tag pre-rust-migration + пуш main
+  (c91235e) + тег по PAT (one-time env, не в файлах); ветка
+  feat/rust-engine-and-ui; вехи пушены: f8f05c4..c91235e, затем
+  c91235e..cb6ed6f (main+ветка после мержа).
+- ИНВЕНТАРИЗАЦИЯ (3-inv, Explore-агент): CLI-поверхность снята (file-era
+  cli.ts 25 команд + engine bin/t4.ts RPC-клиент); гейтов НЕ 24 — 30
+  безусловных (7 hard + 20 warn + 3 advisory) + 3 условных, константа
+  GATES_TOTAL=27 протухла; UI-карта (action-deck 2056, panels 3830,
+  палитра, фидер 4с/15с); dead-rule кандидаты с номерами строк.
+- ФАЗА 1 (Rust-ядро): lib/bin-сплит (t4_engine_rs lib + бин t4-engine-rs
+  :3201 + бин t4 CLI на clap):
+  · полка 7 theme.rs — Theme Expansion: тема → якоря JSON (locale/time/
+    light/paletteMood/motifs×3/wardrobe/poseFamily/camera/atmosphere×2/
+    tokens), детерминизм sha256(theme|slug|v1)→mulberry32, лексикон
+    RU+EN перехватывает измерение у кубика; ГЕЙТ №25 (hard): флоры
+    (якоря не проносят вечные баны), бюджет токенов 6..12, OC-темы не
+    спорят с якорями; EXP-батчи → модуль и гейт OFF (квитанция честная);
+    якоря ВНЕ канонического плана → sha10-паритет байт-в-байт цел;
+  · полка 8 live.rs — SSE-шина блоками expand/compile/gates/scribe/
+    deliver/system, heartbeat 15с, прощание event:bye + ?after=seq,
+    жизнь соединения ≤600с. БУФЕР-КАСКАД ПОБЕЖДЁН: tiny_http chunked-
+    энкодер молчит до 8КБ + BufWriter(1КБ) → SSE идёт Identity-стримом
+    (data_length 1e9 + with_chunked_threshold(usize::MAX) → io::copy
+    прямо в BufWriter, флаш ~1КБ); читатель копит до 2КБ/15с с паддингом
+    SSE-комментариями (EventSource их игнорирует);
+  · deliver/void — общее ядро lib (зеркало handlers.ts 1-в-1: гварды,
+    суммы, статусы 404/409/422) для RPC+CLI+батареи; маршруты
+    /v1/batches/:slug/deliver|void добавлены в twin;
+  · CLI t4: seed/compile/scribe(делегирует в bun thread4/cli.ts — LLM-
+    мост)/check(сухой аудит сохранённого плана)/gates(gate.run+таблица
+    t4_gate_runs)/deliver/void/drift(структурный, окно ротации)/verify
+    (--heal запрещён доктриной append-only)/state/selftest;
+  · батарея selftest.rs: 78/78 PASS (порог приказа 63), включая паритет:
+    продакшн-цепь 434 ЦЕЛА, sha10 T4-41 = 3a2298ff2d байт-в-байт;
+    cargo test 23/23; warnings 0.
+- ФАЗА 2 (аудит): MERGE-фикс GATES_TOTAL 27→30 + пересчёт перечисления
+  + ДВЕ ловушки дрейфа в самотесте TS (константа И живой прогон T4-27 =
+  30 безусловных); docs/GATES-AUDIT-RUST-ERA.md: таблица 30+3 гейтов
+  (Rust-статус каждого: PORTED/NATIVE/TS-next-phase), KEEP-дубли
+  (№27/№28 уровни, simcheck/echo-window), PRUNE-кандидаты за автором
+  (§9-терция vs №27/№28, §11-протухший путь chemodan, DoD-v1-п.1);
+  нюанс паритета: compile.ts:332 РАЗРЕШАЕТ перекомпиль void-слага —
+  twin зеркалит движок (проверка в батарее), противоречие с текстом
+  «номер не переиспользуется» — решение за автором. TS-самотест 174/174.
+- ФАЗА 3 (UI): Command Center поверх существующей консоли:
+  · два вида с пружинным переключением: «Воркфлоу» (новый, дефолт) и
+    «Консоль» (вся прежняя МОЩНОСТЬ цела), вкладки в шапке, хоткей V,
+    палитра ⌘K со служебной группой видов;
+  · workflow.tsx — единый степпер БЕЗ вкладок: Приказ (тема/слаг-
+    подсказка из twin/OC/EXP) → Theme Expansion (якоря Rust, ПРАВИМЫЕ;
+    лексикон-попадания видны; гейт №25 с зубами: FAIL блокирует, правка
+    якоря сбрасывает превью — strict-перепроверка на компиляции) →
+    Compile & SCRIBE (sha10 + 6 квитанций; SCRIBE — честная граница
+    LLM-моста с прыжком в карточку писца) → Review & Deliver;
+  · live-console.tsx — SSE-терминал из twin (:3201 через twin-прокси),
+    блоки цветом, Pause/Intercept, Copy for AI (ошибки приоритетно),
+    честный reconnect;
+  · twin-прокси /api/t4/twin/[...path]: allowlist, замок командира до
+    проброса, SSE passthrough стримом.
+- БРАУЗЕР-E2E (agent-browser): тема «гроза над ночным вокзалом» → якоря
+  (лексикон: гроза→stormy) → гейт №25 ПОЙМАЛ противоречие (OC «последний
+  поезд» vs локейшн old library) → авторская правка локейшна→luxury
+  train → Compile: T4-100, sha10 6de95b025a, hard PASS, событие seq 10 →
+  DELIVER: T4-100 сдан в scratch-летопись twin'а. Оба вида, палитра,
+  live-консоль (seq 24) — скриншоты /tmp/t4-qa-workflow-view.png,
+  t4-qa-workflow-full.png, t4-qa-console-view.png; консоль браузера и
+  dev.log чисты.
+- ИНЦИДЕНТ ПО ХОДУ: SSE не отдавал байты — каскад буферов (энкодер 8КБ
+  молчит + BufWriter 1КБ); найдено минимальным репро (tiny_http сам по
+  себе стримит) → Identity-обход. Инцидентные репродукции в логе
+  сессии, лекарство задокументировано в коде.
+
+Stage Summary:
+- Rust-ядро THREAD 4 живёт: t4-engine-rs v1.1.0 (:3201) + CLI t4;
+  компилятор/цепь/канон — паритет байт-в-байт, продакшн RO неприкосновенен.
+- Гейт №25 (Theme Expansion) работает и режет до транзакции; якоря
+  правятся автором в UI, strict-перепроверка на компиляции; EXP — OFF.
+- Аудит: GATES_TOTAL 30 (дрейф закрыт навсегда двойной ловушкой),
+  KEEP/MERGE/PRUNE вердикты в доках; конституционные противоречия —
+  за автором (AMENDMENT PROTOCOL: замена + law.amended, не аннотации).
+- UI: Command Center «Воркфлоу» дефолтный вид; полный E2E от темы до
+  сдачи батча доказан в браузере на scratch-летописи twin'а; вся
+  прежняя консоль работает (конфликтов нет, tsc 0/eslint 0).
+- Пуши: origin/main == cb6ed6f (+ ветка feat/rust-engine-and-ui, тег
+  pre-rust-migration) — защита от потерь работает, PAT нигде не писан.
+- За автором: производственный cutover (писать SSoT из Rust — отдельным
+  приказом), вердикт по рендеру T4-41, тема T4-42, судьба §9-терции/
+  DoD-п.1, порт оставшихся 20 текстовых гейтов в Rust (следующая фаза).
