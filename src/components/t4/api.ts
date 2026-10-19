@@ -220,6 +220,66 @@ export async function postJson<T>(
   return (await res.json()) as T
 }
 
+/* Инцидент «писец не дошёл: Не удалось записать» (2026-10-18, Т4-42/43/44):
+ * писец пишет минуты, платформенный шлюз рвёт молчаливые соединения через
+ * ~60–90с. /api/t4/scribe стал NDJSON-потоком: {t:'log'} — живой прогресс,
+ * {t:'ping'} — heartbeat (шлюз видит жизнь и не режет), {t:'done'} —
+ * результат, {t:'error'} — настоящая причина. Хелпер читает поток честно. */
+export async function postScribeStream<T>(
+  path: string,
+  body: unknown,
+  onLog: (line: string) => void,
+  extraHeaders: Record<string, string> = {}
+): Promise<T> {
+  const res = await fetch(withGatewayPort(path), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...commanderHeaders(), ...extraHeaders },
+    body: JSON.stringify(body),
+  })
+  if (!res.ok || res.body == null) {
+    let msg = `HTTP ${res.status}`
+    try {
+      const j = (await res.json()) as Record<string, unknown>
+      if (typeof j.error === 'string' && j.error.trim() !== '') msg = j.error
+    } catch {
+      /* не JSON — код остаётся */
+    }
+    throw new ApiError(msg, res.status)
+  }
+  const reader = res.body.getReader()
+  const decoder = new TextDecoder()
+  let buffer = ''
+  let result: T | null = null
+  for (;;) {
+    const { done, value } = await reader.read()
+    if (done) break
+    buffer += decoder.decode(value, { stream: true })
+    let nl: number
+    while ((nl = buffer.indexOf('\n')) >= 0) {
+      const line = buffer.slice(0, nl).trim()
+      buffer = buffer.slice(nl + 1)
+      if (line === '') continue
+      try {
+        const evt = JSON.parse(line) as { t?: string; line?: string; result?: T; error?: string }
+        if (evt.t === 'log' && typeof evt.line === 'string') onLog(evt.line)
+        else if (evt.t === 'done' && evt.result != null) result = evt.result
+        else if (evt.t === 'error') throw new ApiError(evt.error ?? 'scribe failed', 500)
+        /* {t:'ping'} — heartbeat, молча живём дальше */
+      } catch (e) {
+        if (e instanceof ApiError) throw e
+        /* битая строка потока не роняет прогон — следующие строки живы */
+      }
+    }
+  }
+  if (result == null) {
+    throw new ApiError(
+      'поток писца оборвался без результата — сервер, скорее всего, всё ещё пишет; проверь Батчи/летопись перед ретраем',
+      502
+    )
+  }
+  return result
+}
+
 /** DELETE с телом ошибки наверх — симметрично postJson (удаление черновиков
  *  из UI, ревью 2026-10-11: отказ 409 «уже собран» должен быть читаем).
  *  Аудит 2026-10-12: ключ командира прикладывается по умолчанию. */

@@ -57,6 +57,7 @@ import {
   asStr,
   getCommanderKey,
   postJson,
+  postScribeStream,
 } from '@/components/t4/api'
 import {
   h8,
@@ -1782,13 +1783,27 @@ function ScribePanel({ ctx }: { ctx: DeckCtx }) {
     const target = slug.trim()
     setSteps([
       {
-        label: `POST /api/t4/scribe — писец пишет ${target} (промпт: конституция+вкус+контракт → LLM: спайн → чанки слотов → гейты → ремонт ≤3 кругов)`,
+        label: `POST /api/t4/scribe (поток) — писец пишет ${target} (конституция+вкус+контракт → LLM: спайн → чанки → гейты → ремонт ≤3)`,
         state: 'active',
       },
     ])
     timerRef.current = window.setInterval(() => setElapsed((s) => s + 1), 1000)
+    /* Инцидент Т4-42/43/44: поток с heartbeat — шлюз не режет, прогресс виден живьём */
     try {
-      const r = await postJson<ScribeResponse>('/api/t4/scribe', { slug: target, maxRepairRounds: 3 }, {})
+      const r = await postScribeStream<ScribeResponse>(
+        '/api/t4/scribe',
+        { slug: target, maxRepairRounds: 3 },
+        (line) => {
+          seen.push(line)
+          setSteps([
+            {
+              label: `POST /api/t4/scribe (поток) — писец пишет ${target}`,
+              state: 'active',
+              detail: line.slice(0, 220),
+            },
+          ])
+        }
+      )
       if (timerRef.current != null) window.clearInterval(timerRef.current)
       const secs = Math.round((Date.now() - startedAt) / 1000)
       setSteps([
@@ -1809,11 +1824,12 @@ function ScribePanel({ ctx }: { ctx: DeckCtx }) {
       ctx.onMutated()
     } catch (e) {
       if (timerRef.current != null) window.clearInterval(timerRef.current)
+      const reason = errText(e)
       setSteps([
-        { label: `POST /api/t4/scribe — писец ${target}`, state: 'err', detail: errText(e).slice(0, 220) },
+        { label: `POST /api/t4/scribe — писец ${target}`, state: 'err', detail: reason.slice(0, 220) },
       ])
-      setResult({ ok: false, text: errText(e) })
-      notify('error', 'SCRIBE', errText(e).slice(0, 120))
+      setResult({ ok: false, text: reason })
+      notify('error', 'SCRIBE', reason.slice(0, 120))
     } finally {
       busyRef.current = false
       setPhase('done')
@@ -1849,7 +1865,7 @@ function ScribePanel({ ctx }: { ctx: DeckCtx }) {
           <div className="flex items-center gap-3 rounded-md border border-emerald-600/60 bg-emerald-950/20 px-3 py-2.5 font-mono text-xs text-emerald-300">
             <Loader2 className="size-4 animate-spin" />
             писец пишет… {elapsed}с
-            {elapsed > 120 ? ' · это нормально: спайн + чанки + ремонт — минуты' : ' · LLM, обычно 2–6 минут'}
+            {elapsed > 120 ? ' · это нормально: спайн + чанки + ремонт — минуты' : ' · LLM, обычно 2–6 минут'} · поток жив (heartbeat каждые 10с)
           </div>
           <p className="text-[10px] leading-relaxed text-zinc-600">
             Панель можно свернуть — прогон живёт на сервере (до 10 минут). Не перезапускай тот же слаг до конца прогона.

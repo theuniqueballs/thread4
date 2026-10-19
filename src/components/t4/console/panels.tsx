@@ -66,6 +66,7 @@ import {
   getCommanderKey,
   isNotFound,
   postJson,
+  postScribeStream,
   probeCommanderKey,
   setCommanderKey,
   useApi,
@@ -126,7 +127,16 @@ export function ledgerWriteError(e: unknown): string {
     if (isNotFound(e)) return 'API недоступен'
     return e.message
   }
-  return 'Не удалось записать'
+  /* Инцидент «Не удалось записать» (Т4-42/43/44, 2026-10-18): родовая
+   * заглушка глотала настоящую причину (network-error от разрезанного
+   * шлюзом потока выглядел как «не записалось», хотя сервер писал).
+   * Теперь текст ошибки идёт наверх дословно — автор видит ПОЧЕМУ. */
+  if (e instanceof Error && e.message.trim() !== '') return e.message
+  try {
+    return String(e)
+  } catch {
+    return 'Не удалось записать (причина неизвестна — сеть?)'
+  }
 }
 
 /* ================================================================== */
@@ -1136,6 +1146,7 @@ export function CompileTab() {
     busy: boolean
     err: string | null
     res: ScribeResponse | null
+    progress?: string
   } | null>(null)
   const [deliverNote, setDeliverNote] = useState<string | null>(null)
 
@@ -1182,13 +1193,17 @@ export function CompileTab() {
     setDeliverNote(null)
     setScribe({ slug, busy: true, err: null, res: null })
     try {
-      const res = await postJson<ScribeResponse>('/api/t4/scribe', { slug })
+      /* Инцидент Т4-42/43/44: NDJSON-поток с heartbeat — шлюз не рвёт
+       * молчаливое соединение, прогресс течёт живьём */
+      const res = await postScribeStream<ScribeResponse>('/api/t4/scribe', { slug }, (line) => {
+        setScribe({ slug, busy: true, err: null, res: null, progress: line.slice(0, 180) })
+      })
       setScribe({ slug, busy: false, err: null, res })
     } catch (e) {
       setScribe({
         slug,
         busy: false,
-        err: e instanceof ApiError ? `API: ${e.message}` : 'Сеть недоступна — писец не смог',
+        err: e instanceof ApiError ? `API: ${e.message}` : String(e instanceof Error ? e.message : e),
         res: null,
       })
     }
@@ -1390,7 +1405,10 @@ export function CompileTab() {
               <span className="mt-1 size-3 shrink-0 animate-pulse rounded-full bg-amber-500" />
               <div className="space-y-1 text-xs leading-relaxed text-zinc-400">
                 <p className="text-zinc-200">Машина пишет черновик: 24 слота против контракта, потом гейты всухую.</p>
-                <p>Это занимает 2-5 минут — страница ждёт ответа, не закрывай вкладку.</p>
+                <p>2-5 минут · поток жив (heartbeat каждые 10с — шлюз не режет, инцидент Т4-42/43/44 закрыт).</p>
+                {scribe.progress ? (
+                  <p className="font-mono text-[11px] text-emerald-300/90">{scribe.progress}</p>
+                ) : null}
               </div>
             </div>
           ) : scribe.err ? (
