@@ -59,6 +59,7 @@ impl Rng {
 
 /* ---------------- domain error ---------------- */
 
+#[derive(Debug)]
 pub struct CompileError(pub String);
 
 /* ---------------- request (strict-subset validation) ---------------- */
@@ -84,6 +85,12 @@ pub struct CompileRequest {
     /// Parity-replay pin: freeze `createdAt` to reproduce a historical
     /// fingerprint byte-exactly (the sha10 commits to createdAt). None → now().
     pub parity_created_at: Option<String>,
+    /// TWIN-ONLY (Фаза 2): Theme Expansion поверх компиляции. В план НЕ
+    /// входит — канонический sha10 не тронут (byte-parity с bun-движком).
+    pub expand_theme: bool,
+    /// Правленые автором якоря (после шага «Theme Expansion» в UI);
+    /// strict-валидируются theme::ThemeAnchors::from_json.
+    pub theme_anchors: Option<serde_json::Value>,
 }
 
 pub fn parse_request(body: &serde_json::Value) -> Result<CompileRequest, String> {
@@ -91,7 +98,11 @@ pub fn parse_request(body: &serde_json::Value) -> Result<CompileRequest, String>
         .as_object()
         .ok_or("compile: тело должно быть JSON-объектом (strict — лишние поля запрещены)")?;
     for k in obj.keys() {
-        if !["slug", "theme", "engine", "exp", "abPairs", "species", "ocThemes", "notes", "parityCreatedAt"].contains(&k.as_str()) {
+        if ![
+            "slug", "theme", "engine", "exp", "abPairs", "species", "ocThemes", "notes",
+            "parityCreatedAt", "expandTheme", "themeAnchors",
+        ]
+        .contains(&k.as_str()) {
             return Err(format!(
                 "compile: тело запроса не прошло Zod (strict — лишние поля запрещены): unrecognized key \"{k}\""
             ));
@@ -218,6 +229,17 @@ pub fn parse_request(body: &serde_json::Value) -> Result<CompileRequest, String>
         .get("parityCreatedAt")
         .and_then(|v| v.as_str())
         .map(|s| s.to_string());
+    let expand_theme = obj
+        .get("expandTheme")
+        .and_then(|v| v.as_bool())
+        .unwrap_or(false);
+    let theme_anchors = match obj.get("themeAnchors") {
+        None | Some(serde_json::Value::Null) => None,
+        Some(v) if v.is_object() => Some(v.clone()),
+        Some(_) => {
+            return Err("compile: themeAnchors обязан быть JSON-объектом якорей".into());
+        }
+    };
     Ok(CompileRequest {
         slug,
         theme,
@@ -229,6 +251,8 @@ pub fn parse_request(body: &serde_json::Value) -> Result<CompileRequest, String>
         oc_themes,
         notes,
         parity_created_at,
+        expand_theme,
+        theme_anchors,
     })
 }
 
@@ -245,6 +269,11 @@ fn valid_slug(s: &str) -> bool {
         return false;
     }
     digits.bytes().all(|b| b.is_ascii_digit())
+}
+
+/// Публичный доступ к канону слага (deliver/void маршруты, CLI).
+pub fn valid_slug_pub(s: &str) -> bool {
+    valid_slug(s)
 }
 
 /* ---------------- planning gates (receipts verbatim) ---------------- */
@@ -735,7 +764,7 @@ pub fn compile_batch(
 
 /* ---------------- gates (messages verbatim from compile.ts) ---------------- */
 
-fn gate_structure(slots: &[SlotPlan], exp: u32) -> Receipt {
+pub(crate) fn gate_structure(slots: &[SlotPlan], exp: u32) -> Receipt {
     let mut f = Vec::new();
     let oc = slots.iter().filter(|s| s.kind == "OC").count();
     let mains = slots.iter().filter(|s| s.kind == "MAIN").count();
@@ -780,7 +809,7 @@ fn gate_structure(slots: &[SlotPlan], exp: u32) -> Receipt {
     hard("structure", f, Vec::new())
 }
 
-fn gate_exp_purity(slots: &[SlotPlan], theme: &str, exp: u32) -> Receipt {
+pub(crate) fn gate_exp_purity(slots: &[SlotPlan], theme: &str, exp: u32) -> Receipt {
     let mut f = Vec::new();
     let mut notes = Vec::new();
     let exps: Vec<&SlotPlan> = slots.iter().filter(|s| s.kind == "EXP").collect();
@@ -842,7 +871,7 @@ fn is_greek_lower(s: &str) -> bool {
     s.chars().count() == 1 && ('\u{03B1}'..='\u{03C9}').contains(&ch)
 }
 
-fn gate_floors(theme: &str, notes: &str, slots: &[SlotPlan]) -> Receipt {
+pub(crate) fn gate_floors(theme: &str, notes: &str, slots: &[SlotPlan]) -> Receipt {
     let mut texts: Vec<String> = vec![theme.to_string(), notes.to_string()];
     for s in slots {
         texts.push(format!(
@@ -867,7 +896,7 @@ fn gate_floors(theme: &str, notes: &str, slots: &[SlotPlan]) -> Receipt {
     hard("floors", f, Vec::new())
 }
 
-fn gate_window(window_union: u32, fresh_needed: u32, extension_pool: u32, exp_needed: u32) -> Receipt {
+pub(crate) fn gate_window(window_union: u32, fresh_needed: u32, extension_pool: u32, exp_needed: u32) -> Receipt {
     let mut f = Vec::new();
     let mut notes = Vec::new();
     let budget = Palette::FUND - window_union;
@@ -899,7 +928,7 @@ fn gate_window(window_union: u32, fresh_needed: u32, extension_pool: u32, exp_ne
     hard("window", f, notes)
 }
 
-fn gate_ab(slots: &[SlotPlan], ab_pairs: u32) -> Receipt {
+pub(crate) fn gate_ab(slots: &[SlotPlan], ab_pairs: u32) -> Receipt {
     let mut f = Vec::new();
     if ab_pairs > 0 && (ab_pairs < AB_MIN || ab_pairs > AB_MAX) {
         f.push(format!("A/B-пар {}, канон {}..{}", ab_pairs, AB_MIN, AB_MAX));
@@ -933,6 +962,58 @@ fn gate_ab(slots: &[SlotPlan], ab_pairs: u32) -> Receipt {
         }
     }
     warn_receipt("ab-single-variable", f, Vec::new())
+}
+
+/* ---------------- stored-plan audit (`t4 check` / UI Review) ---------------- */
+
+/// Восстановление слотов из СОХРАНЁННОГО плана — без пересборки: план —
+/// источник права (§0), аудит пересчитывает гейты по нему самому.
+fn slot_from_json(v: &serde_json::Value) -> Option<SlotPlan> {
+    Some(SlotPlan {
+        position: v.get("position")?.as_u64()? as u32,
+        kind: v.get("kind")?.as_str()?.to_string(),
+        rating: v.get("rating")?.as_str()?.to_string(),
+        register: v.get("register")?.as_str()?.to_string(),
+        oc_theme: v.get("ocTheme").and_then(|x| x.as_str()).map(String::from),
+        race: v.get("race").and_then(|x| x.as_str()).map(String::from),
+        palette_id: v.get("paletteId")?.as_str()?.to_string(),
+        exp_letter: v.get("exp").and_then(|e| e.get("letter")).and_then(|x| x.as_str()).map(String::from),
+        exp_half: v.get("exp").and_then(|e| e.get("half")).and_then(|x| x.as_str()).map(String::from),
+        exp_pair_with: v.get("exp").and_then(|e| e.get("pairWith")).and_then(|x| x.as_u64()).map(|n| n as u32),
+        exp_hypothesis: v.get("exp").and_then(|e| e.get("hypothesis")).and_then(|x| x.as_str()).map(String::from),
+        ab_pair: v.get("ab").and_then(|a| a.get("pair")).and_then(|x| x.as_u64()).map(|n| n as u32),
+        ab_half: v.get("ab").and_then(|a| a.get("half")).and_then(|x| x.as_str()).map(String::from),
+    })
+}
+
+/// Сухой пересчёт планировочных гейтов по сохранённому плану —
+/// receipts те же, события НЕ пишутся (зеркало `check` в cli.ts).
+pub fn audit_plan(plan: &serde_json::Value) -> Result<Vec<Receipt>, String> {
+    let slots_json = plan
+        .get("slots")
+        .and_then(|s| s.as_array())
+        .ok_or("audit_plan: план без slots[]")?;
+    let mut slots: Vec<SlotPlan> = Vec::new();
+    for (i, s) in slots_json.iter().enumerate() {
+        slots.push(slot_from_json(s).ok_or_else(|| format!("audit_plan: слот №{} битый", i + 1))?);
+    }
+    let theme = plan.get("theme").and_then(|t| t.as_str()).unwrap_or("");
+    let notes = plan.get("notes").and_then(|t| t.as_str()).unwrap_or("");
+    let exp = plan.get("exp").and_then(|x| x.as_u64()).unwrap_or(0) as u32;
+    let ab = plan.get("abPairs").and_then(|x| x.as_u64()).unwrap_or(2) as u32;
+    let window_union = plan
+        .get("paletteWindow")
+        .and_then(|w| w.get("union"))
+        .and_then(|x| x.as_u64())
+        .unwrap_or(0) as u32;
+    let extension_free = Palette::EXTENSION_LAST_ID - Palette::EXTENSION_FIRST_ID + 1;
+    Ok(vec![
+        gate_structure(&slots, exp),
+        gate_exp_purity(&slots, theme, exp),
+        gate_floors(theme, notes, &slots),
+        gate_window(window_union, Slots::TOTAL, extension_free, exp),
+        gate_ab(&slots, ab),
+    ])
 }
 
 /* ---------------- projections (scratch writes) ---------------- */

@@ -1,15 +1,17 @@
 //! THREAD 4 ENGINE (RUST TWIN) — the RPC surface (tiny_http).
 //!
-//! Route table mirrors the TS engine method-for-method. The twin serves
-//! READS from the production db (read-only) and WRITES into its own
-//! scratch chronicle — the doctrine is printed in /v1/health so nobody
-//! mistakes the twin for the SSoT.
+//! Route table mirrors the TS engine method-for-method (+ Фаза 2: live SSE,
+//! theme expand/check, deliver/void — зеркальная семантика handlers.ts).
+//! The twin serves READS from the production db (read-only) and WRITES into
+//! its own scratch chronicle — the doctrine is printed in /v1/health so
+//! nobody mistakes the twin for the SSoT.
 //!
 //! Lifecycle per request (same order as the engine):
 //!   body cap → route match → rate limit → auth → JSON body → handler
 //!   → {ok:true,data} envelope → RpcError taxonomy on failure.
+//! SSE (/v1/live) уходит в отдельный поток ДО auth — долгоживущий поток
+//! не должен занимать акцепт-цикл (heartbeat 15с, жизнь ≤600с).
 
-use std::io::Read;
 use std::sync::Arc;
 
 use rusqlite::Connection;
@@ -20,7 +22,10 @@ use crate::canon::{ERA, CANON_VERSION, FAM, MAX_BODY_BYTES};
 use crate::chain;
 use crate::compile;
 use crate::db;
+use crate::live;
+use crate::live::{BLOCK_COMPILE, BLOCK_DELIVER, BLOCK_EXPAND, BLOCK_GATES, BLOCK_SYSTEM};
 use crate::ratelimit::{BucketName, Limiter};
+use crate::theme;
 
 pub struct Twin {
     pub prod: Connection,
@@ -81,7 +86,9 @@ pub fn serve(twin: Arc<Twin>) {
             std::process::exit(1);
         }
     };
-    eprintln!("t4-engine-rs: слушаю {addr} (чтение — продакшн t4.db RO, запись — scratch-летопись)");
+    eprintln!("t4-engine-rs: слушаю {addr} (чтение — продакшн t4.db RO, запись — scratch-летопись; SSE /v1/live — поток в отдельном потоке)");
+
+    live::info(BLOCK_SYSTEM, "twin поднят: продакшн RO, scratch RW, live-шина заряжена");
 
     for mut request in server.incoming_requests() {
         let twin = twin.clone();
@@ -138,7 +145,7 @@ pub fn serve(twin: Arc<Twin>) {
             Some(r) => r,
             None => {
                 let (status, body) = err_envelope(&RpcError::bad_request(format!(
-                    "путь «{path}» вне allowlist — маршруты: /v1/health · /v1/meta · /v1/state · /v1/events · /v1/batches[/:slug] · /v1/chain/verify · POST /v1/compile · POST /v1/events"
+                    "путь «{path}» вне allowlist — маршруты: /v1/health · /v1/meta · /v1/state · /v1/events · /v1/live · /v1/batches[/:slug] · /v1/chain/verify · /v1/theme/expand · /v1/theme/check · POST /v1/compile · POST /v1/events · POST /v1/batches/:slug/deliver · POST /v1/batches/:slug/void"
                 )));
                 respond(request, status, body);
                 continue;
@@ -158,6 +165,16 @@ pub fn serve(twin: Arc<Twin>) {
                 hint: None,
             });
             respond(request, status, body);
+            continue;
+        }
+
+        // 3b. SSE: долгоживущий поток живёт в СВОЁМ потоке — акцепт-цикл свободен
+        if route_key == RouteKey::Live {
+            let after = query_map(&query)
+                .get("after")
+                .and_then(|v| v.parse::<u64>().ok())
+                .unwrap_or(0);
+            std::thread::spawn(move || respond_sse(request, after));
             continue;
         }
 
@@ -217,6 +234,17 @@ pub fn serve(twin: Arc<Twin>) {
                 Err(e) => Err(e),
                 Ok(body) => append_event_route(&twin, &body),
             },
+            RouteKey::ThemeExpand => match parse_json_body(&body_bytes) {
+                Err(e) => Err(e),
+                Ok(body) => theme_expand_route(&body),
+            },
+            RouteKey::ThemeCheck => match parse_json_body(&body_bytes) {
+                Err(e) => Err(e),
+                Ok(body) => theme_check_route(&body),
+            },
+            RouteKey::Deliver => deliver_route(&twin, &segments[2]),
+            RouteKey::Void => void_route(&twin, &segments[2]),
+            RouteKey::Live => unreachable!("SSE обрабатывается до auth"),
         };
 
         match result {
@@ -239,6 +267,11 @@ enum RouteKey {
     ChainVerify,
     Compile,
     AppendEvent,
+    Live,
+    ThemeExpand,
+    ThemeCheck,
+    Deliver,
+    Void,
 }
 
 fn route_match(method: &str, segs: &[String]) -> Option<(RouteKey, BucketName, AuthLevel)> {
@@ -250,12 +283,25 @@ fn route_match(method: &str, segs: &[String]) -> Option<(RouteKey, BucketName, A
         ("GET", "meta") => Some((RouteKey::Meta, BucketName::Open, AuthLevel::Open)),
         ("GET", "state") => Some((RouteKey::State, BucketName::Read, AuthLevel::Open)),
         ("GET", "events") => Some((RouteKey::EventsGet, BucketName::Read, AuthLevel::Open)),
+        ("GET", "live") => Some((RouteKey::Live, BucketName::Open, AuthLevel::Open)),
         ("GET", "chain") if segs.len() == 3 && segs[2] == "verify" => {
             Some((RouteKey::ChainVerify, BucketName::Read, AuthLevel::Open))
         }
         ("GET", "batches") => Some((RouteKey::Batches, BucketName::Read, AuthLevel::Open)),
         ("POST", "compile") => Some((RouteKey::Compile, BucketName::Compile, AuthLevel::Locked)),
         ("POST", "events") => Some((RouteKey::AppendEvent, BucketName::Mutation, AuthLevel::Locked)),
+        ("POST", "theme") if segs.len() == 3 && segs[2] == "expand" => {
+            Some((RouteKey::ThemeExpand, BucketName::Open, AuthLevel::Open))
+        }
+        ("POST", "theme") if segs.len() == 3 && segs[2] == "check" => {
+            Some((RouteKey::ThemeCheck, BucketName::Open, AuthLevel::Open))
+        }
+        ("POST", "batches") if segs.len() == 4 && segs[3] == "deliver" => {
+            Some((RouteKey::Deliver, BucketName::Mutation, AuthLevel::Locked))
+        }
+        ("POST", "batches") if segs.len() == 4 && segs[3] == "void" => {
+            Some((RouteKey::Void, BucketName::Mutation, AuthLevel::Locked))
+        }
         _ => None,
     }
 }
@@ -268,8 +314,39 @@ fn respond(request: tiny_http::Request, status: u16, body: String) {
                 .unwrap(),
         )
         .with_header(tiny_http::Header::from_bytes(&b"cache-control"[..], &b"no-store"[..]).unwrap())
-        .with_header(tiny_http::Header::from_bytes(&b"x-engine"[..], &b"t4-engine-rs/1.0.0"[..]).unwrap());
+        .with_header(tiny_http::Header::from_bytes(&b"x-engine"[..], &b"t4-engine-rs/1.1.0"[..]).unwrap());
     let _ = request.respond(response);
+}
+
+/// SSE-ответ: chunked-поток из live-шины. Heartbeat 15с (`event: ping`),
+/// прощание `event: bye` c последним seq — клиент переподключается с
+/// `?after=seq`. Лекарство инцидента «Не удалось записать»: шлюз не рвёт
+/// живой поток.
+fn respond_sse(request: tiny_http::Request, after: u64) {
+    eprintln!("t4-engine-rs: SSE-подписка live?after={after} — поток отвечает");
+    let headers = vec![
+        tiny_http::Header::from_bytes(&b"content-type"[..], &b"text/event-stream; charset=utf-8"[..])
+            .unwrap(),
+        tiny_http::Header::from_bytes(&b"cache-control"[..], &b"no-store"[..]).unwrap(),
+        tiny_http::Header::from_bytes(&b"x-accel-buffering"[..], &b"no"[..]).unwrap(),
+        tiny_http::Header::from_bytes(&b"x-engine"[..], &b"t4-engine-rs/1.1.0"[..]).unwrap(),
+    ];
+    let reader = live::LiveReader::new(after);
+    eprintln!("t4-engine-rs: SSE-читатель создан (Identity-стрим, flush ~1КБ)");
+    let response = tiny_http::Response::new(
+        tiny_http::StatusCode(200),
+        headers,
+        reader,
+        // Identity-обход чанкового буфера: огромный заявленный размер +
+        // бесконечный chunked_threshold → raw_print берёт arm (Some(l), _):
+        // io::copy пишет НАПРЯМУЮ в BufWriter(1024) — кадры уходят на провод
+        // с задержкой ≤ ~1КБ, а не молчаливым каскадом энкодер(8КБ)+writer(1КБ).
+        Some(1_000_000_000),
+        None,
+    )
+    .with_chunked_threshold(usize::MAX);
+    let _ = request.respond(response);
+    eprintln!("t4-engine-rs: SSE-соединение закрыто (клиент отвалился или 600с)");
 }
 
 fn parse_json_body(text: &str) -> Result<Value, RpcError> {
@@ -279,6 +356,13 @@ fn parse_json_body(text: &str) -> Result<Value, RpcError> {
     serde_json::from_str(text).map_err(|_| RpcError::bad_request("bad json (тело не парсится)"))
 }
 
+fn query_map(query: &str) -> std::collections::HashMap<String, String> {
+    query
+        .split('&')
+        .filter_map(|kv| kv.split_once('=').map(|(k, v)| (k.to_string(), v.to_string())))
+        .collect()
+}
+
 /* ---------------- handlers ---------------- */
 
 fn health(t: &Twin) -> Value {
@@ -286,12 +370,13 @@ fn health(t: &Twin) -> Value {
         "ok": true,
         "era": ERA,
         "engine": "t4-engine-rs",
-        "version": "1.0.0",
+        "version": "1.1.0",
         "canon": CANON_VERSION,
         "fam": FAM,
-        "role": "Rust twin: читает продакшн-летопись (RO), пишет собственную scratch-летопись",
+        "role": "Rust twin: читает продакшн-летопись (RO), пишет собственную scratch-летопись; Фаза 2: Theme Expansion (гейт №25) + live SSE",
         "production": { "db": "t4-engine/data/t4.db", "mode": "read-only" },
         "scratch": { "db": "t4-engine-rs/data/t4-rs-scratch.db", "mode": "read-write" },
+        "live": { "endpoint": "/v1/live", "blocks": ["expand", "compile", "gates", "scribe", "deliver", "system"], "heartbeatSec": 15 },
         "uptimeSec": t.boot_at.elapsed().as_secs(),
     })
 }
@@ -304,6 +389,7 @@ fn meta() -> Value {
     m["twin"] = json!({
         "language": "rust",
         "parity": "chain formula + canonical serialization + compiler fingerprints — byte-exact vs t4-engine (bun)",
+        "phase2": "theme expansion (гейт №25, EXP-оф) + live SSE + deliver/void зеркально handlers.ts",
     });
     m
 }
@@ -352,10 +438,7 @@ fn last_delivered(conn: &Connection) -> Option<Value> {
 }
 
 fn events(conn: &Connection, query: &str) -> Value {
-    let q: std::collections::HashMap<String, String> = query
-        .split('&')
-        .filter_map(|kv| kv.split_once('=').map(|(k, v)| (k.to_string(), v.to_string())))
-        .collect();
+    let q = query_map(query);
     let after = q.get("after").and_then(|v| v.parse::<u32>().ok()).unwrap_or(0);
     let limit = q.get("limit").and_then(|v| v.parse::<u32>().ok()).unwrap_or(100);
     let typ = q.get("type").cloned();
@@ -437,6 +520,8 @@ fn chain_verify(conn: &Connection) -> Value {
     json!({ "ok": v.ok, "events": v.events, "head": v.head, "problems": v.problems })
 }
 
+/* ---------------- compile (+ live + theme, Фаза 2) ---------------- */
+
 fn compile_route(
     t: &Twin,
     body: &Value,
@@ -468,16 +553,249 @@ fn compile_route(
         _ => None,
     };
     let req = compile::parse_request(body).map_err(|m| RpcError::validation(m, None))?;
-    let outcome =
-        compile::compile_batch(&t.scratch, &req, idem.as_deref()).map_err(|e| RpcError::unprocessable(e.0))?;
-    Ok(ok_envelope(json!({
+
+    /* live: намерение */
+    let resolved_slug = req
+        .slug
+        .clone()
+        .unwrap_or_else(|| format!("T4-{:02}", compile::next_batch_number(&t.scratch)));
+    live::info(
+        "compile",
+        &format!(
+            "compile: слаг-кандидат {resolved_slug} · тема «{}» · EXP {} · A/B {} · движок {}",
+            req.theme, req.exp, req.ab_pairs, req.engine
+        ),
+    );
+
+    /* Фаза 2: Theme Expansion — ДО транзакции; гейт №25 режет до записи */
+    let mut theme_block: Option<(Value, theme::ThemeReceipt, f64)> = None;
+    if req.expand_theme {
+        if req.exp > 0 {
+            live::info(
+                BLOCK_EXPAND,
+                "тема-модуль: EXP-батч — Theme Expansion и гейт №25 выключены (приказ автора)",
+            );
+            theme_block = Some((Value::Null, theme::exp_off_receipt(), 0.0));
+        } else {
+            let (anchors, min_adherence) = match &req.theme_anchors {
+                Some(v) => {
+                    live::info(BLOCK_EXPAND, "тема-модуль: приняты правленые якоря автора (strict)");
+                    theme::ThemeAnchors::from_json(v, &req.theme, &resolved_slug)
+                        .map_err(|m| RpcError::validation(m, None))?
+                }
+                None => {
+                    let a = theme::expand(&req.theme, &resolved_slug, 0).ok_or_else(|| {
+                        RpcError::unprocessable("expandTheme: тему не удалось разложить на якоря")
+                    })?;
+                    (a, theme::DEFAULT_MIN_ADHERENCE)
+                }
+            };
+            for line in [
+                format!("тема «{}» → локейшн: {}", anchors.theme, anchors.locale),
+                format!("время: {} · свет: {}", anchors.time_of_day, anchors.light),
+                format!("палитральное настроение: {}", anchors.palette_mood),
+                format!("мотивы: {}", anchors.motifs.join(" / ")),
+                format!("гардероб: {} · позы: {} · камера: {}", anchors.wardrobe_family, anchors.pose_family, anchors.camera),
+                format!("атмосфера: {} · сид {}", anchors.atmosphere.join(" / "), anchors.seed),
+                format!("токены для гейта: {}", anchors.tokens().join(", ")),
+            ] {
+                live::info(BLOCK_EXPAND, &line);
+            }
+            let oc_themes: Vec<String> = req.oc_themes.iter().map(|o| o.theme.clone()).collect();
+            let gate = theme::plan_gate(&anchors, &oc_themes, 0);
+            for f in &gate.findings {
+                live::error(BLOCK_GATES, &format!("тема-гейт №25: {f}"));
+            }
+            live::info(
+                BLOCK_GATES,
+                &format!("тема-гейт №25 ({}): {}", gate.level, gate.verdict),
+            );
+            if gate.verdict == "FAIL" {
+                return Err(RpcError::unprocessable(
+                    format!(
+                        "тема-гейт №25 FAIL ({} замечаний) — правь якоря (themeAnchors) или тему",
+                        gate.findings.len()
+                    ),
+                ));
+            }
+            theme_block = Some((anchors.to_json(min_adherence), gate, min_adherence));
+        }
+    }
+
+    /* компиляция — канонический путь (byte-parity не тронут) */
+    let outcome = compile::compile_batch(&t.scratch, &req, idem.as_deref())
+        .map_err(|e| {
+            live::error(BLOCK_COMPILE, &format!("compile: {}", e.0));
+            RpcError::unprocessable(e.0)
+        })?;
+
+    /* live: квитанции планировочных гейтов */
+    if let Some(receipts) = outcome.plan_json.get("receipts").and_then(|r| r.as_array()) {
+        for r in receipts {
+            let gate = r.get("gate").and_then(|g| g.as_str()).unwrap_or("?");
+            let level = r.get("level").and_then(|g| g.as_str()).unwrap_or("?");
+            let verdict = r.get("verdict").and_then(|g| g.as_str()).unwrap_or("?");
+            let findings = r.get("findings").and_then(|f| f.as_array()).map(|a| a.len()).unwrap_or(0);
+            live::info(
+                BLOCK_GATES,
+                &format!("{gate} ({level}): {verdict}{}", if findings > 0 { format!(" — {findings} замечаний") } else { String::new() }),
+            );
+        }
+    }
+    live::info(
+        BLOCK_COMPILE,
+        &format!(
+            "compile: {slug} готов — sha10 {sha10}, слотов {}, hard {}",
+            outcome.plan_json.get("slots").and_then(|s| s.as_array()).map(|a| a.len()).unwrap_or(0),
+            if outcome.hard_pass { "PASS" } else { "FAIL" },
+            slug = outcome.slug,
+            sha10 = outcome.sha10,
+        ),
+    );
+
+    /* тема-гейт в квитанции компиляции (вне плана) + событие-запись в scratch */
+    if let Some((anchors_json, gate, _min)) = &theme_block {
+        if !anchors_json.is_null() {
+            let data = json!({
+                "module": "theme-expansion",
+                "version": theme::MODULE_VERSION,
+                "slug": outcome.slug,
+                "anchors": anchors_json,
+                "gate": gate.to_json(),
+            });
+            let tx = t
+                .scratch
+                .unchecked_transaction()
+                .map_err(|e| RpcError::unprocessable(e.to_string()))?;
+            let evt = chain::append_event_tx(
+                &tx,
+                &chain::AppendInput {
+                    typ: "note",
+                    summary: &format!(
+                        "Theme Expansion: {} «{}» — гейт №25 {}",
+                        outcome.slug,
+                        req.theme,
+                        gate.verdict
+                    ),
+                    data: Some(&data),
+                    batch_slug: Some(&outcome.slug),
+                },
+            )
+            .map_err(|m| RpcError::unprocessable(m))?;
+            tx.commit().map_err(|e| RpcError::unprocessable(e.to_string()))?;
+            live::info(
+                BLOCK_EXPAND,
+                &format!("Theme Expansion записан в scratch-летопись (note {})", evt.id),
+            );
+        }
+    }
+
+    let mut data = json!({
         "plan": outcome.plan_json,
         "event": { "id": outcome.event_id, "at": outcome.event_at, "seq": outcome.event_seq },
         "receipts": outcome.plan_json.get("receipts").cloned().unwrap_or(Value::Null),
         "idempotentReplay": false,
         "twinNote": "скомпилировано в scratch-летописи twin'а; продакшн не тронут",
+    });
+    if let Some((anchors_json, gate, _)) = theme_block {
+        if !anchors_json.is_null() {
+            data["themeAnchors"] = anchors_json;
+        }
+        data["themeGate"] = gate.to_json();
+    }
+    Ok(ok_envelope(data))
+}
+
+/* ---------------- theme routes (Фаза 2) ---------------- */
+
+fn theme_expand_route(body: &Value) -> Result<(u16, String), RpcError> {
+    let obj = body
+        .as_object()
+        .ok_or_else(|| RpcError::validation("theme/expand: тело должно быть JSON-объектом (strict)", None))?;
+    for k in obj.keys() {
+        if !["theme", "slug", "exp", "ocThemes"].contains(&k.as_str()) {
+            return Err(RpcError::validation(
+                format!("theme/expand: лишнее поле «{k}» (strict)"),
+                None,
+            ));
+        }
+    }
+    let t_str = obj
+        .get("theme")
+        .and_then(|v| v.as_str())
+        .map(|s| s.trim().to_string())
+        .filter(|s| !s.is_empty() && s.len() <= 200)
+        .ok_or_else(|| RpcError::validation("theme/expand: theme обязателен (1..200 симв)", None))?;
+    let slug = obj
+        .get("slug")
+        .and_then(|v| v.as_str())
+        .unwrap_or("T4-00")
+        .to_string();
+    let exp = obj.get("exp").and_then(|v| v.as_u64()).unwrap_or(0) as u32;
+    let oc_themes: Vec<String> = obj
+        .get("ocThemes")
+        .and_then(|v| v.as_array())
+        .map(|a| {
+            a.iter()
+                .filter_map(|x| x.as_str().map(String::from))
+                .collect::<Vec<String>>()
+        })
+        .unwrap_or_default();
+    live::info(BLOCK_EXPAND, &format!("theme/expand: «{t_str}» (exp {exp})"));
+    if exp > 0 {
+        let gate = theme::exp_off_receipt();
+        return Ok(ok_envelope(json!({
+            "disabled": true,
+            "reason": "EXP-батч — Theme Expansion и гейт №25 выключены (приказ автора)",
+            "gate": gate.to_json(),
+        })));
+    }
+    let anchors = theme::expand(&t_str, &slug, 0)
+        .ok_or_else(|| RpcError::unprocessable("тему не удалось разложить"))?;
+    let gate = theme::plan_gate(&anchors, &oc_themes, 0);
+    Ok(ok_envelope(json!({
+        "anchors": anchors.to_json(theme::DEFAULT_MIN_ADHERENCE),
+        "gate": gate.to_json(),
     })))
 }
+
+fn theme_check_route(body: &Value) -> Result<(u16, String), RpcError> {
+    let obj = body
+        .as_object()
+        .ok_or_else(|| RpcError::validation("theme/check: тело должно быть JSON-объектом (strict)", None))?;
+    for k in obj.keys() {
+        if !["text", "anchors", "minAdherence"].contains(&k.as_str()) {
+            return Err(RpcError::validation(
+                format!("theme/check: лишнее поле «{k}» (strict)"),
+                None,
+            ));
+        }
+    }
+    let text = obj
+        .get("text")
+        .and_then(|v| v.as_str())
+        .ok_or_else(|| RpcError::validation("theme/check: text обязателен", None))?;
+    let anchors_v = obj
+        .get("anchors")
+        .ok_or_else(|| RpcError::validation("theme/check: anchors обязателен (JSON из /v1/theme/expand)", None))?;
+    let min = obj
+        .get("minAdherence")
+        .and_then(|v| v.as_f64())
+        .unwrap_or(theme::DEFAULT_MIN_ADHERENCE);
+    let (anchors, min_from_json) = theme::ThemeAnchors::from_json(anchors_v, "", "")
+        .map_err(|m| RpcError::validation(m, None))?;
+    let receipt = theme::text_gate(text, &anchors, if min != theme::DEFAULT_MIN_ADHERENCE { min } else { min_from_json });
+    for f in &receipt.findings {
+        live::warn(BLOCK_GATES, &format!("тема/adherence: {f}"));
+    }
+    live::info(
+        BLOCK_GATES,
+        &format!("тема/adherence (гейт №25): {}", receipt.verdict),
+    );
+    Ok(ok_envelope(json!({ "receipt": receipt.to_json() })))
+}
+
+/* ---------------- append event ---------------- */
 
 fn append_event_route(t: &Twin, body: &Value) -> Result<(u16, String), RpcError> {
     let obj = body
@@ -510,5 +828,42 @@ fn append_event_route(t: &Twin, body: &Value) -> Result<(u16, String), RpcError>
     )
     .map_err(|m| RpcError::unprocessable(m))?;
     tx.commit().map_err(|e| RpcError::unprocessable(e.to_string()))?;
+    live::info("system", &format!("событие «{typ}» записано в scratch (seq {})", evt.seq));
     Ok(ok_envelope(json!({ "id": evt.id, "at": evt.at, "type": evt.r#type, "chainHead": evt.hash })))
+}
+
+/* ---------------- deliver / void (общее ядро lib.rs, зеркало handlers.ts) ---------------- */
+
+fn deliver_route(t: &Twin, slug: &str) -> Result<(u16, String), RpcError> {
+    match crate::cli_deliver(&t.scratch, slug) {
+        Ok(v) => {
+            if let Some(s) = v.get("summary").and_then(|x| x.as_str()) {
+                live::info(BLOCK_DELIVER, s);
+            }
+            live::info(
+                BLOCK_DELIVER,
+                "сдано в scratch-летописи twin'а — продакшн не тронут",
+            );
+            Ok(ok_envelope(v))
+        }
+        Err(m) => {
+            let (status, code) = crate::classify_core_error(&m);
+            Err(RpcError { status, code, message: m, hint: None })
+        }
+    }
+}
+
+fn void_route(t: &Twin, slug: &str) -> Result<(u16, String), RpcError> {
+    match crate::cli_void(&t.scratch, slug, "решение автора") {
+        Ok(v) => {
+            if let Some(s) = v.get("summary").and_then(|x| x.as_str()) {
+                live::info(BLOCK_SYSTEM, s);
+            }
+            Ok(ok_envelope(v))
+        }
+        Err(m) => {
+            let (status, code) = crate::classify_core_error(&m);
+            Err(RpcError { status, code, message: m, hint: None })
+        }
+    }
 }

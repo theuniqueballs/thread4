@@ -9,6 +9,8 @@
 //!   полка 4  compile.rs     — deterministic plan compiler + planning gates
 //!   полка 5  rpc.rs         — route table, envelope, auth, rate limits
 //!   полка 6  canon.rs       — Code-as-Config (numbers with provenance)
+//!   полка 7  theme.rs       — Фаза 2: Theme Expansion (гейт №25, EXP-оф)
+//!   полка 8  live.rs        — Фаза 2: SSE-шина живой консоли (heartbeat)
 //!
 //! Acceptance bar (checked at boot, logged loudly):
 //!   · verify_chain over the PRODUCTION chronicle → same verdict as bun
@@ -17,16 +19,9 @@
 //! Boot order mirrors the TS engine: canon arithmetic → open handles →
 //! serve. A broken canon kills the twin before it answers anything.
 
-mod auth;
-mod canon;
-mod canonical;
-mod chain;
-mod compile;
-mod db;
-mod ratelimit;
-mod rpc;
-
 use std::sync::Arc;
+
+use t4_engine_rs::{auth, canon, chain, db, rpc};
 
 fn main() {
     let problems = canon::slot_law_checks();
@@ -81,11 +76,14 @@ fn main() {
         Err(e) => eprintln!("t4-engine-rs: parity-проверка пропущена — {e}"),
     }
 
+    /* ---- Фаза 2: тема-модуль заряжен ---- */
+    eprintln!("t4-engine-rs: Фаза 2 — Theme Expansion (гейт №25) и live-SSE /v1/live готовы");
+
     let twin = Arc::new(rpc::Twin {
         prod,
         scratch,
         key: auth::KeyCache::new(),
-        limiter: ratelimit::Limiter::new(),
+        limiter: t4_engine_rs::ratelimit::Limiter::new(),
         boot_at: std::time::Instant::now(),
     });
     rpc::serve(twin);
@@ -116,5 +114,5 @@ fn parity_check_t441(prod: &rusqlite::Connection) -> Result<(String, String), St
         .ok_or("payload не объект")?;
     obj.remove("sha10");
     obj.insert("slots".into(), (slots_count as u64).into());
-    Ok((canonical::payload_sha10(&payload_for_hash), expected))
+    Ok((t4_engine_rs::canonical::payload_sha10(&payload_for_hash), expected))
 }
