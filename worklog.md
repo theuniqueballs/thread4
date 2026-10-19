@@ -5902,3 +5902,129 @@ Stage Summary:
   (событие уже летает), прокинуть signal в twinPost при желании, поправить
   «9 действий» в page.tsx:9 и --heal в panels.tsx:2006, внести A/N/J в
   футер-подсказку page.tsx (там перечислены B C T P D X R S W).
+
+---
+Task ID: 2-a
+Agent: Rust-инженер THREAD 4 (2-a, general-purpose)
+Task: Порт текстовых гейтов файл-эры из TS (src/lib/t4/gates.ts) в Rust-близнец
+(mini-services/t4-engine-rs): этап 0 (фундамент парсинга + лоадеры) + этап 1
+(13 словарных гейтов, findings дословно), RPC POST /v1/gates, CLI --text,
+паритет по записанным TS-слепкам и живым TS-прогонам.
+
+Work Log:
+- Прочитаны секции worklog: 1-a (карта гейтов — входные точки), 3-inv,
+  rust-migration-2026-10-19 (архитектура twin'а, 78/78 батарея), 1-b/3-b (UI).
+  Сверены TS-эталоны построчно: gates.ts:1203-1845 + 2332-2415, batch-md.ts:40-200
+  (parseBatchMd/parseMeta/BOUNDARY_RE/SLOT_HEADER_RE), gates.ts:123-219
+  (parseBatch-адаптер, genreOf/tierOf, extractBatchTitle).
+- НОВАЯ ПОЛКА src/textgates.rs (2288 строк, этапы 0-1):
+  · Этап 0.1 — парсер (ПОДМНОЖЕСТВО parseBatchMd, одна правда слота):
+    slot_header:256 (жадная мета до ПОСЛЕДНЕЙ «)», парные маркеры ⚗ после
+    скобки), is_boundary:284 (BOUNDARY_RE 1-в-1: ═━─=/[*_/---/#/ACT IVX/
+    EXP-REHAB OVERLAY, баг-фикс 2026-10-15 «мусор прилипал к NEG»),
+    parse_batch_md:362 (секции THESIS/Canon/Spine/Stack/POS/NEG, неизвестные
+    → null), collapse/parse_meta (R\+?/X/XXX/PG-13, PL\d+, P##_NAME, REHAB),
+    extract_batch_title:460 (легаси THREAD 4 Batch + современный T4-NN),
+    genre_of:539 (EXP первым), tier_of:551 (XXX→R+→PG-13→X→R), parse_batch:576
+    (адаптер gates.ts:182: stack = /CR-[A-Z]\d{2}/g, header/meta/genre/pos/neg);
+  · Этап 0.2-0.3 — лоадеры: load_contract:742 (contracts/T4-NN.json →
+    типизированные Contract/ContractSlot/AbPair: rating/oc/ocTheme/race/pose/
+    poseRisk/palette/carriers/dress.channel/exp/ab, rebuildOf, theme),
+    load_bans:813 (word_budget 300/400 + hedge_budget 2, дефолты TS ?? ),
+    oc_roster:825 (specs/oc-canon.json), prod_context:845 (ПРОД RO: счёт
+    gate.run в t4_events, окно = 3 последних delivered — НЕ пишем в прод
+    никогда);
+  · Этап 1 — 13 гейтов (findings ДОСЛОВНО, порядок runGates):
+    budget:917, closer_class_of:943 (N25-ловушка: диалог-кавычки «“”„»),
+    cadence:984 (JS-сплит с lookbehind → ручной скан last_sentence),
+    prop-geometry:1037, noun-lock:1083 (сквозь-ткань/подслой-NEG/bare-under,
+    §10-поправка), character-collision:1177 (⚠ TS-регекс с lookahead —
+    ручной скан homonym_trigger:1225: \bword\b(?!\s+alt), squash дефисов,
+    закон №23 sd_fragment verbatim), theme-presence:1246 (ТЕМА-СЛОВА ≥60%
+    не-EXP; фактически TS считает инклудами .includes, НЕ themeWordMatcher —
+    matcher живёт только в exp-purity:610), oc-coverage:1292 (U1 +
+    HEROINE-BATCH: yes), artist-leak:1324, garment-family:1349 (\bbra(?!less)
+    ≡ \bbra\b — lookahead избыточен), freq-report:1379 (advisory, ≥8 слотов,
+    стабильно-сортированные тики 12), usage:1436 (advisory, носители в стеках
+    + счёт R+/X), one-hard-claim:1456 (4 семьи, EXP-слоты не судимы),
+    echo-window:1493 (±2 соседа, ≥6 сигнатур [a-z][a-z-]{4,} минус
+    стоп-лист p00-p07, cap 8 + «…и ещё N пар»);
+  · Служебное: run_text_gates:1628 (13 квитанций в порядке runGates),
+    run_for_slug:1668 (файл batches/<slug>.md RO; нет файла →
+    NoDraft «нет драфта batches/<slug>.md — батарея неприменима»; is_safe_slug
+    файл-эры = fsutil: T4-27.2-EXP легален), record_gate_run:1699
+    (gate.run в scratch-цепь + t4_gate_runs,Receipt-слепок {gate,level,verdict}
+    как gates.ts:2476 + batteryRust/batteryTs/hardFails/warnNames),
+    recorded_ts_snapshot:1783 (чтение TS-слепков gate.run из
+    thread4/events/log.jsonl, sha-pinned: летопись не судит прошлые
+    состояния файла);
+  · АУДИТ 1-в-1 (теоретические края закрыты после живой сверки):
+    tier_of «R+» → contains_word_left (TS /\bR\+/ НЕ проверяет хвост —
+    «R+15» = R+); is_pose_token «PL1» (одна цифра — валидная поза, не who);
+    BOUNDARY_RE «ACT  II»/«EXP  OVERLAY» (\s+, не один пробел) и хвостовые
+    \b («EXP OVERLAYX» — НЕ boundary, «ACT IIIVX» — boundary: \b на EOS);
+    современный тайтл \s* (ноль пробелов до кавычки), легаси «#» не обязан
+    открывать строку + Batch с любым регистром. Всё — юнит-тест
+    parity_exactness_edge_cases.
+- RPC (rpc.rs): route_match:315 POST /v1/gates (BucketName::Mutation,
+  AuthLevel::Locked — замок командира), gates_route:889: strict-тело
+  {"slug":"T4-NN"} (лишнее поле → 422 «gates: лишнее поле «dry» (strict)»),
+  файлы репо RO + prod_context RO; слаг из scratch-летописи twin'а →
+  record_gate_run (scratch), исторический (прод) → ЧИСТЫЙ анализ, runIndex =
+  прод-прогоны+1, НИКАКИХ записей; ответ data {slug, receipts(13),
+  hardPass, hardFails[], warns[], batteryRust[13], batteryTs[17], sha10,
+  runIndex, contractTheme?, rebuildOf?, twinNote}; live-прогресс
+  BLOCK_GATES по кадру на гейт (PASS/REPORT → info, WARN → warn + до 4
+  замечаний). RpcError::not_found добавлен (404). Тесты rpc.rs:1012-1160:
+  маршрут+strict, исторический-без-записей (runIndex 4 из 3 прод-прогонов,
+  прод/scratch счётчики до=после), scratch-слег пишет gate.run+t4_gate_runs
+  (цепь цела после записи), нет драфта → 404, слепок T4-34 читается.
+- CLI (bin/t4.rs:98,384): Cmd::Gates { slug, --text, --json }: --text →
+  текст-батарея файл-эры (человекочитаемая таблица или чистый JSON со
+  sha10/batteryRust/batteryTs/hardFails); слаг в рабочей базе →
+  «записано: gate.run <id> (seq N, прогон #K)», исторический → «чистый
+  анализ, записей нет (прод не тронут)»; hard FAIL → exit(1). БЕЗ --text —
+  прежний планировочный прогон НЕ тронут (строки 425+). Selftest-хвост
+  теперь честно перечисляет причины skip.
+- ПАРИТЕТ (главное): живой TS-прогон (bun runGates dryRun, НИКАКИХ записей
+  в летопись — проверено git status) по 5 историческим батчам
+  T4-27/T4-27.2-EXP/T4-28/T4-31/T4-34 против Rust-батареи: ВСЕ 13 гейтов ×
+  5 батчей = 65 клеток — verdict И findings (списки строк ДОСЛОВНО, порядок
+  включительно) совпали 65/65. Тексты квитанций — байт-в-байт (в т.ч.
+  echo-window T4-27: 9 строк + «…и ещё 16 пар», noun-lock T4-34 6 строк,
+  one-hard-claim T4-28 14 строк, prop-geometry T4-31 5 строк).
+- selftest.rs: +textgates_battery (строка 472): синтетика +1 PASS/+1 FAIL
+  на каждый из 13 гейтов (26), паритет verdict по записанным TS-слепкам
+  log.jsonl sha-pinned: T4-27/27.2-EXP/28/34 (4; T4-31 — честный skip:
+  текущий sha10 397256d2a4 не совпадает ни с одним записанным прогоном —
+  файл правился после последнего gate.run), + 6 дословных findings-пинов
+  живых TS-прогонов: T4-34 prop-geometry+noun-lock, T4-31 usage+prop-geometry,
+  T4-28 one-hard-claim, T4-27 echo-window (sha-pinned, при уходе файла от
+  sha — честный skip, не ложная тревога). Батарея 78/78 → 114/114 PASS
+  (+36), существующие чеки не тронуты. cargo test 23/23 → 52/52 (юнит-тесты
+  парсера/гейтов/маршрута). warnings 0. Прод-база RO, прод-демон :3201 (pid
+  2750) НЕ тронут — двоичный файл пересобран, рестарт демона за хозяином.
+
+Stage Summary:
+- Этапы 0-1 ЗАВЕРШЕНЫ: 13 словарных текстовых гейтов файл-эры живут в Rust
+  (textgates.rs 2288 строк), паритет с живым TS доказан 65/65 клеток
+  (verdict+findings), самотест 114/114, cargo test 52/52, RPC /v1/gates +
+  CLI --text работают (strict, commander-замок, scratch-записи/прод-RO).
+- НЕ портировано (честно): rating-recipe (hard, gates.ts:745, сердце
+  PH-доктрины, ~214 строк + specs/rating-recipes.json — stretch НЕ взят:
+  hard-гейт нельзя портировать на остатках контекста, этап 2 по карте 1-a),
+  canon/diversity/window-текст/floors-текст/dresser/contract-fidelity/
+  bumps-quota/niche-legibility/claim-visibility/technique-layers/ab-text/
+  simcheck/technique-map/salience-chain (17 в BATTERY_TS; константа
+  GATES_TOTAL=30 цела: 13 Rust + 17 TS), условные raw-plus/rating-recipe-
+  exploratory/raw-plus-exploratory. Про-демон :3201 продолжает serve-ить
+  старый бинарь до рестарта хозяином (новые маршруты подхватятся после).
+- Компромиссы паритета (задокументированы в коде): JS \s включает \uFEFF
+  (Rust White_Space — нет; в живых файлах БОМов нет); легаси-тайтл берёт
+  ПЕРВУЮ кавычку строки (во всех 65 файлах первая = тайтл; regex-семантика
+  «после Batch-T4-\d» разнится только при двух кавычках в одной строке —
+  тайтл гейтами не читается); T4-31 verdict-слепка нет в летописи (файл
+  правился после записи) — паритет T4-31 доказан живым прогоном + 2 пинами.
+- Следующий шаг (этап 2 по карте 1-a): rating-recipe → canon → diversity →
+  window-текст → floors-текст; контракты уже читает load_contract (pose/
+  palette/carriers/dress/oc/ab готовы для контрактных гейтов).
