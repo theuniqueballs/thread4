@@ -6162,3 +6162,97 @@ Stage Summary:
   станет живой: квитанции 13 Rust-гейтов + файл-эра), сквозной smoke после
   рестарта; «9 действий» в page.tsx:9 и «--heal» в panels.tsx:2006 — чужие
   файлы, не тронуты (в списке 3-b).
+
+---
+Task ID: rust-closeout-2026-10-19 (приказ «МОЩНОСТЬ» — завершение миграции)
+Agent: Z.ai Code (main) + pool: 1-a/1-b (Explore), 2-a (Rust), 3-a/3-b (UI)
+Task: завершить Rust-миграцию: аудит ядра, порт текст-гейтов, Review-батарея
+в воркфлоу, Layout E, чеклист 16 функций, E2E 10 демо, защита от потерь.
+
+Work Log:
+- БАЗЛАЙН зелёный до начала: cargo 23/23, Rust selftest 78/78, TS 174/174,
+  verify ЦЕЛА (413), tsc 0, eslint 0. Контекст автора подтверждён по git:
+  коммиты миграции на месте (e428bed/cb6ed6f/f8978f2 поверх f8f05c4),
+  T4-42/43/44 в летописи нет (последний T4-41) — потеря признана.
+- ЗАЩИТА ДО РАБОТ: тег pre-rust-audit + ветка feat/rust-closeout.
+- 1-a (Explore): полная таблица 30+3 гейтов, порядок порта, входные точки,
+  вердикты KEEP/MERGE/PRUNE из аудит-доки. Ключевой факт: sqlite НЕ
+  самодостаточен для текст-гейтов (драфты/контракты/спеки — файлы репо).
+- 1-b (Explore): чеклист 16 функций = 15 есть / 1 частично (№25 не блокировал
+  Compile в UI); гэпы: Review-батарея, персист Draft, Abort, JSON-копия,
+  сворачивание блоков, Layout E (левый рельс + нижняя консоль).
+- 2-a (Rust): textgates.rs ~2300 строк — парсер batch-md + лоадеры + 13
+  словарных гейтов 1-в-1 (budget/cadence/prop-geometry/noun-lock/
+  character-collision[ручной скан вместо lookaround]/theme-presence/
+  original-character-coverage/artist-leak/garment-family/freq-report/
+  usage/one-hard-claim/echo-window). Паритет 65/65 клеток (verdict +
+  findings ДОСЛОВНО) на T4-27/27.2-EXP/28/31/34 против живых TS-прогонов
+  и sha-пинов слепков из events/log.jsonl. POST /v1/gates (Locked):
+  scratch → gate.run+t4_gate_runs в scratch, исторический → чистый анализ,
+  live-кадр на каждый гейт. CLI t4 gates --text/--json. selftest 78→114/114
+  (1 честный skip: T4-31 файл правился после записи), cargo test 23→52/52,
+  warnings 0. НЕ портировано (честно): rating-recipe (stretch не взят),
+  17 гейтов в batteryTs — этап 2 по карте 1-a.
+- 3-a (UI): workflow Review — авто-прогон двух батарей (twin /v1/gates +
+  файл-эра /api/t4/gates), единая таблица с бейджами R/R·TS/TS и чипами
+  уровней, hard FAIL → баннер + Approve&Deliver disabled, «Отклонить и
+  вернуться к якорям» без потери данных (план → stale, «пересобрать»),
+  персист t4-workflow-draft (debounce 250мс, восстановление с тостом,
+  сброс по deliver/палитре N), №25 FAIL блокирует Compile, поля
+  engine/species/notes, AnimatePresence-переходы + layoutId-степпер.
+- 3-b (UI): live-console Abort (manualAbort — onerror/bye не переподключают
+  молча, RECONNECT на плашке), сворачивание блоков (последовательные кадры
+  одного блока → группы, авто-сжатие >12 строк, error-группы не сжимаются),
+  fade-in/slide-up строк (reduced-motion уважён), Copy for AI = JSON
+  {tool,at,status,lastSeq,slugHint,errors[],recent[],note}, .t4-live-scroll
+  определён в globals, палитра +4 live-команды (A=abort,N=новый батч,
+  J=стейт-снимок, verify), гигиена: --heal→доктрина (action-deck),
+  «девять»→«десять».
+- ХОЗЯИН (page.tsx/panels.tsx): Layout E — левый рельс (twin-карточка,
+  история 10 батчей со статус-точками, зал с hotkeys), нижняя выдвижная
+  Live Console (плашка live-status dot + seq + errorCount, персист
+  t4-live-drawer, spring-анимация высоты), twin-карточка переехала в рельс
+  (мёртвый хардкод «434 звена» убран), футер +A/N/J, border-white/10 на
+  новых поверхностях, --heal убран из панелей движка (panels:2006).
+- ДВА БАГА НАЙДЕНЫ И ЗАКРЫТЫ В ХОДЕ E2E:
+  1) EXP-тупик: кнопка Compile → SCRIBE жила только в ветке якорей —
+     EXP-батч (гейт выключен, стаб) не мог дойти до компиляции. Фикс:
+     freeform-ветка получила свой ран кнопки (workflow.tsx:1455-1480).
+  2) Namespace-коллизия: свежий scratch советовал T4-07, а батарея читала
+     ЛЕГАСИ-драфт batches/T4-07.md (10 окт) — Review показал чужой
+     rating-recipe FAIL и лочил Approve. Корневой фикс в twin:
+     scratch.nextSlug = max(prod.next, scratch.next)+1 → T4-42
+     (rpc.rs, инцидент задокументирован в комменте кода).
+- E2E на scratch (прод :3200 НЕ ТРОНУТ — доктрина): OS T4-06 «гроза над
+  ночным вокзалом» (якоря правленые, №25 PASS, sha10 22de178838, сдан
+  17:11:02Z), reject→Void→пересборка доказана, EXP T4-42 «затмение над
+  обсерваторией» (EXP 3, freeform-стаб, sha10 a1b96eb223, сдан 17:16:50Z),
+  персист черновика (reload → «восстановлен»), Copy for AI (тост с хвостом
+  12 строк, 0 ошибок), палитра (все группы), SSE: ПАУЗА→ABORT «ПРЕРВАНО
+  ОПЕРАТОРОМ»→RECONNECT→ЭФИР (seq 50→158), VERIFY: 434/434 SEALED head
+  21f5fc4b, окно ротации 3 слота. Скрины: /tmp/t4-e2e-*.png,
+  /tmp/t4-relaunch-*.png. dev.log чист (pipe-обрывы = abort-тесты SSE).
+- ФИНАЛЬНЫЙ ЗЕЛЁНЫЙ ПАКЕТ: cargo 52/52, Rust selftest 114/114 (1 skip с
+  причиной), TS selftest 174/174, verify: 421 событий ЦЕЛА (было 413:
+  +8 — честные gate.run-трейсы от прогонов батареи по легаси-файлам),
+  tsc 0, eslint 0.
+- ЗАЩИТА: ветка feat/rust-closeout, коммит 042aab8 (3276 вставок,
+  textgates.rs +7 файлов), тег pre-rust-audit локален. ПУШ НЕ СОСТОЯЛСЯ:
+  PAT одноразовый прошлой сессии и по доктрине нигде не хранится —
+  «could not read Username». Коммиты и тег ждут PAT автора (или ручной
+  push из бокса).
+
+Stage Summary:
+- Rust-ядро: 6/30 гейтов планировочных + №25 NATIVE + 13/30 текстовых
+  = 19/30 в Rust; 17 (вкл. rating-recipe №4 сердце PH) — этап 2 по
+  карте 1-a, всё в batteryTs честно светится в Review-таблице.
+- UI: Layout E целиком (рельс+canvas+нижняя консоль+8 drawer'ов),
+  Review-батарея с двумя источниками, reject-цикл, персист, EXP-путь
+  починен. Консоль «МОЩНОСТЬ» прежняя цела (вид КОНСОЛЬ не тронут).
+- Известный шов: файл-эра и scratch делят формат слага T4-NN — лечится
+  дисциплиной nextSlug (фикс в twin) и правом автора переопределять слаг
+  руками; TS-батарея по легаси-файлам пишет честные gate.run-трейсы в
+  файл-эру (append-only, это её дизайн).
+- За автором: PAT для пуша, решение по PRUNE-кандидатам (§9-терция,
+  §11, DoD-п.1), приказ на этап 2 (rating-recipe + 17 гейтов),
+  производственный cutover (писать SSoT из Rust).
