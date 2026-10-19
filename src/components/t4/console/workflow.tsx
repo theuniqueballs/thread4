@@ -1016,12 +1016,22 @@ export function WorkflowDeck({
       setBattery((b) => ({ ...b, status: 'running', rows: [], rustNote: null, tsNote: null }))
       const [twinR, fileR] = await Promise.all([fetchTwinBattery(slug), fetchFileBattery(slug)])
       if (batteryRunId.current !== id) return /* сброс/возврат отменил прогон */
-      const rows = mergeBatteryRows(twinR.rust, [...twinR.ts, ...fileR.ts])
+      /* доктрина dual-DB: пока Rust-тwin не видит драфта, квитанции файл-эры
+       * с тем же слагом — ЧУЖОЙ исторический батч (scratch-слаги T4-01..41
+       * коллизируют с файл-эрой до SCRIBE) — в таблицу и в блокировку сдачи
+       * они не попадают, только честная пометка в статус-строке */
+      const twinConfirmed = twinR.note === null
+      const tsTrusted = twinConfirmed ? fileR.ts : []
+      const tsNote =
+        !twinConfirmed && fileR.ts.length > 0
+          ? 'слог занят историческим батчем файл-эры'
+          : fileR.note
+      const rows = mergeBatteryRows(twinR.rust, [...twinR.ts, ...tsTrusted])
       setBattery({
         status: rows.length > 0 ? 'done' : 'nodraft',
         rows,
         rustNote: twinR.note,
-        tsNote: fileR.note,
+        tsNote,
         ranFor: `${slug}#${eventSeq}`,
       })
     },
