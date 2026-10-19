@@ -2003,7 +2003,7 @@ export function EventsTab() {
             <ShieldAlert className="mr-1.5 inline size-3.5" />
             Движок видит проблемы цепи: {engineVerify.problems.slice(0, 3).join(' · ')}
             {engineVerify.problems.length > 3 ? ` · +${engineVerify.problems.length - 3}` : ''} — лечение:{' '}
-            <Mono>bun thread4/cli.ts verify --heal</Mono>
+            <Mono>ручной аудит летописи (доктрина append-only: авто-«залечивание» цепи запрещено)</Mono>
           </div>
         ) : null}
 

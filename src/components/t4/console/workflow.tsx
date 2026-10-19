@@ -1453,9 +1453,30 @@ export function WorkflowDeck({
               <StepHead n={1} title={STEP_LABELS[1]} state={stepState(1)} hint="якоря правятся — гейт №25" />
               <AnimatePresence mode="wait" initial={false}>
                 {exp > 0 ? (
-                  <motion.div key="s1-exp" {...motionProps} className="mt-3 flex items-center gap-2 rounded-md border border-zinc-800 bg-zinc-900/40 px-3 py-2 text-[12px] text-zinc-400">
-                    <AlertTriangle className="size-3.5 text-zinc-500" />
-                    EXP-батч — Theme Expansion и гейт №25 выключены (приказ автора, вердикт T4-34).
+                  <motion.div key="s1-exp" {...motionProps} className="mt-3 space-y-3">
+                    <div className="flex items-center gap-2 rounded-md border border-zinc-800 bg-zinc-900/40 px-3 py-2 text-[12px] text-zinc-400">
+                      <AlertTriangle className="size-3.5 text-zinc-500" />
+                      EXP-батч — Theme Expansion и гейт №25 выключены (приказ автора, вердикт
+                      T4-34). Freeform-режим: компилируй без якорей.
+                    </div>
+                    {/* EXP-путь обязан иметь выход к компиляции — тот же ран, что у якорей
+                        (баг-фикс: кнопка жила только в ветке anchors, EXP заходил в тупик) */}
+                    <div className="flex flex-wrap items-center gap-2">
+                      <button
+                        type="button"
+                        disabled={busy != null || !speciesOk}
+                        onClick={runCompile}
+                        className="flex items-center gap-2 rounded-lg bg-zinc-100 px-4 py-2 text-sm font-semibold text-zinc-950 transition-all hover:bg-white active:scale-[0.98] disabled:opacity-40"
+                      >
+                        <FileSignature className="size-4" />
+                        {busy === 'compile' ? 'компилирую…' : 'Compile → SCRIBE'}
+                      </button>
+                      {!speciesOk ? (
+                        <span className="font-mono text-[10px] text-amber-400">
+                          расы: формат R## через запятую
+                        </span>
+                      ) : null}
+                    </div>
                   </motion.div>
                 ) : anchors == null ? (
                   <motion.p key="s1-empty" {...motionProps} className="mt-2 font-mono text-[11px] text-zinc-500">
