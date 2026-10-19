@@ -1,0 +1,39 @@
+{
+  "slug": "T4-41",
+  "kind": "draft",
+  "status": "draft — без компиляции (Issue #21: авто-входы low-trust; это письменный бриф писцу)",
+  "createdAt": "2026-10-19T08:18:44.271Z",
+  "theme": "A day worth dying for",
+  "ocThemes": [
+    {
+      "theme": "Sentinel Battle Angel (Mecha-Musume)",
+      "rating": "R+",
+      "wishes": "",
+      "position": 1
+    },
+    {
+      "theme": "Pawns of the Great War",
+      "rating": "R+",
+      "wishes": "",
+      "position": 2
+    },
+    {
+      "theme": "Deadly Dungeon Boss",
+      "rating": "R",
+      "wishes": "",
+      "position": 3
+    }
+  ],
+  "mainWishes": "",
+  "species": {
+    "on": false,
+    "count": 0,
+    "list": []
+  },
+  "xSlots": 0,
+  "abPairs": 3,
+  "exp": 9,
+  "rehab": true,
+  "engine": "per-theme",
+  "notes": ""
+}
