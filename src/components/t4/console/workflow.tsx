@@ -21,7 +21,11 @@
  *   помечается устаревшим до следующего compile;
  * · гейт №25 (превью) дизейблит Compile; поля engine/species/notes едут
  *   в compile-запрос (strict-контракт twin'а);
- * · сброс: кнопка «Новый батч» и событие палитры t4:workflow-reset.
+ * · сброс: кнопка «Новый батч» и событие палитры t4:workflow-reset;
+ * · честность Review: notFound «нет драфта» — плашка до SCRIBE, другие
+ *   ошибки twin — багровый баннер с ретраем + тост (use-toast), прогоны
+ *   батарей обрываются AbortSignal'ом на сбросе/возврате;
+ * · сортировка таблицы hard → warn → advisory → conditional.
  *
  * Пружинная анимация шагов (framer-motion, spring 260/26 + layoutId
  * индикатор степпера), честные состояния idle→busy→done/error, никаких
@@ -53,6 +57,8 @@ import { cn } from '@/lib/utils'
 import { asArray, asRecord, asStr, commanderHeaders, withGatewayPort } from '@/components/t4/api'
 import { notify } from '@/components/t4/console/shared'
 import type { ActionId } from '@/components/t4/console/shared'
+import { toast } from '@/hooks/use-toast'
+import { ToastAction } from '@/components/ui/toast'
 
 /* ------------------------------------------------------------------ */
 /* типы (twin RPC)                                                     */
@@ -67,10 +73,21 @@ const OC_RATINGS = ['PG-13', 'R', 'R+', 'X'] as const
 
 interface Receipt {
   gate: string
-  level: 'hard' | 'warn' | 'advisory'
+  level: 'hard' | 'warn' | 'advisory' | 'conditional'
   verdict: 'PASS' | 'FAIL' | 'WARN' | 'OFF' | 'REPORT'
   findings?: string[]
   notes?: string[]
+}
+
+/** Ошибка twin-прокси с RPC-кодом (notFound/unavailable/validation/…) —
+ * Review различает честное «нет драфта» и живые сбои. */
+class TwinError extends Error {
+  readonly code: string
+  constructor(message: string, code: string) {
+    super(message)
+    this.name = 'TwinError'
+    this.code = code
+  }
 }
 
 interface AnchorsState {
@@ -127,6 +144,8 @@ interface BatteryState {
   /** null — батарея ответила; строка — почему квитанций нет (нет драфта и т.п.) */
   rustNote: string | null
   tsNote: string | null
+  /** живой сбой twin (НЕ «нет драфта»): баннер + ретрай, сдача не блокируется */
+  rustError: string | null
   /** «slug#eventSeq» — подпись компиляции, для которой прогнан прогон */
   ranFor: string | null
 }
@@ -136,13 +155,19 @@ const BATTERY_IDLE: BatteryState = {
   rows: [],
   rustNote: null,
   tsNote: null,
+  rustError: null,
   ranFor: null,
 }
 
-const GATE_LEVELS = ['hard', 'warn', 'advisory'] as const
+const GATE_LEVELS = ['hard', 'warn', 'advisory', 'conditional'] as const
 const GATE_VERDICTS = ['PASS', 'FAIL', 'WARN', 'OFF', 'REPORT'] as const
 
-const LEVEL_RANK: Record<Receipt['level'], number> = { hard: 0, warn: 1, advisory: 2 }
+const LEVEL_RANK: Record<Receipt['level'], number> = {
+  hard: 0,
+  warn: 1,
+  advisory: 2,
+  conditional: 3,
+}
 const VERDICT_RANK: Record<Receipt['verdict'], number> = { FAIL: 0, WARN: 1, REPORT: 2, PASS: 3, OFF: 4 }
 
 function parseLevel(v: unknown): Receipt['level'] {
@@ -173,7 +198,9 @@ function parseReceipts(v: unknown): Receipt[] {
   return out
 }
 
-/** Дедуп по имени гейта: квитанция Rust главнее, дублик метится «R·TS». */
+/** Дедуп по имени гейта: квитанция Rust главнее, дублик метится «R·TS».
+ * Сортировка: hard → warn → advisory → conditional; внутри уровня FAIL
+ * всплывает первым, OFF опускается последним. */
 function mergeBatteryRows(rust: Receipt[], ts: Receipt[]): BatteryRow[] {
   const byGate = new Map<string, BatteryRow>()
   const add = (r: Receipt, origin: BatterySource): void => {
@@ -503,7 +530,8 @@ function LevelChip({ level }: { level: Receipt['level'] }) {
         'shrink-0 rounded border px-1 py-px font-term text-[9px] uppercase tracking-wide',
         level === 'hard' && 'border-red-600/60 bg-red-950/20 text-red-400',
         level === 'warn' && 'border-amber-500/50 bg-amber-950/20 text-amber-300',
-        level === 'advisory' && 'border-zinc-700 bg-zinc-900 text-zinc-400'
+        level === 'advisory' && 'border-zinc-700 bg-zinc-900 text-zinc-400',
+        level === 'conditional' && 'border-dashed border-fuchsia-500/40 bg-zinc-900 text-fuchsia-300'
       )}
     >
       {level}
@@ -707,6 +735,8 @@ export function WorkflowDeck({
   const slugSuggested = useRef<string>('')
   const slugRef = useRef<string>('')
   const batteryRunId = useRef(0)
+  const batteryAbortRef = useRef<AbortController | null>(null)
+  const batteryRetryRef = useRef<() => void>(() => {})
   const restoreNotified = useRef(false)
   const pendingDraft = useRef<{ draft: WorkflowDraft; empty: boolean } | null>(null)
   const deliveredFlagRef = useRef(false)
@@ -759,7 +789,18 @@ export function WorkflowDeck({
       snap.at > 0
         ? ` · сохранён ${new Date(snap.at).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}`
         : ''
-    notify('info', 'Черновик восстановлен', `шаг «${STEP_LABELS[snap.step]}»${when}`)
+    /* Доставка на макротаске: Toaster (root layout) и колокол подписывают
+     * слушателей СВОИМИ эффектами — те идут ПОСЛЕ эффектов контента, выстрел
+     * из mount-эффекта теряется (подтверждено headless-браузером). Cleanup
+     * гасит таймер — StrictMode-двойной монтаж даёт ровно один тост. */
+    const fireToast = window.setTimeout(() => {
+      notify('info', 'Черновик воркфлоу восстановлен', `шаг «${STEP_LABELS[snap.step]}»${when}`)
+      toast({
+        title: 'Черновик воркфлоу восстановлен',
+        description: `шаг «${STEP_LABELS[snap.step]}» — вид V ничего не потерял${when}`,
+      })
+    }, 0)
+    return () => window.clearTimeout(fireToast)
   }, [])
 
   /* подсказка следующего слага scratch-летописи twin'а; переподъём по
@@ -818,9 +859,11 @@ export function WorkflowDeck({
   }, [theme, slug, slugTouched, exp, ab, oc, engine, speciesList, notes, anchors, step, ocFilled])
 
   /* анмаунт (смена вида V / уход со страницы): хвост последних 250мс
-   * уходит на диск сразу — правка не теряется на размонтировании */
+   * уходит на диск сразу — правка не теряется на размонтировании;
+   * висящий прогон батарей обрывается (фечи не живут дольше панели) */
   useEffect(() => {
     return () => {
+      batteryAbortRef.current?.abort()
       const pending = pendingDraft.current
       if (pending == null) return
       if (deliveredFlagRef.current) {
@@ -832,16 +875,28 @@ export function WorkflowDeck({
   }, [])
 
   const twinPost = useCallback(
-    async <T,>(path: string, body: unknown, extraHeaders?: Record<string, string>): Promise<T> => {
+    async <T,>(
+      path: string,
+      body: unknown,
+      extraHeaders?: Record<string, string>,
+      signal?: AbortSignal
+    ): Promise<T> => {
       const res = await fetch(withGatewayPort(`/api/t4/twin/${path}`), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...commanderHeaders(), ...extraHeaders },
         body: JSON.stringify(body),
         cache: 'no-store',
+        signal,
       })
-      const json = (await res.json()) as { ok?: boolean; data?: T; error?: { message?: string } }
+      let json: { ok?: boolean; data?: T; error?: { code?: unknown; message?: string } }
+      try {
+        json = (await res.json()) as { ok?: boolean; data?: T; error?: { code?: unknown; message?: string } }
+      } catch {
+        throw new TwinError(`twin: HTTP ${res.status} (тело не JSON)`, `http-${res.status}`)
+      }
       if (!res.ok || json.ok === false) {
-        throw new Error(json.error?.message ?? `twin: HTTP ${res.status}`)
+        const err = json.error != null ? asRecord(json.error) : {}
+        throw new TwinError(asStr(err.message) || `twin: HTTP ${res.status}`, asStr(err.code) || `http-${res.status}`)
       }
       return json.data as T
     },
@@ -957,21 +1012,31 @@ export function WorkflowDeck({
 
   /* ── Review: две батареи → одна таблица ── */
 
+  interface TwinBatteryRun {
+    rust: Receipt[]
+    /** true — честное notFound «нет драфта» (норма до SCRIBE) */
+    nodraft: boolean
+    /** живой сбой twin (таймаут/503/422) — баннер + ретрай, НЕ «нет драфта» */
+    error: string | null
+  }
+
   /* Rust-батарея twin'а: POST /api/t4/twin/gates (ключ проксируется).
-   * 404/«нет драфта» — нормальный случай до SCRIBE, плашка честная. */
+   * 404 «нет драфта» — нормальный случай до SCRIBE, плашка честная;
+   * любые другие ошибки — живой сбой: ретрай + тост. */
   const fetchTwinBattery = useCallback(
-    async (slug: string): Promise<{ rust: Receipt[]; ts: Receipt[]; note: string | null }> => {
+    async (slug: string, signal?: AbortSignal): Promise<TwinBatteryRun> => {
       try {
-        const data = await twinPost<{
-          receipts?: unknown
-          batteryRust?: unknown
-          batteryTs?: unknown
-        }>('gates', { slug })
-        const rust = parseReceipts(data.receipts ?? data.batteryRust)
-        const ts = parseReceipts(data.batteryTs)
-        return { rust, ts, note: rust.length + ts.length === 0 ? 'нет драфта' : null }
+        const data = await twinPost<{ receipts?: unknown }>('gates', { slug }, undefined, signal)
+        const rust = parseReceipts(data.receipts)
+        return { rust, nodraft: rust.length === 0, error: null }
       } catch (e) {
-        return { rust: [], ts: [], note: e instanceof Error ? e.message : 'twin не ответил' }
+        if (e instanceof TwinError && (e.code === 'notFound' || e.message.includes('нет драфта'))) {
+          return { rust: [], nodraft: true, error: null }
+        }
+        if (e instanceof DOMException && e.name === 'AbortError') {
+          return { rust: [], nodraft: false, error: null } /* прогон отменён — ид-гвард отбросит */
+        }
+        return { rust: [], nodraft: false, error: e instanceof Error ? e.message : 'twin не ответил' }
       }
     },
     [twinPost]
@@ -980,13 +1045,14 @@ export function WorkflowDeck({
   /* TS-батарея файл-эры: POST /api/t4/gates (runGates, та же merge-таблица).
    * Драфта в файл-эре нет до SCRIBE → 404 «batch file not found» — норма. */
   const fetchFileBattery = useCallback(
-    async (slug: string): Promise<{ ts: Receipt[]; note: string | null }> => {
+    async (slug: string, signal?: AbortSignal): Promise<{ ts: Receipt[]; note: string | null }> => {
       try {
         const res = await fetch(withGatewayPort('/api/t4/gates'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', ...commanderHeaders() },
           body: JSON.stringify({ slug }),
           cache: 'no-store',
+          signal,
         })
         if (!res.ok) {
           const raw: unknown = await res.json().catch(() => null)
@@ -1013,30 +1079,58 @@ export function WorkflowDeck({
   const runBatteries = useCallback(
     async (slug: string, eventSeq: number) => {
       const id = ++batteryRunId.current
-      setBattery((b) => ({ ...b, status: 'running', rows: [], rustNote: null, tsNote: null }))
-      const [twinR, fileR] = await Promise.all([fetchTwinBattery(slug), fetchFileBattery(slug)])
+      batteryAbortRef.current?.abort()
+      const controller = new AbortController()
+      batteryAbortRef.current = controller
+      setBattery((b) => ({ ...b, status: 'running', rows: [], rustNote: null, tsNote: null, rustError: null }))
+      const [twinR, fileR] = await Promise.all([
+        fetchTwinBattery(slug, controller.signal),
+        fetchFileBattery(slug, controller.signal),
+      ])
       if (batteryRunId.current !== id) return /* сброс/возврат отменил прогон */
       /* доктрина dual-DB: пока Rust-тwin не видит драфта, квитанции файл-эры
        * с тем же слагом — ЧУЖОЙ исторический батч (scratch-слаги T4-01..41
        * коллизируют с файл-эрой до SCRIBE) — в таблицу и в блокировку сдачи
        * они не попадают, только честная пометка в статус-строке */
-      const twinConfirmed = twinR.note === null
+      const twinConfirmed = !twinR.nodraft && twinR.error == null
       const tsTrusted = twinConfirmed ? fileR.ts : []
       const tsNote =
         !twinConfirmed && fileR.ts.length > 0
           ? 'слог занят историческим батчем файл-эры'
           : fileR.note
-      const rows = mergeBatteryRows(twinR.rust, [...twinR.ts, ...tsTrusted])
+      const rows = mergeBatteryRows(twinR.rust, tsTrusted)
       setBattery({
         status: rows.length > 0 ? 'done' : 'nodraft',
         rows,
-        rustNote: twinR.note,
+        rustNote: twinR.nodraft ? 'нет драфта' : null,
         tsNote,
+        rustError: twinR.error,
         ranFor: `${slug}#${eventSeq}`,
       })
+      /* живой сбой twin ≠ «нет драфта»: тост с ретраем (use-toast — рабочий
+       * канал проекта, sonner не смонтирован) + баннер в секции Review */
+      if (twinR.error != null) {
+        toast({
+          title: 'Батарея Rust не ответила',
+          description: twinR.error,
+          variant: 'destructive',
+          action: (
+            <ToastAction altText="Перегнать батарею гейтов" onClick={() => batteryRetryRef.current()}>
+              Перегнать батарею
+            </ToastAction>
+          ),
+        })
+      }
     },
     [fetchTwinBattery, fetchFileBattery]
   )
+
+  /* ретрай из тоста берёт свежую компиляцию (после пересбора — новый слаг) */
+  useEffect(() => {
+    batteryRetryRef.current = () => {
+      if (compiled != null) void runBatteries(compiled.slug, compiled.eventSeq)
+    }
+  }, [compiled, runBatteries])
 
   /* вход в Review (после успешного compile) — автоматический прогон батарей;
    * подпись «slug#eventSeq» гарантирует повтор на пересборке того же слага */
@@ -1094,9 +1188,10 @@ export function WorkflowDeck({
 
   /* ── возврат автора без потери данных (требование 1-b/2d) ── */
   const rejectToAnchors = useCallback(() => {
+    batteryRunId.current++ /* висящие прогоны батарей отменяются */
+    batteryAbortRef.current?.abort()
     setStale(true)
     setBattery(BATTERY_IDLE)
-    batteryRunId.current++ /* висящие прогоны батарей отменяются */
     setStep(anchors != null ? 1 : 0)
     notify(
       'info',
@@ -1130,6 +1225,7 @@ export function WorkflowDeck({
     setStale(false)
     setBattery(BATTERY_IDLE)
     batteryRunId.current++
+    batteryAbortRef.current?.abort()
     setStep(0)
     setError(null)
     deliveredFlagRef.current = false
@@ -1141,6 +1237,14 @@ export function WorkflowDeck({
       'Воркфлоу сброшен',
       reason === 'palette' ? 'сброс из палитры команд ⌘K — черновик стёрт' : 'черновик стёрт — готов к новому приказу'
     )
+    /* видимый тост — только с кнопки «Новый батч» (палитра шлёт свой тост,
+     * двойных не плодим); колокол-история пишется notify() выше */
+    if (reason === 'after-deliver') {
+      toast({
+        title: 'Воркфлоу сброшен',
+        description: 'черновик стёрт — готов к новому приказу',
+      })
+    }
   }, [])
 
   /* палитра шлёт CustomEvent 't4:workflow-reset' (detail: {reason}) */
@@ -1630,26 +1734,53 @@ export function WorkflowDeck({
                     <RefreshCw className="size-3.5 animate-spin" />
                     батарея гейтов гонится — квитанции подъезжают…
                   </p>
-                ) : battery.rows.length > 0 ? (
-                  <div className="t4-scroll max-h-[280px] overflow-y-auto overscroll-contain rounded-lg border border-white/10 bg-zinc-900/40 backdrop-blur-xl">
-                    {battery.rows.map((row, i) => (
-                      <GateRow key={`${row.gate}:${row.sources.join('+')}`} row={row} last={i === battery.rows.length - 1} />
-                    ))}
-                  </div>
                 ) : (
-                  <div className="flex flex-wrap items-center gap-2 rounded-lg border border-white/10 bg-zinc-900/40 px-3 py-2.5 backdrop-blur-xl">
-                    <PenLine className="size-3.5 shrink-0 text-fuchsia-300" />
-                    <span className="text-[11px] text-zinc-400">
-                      Драфт ещё не написан — текстовая батарея станет доступна после SCRIBE
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => onFocusAction('scribe')}
-                      className="rounded-md border border-fuchsia-500/40 px-2 py-1 font-mono text-[10px] text-fuchsia-300 transition-colors hover:bg-fuchsia-500/10"
-                    >
-                      Открыть карточку писца (I)
-                    </button>
-                  </div>
+                  <>
+                    {/* живой сбой twin (не «нет драфта») — честный баннер + ретрай;
+                     * сдачу НЕ блокируем: недоступность батареи ≠ hard-FAIL */}
+                    {battery.rustError != null ? (
+                      <div
+                        role="alert"
+                        className="flex flex-wrap items-center gap-2 rounded-lg border border-rose-500/50 bg-rose-950/20 px-3 py-2.5 backdrop-blur-xl"
+                      >
+                        <X className="size-4 shrink-0 text-red-500" />
+                        <span className="min-w-0 flex-1 break-words font-term text-[11px] text-rose-200/90">
+                          батарея Rust: {battery.rustError}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (compiled != null) void runBatteries(compiled.slug, compiled.eventSeq)
+                          }}
+                          className="flex shrink-0 items-center gap-1.5 rounded-md border border-rose-500/50 px-2 py-1 font-mono text-[10px] text-rose-200 transition-colors hover:bg-rose-500/10"
+                        >
+                          <RefreshCw className="size-3" />
+                          ретрай
+                        </button>
+                      </div>
+                    ) : null}
+                    {battery.rows.length > 0 ? (
+                      <div className="t4-scroll max-h-[280px] overflow-y-auto overscroll-contain rounded-lg border border-white/10 bg-zinc-900/40 backdrop-blur-xl">
+                        {battery.rows.map((row, i) => (
+                          <GateRow key={`${row.gate}:${row.sources.join('+')}`} row={row} last={i === battery.rows.length - 1} />
+                        ))}
+                      </div>
+                    ) : battery.rustError == null ? (
+                      <div className="flex flex-wrap items-center gap-2 rounded-lg border border-white/10 bg-zinc-900/40 px-3 py-2.5 backdrop-blur-xl">
+                        <PenLine className="size-3.5 shrink-0 text-fuchsia-300" />
+                        <span className="text-[11px] text-zinc-400">
+                          Драфт ещё не написан — текстовая батарея доступна после SCRIBE
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => onFocusAction('scribe')}
+                          className="rounded-md border border-fuchsia-500/40 px-2 py-1 font-mono text-[10px] text-fuchsia-300 transition-colors hover:bg-fuchsia-500/10"
+                        >
+                          Открыть карточку писца (I)
+                        </button>
+                      </div>
+                    ) : null}
+                  </>
                 )}
 
                 {/* вердикт ветки: сдача/закрытие ИЛИ approve/reject */}
