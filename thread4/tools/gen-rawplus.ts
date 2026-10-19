@@ -35,7 +35,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 
 import { windowOthersFor } from '../../src/lib/t4/gates'
-import { foldState, readEvents } from '../../src/lib/t4/events'
+import { appendEvent, foldState, readEvents } from '../../src/lib/t4/events'
 import { lastCompiledRoster } from '../../src/lib/t4/compiler'
 import { CONTRACTS_DIR, DRAFTS_DIR, readJson, writeJson, writeText } from '../../src/lib/t4/fsutil'
 import { channelsForTier, dressFor, frameLine, type DressCode, type FabricTone } from '../../src/lib/t4/dresser'
@@ -1635,6 +1635,23 @@ function main() {
   }
   writeJson(jsonPath, plan.contract)
   writeText(mdPath, planMarkdown(plan))
+  /* Аудит-находка №2 (Задача 8, вердикт автору): контракт больше НЕ
+   * появляется без события — batch.compiled пишется здесь же (раньше
+   * «зеркалировался руками» и foldState не видел живых компиляций:
+   * окно ротации/нумерация слепли, каскад ОС не имел источника).
+   * Сухие прогоны (--dry/--demo) событие не пишут — файлов же нет. */
+  const roster = plan.slots.filter((s) => s.kind === 'OC' && s.oc).map((s) => s.oc as string)
+  appendEvent(
+    'batch.compiled',
+    `${slug} «${theme}» — контракт ${slug} собран генератором RAW+ (движок per-theme raw-plus, ${plan.slots.length} слот(ов)${roster.length ? `, ростер ОС: ${roster.join(', ')}` : ''})`,
+    {
+      slug,
+      theme,
+      engine: 'per-theme raw-plus',
+      seed: plan.contract.seed,
+      recompile: has('--force'),
+    }
+  )
   /* межбатчевая дисциплина кубиков (A5P6 §6): сигнатуры батча — в архив,
    *  следующий батч их обойдёт — скелеты не повторяются между батчами */
   const sigs = plan.slots.map((s) => s.diceSig).filter(Boolean) as string[]
