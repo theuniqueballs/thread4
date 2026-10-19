@@ -89,6 +89,12 @@ tests/
 # отфильтрованы .gitignore'ом самого движка).
 mini-services/*
 !mini-services/t4-engine/
+# Rust twin (приказ 2026-10-19 «перенеси всё что можно на Rust»): исходники
+# трекаются; target/ (сборка) и scratch-летопись twin'а — нет.
+!mini-services/t4-engine-rs/
+mini-services/t4-engine-rs/target/
+mini-services/t4-engine-rs/data/
+mini-services/t4-engine-rs/twin.log
 
 # аудит 2026-10-12: атомарные tmp-файлы writeText (*.tmp-<pid>-<ts>),
 # браузерные QA-скриншоты, ключ командира (страховка поверх ~/.t4/)

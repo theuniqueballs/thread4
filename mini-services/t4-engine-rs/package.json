@@ -1,0 +1,11 @@
+{
+  "name": "t4-engine-rs",
+  "version": "1.0.0",
+  "private": true,
+  "description": "THREAD 4 engine — Rust twin (shelf-by-shelf port of t4-engine): canonical chain byte-exact, projections, deterministic compiler, RPC :3201. Reads the production chronicle RO, writes its own scratch chronicle.",
+  "scripts": {
+    "dev": "cargo build --release && exec ./target/release/t4-engine-rs",
+    "start": "./target/release/t4-engine-rs",
+    "test": "cargo test --release"
+  }
+}
