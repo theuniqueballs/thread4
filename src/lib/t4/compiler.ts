@@ -13,7 +13,7 @@
 import crypto from 'node:crypto'
 import path from 'node:path'
 
-import { CONTRACTS_DIR, ensureDirs, writeJson, writeText, readJson } from './fsutil'
+import { CONTRACTS_DIR, ensureDirs, listFiles, writeJson, writeText, readJson } from './fsutil'
 import {
   appendEvent,
   foldState,
@@ -378,32 +378,36 @@ export function foldWindowUsage(windowSlugs: string[]): {
  * дыру между «собран» и «сдан»: ростер последней несданной компиляции
  * исключается из следующей — подряд собранные батчи обязаны менять лица.
  *
- * Источник роста — контракт слага (§0: файл — источник права; контракт
- * несёт slots[].oc). Сканируем кандидатов от свежего к старому, берём
- * первый с живым ростером (до 8 кандидатов — дальше каскад не нужен:
- * он про ПОДРЯД собранные батчи). excludeSlug — рекосмипляция себя не
- * исключает (её ростер — её же прошлое, заменяется этим же планом). */
+ * Источник кандидатов — КАТАЛОГ КОНТРАКТОВ (§0: файл — источник права):
+ * batch.compiled в летописи пишут не все пути (движок-эра: план-превью,
+ * операторские восстановления, генератор RAW+), а контракт с
+ * slots[].oc — обязан существовать у каждой живой сборки. Сданные
+ * (deliveredAt) и закрытые (void) слаги — не кандидаты; сканируем от
+ * свежего к старому, берём первый с живым ростером (до 8 — дальше
+ * каскад не нужен: он про ПОДРЯД собранные батчи). excludeSlug —
+ * рекомпиляция себя не исключает (её ростер — её же прошлое,
+ * заменяется этим же планом). */
 export function lastCompiledRoster(
   state: Pick<T4DerivedState, 'batches' | 'voidedSlugs'>,
   excludeSlug?: string
 ): { slug: string; ocs: string[] } | null {
-  const candidates = state.batches
-    .filter(
-      (b) =>
-        b.deliveredAt == null &&
-        !state.voidedSlugs.includes(b.slug) &&
-        b.slug !== excludeSlug
-    )
-    .sort((a, b) => ocSlugRank(b.slug) - ocSlugRank(a.slug))
+  const delivered = new Set(
+    state.batches.filter((b) => b.deliveredAt != null).map((b) => b.slug)
+  )
+  const candidates = listFiles(CONTRACTS_DIR, '.json')
+    .map((f) => f.base.replace(/\.json$/, ''))
+    .filter((s) => /^T4-\d{2,3}(?:[-.][A-Za-z0-9.]+)?$/.test(s))
+    .filter((s) => !delivered.has(s) && !state.voidedSlugs.includes(s) && s !== excludeSlug)
+    .sort((a, b) => ocSlugRank(b) - ocSlugRank(a))
   let scanned = 0
   for (const cand of candidates) {
     if (scanned >= 8) break
     scanned++
-    const c = readJson<BatchContract>(path.join(CONTRACTS_DIR, `${cand.slug}.json`))
+    const c = readJson<BatchContract>(path.join(CONTRACTS_DIR, `${cand}.json`))
     const ocs = (c?.slots ?? [])
       .filter((s) => s.kind === 'OC' && typeof s.oc === 'string' && s.oc !== '')
       .map((s) => s.oc as string)
-    if (ocs.length > 0) return { slug: cand.slug, ocs }
+    if (ocs.length > 0) return { slug: cand, ocs }
   }
   return null
 }
