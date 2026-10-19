@@ -18,7 +18,9 @@ import {
   appendEvent,
   foldState,
   nextBatchNumber,
+  ocSlugRank,
   readEvents,
+  type T4DerivedState,
   type T4Event,
 } from './events'
 import {
@@ -204,6 +206,10 @@ export interface BatchContract {
   spread: { rating: string; count: number }[]
   slots: SlotPlan[]
   ocRotation: { name: string; served: number }[]
+  /** Каскад компиляций (инцидент «Доу на P01 × 3», 2026-10-18): ростер ОС
+   *  новейшего СКОМПИЛИРОВАННОГО, но ещё НЕ сданного батча — исключён из
+   *  тройки этого контракта, чтобы подряд собранные батчи меняли лица. */
+  ocCascade?: { from: string; excluded: string[] }
   racialCount: number
   /** A/B-пары (§10-поправка): 2-3 пары R+-слотов — один канал, разная подача */
   abPairs: { pair: string; a: number; b: number; lead: string }[]
@@ -356,6 +362,52 @@ export function foldWindowUsage(windowSlugs: string[]): {
   return { usage, opaque }
 }
 
+/* ------------------------------------------------------------------ */
+/* Compile cascade (инцидент «Доу на P01 × 3», 2026-10-18)              */
+/* ------------------------------------------------------------------ */
+
+/** Ростер ОС новейшего СКОМПИЛИРОВАННОГО, но ещё НЕ сданного батча.
+ *
+ * Причина инцидента: память ротации (served/lastSeen/окно) двигается
+ * ТОЛЬКО сдачей — deliverBatch пишет oc.appeared (компиляции нарочно не
+ * считаются, чтобы рекурсивные пересборки не засоряли счётчик). Но батчи
+ * собираются чаще, чем сдаются: T4-35..40 — QA/план-превью без единой
+ * сдачи, счётчики замерли на состоянии T4-34 — и три подряд собранных
+ * батча (T4-42/43/44 у автора) получили ОДНУ и ту же ОС на P01: строгий
+ * минимум served детерминирован, шаффл его не двигает. Каскад закрывает
+ * дыру между «собран» и «сдан»: ростер последней несданной компиляции
+ * исключается из следующей — подряд собранные батчи обязаны менять лица.
+ *
+ * Источник роста — контракт слага (§0: файл — источник права; контракт
+ * несёт slots[].oc). Сканируем кандидатов от свежего к старому, берём
+ * первый с живым ростером (до 8 кандидатов — дальше каскад не нужен:
+ * он про ПОДРЯД собранные батчи). excludeSlug — рекосмипляция себя не
+ * исключает (её ростер — её же прошлое, заменяется этим же планом). */
+export function lastCompiledRoster(
+  state: Pick<T4DerivedState, 'batches' | 'voidedSlugs'>,
+  excludeSlug?: string
+): { slug: string; ocs: string[] } | null {
+  const candidates = state.batches
+    .filter(
+      (b) =>
+        b.deliveredAt == null &&
+        !state.voidedSlugs.includes(b.slug) &&
+        b.slug !== excludeSlug
+    )
+    .sort((a, b) => ocSlugRank(b.slug) - ocSlugRank(a.slug))
+  let scanned = 0
+  for (const cand of candidates) {
+    if (scanned >= 8) break
+    scanned++
+    const c = readJson<BatchContract>(path.join(CONTRACTS_DIR, `${cand.slug}.json`))
+    const ocs = (c?.slots ?? [])
+      .filter((s) => s.kind === 'OC' && typeof s.oc === 'string' && s.oc !== '')
+      .map((s) => s.oc as string)
+    if (ocs.length > 0) return { slug: cand.slug, ocs }
+  }
+  return null
+}
+
 /** Least-recently-used picker: prefer never-used, then least used, tie → rng order. */
 function lruPick<T extends { id: string }>(
   pool: T[],
@@ -457,8 +509,26 @@ export function compileBatch(theme: string, options: CompileOptions = {}): Batch
     )
     return pool.length + ocNames.length >= 3 ? pool : null
   }
+  /* КАСКАД КОМПИЛЯЦИЙ (инцидент «Доу на P01 × 3», 2026-10-18): ростер
+   * новейшей НЕсданной компиляции исключается уровнем ВЫШЕ кулдауна —
+   * подряд собранные батчи обязаны менять лица даже без сдач (память
+   * ротации двигается только deliver'ом, а сборки идут чаще). Деградация
+   * честная: пул < 3 → уровень снимается, каскад не имеет права завалить
+   * сборку. Приказ автора (ocOrders) стоит ABOVE каскада — его воля. */
+  const cascadeInfo = lastCompiledRoster(state, slugOverride ?? undefined)
+  const cascade = cascadeInfo?.ocs ?? []
+  const byCascade = (cool: readonly string[]): string[] | null => {
+    if (cascade.length === 0) return null
+    const pool = activeOcs.filter(
+      (n) => !ocNames.includes(n) && !cool.includes(lastSeenIn(n)) && !cascade.includes(n)
+    )
+    return pool.length + ocNames.length >= 3 ? pool : null
+  }
   const coolPool =
-    byCooldown(windowTail(3)) ?? byCooldown(windowTail(2)) ?? activeOcs.filter((n) => !ocNames.includes(n))
+    byCascade(windowTail(3)) ??
+    byCooldown(windowTail(3)) ??
+    byCooldown(windowTail(2)) ??
+    activeOcs.filter((n) => !ocNames.includes(n))
   const rotationPool = rng
     .shuffle(coolPool)
     .sort((a, b) => served(a) - served(b))
@@ -897,6 +967,7 @@ export function compileBatch(theme: string, options: CompileOptions = {}): Batch
     spread: Object.entries(spreadMap).map(([rating, count]) => ({ rating, count })),
     slots,
     ocRotation: ocNames.map((n) => ({ name: n, served: served(n) })),
+    ...(cascadeInfo ? { ocCascade: { from: cascadeInfo.slug, excluded: [...cascadeInfo.ocs] } } : {}),
     racialCount: slots.filter((s) => s.race).length,
     abPairs,
     ...(options.authorPin?.length ? { authorPin: options.authorPin } : {}),
@@ -1050,6 +1121,9 @@ export function contractMarkdown(c: BatchContract): string {
   lines.push(`**Жанры — как читать план** (вердикт T4-02: ниша/волт должны быть видны): **OC** — канон-локи персонажа, его тема в слоте; **NICHE** — невозможный образ: раса/природа делает ФИЗИЧЕСКУЮ работу в кадре (механизм, не костюм), свидетель держит кадр, невозможное — первое считывание силуэта; **VOLT** — плоть: камера-участник, тело в движении, взгляд-вектор, экспозиция тегом; **EXQUISITE** — ультра своего жанра. Жанр пишется в шапку КАЖДОГО промпта — это структурный идентификатор, гейтится.`)
   lines.push('')
   lines.push(`**Ротация OC**: ${c.ocRotation.map((o) => `${o.name} (было ${o.served})`).join(', ')} — по longest-rested.`)
+  if (c.ocCascade) {
+    lines.push(`**Каскад компиляций**: ростер ${c.ocCascade.from} (${c.ocCascade.excluded.join(', ')}) исключён — подряд собранные батчи меняют лица (инцидент «Доу на P01 × 3», 2026-10-18).`)
+  }
   lines.push('')
   if ((c.abPairs ?? []).length > 0) {
     lines.push(`**A/B-дисциплина (§10-поправка)**: ${c.abPairs.map((p) => `пара ${p.pair} = P${String(p.a).padStart(2, '0')} × P${String(p.b).padStart(2, '0')} (LEAD ${p.lead})`).join(' · ')} — один канал доставки (заявка одна и та же), подача разная; вердикт приёмника атрибутирует канал, а не случай (системно, а не как P10).`)

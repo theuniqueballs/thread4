@@ -18,7 +18,7 @@
  *   bun thread4/cli.ts state
  *   bun thread4/cli.ts selftest      # compiler + gates smoke test
  */
-import { compileBatch, contractMarkdown } from '../src/lib/t4/compiler'
+import { compileBatch, contractMarkdown, lastCompiledRoster } from '../src/lib/t4/compiler'
 import { runGates, parseBatch } from '../src/lib/t4/gates'
 import { deliverBatch } from '../src/lib/t4/deliver'
 import { chat, scribeBatch, systemPrompt } from '../src/lib/t4/scribe'
@@ -1257,6 +1257,72 @@ async function main() {
             !ocNames2.includes('Noa') &&
             p2.report.some((r) => r.includes('OC-кулдаун'))
         )
+      }
+      /* Инцидент «Доу на P01 × 3» (2026-10-18): каскад компиляций. Память
+       * ротации (served/lastSeen) двигается ТОЛЬКО сдачей (oc.appeared на
+       * deliver), а сборки идут чаще сдач — подряд собранные батчи получали
+       * одну и ту же ОС на первом слоте (строгий минимум served
+       * детерминирован, шаффл его не двигает). Инвариант: ростер новейшей
+       * НЕсданной компиляции исключается из тройки даже при нулевом served. */
+      {
+        const p3 = planRawPlus({
+          slug: 'T4-98',
+          theme: 'SELFTEST OC CASCADE',
+          seed: 778,
+          windowSlugs: ['T4-95', 'T4-96'],
+          ocAppearances: { Doe: 0, Noa: 0, Yui: 0 },
+          ocLastSeen: {},
+          recentCompiledOcs: ['Doe', 'Noa', 'Yui'],
+        })
+        const ocNames3 = p3.slots.filter((s) => s.kind === 'OC').map((s) => s.oc as string)
+        check(
+          'gen-rawplus: OC-каскад — ростер новейшей несданной компиляции вне тройки даже при нулевом served (инцидент «Доу на P01 × 3»)',
+          ocNames3.length === law2.ocSlots &&
+            !ocNames3.includes('Doe') &&
+            !ocNames3.includes('Noa') &&
+            !ocNames3.includes('Yui') &&
+            p3.report.some((r) => r.includes('OC-каскад'))
+        )
+        /* деградация: каскад не имеет права завалить сборку — пул < нужного
+         * снимает уровень (17 активных ОС из 20 исключить нельзя) */
+        const p4 = planRawPlus({
+          slug: 'T4-99',
+          theme: 'SELFTEST OC CASCADE DEGRADE',
+          seed: 779,
+          windowSlugs: [],
+          ocAppearances: {},
+          ocLastSeen: {},
+          recentCompiledOcs: Object.keys((await import('../src/lib/t4/specs')).getOCCanon()?.ocs ?? {}),
+        })
+        const ocNames4 = p4.slots.filter((s) => s.kind === 'OC').map((s) => s.oc as string)
+        check(
+          'gen-rawplus: OC-каскад деградирует честно — весь канон в ростере всё равно даёт тройку (сборку не завалить)',
+          ocNames4.length === law2.ocSlots
+        )
+      }
+      /* Живой инвариант компилятора: если на диске есть несданная компиляция
+       * с ростером — сухой прогон обязан исключить её тройку (это и есть
+       * лекарство от «Доу × 3» в API-пути). Пропускается, когда таких нет
+       * (все сдано/закрыто) — инвариант про состояние, а не про дату. */
+      {
+        const liveRoster = lastCompiledRoster(foldState(readEvents()))
+        if (liveRoster == null) {
+          check('compiler: OC-каскад живой — n/a (нет несданных компиляций с ростером)', true)
+        } else {
+          const cx = compileBatch(`selftest-каскад-${liveRoster.slug}`, {
+            dryRun: true,
+          })
+          const trio = cx.slots.filter((s) => s.kind === 'OC').map((s) => s.oc as string)
+          check(
+            `compiler: OC-каскад живой — ростер ${liveRoster.slug} (${liveRoster.ocs.join(', ')}) вне тройки сухого прогона`,
+            trio.length === 3 && trio.every((n) => !liveRoster.ocs.includes(n))
+          )
+          check(
+            'compiler: OC-каскад в контракте — ocCascade несёт источник и исключённых',
+            cx.ocCascade?.from === liveRoster.slug &&
+              JSON.stringify(cx.ocCascade.excluded) === JSON.stringify(liveRoster.ocs)
+          )
+        }
       }
       /* A3P5-двери (ревизия 2026-10-14): 15 дверей + 6 операторов из легаси
        * (legacy/a3/A3P5_Core.txt:20 + QUICK REFERENCE) — NICHE-слот несёт

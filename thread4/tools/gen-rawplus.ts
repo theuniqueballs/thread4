@@ -36,6 +36,7 @@ import path from 'node:path'
 
 import { windowOthersFor } from '../../src/lib/t4/gates'
 import { foldState, readEvents } from '../../src/lib/t4/events'
+import { lastCompiledRoster } from '../../src/lib/t4/compiler'
 import { CONTRACTS_DIR, DRAFTS_DIR, readJson, writeJson, writeText } from '../../src/lib/t4/fsutil'
 import { channelsForTier, dressFor, frameLine, type DressCode, type FabricTone } from '../../src/lib/t4/dresser'
 import {
@@ -296,6 +297,13 @@ export interface PlanOptions {
   /** Веса RAW (v1.9.0 weights_raw, легализация — вердикт T4-31): EXP-режим
    *  Дрессера — до 4 слотов несут весовые теги (A/B T4-32); по умолчанию выкл. */
   weights?: boolean
+  /** Каскад компиляций (инцидент «Доу на P01 × 3», 2026-10-18): ростер ОС
+   *  новейшей НЕсданной компиляции — исключается из тройки уровнем выше
+   *  кулдауна. Память ротации двигается только сдачей (oc.appeared на
+   *  deliver), а сборки идут чаще сдач — подряд собранные батчи получали
+   *  одну и ту же ОС на P01 (строгий минимум served детерминирован).
+   *  main() заполняет из живого состояния; selftest-синтетика — явно. */
+  recentCompiledOcs?: string[]
 }
 
 /* ------------------------------------------------------------------ */
@@ -440,14 +448,23 @@ export function planRawPlus(opts: PlanOptions): RawPlusPlan {
         .map(([name]) => name)
     )
     const canonNames = ocNames.filter((n) => !ocPicks.includes(n))
+    /* Каскад (инцидент «Доу на P01 × 3», 2026-10-18): ростер новейшей
+     * НЕсданной компиляции — уровень ВЫШЕ кулдауна; деградация честная
+     * (пул < нужного — уровень снимается). Заказ автора (--oc) и здесь
+     * стоит выше окна — его воля (§10). */
+    const cascade = new Set(opts.recentCompiledOcs ?? [])
+    const need = law.ocSlots - ocPicks.length
     const cool2 = seenIn(windowTail(2))
     const cool1 = seenIn(windowTail(1))
+    const pass = (n: string, cool: Set<string>): boolean => !cool.has(n) && !cascade.has(n)
     const pool =
-      canonNames.length - cool2.size >= law.ocSlots - ocPicks.length
-        ? canonNames.filter((n) => !cool2.has(n))
-        : canonNames.length - cool1.size >= law.ocSlots - ocPicks.length
-          ? canonNames.filter((n) => !cool1.has(n))
-          : canonNames
+      canonNames.filter((n) => pass(n, cool2)).length >= need
+        ? canonNames.filter((n) => pass(n, cool2))
+        : canonNames.filter((n) => !cool2.has(n)).length >= need
+          ? canonNames.filter((n) => !cool2.has(n))
+          : canonNames.filter((n) => !cool1.has(n)).length >= need
+            ? canonNames.filter((n) => !cool1.has(n))
+            : canonNames
     /* ротация по served: наименее обслуженные вперёд (T4-27-традиция);
      * перемешивание ДО стабильной сортировки — равные по served расы/имена
      * получают случайный порядок, но приоритет счётчика не разрушается
@@ -460,6 +477,11 @@ export function planRawPlus(opts: PlanOptions): RawPlusPlan {
     if (cool2.size > 0) {
       report.push(
         `OC-кулдаун: ${[...cool2].join(', ')} — в последних 2 батчах, из пула исключены (приказ 2026-10-17 «где ротация ОС»)`
+      )
+    }
+    if (cascade.size > 0 && ocPicks.every((n) => !cascade.has(n))) {
+      report.push(
+        `OC-каскад: ${[...cascade].join(', ')} — ростер новейшей несданной компиляции, из пула исключены (инцидент «Доу на P01 × 3», 2026-10-18)`
       )
     }
   }
@@ -1572,6 +1594,10 @@ function main() {
 
   /* живое состояние — только чтение, летопись не трогаем */
   const state = foldState(readEvents())
+  /* каскад: ростер новейшего СКОМПИЛИРОВАННОГО, но НЕ сданного батча —
+   * исключается из тройки (инцидент «Доу на P01 × 3»); сам слаг сборки
+   * себя не исключает (пересборка = замена своего же плана) */
+  const cascadeRoster = lastCompiledRoster(state, slug)
 
   const plan = planRawPlus({
     slug,
@@ -1590,6 +1616,7 @@ function main() {
     /* приказ 2026-10-17 «где ротация ОС»: кулдаун-окно — ОС последних
      * 2 батчей не участвуют в выборе (генератор ниже) */
     ocLastSeen: state.ocLastSeen,
+    ...(cascadeRoster ? { recentCompiledOcs: cascadeRoster.ocs } : {}),
   })
 
   console.log(`\n${slug} «${theme}» — план RAW+`)
