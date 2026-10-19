@@ -1,7 +1,13 @@
 'use client'
 
 /**
- * THREAD 4 — BUILD DECK «СБОРКА» (2026-10-19, приказ автора).
+ * THREAD 4 — BUILD DECK «СБОРКА» (2026-10-19 → ревизия 2026-10-20).
+ *
+ * Ревизия 2026-10-20 (приказ «сборщика нет, никто ничего не собирает»):
+ * витрина стала сборщиком — «план» раскрывает СОДЕРЖИМОЕ сборки (слоты-
+ * промпты: kind/rating/register/palette/OC/race/EXP/A-B, копирование
+ * текстом и JSON), «пересобрать» открывает воркфлоу в режиме force —
+ * Compile заменяет compiled-репетицию на месте (сданное неприкосновенно).
  *
  * Отдельная кнопка сборки: витрина СКОМПИЛИРОВАННЫХ батчей обоих
  * пространств. Движок живёт в двух эрах одновременно, и слаг T4-NN
@@ -16,17 +22,20 @@
  * что в воркфлоу и Action Deck, никакой новой мутации не изобретено.
  */
 
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import {
   AlertTriangle,
   Check,
   Copy,
+  Eye,
   FileSignature,
   Hammer,
   Layers,
   RefreshCw,
+  RotateCcw,
   Send,
+  X,
   Zap,
 } from 'lucide-react'
 
@@ -37,6 +46,7 @@ import {
   enginePost,
   invalidateEngineBatches,
   notify,
+  requestWorkflowReassembly,
   useEngineBatches,
   useScratchBatches,
   writeClipboard,
@@ -88,6 +98,312 @@ async function twinPost<T>(path: string, body: unknown): Promise<T> {
 }
 
 /* ------------------------------------------------------------------ */
+/* план сборки: слоты-промпты                                          */
+/* ------------------------------------------------------------------ */
+
+interface PlanSlot {
+  position: number
+  kind: string
+  rating: string
+  register: string
+  ocTheme?: string
+  race?: string
+  paletteId: string
+  exp?: { letter?: string; half?: string; pairWith?: number; hypothesis?: string }
+  ab?: { pair?: number; half?: string }
+}
+
+interface PlanDetail {
+  slug: string
+  title: string
+  theme: string
+  engine: string
+  status: string
+  slotsTotal: number
+  expSlots: number
+  abPairs: number
+  hardPass: boolean
+  diffUp: number
+  plan?: {
+    seed?: string
+    sha10?: string
+    createdAt?: string
+    slots?: unknown[]
+    receipts?: { gate?: string; level?: string; verdict?: string }[]
+  }
+}
+
+/** слот → одна стрка-промпт: всё содержимое слота без потерь */
+function slotToText(s: PlanSlot): string {
+  const parts = [`#${String(s.position).padStart(2, '0')} ${s.kind} · ${s.rating} · ${s.register}`]
+  if (s.ocTheme != null && s.ocTheme !== '') parts.push(`OC «${s.ocTheme}»`)
+  if (s.race != null && s.race !== '') parts.push(`race ${s.race}`)
+  parts.push(`palette ${s.paletteId}`)
+  if (s.exp != null) {
+    parts.push(`EXP ${s.exp.letter ?? ''}-${s.exp.half ?? ''}${s.exp.hypothesis != null && s.exp.hypothesis !== '' ? ` · ${s.exp.hypothesis}` : ''}`)
+  }
+  if (s.ab != null) parts.push(`A/B №${s.ab.pair ?? '?'} half ${s.ab.half ?? '?'}`)
+  return parts.join(' · ')
+}
+
+function parseSlots(raw: unknown): PlanSlot[] {
+  if (!Array.isArray(raw)) return []
+  return raw.map((item) => {
+    const r = asRecord(item)
+    const exp = asRecord(r.exp)
+    const ab = asRecord(r.ab)
+    return {
+      position: Number(asStr(r.position)) || 0,
+      kind: asStr(r.kind),
+      rating: asStr(r.rating),
+      register: asStr(r.register),
+      ocTheme: asStr(r.ocTheme) || undefined,
+      race: asStr(r.race) || undefined,
+      paletteId: asStr(r.paletteId),
+      exp: r.exp == null ? undefined : {
+        letter: asStr(exp.letter) || undefined,
+        half: asStr(exp.half) || undefined,
+        pairWith: Number(asStr(exp.pairWith)) || undefined,
+        hypothesis: asStr(exp.hypothesis) || undefined,
+      },
+      ab: r.ab == null ? undefined : {
+        pair: Number(asStr(ab.pair)) || undefined,
+        half: asStr(ab.half) || undefined,
+      },
+    }
+  })
+}
+
+/** Виджет-кнопка копирования с галочкой на 1.2с. */
+function CopyChip({ text, label, tone = 'zinc' }: { text: string; label: string; tone?: 'zinc' | 'amber' }) {
+  const [copied, setCopied] = useState(false)
+  return (
+    <button
+      type="button"
+      onClick={() => {
+        void writeClipboard(text).then((ok) => {
+          if (!ok) return
+          setCopied(true)
+          window.setTimeout(() => setCopied(false), 1200)
+        })
+      }}
+      title={`копировать: ${text.slice(0, 120)}…`}
+      className={cn(
+        'flex shrink-0 items-center gap-1 rounded-md border px-2 py-1 font-mono text-[10px] transition-colors',
+        tone === 'amber'
+          ? 'border-amber-500/40 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20'
+          : 'border-zinc-800 bg-zinc-900 text-zinc-400 hover:border-zinc-600 hover:text-zinc-200'
+      )}
+    >
+      {copied ? <Check className="size-3 text-emerald-400" /> : <Copy className="size-3" />}
+      {copied ? 'скопировано' : label}
+    </button>
+  )
+}
+
+/** Раздвижная панель плана: слоты-промпты сборки. Scratch — своя
+ *  летопись twin'а, прод — RO-чтение SSoT-батча тем же движком. */
+function PlanPanel({ space, slug, onClose, onReassemble }: {
+  space: 'scratch' | 'prod'
+  slug: string
+  onClose: () => void
+  onReassemble: (slug: string, theme: string) => void
+}) {
+  const [state, setState] = useState<{ loading: boolean; error: string | null; detail: PlanDetail | null }>({
+    loading: true,
+    error: null,
+    detail: null,
+  })
+
+  useEffect(() => {
+    let alive = true
+    setState({ loading: true, error: null, detail: null })
+    void (async () => {
+      try {
+        const path = space === 'scratch' ? `scratch/batches/${slug}` : `batches/${slug}`
+        const res = await fetch(withGatewayPort(`/api/t4/twin/${path}`), {
+          headers: commanderHeaders(),
+          cache: 'no-store',
+        })
+        const json = (await res.json().catch(() => null)) as { data?: PlanDetail } | null
+        if (!alive) return
+        if (json?.data == null) throw new Error(`HTTP ${res.status} — план не прочитан`)
+        setState({ loading: false, error: null, detail: json.data })
+      } catch (e) {
+        if (!alive) return
+        setState({ loading: false, error: e instanceof Error ? e.message : 'план не прочитан', detail: null })
+      }
+    })()
+    return () => {
+      alive = false
+    }
+  }, [space, slug])
+
+  const slots = useMemo(() => parseSlots(state.detail?.plan?.slots), [state.detail])
+
+  return (
+    <motion.div
+      key="plan-backdrop"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={SPRING}
+      className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-3 backdrop-blur-sm sm:items-center sm:p-6"
+      role="dialog"
+      aria-modal="true"
+      aria-label={`план сборки ${slug}`}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose()
+      }}
+    >
+      <motion.div
+        key="plan-card"
+        initial={{ y: 24, opacity: 0.6 }}
+        animate={{ y: 0, opacity: 1 }}
+        exit={{ y: 16, opacity: 0 }}
+        transition={SPRING}
+        className="flex max-h-[86vh] w-full max-w-3xl flex-col rounded-xl border border-white/10 bg-zinc-950 shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <header className="flex flex-wrap items-center gap-x-3 gap-y-1.5 border-b border-white/10 px-4 py-3">
+          {space === 'scratch' ? (
+            <FileSignature className="size-4 shrink-0 text-amber-300" />
+          ) : (
+            <Zap className="size-4 shrink-0 text-emerald-400" />
+          )}
+          <h3 className="font-term text-[13px] text-zinc-100">{slug} · план сборки</h3>
+          <span className={cn('font-mono text-[10px] uppercase', space === 'scratch' ? 'text-amber-400' : 'text-emerald-500')}>
+            {space === 'scratch' ? 'scratch twin' : 'прод RO'}
+          </span>
+          {state.detail != null ? (
+            <span className={cn('font-mono text-[10px] uppercase', statusText(state.detail.status))}>
+              {STATUS_WORD[state.detail.status] ?? state.detail.status}
+            </span>
+          ) : null}
+          <span className="min-w-0 flex-1 truncate text-[11px] text-zinc-500">
+            {state.detail?.theme ?? (state.loading ? 'читаю план…' : '')}
+          </span>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="закрыть план"
+            className="rounded-md border border-zinc-800 bg-zinc-900 p-1 text-zinc-400 transition-colors hover:border-zinc-600 hover:text-zinc-200"
+          >
+            <X className="size-3.5" />
+          </button>
+        </header>
+
+        {state.loading ? (
+          <p className="px-4 py-6 font-mono text-[11px] text-zinc-600">заряжаю слоты…</p>
+        ) : state.error != null || state.detail == null ? (
+          <p className="px-4 py-6 font-mono text-[11px] text-rose-300">
+            {state.error ?? 'план пуст'} — сборка могла быть закрыта до чтения
+          </p>
+        ) : (
+          <>
+            <div className="flex flex-wrap items-center gap-2 border-b border-white/10 px-4 py-2.5">
+              <CopyChip
+                label="слоты текстом"
+                text={slots.map(slotToText).join('\n')}
+                tone={space === 'scratch' ? 'amber' : 'zinc'}
+              />
+              <CopyChip
+                label="план JSON"
+                text={JSON.stringify(state.detail.plan ?? {}, null, 2)}
+              />
+              <span className="font-mono text-[10px] text-zinc-600">
+                {slots.length} слотов · sha10 {state.detail.plan?.sha10 ?? '—'} · seed {state.detail.plan?.seed?.slice(0, 8) ?? '—'} · EXP {state.detail.expSlots} · A/B {state.detail.abPairs} · hard{' '}
+                {state.detail.hardPass ? 'PASS' : 'FAIL'}
+              </span>
+              {space === 'scratch' && state.detail.status === 'compiled' ? (
+                <button
+                  type="button"
+                  onClick={() => onReassemble(state.detail?.slug ?? slug, state.detail?.theme ?? '')}
+                  title="открыть воркфлоу в режиме force — Compile заменит эту compiled-сборку"
+                  className="ml-auto flex items-center gap-1.5 rounded-md bg-amber-500/90 px-2.5 py-1 font-mono text-[10px] font-semibold text-zinc-950 transition-all hover:bg-amber-400 active:scale-[0.97]"
+                >
+                  <RotateCcw className="size-3" />
+                  пересобрать
+                </button>
+              ) : null}
+            </div>
+            <ul className="t4-scroll min-h-[80px] flex-1 space-y-1 overflow-y-auto p-3">
+              {slots.length === 0 ? (
+                <li className="px-1 py-3 font-mono text-[11px] text-zinc-600">слотов нет — план пуст</li>
+              ) : (
+                slots.map((s) => (
+                  <li
+                    key={`${slug}-${s.position}`}
+                    className="group flex flex-wrap items-center gap-x-2 gap-y-1 rounded-lg border border-zinc-800/80 bg-zinc-900/40 px-2.5 py-1.5 transition-colors hover:border-zinc-700"
+                  >
+                    <span
+                      className={cn(
+                        'shrink-0 rounded px-1.5 py-px font-mono text-[10px] font-semibold',
+                        s.kind === 'OC'
+                          ? 'bg-fuchsia-500/15 text-fuchsia-300'
+                          : s.kind === 'MAIN'
+                            ? 'bg-emerald-500/15 text-emerald-300'
+                            : s.kind === 'NICHE'
+                              ? 'bg-sky-500/15 text-sky-300'
+                              : 'bg-rose-500/15 text-rose-300'
+                      )}
+                    >
+                      {s.kind}
+                    </span>
+                    <span className="shrink-0 font-mono text-[10px] text-zinc-500">#{String(s.position).padStart(2, '0')}</span>
+                    <span className="shrink-0 font-mono text-[10px] text-amber-300">{s.rating}</span>
+                    <span className="shrink-0 font-mono text-[10px] text-zinc-400">{s.register}</span>
+                    <span className="shrink-0 font-mono text-[10px] text-zinc-500">{s.paletteId}</span>
+                    {s.ocTheme != null ? (
+                      <span className="min-w-0 truncate text-[11px] text-fuchsia-200/90">«{s.ocTheme}»</span>
+                    ) : null}
+                    {s.race != null ? (
+                      <span className="shrink-0 rounded bg-zinc-800 px-1 font-mono text-[10px] text-zinc-300">{s.race}</span>
+                    ) : null}
+                    {s.exp != null ? (
+                      <span className="shrink-0 rounded bg-rose-500/10 px-1 font-mono text-[10px] text-rose-300">
+                        EXP {s.exp.letter}-{s.exp.half}
+                      </span>
+                    ) : null}
+                    {s.ab != null ? (
+                      <span className="shrink-0 rounded bg-zinc-700/60 px-1 font-mono text-[10px] text-zinc-200">
+                        A/B {s.ab.pair}·{s.ab.half}
+                      </span>
+                    ) : null}
+                    <span className="ml-auto shrink-0 opacity-0 transition-opacity group-hover:opacity-100">
+                      <CopyChip label="слот" text={slotToText(s)} />
+                    </span>
+                  </li>
+                ))
+              )}
+            </ul>
+            {Array.isArray(state.detail.plan?.receipts) && (state.detail.plan?.receipts?.length ?? 0) > 0 ? (
+              <footer className="flex flex-wrap gap-1.5 border-t border-white/10 px-4 py-2">
+                {(state.detail.plan?.receipts ?? []).map((r, i) => (
+                  <span
+                    key={`${slug}-r${i}`}
+                    className={cn(
+                      'rounded px-1.5 py-px font-mono text-[9px] uppercase',
+                      r.verdict === 'PASS'
+                        ? 'bg-emerald-500/10 text-emerald-400'
+                        : r.verdict === 'FAIL'
+                          ? 'bg-rose-500/10 text-rose-400'
+                          : 'bg-zinc-800 text-zinc-500'
+                    )}
+                  >
+                    {r.gate} {r.verdict}
+                  </span>
+                ))}
+              </footer>
+            ) : null}
+          </>
+        )}
+      </motion.div>
+    </motion.div>
+  )
+}
+
+/* ------------------------------------------------------------------ */
 /* строка сборки                                                       */
 /* ------------------------------------------------------------------ */
 
@@ -102,9 +418,11 @@ interface RowProps {
   onDeliver: () => void
   onVoid: () => void
   onOpen?: () => void
+  onPlan: () => void
+  onReassemble?: () => void
 }
 
-function BuildRow({ slug, title, status, meta, sha10, space, busy, onDeliver, onVoid, onOpen }: RowProps) {
+function BuildRow({ slug, title, status, meta, sha10, space, busy, onDeliver, onVoid, onOpen, onPlan, onReassemble }: RowProps) {
   const reduceMotion = useReducedMotion()
   const [copied, setCopied] = useState(false)
   const compiled = status === 'compiled'
@@ -155,6 +473,30 @@ function BuildRow({ slug, title, status, meta, sha10, space, busy, onDeliver, on
         {STATUS_WORD[status] ?? status}
       </span>
       <span className="w-full truncate font-mono text-[10px] text-zinc-600 sm:w-auto">{meta}</span>
+      {/* план сборки: слоты-промпты + копирование — для КАЖДОЙ сборки */}
+      <button
+        type="button"
+        onClick={onPlan}
+        title="открыть план: слоты-промпты, копировать текстом/JSON"
+        aria-label={`план сборки ${slug}`}
+        className="flex shrink-0 items-center gap-1 rounded-md border border-zinc-800 bg-zinc-900 px-2 py-1 font-mono text-[10px] text-zinc-400 transition-colors hover:border-amber-500/50 hover:text-amber-300"
+      >
+        <Eye className="size-3" />
+        план
+      </button>
+      {/* пересборка: только compiled в scratch — воркфлоу откроется с force */}
+      {onReassemble != null ? (
+        <button
+          type="button"
+          onClick={onReassemble}
+          title="пересобрать: воркфлоу откроется с темой этого слага, Compile заменит сборку (force)"
+          aria-label={`пересобрать ${slug}`}
+          className="flex shrink-0 items-center gap-1 rounded-md border border-amber-500/40 bg-amber-500/10 px-2 py-1 font-mono text-[10px] text-amber-300 transition-colors hover:bg-amber-500/20"
+        >
+          <RotateCcw className="size-3" />
+          пересобрать
+        </button>
+      ) : null}
       {sha10 != null && sha10 !== '' ? (
         <button
           type="button"
@@ -229,13 +571,25 @@ function SpacePanel(props: {
 /* главный компонент                                                   */
 /* ------------------------------------------------------------------ */
 
-export function BuildDeck({ onOpenBatch }: { onOpenBatch: (slug: string) => void }) {
+export function BuildDeck({ onOpenBatch, onGoWorkflow }: { onOpenBatch: (slug: string) => void; onGoWorkflow: () => void }) {
   const reduceMotion = useReducedMotion()
   const scratch = useScratchBatches()
   const prod = useEngineBatches()
 
   const [onlyCompiled, setOnlyCompiled] = useState(true)
   const [busy, setBusy] = useState<{ slug: string; space: 'scratch' | 'prod'; action: 'deliver' | 'void' } | null>(null)
+  const [planFor, setPlanFor] = useState<{ space: 'scratch' | 'prod'; slug: string } | null>(null)
+
+  /* пересборка: заказ через модуль (воркфлоу размонтирован в этом виде) —
+   * он заберет его на монтировании и включит Compile с force:true */
+  const startReassembly = useCallback(
+    (slug: string, theme: string) => {
+      requestWorkflowReassembly({ slug, theme })
+      notify('info', `Пересборка ${slug}`, 'воркфлоу открыт в режиме force — Compile заменит сборку')
+      onGoWorkflow()
+    },
+    [onGoWorkflow]
+  )
 
   const scratchRows = useMemo(
     () => (onlyCompiled ? scratch.rows.filter((r) => r.status === 'compiled') : scratch.rows),
@@ -369,7 +723,7 @@ export function BuildDeck({ onOpenBatch }: { onOpenBatch: (slug: string) => void
             <div className="min-w-0">
               <h1 className="text-sm font-bold tracking-tight text-zinc-100">Сборка · витрина скомпилированных батчей</h1>
               <p className="truncate text-[11px] text-zinc-500">
-                два конвейера делят слаг T4-NN — здесь они рядышком, с меткой пространства и sha10
+                «план» — слоты-промпты с копированием · «пересобрать» — force-режим для compiled · два конвейера рядышком, с меткой пространства и sha10
               </p>
             </div>
           </div>
@@ -484,6 +838,8 @@ export function BuildDeck({ onOpenBatch }: { onOpenBatch: (slug: string) => void
                 space="scratch"
                 busy={rowBusy(r.slug, 'scratch')}
                 meta={`EXP ${r.expSlots} · hard ${r.hardPass ? 'PASS' : 'FAIL'} · ${formatDate(r.createdAt)}`}
+                onPlan={() => setPlanFor({ space: 'scratch', slug: r.slug })}
+                onReassemble={r.status === 'compiled' ? () => startReassembly(r.slug, r.title) : undefined}
                 onDeliver={() => void deliverScratch(r)}
                 onVoid={() => void voidScratch(r)}
               />
@@ -520,6 +876,7 @@ export function BuildDeck({ onOpenBatch }: { onOpenBatch: (slug: string) => void
                 /* карточка в Батчах существует только для сданного корпуса;
                  * compiled ещё не в летописи сдач — линк честно не даём */
                 onOpen={r.status === 'delivered' ? () => onOpenBatch(r.slug) : undefined}
+                onPlan={() => setPlanFor({ space: 'prod', slug: r.slug })}
                 onDeliver={() => void deliverProd(r)}
                 onVoid={() => void voidProd(r)}
               />
@@ -531,8 +888,25 @@ export function BuildDeck({ onOpenBatch }: { onOpenBatch: (slug: string) => void
       <p className="flex items-center gap-2 font-mono text-[10px] text-zinc-600">
         <Zap className="size-3" />
         сдать = deliver на родном движке (scratch — репетиция автора, прод — официальная цепь) · void закрывает номер
-        навсегда · ключ командира нужен для обеих кнопок
+        навсегда · ключ командира нужен для обеих кнопок · «план» показывает слоты-промпты · «пересобрать»
+        открывает воркфлоу с force — compiled-репетиция заменяется, сдавшееся — никогда
       </p>
+
+      {/* ── план сборки: слоты-промпты + копирование + пересборка ── */}
+      <AnimatePresence>
+        {planFor != null ? (
+          <PlanPanel
+            key={`${planFor.space}-${planFor.slug}`}
+            space={planFor.space}
+            slug={planFor.slug}
+            onClose={() => setPlanFor(null)}
+            onReassemble={(slug, theme) => {
+              setPlanFor(null)
+              startReassembly(slug, theme)
+            }}
+          />
+        ) : null}
+      </AnimatePresence>
     </div>
   )
 }

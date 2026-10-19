@@ -148,7 +148,7 @@ pub fn serve(twin: Arc<Twin>) {
             Some(r) => r,
             None => {
                 let (status, body) = err_envelope(&RpcError::bad_request(format!(
-                    "путь «{path}» вне allowlist — маршруты: /v1/health · /v1/meta · /v1/state · /v1/events · /v1/live · /v1/batches[/:slug] · /v1/scratch/batches · /v1/chain/verify · /v1/theme/expand · /v1/theme/check · POST /v1/compile · POST /v1/events · POST /v1/gates · POST /v1/batches/:slug/deliver · POST /v1/batches/:slug/void"
+                    "путь «{path}» вне allowlist — маршруты: /v1/health · /v1/meta · /v1/state · /v1/events · /v1/live · /v1/batches[/:slug] · /v1/scratch/batches[/:slug] · /v1/chain/verify · /v1/theme/expand · /v1/theme/check · POST /v1/compile · POST /v1/events · POST /v1/gates · POST /v1/batches/:slug/deliver · POST /v1/batches/:slug/void"
                 )));
                 respond(request, status, body);
                 continue;
@@ -233,6 +233,7 @@ pub fn serve(twin: Arc<Twin>) {
              * ТОЛЬКО собственные сборки twin'а, чтобы дубли-слаги двух
              * пространств были видимы и различимы в UI (кнопка «Сборка»). */
             RouteKey::ScratchBatches => Ok(ok_envelope(batches(&twin.scratch))),
+            RouteKey::ScratchBatchDetail => scratch_batch_detail(&twin, &segments[3]),
             RouteKey::ChainVerify => Ok(ok_envelope(chain_verify(&twin.prod))),
             RouteKey::Compile => match parse_json_body(&body_bytes) {
                 Err(e) => Err(e),
@@ -286,6 +287,7 @@ enum RouteKey {
     Void,
     Gates,
     ScratchBatches,
+    ScratchBatchDetail,
 }
 
 fn route_match(method: &str, segs: &[String]) -> Option<(RouteKey, BucketName, AuthLevel)> {
@@ -305,6 +307,12 @@ fn route_match(method: &str, segs: &[String]) -> Option<(RouteKey, BucketName, A
         /* сборки воркфлоу: собственные батчи twin'а из scratch-летописи */
         ("GET", "scratch") if segs.len() == 3 && segs[2] == "batches" => {
             Some((RouteKey::ScratchBatches, BucketName::Read, AuthLevel::Open))
+        }
+        /* план сборки со слотами: воркфлоу-витрина «Сборка» открывает
+         * содержимое compiled-батча (слоты-промпты, палитры, OC-темы) —
+         * «сборщик» без содержимого не сборщик (2026-10-20) */
+        ("GET", "scratch") if segs.len() == 4 && segs[2] == "batches" => {
+            Some((RouteKey::ScratchBatchDetail, BucketName::Read, AuthLevel::Open))
         }
         ("POST", "compile") => Some((RouteKey::Compile, BucketName::Compile, AuthLevel::Locked)),
         ("POST", "events") => Some((RouteKey::AppendEvent, BucketName::Mutation, AuthLevel::Locked)),
@@ -545,6 +553,25 @@ fn batch_detail(conn: &Connection, slug: &str) -> Value {
     }
 }
 
+/* План сборки воркфлоу (scratch): полные слоты-промпты compiled-батча —
+ * витрина «Сборка» показывает содержимое, а не только строку в списке
+ * (2026-10-20: «ни одного промпта не сгенерил» — контент был заперт в БД).
+ * Слаг обязан быть каноническим T4-NN; пустой ответ — 404, не тихий null. */
+fn scratch_batch_detail(t: &Twin, slug: &str) -> Result<(u16, String), RpcError> {
+    if !crate::compile::valid_slug_pub(slug) {
+        return Err(RpcError::bad_request(format!(
+            "слаг «{slug}» не лезет в канон T4-NN"
+        )));
+    }
+    let detail = batch_detail(&t.scratch, slug);
+    if detail.get("error").is_some() {
+        return Err(RpcError::not_found(format!(
+            "сборка {slug} не найдена в scratch-летописи twin'а"
+        )));
+    }
+    Ok(ok_envelope(detail))
+}
+
 fn chain_verify(conn: &Connection) -> Value {
     let v = chain::verify_chain(conn);
     json!({ "ok": v.ok, "events": v.events, "head": v.head, "problems": v.problems })
@@ -732,6 +759,12 @@ fn compile_route(
             data["themeAnchors"] = anchors_json;
         }
         data["themeGate"] = gate.to_json();
+    }
+    if outcome.reassembly {
+        data["reassembly"] = json!(true);
+        data["twinNote"] = json!(
+            "ПЕРЕсобрано в scratch-летописи twin'а поверх compiled — прежний план в supersedes события, прод не тронут"
+        );
     }
     Ok(ok_envelope(data))
 }

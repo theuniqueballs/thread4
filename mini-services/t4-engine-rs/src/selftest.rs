@@ -198,6 +198,67 @@ pub fn run(prod: Option<&Connection>) -> Battery {
         b.expect("compile/duplicate-refused", second.is_err(), || "провенанс: слаг не переиспользуется".into());
     }
 
+    /* ============ пересборка (force) поверх compiled ============
+     *
+     * Приказ 2026-10-20 («сборщика нет»): compiled-сборка в scratch —
+     * репетиция, force:true заменяет план; delivered неприкосновенен. */
+    {
+        let conn = temp_db("reassembly");
+        let body = compile_req("Riptide rehearsal", "T4-96", 0, None);
+        let first = compile::compile_batch(&conn, &compile::parse_request(&body).unwrap(), None);
+        b.expect("compile/reassembly-first-ok", first.is_ok(), || "первый компиль репетиции".into());
+        let sha_old = first.as_ref().ok().map(|f| f.sha10.clone());
+        let again = {
+            let mut body2 = compile_req("Riptide v2 переработка", "T4-96", 0, None);
+            body2["force"] = json!(true);
+            compile::compile_batch(&conn, &compile::parse_request(&body2).unwrap(), None)
+        };
+        match again {
+            Ok(out) => {
+                b.expect("compile/reassembly-flag", out.reassembly, || "force обязан помечать пересборку".into());
+                b.expect(
+                    "compile/reassembly-status-compiled",
+                    compile::get_batch_status(&conn, "T4-96").as_deref() == Some("compiled"),
+                    || "после пересборки статус остаётся compiled".into(),
+                );
+                let sha_new: Option<String> = conn
+                    .query_row("SELECT sha10 FROM t4_batches WHERE slug = 'T4-96'", [], |r| r.get(0))
+                    .ok();
+                b.expect(
+                    "compile/reassembly-new-plan",
+                    sha_new.is_some() && sha_new != sha_old,
+                    || "пересборка обязана заменить план (новый sha10)".into(),
+                );
+                let summary: Option<String> = conn
+                    .query_row(
+                        "SELECT summary FROM t4_events ORDER BY seq DESC LIMIT 1",
+                        [],
+                        |r| r.get(0),
+                    )
+                    .ok();
+                b.expect(
+                    "compile/reassembly-chronicle-word",
+                    summary.as_deref().map(|s| s.starts_with("ПЕРЕсобран")).unwrap_or(false),
+                    || "летопись обязана честно писать ПЕРЕсобран".into(),
+                );
+            }
+            Err(e) => b.fail("compile/reassembly-flag", e.0),
+        }
+        /* delivered неприкосновенен даже с force */
+        let _ = conn.execute(
+            "UPDATE t4_batches SET status = 'delivered', delivered_at = '2026-10-20T00:00:00.000Z' WHERE slug = 'T4-96'",
+            [],
+        );
+        let mut body3 = compile_req("Riptide v3 поверх сданного", "T4-96", 0, None);
+        body3["force"] = json!(true);
+        let refused = compile::compile_batch(&conn, &compile::parse_request(&body3).unwrap(), None);
+        b.expect(
+            "compile/reassembly-delivered-refused",
+            refused.is_err(),
+            || "сданное неприкосновенно даже с force".into(),
+        );
+    }
+
     /* ============ гейты: живые receipts ============ */
     {
         let conn = temp_db("floors");

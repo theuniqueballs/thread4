@@ -91,6 +91,11 @@ pub struct CompileRequest {
     /// Правленые автором якоря (после шага «Theme Expansion» в UI);
     /// strict-валидируются theme::ThemeAnchors::from_json.
     pub theme_anchors: Option<serde_json::Value>,
+    /// TWIN-ONLY (пересборка): compiled-сборку в scratch-летописи можно
+    /// заменить новым планом — репетиция переписываема до сдачи. delivered
+    /// неприкосновенен при любом force, void и так свободен. В канонический
+    /// план НЕ входит — sha10 byte-parity не тронут.
+    pub force: bool,
 }
 
 pub fn parse_request(body: &serde_json::Value) -> Result<CompileRequest, String> {
@@ -100,7 +105,7 @@ pub fn parse_request(body: &serde_json::Value) -> Result<CompileRequest, String>
     for k in obj.keys() {
         if ![
             "slug", "theme", "engine", "exp", "abPairs", "species", "ocThemes", "notes",
-            "parityCreatedAt", "expandTheme", "themeAnchors",
+            "parityCreatedAt", "expandTheme", "themeAnchors", "force",
         ]
         .contains(&k.as_str()) {
             return Err(format!(
@@ -240,6 +245,12 @@ pub fn parse_request(body: &serde_json::Value) -> Result<CompileRequest, String>
             return Err("compile: themeAnchors обязан быть JSON-объектом якорей".into());
         }
     };
+    let force = match obj.get("force") {
+        None | Some(serde_json::Value::Null) => false,
+        Some(v) => v
+            .as_bool()
+            .ok_or("compile: force обязан быть bool (true = пересборка поверх compiled)")?,
+    };
     Ok(CompileRequest {
         slug,
         theme,
@@ -253,6 +264,7 @@ pub fn parse_request(body: &serde_json::Value) -> Result<CompileRequest, String>
         parity_created_at,
         expand_theme,
         theme_anchors,
+        force,
     })
 }
 
@@ -420,6 +432,8 @@ pub struct CompileOutcome {
     pub event_at: String,
     pub event_seq: u32,
     pub idempotent_replay: bool,
+    /// true — пересборка поверх compiled (событие несёт supersedes).
+    pub reassembly: bool,
 }
 
 pub fn compile_batch(
@@ -427,19 +441,42 @@ pub fn compile_batch(
     req: &CompileRequest,
     idempotency_key: Option<&str>,
 ) -> Result<CompileOutcome, CompileError> {
-    /* slug resolution & duplicate guard */
+    /* slug resolution & duplicate guard
+     *
+     * Пересборка (2026-10-20, приказ «сборщика нет»): compiled-сборка
+     * в scratch — репетиция, force:true заменяет её новым планом; старый
+     * план честно уходит в supersedes-блок события летописи. delivered
+     * неприкосновенен всегда — только void освобождает номер. */
     let slug = match &req.slug {
         Some(s) => s.clone(),
         None => format!("T4-{:02}", next_batch_number(conn)),
     };
     let existing = get_batch_status(conn, &slug);
-    if let Some(st) = existing {
-        if st != "void" {
+    let reassembly = matches!(existing.as_deref(), Some("compiled")) && req.force;
+    if let Some(st) = &existing {
+        if st != "void" && !reassembly {
             return Err(CompileError(format!(
-                "batch.compiled: слаг {slug} уже существует (status {st}) — провенанс неприкосновенен, выбери следующий номер"
+                "batch.compiled: слаг {slug} уже занят (status {st}) — сданное/закрытое неприкосновенно; compiled-сборку можно ПЕРЕсобрать (force:true) или взять следующий номер"
             )));
         }
     }
+    let supersedes: Option<serde_json::Value> = if reassembly {
+        conn.query_row(
+            "SELECT sha10, slots_total, created_at FROM t4_batches WHERE slug = ?1",
+            [&slug],
+            |r| {
+                Ok(serde_json::json!({
+                    "sha10": r.get::<_, String>(0)?,
+                    "slots": r.get::<_, i64>(1)?,
+                    "createdAt": r.get::<_, String>(2)?,
+                    "priorStatus": "compiled",
+                }))
+            },
+        )
+        .ok()
+    } else {
+        None
+    };
 
     /* deterministic plan */
     let seed_int = hash_seed(&format!("{}|{}", req.theme, slug));
@@ -664,11 +701,13 @@ pub fn compile_batch(
 
     /* atomic commit: event + projection + draft + idempotency in ONE tx */
     let summary = format!(
-        "Скомпилирован {slug} «{}»: {} слотов (EXP {exp_fresh}, A/B {}), движок {}{}",
+        "{} {slug} «{}»: {} слотов (EXP {exp_fresh}, A/B {}), движок {}{}{}",
+        if reassembly { "ПЕРЕсобран" } else { "Скомпилирован" },
         req.theme,
         slots.len(),
         req.ab_pairs,
         req.engine,
+        if reassembly { " (пересборка поверх compiled — прежний план в supersedes)" } else { "" },
         if hard_pass { "" } else { " — HARD FAIL планировочных гейтов" }
     );
     let mut data = serde_json::Map::new();
@@ -687,6 +726,10 @@ pub fn compile_batch(
         "paletteBudget".into(),
         (Palette::FUND - window_union.len() as u32).into(),
     );
+    if let Some(s) = &supersedes {
+        data.insert("supersedes".into(), s.clone());
+        data.insert("reassembly".into(), true.into());
+    }
     data.insert(
         "receipts".into(),
         serde_json::Value::Array(
@@ -759,6 +802,7 @@ pub fn compile_batch(
         event_at: evt.at,
         event_seq: evt.seq,
         idempotent_replay: false,
+        reassembly,
     })
 }
 

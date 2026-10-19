@@ -208,6 +208,29 @@ export const LIVE_ABORT_EVENT = 't4:live-abort'
 export const WORKFLOW_RESET_EVENT = 't4:workflow-reset'
 
 /* ------------------------------------------------------------------ */
+/* Витрина «Сборка» → воркфлоу: заказ на пересборку compiled-сборки     */
+/* ------------------------------------------------------------------ */
+
+/** Кнопка «пересобрать» живёт в витрине (view=build), где WorkflowDeck
+ *  размонтирован — window-событие не доехало бы. Заказ кладётся в модуль,
+ *  воркфлоу забирает его на монтировании после setView('workflow'). */
+export interface WorkflowReassemblyRequest {
+  slug: string
+  theme: string
+}
+let pendingReassembly: WorkflowReassemblyRequest | null = null
+
+export function requestWorkflowReassembly(req: WorkflowReassemblyRequest): void {
+  pendingReassembly = req
+}
+
+export function consumeWorkflowReassembly(): WorkflowReassemblyRequest | null {
+  const r = pendingReassembly
+  pendingReassembly = null
+  return r
+}
+
+/* ------------------------------------------------------------------ */
 /* Буфер обмена с честным fallback (3-b)                                */
 /* ------------------------------------------------------------------ */
 

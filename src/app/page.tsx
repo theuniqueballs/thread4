@@ -603,8 +603,11 @@ export default function Home() {
               transition={{ type: 'spring', stiffness: 260, damping: 26 }}
               className="mt-4 min-w-0"
             >
-              {/* Сборка: витрина скомпилированных батчей обоих пространств */}
-              <BuildDeck onOpenBatch={openBatch} />
+              {/* Сборка: витрина скомпилированных батчей обоих пространств.
+               * onGoWorkflow — «пересобрать» кладёт force-заказ в модуль
+               * (requestWorkflowReassembly) и открывает воркфлоу: Compile
+               * заменит compiled-сборку на месте (репетиция переписываема). */}
+              <BuildDeck onOpenBatch={openBatch} onGoWorkflow={() => setView('workflow')} />
             </motion.div>
           ) : (
             <motion.div

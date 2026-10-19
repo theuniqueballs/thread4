@@ -21,8 +21,11 @@ const TWIN_ORIGIN = process.env.T4_RUST_ORIGIN ?? 'http://127.0.0.1:3201'
 
 /** GET-пути (чтение): allowlist, никаких wildcard'ов. scratch/batches —
  * сборки воркфлоу twin'а (своя scratch-летопись), прод-список живёт
- * отдельно в /v1/batches — два пространства T4-NN различимы в UI. */
+ * отдельно в /v1/batches — два пространства T4-NN различимы в UI.
+ * scratch/batches/:slug — план сборки со слотами (витрина «Сборка»
+ * показывает содержимое compiled-батча, 2026-10-20). */
 const GET_ALLOW = new Set(['health', 'meta', 'state', 'live', 'events', 'batches', 'scratch/batches', 'chain/verify'])
+const SCRATCH_CARD_RE = /^scratch\/batches\/T4-\d{2,3}$/
 
 /** POST-пути: theme (expand/check — чистые вычисления) + compile + gates
  * (батарея Review: twin гоняет квитанции по scratch-драфту, ключ командира
@@ -68,7 +71,8 @@ export async function GET(
   const { path } = await params
   const twinPath = joinPath(path ?? [])
   const isBatchCard = twinPath != null && /^batches\/T4-\d{2,3}$/.test(twinPath)
-  if (twinPath == null || (!GET_ALLOW.has(twinPath) && !isBatchCard)) {
+  const isScratchCard = twinPath != null && SCRATCH_CARD_RE.test(twinPath)
+  if (twinPath == null || (!GET_ALLOW.has(twinPath) && !isBatchCard && !isScratchCard)) {
     return NextResponse.json({ error: 'twin path не в allowlist' }, { status: 400 })
   }
 

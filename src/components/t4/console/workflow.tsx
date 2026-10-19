@@ -55,7 +55,7 @@ import {
 
 import { cn } from '@/lib/utils'
 import { asArray, asRecord, asStr, commanderHeaders, withGatewayPort } from '@/components/t4/api'
-import { notify } from '@/components/t4/console/shared'
+import { notify, useEngineBatches, useScratchBatches, consumeWorkflowReassembly, invalidateEngineBatches } from '@/components/t4/console/shared'
 import type { ActionId } from '@/components/t4/console/shared'
 import { toast } from '@/hooks/use-toast'
 import { ToastAction } from '@/components/ui/toast'
@@ -734,6 +734,12 @@ export function WorkflowDeck({
   const [slugTouched, setSlugTouched] = useState(false)
   const slugSuggested = useRef<string>('')
   const slugRef = useRef<string>('')
+  /* пересборка (2026-10-20, приказ «сборщика нет»): compiled-сборка в
+   * scratch — репетиция, Compile с force:true заменяет её на месте.
+   * Включается бейджем у слага, кнопкой «пересобрать» в витрине или
+   * панелью выхода из коллизии; смена слага режим гасит. */
+  const [reassembling, setReassembling] = useState<string | null>(null)
+  const [collision, setCollision] = useState<{ slug: string; status: string } | null>(null)
   const batteryRunId = useRef(0)
   const batteryAbortRef = useRef<AbortController | null>(null)
   const batteryRetryRef = useRef<() => void>(() => {})
@@ -743,6 +749,21 @@ export function WorkflowDeck({
 
   const ocFilled = oc.filter((o) => o.theme.trim().length > 0).length
   const briefReady = theme.trim().length >= 3 && ocFilled >= 1
+
+  /* занятость слага (честный бейдж у поля): scratch-сборки + прод-батчи.
+   * Прод-занятость НЕ блокирует scratch-компиляцию — летописи разные,
+   * бейдж лишь объясняет, почему в витрине два одинаковых номера. */
+  const scratchList = useScratchBatches()
+  const prodList = useEngineBatches()
+  const slugOccupancy = useMemo(() => {
+    const s = slug.trim().toUpperCase()
+    if (!/^T4-\d{2,3}$/.test(s)) return null
+    const inScratch = scratchList.rows.find((r) => r.slug === s)
+    if (inScratch != null) return { space: 'scratch' as const, status: inScratch.status }
+    const inProd = prodList.rows.find((r) => r.slug === s)
+    if (inProd != null) return { space: 'prod' as const, status: inProd.status }
+    return { space: 'free' as const, status: 'free' }
+  }, [slug, scratchList.rows, prodList.rows])
 
   /* расы-хайджлайты: «R12, R37» → строгие токены R## (species strict twin'а) */
   const speciesTokens = useMemo(
@@ -857,7 +878,6 @@ export function WorkflowDeck({
     }, 250)
     return () => window.clearTimeout(timer)
   }, [theme, slug, slugTouched, exp, ab, oc, engine, speciesList, notes, anchors, step, ocFilled])
-
   /* анмаунт (смена вида V / уход со страницы): хвост последних 250мс
    * уходит на диск сразу — правка не теряется на размонтировании;
    * висящий прогон батарей обрывается (фечи не живут дольше панели) */
@@ -872,6 +892,35 @@ export function WorkflowDeck({
       }
       writeDraft(pending)
     }
+  }, [])
+
+  /* витрина «Сборка» → заказ на пересборку: кнопка «пересобрать» кладёт
+   * запрос в модуль (воркфлоу в тот момент размонтирован); монтирование
+   * после setView('workflow') забирает заказ и включает режим force.
+ * Объявлен ПОСЛЕ эффекта восстановления — заказ перекрывает черновик. */
+  useEffect(() => {
+    const req = consumeWorkflowReassembly()
+    if (req == null) return
+    setSlug(req.slug)
+    slugRef.current = req.slug
+    setSlugTouched(true)
+    if (req.theme !== '') setTheme(req.theme)
+    setReassembling(req.slug)
+    setCollision(null)
+    setCompiled(null)
+    setDelivered(null)
+    setVoided(null)
+    setAnchors(null)
+    setThemeGate(null)
+    setStale(false)
+    setStep(0)
+    batteryRunId.current++
+    batteryAbortRef.current?.abort()
+    notify(
+      'info',
+      `Пересборка ${req.slug}`,
+      'Compile заменит compiled-сборку в scratch (force) — правь тему/якоря и собирай'
+    )
   }, [])
 
   const twinPost = useCallback(
@@ -947,14 +996,20 @@ export function WorkflowDeck({
     setThemeGate(null)
   }, [])
 
-  /* ── шаг 2: Compile (якоря + гейт №25 + engine/species/notes) ── */
-  const runCompile = useCallback(async () => {
+  /* ── шаг 2: Compile (якоря + гейт №25 + engine/species/notes) ──
+   * opts.slugOverride — коллизия решена «взять следующий номер»;
+   * opts.force — пересборка поверх compiled (сила режима reassembling). */
+  const runCompile = useCallback(
+    async (opts?: { slugOverride?: string; force?: boolean }) => {
+    const targetSlug = (opts?.slugOverride ?? slug).trim() || slugSuggested.current || undefined
+    const force = opts?.force ?? reassembling != null
     setBusy('compile')
     setError(null)
+    setCollision(null)
     try {
       const body: Record<string, unknown> = {
         theme: theme.trim(),
-        slug: slug.trim() || slugSuggested.current || undefined,
+        slug: targetSlug,
         engine,
         exp,
         abPairs: ab,
@@ -966,6 +1021,7 @@ export function WorkflowDeck({
           ? { on: true, count: speciesTokens.length, list: speciesTokens }
           : { on: false, count: 0, list: [] },
       }
+      if (force) body.force = true
       if (notes.trim() !== '') body.notes = notes.trim().slice(0, 2000)
       if (anchors != null) {
         body.themeAnchors = anchors
@@ -975,8 +1031,9 @@ export function WorkflowDeck({
         event?: { seq?: number }
         themeGate?: Receipt
         themeAnchors?: AnchorsState
+        reassembly?: boolean
       }>('compile', body, {
-        'Idempotency-Key': `wf-${Date.now().toString(36)}-${slug.trim() || 'auto'}`,
+        'Idempotency-Key': `wf-${Date.now().toString(36)}-${targetSlug ?? 'auto'}${force ? '-f' : ''}`,
       })
       const plan = data.plan ?? {}
       setCompiled({
@@ -994,21 +1051,53 @@ export function WorkflowDeck({
       setDelivered(null)
       setVoided(null)
       setStale(false)
-      /* удачный compile = вход в Review: батареи гонятся автоматически */
+      /* удачный compile = вход в Review: батареи гонятся автоматически;
+       * scratch-списки (рельс + витрина) видят новую/заменённую сборку */
+      invalidateEngineBatches()
       setStep(3)
       notify(
         'success',
-        `План ${plan.slug ?? ''} готов`,
+        data.reassembly === true ? `План ${plan.slug ?? ''} ПЕРЕсобран` : `План ${plan.slug ?? ''} готов`,
         `sha10 ${plan.sha10 ?? '—'} · scratch-летопись twin'а · Review ниже`
       )
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'компиляция не прошла'
       setError(msg)
+      /* коллизия слага — НЕ тупик: панель с пересборкой/следующим номером */
+      const m = msg.match(/\u0441\u043b\u0430\u0433 (T4-\d{2,3}) \u0443\u0436\u0435 \u0437\u0430\u043d\u044f\u0442 \(status (\w+)\)/)
+      if (m != null) setCollision({ slug: m[1], status: m[2] })
       notify('error', 'Компиляция не прошла', msg)
     } finally {
       setBusy(null)
     }
-  }, [theme, slug, engine, exp, ab, oc, anchors, twinPost, speciesActive, speciesTokens, notes])
+  }, [theme, slug, engine, exp, ab, oc, anchors, twinPost, speciesActive, speciesTokens, notes, reassembling])
+
+  /* коллизия → «взять следующий номер»: свежий nextSlug у twin'а и сразу
+   * повтор компиляции тем же содержимым — автор не вводит ничего дважды */
+  const takeNextSlug = useCallback(async () => {
+    setBusy('compile')
+    try {
+      const res = await fetch(withGatewayPort('/api/t4/twin/state'), {
+        headers: commanderHeaders(),
+        cache: 'no-store',
+      })
+      const body = (await res.json()) as { data?: { scratch?: { nextSlug?: string } } }
+      const next = body.data?.scratch?.nextSlug
+      if (next == null || next === '') throw new Error('twin не дал следующий номер')
+      setSlug(next)
+      slugRef.current = next
+      setSlugTouched(true)
+      setReassembling(null)
+      setCollision(null)
+      notify('info', `Номер → ${next}`, 'пробую собрать на свободном слоте')
+      await runCompile({ slugOverride: next })
+    } catch (e) {
+      setBusy(null)
+      const msg = e instanceof Error ? e.message : 'номер не взят'
+      setError(msg)
+      notify('error', 'Следующий номер не взят', msg)
+    }
+  }, [runCompile])
 
   /* ── Review: две батареи → одна таблица ── */
 
@@ -1155,6 +1244,7 @@ export function WorkflowDeck({
       /* после сдачи черновик не восстанавливается слепо — ключ стёрт */
       deliveredFlagRef.current = true
       clearDraftKey()
+      setReassembling(null)
       onMutated()
       notify('success', `${compiled.slug} сдан (scratch)`, data.summary ?? '')
     } catch (e) {
@@ -1175,6 +1265,7 @@ export function WorkflowDeck({
     try {
       await twinPost(`batches/${compiled.slug}/void`, {})
       setVoided('закрыт (void)')
+      setReassembling(null)
       onMutated()
       notify('success', `${compiled.slug} закрыт (void)`, '')
     } catch (e) {
@@ -1207,6 +1298,8 @@ export function WorkflowDeck({
     slugRef.current = ''
     slugSuggested.current = ''
     setSlugTouched(false)
+    setReassembling(null)
+    setCollision(null)
     setExp(0)
     setAb(2)
     setEngine('per-theme')
@@ -1267,6 +1360,24 @@ export function WorkflowDeck({
 
   const batteryRunning = battery.status === 'running' || battery.status === 'idle'
 
+  /* бейдж режима пересборки — рядом с кнопкой Compile (обе ветки шага 1):
+   * Compile сработает с force:true и заменит compiled-сборку на месте */
+  const reassemblyBadge = reassembling != null ? (
+    <span className="flex shrink-0 items-center gap-1.5 rounded-md border border-amber-500/40 bg-amber-500/10 px-2 py-1 font-mono text-[10px] text-amber-300">
+      <RotateCcw className="size-3" />
+      force · пересборка поверх {reassembling}
+      <button
+        type="button"
+        onClick={() => setReassembling(null)}
+        title="выйти из режима пересборки (обычный Compile)"
+        aria-label="выйти из режима пересборки"
+        className="rounded p-0.5 transition-colors hover:bg-amber-500/20 hover:text-amber-100"
+      >
+        <X className="size-3" />
+      </button>
+    </span>
+  ) : null
+
   return (
     <LayoutGroup>
       <div className="space-y-3">
@@ -1302,10 +1413,46 @@ export function WorkflowDeck({
                           slugRef.current = v
                           setSlugTouched(true)
                           setSlug(v)
+                          if (v !== reassembling) setReassembling(null)
+                          setCollision(null)
                         }}
                         placeholder="T4-99"
                         className="mt-1 w-full rounded-md border border-zinc-800 bg-zinc-900/70 px-2 py-1.5 font-mono text-[12px] text-zinc-200 outline-none transition-colors placeholder:text-zinc-700 focus:border-amber-500/60"
                       />
+                      {/* честная занятость слага: свободен/занят и где именно */}
+                      {slugOccupancy != null ? (
+                        slugOccupancy.space === 'free' ? (
+                          <span className="mt-1 block font-mono text-[10px] text-zinc-600">
+                            свободен в обоих пространствах
+                          </span>
+                        ) : slugOccupancy.space === 'scratch' ? (
+                          slugOccupancy.status === 'compiled' ? (
+                            <span className="mt-1 flex flex-wrap items-center gap-1.5 font-mono text-[10px] text-amber-400">
+                              занят в scratch · собран
+                              <button
+                                type="button"
+                                onClick={() => setReassembling(slug.trim().toUpperCase())}
+                                title="Compile заменит эту compiled-сборку на месте (force)"
+                                className="rounded border border-amber-500/40 px-1.5 py-px text-amber-300 transition-colors hover:bg-amber-500/10"
+                              >
+                                пересобрать поверх
+                              </button>
+                            </span>
+                          ) : slugOccupancy.status === 'delivered' ? (
+                            <span className="mt-1 block font-mono text-[10px] text-rose-400">
+                              занят в scratch · сдан — нужен другой номер
+                            </span>
+                          ) : (
+                            <span className="mt-1 block font-mono text-[10px] text-zinc-600">
+                              закрыт (void) в scratch — номер свободен
+                            </span>
+                          )
+                        ) : (
+                          <span className="mt-1 block font-mono text-[10px] text-emerald-500/80">
+                            есть в проде ({slugOccupancy.status}) — другая летопись, сборке не мешает
+                          </span>
+                        )
+                      ) : null}
                     </label>
                     <div className="grid grid-cols-2 gap-2">
                       <label className="block">
@@ -1434,7 +1581,7 @@ export function WorkflowDeck({
               </motion.div>
             ) : (
               <motion.p key="s0-summary" {...motionProps} className="mt-2 truncate font-mono text-[11px] text-zinc-500">
-                «{theme}» · {slug} · EXP {exp} · A/B {ab} · OC {ocFilled} · движок {engine}
+                «{theme}» · {slug}{reassembling != null ? ` · ПЕРЕсборка поверх ${reassembling}` : ''} · EXP {exp} · A/B {ab} · OC {ocFilled} · движок {engine}
                 {speciesActive ? ` · расы ${speciesTokens.length}` : ''}
                 {notes.trim() !== '' ? ' · заметки ✓' : ''}
               </motion.p>
@@ -1465,12 +1612,17 @@ export function WorkflowDeck({
                       <button
                         type="button"
                         disabled={busy != null || !speciesOk}
-                        onClick={runCompile}
+                        onClick={() => void runCompile()}
                         className="flex items-center gap-2 rounded-lg bg-zinc-100 px-4 py-2 text-sm font-semibold text-zinc-950 transition-all hover:bg-white active:scale-[0.98] disabled:opacity-40"
                       >
                         <FileSignature className="size-4" />
-                        {busy === 'compile' ? 'компилирую…' : 'Compile → SCRIBE'}
+                        {busy === 'compile'
+                          ? 'компилирую…'
+                          : reassembling != null
+                            ? 'Пересобрать (force) → SCRIBE'
+                            : 'Compile → SCRIBE'}
                       </button>
+                      {reassemblyBadge}
                       {!speciesOk ? (
                         <span className="font-mono text-[10px] text-amber-400">
                           расы: формат R## через запятую
@@ -1593,12 +1745,17 @@ export function WorkflowDeck({
                       <button
                         type="button"
                         disabled={busy != null || gate25Blocks || !speciesOk}
-                        onClick={runCompile}
+                        onClick={() => void runCompile()}
                         className="flex items-center gap-2 rounded-lg bg-zinc-100 px-4 py-2 text-sm font-semibold text-zinc-950 transition-all hover:bg-white active:scale-[0.98] disabled:opacity-40"
                       >
                         <FileSignature className="size-4" />
-                        {busy === 'compile' ? 'компилирую…' : 'Compile → SCRIBE'}
+                        {busy === 'compile'
+                          ? 'компилирую…'
+                          : reassembling != null
+                            ? 'Пересобрать (force) → SCRIBE'
+                            : 'Compile → SCRIBE'}
                       </button>
+                      {reassemblyBadge}
                       <button
                         type="button"
                         disabled={busy != null}
@@ -1642,7 +1799,7 @@ export function WorkflowDeck({
                     <AlertTriangle className="size-3.5 shrink-0 text-amber-400" />
                     <span className="text-[12px] text-amber-300">
                       план устарел — правь якоря и пересобери (compile прогонит гейт №25 strict);
-                      старый номер сперва закрой Void — провенанс неприкосновенен
+                      compiled-номер пересборщик заменит сам (force) — сдавать или закрывать ничего не нужно
                     </span>
                   </div>
                 ) : null}
@@ -1878,6 +2035,76 @@ export function WorkflowDeck({
             </div>
           </div>
         ) : null}
+
+        {/* ── коллизия слага: НЕ тупик — выходы одной кнопкой ────── */}
+        <AnimatePresence initial={false}>
+          {collision != null ? (
+            <motion.div
+              key="collision"
+              role="region"
+              aria-label="выход из коллизии слага"
+              initial={reduceMotion === true ? undefined : { opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={SPRING}
+              className="overflow-hidden"
+            >
+              <div className="rounded-lg border border-amber-500/50 bg-amber-500/[0.04] px-3 py-2.5">
+                <p className="text-[12px] font-semibold text-amber-300">
+                  Слаг {collision.slug} уже занят ({collision.status}) — но это решается:
+                </p>
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  {collision.status === 'compiled' ? (
+                    <button
+                      type="button"
+                      disabled={busy != null}
+                      onClick={() => {
+                        setReassembling(collision.slug)
+                        void runCompile({ force: true })
+                      }}
+                      title="Compile заменит compiled-сборку этого слага новым планом (force); прежний план уйдёт в supersedes события"
+                      className="flex items-center gap-1.5 rounded-lg bg-amber-500/90 px-3 py-1.5 text-[12px] font-semibold text-zinc-950 transition-all hover:bg-amber-400 active:scale-[0.98] disabled:opacity-40"
+                    >
+                      <RotateCcw className="size-3.5" />
+                      Пересобрать поверх {collision.slug}
+                    </button>
+                  ) : null}
+                  <button
+                    type="button"
+                    disabled={busy != null}
+                    onClick={() => void takeNextSlug()}
+                    title="взять свежий свободный номер у twin'а и повторить компиляцию тем же содержимым"
+                    className="flex items-center gap-1.5 rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-1.5 text-[12px] font-semibold text-zinc-200 transition-all hover:border-zinc-500 active:scale-[0.98] disabled:opacity-40"
+                  >
+                    <ArrowRight className="size-3.5" />
+                    Взять следующий номер
+                  </button>
+                  <button
+                    type="button"
+                    disabled={busy != null}
+                    onClick={() => {
+                      setSlug('')
+                      slugRef.current = ''
+                      setSlugTouched(false)
+                      setReassembling(null)
+                      setCollision(null)
+                      setSuggestTick((t) => t + 1)
+                    }}
+                    title="очистить поле слага — twin сам подставит свободный номер"
+                    className="rounded-lg border border-zinc-800 px-3 py-1.5 font-mono text-[11px] text-zinc-400 transition-colors hover:border-zinc-600 hover:text-zinc-200 disabled:opacity-40"
+                  >
+                    сбросить номер (авто)
+                  </button>
+                  {collision.status !== 'compiled' ? (
+                    <span className="font-mono text-[10px] text-zinc-500">
+                      {collision.slug} сдан/закрыт — номер неприкосновенен, пересборка недоступна
+                    </span>
+                  ) : null}
+                </div>
+              </div>
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
 
         {/* ── степпер-подсказка ──────────────────────────────────── */}
         <p className="flex items-center gap-2 font-mono text-[10px] text-zinc-600">
