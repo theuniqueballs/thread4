@@ -16,6 +16,11 @@ export const dynamic = 'force-dynamic'
  * честная миграция: движок молчит → строка честно говорит «молчит»,
  * дашборд не падает (degrade, не блокировка). */
 const ENGINE_ORIGIN = process.env.T4_ENGINE_ORIGIN ?? 'http://127.0.0.1:3200'
+/* Приказ автора 2026-10-19 («перенеси всё что можно на Rust — посмотрим
+ * как поведёт себя»): t4-engine-rs (:3201) — Rust twin, полочная портировка
+ * движка. Читает продакшн-летопись RO (верифицирует хеш-цепь), пишет свою
+ * scratch-летопись. Стекло показывает его телеметрию рядом с bun-SSoT. */
+const RUST_ORIGIN = process.env.T4_RUST_ORIGIN ?? 'http://127.0.0.1:3201'
 
 async function engineTelemetry(): Promise<{
   up: boolean
@@ -61,6 +66,47 @@ async function engineTelemetry(): Promise<{
   }
 }
 
+async function rustTwinTelemetry(): Promise<{
+  up: boolean
+  port: number
+  prodChainHeight?: number
+  prodChainOk?: boolean
+  prodHead?: string | null
+  nextSlug?: string
+  lastDelivered?: string
+  scratchChainHeight?: number
+  uptimeSec?: number
+} | null> {
+  try {
+    const res = await fetch(`${RUST_ORIGIN}/v1/state`, {
+      signal: AbortSignal.timeout(1500),
+      cache: 'no-store',
+    })
+    if (!res.ok) return { up: false, port: 3201 }
+    const json = (await res.json()) as {
+      data?: {
+        production?: { chain?: { height?: number; ok?: boolean; head?: string | null }; nextSlug?: string; lastDelivered?: { slug?: string } }
+        scratch?: { chain?: { height?: number } }
+        uptimeSec?: number
+      }
+    }
+    const d = json.data ?? {}
+    return {
+      up: true,
+      port: 3201,
+      prodChainHeight: d.production?.chain?.height,
+      prodChainOk: d.production?.chain?.ok,
+      prodHead: d.production?.chain?.head?.slice(0, 10) ?? null,
+      nextSlug: d.production?.nextSlug,
+      lastDelivered: d.production?.lastDelivered?.slug,
+      scratchChainHeight: d.scratch?.chain?.height,
+      uptimeSec: d.uptimeSec,
+    }
+  } catch {
+    return { up: false, port: 3201 }
+  }
+}
+
 export async function GET(req: Request) {
   const read = requireRead(req)
   if (!read.ok) return read.response
@@ -96,6 +142,7 @@ export async function GET(req: Request) {
    * новым гейтом/батчем — числа теперь живые, источник один: летопись. */
   const health = gatesHealthFromEvents(events)
   const engine = await engineTelemetry()
+  const rustTwin = await rustTwinTelemetry()
   const gateHealth = health.lastRun
     ? `hard ${health.hard} · warn ${health.warn} · advisory ${health.advisory}${health.conditional ? ` · +${health.conditional} условных (RAW+/⚗)` : ''} = ${health.runTotal} квитанций — последний прогон ${health.lastRun.slug} #${health.lastRun.run} (${health.lastRun.at.slice(0, 16).replace('T', ' ')}, hard ${health.lastRun.hardPass ? 'PASS' : 'FAIL'}) — счёт из receipts, не из легенды`
     : `hard / warn / advisory — прогонов в летописи нет, база из кода: ${GATES_TOTAL}`
@@ -119,6 +166,9 @@ export async function GET(req: Request) {
     glass: {
       /* Движок-эра: телеметрия RPC-ядра (SSoT) рядом с файловой истиной */
       engine,
+      /* Rust twin (:3201) — полочная портировка движка; продакшн-цепь им
+       * ПЕРЕЧИТАНА независимо (двойная верификация хеш-формулы) */
+      rustTwin,
       commanderKey: readCommanderKey() != null,
       chain: (() => {
         const v = verifyChain()

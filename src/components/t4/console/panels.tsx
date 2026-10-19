@@ -680,6 +680,22 @@ export function GlassTab() {
                   tele.up ? (tele.chainOk === false ? 'bad' : 'ok') : 'bad'
                 )
               : null}
+            {(() => {
+              /* Rust twin (:3201) — «перенеси всё что можно на Rust,
+               * посмотрим как поведёт себя» (приказ 2026-10-19). Twin
+               * ПЕРЕЧИТЫВАЕТ продакшн-цепь своей реализацией хеш-формулы —
+               * второе независимое мнение о целости летописи. */
+              const t = asRecord(glass.rustTwin)
+              if (Object.keys(t).length === 0) return null
+              const up = t.up === true
+              return row(
+                'движок t4-engine-rs (:3201) — Rust twin',
+                up
+                  ? `NOMINAL · продакшн-цепь им перечитана: ${asStr(t.prodChainHeight) || '—'} зв. · ${t.prodChainOk === true ? 'SEALED' : 'ПРОБЛЕМЫ'} · head ${asStr(t.prodHead) || '—'} · scratch ${asStr(t.scratchChainHeight) || '0'} зв. · аптайм ${t.uptimeSec != null ? fmtUptime(Number(t.uptimeSec)) : '—'}`
+                  : 'МОЛЧИТ — подними mini-services/t4-engine-rs (cargo run --release)',
+                up ? (t.prodChainOk === false ? 'bad' : 'ok') : 'bad'
+              )
+            })()}
             {row('атомарные записи', glass.atomicWrites === true ? 'tmp+rename' : '?', glass.atomicWrites === true ? 'ok' : 'bad')}
             {row(
               'grep-gate (live)',
