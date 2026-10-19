@@ -6256,3 +6256,38 @@ Stage Summary:
 - За автором: PAT для пуша, решение по PRUNE-кандидатам (§9-терция,
   §11, DoD-п.1), приказ на этап 2 (rating-recipe + 17 гейтов),
   производственный cutover (писать SSoT из Rust).
+
+---
+Task ID: rust-closeout-push-2026-10-19
+Agent: Z.ai Code (main)
+Task: Пуш завершения Rust-миграции на GitHub — PAT автора получен в
+сессии; последний заблокированный шаг директивы «# МОЩНОСТЬ».
+
+Work Log:
+- PAT валидирован через GitHub API ДО пуша (login=theuniqueballs,
+  push=true, admin=true); токен нигде не сохранён (ни в .git/config,
+  ни в файлах) — one-shot credential-helper, в выводе маскирован.
+- Аудит 20 ожидающих коммитов (origin/main..main) на секреты: только
+  код движка (t4-engine-rs/*), UI (page/panels/workflow/live-console),
+  летопись (chain/log.jsonl), worklog, tools/spawn-daemon.py — чисто;
+  ключ командира живёт вне репо (~/.t4/commander.key).
+- ПУШ ВЕТОК: main f8978f2..067ce60 (fast-forward — вся Rust-миграция:
+  Фазы 1-3 + closeout 042aab8 + EXP-фиксы), feat/rust-closeout →
+  new branch 687feea. Пуш без force, история неприкосновенна.
+- ПУШ ТЕГОВ: pre-rust-audit (защитный тег директивы, → 687feea) и
+  audit-backup-2026-10-17 (→ f8106c5) — оба new tag; pre-rust-migration,
+  v0.3.0, v0.3.1 уже были на origin, не тронуты.
+- Сверка ls-remote после пуша: main/feat/rust-closeout + 5 тегов —
+  полное совпадение с локалью.
+- Движки не тронуты (:3200 SSoT, :3201 twin, :3000 UI живы), пуш —
+  чисто git-операция, прод-летопись SEALED.
+
+Stage Summary:
+- Директива «# МОЩНОСТЬ» ЗАВЕРШЕНА ПОЛНОСТЬЮ: 5/5 задач + защита
+  (тег+ветка) + ПУШ. GitHub theuniqueballs/thread4: main=067ce60,
+  feat/rust-closeout=687feea, теги pre-rust-audit + audit-backup +
+  миграционные — всё на месте.
+- PAT сессии отработал по доктрине: одноразовый, нигде не хранится.
+- За автором (без изменений): решение по PRUNE-кандидатам (§9-терция,
+  §11, DoD-п.1), приказ на этап 2 (rating-recipe №4 + 17 гейтов
+  batteryTs), производственный cutover SSoT из Rust.
