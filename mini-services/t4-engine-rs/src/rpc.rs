@@ -57,6 +57,9 @@ impl RpcError {
     fn unprocessable(message: impl Into<String>) -> Self {
         RpcError { status: 422, code: "unprocessable", message: message.into(), hint: None }
     }
+    fn not_found(message: impl Into<String>) -> Self {
+        RpcError { status: 404, code: "notFound", message: message.into(), hint: None }
+    }
 }
 
 fn ok_envelope(data: Value) -> (u16, String) {
@@ -145,7 +148,7 @@ pub fn serve(twin: Arc<Twin>) {
             Some(r) => r,
             None => {
                 let (status, body) = err_envelope(&RpcError::bad_request(format!(
-                    "путь «{path}» вне allowlist — маршруты: /v1/health · /v1/meta · /v1/state · /v1/events · /v1/live · /v1/batches[/:slug] · /v1/chain/verify · /v1/theme/expand · /v1/theme/check · POST /v1/compile · POST /v1/events · POST /v1/batches/:slug/deliver · POST /v1/batches/:slug/void"
+                    "путь «{path}» вне allowlist — маршруты: /v1/health · /v1/meta · /v1/state · /v1/events · /v1/live · /v1/batches[/:slug] · /v1/chain/verify · /v1/theme/expand · /v1/theme/check · POST /v1/compile · POST /v1/events · POST /v1/gates · POST /v1/batches/:slug/deliver · POST /v1/batches/:slug/void"
                 )));
                 respond(request, status, body);
                 continue;
@@ -244,6 +247,10 @@ pub fn serve(twin: Arc<Twin>) {
             },
             RouteKey::Deliver => deliver_route(&twin, &segments[2]),
             RouteKey::Void => void_route(&twin, &segments[2]),
+            RouteKey::Gates => match parse_json_body(&body_bytes) {
+                Err(e) => Err(e),
+                Ok(body) => gates_route(&twin, &body),
+            },
             RouteKey::Live => unreachable!("SSE обрабатывается до auth"),
         };
 
@@ -272,6 +279,7 @@ enum RouteKey {
     ThemeCheck,
     Deliver,
     Void,
+    Gates,
 }
 
 fn route_match(method: &str, segs: &[String]) -> Option<(RouteKey, BucketName, AuthLevel)> {
@@ -302,6 +310,9 @@ fn route_match(method: &str, segs: &[String]) -> Option<(RouteKey, BucketName, A
         ("POST", "batches") if segs.len() == 4 && segs[3] == "void" => {
             Some((RouteKey::Void, BucketName::Mutation, AuthLevel::Locked))
         }
+        /* текст-батарея файл-эры (этапы 0-1, textgates.rs): файлы репо RO,
+         * продакшн-контекст RO, записи — только scratch-слаги twin'а */
+        ("POST", "gates") => Some((RouteKey::Gates, BucketName::Mutation, AuthLevel::Locked)),
         _ => None,
     }
 }
@@ -419,7 +430,15 @@ fn state(t: &Twin) -> Value {
                 "ok": scratch_chain.ok,
                 "problems": scratch_chain.problems,
             },
-            "nextSlug": format!("T4-{:02}", compile::next_batch_number(&t.scratch)),
+            /* Против коллизии namespace'ов: scratch-подсказка продолжает ПРОД-нумерацию
+             * (max(prod, scratch)+1). Инцидент E2E 2026-10-19: свежий scratch советовал
+             * T4-07, а батарея текст-гейтов читала ЛЕГАСИ-драфт thread4/batches/T4-07.md
+             * от 10 октября (файл-эра живёт в том же репо) — Review показал rating-recipe
+             * FAIL чужого батча. Теперь подсказка ≥ T4-42 (прод-максимум T4-41). */
+            "nextSlug": format!(
+                "T4-{:02}",
+                compile::next_batch_number(&t.prod).max(compile::next_batch_number(&t.scratch))
+            ),
         },
         "uptimeSec": t.boot_at.elapsed().as_secs(),
     })
@@ -865,5 +884,288 @@ fn void_route(t: &Twin, slug: &str) -> Result<(u16, String), RpcError> {
             let (status, code) = crate::classify_core_error(&m);
             Err(RpcError { status, code, message: m, hint: None })
         }
+    }
+}
+
+/* ---------------- gates (текст-батарея файл-эры, этапы 0-1) ---------------- */
+
+/// POST /v1/gates — прогон 13 словарных текстовых гейтов по batches/<slug>.md.
+/// Данные: файлы репо RO (текст батча живёт только там) + прод-контекст RO
+/// (runIndex/окно/OC-ростер). Записи: слаг из scratch-летописи twin'а →
+/// gate.run + t4_gate_runs в scratch; исторический (прод) слаг — ЧИСТЫЙ
+/// анализ, продакшн не тронут.
+fn gates_route(t: &Twin, body: &Value) -> Result<(u16, String), RpcError> {
+    let obj = body
+        .as_object()
+        .ok_or_else(|| RpcError::validation("gates: тело должно быть JSON-объектом (strict)", None))?;
+    for k in obj.keys() {
+        if k != "slug" {
+            return Err(RpcError::validation(
+                format!("gates: лишнее поле «{k}» (strict) — только {{\"slug\":\"T4-NN\"}}"),
+                None,
+            ));
+        }
+    }
+    let slug = obj
+        .get("slug")
+        .and_then(|v| v.as_str())
+        .map(|s| s.trim().to_string())
+        .filter(|s| !s.is_empty())
+        .ok_or_else(|| RpcError::validation("gates: slug обязателен (T4-NN[/суффикс])", None))?;
+    live::info(BLOCK_GATES, &format!("gates: слаг {slug} — текст-батарея Rust ({}/30)", crate::textgates::BATTERY_RUST.len()));
+
+    let (_batch, outcome) = match crate::textgates::run_for_slug(&slug) {
+        Ok(v) => v,
+        Err(e) => {
+            return Err(match e {
+                crate::textgates::TextGatesError::UnsafeSlug(_) => RpcError::validation(e.to_string(), None),
+                crate::textgates::TextGatesError::NoDraft(_) => RpcError::not_found(e.to_string()),
+            })
+        }
+    };
+
+    /* прогресс в live-шину: по одному кадру на гейт (номер/имя/вердикт) */
+    let total = outcome.receipts.len();
+    for (i, r) in outcome.receipts.iter().enumerate() {
+        let line = format!(
+            "текст-гейт {}/{}: {} ({}): {}{}",
+            i + 1,
+            total,
+            r.gate,
+            r.level,
+            r.verdict,
+            if r.findings.is_empty() {
+                String::new()
+            } else {
+                format!(" — {} замечаний", r.findings.len())
+            },
+        );
+        if r.verdict == "PASS" || r.verdict == "REPORT" {
+            live::info(BLOCK_GATES, &line);
+        } else {
+            live::warn(BLOCK_GATES, &line);
+            for f in r.findings.iter().take(4) {
+                live::warn(BLOCK_GATES, &format!("  · {f}"));
+            }
+        }
+    }
+
+    /* записи: scratch-слаг twin'а → gate.run в scratch-цепь + t4_gate_runs;
+     * исторический (прод) — НИКАКИХ записей, runIndex из прод-летописи RO */
+    let in_scratch: bool = t
+        .scratch
+        .query_row("SELECT 1 FROM t4_batches WHERE slug = ?1", [&slug], |_| Ok(()))
+        .is_ok();
+    let (run_index, recorded) = if in_scratch {
+        let (event_id, seq, run_index) = crate::textgates::record_gate_run(&t.scratch, &outcome)
+            .map_err(RpcError::unprocessable)?;
+        live::info(
+            BLOCK_GATES,
+            &format!("записано: gate.run {event_id} (seq {seq}, прогон #{run_index}) в scratch-летопись"),
+        );
+        (run_index as u64, Some(seq))
+    } else {
+        let ctx = crate::textgates::prod_context(&t.prod, &slug);
+        live::info(
+            BLOCK_GATES,
+            &format!(
+                "слаг {slug} исторический (прод: прогонов {}, окно [{}]) — чистый анализ, записей нет",
+                ctx.prior_runs,
+                ctx.window_slugs.join(", ")
+            ),
+        );
+        (ctx.prior_runs + 1, None)
+    };
+
+    let hard_fails = outcome.hard_fails();
+    let warns = outcome.warns();
+    let mut data = json!({
+        "slug": slug,
+        "receipts": crate::textgates::receipts_json(&outcome.receipts),
+        "hardPass": outcome.hard_pass,
+        "hardFails": hard_fails,
+        "warns": warns,
+        "batteryRust": crate::textgates::BATTERY_RUST,
+        "batteryTs": crate::textgates::BATTERY_TS,
+        "sha10": outcome.sha10,
+        "runIndex": run_index,
+    });
+    if let Some(theme) = &outcome.contract_theme {
+        data["contractTheme"] = json!(theme);
+    }
+    if let Some(rebuild) = &outcome.rebuild_of {
+        data["rebuildOf"] = json!(rebuild);
+    }
+    data["twinNote"] = if let Some(seq) = recorded {
+        json!(format!("записано в scratch-летопись twin'а (seq {seq}); продакшн не тронут"))
+    } else {
+        json!("исторический слаг — чистый анализ, НИКАКИХ записей; runIndex из прод-летописи (RO)")
+    };
+    live::info(
+        BLOCK_GATES,
+        &format!(
+            "батарея {}: hard {}, warn-гейтов {} из {}/30",
+            if outcome.hard_pass { "PASS" } else { "FAIL" },
+            if outcome.hard_pass { "PASS" } else { "FAIL" },
+            warns.len(),
+            crate::textgates::BATTERY_RUST.len(),
+        ),
+    );
+    Ok(ok_envelope(data))
+}
+
+/* ---------------- tests: маршрут /v1/gates без сети (cfg(test)) ---------------- */
+
+#[cfg(test)]
+mod gates_tests {
+    use super::*;
+    use crate::textgates::recorded_ts_snapshot;
+
+    fn temp_twin(tag: &str) -> Twin {
+        let path = std::env::temp_dir().join(format!("t4-rpc-gates-{tag}-{}.db", std::process::id()));
+        let _ = std::fs::remove_file(&path);
+        let scratch = Connection::open(&path).expect("temp scratch");
+        scratch.pragma_update(None, "journal_mode", "WAL").ok();
+        crate::db::migrate_schema(&scratch).expect("schema");
+        let prod_path = std::env::temp_dir().join(format!("t4-rpc-prod-{tag}-{}.db", std::process::id()));
+        let _ = std::fs::remove_file(&prod_path);
+        let prod = Connection::open(&prod_path).expect("temp prod");
+        prod.pragma_update(None, "journal_mode", "WAL").ok();
+        crate::db::migrate_schema(&prod).expect("schema");
+        Twin {
+            prod,
+            scratch,
+            key: crate::auth::KeyCache::new(),
+            limiter: crate::ratelimit::Limiter::new(),
+            boot_at: std::time::Instant::now(),
+        }
+    }
+
+    fn segs(v: &[&str]) -> Vec<String> {
+        v.iter().map(|s| s.to_string()).collect()
+    }
+
+    /// unwrap без Debug на RpcError (прод-структура не расширяется ради теста)
+    fn unwrap_ok(r: Result<(u16, String), RpcError>) -> (u16, String) {
+        match r {
+            Ok(v) => v,
+            Err(e) => panic!("gates_route Err: {} {} — {}", e.status, e.code, e.message),
+        }
+    }
+
+    #[test]
+    fn route_post_gates_locked() {
+        let r = route_match("POST", &segs(&["v1", "gates"]));
+        assert!(matches!(r, Some((RouteKey::Gates, _, AuthLevel::Locked))));
+        // GET не разрешён
+        assert!(route_match("GET", &segs(&["v1", "gates"])).is_none());
+    }
+
+    #[test]
+    fn gates_route_strict_body() {
+        let t = temp_twin("strict");
+        let (status, code, message) = match gates_route(&t, &json!({"slug": "T4-27", "dry": true})) {
+            Err(e) => (e.status, e.code, e.message),
+            Ok(_) => (0, "", String::new()),
+        };
+        assert_eq!((status, code), (422, "validation"));
+        assert!(message.contains("лишнее поле «dry»"));
+    }
+
+    #[test]
+    fn gates_route_historical_no_writes() {
+        // исторический слог: чистый анализ, runIndex из прод-летописи RO,
+        // НИКАКИХ записей ни в прод, ни в scratch
+        let t = temp_twin("hist");
+        // прод-летопись: 3 записанных прогона T4-27 (как в живой базе)
+        for i in 0..3 {
+            let tx = t.prod.unchecked_transaction().unwrap();
+            crate::chain::append_event_tx(
+                &tx,
+                &crate::chain::AppendInput {
+                    typ: "gate.run",
+                    summary: &format!("T4-27 гейты: прогон #{}", i + 1),
+                    data: Some(&json!({"slug": "T4-27", "run": i + 1})),
+                    batch_slug: Some("T4-27"),
+                },
+            )
+            .unwrap();
+            tx.commit().unwrap();
+        }
+        let prod_before = crate::db::count_events(&t.prod);
+        let scratch_before = crate::db::count_events(&t.scratch);
+        let (status, body) = unwrap_ok(gates_route(&t, &json!({"slug": "T4-27"})));
+        assert_eq!(status, 200);
+        let v: Value = serde_json::from_str(&body).unwrap();
+        let data = &v["data"];
+        assert_eq!(data["slug"], "T4-27");
+        assert_eq!(data["runIndex"], 4, "прод-летопись: 3 прогона + 1");
+        assert_eq!(data["hardPass"], true);
+        assert_eq!(data["batteryRust"].as_array().unwrap().len(), 13);
+        assert_eq!(data["batteryTs"].as_array().unwrap().len(), 17);
+        assert!(data["receipts"].as_array().unwrap().len() == 13);
+        assert_eq!(crate::db::count_events(&t.prod), prod_before, "прод не тронут");
+        assert_eq!(crate::db::count_events(&t.scratch), scratch_before, "scratch не тронут: исторический слог — чистый анализ");
+        let runs: i64 = t
+            .scratch
+            .query_row("SELECT COUNT(*) FROM t4_gate_runs WHERE batch_slug = 'T4-27'", [], |r| r.get(0))
+            .unwrap();
+        assert_eq!(runs, 0);
+    }
+
+    #[test]
+    fn gates_route_scratch_batch_writes() {
+        // слаг есть в scratch-летописи twin'а → gate.run + t4_gate_runs;
+        // слаг с живым файлом batches/T4-27.md (файлы репо RO)
+        let t = temp_twin("scratch");
+        t.scratch
+            .execute(
+                "INSERT INTO t4_batches (slug, title, theme, engine, status, slots_total, exp_slots,
+                 ab_pairs, hard_pass, diff_up, diff_down, payload, sha10, created_at, event_id)
+                 VALUES ('T4-27', 'синтетика', 'синтетика', 'per-theme', 'compiled', 24, 0, 2, 1, 0, 0,
+                 '{}', 'deadbeef00', '2026-10-19T00:00:00.000Z', 'evt00001')",
+                [],
+            )
+            .unwrap();
+        let (status, _body) = unwrap_ok(gates_route(&t, &json!({"slug": "T4-27"})));
+        assert_eq!(status, 200);
+        let events: i64 = t
+            .scratch
+            .query_row("SELECT COUNT(*) FROM t4_events WHERE type = 'gate.run'", [], |r| r.get(0))
+            .unwrap();
+        assert_eq!(events, 1, "gate.run обязан писаться для scratch-слога");
+        let runs: i64 = t
+            .scratch
+            .query_row("SELECT COUNT(*) FROM t4_gate_runs WHERE batch_slug = 'T4-27'", [], |r| r.get(0))
+            .unwrap();
+        assert_eq!(runs, 1);
+        let verdict = crate::chain::verify_chain(&t.scratch);
+        assert!(verdict.ok, "scratch-цепь цела после записи");
+        // продакшн не тронут
+        assert_eq!(crate::db::count_events(&t.prod), 0);
+    }
+
+    #[test]
+    fn gates_route_missing_draft_404() {
+        let t = temp_twin("nodraft");
+        let (status, code, message) = match gates_route(&t, &json!({"slug": "T4-99"})) {
+            Err(e) => (e.status, e.code, e.message),
+            Ok(_) => (0, "", String::new()),
+        };
+        assert_eq!((status, code), (404, "notFound"));
+        assert_eq!(message, "нет драфта batches/T4-99.md — батарея неприменима");
+    }
+
+    #[test]
+    fn gates_route_live_snapshot_parity_available() {
+        // записанные TS-слепки читаются из летописи репо (файл-эра): как
+        // минимум один живой слепок для T4-34 обязан находиться
+        let Ok((_b, o)) = crate::textgates::run_for_slug("T4-34") else {
+            return; // файлы репо недоступны в окружении теста — честный пропуск
+        };
+        let snap = recorded_ts_snapshot("T4-34", &o.sha10);
+        assert!(snap.is_some(), "слепок gate.run для T4-34 (sha {}) обязан читаться", o.sha10);
+        let s = snap.unwrap();
+        assert!(s.verdicts.iter().any(|(g, v)| g == "noun-lock" && v == "WARN"));
     }
 }

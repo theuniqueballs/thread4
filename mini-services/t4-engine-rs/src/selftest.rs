@@ -31,11 +31,17 @@ pub struct Check {
 pub struct Battery {
     pub checks: Vec<Check>,
     pub skipped: usize,
+    /// причины каждого skip (батарея честна: почему проверка не гналась)
+    pub skip_reasons: Vec<String>,
 }
 
 impl Battery {
     fn push(&mut self, name: &str, passed: bool, detail: Option<String>) {
         self.checks.push(Check { name: name.to_string(), passed, detail });
+    }
+    fn skip(&mut self, reason: impl Into<String>) {
+        self.skipped += 1;
+        self.skip_reasons.push(reason.into());
     }
     fn ok(&mut self, name: &str) {
         self.push(name, true, None);
@@ -99,7 +105,7 @@ fn compile_req(theme: &str, slug: &str, exp: u32, created: Option<&str>) -> serd
 
 /// Полная батарея. `prod` — если продакшн-база доступна (RO-паритет).
 pub fn run(prod: Option<&Connection>) -> Battery {
-    let mut b = Battery { checks: Vec::new(), skipped: 0 };
+    let mut b = Battery { checks: Vec::new(), skipped: 0, skip_reasons: Vec::new() };
 
     /* ============ канон-арифметика ============ */
     b.expect("canon/slot-law-clean", canon::slot_law_checks().is_empty(), || format!("{:?}", canon::slot_law_checks()));
@@ -373,6 +379,9 @@ pub fn run(prod: Option<&Connection>) -> Battery {
         b.expect("theme/strict-unknown-field", theme::ThemeAnchors::from_json(&hacked, "x", "y").is_err(), || "strict режет лишние поля".into());
     }
 
+    /* ============ текст-батарея (этапы 0-1, textgates.rs) ============ */
+    textgates_battery(&mut b);
+
     /* ============ live-шина ============ */
     {
         let s1 = live::publish("system", "info", "самотест A");
@@ -412,18 +421,429 @@ pub fn run(prod: Option<&Connection>) -> Battery {
                         let got = payload_sha10(&p2);
                         b.expect("parity/t441-sha10-byteexact", got == expected, || format!("{got} != {expected}"));
                     } else {
-                        b.skipped += 1;
+                        b.skip("прод: payload T4-41 без slots[] — sha10-паритет неприменим");
                     }
                 }
                 None => {
-                    b.skipped += 1;
+                    b.skip("прод: батч T4-41 не найден — sha10-паритет неприменим");
                 }
             }
         }
         None => {
-            b.skipped += 3;
+            b.skip("нет продакшн-базы (--no-prod или t4.db недоступна): паритет цепи/высоты/sha10");
+            b.skip("нет продакшн-базы: высота цепи");
+            b.skip("нет продакшн-базы: sha10 T4-41 байт-в-байт");
         }
     }
 
     b
+}
+
+/* ==================================================================== */
+/* Текст-батарея файл-эры (этапы 0-1): синтетика PASS/FAIL на каждый     */
+/* портированный гейт + паритет с записанными TS-слепками gate.run        */
+/* (thread4/events/log.jsonl) и живыми TS-прогонами (sha-pinned findings) */
+/* ==================================================================== */
+
+/// Сборка синтетического батча: шапка + слоты (мета, POS, NEG).
+fn md_of(header: &str, slots: &[(&str, &str, &str)]) -> String {
+    let mut md = String::from(header);
+    for (i, (meta, pos, neg)) in slots.iter().enumerate() {
+        md.push_str(&format!(
+            "P{:02} — synth-{} ({})\nPOS:\n{}\nNEG:\n{}\n",
+            i + 1, i, meta, pos, neg
+        ));
+    }
+    md
+}
+
+fn run_synth(md: &str) -> Vec<compile::Receipt> {
+    let batch = crate::textgates::parse_batch("T4-90", md);
+    crate::textgates::run_text_gates(&batch, None)
+}
+
+fn gate_of<'a>(receipts: &'a [compile::Receipt], gate: &str) -> &'a compile::Receipt {
+    receipts
+        .iter()
+        .find(|r| r.gate == gate)
+        .unwrap_or_else(|| panic!("батарея без гейта {gate}"))
+}
+
+fn textgates_battery(b: &mut Battery) {
+    use crate::textgates;
+
+    /* ---- синтетика: +1 PASS и +1 FAIL на каждый из 13 гейтов ---- */
+    let clean = md_of(
+        "# T4-90 «Etalon» — БАТЧ\n\nТЕМА-СЛОВА: harbor, lantern\n",
+        &[
+            ("OC · Vae · R+ · PL24 · P25_VOID_EMBER",
+             "anime style, original character, 1girl, solo, harbor night, lantern glow, copper hair, green eyes, masterpiece, best quality, anime artstyle.",
+             "child, loli, bra, camisole, candle"),
+            ("VOLT · — · R+ · PL70 · P30_STEEL_MARKET",
+             "anime style, original character, 1girl, solo, steel market stalls, lantern sale, rain drift, wool coat, masterpiece, best quality, anime artstyle.",
+             "child, loli, bra, camisole, candle"),
+        ],
+    );
+    let clean_receipts = run_synth(&clean);
+    {
+        // budget PASS — короткие POS, без хеджей
+        let r = gate_of(&clean_receipts, "budget");
+        b.expect("textgates/budget-pass", r.verdict == "PASS", || r.findings.join("; "));
+        let long_pos = format!("{} {}", "word ".repeat(400).trim(), "extra tail");
+        let f = run_synth(&md_of("# T4-91 «x»\n", &[("VOLT · — · R+", &long_pos, "x")]));
+        let r = gate_of(&f, "budget");
+        b.expect("textgates/budget-fail-over-400", {
+            r.verdict == "WARN" && r.findings.iter().any(|x| x.starts_with("P1: POS 402 слов > 400"))
+        }, || r.findings.join("; "));
+    }
+    {
+        // cadence PASS — разные клоузеры
+        let r = gate_of(&clean_receipts, "cadence");
+        b.expect("textgates/cadence-pass", r.verdict == "PASS", || r.findings.join("; "));
+        let mut md = String::from("# T4-92 «x»\n");
+        for i in 1..=5 {
+            md.push_str(&format!("P{i:02} — a (VOLT · — · R)\nPOS:\nframe {i} — close.\nNEG:\nx\n"));
+        }
+        let f_receipts = run_synth(&md);
+        let r = gate_of(&f_receipts, "cadence");
+        b.expect("textgates/cadence-fail-monoclass", {
+            r.verdict == "WARN"
+                && r.findings
+                    .iter()
+                    .any(|x| x.starts_with("клоузер-формула: fragment-pair 100% > 60% (N25-ловушка)"))
+        }, || r.findings.join("; "));
+    }
+    {
+        // prop-geometry PASS — без сложных пропов
+        let r = gate_of(&clean_receipts, "prop-geometry");
+        b.expect("textgates/prop-geometry-pass", r.verdict == "PASS", || r.findings.join("; "));
+        let f = run_synth(&md_of("# T4-93 «x»\n", &[("VOLT · — · R", "anime style, girl on the rope bridge.", "x")]));
+        let r = gate_of(&f, "prop-geometry");
+        b.expect("textgates/prop-geometry-fail-anchors", {
+            r.verdict == "WARN"
+                && r.findings.iter().any(|x| {
+                    x == "P1: сложный проп «rope» с 0/2 якорей контакта — назови, где руки/ноги (вердикт T4-02, геометрия)"
+                })
+        }, || r.findings.join("; "));
+    }
+    {
+        // noun-lock PASS — заявка на именованной вещи, подслой в NEG, bare-under в POS
+        let ok = run_synth(&md_of("# T4-94 «x»\n", &[(
+            "VOLT · — · R+",
+            "anime style, clothed nipples, silk blouse, nothing underneath, wet pier.",
+            "child, bra, camisole",
+        )]));
+        let r = gate_of(&ok, "noun-lock");
+        b.expect("textgates/noun-lock-pass", r.verdict == "PASS", || r.findings.join("; "));
+        let f = run_synth(&md_of("# T4-94 «x»\n", &[(
+            "VOLT · — · R+",
+            "anime style, see-through silhouette, nothing underneath.",
+            "child",
+        )]));
+        let r = gate_of(&f, "noun-lock");
+        b.expect("textgates/noun-lock-fail-garment-lock", {
+            r.verdict == "WARN"
+                && r.findings.iter().any(|x| x.contains("сквозь-ткань заявка (see-through) не залочена"))
+                && r.findings.iter().any(|x| x.contains("тишина по подслою = дыра"))
+        }, || r.findings.join("; "));
+    }
+    {
+        // character-collision PASS — составная форма легальна
+        let r = gate_of(&clean_receipts, "character-collision");
+        b.expect("textgates/character-collision-pass", r.verdict == "PASS", || r.findings.join("; "));
+        let f = run_synth(&md_of("# T4-95 «x»\n", &[("VOLT · — · R", "anime style, aurora, stars.", "x")]));
+        let r = gate_of(&f, "character-collision");
+        b.expect("textgates/character-collision-fail-homonym", {
+            r.verdict == "WARN"
+                && r.findings.iter().any(|x| {
+                    x == "P1: омоним данбуру «aurora» в POS — рендерер матчит чужого персонажа (aurora_…: T4-05 P08 — aurora_(arknights) «пробежал персонаж»). Только составной формой (§9-септима, character-collision)"
+                })
+        }, || r.findings.join("; "));
+    }
+    {
+        // theme-presence PASS — тема-слова в ≥60% не-EXP слотов
+        let r = gate_of(&clean_receipts, "theme-presence");
+        b.expect("textgates/theme-presence-pass", r.verdict == "PASS", || r.findings.join("; "));
+        let f = run_synth(&md_of(
+            "# T4-96 «x»\n\nТЕМА-СЛОВА: orchid\n",
+            &[("VOLT · — · R", "anime style, harbor.", "x"), ("VOLT · — · R", "anime style, pier.", "x")],
+        ));
+        let r = gate_of(&f, "theme-presence");
+        b.expect("textgates/theme-presence-fail-60pct", {
+            r.verdict == "WARN"
+                && r.findings
+                    .iter()
+                    .any(|x| x.starts_with("тему несут 0/2 слотов (нужно ≥60%; EXP-болванки не в счёте) — слова: orchid"))
+        }, || r.findings.join("; "));
+    }
+    {
+        // original-character-coverage PASS — U1 в каждом не-OC слоте
+        let r = gate_of(&clean_receipts, "original-character-coverage");
+        b.expect("textgates/oc-coverage-pass", r.verdict == "PASS", || r.findings.join("; "));
+        let f = run_synth(&md_of("# T4-97 «x»\n", &[("VOLT · — · R", "anime style, 1girl, solo.", "x")]));
+        let r = gate_of(&f, "original-character-coverage");
+        b.expect("textgates/oc-coverage-fail-u1", {
+            r.verdict == "WARN"
+                && r.findings.iter().any(|x| {
+                    x == "P1: нет original character в тег-блоке — U1 в ручном потоке (Issue #24)"
+                })
+        }, || r.findings.join("; "));
+    }
+    {
+        // artist-leak PASS — без artist-токенов
+        let r = gate_of(&clean_receipts, "artist-leak");
+        b.expect("textgates/artist-leak-pass", r.verdict == "PASS", || r.findings.join("; "));
+        let f = run_synth(&md_of("# T4-98 «x»\n", &[("VOLT · — · R", "anime style, art by someone, solo.", "x")]));
+        let r = gate_of(&f, "artist-leak");
+        b.expect("textgates/artist-leak-fail", {
+            r.verdict == "WARN"
+                && r.findings.iter().any(|x| {
+                    x == "P1: artist-подобный токен в тег-блоке — artist_ban, PH-утечка (Issue #24, U3)"
+                })
+        }, || r.findings.join("; "));
+    }
+    {
+        // garment-family PASS — белья ≤58%
+        let r = gate_of(&clean_receipts, "garment-family");
+        b.expect("textgates/garment-family-pass", r.verdict == "PASS", || r.findings.join("; "));
+        let lingerie_slot = ("VOLT · — · R", "anime style, lace lingerie, stockings, garter belt, bra.", "x");
+        let f = run_synth(&md_of("# T4-99 «x»\n", &[lingerie_slot, lingerie_slot, lingerie_slot]));
+        let r = gate_of(&f, "garment-family");
+        b.expect("textgates/garment-family-fail-58pct", {
+            r.verdict == "WARN"
+                && r.findings.iter().any(|x| x.starts_with("бельё-семья монополизирует батч: 3/3 слотов"))
+        }, || r.findings.join("; "));
+    }
+    {
+        // freq-report (advisory): чистый — «тиков не обнаружено»
+        let r = gate_of(&clean_receipts, "freq-report");
+        b.expect("textgates/freq-report-clean", {
+            r.verdict == "REPORT" && r.findings == vec!["тиков не обнаружено".to_string()]
+        }, || r.findings.join("; "));
+        let mut md = String::from("# T4-99 «x»\n");
+        for i in 1..=8 {
+            md.push_str(&format!(
+                "P{i:02} — a (VOLT · — · R)\nPOS:\nanime style, copperwire glow, solo {i}.\nNEG:\nx\n"
+            ));
+        }
+        let f_receipts = run_synth(&md);
+        let r = gate_of(&f_receipts, "freq-report");
+        b.expect("textgates/freq-report-tic-detected", {
+            r.findings.iter().any(|x| x.contains("copperwire 8/8"))
+        }, || r.findings.join("; "));
+    }
+    {
+        // usage (advisory): счёт носителей/R+/X дословно
+        let r = gate_of(&clean_receipts, "usage");
+        b.expect("textgates/usage-report-clean", {
+            r.findings
+                == vec![
+                    "носителей в стеках: 0; уникальных: 0".to_string(),
+                    "R+ слотов: 2; X: 0".to_string(),
+                ]
+        }, || r.findings.join("; "));
+        let mut md = String::from("# T4-99 «x»\n");
+        md.push_str("P01 — a (VOLT · — · R+)\nStack: CR-W01 + CR-W01 + CR-B02\nPOS:\nx\nNEG:\nx\n");
+        md.push_str("P02 — a (VOLT · — · X)\nStack: CR-W01 + CR-B03\nPOS:\nx\nNEG:\nx\n");
+        let f_receipts = run_synth(&md);
+        let r = gate_of(&f_receipts, "usage");
+        b.expect("textgates/usage-report-stacks", {
+            r.findings
+                == vec![
+                    "носителей в стеках: 5; уникальных: 3".to_string(),
+                    "R+ слотов: 1; X: 1".to_string(),
+                ]
+        }, || r.findings.join("; "));
+    }
+    {
+        // one-hard-claim PASS — одна семья на R+ слоте
+        let ok = run_synth(&md_of("# T4-99 «x»\n", &[(
+            "VOLT · — · R+",
+            "anime style, clothed nipples, wet fabric only.",
+            "x",
+        )]));
+        let r = gate_of(&ok, "one-hard-claim");
+        b.expect("textgates/one-hard-claim-pass", r.verdict == "PASS", || r.findings.join("; "));
+        let f = run_synth(&md_of("# T4-99 «x»\n", &[(
+            "VOLT · — · R+",
+            "anime style, clothed nipples, wet clothes.",
+            "x",
+        )]));
+        let r = gate_of(&f, "one-hard-claim");
+        b.expect("textgates/one-hard-claim-fail-two-families", {
+            r.verdict == "WARN"
+                && r.findings.iter().any(|x| {
+                    x == "P1: 2 hard-claim семьи сразу (through + wet) — заявки делят внимание кадра (G20, №52-бэклог): оставь ОДНУ, вторую перевези в другой слот"
+                })
+        }, || r.findings.join("; "));
+    }
+    {
+        // echo-window PASS — <6 общих сигнатур у соседей
+        let r = gate_of(&clean_receipts, "echo-window");
+        b.expect("textgates/echo-window-pass", r.verdict == "PASS", || r.findings.join("; "));
+        let a = "anime style, brass lantern, copper hoop, velvet drape, marble step, granite ledge.";
+        let c = "anime style, brass lantern, copper hoop, velvet drape, marble step, granite bench.";
+        let f = run_synth(&md_of("# T4-99 «x»\n", &[("VOLT · — · R", a, "x"), ("VOLT · — · R", c, "x")]));
+        let r = gate_of(&f, "echo-window");
+        b.expect("textgates/echo-window-fail-6signatures", {
+            r.verdict == "WARN"
+                && r.findings
+                    .iter()
+                    .any(|x| x.starts_with("P1↔P2: эхо 7 сигнатур (первая «brass»)"))
+        }, || r.findings.join("; "));
+    }
+
+    /* ---- паритет: Rust-вердикты == записанные TS-слепки gate.run
+     * (thread4/events/log.jsonl; сверка ТОЛЬКО при совпадении sha10 файла —
+     * летопись не судит прошлые состояния файла) — T4-27 / T4-27.2-EXP /
+     * T4-28 / T4-31 / T4-34 ---- */
+    for slug in ["T4-27", "T4-27.2-EXP", "T4-28", "T4-31", "T4-34"] {
+        match textgates::run_for_slug(slug) {
+            Ok((_batch, outcome)) => match textgates::recorded_ts_snapshot(slug, &outcome.sha10) {
+                Some(snap) => {
+                    let mine: Vec<(&str, &str)> =
+                        outcome.receipts.iter().map(|r| (r.gate, r.verdict)).collect();
+                    let mut diffs: Vec<String> = Vec::new();
+                    let mut compared = 0usize;
+                    for (gate, verdict) in &snap.verdicts {
+                        if !textgates::BATTERY_RUST.contains(&gate.as_str()) {
+                            continue;
+                        }
+                        compared += 1;
+                        match mine.iter().find(|(g, _)| g == gate) {
+                            Some((_, v)) if *v == verdict.as_str() => {}
+                            Some((_, v)) => {
+                                diffs.push(format!("{gate}: TS {verdict} ≠ Rust {v}"))
+                            }
+                            None => diffs.push(format!("{gate}: нет в Rust-батарее")),
+                        }
+                    }
+                    b.expect(
+                        &format!("textgates/parity-{slug}-vs-ts-snapshot"),
+                        diffs.is_empty() && compared >= 10,
+                        || {
+                            format!(
+                                "run#{}: compared {compared}, разногласия: {}",
+                                snap.run,
+                                if diffs.is_empty() { "—".into() } else { diffs.join("; ") }
+                            )
+                        },
+                    );
+                }
+                None => {
+                    // файл ушёл от записанного sha (живая история правится) —
+                    // честный skip, сверять прошлое с настоящим нельзя
+                    b.skip(format!(
+                        "слепок {slug}: текущий sha10 файла не совпадает ни с одним записанным TS-прогоном (летопись не судит прошлые состояния файла)"
+                    ));
+                }
+            },
+            Err(e) => b.skip(format!("слепок {slug}: {e}")),
+        }
+    }
+
+    /* ---- findings-паритет: дословные строки живых TS-прогонов
+     * (bun runGates dry-run), sha-pinned к текущим файлам — 6 пинов:
+     * prop-geometry×2, noun-lock, usage, one-hard-claim, echo-window ---- */
+    let pins: [(&str, &str, &str, &[&str]); 6] = [
+        (
+            "T4-34", "1c60338a38", "prop-geometry",
+            &[
+                "P9: сложный проп «rail» с 0/2 якорей контакта — назови, где руки/ноги (вердикт T4-02, геометрия)",
+                "P10: сложный проп «rail» с 0/2 якорей контакта — назови, где руки/ноги (вердикт T4-02, геометрия)",
+                "P25: сложный проп «staircase» с 1/2 якорей контакта — назови, где руки/ноги (вердикт T4-02, геометрия)",
+                "P26: сложный проп «staircase» с 1/2 якорей контакта — назови, где руки/ноги (вердикт T4-02, геометрия)",
+                "P27: сложный проп «staircase» с 0/2 якорей контакта — назови, где руки/ноги (вердикт T4-02, геометрия)",
+                "P28: сложный проп «staircase» с 0/2 якорей контакта — назови, где руки/ноги (вердикт T4-02, геометрия)",
+            ],
+        ),
+        (
+            "T4-34", "1c60338a38", "noun-lock",
+            &[
+                "P5: сквозь-ткань заявка (clothed nipples) не залочена на именованную тонкую вещь — назови garment существительным (blouse/tee/shirt/knit/swimsuit/leotard/sheet/towel…), прилагательное заявку не несёт (§10-поправка, noun-lock)",
+                "P9: сквозь-ткань заявка (clothed nipples) не залочена на именованную тонкую вещь — назови garment существительным (blouse/tee/shirt/knit/swimsuit/leotard/sheet/towel…), прилагательное заявку не несёт (§10-поправка, noun-lock)",
+                "P14: нижняя заявка (visible pantyline) не залочена на именованную вещь — pantyline живёт на именованном низе (skirt/shorts/leggings/sheet…), не в воздухе (§10-поправка, noun-lock)",
+                "P20: сквозь-ткань заявка (clothed nipples) не залочена на именованную тонкую вещь — назови garment существительным (blouse/tee/shirt/knit/swimsuit/leotard/sheet/towel…), прилагательное заявку не несёт (§10-поправка, noun-lock)",
+                "P20: нижняя заявка (visible pantyline) не залочена на именованную вещь — pantyline живёт на именованном низе (skirt/shorts/leggings/sheet…), не в воздухе (§10-поправка, noun-lock)",
+                "P31: сквозь-ткань заявка (clothed nipples) не залочена на именованную тонкую вещь — назови garment существительным (blouse/tee/shirt/knit/swimsuit/leotard/sheet/towel…), прилагательное заявку не несёт (§10-поправка, noun-lock)",
+            ],
+        ),
+        (
+            "T4-31", "397256d2a4", "usage",
+            &[
+                "носителей в стеках: 128; уникальных: 83",
+                "R+ слотов: 25; X: 0",
+            ],
+        ),
+        (
+            "T4-31", "397256d2a4", "prop-geometry",
+            &[
+                "P2: сложный проп «ladder» с 0/2 якорей контакта — назови, где руки/ноги (вердикт T4-02, геометрия)",
+                "P6: сложный проп «swing» с 0/2 якорей контакта — назови, где руки/ноги (вердикт T4-02, геометрия)",
+                "P13: сложный проп «staircase» с 0/2 якорей контакта — назови, где руки/ноги (вердикт T4-02, геометрия)",
+                "P20: сложный проп «swing» с 0/2 якорей контакта — назови, где руки/ноги (вердикт T4-02, геометрия)",
+                "P23: сложный проп «swing» с 0/2 якорей контакта — назови, где руки/ноги (вердикт T4-02, геометрия)",
+            ],
+        ),
+        (
+            "T4-28", "7fc06f1962", "one-hard-claim",
+            &[
+                "P1: 2 hard-claim семьи сразу (through + wet) — заявки делят внимание кадра (G20, №52-бэклог): оставь ОДНУ, вторую перевези в другой слот",
+                "P2: 2 hard-claim семьи сразу (through + wet) — заявки делят внимание кадра (G20, №52-бэклог): оставь ОДНУ, вторую перевези в другой слот",
+                "P4: 2 hard-claim семьи сразу (wet + pantyline) — заявки делят внимание кадра (G20, №52-бэклог): оставь ОДНУ, вторую перевези в другой слот",
+                "P5: 2 hard-claim семьи сразу (wet + pantyline) — заявки делят внимание кадра (G20, №52-бэклог): оставь ОДНУ, вторую перевези в другой слот",
+                "P7: 2 hard-claim семьи сразу (through + wet) — заявки делят внимание кадра (G20, №52-бэклог): оставь ОДНУ, вторую перевези в другой слот",
+                "P8: 2 hard-claim семьи сразу (through + wet) — заявки делят внимание кадра (G20, №52-бэклог): оставь ОДНУ, вторую перевези в другой слот",
+                "P9: 2 hard-claim семьи сразу (through + wet) — заявки делят внимание кадра (G20, №52-бэклог): оставь ОДНУ, вторую перевези в другой слот",
+                "P11: 2 hard-claim семьи сразу (through + wet) — заявки делят внимание кадра (G20, №52-бэклог): оставь ОДНУ, вторую перевези в другой слот",
+                "P14: 2 hard-claim семьи сразу (through + wet) — заявки делят внимание кадра (G20, №52-бэклог): оставь ОДНУ, вторую перевези в другой слот",
+                "P17: 2 hard-claim семьи сразу (through + wet) — заявки делят внимание кадра (G20, №52-бэклог): оставь ОДНУ, вторую перевези в другой слот",
+                "P19: 2 hard-claim семьи сразу (through + wet) — заявки делят внимание кадра (G20, №52-бэклог): оставь ОДНУ, вторую перевези в другой слот",
+                "P20: 2 hard-claim семьи сразу (through + wet) — заявки делят внимание кадра (G20, №52-бэклог): оставь ОДНУ, вторую перевези в другой слот",
+                "P21: 2 hard-claim семьи сразу (through + wet) — заявки делят внимание кадра (G20, №52-бэклог): оставь ОДНУ, вторую перевези в другой слот",
+                "P24: 2 hard-claim семьи сразу (wet + pantyline) — заявки делят внимание кадра (G20, №52-бэклог): оставь ОДНУ, вторую перевези в другой слот",
+            ],
+        ),
+        (
+            "T4-27", "1163b4ea98", "echo-window",
+            &[
+                "P1↔P2: эхо 8 сигнатур (первая «white») — соседние кадры жуют одно (G33, №52-бэклог): разведи вещи/пропсы/детали",
+                "P3↔P4: эхо 9 сигнатур (первая «brown») — соседние кадры жуют одно (G33, №52-бэклог): разведи вещи/пропсы/детали",
+                "P4↔P6: эхо 6 сигнатур (первая «resting») — соседние кадры жуют одно (G33, №52-бэклог): разведи вещи/пропсы/детали",
+                "P6↔P8: эхо 8 сигнатур (первая «across») — соседние кадры жуют одно (G33, №52-бэклог): разведи вещи/пропсы/детали",
+                "P8↔P10: эхо 7 сигнатур (первая «brown») — соседние кадры жуют одно (G33, №52-бэклог): разведи вещи/пропсы/детали",
+                "P10↔P11: эхо 7 сигнатур (первая «chestnut») — соседние кадры жуют одно (G33, №52-бэклог): разведи вещи/пропсы/детали",
+                "P10↔P12: эхо 6 сигнатур (первая «see-through») — соседние кадры жуют одно (G33, №52-бэклог): разведи вещи/пропсы/детали",
+                "P11↔P12: эхо 12 сигнатур (первая «pressed») — соседние кадры жуют одно (G33, №52-бэклог): разведи вещи/пропсы/детали",
+                "…и ещё 16 пар",
+            ],
+        ),
+    ];
+    for (slug, sha, gate, expected) in pins {
+        match textgates::run_for_slug(slug) {
+            Ok((_batch, outcome)) => {
+                if outcome.sha10 != sha {
+                    // файл батча ушёл от эталонного sha — findings могли
+                    // легально измениться; честный skip, не ложная тревога
+                    b.skip(format!(
+                        "findings-{slug}-{gate}: файл ушёл от эталонного sha {sha} — дословный слепок устарел"
+                    ));
+                    continue;
+                }
+                let got = outcome
+                    .receipts
+                    .iter()
+                    .find(|r| r.gate == gate)
+                    .map(|r| r.findings.clone())
+                    .unwrap_or_default();
+                let exp: Vec<String> = expected.iter().map(|s| s.to_string()).collect();
+                b.expect(
+                    &format!("textgates/findings-{slug}-{gate}-ts-verbatim"),
+                    got == exp,
+                    || format!("Rust: {:?} — ожидался TS-слепок: {:?}", got, exp),
+                );
+            }
+            Err(e) => b.skip(format!("findings-{slug}-{gate}: {e}")),
+        }
+    }
 }

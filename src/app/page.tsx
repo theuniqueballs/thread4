@@ -6,7 +6,7 @@
  * Первый уровень — рабочий: один экран без вложенных табов.
  *   · компактный статус-ряд (эпоха/батчи/движок/цепь/ключ)
  *   · окно ротации (3 слота усталости)
- *   · Action Deck — 9 действий с честными workflow (idle→pending→
+ *   · Action Deck — 10 действий с честными workflow (idle→pending→
  *     success/error, лог шагов, подтверждения, dry-run)
  *   · текущий батч + живая лента последних 5 событий (poll 4с)
  *   · читальный зал (второй уровень): 8 разделов в боковом drawer'е
@@ -19,7 +19,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Command as CommandIcon, LayoutGrid, Compass, Settings, Sparkles, Zap } from 'lucide-react'
+import { ChevronDown, Command as CommandIcon, LayoutGrid, Compass, Settings, Sparkles, Zap } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
 import { toast } from '@/hooks/use-toast'
@@ -30,6 +30,7 @@ import { navigateToSlot } from '@/components/t4/nav'
 import {
   isEngineTele,
   RotationWindowPanel,
+  type EngineBatchRow,
   type EngineTele,
 } from '@/components/t4/console/panels'
 import { ActionDeck } from '@/components/t4/console/action-deck'
@@ -47,6 +48,7 @@ import {
 } from '@/components/t4/console/chrome'
 import { CommandPalette, type PaletteMisc } from '@/components/t4/console/palette'
 import {
+  getLiveConsoleUi,
   invalidateEngineBatches,
   subscribeNotify,
   useCommanderKeySaved,
@@ -56,6 +58,103 @@ import {
   type DrawerId,
   type NotifyEntry,
 } from '@/components/t4/console/shared'
+
+/* ------------------------------------------------------------------ */
+/* Layout E: левый рельс воркфлоу (история · twin · читальный зал)      */
+/* ------------------------------------------------------------------ */
+
+const RAIL_LINKS: { id: DrawerId; label: string; hotkey: string }[] = [
+  { id: 'batches', label: 'батчи', hotkey: '4' },
+  { id: 'chronicle', label: 'летопись', hotkey: '3' },
+  { id: 'docs', label: 'доки', hotkey: '1' },
+  { id: 'specs', label: 'спеки', hotkey: '2' },
+]
+
+function railDot(status: string): string {
+  if (status === 'delivered') return 'bg-emerald-500'
+  if (status === 'voided') return 'bg-zinc-600'
+  return 'bg-amber-400'
+}
+
+function WorkflowRail(props: {
+  rows: EngineBatchRow[]
+  onOpenBatch: (slug: string) => void
+  onOpenDrawer: (id: DrawerId) => void
+}) {
+  const rows = props.rows.slice(0, 10)
+  return (
+    <nav
+      aria-label="навигация воркфлоу: история и разделы"
+      className="hidden min-w-0 flex-col gap-3 self-stretch rounded-xl border border-white/10 bg-zinc-950/70 p-3 backdrop-blur-xl xl:flex"
+    >
+      <div className="rounded-lg border border-white/10 bg-zinc-900/40 p-2.5">
+        <p className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wider text-amber-300/80">
+          <Zap className="size-3" /> rust twin :3201
+        </p>
+        <p className="mt-1.5 text-[10px] leading-relaxed text-zinc-500">
+          Воркфлоу живёт на Rust-ядре: якоря, гейт №25, компиляция, батарея гейтов — всё в
+          scratch-летописи twin&apos;а. Продакшн-цепь :3200 неприкосновенна; сдача в прод — решение автора.
+        </p>
+      </div>
+
+      <p className="font-mono text-[10px] uppercase tracking-wider text-zinc-500">история · движок</p>
+      <div className="min-h-0 flex-1 space-y-0.5 overflow-y-auto t4-scroll">
+        {rows.length === 0 ? (
+          <p className="px-1 py-2 text-[10px] text-zinc-600">лента пуста — движок молчит</p>
+        ) : (
+          rows.map((r) => (
+            <button
+              key={r.slug}
+              type="button"
+              onClick={() => props.onOpenBatch(r.slug)}
+              className="group flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left transition-colors hover:bg-zinc-800/60"
+              title={`${r.slug} — ${r.title}`}
+            >
+              <span className={`size-1.5 shrink-0 rounded-full ${railDot(r.status)}`} aria-hidden />
+              <span className="font-term shrink-0 text-[11px] text-zinc-300 group-hover:text-zinc-100">{r.slug}</span>
+              <span className="truncate text-[10px] text-zinc-500">{r.title}</span>
+            </button>
+          ))
+        )}
+      </div>
+
+      <div className="space-y-0.5 border-t border-white/10 pt-2">
+        {RAIL_LINKS.map((l) => (
+          <button
+            key={l.id}
+            type="button"
+            onClick={() => props.onOpenDrawer(l.id)}
+            className="flex w-full items-center justify-between rounded-md px-2 py-1.5 text-[11px] text-zinc-400 transition-colors hover:bg-zinc-800/60 hover:text-zinc-200"
+          >
+            <span>{l.label}</span>
+            <kbd className="rounded border border-zinc-800 bg-zinc-900 px-1 font-mono text-[9px] text-zinc-600">{l.hotkey}</kbd>
+          </button>
+        ))}
+      </div>
+    </nav>
+  )
+}
+
+/* ------------------------------------------------------------------ */
+/* Layout E: нижняя выдвижная Live Console                             */
+/* ------------------------------------------------------------------ */
+
+const LIVE_DRAWER_KEY = 't4-live-drawer'
+
+type LiveUiSnapshot = ReturnType<typeof getLiveConsoleUi>
+
+const LIVE_STATUS_WORD: Record<LiveUiSnapshot['status'], string> = {
+  live: 'эфир',
+  paused: 'пауза',
+  reconnect: 'переподключение',
+  down: 'молчит',
+}
+
+function liveStatusDot(status: LiveUiSnapshot['status']): string {
+  if (status === 'live') return 'bg-emerald-500 animate-pulse'
+  if (status === 'down') return 'bg-rose-500'
+  return 'bg-amber-400'
+}
 
 /* ------------------------------------------------------------------ */
 /* Горячие клавиши                                                     */
@@ -107,6 +206,30 @@ export default function Home() {
   /* Command Center (Фаза 3): два вида — Воркфлоу (Rust twin) и Консоль «МОЩНОСТЬ» */
   const [view, setView] = useState<'workflow' | 'console'>('workflow')
   const keySaved = useCommanderKeySaved()
+
+  /* Layout E: нижняя выдвижная Live Console (состояние переживает перезагрузку) */
+  const [liveOpen, setLiveOpen] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return true
+    try {
+      return window.localStorage.getItem(LIVE_DRAWER_KEY) !== 'closed'
+    } catch {
+      return true
+    }
+  })
+  const toggleLiveDrawer = useCallback(() => {
+    setLiveOpen((v) => {
+      const next = !v
+      try {
+        window.localStorage.setItem(LIVE_DRAWER_KEY, next ? 'open' : 'closed')
+      } catch {
+        /* приватный режим — просто без персиста */
+      }
+      return next
+    })
+  }, [])
+  /* снимок live-шины для свёрнутой плашки (2с, дёшево) */
+  const [liveUi, setLiveUi] = useState<LiveUiSnapshot>(() => getLiveConsoleUi())
+  useVisibleInterval(() => setLiveUi(getLiveConsoleUi()), 2_000)
 
   /* данные: состояние ядра (poll 15с) + живая лента движка (poll 4с) */
   const state = useApi<Record<string, unknown>>('/api/t4/state')
@@ -344,21 +467,54 @@ export default function Home() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ type: 'spring', stiffness: 260, damping: 26 }}
-              className="mt-4 grid min-w-0 grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(360px,420px)]"
+              className="mt-4 min-w-0"
             >
-              <WorkflowDeck onFocusAction={focusAction} onMutated={onMutated} />
-              <div className="min-w-0 space-y-4">
-                <LiveConsole />
-                <div className="rounded-xl border border-zinc-800/80 bg-zinc-950/70 p-4 backdrop-blur">
-                  <p className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-wider text-zinc-500">
-                    <Zap className="size-3 text-amber-400" /> rust twin · scratch-летопись
-                  </p>
-                  <p className="mt-2 text-[11px] leading-relaxed text-zinc-500">
-                    Воркфлоу доказывает полный цикл на Rust-ядре (:3201): план, якоря, гейт №25,
-                    сдача — всё в scratch-летописи twin'а. Продакшн-цепь (:3200, 434 звена) —
-                    неприкосновенна, производственная сдача — решение автора.
-                  </p>
+              {/* Layout E: слева — рельс истории/навигации, центр — canvas воркфлоу */}
+              <div className="grid min-w-0 grid-cols-1 gap-4 xl:grid-cols-[minmax(190px,220px)_minmax(0,1fr)]">
+                <WorkflowRail rows={engineRows} onOpenBatch={openBatch} onOpenDrawer={(id) => setDrawer(id)} />
+                <div className="min-w-0">
+                  <WorkflowDeck onFocusAction={focusAction} onMutated={onMutated} />
                 </div>
+              </div>
+
+              {/* Layout E: снизу — выдвижная Live Console (SSE из Rust twin) */}
+              <div className="mt-4 overflow-hidden rounded-xl border border-white/10 bg-zinc-950/70 backdrop-blur-xl">
+                <button
+                  type="button"
+                  onClick={toggleLiveDrawer}
+                  aria-expanded={liveOpen}
+                  className="flex w-full items-center justify-between gap-3 px-4 py-2 font-mono text-[10px] uppercase tracking-wider text-zinc-400 transition-colors hover:bg-zinc-900/40"
+                >
+                  <span className="flex min-w-0 items-center gap-2">
+                    <span className={`size-1.5 shrink-0 rounded-full ${liveStatusDot(liveUi.status)}`} aria-hidden />
+                    <span className="shrink-0">live console · twin :3201</span>
+                    <span className="shrink-0 text-zinc-600">
+                      {liveOpen ? `seq ${liveUi.lastSeq} · ${LIVE_STATUS_WORD[liveUi.status]}` : 'свёрнута — развернуть'}
+                    </span>
+                    {liveUi.errorCount > 0 ? (
+                      <span className="shrink-0 rounded border border-rose-500/40 bg-rose-500/10 px-1.5 text-rose-300">
+                        {liveUi.errorCount} err
+                      </span>
+                    ) : null}
+                  </span>
+                  <ChevronDown className={cn('size-4 shrink-0 text-zinc-500 transition-transform', liveOpen && 'rotate-180')} />
+                </button>
+                <AnimatePresence initial={false}>
+                  {liveOpen ? (
+                    <motion.div
+                      key="live-console-body"
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ type: 'spring', stiffness: 260, damping: 26 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="border-t border-white/10 px-2 pb-2">
+                        <LiveConsole />
+                      </div>
+                    </motion.div>
+                  ) : null}
+                </AnimatePresence>
               </div>
             </motion.div>
           ) : (
@@ -415,7 +571,8 @@ export default function Home() {
             <kbd className="rounded border border-zinc-800 bg-zinc-900 px-1 py-px text-[10px]">V</kbd> вид ·{' '}
             <kbd className="rounded border border-zinc-800 bg-zinc-900 px-1 py-px text-[10px]">B C T P</kbd>{' '}
             <kbd className="rounded border border-zinc-800 bg-zinc-900 px-1 py-px text-[10px]">D X R S W</kbd> действия ·{' '}
-            <kbd className="rounded border border-zinc-800 bg-zinc-900 px-1 py-px text-[10px]">1–8</kbd> доки
+            <kbd className="rounded border border-zinc-800 bg-zinc-900 px-1 py-px text-[10px]">1–8</kbd> доки ·{' '}
+            <kbd className="rounded border border-zinc-800 bg-zinc-900 px-1 py-px text-[10px]">A N J</kbd> live-команды
           </span>
         </div>
       </footer>

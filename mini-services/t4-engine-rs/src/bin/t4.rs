@@ -92,6 +92,13 @@ enum Cmd {
     /// Официальный прогон гейтов: gate.run-событие в летопись
     Gates {
         slug: String,
+        /// Текстовая батарея файл-эры (13 словарных гейтов Rust по batches/<slug>.md);
+        /// для scratch-слогов пишет gate.run + t4_gate_runs, исторические — чистая печать
+        #[arg(long, default_value_t = false)]
+        text: bool,
+        /// Чистый JSON (только с --text)
+        #[arg(long, default_value_t = false)]
+        json: bool,
     },
     /// Сдать батч (batch.delivered; hard-гейты обязаны PASS)
     Deliver {
@@ -374,7 +381,47 @@ fn main() {
                 std::process::exit(1);
             }
         }
-        Cmd::Gates { slug } => {
+        Cmd::Gates { slug, text, json: as_json } => {
+            if text {
+                /* Текстовая батарея файл-эры (этапы 0-1, textgates.rs): файлы
+                 * репо RO; scratch-слаг → gate.run + t4_gate_runs в рабочую
+                 * базу; исторический (прод) — чистый анализ, БЕЗ записей. */
+                let conn = open_db(&db_arg).unwrap_or_else(|m| die(&m));
+                let (_batch, outcome) = match t4_engine_rs::textgates::run_for_slug(&slug) {
+                    Ok(v) => v,
+                    Err(e) => die(&e.to_string()),
+                };
+                let receipts = t4_engine_rs::textgates::receipts_json(&outcome.receipts);
+                if as_json {
+                    println!("{}", serde_json::to_string_pretty(&json!({
+                        "slug": slug,
+                        "sha10": outcome.sha10,
+                        "batteryRust": t4_engine_rs::textgates::BATTERY_RUST,
+                        "batteryTs": t4_engine_rs::textgates::BATTERY_TS,
+                        "hardPass": outcome.hard_pass,
+                        "hardFails": outcome.hard_fails(),
+                        "receipts": receipts,
+                    })).unwrap());
+                } else {
+                    println!("gates {slug} (текст-батарея Rust, {}/30 — словарные):", t4_engine_rs::textgates::BATTERY_RUST.len());
+                    print_receipts(&receipts);
+                }
+                let in_db: bool = conn
+                    .query_row("SELECT 1 FROM t4_batches WHERE slug = ?1", [&slug], |_| Ok(()))
+                    .is_ok();
+                if in_db {
+                    let (event_id, seq, run_index) =
+                        t4_engine_rs::textgates::record_gate_run(&conn, &outcome)
+                            .unwrap_or_else(|m| die(&m));
+                    println!("записано: gate.run {event_id} (seq {seq}, прогон #{run_index}) в рабочую летопись");
+                } else {
+                    println!("слаг {slug} исторический (не в рабочей базе) — чистый анализ, записей нет (прод не тронут)");
+                }
+                if !outcome.hard_pass {
+                    std::process::exit(1);
+                }
+                return;
+            }
             let conn = open_db(&db_arg).unwrap_or_else(|m| die(&m));
             let payload: Option<String> = conn
                 .query_row("SELECT payload FROM t4_batches WHERE slug = ?1", [&slug], |r| r.get(0))
@@ -555,7 +602,15 @@ fn main() {
                 "selftest: {}/{} PASS{}",
                 battery.passed(),
                 battery.total(),
-                if battery.skipped > 0 { format!(" ({} skipped: нет продакшн-базы)", battery.skipped) } else { String::new() }
+                if battery.skipped > 0 {
+                    format!(
+                        " ({} skipped: {})",
+                        battery.skipped,
+                        battery.skip_reasons.join(" · ")
+                    )
+                } else {
+                    String::new()
+                }
             );
             if !battery.all_ok() || battery.total() < 63 {
                 eprintln!("selftest: порог 63 не покрыт или есть FAIL");

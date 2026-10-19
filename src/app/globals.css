@@ -162,6 +162,32 @@
   background-clip: padding-box;
 }
 
+/* THREAD 4 (3-b): скроллбар живой консоли — класс .t4-live-scroll вешается
+ * на полотно терминала (live-console.tsx) с самого рождения консоли, но
+ * стиля не имел (мёртвый класс — дефолтный скроллбар).
+ * 4–6px, thumb zinc-700 → hover zinc-500, прозрачный трек; Firefox —
+ * scrollbar-width: thin. Автоскролл у края — smooth, чтобы дотяжка
+ * кадра была мягкой, а не рывком (reduced-motion — честно выключаем). */
+.t4-live-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #3f3f46 transparent;
+  scroll-behavior: smooth;
+}
+.t4-live-scroll::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.t4-live-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.t4-live-scroll::-webkit-scrollbar-thumb {
+  background: #3f3f46;
+  border-radius: 6px;
+}
+.t4-live-scroll::-webkit-scrollbar-thumb:hover {
+  background: #71717a;
+}
+
 /* Эра «МОЩНОСТЬ» (2026-10-18): горизонтальный вариант для статус-ряда
  * и читального зала — высота 5px, не отбирает вертикальное место. */
 .t4-scroll-x {
@@ -325,5 +351,8 @@
   .t4-pulse,
   .t4-slot-flash {
     animation: none;
+  }
+  .t4-live-scroll {
+    scroll-behavior: auto;
   }
 }

@@ -14,6 +14,7 @@ pub mod live;
 pub mod ratelimit;
 pub mod rpc;
 pub mod selftest;
+pub mod textgates;
 pub mod theme;
 
 /* ---------------- deliver / void — общее ядро (зеркало handlers.ts) ---------------- */
