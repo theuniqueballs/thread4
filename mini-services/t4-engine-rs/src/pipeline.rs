@@ -128,6 +128,10 @@ struct SharedRun {
     state: RunState,
     ctx: StageCtx,
     abort: Arc<AtomicBool>,
+    /// Детали последнего провала этапа (квитанции писца и т.п.) —
+    /// «Подробности» и Copy for AI на проваленной карточке обязаны
+    /// видеть ПОЧЕМУ, даже когда этап вернул Err.
+    fail_detail: Option<Value>,
 }
 
 pub struct PipelineHub {
@@ -141,6 +145,290 @@ pub fn hub() -> &'static PipelineHub {
     HUB.get_or_init(|| PipelineHub {
         run: Mutex::new(None),
         run_seq: std::sync::atomic::AtomicU64::new(0),
+    })
+}
+
+/* ---------------- персист прогона (t4_meta) ---------------- */
+
+/// Прогон живёт дольше памяти: рестарт движка не должен бросать автора
+/// (manual-этапы и статусы обязаны пережить перезапуск — квитанции
+/// восстановятся с диска/БД, детали этапов в UI вернутся по повтору).
+/// Компактный JSON в t4_meta['pipeline_run']; черновик — телом
+/// compile-запроса (strict-парсер с обеих сторон = одна правда).
+fn persist_locked(run: &RunState) {
+    let mut draft = serde_json::Map::new();
+    draft.insert("theme".into(), serde_json::json!(run.draft.theme));
+    draft.insert("exp".into(), serde_json::json!(run.draft.exp));
+    draft.insert("abPairs".into(), serde_json::json!(run.draft.ab_pairs));
+    draft.insert("engine".into(), serde_json::json!(run.draft.engine));
+    draft.insert(
+        "species".into(),
+        serde_json::json!({
+            "on": run.draft.species_on,
+            "count": run.draft.species_list.len() as u64,
+            "list": run.draft.species_list,
+        }),
+    );
+    draft.insert(
+        "ocThemes".into(),
+        serde_json::json!(run.draft.oc_themes.iter().map(|o| serde_json::json!({
+            "theme": o.theme, "rating": o.rating, "position": o.position,
+        })).collect::<Vec<_>>()),
+    );
+    if let Some(n) = &run.draft.notes {
+        draft.insert("notes".into(), serde_json::json!(n));
+    }
+    if let Some(a) = &run.draft.theme_anchors {
+        draft.insert("themeAnchors".into(), a.clone());
+    }
+    let compact = serde_json::json!({
+        "mode": run.mode,
+        "slug": run.slug,
+        "startedAt": run.started_at,
+        "finished": run.finished,
+        "ok": run.ok,
+        "draft": serde_json::Value::Object(draft),
+        "stages": run.stages.iter().map(|e| serde_json::json!({
+            "status": e.status.as_str(),
+            "summary": e.summary,
+        })).collect::<Vec<_>>(),
+    });
+    if let Ok(conn) = crate::db::open_production_rw() {
+        let _ = conn.execute(
+            "INSERT INTO t4_meta (key, value) VALUES ('pipeline_run', ?1)
+             ON CONFLICT(key) DO UPDATE SET value = excluded.value",
+            [compact.to_string()],
+        );
+    }
+}
+
+/// Восстановление прогона из t4_meta (main.rs зовёт на загрузке один раз).
+/// Нет записи — состояния выводятся ИЗ БД по свежему батчу (рестарт движка
+/// не бросает автора: стадии живут в летописи, а не только в памяти).
+pub fn load_persisted(conn: &Connection) {
+    let raw: Option<String> = conn
+        .query_row("SELECT value FROM t4_meta WHERE key = 'pipeline_run'", [], |r| r.get(0))
+        .ok();
+    if let Some(raw) = raw {
+        if let Some(run) = parse_persisted(&raw) {
+            let mut guard = match hub().run.lock() {
+                Ok(g) => g,
+                Err(p) => p.into_inner(),
+            };
+            if guard.is_none() {
+                live::info(
+                    BLOCK_PIPELINE,
+                    &format!(
+                        "прогон восстановлен из t4_meta: батч {} · этапы {}/5 отмечены",
+                        run.slug,
+                        run.stages.iter().filter(|e| e.status.is_passed()).count()
+                    ),
+                );
+                *guard = Some(run);
+            }
+            return;
+        }
+    }
+    if let Some(run) = derive_from_db(conn) {
+        let mut guard = match hub().run.lock() {
+            Ok(g) => g,
+            Err(p) => p.into_inner(),
+        };
+        if guard.is_none() {
+            live::info(
+                BLOCK_PIPELINE,
+                &format!(
+                    "прогон выведен из летописи: батч {} · этапы {}/5 отмечены",
+                    run.slug,
+                    run.stages.iter().filter(|e| e.status.is_passed()).count()
+                ),
+            );
+            *guard = Some(run);
+        }
+    }
+}
+
+fn parse_persisted(raw: &str) -> Option<SharedRun> {
+    let v: Value = serde_json::from_str(raw).ok()?;
+    let draft = compile::parse_request(v.get("draft").unwrap_or(&Value::Null)).ok()?;
+    let stages: Vec<StageEntry> = v
+        .get("stages")
+        .and_then(|s| s.as_array())
+        .map(|a| {
+            a.iter()
+                .map(|e| StageEntry {
+                    status: match e.get("status").and_then(|s| s.as_str()) {
+                        Some("running") => StageStatus::Pending,
+                        Some("done") => StageStatus::Done,
+                        Some("failed") => StageStatus::Failed,
+                        Some("skipped") => StageStatus::Skipped,
+                        Some("stale") => StageStatus::Stale,
+                        _ => StageStatus::Pending,
+                    },
+                    at: None,
+                    summary: e
+                        .get("summary")
+                        .and_then(|s| s.as_str())
+                        .map(String::from),
+                    detail: None,
+                })
+                .collect()
+        })
+        .unwrap_or_else(|| (0..5).map(|_| StageEntry::fresh()).collect());
+    let mode = if v.get("mode").and_then(|m| m.as_str()) == Some("manual") {
+        "manual"
+    } else {
+        "auto"
+    };
+    Some(SharedRun {
+        state: RunState {
+            mode,
+            started_at: v
+                .get("startedAt")
+                .and_then(|s| s.as_str())
+                .unwrap_or("")
+                .to_string(),
+            slug: v
+                .get("slug")
+                .and_then(|s| s.as_str())
+                .unwrap_or_default()
+                .to_string(),
+            draft,
+            stages,
+            current: None,
+            finished: v
+                .get("finished")
+                .and_then(|s| s.as_str())
+                .map(String::from),
+            ok: v.get("ok").and_then(|s| s.as_bool()).unwrap_or(false),
+        },
+        ctx: StageCtx::default(),
+        abort: Arc::new(AtomicBool::new(false)),
+        fail_detail: None,
+    })
+}
+
+/// Фолбэк без t4_meta: свежий не-void батч + летопись честно говорят,
+/// где конвейер стоит. Черновик — плейсхолдер (UI всё равно присылает
+/// свой при каждом запуске этапа).
+fn derive_from_db(conn: &Connection) -> Option<SharedRun> {
+    let latest: Option<(String, String, String, i64)> = conn
+        .query_row(
+            "SELECT slug, status, theme, exp_slots FROM t4_batches
+             WHERE status != 'void' ORDER BY created_at DESC LIMIT 1",
+            [],
+            |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?, r.get(3)?)),
+        )
+        .ok();
+    let (slug, status, theme, exp_slots) = latest?;
+    let exp = exp_slots.max(0) as u32;
+
+    // тема: EXP → skip; иначе note «Theme Expansion» по слагу → done
+    let theme_status = if exp > 0 {
+        StageStatus::Skipped
+    } else {
+        let has_note: Option<i64> = conn
+            .query_row(
+                "SELECT 1 FROM t4_events WHERE batch_slug = ?1 AND type = 'note'
+                 AND summary LIKE 'Theme Expansion%' LIMIT 1",
+                [&slug],
+                |r| r.get(0),
+            )
+            .ok();
+        if has_note.is_some() {
+            StageStatus::Done
+        } else {
+            StageStatus::Pending
+        }
+    };
+    let compile_status = StageStatus::Done;
+    let build_status = {
+        let has_build: Option<i64> = conn
+            .query_row("SELECT 1 FROM t4_builds WHERE slug = ?1", [&slug], |r| r.get(0))
+            .ok();
+        if has_build.is_some() {
+            StageStatus::Done
+        } else {
+            StageStatus::Pending
+        }
+    };
+    let (scribe_status, scribe_summary) = {
+        let drafted: Option<String> = conn
+            .query_row(
+                "SELECT summary FROM t4_events
+                 WHERE batch_slug = ?1 AND type = 'scribe.drafted'
+                 ORDER BY seq DESC LIMIT 1",
+                [&slug],
+                |r| r.get(0),
+            )
+            .ok();
+        match drafted {
+            Some(summary) => {
+                let hard: Option<i64> = conn
+                    .query_row(
+                        "SELECT json_extract(data, '$.hardPass') FROM t4_events
+                         WHERE batch_slug = ?1 AND type = 'scribe.drafted'
+                         ORDER BY seq DESC LIMIT 1",
+                        [&slug],
+                        |r| r.get(0),
+                    )
+                    .ok();
+                match hard {
+                    Some(1) => (StageStatus::Done, Some(summary)),
+                    Some(_) => (StageStatus::Failed, Some(summary)),
+                    None => (StageStatus::Done, Some(summary)),
+                }
+            }
+            None => (StageStatus::Pending, None),
+        }
+    };
+    let deliver_status = if status == "delivered" {
+        StageStatus::Done
+    } else {
+        StageStatus::Pending
+    };
+
+    let entry = |s: StageStatus, sum: Option<String>| StageEntry {
+        status: s,
+        at: None,
+        summary: sum,
+        detail: None,
+    };
+    let summary_of = |s: StageStatus| {
+        (s == StageStatus::Done).then(|| "прочитан из летописи".to_string())
+    };
+    let stages = vec![
+        entry(theme_status, summary_of(theme_status)),
+        entry(compile_status, summary_of(compile_status)),
+        entry(build_status, summary_of(build_status)),
+        entry(scribe_status, scribe_summary),
+        entry(deliver_status, summary_of(deliver_status)),
+    ];
+
+    let draft = compile::parse_request(&serde_json::json!({
+        "theme": theme,
+        "exp": exp,
+        "abPairs": 2,
+        "engine": "per-theme",
+        "species": { "on": false, "count": 0, "list": [] },
+        "ocThemes": [ { "theme": theme, "rating": "R+", "position": 1 } ],
+    }))
+    .ok()?;
+
+    Some(SharedRun {
+        state: RunState {
+            mode: "auto",
+            started_at: String::new(),
+            slug: slug.clone(),
+            draft,
+            stages,
+            current: None,
+            finished: None,
+            ok: false,
+        },
+        ctx: StageCtx::default(),
+        abort: Arc::new(AtomicBool::new(false)),
+        fail_detail: None,
     })
 }
 
@@ -277,6 +565,7 @@ pub fn start_auto(body: Value) -> Result<Value, String> {
             },
             ctx: StageCtx::default(),
             abort: abort.clone(),
+            fail_detail: None,
         });
     }
 
@@ -335,6 +624,7 @@ pub fn start_stage(name: &str, body: Value) -> Result<Value, String> {
             },
             ctx: StageCtx::default(),
             abort: abort.clone(),
+            fail_detail: None,
         });
     }
 
@@ -412,7 +702,8 @@ fn runner(abort: Arc<AtomicBool>, auto: bool, stages: impl Iterator<Item = usize
                     BLOCK_PIPELINE,
                     &format!("ЭТАП {}/5 · {} — ПРОВАЛ: {}", idx + 1, STAGE_TITLES[idx], e),
                 );
-                mark_stage(idx, StageStatus::Failed, Some(e.clone()), None);
+                let detail = pop_fail_detail();
+                mark_stage(idx, StageStatus::Failed, Some(e.clone()), detail);
                 finish_run(false, Some(e));
                 return;
             }
@@ -511,7 +802,28 @@ fn mark_running(idx: usize) {
         run.state.stages[idx].at = Some(crate::chain::iso_now());
         run.state.current = Some(idx);
         run.state.finished = None;
+        run.fail_detail = None;
     }
+}
+
+/// Квитанции провала: этап вернул Err, но его детали (батарея писца и
+/// т.д.) обязан видеть UI — «Подробности» + Copy for AI на карточке.
+fn stash_fail_detail(detail: Value) {
+    let mut guard = match hub().run.lock() {
+        Ok(g) => g,
+        Err(p) => p.into_inner(),
+    };
+    if let Some(run) = guard.as_mut() {
+        run.fail_detail = Some(detail);
+    }
+}
+
+fn pop_fail_detail() -> Option<Value> {
+    let mut guard = match hub().run.lock() {
+        Ok(g) => g,
+        Err(p) => p.into_inner(),
+    };
+    guard.as_mut().and_then(|run| run.fail_detail.take())
 }
 
 fn mark_stage(idx: usize, status: StageStatus, summary: Option<String>, detail: Option<Value>) {
@@ -525,6 +837,7 @@ fn mark_stage(idx: usize, status: StageStatus, summary: Option<String>, detail: 
         run.state.stages[idx].detail = detail;
         run.state.stages[idx].at = Some(crate::chain::iso_now());
         run.state.current = None;
+        persist_locked(&run.state);
     }
 }
 
@@ -537,6 +850,7 @@ fn finish_run(ok: bool, verdict: Option<String>) {
         run.state.finished = verdict.or_else(|| Some("завершено".into()));
         run.state.ok = ok;
         run.state.current = None;
+        persist_locked(&run.state);
     }
 }
 
@@ -767,6 +1081,12 @@ fn stage_compile(conn: &Connection, draft: &CompileRequest, slug: &str) -> Resul
         }
     }
     if !hard_fails.is_empty() {
+        stash_fail_detail(json!({
+            "audit": audit.iter().map(|r| json!({
+                "gate": r.gate, "level": r.level, "verdict": r.verdict, "findings": r.findings,
+            })).collect::<Vec<_>>(),
+            "note": "бриф писца (файловый компилятор) разошёлся с реестром канона — это шов двух компиляторов",
+        }));
         return Err(format!(
             "бриф писца разошёлся с каноном ({} нарушений) — это шов двух компиляторов, дай знать",
             hard_fails.len()
@@ -1313,8 +1633,18 @@ fn stage_scribe(conn: &Connection, slug: &str, abort: Arc<AtomicBool>) -> Result
     }
 
     if !hard_pass {
+        let fail = json!({
+            "rounds": rounds,
+            "polished": polished,
+            "hardPass": false,
+            "sha10": sha10,
+            "receipts": textgates::receipts_json(&battery.receipts),
+            "failedSlots": positions.iter().copied().filter(|p| !outputs.iter().any(|o| o.get("position").and_then(|v| v.as_u64()) == Some(*p as u64))).collect::<Vec<u32>>(),
+            "note": "ремонт исчерпан: правь бриф/якоря или перезапусти писца — черновик записан, сдача закрыта",
+        });
+        stash_fail_detail(fail);
         return Err(format!(
-            "писец закончил с hard-фейлом (ремонт исчерпан) — черновик записан, гейты в «Подробностях»"
+            "писец закончил с hard-фейлом (ремонт исчерпан) — черновик записан, квитанции в «Подробностях»"
         ));
     }
     Ok(done(
@@ -1440,6 +1770,11 @@ fn stage_deliver(conn: &Connection, slug: &str) -> Result<StageOutcome, String> 
         }
     }
     if !battery.hard_pass {
+        stash_fail_detail(json!({
+            "sha10": battery.sha10,
+            "receipts": textgates::receipts_json(&battery.receipts),
+            "note": "финальная батарея срезала черновик — перезапусти писца или правь batches/<slug>.md руками",
+        }));
         return Err("батарея не прошла: hard-фейлы — правь черновик (перезапусти писца)".into());
     }
     let (hard_pass_plan,) = conn

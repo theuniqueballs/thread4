@@ -6532,3 +6532,75 @@ Stage Summary:
 - За автором: отзыв токена после использования (рекомендация — он был
   засвечен в чате), судьба ветки feat/rust-closeout (687feea на remote,
   main её поглотил по содержанию).
+
+---
+Task ID: 1-b
+Agent: Rust gates porter (subagent)
+Task: порт 12+3 текст-гейтов gates.ts → Rust (этап 2, приказ «МОЩНОСТЬ»)
+
+Work Log:
+- Читал: конец worklog, GATES-AUDIT-RUST-ERA.md, эталон textgates.rs
+  (этап 1, 13 гейтов), источник src/lib/t4/gates.ts (2496 строк, построчно),
+  dresser.ts (checkCoherence), events.ts (foldState/historicalWindowFor),
+  спеки rating-recipes/carriers/races/rating-techniques/dresser/oc-canon.
+- Нашёл незавязанный textgates2.rs от предыдущего прогона задачи (untracked,
+  не в lib) — провёл ревизию семантики 1-в-1 с gates.ts, починил сборку:
+  12 ошибок (модуль вкомпилен как подмодуль textgates: pub mod textgates2 →
+  src/textgates/textgates2.rs, super:: = textgates; generic push_uniq;
+  contains-дерефы; lifetime cover_in; raw-plus-маркер без return-в-closure).
+- КРИТИЧЕСКИЙ БАГ, найден ревизией: js_tofix2 печатал «100.00» для J=1.0
+  (форматил x*100 вместо x). V8 toFixed = половина ОТ НУЛЯ: фикс
+  (x*100).round()/100 → «1.00»/«0.13» (0.125), сверено с bun. Живые прогоны
+  слага не задели (simcheck PASS на всех эталонах), синтетика ловит.
+- Хелперы этапа 0-1 открыты подмодулю: read_text/read_json/ascii_word/
+  contains_word_ci/tag_block_of/warn_receipt/advisory_receipt → pub(crate);
+  новые crate-зависимости НЕ добавлены (Cargo.toml не тронут).
+- run_text_gates(): ПОЛНАЯ батарея в порядке TS runGates — 25 безусловных
+  (13 этапа-1 + 12 этапа-2) + условные на своих TS-местах
+  (rating-recipe-exploratory сразу за rating-recipe; raw-plus между
+  salience-chain и contract-fidelity; raw-plus-exploratory за raw-plus).
+  Спеки/контракт — RO свежим чтением по batch.slug; сигнатура неизменна
+  (pipeline.rs — потребитель, не тронут).
+- BATTERY_RUST 13→25, BATTERY_TS 17→5 (structure/exp-purity/floors/window/
+  ab-single-variable — планировочные, живут в compile.rs); 25+5=30=
+  GATES_TOTAL, условные вне счёта базы.
+- Тесты на каждый гейт (детект+PASS): +15 в textgates2.rs (12 гейтов +
+  3 условных: raw-plus None/FAIL/PASS/engine-дверь, оба ⚗-рецепта
+  rating-recipe-exploratory/raw-plus-exploratory); battery_names_match_ts
+  проверяет порядок батареи 1-в-1.
+- rpc.rs — ТОЛЬКО тестовые assert'ы: batteryRust 25, batteryTs 5,
+  receipts T4-27 = 28 (25+3 условные), hardPass=false (T4-27 писан до
+  роста законов: живой TS runGates тоже FAIL — зеркалим честно).
+- selftest.rs textgates_battery: +26 синтетик этапа-2 (детект+PASS на
+  каждый гейт), findings-пины 6→14 (+rating-recipe/raw-plus PASS-эталоны
+  T4-34, dresser/claim-visibility/niche-legibility/contract-fidelity
+  T4-34, оба ⚗-рецепта T4-27 — дословные строки живых bun-прогонов,
+  sha-pinned); паритет-слепки: compared>=20 и честный skip СТАРЫХ слепков
+  (<30 квитанций — до MERGE-фикса 2026-10-19 и законов v1.9/№28: T4-28
+  run#5=25 кв., T4-27.2-EXP run#1=26 кв. — их вердикты законно старые,
+  летопись не судит прошлое).
+- Паритет (а) слепки: T4-27 run#3 (33 кв.) и T4-34 run#4 (31 кв.) —
+  25/25 гейтов BATTERY_RUST совпали, PASS. (b) живой контроль TS:
+  bun runGates T4-27/28/31/34 (+T4-27.2-EXP) vs Rust CLI gates --text:
+  ВСЕ текст-гейты verdict+findings ДОСЛОВНО, порядок квитанций ок,
+  0 расхождений (единственные «нет в Rust» — 5 планировочных, они в
+  compile.rs). Таблица в отчёте субагента.
+- НЕ тронуты: pipeline.rs, bridge.rs, main.rs, db.rs, canon.rs, theme.rs,
+  lib.rs (модуль вкомпилен через textgates.rs), src/lib/t4/**, Cargo.toml.
+  Коммит НЕ делал. Замечен косметический хвост (не чинил, вне приказа):
+  bin/t4.rs:297 «  ard] theme» — опечатка «[hard]» в print гейта №25.
+
+Stage Summary:
+- Портировано 12 безусловных гейтов (rating-recipe hard, canon hard,
+  diversity hard, dresser warn, niche-legibility warn, claim-visibility
+  warn, technique-layers warn, simcheck warn, salience-chain warn,
+  contract-fidelity warn, bumps-quota warn, technique-map advisory) +
+  3 условных (raw-plus hard, rating-recipe-exploratory warn ⚗,
+  raw-plus-exploratory warn ⚗). Rust-батарея: 25/30 текст-гейтов,
+  findings дословно на русском как в TS.
+- Паритет: слепки T4-27/T4-34 — 25/25 вердиктов равны; живые bun-прогоны
+  T4-27/28/31/34/27.2-EXP — verdict+findings 1-в-1, 0 расхождений;
+  старые слепки T4-28/27.2-EXP (<30 квитанций) — честный skip с причиной.
+- cargo test 82/82 (было 61), 0 warnings; t4 selftest 152/152 PASS
+  (было 120/120; 3 skip с причинами: 2 старых слепка + T4-31 без
+  sha-слепка). Коммит не делал.

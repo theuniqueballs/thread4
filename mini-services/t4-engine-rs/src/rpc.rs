@@ -1189,10 +1189,14 @@ mod gates_tests {
         let data = &v["data"];
         assert_eq!(data["slug"], "T4-27");
         assert_eq!(data["runIndex"], 4, "прод-летопись: 3 прогона + 1");
-        assert_eq!(data["hardPass"], true);
-        assert_eq!(data["batteryRust"].as_array().unwrap().len(), 13);
-        assert_eq!(data["batteryTs"].as_array().unwrap().len(), 17);
-        assert!(data["receipts"].as_array().unwrap().len() == 13);
+        // Т4-27 писан до вечно растущих законов: живая TS-батарея тоже роняет
+        // его на rating-recipe/raw-plus (hardPass=false в runGates) —
+        // текст-батарея Rust зеркалит вердикт честно, findings 1-в-1
+        assert_eq!(data["hardPass"], false);
+        assert_eq!(data["batteryRust"].as_array().unwrap().len(), 25);
+        assert_eq!(data["batteryTs"].as_array().unwrap().len(), 5);
+        // T4-27 (RAW+ + ⚗-слоты): 25 безусловных + 3 условные квитанции
+        assert!(data["receipts"].as_array().unwrap().len() == 28);
         assert_eq!(crate::db::count_events(&t.prod), prod_before, "прод не тронут");
         assert_eq!(crate::db::count_events(&t.scratch), scratch_before, "scratch не тронут: исторический слог — чистый анализ");
         let runs: i64 = t

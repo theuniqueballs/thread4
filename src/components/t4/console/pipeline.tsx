@@ -458,19 +458,18 @@ function humanGate(gate: string): string {
 export function PipelineScreen() {
   const reduce = useReducedMotion() ?? false
 
-  /* ---- черновик (ленивая инициализация — localStorage читается раз) ---- */
-  const [theme, setTheme] = useState(() => initialDraft().draft.theme)
-  const [slug, setSlug] = useState(() => initialDraft().draft.slug)
-  const [slugTouched, setSlugTouched] = useState(() => initialDraft().draft.slugTouched)
-  const [exp, setExp] = useState(() => initialDraft().draft.exp)
-  const [ab, setAb] = useState(() => initialDraft().draft.ab)
-  const [engine, setEngine] = useState(() => initialDraft().draft.engine)
-  const [speciesList, setSpeciesList] = useState(() => initialDraft().draft.speciesList)
-  const [notes, setNotes] = useState(() => initialDraft().draft.notes)
-  const [oc, setOc] = useState<OcInput[]>(() => initialDraft().draft.oc.map((o) => ({ ...o })))
-  const [anchors, setAnchors] = useState<AnchorsState | null>(() =>
-    initialDraft().draft.anchors != null ? { ...(initialDraft().draft.anchors as AnchorsState) } : null
-  )
+  /* ---- черновик: ПУСТОЙ SSR-стейт (гидратация обязана совпасть с сервером);
+   * localStorage восстанавливается mount-эффектом ниже — паттерн workflow.tsx ---- */
+  const [theme, setTheme] = useState('')
+  const [slug, setSlug] = useState('')
+  const [slugTouched, setSlugTouched] = useState(false)
+  const [exp, setExp] = useState(0)
+  const [ab, setAb] = useState(2)
+  const [engine, setEngine] = useState('per-theme')
+  const [speciesList, setSpeciesList] = useState('')
+  const [notes, setNotes] = useState('')
+  const [oc, setOc] = useState<OcInput[]>(() => EMPTY_OC.map((o) => ({ ...o })))
+  const [anchors, setAnchors] = useState<AnchorsState | null>(null)
   const [briefOpen, setBriefOpen] = useState(true)
 
   /* ---- конвейер ---- */
@@ -526,16 +525,42 @@ export function PipelineScreen() {
     return () => window.clearTimeout(timer)
   }, [theme, slug, slugTouched, exp, ab, engine, speciesList, notes, oc, anchors])
 
-  /* ---- тост восстановления/миграции ---- */
+  /* ---- восстановление черновика: РОВНО один mount-эффект на вкладку.
+   * Чтение localStorage при гидратации = hydration mismatch (инцидент
+   * E2E 2026-10-20: кнопки «Запустить» были мертвы — клиент рендерился с
+   * данными, сервер без). Здесь — внешняя система: читаем ПОСЛЕ маунта
+   * (прецедент workflow.tsx / api.ts:333). ---- */
   useEffect(() => {
     const init = initialDraft()
+    if (!init.restored && !init.migrated) return
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setTheme(init.draft.theme)
+     
+    setSlug(init.draft.slug)
+     
+    setSlugTouched(init.draft.slugTouched)
+     
+    setExp(init.draft.exp)
+     
+    setAb(init.draft.ab)
+     
+    setEngine(init.draft.engine)
+     
+    setSpeciesList(init.draft.speciesList)
+     
+    setNotes(init.draft.notes)
+     
+    setOc(init.draft.oc.map((o) => ({ ...o })))
+     
+    setAnchors(init.draft.anchors != null ? { ...(init.draft.anchors as AnchorsState) } : null)
     const title = init.migrated ? 'Черновик перенесён из старого воркфлоу' : 'Черновик восстановлен'
-    if (init.restored || init.migrated) {
-      const t = window.setTimeout(() => {
-        toast({ title, description: init.migrated ? 'тема, OC-темы и якоря на месте' : 'приказ ждёт продолжения' })
-      }, 300)
-      return () => window.clearTimeout(t)
-    }
+    const timer = window.setTimeout(() => {
+      toast({
+        title,
+        description: init.migrated ? 'тема, OC-темы и якоря на месте' : 'приказ ждёт продолжения',
+      })
+    }, 300)
+    return () => window.clearTimeout(timer)
   }, [])
 
   /* ---- чтение снимка конвейера ---- */
@@ -819,11 +844,11 @@ export function PipelineScreen() {
   const activeSlug = snapshot?.slug ?? null
 
   /* ---- главная кнопка: контекстный CTA (примитивы — без IIFE-объектов,
-   * которые компилятор принимает за ref-значение) ---- */
+   * которые компилятор принимает за ref-значение). После провала — снова
+   * полный запуск: ручной override живёт на самой карточке этапа ---- */
   const ctaRunning = running
   const ctaFinished = !running && finishedOk
-  const ctaFailedKey: StageKey | null = !running && !finishedOk && failedStage != null ? failedStage.key : null
-  const ctaGo = !running && !finishedOk && ctaFailedKey == null
+  const ctaGo = !running && !finishedOk
 
   /* ================= render ================= */
 
@@ -970,7 +995,7 @@ export function PipelineScreen() {
             {statusIcon(stages[0].status, stages[0].status === 'running')}
             <div className="min-w-0 flex-1">
               <h2 className="text-sm font-semibold tracking-tight">
-                1 · Приказ <span className="text-zinc-500">и</span> {STAGE_TITLE.theme}
+                1 · Приказ <span className="text-zinc-500">и</span>&nbsp;{STAGE_TITLE.theme}
               </h2>
               {stages[0].summary != null ? (
                 <p className="mt-0.5 truncate text-xs text-zinc-400">{stages[0].summary}</p>
@@ -1347,13 +1372,12 @@ export function PipelineScreen() {
         >
           <button
             type="button"
-            onClick={ctaRunning ? stopRun : ctaFinished ? resetAll : ctaFailedKey != null ? () => void runStage(ctaFailedKey) : startAuto}
+            onClick={ctaRunning ? stopRun : ctaFinished ? resetAll : startAuto}
             disabled={ctaGo && !briefReady}
             className={cn(
               'flex min-w-0 flex-1 items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors',
               ctaRunning && 'bg-rose-600 text-rose-50 hover:bg-rose-500',
               ctaFinished && 'border border-emerald-500/40 bg-transparent text-emerald-300 hover:bg-emerald-500/10',
-              ctaFailedKey != null && 'bg-amber-500 text-amber-950 hover:bg-amber-400',
               ctaGo &&
                 'bg-emerald-500 text-emerald-950 hover:bg-emerald-400 disabled:cursor-not-allowed disabled:bg-zinc-800 disabled:text-zinc-500'
             )}
@@ -1366,13 +1390,7 @@ export function PipelineScreen() {
               <Play className="size-4" />
             )}
             <span className="truncate">
-              {ctaRunning
-                ? 'Остановить конвейер'
-                : ctaFinished
-                  ? 'Новый батч'
-                  : ctaFailedKey != null
-                    ? `Перезапустить «${STAGE_TITLE[ctaFailedKey]}»`
-                    : 'Запустить конвейер'}
+              {ctaRunning ? 'Остановить конвейер' : ctaFinished ? 'Новый батч' : 'Запустить конвейер'}
             </span>
           </button>
           <button

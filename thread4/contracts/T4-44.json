@@ -1,0 +1,1509 @@
+{
+  "abPairs": [
+    {
+      "a": 4,
+      "b": 20,
+      "lead": "thighs",
+      "pair": "α"
+    },
+    {
+      "a": 5,
+      "b": 21,
+      "lead": "collarbone",
+      "pair": "β"
+    },
+    {
+      "a": 8,
+      "b": 24,
+      "lead": "hips",
+      "pair": "γ"
+    }
+  ],
+  "carrierStats": {
+    "sheerFrameCapPct": 40,
+    "sheerRplusPct": 18,
+    "wCapPct": 45,
+    "wSharePct": 19
+  },
+  "channelStats": {
+    "candidate": [
+      "threadbare-sheer",
+      "named-underlayer-display",
+      "breast-environment-contact",
+      "oc-rplus",
+      "underwear-as-outfit",
+      "fabric-tension",
+      "pantyline-lower"
+    ],
+    "dead": [
+      "cameltoe"
+    ],
+    "deadClaims": [],
+    "live": [
+      "wet-sheer-delivery",
+      "x-coverage-block",
+      "r-geometry",
+      "tape-only",
+      "contact-physics",
+      "handbra-open-palms"
+    ],
+    "version": "0.7.0"
+  },
+  "createdAt": "2026-10-19T21:42:30.470Z",
+  "engine": "per-theme",
+  "engineLaw": "одноразовый движок: писец выводит физический закон ТЕМЫ на этапе спайна; после батча утилизируется",
+  "engineWhy": "одноразовый движок: писец выведёт физический закон ТЕМЫ на этапе спайна (3.2-традиция — движок под тему, утилизация после батча)",
+  "laws": {
+    "abDiscipline": "A/B-дисциплина (§10-поправка): 2-3 пары R+-слотов на батч, пары по LEAD-зоне — заявка одна (тот же канал доставки), подача разная; вердикт приёмника атрибутирует канал (системно, а не случайно как P10)",
+    "core4": "R+/X слоты: 4 носителя из 4 механо-групп (FABRIC/BODY/POSITION/PHYSICS), ≥4 классов",
+    "counters": "экспозиция = сигнал-тег + контр-NEG (N31-рецепт); рейтинг зарабатывается тегами, не прозой",
+    "faceLock": "Her face is rendered in stylized 2D anime style: anime eyes ([color/state]), small nose, small mouth [state], [tone] skin.",
+    "hedgeBudget": 2,
+    "layerClarity": "≤2 слоя одежды на зону; зона сигнала = LEAD-зона, несёт ≤1 слой + цель сигнала, открыта камере (без юбок/плащей/завязанных рубашек над pantyline, без застёгнутого верха над tape); OC-слоты — камера-смотрящие позы; ИМЕНА ОС В POS ЗАПРЕЩЕНЫ (приказ автора, T4-04) — только дескрипторы",
+    "leadMax": 3,
+    "mechanismNeg": "контр-NEG механизм-осознан: сквозь-ткань (pantyline/nipples through/see-through) держит «nipples exposed, naked breasts, topless»; on-skin (tape/handbra) — эти два ПОДНЯТЫ из NEG, иначе рендер закрывает грудь (вердикт T4-03); X — блок покрытия («covered breasts, bra, clothing on chest») заставляет рендерер взять тир (доказано 2/2)",
+    "paletteDistinct": 24,
+    "posHard": 400,
+    "posShape": "POS = [тег-блок] → [проза] → [quality-теги] — PH-форма, проходит дословно",
+    "posTarget": 300,
+    "poseDistinct": 24,
+    "registerCapPct": 50,
+    "rplusHardClaim": "RENDER LAW v1.2.0 (рендер-вердикт T4-03: R 7/7, X 2/2, R+ 1/15): R+ несёт ≥1 РЕНДЕР-ДОКАЗАННУЮ заявку — visible pantyline / nipples through clothing / clothed nipples / see-through / taped nipples / topless with tape / handbra. cameltoe НЕ заявка (тег рендер-мёртв — 0 отрисовок). Сквозь-ткань заявка ТРЕБУЕТ состояния ткани (wet clothes / see-through) на ОДНОЙ тонкой светлой вещи, БЕЗ подслоя (bra/camisole/bandeau под sheer = рендерер рисует подслой, тир падает в R); мёртвые ткани (джинсы/деним/кожа/бархат/свитпаны/бриджи/костюм) заявку не несут",
+    "salienceLaw": "закон салиенса (§9-секста): PRESENT ≠ VISIBLE ≠ LEGIBLE; цепочка OBJECT → EXPOSURE → CAMERA → CONTRAST → SALIENCE → INTERPRETATION — провал звена роняет тир; свет на зоне заявки, не в декорациях (мокрая тёмная ткань без света = пятно; светлое на светлом = слияние)",
+    "sheerFrameCapPct": 40,
+    "sheerPerPrompt": 2,
+    "signalMin": "{\"PG-13\":2,\"R\":1,\"R+\":2,\"X\":2}",
+    "underlayerLock": "noun-lock (§10-поправка): сквозь-ткань заявка лочится на именованную тонкую светлую вещь; подслой лочится в NEG (bra/camisole/bandeau/undershirt) — тишина по подслою = дыра, рендерер дорисует его сам",
+    "wCapPct": 45
+  },
+  "ocCascade": {
+    "excluded": [
+      "Sol",
+      "Zia",
+      "Rin"
+    ],
+    "from": "T4-40"
+  },
+  "ocRotation": [
+    {
+      "name": "Lua",
+      "served": 4
+    },
+    {
+      "name": "Nix",
+      "served": 4
+    },
+    {
+      "name": "Ama",
+      "served": 4
+    }
+  ],
+  "platform": {
+    "economics": {
+      "scribe_model": "glm-4.5-flash (бесплатен) — авто-писец жив",
+      "vision_models": [
+        "glm-4.5v",
+        "glm-4.6v"
+      ],
+      "vision_requires": "оплаченный баланс (код ошибки 1113)",
+      "vision_status": "не пополнен; author-vision — основной канал вердикта (вердикт автора №4, 2026-09-26); пополнение — опция на потом"
+    },
+    "ph_behavior": [
+      "PH RESHAPES, не санитизирует — на выходе PH получаешь не то, что написал",
+      "PH LEAKS — служебные слова утекают в рендер",
+      "tag-run не PH-устойчив: заявка в хвосте рана читается рендерером слабо — сигнал сидит РАННИМИ тегами",
+      "mature/adult теги сдвигают батч в MILF-скью (бабулек не надо)"
+    ],
+    "platform": {
+      "content_filter": {
+        "codes": [
+          "400",
+          "1301"
+        ],
+        "handling": "X-кадр отвергнутый фильтром = проверка судьбы выполнена; реролл по решению автора",
+        "meaning": "контент-фильтр провайдера; X-кадры принципиально могут не пройти — это не баг пайплайна"
+      },
+      "gallery": "Yodayo",
+      "renderer": "Tsubaki.2 Pro",
+      "renderer_out": "Tsubaki.3 — «полное говно» (N30-тест), не используется",
+      "tier_ladder": "PG-13 → R → R+ → X; X душится алгоритмом площадки — X-слот это art-for-art и проверка судьбы, не плановая заявка"
+    },
+    "proven": [
+      {
+        "born": "delivery-stats v0.2.1, четыре батча подряд",
+        "fact": "площадка ≡ глаз автора (45/45 подряд — закон природы, открыт эмпирически)",
+        "id": "platform-tier-oracle",
+        "n": 45
+      },
+      {
+        "fact": "кадры уходят в реролл по стохастике рендера — планируем квоты потерь",
+        "id": "stochastic-reroll",
+        "n": 23
+      },
+      {
+        "born": "вердикт автора 2026-09-23, событие 092ffdfe",
+        "fact": "FIRST RUN CLEAN ≠ качество (T4-07: все 19 гейтов PASS, авторский вердикт — reject); чистый прогон — гигиена, не похвала",
+        "id": "frc-not-quality"
+      },
+      {
+        "born": "2026-09-25",
+        "fact": "канонизация рендера — легальный путь эволюции OC (прецедент Ana v1.8.0)",
+        "id": "canon-render-legal"
+      }
+    ]
+  },
+  "racialCount": 10,
+  "seed": 1304667074,
+  "slots": [
+    {
+      "bodyType": "slender womanly body, FAM-B (B3-B4): soft settled breasts",
+      "carriers": [
+        {
+          "cls": "W",
+          "deg": "M",
+          "id": "CR-W02",
+          "name": "Stretched Buttonholes"
+        },
+        {
+          "cls": "S",
+          "deg": "L",
+          "id": "CR-S17",
+          "name": "Anklet Chain"
+        },
+        {
+          "cls": "E",
+          "deg": "H",
+          "id": "CR-E07",
+          "name": "Robe Drift"
+        },
+        {
+          "cls": "I",
+          "deg": "M",
+          "id": "CR-I16",
+          "name": "Garter Dents"
+        }
+      ],
+      "closer": "action-close",
+      "kind": "OC",
+      "kinetics": [
+        "K177"
+      ],
+      "lead": "waist",
+      "oc": "Lua",
+      "ocTheme": "QA: шторм за медным куполом обсерватории, капли на стекле",
+      "palette": "P72_OPIUM_PLUM",
+      "paletteName": "Opium Plum",
+      "pose": "PL77",
+      "poseName": "Two-Arm Shelf Tiptoe",
+      "poseRisk": "MID",
+      "position": 1,
+      "rating": "R+",
+      "register": "student",
+      "variety": {
+        "bodyPlan": null,
+        "camera": "upper-body",
+        "handsHint": null,
+        "lengthClass": "long",
+        "negVariant": 2,
+        "posOrder": "body-first",
+        "register": "tense",
+        "seed": 3111847295,
+        "styleAnchor": "clean-lineart",
+        "themeWordBudget": 3
+      }
+    },
+    {
+      "bodyType": "slim athletic body, FAM-C (B2-B3): small breasts, softly mounded, never flat",
+      "carriers": [
+        {
+          "cls": "W",
+          "deg": "H",
+          "id": "CR-W07",
+          "name": "Plastered Wet Shirt"
+        },
+        {
+          "cls": "S",
+          "deg": "M",
+          "id": "CR-S09",
+          "name": "Inner Thigh Band"
+        },
+        {
+          "cls": "E",
+          "deg": "M",
+          "id": "CR-E13",
+          "name": "Placket Gape"
+        },
+        {
+          "cls": "M",
+          "deg": "M",
+          "id": "CR-M16",
+          "name": "Measuring Tape"
+        }
+      ],
+      "closer": "dialogue",
+      "kind": "OC",
+      "kinetics": [
+        "K164"
+      ],
+      "lead": "hands",
+      "oc": "Nix",
+      "palette": "P22_VOID_INDIGO",
+      "paletteName": "Void Indigo",
+      "pose": "PL144",
+      "poseName": "Hat-Tip Back",
+      "poseRisk": "LOW",
+      "position": 2,
+      "rating": "R+",
+      "register": "young",
+      "variety": {
+        "bodyPlan": null,
+        "camera": "cowboy",
+        "handsHint": null,
+        "lengthClass": "long",
+        "negVariant": 3,
+        "posOrder": "claim-first",
+        "register": "exotic",
+        "seed": 3128624914,
+        "styleAnchor": "clean-lineart",
+        "themeWordBudget": 3
+      }
+    },
+    {
+      "bodyType": "soft slight frame, FAM-C (B2): small softly mounded breasts, slight chest",
+      "carriers": [
+        {
+          "cls": "W",
+          "deg": "L",
+          "id": "CR-W16",
+          "name": "Silk Drape"
+        },
+        {
+          "cls": "A",
+          "deg": "H",
+          "id": "CR-A02",
+          "name": "Center-Seam Whole Line"
+        },
+        {
+          "cls": "E",
+          "deg": "M",
+          "id": "CR-E01",
+          "name": "Tank Strap Fallen"
+        },
+        {
+          "cls": "M",
+          "deg": "M",
+          "id": "CR-M10",
+          "name": "Hug Crush"
+        }
+      ],
+      "closer": "image-close",
+      "kind": "OC",
+      "kinetics": [
+        "K66"
+      ],
+      "lead": "back",
+      "oc": "Ama",
+      "palette": "P03_CYBER_ASH",
+      "paletteName": "Cyber Ash",
+      "pose": "PL120",
+      "poseName": "Laundry-Line Tangle",
+      "poseRisk": "MID",
+      "position": 3,
+      "rating": "R+",
+      "register": "student",
+      "variety": {
+        "bodyPlan": null,
+        "camera": "upper-body",
+        "handsHint": null,
+        "lengthClass": "long",
+        "negVariant": 0,
+        "posOrder": "claim-first",
+        "register": "casual",
+        "seed": 3145402533,
+        "styleAnchor": "painterly",
+        "themeWordBudget": 3
+      }
+    },
+    {
+      "ab": {
+        "half": "A",
+        "lead": "thighs",
+        "pair": "α",
+        "withSlot": 20
+      },
+      "carriers": [
+        {
+          "cls": "W",
+          "deg": "M",
+          "id": "CR-W24",
+          "name": "Suit-Seat Taut"
+        },
+        {
+          "cls": "S",
+          "deg": "L",
+          "id": "CR-S18",
+          "name": "Choker Line"
+        },
+        {
+          "cls": "E",
+          "deg": "M",
+          "id": "CR-E15",
+          "name": "Kimono Summer"
+        },
+        {
+          "cls": "M",
+          "deg": "M",
+          "id": "CR-M01",
+          "name": "Seatbelt Diagonal"
+        }
+      ],
+      "closer": "fragment-pair",
+      "kind": "VOLT",
+      "kinetics": [
+        "K63"
+      ],
+      "lead": "thighs",
+      "palette": "P64_SUNRISE_INDIGO",
+      "paletteName": "Sunrise Indigo",
+      "pose": "PL136",
+      "poseName": "Stage Bow",
+      "poseRisk": "LOW",
+      "position": 4,
+      "race": "Bat-kin",
+      "raceFeature": "ears ribbed-tall",
+      "rating": "R+",
+      "register": "milf",
+      "variety": {
+        "bodyPlan": "hourglass",
+        "camera": "upper-body",
+        "handsHint": "arms-at-sides",
+        "lengthClass": "long",
+        "negVariant": 2,
+        "posOrder": "claim-first",
+        "register": "casual",
+        "seed": 3027959200,
+        "styleAnchor": "painterly",
+        "themeWordBudget": 3
+      }
+    },
+    {
+      "ab": {
+        "half": "A",
+        "lead": "collarbone",
+        "pair": "β",
+        "withSlot": 21
+      },
+      "carriers": [
+        {
+          "cls": "W",
+          "deg": "M",
+          "id": "CR-W12",
+          "name": "Threadbare Tee"
+        },
+        {
+          "cls": "S",
+          "deg": "H",
+          "id": "CR-S15",
+          "name": "Garter Frame"
+        },
+        {
+          "cls": "E",
+          "deg": "H",
+          "id": "CR-E12",
+          "name": "Last Button"
+        },
+        {
+          "cls": "M",
+          "deg": "M",
+          "id": "CR-M13",
+          "name": "Life Jacket"
+        }
+      ],
+      "closer": "long-fused",
+      "kind": "VOLT",
+      "kinetics": [
+        "K76"
+      ],
+      "lead": "collarbone",
+      "palette": "P56_AURORA_BOREALIS_NIGHT",
+      "paletteName": "Aurora Borealis Night",
+      "pose": "PL176",
+      "poseName": "Puppet-Wrist Rise",
+      "poseRisk": "MID",
+      "position": 5,
+      "rating": "R+",
+      "register": "student",
+      "variety": {
+        "bodyPlan": "toned",
+        "camera": "upper-body",
+        "handsHint": "arms-at-sides",
+        "lengthClass": "medium",
+        "negVariant": 3,
+        "posOrder": "claim-first",
+        "register": "exotic",
+        "seed": 3044736819,
+        "styleAnchor": "watercolor",
+        "themeWordBudget": 3
+      }
+    },
+    {
+      "arch": "N19",
+      "carriers": [
+        {
+          "cls": "U",
+          "deg": "L",
+          "id": "CR-U11",
+          "name": "Exam Dawn"
+        },
+        {
+          "cls": "L",
+          "deg": "M",
+          "id": "CR-L01",
+          "name": "Band Through White Tee"
+        },
+        {
+          "cls": "D",
+          "deg": "M",
+          "id": "CR-D20",
+          "name": "Waking Stretch"
+        }
+      ],
+      "closer": "action-close",
+      "kind": "NICHE",
+      "kinetics": [
+        "K159"
+      ],
+      "lead": "hamstrings",
+      "palette": "P35_VOID_EMBER",
+      "paletteName": "Void Ember",
+      "pose": "PL04",
+      "poseName": "Prone Stretch",
+      "poseRisk": "MID",
+      "position": 6,
+      "race": "Flame-salamander kin",
+      "raceFeature": "crest of low fire along the spine's line",
+      "rating": "R",
+      "register": "young",
+      "variety": {
+        "bodyPlan": "petite",
+        "camera": "top-down",
+        "handsHint": null,
+        "lengthClass": "medium",
+        "negVariant": 0,
+        "posOrder": "canon-first",
+        "register": "casual",
+        "seed": 3061514438,
+        "styleAnchor": "none",
+        "themeWordBudget": 5
+      },
+      "witness": "watch face"
+    },
+    {
+      "arch": "N13",
+      "carriers": [
+        {
+          "cls": "D",
+          "deg": "H",
+          "id": "CR-D17",
+          "name": "Dance Dip"
+        },
+        {
+          "cls": "L",
+          "deg": "M",
+          "id": "CR-L12",
+          "name": "Shirt Over Suit"
+        },
+        {
+          "cls": "D",
+          "deg": "M",
+          "id": "CR-D04",
+          "name": "Overhead Reach Lift"
+        }
+      ],
+      "closer": "dialogue",
+      "kind": "NICHE",
+      "kinetics": [
+        "K153"
+      ],
+      "lead": "nape",
+      "palette": "P93_GLASS_BELL_JAR",
+      "paletteName": "Glass Bell Jar",
+      "pose": "PL206",
+      "poseName": "Knees Forehead Close",
+      "poseRisk": "LOW",
+      "position": 7,
+      "race": "Vampire-kin",
+      "raceFeature": "small smile fangs",
+      "rating": "R",
+      "register": "student",
+      "variety": {
+        "bodyPlan": "athletic",
+        "camera": "image-close",
+        "handsHint": null,
+        "lengthClass": "short",
+        "negVariant": 1,
+        "posOrder": "env-first",
+        "register": "tense",
+        "seed": 3078292057,
+        "styleAnchor": "detailed-ink",
+        "themeWordBudget": 5
+      },
+      "witness": "fountain edge"
+    },
+    {
+      "ab": {
+        "half": "A",
+        "lead": "hips",
+        "pair": "γ",
+        "withSlot": 24
+      },
+      "carriers": [
+        {
+          "cls": "W",
+          "deg": "M",
+          "id": "CR-W15",
+          "name": "Leather Mold"
+        },
+        {
+          "cls": "A",
+          "deg": "H",
+          "id": "CR-A01",
+          "name": "Seam Pressed Flat"
+        },
+        {
+          "cls": "E",
+          "deg": "M",
+          "id": "CR-E29",
+          "name": "Sarong Knot"
+        },
+        {
+          "cls": "M",
+          "deg": "L",
+          "id": "CR-M06",
+          "name": "Guitar Body"
+        }
+      ],
+      "closer": "image-close",
+      "exploratory": "EXPLORATORY slot — the law it probes is named in the batch worklog at delivery",
+      "kind": "EXQUISITE",
+      "kinetics": [
+        "K87"
+      ],
+      "lead": "hips",
+      "palette": "P36_VOID_RUST",
+      "paletteName": "Void Rust",
+      "pose": "PL02",
+      "poseName": "Wall Lean",
+      "poseRisk": "LOW",
+      "position": 8,
+      "rating": "R+",
+      "register": "student",
+      "variety": {
+        "bodyPlan": "full-figured",
+        "camera": "image-close",
+        "handsHint": "holding-hem",
+        "lengthClass": "short",
+        "negVariant": 0,
+        "posOrder": "claim-first",
+        "register": "casual",
+        "seed": 3229290628,
+        "styleAnchor": "sketch",
+        "themeWordBudget": 3
+      }
+    },
+    {
+      "carriers": [
+        {
+          "cls": "W",
+          "deg": "M",
+          "id": "CR-W03",
+          "name": "Side-Seam Strain"
+        },
+        {
+          "cls": "C",
+          "deg": "M",
+          "id": "CR-C09",
+          "name": "Pocket Frame"
+        },
+        {
+          "cls": "E",
+          "deg": "H",
+          "id": "CR-E04",
+          "name": "Back Zipper"
+        },
+        {
+          "cls": "I",
+          "deg": "L",
+          "id": "CR-I02",
+          "name": "Pillow Crease"
+        }
+      ],
+      "closer": "fragment-pair",
+      "kind": "VOLT",
+      "kinetics": [
+        "K167"
+      ],
+      "lead": "cheeks",
+      "palette": "P88_COBALT_ROAD",
+      "paletteName": "Cobalt Road",
+      "pose": "PL196",
+      "poseName": "Jacket Shrug-Off Roll",
+      "poseRisk": "MID",
+      "position": 9,
+      "rating": "R+",
+      "register": "young",
+      "variety": {
+        "bodyPlan": "toned",
+        "camera": "image-close",
+        "handsHint": "holding-hem",
+        "lengthClass": "long",
+        "negVariant": 1,
+        "posOrder": "env-first",
+        "register": "exotic",
+        "seed": 3246068247,
+        "styleAnchor": "clean-lineart",
+        "themeWordBudget": 3
+      }
+    },
+    {
+      "carriers": [
+        {
+          "cls": "W",
+          "deg": "L",
+          "id": "CR-W27",
+          "name": "Steam-Damp"
+        },
+        {
+          "cls": "S",
+          "deg": "M",
+          "id": "CR-S04",
+          "name": "First Inch Of Cleavage"
+        },
+        {
+          "cls": "E",
+          "deg": "M",
+          "id": "CR-E19",
+          "name": "Overall Unbuckled"
+        },
+        {
+          "cls": "M",
+          "deg": "H",
+          "id": "CR-M15",
+          "name": "Corset Exhale"
+        }
+      ],
+      "closer": "long-fused",
+      "kind": "VOLT",
+      "kinetics": [
+        "K62"
+      ],
+      "lead": "shoulders",
+      "palette": "P90_FAIRY_LAUNDRY",
+      "paletteName": "Fairy Laundry",
+      "pose": "PL133",
+      "poseName": "Mirror Strap-Fix Glance",
+      "poseRisk": "MID",
+      "position": 10,
+      "race": "Jellyfish-kin",
+      "raceFeature": "bell-hood translucent at the crown",
+      "rating": "R+",
+      "register": "milf",
+      "variety": {
+        "bodyPlan": "compact",
+        "camera": "top-down",
+        "handsHint": "gathering-hair",
+        "lengthClass": "short",
+        "negVariant": 1,
+        "posOrder": "canon-first",
+        "register": "tense",
+        "seed": 1269390173,
+        "styleAnchor": "detailed-ink",
+        "themeWordBudget": 3
+      }
+    },
+    {
+      "carriers": [
+        {
+          "cls": "W",
+          "deg": "L",
+          "id": "CR-W30",
+          "name": "Cold-Stiff Drape"
+        },
+        {
+          "cls": "S",
+          "deg": "L",
+          "id": "CR-S08",
+          "name": "Back Dimples"
+        },
+        {
+          "cls": "E",
+          "deg": "L",
+          "id": "CR-E26",
+          "name": "Camisole Peek"
+        },
+        {
+          "cls": "M",
+          "deg": "L",
+          "id": "CR-M08",
+          "name": "Doorframe Squeeze"
+        }
+      ],
+      "closer": "action-close",
+      "kind": "VOLT",
+      "kinetics": [
+        "K142"
+      ],
+      "lead": "throat",
+      "palette": "P50_GLASS_AURORA",
+      "paletteName": "Glass Aurora",
+      "pose": "PL212",
+      "poseName": "Laugh Head-Back",
+      "poseRisk": "MID",
+      "position": 11,
+      "race": "Cat-kin",
+      "raceFeature": "ears small-fluffy",
+      "rating": "R+",
+      "register": "student",
+      "variety": {
+        "bodyPlan": "toned",
+        "camera": "upper-body",
+        "handsHint": "gathering-hair",
+        "lengthClass": "medium",
+        "negVariant": 0,
+        "posOrder": "claim-first",
+        "register": "dramatic",
+        "seed": 1252612554,
+        "styleAnchor": "none",
+        "themeWordBudget": 3
+      }
+    },
+    {
+      "carriers": [
+        {
+          "cls": "W",
+          "deg": "L",
+          "id": "CR-W14",
+          "name": "Velvet Press-Mark"
+        },
+        {
+          "cls": "A",
+          "deg": "M",
+          "id": "CR-A03",
+          "name": "High-Cut Edge"
+        },
+        {
+          "cls": "E",
+          "deg": "M",
+          "id": "CR-E27",
+          "name": "Stretched Neckhole"
+        },
+        {
+          "cls": "I",
+          "deg": "L",
+          "id": "CR-I13",
+          "name": "Grass Print"
+        }
+      ],
+      "closer": "dialogue",
+      "kind": "VOLT",
+      "kinetics": [
+        "K150"
+      ],
+      "lead": "breasts",
+      "palette": "P62_PLATINUM_VOID",
+      "paletteName": "Platinum Void",
+      "pose": "PL217",
+      "poseName": "Whisper-Lean Close",
+      "poseRisk": "MID",
+      "position": 12,
+      "rating": "R+",
+      "register": "milf",
+      "variety": {
+        "bodyPlan": "hourglass",
+        "camera": "cowboy",
+        "handsHint": "gathering-hair",
+        "lengthClass": "medium",
+        "negVariant": 0,
+        "posOrder": "claim-first",
+        "register": "exotic",
+        "seed": 1235834935,
+        "styleAnchor": "watercolor",
+        "themeWordBudget": 3
+      }
+    },
+    {
+      "carriers": [
+        {
+          "cls": "W",
+          "deg": "M",
+          "id": "CR-W01",
+          "name": "Taut Weave"
+        },
+        {
+          "cls": "B",
+          "deg": "H",
+          "id": "CR-B27",
+          "name": "Apex Darkness Under Pale Suit"
+        },
+        {
+          "cls": "E",
+          "deg": "M",
+          "id": "CR-E16",
+          "name": "Gi Lapel Crossed Wrong"
+        },
+        {
+          "cls": "I",
+          "deg": "H",
+          "id": "CR-I08",
+          "name": "Love Bite Under Scarf"
+        }
+      ],
+      "closer": "image-close",
+      "kind": "VOLT",
+      "kinetics": [
+        "K130"
+      ],
+      "lead": "seat",
+      "palette": "P52_MEIJI_DUSK",
+      "paletteName": "Meiji Dusk",
+      "pose": "PL205",
+      "poseName": "Over-Shoulder Brow",
+      "poseRisk": "LOW",
+      "position": 13,
+      "rating": "R+",
+      "register": "young",
+      "variety": {
+        "bodyPlan": "athletic",
+        "camera": "image-close",
+        "handsHint": "gathering-hair",
+        "lengthClass": "long",
+        "negVariant": 3,
+        "posOrder": "claim-first",
+        "register": "casual",
+        "seed": 1219057316,
+        "styleAnchor": "painterly",
+        "themeWordBudget": 3
+      }
+    },
+    {
+      "arch": "N48",
+      "carriers": [
+        {
+          "cls": "D",
+          "deg": "L",
+          "id": "CR-D22",
+          "name": "Laugh Bounce"
+        },
+        {
+          "cls": "U",
+          "deg": "M",
+          "id": "CR-U04",
+          "name": "Borrowed Too-Small"
+        },
+        {
+          "cls": "U",
+          "deg": "M",
+          "id": "CR-U20",
+          "name": "Post-Comp Jacket"
+        }
+      ],
+      "closer": "fragment-pair",
+      "kind": "NICHE",
+      "kinetics": [
+        "K160"
+      ],
+      "lead": "hamstrings",
+      "palette": "P47_PORCELAIN_LACQUER",
+      "paletteName": "Porcelain Lacquer",
+      "pose": "PL216",
+      "poseName": "One-Eyed Wink Squint",
+      "poseRisk": "LOW",
+      "position": 14,
+      "race": "Goat-kin",
+      "raceFeature": "horns small-ribbed-curved",
+      "rating": "R",
+      "register": "student",
+      "variety": {
+        "bodyPlan": "petite",
+        "camera": "cowboy",
+        "handsHint": null,
+        "lengthClass": "long",
+        "negVariant": 2,
+        "posOrder": "env-first",
+        "register": "exotic",
+        "seed": 1202279697,
+        "styleAnchor": "clean-lineart",
+        "themeWordBudget": 5
+      },
+      "witness": "window pane"
+    },
+    {
+      "arch": "N29",
+      "carriers": [
+        {
+          "cls": "D",
+          "deg": "M",
+          "id": "CR-D12",
+          "name": "Breaststroke Push"
+        },
+        {
+          "cls": "U",
+          "deg": "M",
+          "id": "CR-U10",
+          "name": "Walk Home"
+        },
+        {
+          "cls": "D",
+          "deg": "M",
+          "id": "CR-D18",
+          "name": "Spin Flare"
+        }
+      ],
+      "closer": "long-fused",
+      "kind": "NICHE",
+      "kinetics": [
+        "K139"
+      ],
+      "lead": "cheeks",
+      "palette": "P14_ROSE_GOLD",
+      "paletteName": "Rose Gold",
+      "pose": "PL183",
+      "poseName": "Chest-Flat Desk Fold",
+      "poseRisk": "HIGH",
+      "position": 15,
+      "rating": "R",
+      "register": "student",
+      "variety": {
+        "bodyPlan": "voluptuous",
+        "camera": "wide-shot",
+        "handsHint": null,
+        "lengthClass": "long",
+        "negVariant": 1,
+        "posOrder": "canon-first",
+        "register": "tense",
+        "seed": 1185502078,
+        "styleAnchor": "clean-lineart",
+        "themeWordBudget": 5
+      },
+      "witness": "wet street"
+    },
+    {
+      "arch": "N09",
+      "carriers": [
+        {
+          "cls": "L",
+          "deg": "M",
+          "id": "CR-L13",
+          "name": "Hem-Length Game"
+        },
+        {
+          "cls": "U",
+          "deg": "M",
+          "id": "CR-U18",
+          "name": "Apron Over Nightgown"
+        },
+        {
+          "cls": "L",
+          "deg": "L",
+          "id": "CR-L15",
+          "name": "Pinafore Crossing"
+        }
+      ],
+      "closer": "action-close",
+      "kind": "NICHE",
+      "kinetics": [
+        "K104"
+      ],
+      "lead": "seat",
+      "palette": "P32_VOID_ICE",
+      "paletteName": "Void Ice",
+      "pose": "PL03",
+      "poseName": "Supine Rest",
+      "poseRisk": "LOW",
+      "position": 16,
+      "race": "Shark-kin",
+      "raceFeature": "dorsal fin at the spine",
+      "rating": "R",
+      "register": "milf",
+      "variety": {
+        "bodyPlan": "slim",
+        "camera": "full-body",
+        "handsHint": null,
+        "lengthClass": "short",
+        "negVariant": 0,
+        "posOrder": "claim-first",
+        "register": "dramatic",
+        "seed": 1168724459,
+        "styleAnchor": "sketch",
+        "themeWordBudget": 5
+      },
+      "witness": "level gauge"
+    },
+    {
+      "arch": "N24",
+      "carriers": [
+        {
+          "cls": "U",
+          "deg": "M",
+          "id": "CR-U06",
+          "name": "Car Door Catch"
+        },
+        {
+          "cls": "U",
+          "deg": "M",
+          "id": "CR-U14",
+          "name": "Hospital Gown"
+        },
+        {
+          "cls": "U",
+          "deg": "M",
+          "id": "CR-U03",
+          "name": "Post-Shower Tee"
+        }
+      ],
+      "closer": "dialogue",
+      "kind": "NICHE",
+      "kinetics": [
+        "K168"
+      ],
+      "lead": "waist",
+      "palette": "P46_INK_WASH",
+      "paletteName": "Ink Wash",
+      "pose": "PL112",
+      "poseName": "Banister Side-Slide",
+      "poseRisk": "HIGH",
+      "position": 17,
+      "rating": "R",
+      "register": "young",
+      "variety": {
+        "bodyPlan": "full-figured",
+        "camera": "worms-eye",
+        "handsHint": null,
+        "lengthClass": "short",
+        "negVariant": 0,
+        "posOrder": "body-first",
+        "register": "tense",
+        "seed": 1151946840,
+        "styleAnchor": "detailed-ink",
+        "themeWordBudget": 5
+      },
+      "witness": "car hood"
+    },
+    {
+      "arch": "N02",
+      "carriers": [
+        {
+          "cls": "L",
+          "deg": "M",
+          "id": "CR-L07",
+          "name": "Strapless War"
+        },
+        {
+          "cls": "D",
+          "deg": "L",
+          "id": "CR-D19",
+          "name": "Curtsey Press"
+        },
+        {
+          "cls": "D",
+          "deg": "H",
+          "id": "CR-D01",
+          "name": "Full Drop Mid-Sway"
+        }
+      ],
+      "closer": "image-close",
+      "kind": "NICHE",
+      "kinetics": [
+        "K89"
+      ],
+      "lead": "hands",
+      "palette": "P99_MOONLIT_TOOLSHED",
+      "paletteName": "Moonlit Toolshed",
+      "pose": "PL05",
+      "poseName": "Arms Overhead",
+      "poseRisk": "MID",
+      "position": 18,
+      "rating": "R",
+      "register": "student",
+      "variety": {
+        "bodyPlan": "slender",
+        "camera": "cowboy",
+        "handsHint": null,
+        "lengthClass": "medium",
+        "negVariant": 3,
+        "posOrder": "pose-first",
+        "register": "casual",
+        "seed": 1135169221,
+        "styleAnchor": "none",
+        "themeWordBudget": 5
+      },
+      "witness": "door gap"
+    },
+    {
+      "carriers": [
+        {
+          "cls": "W",
+          "deg": "H",
+          "id": "CR-W10",
+          "name": "Sheer Panel"
+        },
+        {
+          "cls": "C",
+          "deg": "H",
+          "id": "CR-C06",
+          "name": "Staircase Arithmetic"
+        },
+        {
+          "cls": "E",
+          "deg": "L",
+          "id": "CR-E24",
+          "name": "Glove Peel"
+        },
+        {
+          "cls": "I",
+          "deg": "M",
+          "id": "CR-I09",
+          "name": "Collar Transfer"
+        }
+      ],
+      "closer": "fragment-pair",
+      "kind": "VOLT",
+      "kinetics": [
+        "K84"
+      ],
+      "lead": "back",
+      "palette": "P69_EMBER_FROST",
+      "paletteName": "Ember Frost",
+      "pose": "PL20",
+      "poseName": "Turned Away Glance",
+      "poseRisk": "LOW",
+      "position": 19,
+      "rating": "R+",
+      "register": "milf",
+      "variety": {
+        "bodyPlan": "compact",
+        "camera": "upper-body",
+        "handsHint": "gathering-hair",
+        "lengthClass": "medium",
+        "negVariant": 2,
+        "posOrder": "claim-first",
+        "register": "exotic",
+        "seed": 1118391602,
+        "styleAnchor": "watercolor",
+        "themeWordBudget": 3
+      }
+    },
+    {
+      "ab": {
+        "half": "B",
+        "lead": "thighs",
+        "pair": "α",
+        "withSlot": 4
+      },
+      "carriers": [
+        {
+          "cls": "W",
+          "deg": "M",
+          "id": "CR-W18",
+          "name": "Towel Nap"
+        },
+        {
+          "cls": "S",
+          "deg": "M",
+          "id": "CR-S05",
+          "name": "Underboob Shadow-Line"
+        },
+        {
+          "cls": "E",
+          "deg": "M",
+          "id": "CR-E10",
+          "name": "Barstool Ride"
+        },
+        {
+          "cls": "M",
+          "deg": "H",
+          "id": "CR-M04",
+          "name": "Window Glass"
+        }
+      ],
+      "closer": "long-fused",
+      "kind": "VOLT",
+      "kinetics": [
+        "K99"
+      ],
+      "lead": "thighs",
+      "palette": "P67_PEARL_VOID",
+      "paletteName": "Pearl Void",
+      "pose": "PL39",
+      "poseName": "Half-Roll",
+      "poseRisk": "MID",
+      "position": 20,
+      "race": "Sheep-kin",
+      "raceFeature": "spiral curled horns",
+      "rating": "R+",
+      "register": "milf",
+      "targetChannel": "dry-sheer",
+      "variety": {
+        "bodyPlan": "hourglass",
+        "camera": "full-body",
+        "handsHint": "adjusting-strap",
+        "lengthClass": "long",
+        "negVariant": 1,
+        "posOrder": "claim-first",
+        "register": "casual",
+        "seed": 2980854406,
+        "styleAnchor": "none",
+        "themeWordBudget": 3
+      }
+    },
+    {
+      "ab": {
+        "half": "B",
+        "lead": "collarbone",
+        "pair": "β",
+        "withSlot": 5
+      },
+      "carriers": [
+        {
+          "cls": "W",
+          "deg": "L",
+          "id": "CR-W29",
+          "name": "Pleat-Set"
+        },
+        {
+          "cls": "B",
+          "deg": "M",
+          "id": "CR-B14",
+          "name": "Cheek Shelf Under Drape"
+        },
+        {
+          "cls": "E",
+          "deg": "L",
+          "id": "CR-E23",
+          "name": "Sock Slouch"
+        },
+        {
+          "cls": "M",
+          "deg": "L",
+          "id": "CR-M11",
+          "name": "Dog's Paws"
+        }
+      ],
+      "closer": "action-close",
+      "kind": "VOLT",
+      "kinetics": [
+        "K67"
+      ],
+      "lead": "collarbone",
+      "palette": "P49_CINNABAR_DREAM",
+      "paletteName": "Cinnabar Dream",
+      "pose": "PL127",
+      "poseName": "Sidesaddle Bike-Sit",
+      "poseRisk": "MID",
+      "position": 21,
+      "race": "Moth-kin",
+      "raceFeature": "antennae feathered-curved",
+      "rating": "R+",
+      "register": "young",
+      "variety": {
+        "bodyPlan": "toned",
+        "camera": "upper-body",
+        "handsHint": "adjusting-strap",
+        "lengthClass": "medium",
+        "negVariant": 2,
+        "posOrder": "claim-first",
+        "register": "tense",
+        "seed": 2997632025,
+        "styleAnchor": "detailed-ink",
+        "themeWordBudget": 3
+      }
+    },
+    {
+      "carriers": [
+        {
+          "cls": "W",
+          "deg": "M",
+          "id": "CR-W25",
+          "name": "Apron Bib Swell"
+        },
+        {
+          "cls": "B",
+          "deg": "M",
+          "id": "CR-B08",
+          "name": "Weight-Line"
+        },
+        {
+          "cls": "E",
+          "deg": "L",
+          "id": "CR-E25",
+          "name": "Cuff Lost Button"
+        },
+        {
+          "cls": "I",
+          "deg": "L",
+          "id": "CR-I12",
+          "name": "Inside-Out Shirt"
+        }
+      ],
+      "closer": "dialogue",
+      "kind": "VOLT",
+      "kinetics": [
+        "K166"
+      ],
+      "lead": "hamstrings",
+      "palette": "P12_AUTUMN_RUST",
+      "paletteName": "Autumn Rust",
+      "pose": "PL115",
+      "poseName": "Tree-Fork Sit",
+      "poseRisk": "LOW",
+      "position": 22,
+      "race": "Serpent-kin",
+      "raceFeature": "tail thick-coil",
+      "rating": "R+",
+      "register": "milf",
+      "variety": {
+        "bodyPlan": "petite",
+        "camera": "wide-shot",
+        "handsHint": "adjusting-strap",
+        "lengthClass": "short",
+        "negVariant": 3,
+        "posOrder": "canon-first",
+        "register": "casual",
+        "seed": 2947299168,
+        "styleAnchor": "watercolor",
+        "themeWordBudget": 3
+      }
+    },
+    {
+      "carriers": [
+        {
+          "cls": "W",
+          "deg": "L",
+          "id": "CR-W05",
+          "name": "Static Cling"
+        },
+        {
+          "cls": "C",
+          "deg": "M",
+          "id": "CR-C14",
+          "name": "Paddleboard Wobble"
+        },
+        {
+          "cls": "E",
+          "deg": "H",
+          "id": "CR-E31",
+          "name": "Seam Giving"
+        },
+        {
+          "cls": "I",
+          "deg": "L",
+          "id": "CR-I05",
+          "name": "Belt Line"
+        }
+      ],
+      "closer": "image-close",
+      "kind": "VOLT",
+      "kinetics": [
+        "K03"
+      ],
+      "lead": "nape",
+      "palette": "P101_ALIBI_LINEN",
+      "paletteName": "Alibi Linen",
+      "pose": "PL130",
+      "poseName": "Ladder-Lean Hook",
+      "poseRisk": "MID",
+      "position": 23,
+      "rating": "R+",
+      "register": "student",
+      "variety": {
+        "bodyPlan": "curvy",
+        "camera": "upper-body",
+        "handsHint": "adjusting-strap",
+        "lengthClass": "long",
+        "negVariant": 0,
+        "posOrder": "env-first",
+        "register": "exotic",
+        "seed": 2964076787,
+        "styleAnchor": "none",
+        "themeWordBudget": 3
+      }
+    },
+    {
+      "ab": {
+        "half": "B",
+        "lead": "hips",
+        "pair": "γ",
+        "withSlot": 8
+      },
+      "carriers": [
+        {
+          "cls": "W",
+          "deg": "H",
+          "id": "CR-W26",
+          "name": "Wind-Press"
+        },
+        {
+          "cls": "A",
+          "deg": "M",
+          "id": "CR-A07",
+          "name": "Grande Plié"
+        },
+        {
+          "cls": "E",
+          "deg": "L",
+          "id": "CR-E11",
+          "name": "Waistband Roll"
+        },
+        {
+          "cls": "I",
+          "deg": "L",
+          "id": "CR-I14",
+          "name": "Sand Cling"
+        }
+      ],
+      "closer": "fragment-pair",
+      "kind": "VOLT",
+      "kinetics": [
+        "K173"
+      ],
+      "lead": "hips",
+      "palette": "P02_DAWN_AMBER",
+      "paletteName": "Dawn Amber",
+      "pose": "PL90",
+      "poseName": "Swing Forward Apex",
+      "poseRisk": "LOW",
+      "position": 24,
+      "rating": "R+",
+      "register": "milf",
+      "variety": {
+        "bodyPlan": "full-figured",
+        "camera": "cowboy",
+        "handsHint": "gathering-hair",
+        "lengthClass": "short",
+        "negVariant": 0,
+        "posOrder": "env-first",
+        "register": "exotic",
+        "seed": 3047964882,
+        "styleAnchor": "painterly",
+        "themeWordBudget": 3
+      }
+    }
+  ],
+  "slug": "T4-44",
+  "spread": [
+    {
+      "count": 17,
+      "rating": "R+"
+    },
+    {
+      "count": 7,
+      "rating": "R"
+    }
+  ],
+  "theme": "ночь, шторм над обсерваторией",
+  "windowSlugs": [
+    "T4-33",
+    "T4-34",
+    "T4-41"
+  ]
+}

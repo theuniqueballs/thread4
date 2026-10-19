@@ -24,6 +24,13 @@
 //!   garment-family · freq-report (advisory) · usage (advisory) ·
 //!   one-hard-claim · echo-window.
 //!
+//! ЭТАП 2 — подмодуль textgates2 (12 + 3 условных): rating-recipe · dresser
+//! · canon · diversity · niche-legibility · claim-visibility ·
+//! technique-layers · simcheck · technique-map (advisory) · salience-chain
+//! · contract-fidelity · bumps-quota + условные raw-plus (hard),
+//! rating-recipe-exploratory (warn ⚗), raw-plus-exploratory (warn ⚗).
+//! Батарея целиком (25 безусловных) собирается здесь — run_text_gates.
+//!
 //! Receipt переиспользуется из compile.rs (одна форма квитанции); канал
 //! записи — scratch-летопись twin'а (chain::append_event_tx + t4_gate_runs),
 //! продакшн-база не пишется НИКОГДА.
@@ -38,6 +45,10 @@ use rusqlite::Connection;
 use sha2::{Digest, Sha256};
 
 use crate::compile::Receipt;
+
+/// Этап 2 (этот же файл-эра-стиль): 12 оставшихся словарных гейтов +
+/// 3 условных — подмодуль, чтобы `super::` видел лоадеры/хелперы этапа 0-1.
+pub mod textgates2;
 
 /* ================================================================== */
 /* Пути репо (как fsutil.ts: T4_ROOT = cwd/thread4, twin'у — от манифеста) */
@@ -63,11 +74,11 @@ pub fn event_log_path() -> PathBuf {
     thread4_dir().join("events/log.jsonl")
 }
 
-fn read_text(p: &std::path::Path) -> Option<String> {
+pub(crate) fn read_text(p: &std::path::Path) -> Option<String> {
     std::fs::read_to_string(p).ok()
 }
 
-fn read_json(p: &std::path::Path) -> Option<serde_json::Value> {
+pub(crate) fn read_json(p: &std::path::Path) -> Option<serde_json::Value> {
     let txt = read_text(p)?;
     serde_json::from_str(&txt).ok()
 }
@@ -634,7 +645,7 @@ fn find_carrier_ids(stack: &str) -> Vec<String> {
 /* ASCII-границы слов: JS \b = [A-Za-z0-9_] (ручной скан, без regex-crate)*/
 /* ================================================================== */
 
-fn ascii_word(c: char) -> bool {
+pub(crate) fn ascii_word(c: char) -> bool {
     c.is_ascii_alphanumeric() || c == '_'
 }
 
@@ -658,7 +669,7 @@ pub fn contains_word(hay: &str, needle: &str) -> bool {
 }
 
 /// Регистронезависимый contains_word (JS /i) — ASCII-иглы.
-fn contains_word_ci(hay: &str, needle: &str) -> bool {
+pub(crate) fn contains_word_ci(hay: &str, needle: &str) -> bool {
     contains_word(&hay.to_ascii_lowercase(), &needle.to_ascii_lowercase())
 }
 
@@ -870,7 +881,7 @@ pub fn prod_context(prod: &Connection, slug: &str) -> ProdContext {
 /* Квитанции: формы гейтов (Receipt из compile.rs — один тип на twin)    */
 /* ================================================================== */
 
-fn warn_receipt(gate: &'static str, findings: Vec<String>) -> Receipt {
+pub(crate) fn warn_receipt(gate: &'static str, findings: Vec<String>) -> Receipt {
     Receipt {
         gate,
         level: "warn",
@@ -880,7 +891,7 @@ fn warn_receipt(gate: &'static str, findings: Vec<String>) -> Receipt {
     }
 }
 
-fn advisory_receipt(gate: &'static str, findings: Vec<String>) -> Receipt {
+pub(crate) fn advisory_receipt(gate: &'static str, findings: Vec<String>) -> Receipt {
     Receipt { gate, level: "advisory", verdict: "REPORT", findings, notes: Vec::new() }
 }
 
@@ -1070,7 +1081,7 @@ pub fn gate_prop_geometry(batch: &TextBatch) -> Receipt {
 }
 
 /// Тег-блок POS: до первой точки, нижний регистр (весь POS, если точки нет).
-fn tag_block_of(pos: &str) -> String {
+pub(crate) fn tag_block_of(pos: &str) -> String {
     match pos.find('.') {
         Some(0) | None => pos.to_lowercase(),
         Some(i) => pos[..i].to_lowercase(),
@@ -1581,21 +1592,26 @@ pub fn gate_echo_window(batch: &TextBatch) -> Receipt {
 /* Батарея целиком + прогон по слагу                                    */
 /* ================================================================== */
 
-/// Портировано в Rust (этап 1): 13 безусловных текстовых гейтов.
-pub const BATTERY_RUST: [&str; 13] = [
-    "budget", "cadence", "prop-geometry", "noun-lock", "character-collision",
-    "theme-presence", "original-character-coverage", "artist-leak", "garment-family",
-    "freq-report", "usage", "one-hard-claim", "echo-window",
+/// Портировано в Rust (этапы 1–2): 25 безусловных текстовых гейтов.
+/// Порядок — как в TS runGates (сверено по живым bun-прогонам): 12 из
+/// textgates2.rs (rating-recipe … bumps-quota) вставлены на свои места.
+pub const BATTERY_RUST: [&str; 25] = [
+    "rating-recipe", "dresser", "canon", "diversity", "budget", "cadence",
+    "niche-legibility", "prop-geometry", "claim-visibility", "technique-layers",
+    "noun-lock", "character-collision", "theme-presence", "original-character-coverage",
+    "artist-leak", "garment-family", "simcheck", "freq-report", "usage",
+    "technique-map", "salience-chain", "contract-fidelity", "one-hard-claim",
+    "echo-window", "bumps-quota",
 ];
 
-/// Осталось в TS (30 базовых − 13): 7 hard + 14 warn + 1 advisory;
-/// условные (raw-plus, rating-recipe-exploratory, raw-plus-exploratory) —
-/// вне счёта базы, как и в GATES_TOTAL=30.
-pub const BATTERY_TS: [&str; 17] = [
-    "structure", "exp-purity", "floors", "rating-recipe", "dresser", "canon", "diversity",
-    "window", "niche-legibility", "claim-visibility", "technique-layers",
-    "ab-single-variable", "simcheck", "technique-map", "salience-chain",
-    "contract-fidelity", "bumps-quota",
+/// Осталось в TS (30 базовых − 25): 5 гейтов планирования (structure,
+/// exp-purity, floors, window, ab-single-variable) — живут в compile.rs
+/// на уровне ПЛАНА (до текста батча), портированы туда дословно.
+/// Условные (raw-plus, rating-recipe-exploratory, raw-plus-exploratory) —
+/// вне счёта базы, как и в GATES_TOTAL=30; их квитанции появляются
+/// только при маркерах (RAW+ в H1/engine, ⚗ в шапках слотов).
+pub const BATTERY_TS: [&str; 5] = [
+    "structure", "exp-purity", "floors", "window", "ab-single-variable",
 ];
 
 pub struct TextGatesOutcome {
@@ -1624,23 +1640,63 @@ impl TextGatesOutcome {
     }
 }
 
-/// Полная текстовая батарея по parsed-батчу (порядок — как в runGates).
+/// Полная текстовая батарея по parsed-батчу (порядок — как в TS runGates:
+/// 3 rating-recipe → 3-бис dresser → 4 canon → 5 diversity → 7 budget →
+/// 8 cadence → 8b niche-legibility → 8c prop-geometry → 8d claim-visibility
+/// → 8e technique-layers → 8f noun-lock → 8g character-collision →
+/// 9d theme-presence → original-character-coverage → artist-leak →
+/// 9e garment-family → 9 simcheck → 10 freq-report → 11 usage →
+/// 12 technique-map → 12b salience-chain → [13 raw-plus] → 26 contract-
+/// fidelity → 27 one-hard-claim → 28 echo-window → 29 bumps-quota).
+/// Спеки/контракт читаются RO свежим чтением (как TS: гейт-ран не кэшит).
+/// Сигнатура неизменна (pipeline.rs — потребитель), контракт грузится
+/// внутри по batch.slug.
 pub fn run_text_gates(batch: &TextBatch, bans: Option<&Bans>) -> Vec<Receipt> {
-    vec![
-        gate_budget(batch, bans),
-        gate_cadence(batch),
-        gate_prop_geometry(batch),
-        gate_noun_lock(batch),
-        gate_character_collision(batch),
-        gate_theme_presence(batch),
-        gate_oc_coverage(batch),
-        gate_artist_leak(batch),
-        gate_garment_family(batch),
-        gate_freq_report(batch),
-        gate_usage(batch),
-        gate_one_hard_claim(batch),
-        gate_echo_window(batch),
-    ]
+    let contract = load_contract(&batch.slug);
+    let recipes = textgates2::load_rating_recipes();
+    let carriers = textgates2::load_carriers();
+    let races = textgates2::load_races();
+    let tech = textgates2::load_rating_techniques();
+    let mut receipts = Vec::with_capacity(28);
+    // 3. rating-recipe (hard) + ⚗-квитанция §10 (условная, сразу за ним)
+    let (rr, rr_expl) = textgates2::gate_rating_recipe(batch, recipes.as_ref());
+    receipts.push(rr);
+    if let Some(r) = rr_expl {
+        receipts.push(r);
+    }
+    receipts.push(textgates2::gate_dresser(batch));
+    receipts.push(textgates2::gate_canon(batch));
+    receipts.push(textgates2::gate_diversity(batch, carriers.as_ref()));
+    receipts.push(gate_budget(batch, bans));
+    receipts.push(gate_cadence(batch));
+    receipts.push(textgates2::gate_niche_legibility(batch, contract.as_ref(), races.as_ref()));
+    receipts.push(gate_prop_geometry(batch));
+    receipts.push(textgates2::gate_claim_visibility(batch));
+    receipts.push(textgates2::gate_technique_layers(batch, tech.as_ref()));
+    receipts.push(gate_noun_lock(batch));
+    receipts.push(gate_character_collision(batch));
+    receipts.push(gate_theme_presence(batch));
+    receipts.push(gate_oc_coverage(batch));
+    receipts.push(gate_artist_leak(batch));
+    receipts.push(gate_garment_family(batch));
+    receipts.push(textgates2::gate_simcheck(batch, contract.as_ref()));
+    receipts.push(gate_freq_report(batch));
+    receipts.push(gate_usage(batch));
+    receipts.push(textgates2::gate_technique_map(batch, tech.as_ref()));
+    receipts.push(textgates2::gate_salience_chain(batch, contract.as_ref()));
+    // 13. raw-plus (hard, УСЛОВНЫЙ: маркер RAW+ в H1 или engine контракта;
+    // None = маркера нет — TS не пушит квитанцию вовсе) + ⚗-квитанция
+    if let Some((rp, rp_expl)) = textgates2::gate_raw_plus(batch, contract.as_ref()) {
+        receipts.push(rp);
+        if let Some(r) = rp_expl {
+            receipts.push(r);
+        }
+    }
+    receipts.push(textgates2::gate_contract_fidelity(batch, contract.as_ref(), races.as_ref()));
+    receipts.push(gate_one_hard_claim(batch));
+    receipts.push(gate_echo_window(batch));
+    receipts.push(textgates2::gate_bumps_quota(contract.as_ref()));
+    receipts
 }
 
 #[derive(Debug)]
@@ -2281,8 +2337,19 @@ mod tests {
 
     #[test]
     fn battery_names_match_ts() {
-        // 13 портированных + 17 в TS = 30 базовых (GATES_TOTAL=30, аудит Rust-эры)
+        // 25 портированных + 5 планировочных в TS = 30 базовых (GATES_TOTAL=30,
+        // аудит Rust-эры); условные (raw-plus, ⚗) — вне счёта базы
         assert_eq!(BATTERY_RUST.len() + BATTERY_TS.len(), 30);
-        assert_eq!(BATTERY_RUST.len(), run_text_gates(&parse_batch("T4-90", SYNTH_ETALON), None).len());
+        // синтетика без маркеров RAW+/⚗ — ровно 25 безусловных квитанций,
+        // порядок — дословно как в TS runGates (батч без условных гейтов)
+        let receipts = run_text_gates(&parse_batch("T4-90", SYNTH_ETALON), None);
+        assert_eq!(BATTERY_RUST.len(), receipts.len());
+        let names: Vec<&str> = receipts.iter().map(|r| r.gate).collect();
+        assert_eq!(names, BATTERY_RUST.to_vec());
+        // батарея уникальна (условные гейты не дублируются)
+        let mut sorted = names.clone();
+        sorted.sort();
+        sorted.dedup();
+        assert_eq!(sorted.len(), names.len());
     }
 }

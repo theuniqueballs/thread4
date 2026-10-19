@@ -440,7 +440,7 @@ pub fn run(prod: Option<&Connection>) -> Battery {
         b.expect("theme/strict-unknown-field", theme::ThemeAnchors::from_json(&hacked, "x", "y").is_err(), || "strict режет лишние поля".into());
     }
 
-    /* ============ текст-батарея (этапы 0-1, textgates.rs) ============ */
+    /* ============ текст-батарея (этапы 0-2: textgates.rs + textgates2.rs) ============ */
     textgates_battery(&mut b);
 
     /* ============ live-шина ============ */
@@ -501,7 +501,7 @@ pub fn run(prod: Option<&Connection>) -> Battery {
 }
 
 /* ==================================================================== */
-/* Текст-батарея файл-эры (этапы 0-1): синтетика PASS/FAIL на каждый     */
+/* Текст-батарея файл-эры (этапы 0-2): синтетика PASS/FAIL на каждый     */
 /* портированный гейт + паритет с записанными TS-слепками gate.run        */
 /* (thread4/events/log.jsonl) и живыми TS-прогонами (sha-pinned findings) */
 /* ==================================================================== */
@@ -754,14 +754,350 @@ fn textgates_battery(b: &mut Battery) {
         }, || r.findings.join("; "));
     }
 
+    /* ---- этап 2: синтетика на 12 безусловных + 3 условных гейтов ---- */
+    use crate::textgates::textgates2 as tg2;
+    {
+        // rating-recipe (hard, «сердце PH») — сигнал-теги рецепта + контр-NEG
+        let f = run_synth(&md_of(
+            "# T4-94 «x»\n",
+            &[("VOLT · — · R+", "anime style, wool coat.", "child")],
+        ));
+        let r = gate_of(&f, "rating-recipe");
+        b.expect("textgates/rating-recipe-fail-signals", {
+            r.verdict == "FAIL"
+                && r.findings.iter().any(|x| {
+                    x.starts_with("P1: заявлен R+, сигнал-тегов рецепта 0/2 — рейтинг не заработан (рецепт: covered nipples, breast clinging, cameltoe, camel toe, clothed nipples…)")
+                })
+                && r.findings.iter().any(|x| x == "P1: контр-NEG не держит границу тира (нужно ≥1 из: nipples exposed, areola, bra)")
+        }, || r.findings.join("; "));
+        let ok = run_synth(&md_of(
+            "# T4-94 «x»\n",
+            &[(
+                "VOLT · — · R+",
+                "anime style, covered nipples, fabric clinging, tight clothes, black sweater, masterpiece, best quality, anime artstyle.",
+                "bra, camisole, bandeau, undershirt, child",
+            )],
+        ));
+        let r = gate_of(&ok, "rating-recipe");
+        b.expect("textgates/rating-recipe-pass", r.verdict == "PASS", || r.findings.join("; "));
+    }
+    {
+        // canon (hard): имя ОС в POS — триггер чужих персонажей (T4-04)
+        let f = run_synth(&md_of(
+            "# T4-94 «x»\n",
+            &[("VOLT · — · R", "anime style, Sue at the counter.", "x")],
+        ));
+        let r = gate_of(&f, "canon");
+        b.expect("textgates/canon-fail-oc-name", {
+            r.verdict == "FAIL"
+                && r.findings.iter().any(|x| {
+                    x == "P1: имя ОС «Sue» в POS — триггер чужих персонажей у рендерера (приказ автора, T4-04); опиши её дескрипторами, имя живёт в шапке/Canon"
+                })
+        }, || r.findings.join("; "));
+        // canon-pass: настоящий OC-слот — имя в шапке/Canon, локи видны
+        // (Sue: platinum-white hair / soft purple eyes — oc-canon.json)
+        let clean = run_synth(
+            "# T4-94 «x»\nP01 — oc-anchor (OC · Sue · R+ · PL24 · P25_VOID_EMBER)\nCanon: Sue — platinum-white hair, purple eyes\nPOS:\nanime style, platinum hair, purple eye, masterpiece.\nNEG:\nx\n",
+        );
+        let r = gate_of(&clean, "canon");
+        b.expect("textgates/canon-pass", r.verdict == "PASS", || r.findings.join("; "));
+    }
+    {
+        // diversity (hard): core-4 стек — 4 класса из 4 механо-групп
+        let f = run_synth(
+            "# T4-94 «x»\nP01 — a (VOLT · — · R+)\nStack: CR-W01 + CR-B01\nPOS:\nx\nNEG:\nx\n",
+        );
+        let r = gate_of(&f, "diversity");
+        b.expect("textgates/diversity-fail-core4", {
+            r.verdict == "FAIL"
+                && r.findings.iter().any(|x| x == "P1: стек 2/4 носителей (core-4)")
+                && r.findings.iter().any(|x| x.starts_with("P1: механо-групп 2/4"))
+        }, || r.findings.join("; "));
+        let ok = run_synth(
+            "# T4-94 «x»\nP01 — a (VOLT · — · R+ · PL70 · P30_STEEL_MARKET)\nStack: CR-W01 + CR-B01 + CR-E01 + CR-D01\nPOS:\nx\nNEG:\nx\n",
+        );
+        let r = gate_of(&ok, "diversity");
+        b.expect("textgates/diversity-pass", r.verdict == "PASS", || r.findings.join("; "));
+    }
+    {
+        // dresser (warn, №29): №28-риск see-through на R+
+        let f = run_synth(&md_of(
+            "# T4-94 «x»\n",
+            &[("VOLT · — · R+", "anime style, see-through veil.", "x")],
+        ));
+        let r = gate_of(&f, "dresser");
+        b.expect("textgates/dresser-fail-28risk", {
+            r.verdict == "WARN"
+                && r.findings.iter().any(|x| {
+                    x == "P1: №28-риск: «see-through» на R+ — тег рисует просвет (P09: даже тёмный knit — X; P30 выжил лишь с «dark garment» и опозданием тега) — лучше опустить, бугорки живут без него"
+                })
+        }, || r.findings.join("; "));
+        let clean = run_synth(&md_of(
+            "# T4-94 «x»\n",
+            &[("VOLT · — · R", "anime style, wool coat.", "x")],
+        ));
+        let r = gate_of(&clean, "dresser");
+        b.expect("textgates/dresser-pass", r.verdict == "PASS", || r.findings.join("; "));
+    }
+    {
+        // claim-visibility (warn): зона сигнала закрыта верхним предметом
+        let f = run_synth(&md_of(
+            "# T4-94 «x»\n",
+            &[("VOLT · — · R+", "anime style, cameltoe, long skirt.", "x")],
+        ));
+        let r = gate_of(&f, "claim-visibility");
+        b.expect("textgates/claim-visibility-fail-covered", {
+            r.verdict == "WARN"
+                && r.findings.iter().any(|x| {
+                    x == "P1: зона сигнала (низ) закрыта «skirt» — cameltoe/pantyline не виден камере; открой зону или перевези claim (вердикт T4-03)"
+                })
+        }, || r.findings.join("; "));
+        let clean = run_synth(&md_of(
+            "# T4-94 «x»\n",
+            &[("VOLT · — · R", "anime style, wool coat.", "x")],
+        ));
+        let r = gate_of(&clean, "claim-visibility");
+        b.expect("textgates/claim-visibility-pass", r.verdict == "PASS", || r.findings.join("; "));
+    }
+    {
+        // technique-layers (warn, блок 8): сумма факторов не набрана
+        let f = run_synth(&md_of(
+            "# T4-94 «x»\n",
+            &[("VOLT · — · R+", "anime style, calm morning light.", "x")],
+        ));
+        let r = gate_of(&f, "technique-layers");
+        b.expect("textgates/technique-layers-fail-sum", {
+            r.verdict == "WARN"
+                && r.findings.iter().any(|x| {
+                    x == "P1: сумма факторов не набрана — 0 сигнал(а) через 0 слой(я) · блок 8: R+ = 3+ сигнала через 2+ слоя — это R/R+ граница, не R+ сумма; карта кадра: —"
+                })
+        }, || r.findings.join("; "));
+        let clean = run_synth(&md_of(
+            "# T4-94 «x»\n",
+            &[("VOLT · — · R", "anime style, calm morning light.", "x")],
+        ));
+        let r = gate_of(&clean, "technique-layers");
+        b.expect("textgates/technique-layers-pass", r.verdict == "PASS", || r.findings.join("; "));
+    }
+    {
+        // simcheck (warn, Jaccard): внутри-батчевые дословные близнецы
+        let sent = "the lantern sale at the steel market keeps its glow long after midnight ends.";
+        let f = run_synth(&md_of(
+            "# T4-99 «x»\n",
+            &[("VOLT · — · R", sent, "x"), ("VOLT · — · R", sent, "x")],
+        ));
+        let r = gate_of(&f, "simcheck");
+        b.expect("textgates/simcheck-fail-twins", {
+            r.verdict == "WARN"
+                && r.findings.iter().any(|x| {
+                    x.starts_with("внутри-батчевые близнецы: P1≈P2: «the lantern sale") && x.contains("(J=1.00)")
+                })
+        }, || r.findings.join("; "));
+        let clean = run_synth(&md_of(
+            "# T4-99 «x»\n",
+            &[
+                ("VOLT · — · R", sent, "x"),
+                ("VOLT · — · R", "another pier with fog and seagulls over the copper roofs at dawn.", "x"),
+            ],
+        ));
+        let r = gate_of(&clean, "simcheck");
+        b.expect("textgates/simcheck-pass", r.verdict == "PASS", || r.findings.join("; "));
+    }
+    {
+        // technique-map (advisory): карта слоёв на каждый R+/X кадр
+        let clean = run_synth(&md_of(
+            "# T4-94 «x»\n",
+            &[("VOLT · — · R", "anime style, calm morning light.", "x")],
+        ));
+        let r = gate_of(&clean, "technique-map");
+        b.expect("textgates/technique-map-empty", {
+            r.verdict == "REPORT" && r.findings == vec!["R+/X слотов в батче нет".to_string()]
+        }, || r.findings.join("; "));
+    }
+    {
+        // salience-chain (warn, §9-секста+септима): цепочка на каждый R+ кадр
+        let f = run_synth(&md_of(
+            "# T4-94 «x»\n",
+            &[(
+                "VOLT · — · R+",
+                "anime style, clothed nipples, fabric clinging, black blouse, upper body, close-up, seductive smile.",
+                "x",
+            )],
+        ));
+        let r = gate_of(&f, "salience-chain");
+        b.expect("textgates/salience-chain-warn", {
+            r.verdict == "WARN"
+                && r.findings.iter().any(|x| {
+                    x.starts_with("салиенс-цепочка (§9-секста + §9-септима BLOCKER/LEGIBILITY/POSE-RISK, вердикт T4-05): 1 R+/X слотов, под угрозой 0")
+                })
+                && r.findings.iter().any(|x| {
+                    x.contains("OBJECT ✓ (blouse)") && x.contains("CONTRAST ? — нет ни светлой вещи, ни света на зоне")
+                })
+        }, || r.findings.join("; "));
+        let clean = run_synth(&md_of(
+            "# T4-94 «x»\n",
+            &[("VOLT · — · R", "anime style, quiet room.", "x")],
+        ));
+        let r = gate_of(&clean, "salience-chain");
+        b.expect("textgates/salience-chain-pass", r.verdict == "PASS", || r.findings.join("; "));
+    }
+    {
+        // niche-legibility (warn): раса обязана работать в кадре (закон №3)
+        let batch = crate::textgates::parse_batch(
+            "T4-94",
+            "# T4-94 «x»\nP01 — a (NICHE · — · R)\nPOS:\nanime style, quiet room.\nNEG:\nx\n",
+        );
+        let contract = crate::textgates::Contract {
+            slots: vec![crate::textgates::ContractSlot {
+                position: 1,
+                kind: "NICHE".into(),
+                rating: "R".into(),
+                race: Some("Cat-kin".into()),
+                ..Default::default()
+            }],
+            ..Default::default()
+        };
+        let races = tg2::load_races();
+        let r = tg2::gate_niche_legibility(&batch, Some(&contract), races.as_ref());
+        b.expect("textgates/niche-legibility-fail-race", {
+            r.verdict == "WARN"
+                && r.findings.iter().any(|x| {
+                    x.starts_with("P1: NICHE-раса «Cat-kin» не читается в POS (тегов расы 0/2) — раса делает физическую работу в кадре")
+                })
+                && r.findings.iter().any(|x| {
+                    x == "P1: NICHE без свидетеля в кадре (mirror/glass/monitor/phone/gauge…) — свидетель держит невозможное"
+                })
+        }, || r.findings.join("; "));
+    }
+    {
+        // contract-fidelity (warn): кино-сдвиг T4-30 — позы/стек расходятся
+        let batch = crate::textgates::parse_batch(
+            "T4-94",
+            "# T4-94 «x»\nP01 — a (VOLT · — · R · PL70 · P30_STEEL_MARKET)\nStack: CR-B02\nPOS:\nanime style, quiet room.\nNEG:\nx\n",
+        );
+        let contract = crate::textgates::Contract {
+            slots: vec![crate::textgates::ContractSlot {
+                position: 1,
+                kind: "MAINS".into(),
+                rating: "R".into(),
+                pose: "PL24".into(),
+                palette: "P25_VOID_EMBER".into(),
+                carriers: vec!["CR-W01".into()],
+                ..Default::default()
+            }],
+            ..Default::default()
+        };
+        let r = tg2::gate_contract_fidelity(&batch, Some(&contract), None);
+        b.expect("textgates/contract-fidelity-fail-drift", {
+            r.verdict == "WARN"
+                && r.findings.iter().any(|x| {
+                    x == "P01: поза контракта PL24 ≠ шапки батча (PL70) — кино-сдвиг (класс T4-30), вернуть позу из Spine"
+                })
+                && r.findings.iter().any(|x| {
+                    x == "P01: стек контракта [CR-W01] ≠ Stack: [CR-B02] — потеряно: CR-W01 — лишнее: CR-B02"
+                })
+        }, || r.findings.join("; "));
+        let r2 = tg2::gate_contract_fidelity(&batch, None, None);
+        b.expect("textgates/contract-fidelity-no-contract-note", {
+            r2.verdict == "PASS"
+                && r2.notes
+                    == vec!["контракта нет — RAW/ручная сборка: верность контракту не проверяема".to_string()]
+        }, || r2.notes.join("; "));
+    }
+    {
+        // bumps-quota (warn, G17): ≥40% R+-дресс-слотов — канал бугорков
+        let mk = |channel: &str| crate::textgates::ContractSlot {
+            position: 1,
+            kind: "MAINS".into(),
+            rating: "R+".into(),
+            dress_channel: Some(channel.to_string()),
+            ..Default::default()
+        };
+        let mut slots = Vec::new();
+        slots.push(mk("bumps"));
+        for _ in 0..4 {
+            slots.push(mk("wet"));
+        }
+        let contract = crate::textgates::Contract { slots, ..Default::default() };
+        let r = tg2::gate_bumps_quota(Some(&contract));
+        b.expect("textgates/bumps-quota-fail-40pct", {
+            r.verdict == "WARN"
+                && r.findings.iter().any(|x| {
+                    x == "bumps-канал 1 из 5 R+-дресс-слотов (20%) < 40% — самый живой через-ткань сигнал недопредставлен (G17, №52-бэклог): канал бугорков должен получать ⌈0.4×R+⌉ слотов (генератор уже строит dark-минимум под квоту — пересобери контракт)"
+                })
+        }, || r.findings.join("; "));
+        b.expect("textgates/bumps-quota-pass-raw", tg2::gate_bumps_quota(None).verdict == "PASS", || "".into());
+    }
+    {
+        // raw-plus (hard, УСЛОВНЫЙ): маркер RAW+ в H1 или engine контракта
+        let plain = run_synth(&md_of(
+            "# T4-94 «x»\n",
+            &[("VOLT · — · R", "anime style, quiet room.", "x")],
+        ));
+        b.expect("textgates/raw-plus-silent-no-marker", {
+            !plain.iter().any(|r| r.gate.starts_with("raw-plus"))
+        }, || "без маркера квитанции быть не должно".into());
+        // RAW+-канон: палитра/face-блок/свет/квалити/ANTI-WASH — 7 слотов PASS
+        let mut md = String::from("# T4-92 «Clean Raw Plus» — RAW+\n");
+        for (i, pal) in [
+            "P01_AURORA_DUSK", "P02_MIDNIGHT_ROSE", "P03_HARBOR_FOG", "P04_VELVET_INK",
+            "P05_LANTERN_CREAM", "P06_STEEL_MIST", "P07_TIDE_PEARL",
+        ]
+        .iter()
+        .enumerate()
+        {
+            md.push_str(&format!(
+                "P{:02} — raw-{i} (VOLT · — · R · {pal})\nPOS:\nstylized 2d anime face, anime eyes teal, small nose, small mouth, neon glow, masterpiece, best quality, anime artstyle.\nNEG:\nwashed-out, faded colors, low contrast, child\n",
+                i + 1
+            ));
+        }
+        let raw = run_synth(&md);
+        let r = gate_of(&raw, "raw-plus");
+        b.expect("textgates/raw-plus-pass-canon", r.verdict == "PASS", || r.findings.join("; "));
+        // ⚗-слот: слотовые нарушения — квитанцией raw-plus-exploratory (§10)
+        let expl = run_synth(
+            "# T4-93 «x» — RAW+\nP01 — a (VOLT · — · R) ⚗\nPOS:\nanime style, girl.\nNEG:\nchild\n",
+        );
+        b.expect("textgates/raw-plus-exploratory-receipt", {
+            expl.iter().any(|r| {
+                r.gate == "raw-plus-exploratory"
+                    && r.verdict == "WARN"
+                    && r.findings.iter().any(|f| f.starts_with("EXPLORATORY ⚗ (§10, квитанция): P1: палитра не назначена"))
+            })
+        }, || "⚗-слот обязан дать raw-plus-exploratory".into());
+        // ⚗-RENDER LAW в rating-recipe — квитанцией rating-recipe-exploratory
+        let rr_expl = run_synth(
+            "# T4-93 «x»\nP01 — a (VOLT · — · R+) ⚗\nPOS:\nanime style, clothed nipples, camel toe, black cotton dress, masterpiece, best quality, anime artstyle.\nNEG:\nbra, camisole, bandeau, undershirt, child\n",
+        );
+        b.expect("textgates/rating-recipe-exploratory-receipt", {
+            rr_expl.iter().any(|r| {
+                r.gate == "rating-recipe-exploratory"
+                    && r.verdict == "WARN"
+                    && r.findings.iter().any(|f| {
+                        f.starts_with("EXPLORATORY (§10, квитанция): P1: механизм «bumps» без состояния ткани")
+                    })
+            })
+        }, || "⚗-RENDER LAW обязан уйти в rating-recipe-exploratory".into());
+    }
+
     /* ---- паритет: Rust-вердикты == записанные TS-слепки gate.run
      * (thread4/events/log.jsonl; сверка ТОЛЬКО при совпадении sha10 файла —
-     * летопись не судит прошлые состояния файла) — T4-27 / T4-27.2-EXP /
-     * T4-28 / T4-31 / T4-34 ---- */
+     * летопись не судит прошлые состояния файла; и ТОЛЬКО для слепков
+     * СОВРЕМЕННОЙ батареи ≥30 квитанций — GATES_TOTAL=30 с 2026-10-19,
+     * старые слепки (25-26 квитанций) писались до MERGE-фикса и законов
+     * рецептов v1.9/№28 — их вердикты честно старые, суждению не подлежат) —
+     * T4-27 / T4-27.2-EXP / T4-28 / T4-31 / T4-34 ---- */
     for slug in ["T4-27", "T4-27.2-EXP", "T4-28", "T4-31", "T4-34"] {
         match textgates::run_for_slug(slug) {
             Ok((_batch, outcome)) => match textgates::recorded_ts_snapshot(slug, &outcome.sha10) {
                 Some(snap) => {
+                    if snap.verdicts.len() < 30 {
+                        b.skip(format!(
+                            "слепок {slug}: записан СТАРОЙ батареей ({} квитанций < 30 — законы рецептов/батареи выросли после того прогона; летопись не судит прошлое)",
+                            snap.verdicts.len()
+                        ));
+                        continue;
+                    }
                     let mine: Vec<(&str, &str)> =
                         outcome.receipts.iter().map(|r| (r.gate, r.verdict)).collect();
                     let mut diffs: Vec<String> = Vec::new();
@@ -781,7 +1117,7 @@ fn textgates_battery(b: &mut Battery) {
                     }
                     b.expect(
                         &format!("textgates/parity-{slug}-vs-ts-snapshot"),
-                        diffs.is_empty() && compared >= 10,
+                        diffs.is_empty() && compared >= 20,
                         || {
                             format!(
                                 "run#{}: compared {compared}, разногласия: {}",
@@ -804,9 +1140,12 @@ fn textgates_battery(b: &mut Battery) {
     }
 
     /* ---- findings-паритет: дословные строки живых TS-прогонов
-     * (bun runGates dry-run), sha-pinned к текущим файлам — 6 пинов:
-     * prop-geometry×2, noun-lock, usage, one-hard-claim, echo-window ---- */
-    let pins: [(&str, &str, &str, &[&str]); 6] = [
+     * (bun runGates dry-run), sha-pinned к текущим файлам — 14 пинов:
+     * этап 1 (prop-geometry×2, noun-lock, usage, one-hard-claim,
+     * echo-window) + этап 2 (rating-recipe/raw-plus PASS-эталоны T4-34,
+     * dresser, claim-visibility, niche-legibility, contract-fidelity,
+     * rating-recipe-exploratory, raw-plus-exploratory) ---- */
+    let pins: [(&str, &str, &str, &[&str]); 14] = [
         (
             "T4-34", "1c60338a38", "prop-geometry",
             &[
@@ -877,6 +1216,59 @@ fn textgates_battery(b: &mut Battery) {
                 "P10↔P12: эхо 6 сигнатур (первая «see-through») — соседние кадры жуют одно (G33, №52-бэклог): разведи вещи/пропсы/детали",
                 "P11↔P12: эхо 12 сигнатур (первая «pressed») — соседние кадры жуют одно (G33, №52-бэклог): разведи вещи/пропсы/детали",
                 "…и ещё 16 пар",
+            ],
+        ),
+        // ---- этап 2: эталоны живых TS-прогонов (verdict+findings дословно) ----
+        (
+            "T4-34", "1c60338a38", "rating-recipe",
+            &[],
+        ),
+        (
+            "T4-34", "1c60338a38", "raw-plus",
+            &[],
+        ),
+        (
+            "T4-34", "1c60338a38", "dresser",
+            &[
+                "P31: №28-риск: «wet clothes» на тканевом верхе R+ — влага тянит в X (№27: тон не щит); DRY-формула P30 — «sweat glisting»; мокрый купальник — исключение (P21-золото)",
+            ],
+        ),
+        (
+            "T4-34", "1c60338a38", "claim-visibility",
+            &[
+                "P4: зона сигнала (низ) закрыта «skirt» — cameltoe/pantyline не виден камере; открой зону или перевези claim (вердикт T4-03)",
+                "P6: зона сигнала (низ) закрыта «skirt» — cameltoe/pantyline не виден камере; открой зону или перевези claim (вердикт T4-03)",
+                "P25: зона сигнала (низ) закрыта «skirt» — cameltoe/pantyline не виден камере; открой зону или перевези claim (вердикт T4-03)",
+            ],
+        ),
+        (
+            "T4-34", "1c60338a38", "niche-legibility",
+            &[
+                "P8: NICHE без свидетеля в кадре (mirror/glass/monitor/phone/gauge…) — свидетель держит невозможное",
+                "P18: NICHE без свидетеля в кадре (mirror/glass/monitor/phone/gauge…) — свидетель держит невозможное",
+                "P19: NICHE без свидетеля в кадре (mirror/glass/monitor/phone/gauge…) — свидетель держит невозможное",
+                "P23: NICHE без свидетеля в кадре (mirror/glass/monitor/phone/gauge…) — свидетель держит невозможное",
+                "P24: NICHE без свидетеля в кадре (mirror/glass/monitor/phone/gauge…) — свидетель держит невозможное",
+            ],
+        ),
+        (
+            "T4-34", "1c60338a38", "contract-fidelity",
+            &[
+                "P14: стек контракта [CR-I12 + CR-E27 + CR-S01 + CR-G06] ≠ Stack: [CR-I12 + CR-E27 + CR-S01 + CR-G03] — потеряно: CR-G06 — лишнее: CR-G03",
+            ],
+        ),
+        (
+            "T4-27", "1163b4ea98", "rating-recipe-exploratory",
+            &[
+                "EXPLORATORY (§10, квитанция): P30: механизм «bumps» без состояния ткани — в тег-блоке нет ни одного из [fabric clinging / breast clinging / sweat glistening / tight] (рендер-вердикт T4-03: сухая плотная ткань не несёт edge, P13/P21 умерли именно так)",
+                "EXPLORATORY (§10, квитанция): P30: закон №28: мокрое+сквозное на тканевом верхе = X-комбо на любом тоне (P12 deep-amber, P25 rose-pink, P26 black — все X); купальник — исключение (P21-золото), но тут не он",
+            ],
+        ),
+        (
+            "T4-27", "1163b4ea98", "raw-plus-exploratory",
+            &[
+                "EXPLORATORY ⚗ (§10, квитанция): P28: закон №25: запрещённый автором NEG-термин «topless» — руинит заявку (specs/rating-recipes.json v1.7.0 → neg_law) · закон №25: запрещённый автором NEG-термин «naked» — руинит заявку (specs/rating-recipes.json v1.7.0 → neg_law) · закон №25: запрещённый автором NEG-термин «exposed genitals» — руинит заявку (specs/rating-recipes.json v1.7.0 → neg_law) · закон №25: запрещённый автором NEG-термин «vulva» — руинит заявку (specs/rating-recipes.json v1.7.0 → neg_law) · закон №25: запрещённый автором NEG-термин «pubic hair» — руинит заявку (specs/rating-recipes.json v1.7.0 → neg_law) · закон №25: запрещённый автором NEG-термин «sex» — руинит заявку (specs/rating-recipes.json v1.7.0 → neg_law) · закон №25: запрещённый автором NEG-термин «sexual act» — руинит заявку (specs/rating-recipes.json v1.7.0 → neg_law)",
+                "EXPLORATORY ⚗ (§10, квитанция): P30: нет face-блока (stylized 2D anime face — M17, приказ «концепция аниме-лиц») · face-блок неполный (anime eyes (цвет), small nose, small mouth — M17) · нет света-на-зоне: ни одного светового слова в POS (закон №21 — X-граница плоской натяжки, «блеклость») · закон №25: запрещённый автором NEG-термин «topless» — руинит заявку (specs/rating-recipes.json v1.7.0 → neg_law) · закон №25: запрещённый автором NEG-термин «naked» — руинит заявку (specs/rating-recipes.json v1.7.0 → neg_law) · закон №25: запрещённый автором NEG-термин «exposed genitals» — руинит заявку (specs/rating-recipes.json v1.7.0 → neg_law) · закон №25: запрещённый автором NEG-термин «vulva» — руинит заявку (specs/rating-recipes.json v1.7.0 → neg_law) · закон №25: запрещённый автором NEG-термин «pubic hair» — руинит заявку (specs/rating-recipes.json v1.7.0 → neg_law) · закон №25: запрещённый автором NEG-термин «sex» — руинит заявку (specs/rating-recipes.json v1.7.0 → neg_law) · закон №25: запрещённый автором NEG-термин «sexual act» — руинит заявку (specs/rating-recipes.json v1.7.0 → neg_law)",
             ],
         ),
     ];

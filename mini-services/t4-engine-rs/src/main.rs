@@ -91,7 +91,9 @@ fn main() {
         Err(e) => eprintln!("t4-engine-rs: parity-проверка пропущена — {e}"),
     }
 
-    /* ---- cutover-эра: конвейер заряжен ---- */
+    /* ---- cutover-эра: восстановить прогон конвейера из t4_meta (если был) ---- */
+    t4_engine_rs::pipeline::load_persisted(&prod);
+
     eprintln!("t4-engine-rs: CUTOVER — единый движок: прод RW (один писатель), конвейер 5 этапов готов, live-SSE /v1/live");
 
     let twin = Arc::new(rpc::Twin {
