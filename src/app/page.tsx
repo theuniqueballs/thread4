@@ -18,7 +18,8 @@
  */
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Command as CommandIcon, Settings, Sparkles, Zap } from 'lucide-react'
+import { AnimatePresence, motion } from 'framer-motion'
+import { Command as CommandIcon, LayoutGrid, Compass, Settings, Sparkles, Zap } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
 import { toast } from '@/hooks/use-toast'
@@ -32,6 +33,8 @@ import {
   type EngineTele,
 } from '@/components/t4/console/panels'
 import { ActionDeck } from '@/components/t4/console/action-deck'
+import { LiveConsole } from '@/components/t4/console/live-console'
+import { WorkflowDeck } from '@/components/t4/console/workflow'
 import {
   BatchFocus,
   BellMenu,
@@ -101,6 +104,8 @@ export default function Home() {
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [bell, setBell] = useState<NotifyEntry[]>([])
   const [rotSignal, setRotSignal] = useState(0)
+  /* Command Center (Фаза 3): два вида — Воркфлоу (Rust twin) и Консоль «МОЩНОСТЬ» */
+  const [view, setView] = useState<'workflow' | 'console'>('workflow')
   const keySaved = useCommanderKeySaved()
 
   /* данные: состояние ядра (poll 15с) + живая лента движка (poll 4с) */
@@ -155,6 +160,7 @@ export default function Home() {
 
   const focusAction = useCallback((id: ActionId) => {
     setActiveAction(id)
+    setView('console')
     requestAnimationFrame(() => {
       document.getElementById('t4-action-deck')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
     })
@@ -188,6 +194,8 @@ export default function Home() {
         setSettingsOpen(true)
       } else if (m.kind === 'export-chronicle') {
         exportChronicle()
+      } else if (m.kind === 'view') {
+        setView(m.view ?? 'workflow')
       }
     },
     [feedRefresh2, stateReload2, exportChronicle]
@@ -208,6 +216,11 @@ export default function Home() {
       if (k === '/') {
         e.preventDefault()
         setPaletteOpen(true)
+        return
+      }
+      if (k === 'v') {
+        e.preventDefault()
+        setView((v) => (v === 'workflow' ? 'console' : 'workflow'))
         return
       }
       if (k === 'escape') return
@@ -257,7 +270,39 @@ export default function Home() {
                 </span>
                 <span className={chainOk ? 'text-emerald-400' : 'text-rose-400'}>цепь {chainOk ? 'цела' : '!'}</span>
               </div>
-              <BellMenu entries={bell} onClear={() => setBell([])} />
+              {/* вкладки видов: Воркфлоу · Консоль (Фаза 3) */}
+              <div className="flex items-center gap-0.5 rounded-lg border border-zinc-800 bg-zinc-900/60 p-0.5">
+              <button
+                type="button"
+                onClick={() => setView('workflow')}
+                aria-pressed={view === 'workflow'}
+                className={cn(
+                  'flex items-center gap-1.5 rounded-md px-2.5 py-1.5 font-mono text-[10px] uppercase tracking-wide transition-all',
+                  view === 'workflow'
+                    ? 'bg-zinc-100 text-zinc-950 shadow'
+                    : 'text-zinc-400 hover:text-zinc-200'
+                )}
+              >
+                <Compass className="size-3.5" />
+                <span className="hidden sm:inline">Воркфлоу</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setView('console')}
+                aria-pressed={view === 'console'}
+                className={cn(
+                  'flex items-center gap-1.5 rounded-md px-2.5 py-1.5 font-mono text-[10px] uppercase tracking-wide transition-all',
+                  view === 'console'
+                    ? 'bg-zinc-100 text-zinc-950 shadow'
+                    : 'text-zinc-400 hover:text-zinc-200'
+                )}
+              >
+                <LayoutGrid className="size-3.5" />
+                <span className="hidden sm:inline">Консоль</span>
+              </button>
+            </div>
+
+            <BellMenu entries={bell} onClear={() => setBell([])} />
               <button
                 type="button"
                 onClick={() => setPaletteOpen(true)}
@@ -288,35 +333,72 @@ export default function Home() {
       </header>
 
       {/* ── рабочая зона ───────────────────────────────────────── */}
-      <main className="mx-auto w-full max-w-7xl flex-1 space-y-4 px-4 py-5 sm:px-6 sm:py-6">
+      <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-5 sm:px-6 sm:py-6">
         <StatusBar stateData={state.data} keySaved={keySaved} onOpenSettings={() => setSettingsOpen(true)} />
 
-        <RotationWindowPanel refreshSignal={rotSignal} />
+        <AnimatePresence mode="wait" initial={false}>
+          {view === 'workflow' ? (
+            <motion.div
+              key="workflow"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ type: 'spring', stiffness: 260, damping: 26 }}
+              className="mt-4 grid min-w-0 grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(360px,420px)]"
+            >
+              <WorkflowDeck onFocusAction={focusAction} onMutated={onMutated} />
+              <div className="min-w-0 space-y-4">
+                <LiveConsole />
+                <div className="rounded-xl border border-zinc-800/80 bg-zinc-950/70 p-4 backdrop-blur">
+                  <p className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-wider text-zinc-500">
+                    <Zap className="size-3 text-amber-400" /> rust twin · scratch-летопись
+                  </p>
+                  <p className="mt-2 text-[11px] leading-relaxed text-zinc-500">
+                    Воркфлоу доказывает полный цикл на Rust-ядре (:3201): план, якоря, гейт №25,
+                    сдача — всё в scratch-летописи twin'а. Продакшн-цепь (:3200, 434 звена) —
+                    неприкосновенна, производственная сдача — решение автора.
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="console"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ type: 'spring', stiffness: 260, damping: 26 }}
+              className="mt-4 space-y-4"
+            >
+              <RotationWindowPanel refreshSignal={rotSignal} />
 
-        <ActionDeck
-          active={activeAction}
-          onActiveChange={setActiveAction}
-          heapCount={feed.events.length}
-          onPurgeHeap={purgeHeap}
-          onMutated={onMutated}
-          onOpenBatch={openBatch}
-          onOpenDrawer={(id) => setDrawer(id)}
-          onOpenSettings={() => setSettingsOpen(true)}
-          engineUp={tele?.up ?? false}
-        />
+              <ActionDeck
+                active={activeAction}
+                onActiveChange={setActiveAction}
+                heapCount={feed.events.length}
+                onPurgeHeap={purgeHeap}
+                onMutated={onMutated}
+                onOpenBatch={openBatch}
+                onOpenDrawer={(id) => setDrawer(id)}
+                onOpenSettings={() => setSettingsOpen(true)}
+                engineUp={tele?.up ?? false}
+              />
 
-        <div className="grid min-w-0 grid-cols-1 gap-4 lg:grid-cols-2">
-          <BatchFocus
-            onOpenBatch={openBatch}
-            onVerdict={(slug) => {
-              openBatch(slug)
-              focusAction('verdict')
-            }}
-          />
-          <EventsStrip feed={feed} onOpenChronicle={() => setDrawer('chronicle')} />
-        </div>
+              <div className="grid min-w-0 grid-cols-1 gap-4 lg:grid-cols-2">
+                <BatchFocus
+                  onOpenBatch={openBatch}
+                  onVerdict={(slug) => {
+                    openBatch(slug)
+                    focusAction('verdict')
+                  }}
+                />
+                <EventsStrip feed={feed} onOpenChronicle={() => setDrawer('chronicle')} />
+              </div>
 
-        <DocsZone onOpen={(id) => setDrawer(id)} />
+              <DocsZone onOpen={(id) => setDrawer(id)} />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </main>
 
       {/* ── футер: прижат к низу, микро-теги и подсказки ────────── */}
@@ -330,6 +412,7 @@ export default function Home() {
           </span>
           <span className="font-mono">
             <kbd className="rounded border border-zinc-800 bg-zinc-900 px-1 py-px text-[10px]">⌘K</kbd> палитра ·{' '}
+            <kbd className="rounded border border-zinc-800 bg-zinc-900 px-1 py-px text-[10px]">V</kbd> вид ·{' '}
             <kbd className="rounded border border-zinc-800 bg-zinc-900 px-1 py-px text-[10px]">B C T P</kbd>{' '}
             <kbd className="rounded border border-zinc-800 bg-zinc-900 px-1 py-px text-[10px]">D X R S W</kbd> действия ·{' '}
             <kbd className="rounded border border-zinc-800 bg-zinc-900 px-1 py-px text-[10px]">1–8</kbd> доки

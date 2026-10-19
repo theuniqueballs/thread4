@@ -21,6 +21,8 @@ import {
   Heart,
   History,
   KeyRound,
+  LayoutGrid,
+  Compass,
   RefreshCw,
   ScrollText,
   ShieldCheck,
@@ -50,7 +52,9 @@ import {
 } from '@/components/t4/console/shared'
 
 export interface PaletteMisc {
-  kind: 'refresh' | 'settings' | 'export-chronicle'
+  kind: 'refresh' | 'settings' | 'export-chronicle' | 'view'
+  /** для kind:'view' — какой вид показать */
+  view?: 'workflow' | 'console'
 }
 
 interface CommandPaletteProps {
@@ -186,6 +190,30 @@ export function CommandPalette({
         <CommandSeparator className="bg-zinc-800" />
 
         <CommandGroup heading="Служебное">
+          <CommandItem
+            value="view воркфлоу workflow тема якоря compile deliver rust"
+            onSelect={() => {
+              onMisc({ kind: 'view', view: 'workflow' })
+              onOpenChange(false)
+            }}
+            className="text-sm text-zinc-200"
+          >
+            <Compass className="size-4 text-zinc-500" />
+            <span>Воркфлоу — тема → якоря → компиляция → сдача (Rust twin)</span>
+            <kbd className="ml-auto rounded border border-zinc-700 bg-zinc-800 px-1 text-[9px] text-zinc-500">V</kbd>
+          </CommandItem>
+          <CommandItem
+            value="view консоль console мощность action deck"
+            onSelect={() => {
+              onMisc({ kind: 'view', view: 'console' })
+              onOpenChange(false)
+            }}
+            className="text-sm text-zinc-200"
+          >
+            <LayoutGrid className="size-4 text-zinc-500" />
+            <span>Консоль «МОЩНОСТЬ» — action deck + лента + окно ротации</span>
+            <kbd className="ml-auto rounded border border-zinc-700 bg-zinc-800 px-1 text-[9px] text-zinc-500">V</kbd>
+          </CommandItem>
           <CommandItem
             value="misc refresh обновить всё состояние"
             onSelect={() => {
