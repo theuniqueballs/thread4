@@ -81,7 +81,7 @@ export interface ScribeOptions {
   onLog?: (line: string) => void // live progress (CLI prints as it goes)
 }
 
-interface ScribeCtx {
+export interface ScribeCtx {
   contract: BatchContract
   carriers: Map<string, Carrier>
   poses: Map<string, Pose>
@@ -113,7 +113,7 @@ interface ScribeCtx {
 /** FAM-хук семейства сисек (pools.json b_fam): как грудь этого размера
  *  держит ткань, ловит свет и двигается. Писец вплетает в тег-ран
  *  слота — сиськи перестают быть словом и становятся физикой кадра. */
-interface FamHook {
+export interface FamHook {
   label: string
   fabric: string
   light: string
@@ -345,7 +345,7 @@ function raceLine(race: Race | undefined, raceFeature: string | undefined): stri
   return `${race.name}${feats ? ` — features: ${feats}` : ''}${raceFeature ? ` · assigned feature: ${raceFeature}` : ''}`
 }
 
-function slotFrame(slot: SlotPlan, ctx: ScribeCtx): string {
+export function slotFrame(slot: SlotPlan, ctx: ScribeCtx): string {
   const lines: string[] = []
   const recipe = ctx.recipes[recipeKeyOf(slot.rating)]
   const carrier = ctx.carriers
@@ -588,12 +588,12 @@ export function tierBudgetLine(
 /* polishBatch — раньше 4 копии, правка одной = дрейф остальных)       */
 /* ------------------------------------------------------------------ */
 
-const REPAIR_BOILERPLATE = `NON-NEGOTIABLE BOILERPLATE (structure gate, §3 RENDER PHYSICS — ревизия 2026-10-14: ремонт чинил флаг и ронял фейс-лок, пинг-понг слотов P19/P21/P30): every POS you rewrite MUST contain — «anime style» opener · face block AS TAGS («stylized 2D anime face, anime eyes ([color], [expression]), small nose, small mouth») · «masterpiece, best quality, anime artstyle» closer. A rewrite that fixes the flagged finding but drops the face block FAILS the structure gate and the round is wasted.`
+export const REPAIR_BOILERPLATE = `NON-NEGOTIABLE BOILERPLATE (structure gate, §3 RENDER PHYSICS — ревизия 2026-10-14: ремонт чинил флаг и ронял фейс-лок, пинг-понг слотов P19/P21/P30): every POS you rewrite MUST contain — «anime style» opener · face block AS TAGS («stylized 2D anime face, anime eyes ([color], [expression]), small nose, small mouth») · «masterpiece, best quality, anime artstyle» closer. A rewrite that fixes the flagged finding but drops the face block FAILS the structure gate and the round is wasted.`
 
 /* T4-005 (Issues/thread4, инцидент T4-31: P19/P21/P30): ремонт менял НАБОР
  * сверхтировых сигналов, а не класс ошибки — срезал «covered nipples» и
  * вписывал «visible pantyline». Бюджет тира — закон и в ремонте. */
-const REPAIR_TIER_BUDGET = `TIER BUDGET (T4-005 — whack-a-mole killer): a rewrite that removes a flagged super-tier signal must not import ANOTHER signal from the slot's FORBIDDEN list (see TIER SIGNAL BUDGET in each slot below) — same tier, same channel, a DIFFERENT physical fact. Swapping «covered nipples» for «visible pantyline» is the same failure wearing a new coat.`
+export const REPAIR_TIER_BUDGET = `TIER BUDGET (T4-005 — whack-a-mole killer): a rewrite that removes a flagged super-tier signal must not import ANOTHER signal from the slot's FORBIDDEN list (see TIER SIGNAL BUDGET in each slot below) — same tier, same channel, a DIFFERENT physical fact. Swapping «covered nipples» for «visible pantyline» is the same failure wearing a new coat.`
 
 /* ------------------------------------------------------------------ */
 /* NEG assembly (the machine half)                                     */
@@ -888,7 +888,7 @@ export function expPosOf(llmPos: string, themeKeywords: string[]): string {
   return stripThemeTokens(llmPos, themeKeywords)
 }
 
-function assembleBatch(
+export function assembleBatch(
   ctx: ScribeCtx,
   outputs: Map<number, ScribeSlotOutput>,
   title: string
@@ -1049,7 +1049,7 @@ export async function chat(provider: LlmProvider, system: string, user: string, 
   throw lastErr instanceof Error ? lastErr : new Error('LLM failed')
 }
 
-function parseSlots(raw: string): Map<number, ScribeSlotOutput> {
+export function parseSlots(raw: string): Map<number, ScribeSlotOutput> {
   const out = new Map<number, ScribeSlotOutput>()
   /* Т4-32 (живой прогон): модель 4× подряд писала первый слот заголовком с
    * хвостом («### P01 — anchor…»), строгий сплит ^…P(\d+)\s*$ его ронял —
@@ -1088,6 +1088,178 @@ function parseSlots(raw: string): Map<number, ScribeSlotOutput> {
     })
   }
   return out
+}
+
+/* ------------------------------------------------------------------ */
+/* BRIDGE KIT (cutover-эра, 2026-10-20: единый движок = Rust)           */
+/* ------------------------------------------------------------------ */
+
+/* Приказ «МОЩНОСТЬ»: движок оркестрирует конвейер на Rust; z-ai-web-dev-sdk
+ * живёт только в Node — мостовые роуты /api/t4/bridge/* зовут ЭТИ функции.
+ * Каждая — ЧИСТАЯ вычислялка: ни файлов, ни летописи, ни событий. Пишет
+ * (файлы/события) — только Rust-движок. */
+
+/** Спайн-результат этапа «Сборка»: одноразовый движок батча. */
+export interface SpineResult {
+  engineName: string
+  engineLaw: string
+  themeKeywords: string[]
+  batchThesis: string
+  acts: string[]
+  spineRaw: string
+  /** спайн не распарсился — движок фолбэк (наблюдаемость T4-29) */
+  parseWarning: boolean
+}
+
+/** Сборка контекста писца из контракта (спеки + пулы + FAM-хуки + имена
+ * кинов). Экстракт тел scribeBatchInner/polishBatch — одна правда на
+ * контекст для писца, полировки и Rust-моста.
+ *
+ * opts.themeWordsFromContract — тема-слова контракта сразу (polish-путь);
+ * opts.engineFromContract — движок контракта сразу (спайн уже не нужен). */
+export async function buildScribeCtx(
+  contract: BatchContract,
+  opts: { themeWordsFromContract?: boolean; engineFromContract?: boolean } = {}
+): Promise<ScribeCtx> {
+  const carriersSpec = getCarriers()
+  const posesSpec = getPoses()
+  const palettesSpec = getPalettes()
+  const racesSpec = getRaces()
+  const ocCanon = getOCCanon()
+  const recipesSpec = getRatingRecipes()
+  const bans = getBans()
+  if (!carriersSpec || !posesSpec || !palettesSpec || !racesSpec || !ocCanon || !recipesSpec || !bans) {
+    throw new Error('спеки не загружены')
+  }
+  /* аудит 2026-10-17 (Задача 2 MERGE): вход в pools.json через геттер specs
+   * (§2: одна правда на факт; прямой readJson дублировал путь чтения) */
+  const poolsSpec = getPools() as {
+    sections: Record<string, { id: string; name?: string; light?: string }[]> & {
+      b_fam?: { families?: Record<string, { label?: string; fabric?: string; light?: string; motion?: string }> }
+    }
+  } | null
+  /* Раунд 2026-10-16 (FAM-канон v2.3.0): хуки семейств сисек из b_fam —
+   *  единый парсер для обеих сборок ctx (основа + повторный заход). */
+  const famHooks: Record<string, FamHook> = {}
+  for (const [famKey, raw] of Object.entries(poolsSpec?.sections?.b_fam?.families ?? {})) {
+    const f = raw as { label?: string; fabric?: string; light?: string; motion?: string }
+    const letter = famKey.replace(/^FAM-/, '')
+    if (letter.length === 1 && f.fabric && f.light && f.motion) {
+      famHooks[letter] = {
+        label: f.label ?? letter,
+        fabric: f.fabric,
+        light: f.light,
+        motion: f.motion,
+      }
+    }
+  }
+
+  const kNames = new Map<string, { name: string; light: string }>()
+  for (const k of poolsSpec?.sections?.kinetics_k ?? []) {
+    kNames.set(k.id, { name: k.name ?? k.id, light: k.light ?? '' })
+  }
+
+  const themeWordsFromContract = Array.isArray(contract.themeWords)
+    ? contract.themeWords.map((w) => String(w).trim().toLowerCase()).filter(Boolean).slice(0, 8)
+    : []
+
+  return {
+    contract,
+    carriers: new Map(Object.values(carriersSpec.classes).flat().map((c) => [c.id, c])),
+    poses: new Map(posesSpec.poses.map((p) => [p.id, p])),
+    palettes: new Map(palettesSpec.palettes.map((p) => [p.id, p])),
+    races: new Map(racesSpec.races.map((r) => [r.name, r])),
+    ocs: ocCanon.ocs,
+    recipes: recipesSpec.tiers as unknown as Record<string, TierRecipe>,
+    floors: recipesSpec.eternal_floors as unknown as Record<string, string[]>,
+    kNames,
+    famHooks,
+    batchThesis: '',
+    acts: [],
+    themeKeywords: opts.themeWordsFromContract ? themeWordsFromContract : [],
+    engineName: opts.engineFromContract ? contract.engine : '',
+    engineLaw: opts.engineFromContract ? contract.engineLaw : '',
+  }
+}
+
+/** Спайн: LLM изобретает одноразовый движок батча (имя/закон/теза/акты/
+ * тема-слова). Чистая функция моста — архив движка пишет вызывающий.
+ * Ревизия T4-29 в силе: сырой ответ виден оператору при фолбэке. */
+export async function inventSpine(
+  slug: string,
+  contract: BatchContract,
+  log: string[],
+  say: (s: string) => void
+): Promise<SpineResult> {
+  const theme = contract.theme
+  const provider = resolveLlmProvider()
+  say(`LLM-провайдер: ${provider.name} (T4_SCRIBE_PROVIDER)`)
+  say('Шаг 1/4: закон батча, название, три акта…')
+  const wishesBlock = contract.authorWishes
+    ? `\nAUTHOR'S WISHES (приказ автора этому батчу — закон энергии §10, виден в каждом кадре, не только в шапке): ${contract.authorWishes}`
+    : ''
+  const spineRaw = await chat(
+    provider,
+    systemPrompt(),
+    `BATCH ${slug} «${theme}». THE THEME IS THE LAW.${wishesBlock}\n\nInvent a ONE-BATCH ENGINE for this theme (3.2-традиция, одноразовый): a physical law SPECIFIC to this theme that bends fabric, light, physics and wardrobe in every frame — not a generic style. The engine lives for this batch only. Return EXACTLY, nothing else:\nENGINE: <2-4 words, name of the engine>\nLAW: <1-2 sentences: the physical law and how the wardrobe obeys it>\nTHEME-KEYWORDS: <5-8 English tag-safe words from the THEME itself — drawable objects, places, materials, physical states that can appear INSIDE tags (NOT style words, NOT the theme title verbatim, NOT abstractions — only what a renderer can draw)>\nTHESIS: <one paragraph, 90-140 words: the batch's ONE law, physical and testable in-frame, how the THEME (not the engine) is delivered across the 24 frames, and how the three acts escalate it>\nACT I: <WIDE sub-theme name, 2-5 words — each act must hold VERY different pictures>\nACT II: <WIDE sub-theme name>\nACT III: <WIDE sub-theme name>`,
+    log
+  )
+  /* спайн-парсер: модель любит украшать ключи маркдауном («### ENGINE: …» —
+   * находка T4-29: строгие /^KEY:/m молча падали в фолбэк, батч терял
+   * движок и тему-слова). Заголовки/болд перед ключом допускаются. */
+  const spineLine = (key: string): string =>
+    (
+      new RegExp(`^#{0,4}\\s*\\**\\s*${key}:\\**\\s*(.+)$`, 'm').exec(spineRaw)?.[1] ?? ''
+    ).trim()
+  const engineName = (spineLine('ENGINE') || 'per-theme').slice(0, 60)
+  const engineLaw = spineLine('LAW').slice(0, 300)
+  /* наблюдаемость спайна (T4-29): парс помалкивал — фолбэк-акты прятали
+   * отказ/пересменку формата модели; сырой ответ теперь виден оператору
+   * до того, как батч соберётся без движка и темы */
+  const parseWarning = engineName === 'per-theme' || engineLaw === ''
+  if (parseWarning) {
+    say(
+      `  ⚠ спайн не распарсился (ENGINE/LAW не найдены) — движок фолбэк; сырой ответ (первые 400 знаков): ${spineRaw
+        .replace(/\s+/g, ' ')
+        .slice(0, 400)}`
+    )
+  }
+  const spineKeywords = (spineLine('THEME-KEYWORDS') || '')
+    .split(',')
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean)
+    .slice(0, 8)
+  /* ТЕМА-СЛОВА АВТОРА (точная привязка к теме — ревью UI 2026-10-11):
+   * контракт несёт themeWords из брифа — они идут ПЕРВЫМИ, спайн дополняет
+   * хвост до 8 (гейт theme-presence меряет итоговый список в ≥60% слотов);
+   * без контрактовых слов спайн остаётся единственным источником */
+  const authorThemeWords = (Array.isArray(contract.themeWords) ? contract.themeWords : [])
+    .map((w) => String(w).trim().toLowerCase())
+    .filter(Boolean)
+  let themeKeywords = spineKeywords
+  if (authorThemeWords.length > 0) {
+    themeKeywords = [...new Set([...authorThemeWords, ...spineKeywords])].slice(0, 8)
+    say(`  · тема-слова автора первыми: ${authorThemeWords.join(', ')} (спайн дополняет хвост)`)
+  }
+  const batchThesis = (
+    new RegExp(`(?:^|\\n)#{0,4}\\s*\\**\\s*THESIS:\\**\\s*\\n?([\\s\\S]*?)(?=\\n#{0,4}\\s*\\**\\s*ACT I:|$)`, 'm').exec(
+      spineRaw
+    )?.[1] ?? ''
+  ).trim()
+  const acts = [
+    spineLine('ACT I') || 'The Law Arrives',
+    spineLine('ACT II') || 'The Law Worn In',
+    spineLine('ACT III') || 'What the Law Keeps',
+  ].map((a) => a.trim())
+  return { engineName, engineLaw, themeKeywords, batchThesis, acts, spineRaw, parseWarning }
+}
+
+/** Блок закона батча для промпта слота (одна правда для писца, полировки
+ * и Rust-моста: раньше жил инлайн-константой в scribeBatchInner). */
+export function batchLawBlockOf(slug: string, ctx: ScribeCtx): string {
+  const c = ctx.contract
+  const theme = c.theme
+  return `BATCH ${slug} «${theme}» — theme: ${theme}${c.authorWishes ? `\nAUTHOR'S WISHES (приказ автора — закон энергии этого батча): ${c.authorWishes}` : ''}\nENGINE (одноразовый, ваш): ${ctx.engineName} — ${ctx.engineLaw}\nBATCH THESIS (yours, keep it): ${ctx.batchThesis}\nTHEME-KEYWORDS (weave ≥1 into every MAIN/OC slot's tags or prose — the theme must be VISIBLE in the frame, not in the header; EXP slots are theme-free test blanks — theme words NEVER enter them, вердикт T4-34): ${ctx.themeKeywords.join(', ') || '—'}\nGENRE PLAN: ${c.slots.filter((s) => s.kind === 'NICHE').length} NICHE (R) · ${c.slots.filter((s) => s.kind === 'VOLT' || s.kind === 'EXQUISITE').length} VOLT/EXQUISITE (R+ incl. ${c.slots.filter((s) => s.kind === 'OC' && s.rating === 'R+').length} OC) · ${c.slots.filter((s) => s.rating === 'X').length} X${c.slots.some((s) => s.kind === 'EXP') ? ` · ${c.slots.filter((s) => s.kind === 'EXP').length} EXP (без темы)` : ''}`
 }
 
 /* ------------------------------------------------------------------ */
@@ -1154,141 +1326,40 @@ async function scribeBatchInner(
       { slug, channels: deadClaims.map((c) => c.channel) }
     )
   }
-  const carriersSpec = getCarriers()
-  const posesSpec = getPoses()
-  const palettesSpec = getPalettes()
-  const racesSpec = getRaces()
-  const ocCanon = getOCCanon()
-  const recipesSpec = getRatingRecipes()
-  const bans = getBans()
-  if (!carriersSpec || !posesSpec || !palettesSpec || !racesSpec || !ocCanon || !recipesSpec || !bans) {
-    throw new Error('спеки не загружены')
-  }
-  /* аудит 2026-10-17 (Задача 2 MERGE): вход в pools.json через геттер specs
-   * (§2: одна правда на факт; прямой readJson дублировал путь чтения) */
-  const poolsSpec = getPools() as {
-    sections: Record<string, { id: string; name?: string; light?: string }[]> & {
-      b_fam?: { families?: Record<string, { label?: string; fabric?: string; light?: string; motion?: string }> }
-    }
-  } | null
-  /* Раунд 2026-10-16 (FAM-канон v2.3.0): хуки семейств сисек из b_fam —
-   *  единый парсер для обеих сборок ctx (основа + повторный заход). */
-  const famHooks: Record<string, FamHook> = {}
-  for (const [famKey, raw] of Object.entries(poolsSpec?.sections?.b_fam?.families ?? {})) {
-    const f = raw as { label?: string; fabric?: string; light?: string; motion?: string }
-    const letter = famKey.replace(/^FAM-/, '')
-    if (letter.length === 1 && f.fabric && f.light && f.motion) {
-      famHooks[letter] = {
-        label: f.label ?? letter,
-        fabric: f.fabric,
-        light: f.light,
-        motion: f.motion,
-      }
-    }
-  }
+  /* ctx писца — единый строитель (bridge kit): спеки + пулы + FAM-хуки.
+   * Спайн (движок батча) — тоже кит: одна правда для писца и Rust-моста. */
+  const ctx = await buildScribeCtx(contract)
 
-  const kNames = new Map<string, { name: string; light: string }>()
-  for (const k of poolsSpec?.sections?.kinetics_k ?? []) {
-    kNames.set(k.id, { name: k.name ?? k.id, light: k.light ?? '' })
-  }
-
-  const ctx: ScribeCtx = {
-    contract,
-    carriers: new Map(Object.values(carriersSpec.classes).flat().map((c) => [c.id, c])),
-    poses: new Map(posesSpec.poses.map((p) => [p.id, p])),
-    palettes: new Map(palettesSpec.palettes.map((p) => [p.id, p])),
-    races: new Map(racesSpec.races.map((r) => [r.name, r])),
-    ocs: ocCanon.ocs,
-    recipes: recipesSpec.tiers as unknown as Record<string, TierRecipe>,
-    floors: recipesSpec.eternal_floors as unknown as Record<string, string[]>,
-    kNames,
-    famHooks,
-    batchThesis: '',
-    acts: [],
-    themeKeywords: [],
-    engineName: '',
-    engineLaw: '',
-  }
-
-  const engine = contract.engineLaw
   const theme = contract.theme
 
   say(`Писец: ${slug} «${theme}» · движок ${contract.engine} · ${contract.slots.length} слотов`)
 
-  const provider = resolveLlmProvider()
-  say(`LLM-провайдер: ${provider.name} (T4_SCRIBE_PROVIDER)`)
-  say('Шаг 1/4: закон батча, название, три акта…')
-  const wishesBlock = contract.authorWishes
-    ? `\nAUTHOR'S WISHES (приказ автора этому батчу — закон энергии §10, виден в каждом кадре, не только в шапке): ${contract.authorWishes}`
-    : ''
-  const spineRaw = await chat(
-    provider,
-    systemPrompt(),
-    `BATCH ${slug} «${theme}». THE THEME IS THE LAW.${wishesBlock}\n\nInvent a ONE-BATCH ENGINE for this theme (3.2-традиция, одноразовый): a physical law SPECIFIC to this theme that bends fabric, light, physics and wardrobe in every frame — not a generic style. The engine lives for this batch only. Return EXACTLY, nothing else:\nENGINE: <2-4 words, name of the engine>\nLAW: <1-2 sentences: the physical law and how the wardrobe obeys it>\nTHEME-KEYWORDS: <5-8 English tag-safe words from the THEME itself — drawable objects, places, materials, physical states that can appear INSIDE tags (NOT style words, NOT the theme title verbatim, NOT abstractions — only what a renderer can draw)>\nTHESIS: <one paragraph, 90-140 words: the batch's ONE law, physical and testable in-frame, how the THEME (not the engine) is delivered across the 24 frames, and how the three acts escalate it>\nACT I: <WIDE sub-theme name, 2-5 words — each act must hold VERY different pictures>\nACT II: <WIDE sub-theme name>\nACT III: <WIDE sub-theme name>`,
-    log
-  )
-  /* спайн-парсер: модель любит украшать ключи маркдауном («### ENGINE: …» —
-   * находка T4-29: строгие /^KEY:/m молча падали в фолбэк, батч терял
-   * движок и тему-слова). Заголовки/болд перед ключом допускаются. */
-  const spineLine = (key: string): string =>
-    (
-      new RegExp(`^#{0,4}\\s*\\**\\s*${key}:\\**\\s*(.+)$`, 'm').exec(spineRaw)?.[1] ?? ''
-    ).trim()
-  const engineName = (spineLine('ENGINE') || 'per-theme').slice(0, 60)
-  const engineLawSpine = spineLine('LAW').slice(0, 300)
-  /* наблюдаемость спайна (T4-29): парс помалкивал — фолбэк-акты прятали
-   * отказ/пересменку формата модели; сырой ответ теперь виден оператору
-   * до того, как батч соберётся без движка и темы */
-  if (engineName === 'per-theme' || engineLawSpine === '') {
-    say(
-      `  ⚠ спайн не распарсился (ENGINE/LAW не найдены) — движок фолбэк; сырой ответ (первые 400 знаков): ${spineRaw
-        .replace(/\s+/g, ' ')
-        .slice(0, 400)}`
-    )
-  }
-  ctx.engineName = engineName
-  ctx.engineLaw = engineLawSpine || contract.engineLaw
-  /* утилизация: одноразовый движок уходит в архив вместе с батчем */
+  const spine = await inventSpine(slug, contract, log, say)
+  ctx.engineName = spine.engineName
+  ctx.engineLaw = spine.engineLaw || contract.engineLaw
+  ctx.themeKeywords = spine.themeKeywords
+  ctx.batchThesis = spine.batchThesis || `The batch's law: ${ctx.engineLaw}`
+  ctx.acts = spine.acts
+
+  /* утилизация: одноразовый движок уходит в архив вместе с батчем
+   * (мостовой /spine-путь архив НЕ пишет — его пишет Rust-движок) */
   try {
     fs.appendFileSync(
       path.join(process.cwd(), 'thread4', 'engines-archive.jsonl'),
-      JSON.stringify({ slug, theme, engine: engineName, law: engineLawSpine, at: new Date().toISOString() }) + '\n',
+      JSON.stringify({ slug, theme, engine: spine.engineName, law: spine.engineLaw, at: new Date().toISOString() }) + '\n',
       'utf-8'
     )
   } catch {
     /* архив не критичен для записи — движок живёт в шапке батча */
   }
-  ctx.themeKeywords = (spineLine('THEME-KEYWORDS') || '')
-    .split(',')
-    .map((s) => s.trim().toLowerCase())
-    .filter(Boolean)
-    .slice(0, 8)
-  /* ТЕМА-СЛОВА АВТОРА (точная привязка к теме — ревью UI 2026-10-11):
-   * контракт несёт themeWords из брифа — они идут ПЕРВЫМИ, спайн дополняет
-   * хвост до 8 (гейт theme-presence меряет итоговый список в ≥60% слотов);
-   * без контрактовых слов спайн остаётся единственным источником */
-  const authorThemeWords = (Array.isArray(contract.themeWords) ? contract.themeWords : [])
-    .map((w) => String(w).trim().toLowerCase())
-    .filter(Boolean)
-  if (authorThemeWords.length > 0) {
-    ctx.themeKeywords = [...new Set([...authorThemeWords, ...ctx.themeKeywords])].slice(0, 8)
-    say(`  · тема-слова автора первыми: ${authorThemeWords.join(', ')} (спайн дополняет хвост)`)
-  }
+
   /* TITLE IS THEME (вердикт автора 2026-09-27: «меняется название темы» —
      больше никогда): название батча = тема автора, без переименований */
   const title = theme
-  const thesisP = (
-    new RegExp(`(?:^|\\n)#{0,4}\\s*\\**\\s*THESIS:\\**\\s*\\n?([\\s\\S]*?)(?=\\n#{0,4}\\s*\\**\\s*ACT I:|$)`, 'm').exec(
-      spineRaw
-    )?.[1] ?? ''
-  ).trim()
-  ctx.batchThesis = thesisP || `The batch's law: ${ctx.engineLaw}`
-  ctx.acts = [
-    spineLine('ACT I') || 'The Law Arrives',
-    spineLine('ACT II') || 'The Law Worn In',
-    spineLine('ACT III') || 'What the Law Keeps',
-  ].map((a) => a.trim())
   say(`  · «${title}» · акты: ${ctx.acts.join(' / ')}`)
+
+  /* провайдер для чанков (спайн уже разрешал свой — тот же по .env) */
+  const provider = resolveLlmProvider()
 
   /* ---- calls 1..N: slot chunks ---- */
   const outputs = new Map<number, ScribeSlotOutput>()
@@ -1296,7 +1367,7 @@ async function scribeBatchInner(
   for (let i = 0; i < contract.slots.length; i += chunkSize) {
     chunks.push(contract.slots.slice(i, i + chunkSize))
   }
-    const batchLawBlock = `BATCH ${slug} «${title}» — theme: ${theme}${contract.authorWishes ? `\nAUTHOR'S WISHES (приказ автора — закон энергии этого батча): ${contract.authorWishes}` : ''}\nENGINE (одноразовый, ваш): ${ctx.engineName} — ${ctx.engineLaw}\nBATCH THESIS (yours, keep it): ${ctx.batchThesis}\nTHEME-KEYWORDS (weave ≥1 into every MAIN/OC slot's tags or prose — the theme must be VISIBLE in the frame, not in the header; EXP slots are theme-free test blanks — theme words NEVER enter them, вердикт T4-34): ${ctx.themeKeywords.join(', ') || '—'}\nGENRE PLAN: ${contract.slots.filter((s) => s.kind === 'NICHE').length} NICHE (R) · ${contract.slots.filter((s) => s.kind === 'VOLT' || s.kind === 'EXQUISITE').length} VOLT/EXQUISITE (R+ incl. ${contract.slots.filter((s) => s.kind === 'OC' && s.rating === 'R+').length} OC) · ${contract.slots.filter((s) => s.rating === 'X').length} X${contract.slots.some((s) => s.kind === 'EXP') ? ` · ${contract.slots.filter((s) => s.kind === 'EXP').length} EXP (без темы)` : ''}`
+  const batchLawBlock = batchLawBlockOf(slug, ctx)
 
   for (let ci = 0; ci < chunks.length; ci++) {
     const chunk = chunks[ci]
@@ -1519,60 +1590,9 @@ export async function polishBatch(
   }
 
   /* контекст писца из контракта (без спайн-вызова LLM: закон уже написан) */
-  const carriersSpec = getCarriers()
-  const posesSpec = getPoses()
-  const palettesSpec = getPalettes()
-  const racesSpec = getRaces()
-  const ocCanon = getOCCanon()
-  const recipesSpec = getRatingRecipes()
-  const bans = getBans()
-  if (!carriersSpec || !posesSpec || !palettesSpec || !racesSpec || !ocCanon || !recipesSpec || !bans) {
-    throw new Error('спеки не загружены')
-  }
-  /* аудит 2026-10-17 (Задача 2 MERGE): вход в pools.json через геттер specs
-   * (§2: одна правда на факт; прямой readJson дублировал путь чтения) */
-  const poolsSpec = getPools() as {
-    sections: Record<string, { id: string; name?: string; light?: string }[]> & {
-      b_fam?: { families?: Record<string, { label?: string; fabric?: string; light?: string; motion?: string }> }
-    }
-  } | null
-  const kNames = new Map<string, { name: string; light: string }>()
-  for (const k of poolsSpec?.sections?.kinetics_k ?? []) {
-    kNames.set(k.id, { name: k.name ?? k.id, light: k.light ?? '' })
-  }
-  /* FAM-хуки (та же раскладка, что в основном заходе писца) */
-  const famHooks: Record<string, FamHook> = {}
-  for (const [famKey, raw] of Object.entries(poolsSpec?.sections?.b_fam?.families ?? {})) {
-    const f = raw as { label?: string; fabric?: string; light?: string; motion?: string }
-    const letter = famKey.replace(/^FAM-/, '')
-    if (letter.length === 1 && f.fabric && f.light && f.motion) {
-      famHooks[letter] = {
-        label: f.label ?? letter,
-        fabric: f.fabric,
-        light: f.light,
-        motion: f.motion,
-      }
-    }
-  }
-  const ctx: ScribeCtx = {
-    contract,
-    carriers: new Map(Object.values(carriersSpec.classes).flat().map((c) => [c.id, c])),
-    poses: new Map(posesSpec.poses.map((p) => [p.id, p])),
-    palettes: new Map(palettesSpec.palettes.map((p) => [p.id, p])),
-    races: new Map(racesSpec.races.map((r) => [r.name, r])),
-    ocs: ocCanon.ocs,
-    recipes: recipesSpec.tiers as unknown as Record<string, TierRecipe>,
-    floors: recipesSpec.eternal_floors as unknown as Record<string, string[]>,
-    kNames,
-    famHooks,
-    batchThesis: '',
-    acts: [],
-    themeKeywords: Array.isArray(contract.themeWords)
-      ? contract.themeWords.map((w) => String(w).toLowerCase()).slice(0, 8)
-      : [],
-    engineName: contract.engine,
-    engineLaw: contract.engineLaw,
-  }
+  /* ctx писца — единый строитель (bridge kit): polish-путь берёт
+   * тема-слова и движок из контракта (спайн уже не нужен) */
+  const ctx = await buildScribeCtx(contract, { themeWordsFromContract: true, engineFromContract: true })
   /* Ревизия 2026-10-14 (сдача T4-31): пересборка шапки polish-ом ДЕГРАДИРОВАЛА
    * её до «ACT I — ACT I» и тезиса=ПРИКАЗ — acts/thesis/ТЕМА-СЛОВА теперь
    * восстанавливаются из САМОГО батча (делишители актов, параграф после
@@ -1604,7 +1624,7 @@ export async function polishBatch(
 
   const provider = resolveLlmProvider()
   say(`LLM-провайдер: ${provider.name} (T4_SCRIBE_PROVIDER)`)
-  const batchLawBlock = `BATCH ${slug} «${contract.theme}» — theme: ${contract.theme}${contract.authorWishes ? `\nAUTHOR'S WISHES: ${contract.authorWishes}` : ''}\nENGINE: ${ctx.engineName} — ${ctx.engineLaw}\nBATCH THESIS: ${ctx.batchThesis}`
+  const batchLawBlock = batchLawBlockOf(slug, ctx)
 
   let markdown = assembleBatch(ctx, outputs, contract.theme)
   let result: GatesResult | null = null

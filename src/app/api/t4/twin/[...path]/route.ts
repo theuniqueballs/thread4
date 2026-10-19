@@ -23,13 +23,16 @@ const TWIN_ORIGIN = process.env.T4_RUST_ORIGIN ?? 'http://127.0.0.1:3201'
  * сборки воркфлоу twin'а (своя scratch-летопись), прод-список живёт
  * отдельно в /v1/batches — два пространства T4-NN различимы в UI.
  * scratch/batches/:slug — план сборки со слотами (витрина «Сборка»
- * показывает содержимое compiled-батча, 2026-10-20). */
-const GET_ALLOW = new Set(['health', 'meta', 'state', 'live', 'events', 'batches', 'scratch/batches', 'chain/verify'])
+ * показывает содержимое compiled-батча, 2026-10-20).
+ * pipeline — снимок прогона конвейера (cutover-эра). */
+const GET_ALLOW = new Set(['health', 'meta', 'state', 'live', 'events', 'batches', 'scratch/batches', 'chain/verify', 'pipeline'])
 const SCRATCH_CARD_RE = /^scratch\/batches\/T4-\d{2,3}$/
 
 /** POST-пути: theme (expand/check — чистые вычисления) + compile + gates
  * (батарея Review: twin гоняет квитанции по scratch-драфту, ключ командира
- * проксируется как у compile) + deliver/void + events. */
+ * проксируется как у compile) + deliver/void + events.
+ * Cutover-эра: конвейер — pipeline/auto (одна кнопка 1→5),
+ * pipeline/stage/:имя (ручной этап), pipeline/abort (стоп). */
 const POST_ALLOW_RE = [
   /^theme\/expand$/,
   /^theme\/check$/,
@@ -38,6 +41,9 @@ const POST_ALLOW_RE = [
   /^events$/,
   /^batches\/T4-\d{2,3}\/deliver$/,
   /^batches\/T4-\d{2,3}\/void$/,
+  /^pipeline\/auto$/,
+  /^pipeline\/abort$/,
+  /^pipeline\/stage\/(theme|compile|build|scribe|deliver)$/,
 ]
 
 const SEGMENT_RE = /^[A-Za-z0-9._-]{1,24}$/

@@ -36,8 +36,17 @@ import {
   writeClipboard,
   type LiveConsoleStatus,
 } from '@/components/t4/console/shared'
+import { pushFrame } from '@/components/t4/console/frame-ring'
 
-export type LiveBlock = 'expand' | 'compile' | 'gates' | 'scribe' | 'deliver' | 'system'
+export type LiveBlock =
+    | 'expand'
+    | 'compile'
+    | 'build'
+    | 'gates'
+    | 'scribe'
+    | 'deliver'
+    | 'pipeline'
+    | 'system'
 
 interface LiveFrame {
   seq: number
@@ -60,18 +69,22 @@ const SLUG_HINT_RE = /\bT4-\d{2,}(?:\.\d+)?(?:-EXP)?\b/
 const BLOCK_STYLE: Record<LiveBlock, string> = {
   expand: 'text-cyan-300',
   compile: 'text-zinc-200',
+  build: 'text-orange-300',
   gates: 'text-amber-300',
   scribe: 'text-fuchsia-300',
   deliver: 'text-emerald-300',
+  pipeline: 'text-teal-300',
   system: 'text-zinc-500',
 }
 
 const BLOCK_LABEL: Record<LiveBlock, string> = {
   expand: 'EXPAND',
   compile: 'COMPILE',
+  build: 'BUILD',
   gates: 'GATES',
   scribe: 'SCRIBE',
   deliver: 'DELIVER',
+  pipeline: 'PIPELINE',
   system: 'SYSTEM',
 }
 
@@ -149,6 +162,7 @@ export function LiveConsole({ className }: { className?: string }) {
       es.onmessage = (ev) => {
         try {
           const f = JSON.parse(ev.data) as LiveFrame
+          pushFrame(f)
           if (typeof f.seq === 'number' && f.seq > lastSeqRef.current) {
             lastSeqRef.current = f.seq
             setLastSeq(f.seq)

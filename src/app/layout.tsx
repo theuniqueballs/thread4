@@ -21,10 +21,10 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "THREAD 4 — Консоль «МОЩНОСТЬ»",
+  title: "THREAD 4 — Конвейер",
   description:
-    "Конвейер THREAD 4: один рабочий экран — Action Deck (BURN & REBUILD, FORCE COMPILE, VERIFY, PURGE, VOID, DELIVER, REAPER, SHORE-MERGE, вердикт), окно ротации, живая лента хеш-цепи + читальный зал в drawer'ах и палитра команд ⌘K.",
-  keywords: ["THREAD 4", "prompt pipeline", "hash chain", "chain.jsonl", "rotation window", "burn and rebuild", "command palette"],
+    "Единый конвейер THREAD 4: пять этапов жизни батча на одном экране — приказ и раскрытие темы, компиляция, сборка движка, писец, сдача в хеш-цепь. Одна кнопка «Запустить конвейер», ручной override любого этапа, живая консоль Rust-ядра.",
+  keywords: ["THREAD 4", "конвейер", "pipeline", "hash chain", "Rust engine", "scribes", "prompt pipeline"],
 };
 
 export default function RootLayout({
