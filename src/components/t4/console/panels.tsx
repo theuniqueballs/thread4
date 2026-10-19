@@ -168,6 +168,10 @@ export interface EngineBatchRow {
   expSlots: number
   createdAt: string
   deliveredAt: string | null
+  /** hard-гейты плана (движок отдаёт; витрина «Сборка» показывает PASS/FAIL) */
+  hardPass: boolean
+  diffUp: number
+  diffDown: number
 }
 
 /** Краткая телеметрия движка из /api/t4/state → glass.engine (без отдельного запроса). */

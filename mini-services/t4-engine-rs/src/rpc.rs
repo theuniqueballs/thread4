@@ -148,7 +148,7 @@ pub fn serve(twin: Arc<Twin>) {
             Some(r) => r,
             None => {
                 let (status, body) = err_envelope(&RpcError::bad_request(format!(
-                    "путь «{path}» вне allowlist — маршруты: /v1/health · /v1/meta · /v1/state · /v1/events · /v1/live · /v1/batches[/:slug] · /v1/chain/verify · /v1/theme/expand · /v1/theme/check · POST /v1/compile · POST /v1/events · POST /v1/gates · POST /v1/batches/:slug/deliver · POST /v1/batches/:slug/void"
+                    "путь «{path}» вне allowlist — маршруты: /v1/health · /v1/meta · /v1/state · /v1/events · /v1/live · /v1/batches[/:slug] · /v1/scratch/batches · /v1/chain/verify · /v1/theme/expand · /v1/theme/check · POST /v1/compile · POST /v1/events · POST /v1/gates · POST /v1/batches/:slug/deliver · POST /v1/batches/:slug/void"
                 )));
                 respond(request, status, body);
                 continue;
@@ -228,6 +228,11 @@ pub fn serve(twin: Arc<Twin>) {
                     Ok(ok_envelope(batches(&twin.prod)))
                 }
             }
+            /* Сборки воркфлоу: scratch-летопись twin'а (Riptide-эра). Прод и
+             * scratch делят формат слага T4-NN — этот маршрут честно отдаёт
+             * ТОЛЬКО собственные сборки twin'а, чтобы дубли-слаги двух
+             * пространств были видимы и различимы в UI (кнопка «Сборка»). */
+            RouteKey::ScratchBatches => Ok(ok_envelope(batches(&twin.scratch))),
             RouteKey::ChainVerify => Ok(ok_envelope(chain_verify(&twin.prod))),
             RouteKey::Compile => match parse_json_body(&body_bytes) {
                 Err(e) => Err(e),
@@ -280,6 +285,7 @@ enum RouteKey {
     Deliver,
     Void,
     Gates,
+    ScratchBatches,
 }
 
 fn route_match(method: &str, segs: &[String]) -> Option<(RouteKey, BucketName, AuthLevel)> {
@@ -296,6 +302,10 @@ fn route_match(method: &str, segs: &[String]) -> Option<(RouteKey, BucketName, A
             Some((RouteKey::ChainVerify, BucketName::Read, AuthLevel::Open))
         }
         ("GET", "batches") => Some((RouteKey::Batches, BucketName::Read, AuthLevel::Open)),
+        /* сборки воркфлоу: собственные батчи twin'а из scratch-летописи */
+        ("GET", "scratch") if segs.len() == 3 && segs[2] == "batches" => {
+            Some((RouteKey::ScratchBatches, BucketName::Read, AuthLevel::Open))
+        }
         ("POST", "compile") => Some((RouteKey::Compile, BucketName::Compile, AuthLevel::Locked)),
         ("POST", "events") => Some((RouteKey::AppendEvent, BucketName::Mutation, AuthLevel::Locked)),
         ("POST", "theme") if segs.len() == 3 && segs[2] == "expand" => {
@@ -483,7 +493,7 @@ fn events(conn: &Connection, query: &str) -> Value {
 fn batches(conn: &Connection) -> Value {
     let mut out = Vec::new();
     if let Ok(mut stmt) = conn.prepare(
-        "SELECT slug, title, status, exp_slots, hard_pass, diff_up, diff_down, created_at, delivered_at
+        "SELECT slug, title, status, exp_slots, hard_pass, diff_up, diff_down, created_at, delivered_at, sha10
          FROM t4_batches ORDER BY created_at DESC LIMIT 50",
     ) {
         if let Ok(rows) = stmt.query_map([], |r| {
@@ -497,6 +507,7 @@ fn batches(conn: &Connection) -> Value {
                 "diffDown": r.get::<_, i64>(6)?,
                 "createdAt": r.get::<_, String>(7)?,
                 "deliveredAt": r.get::<_, Option<String>>(8)?,
+                "sha10": r.get::<_, String>(9)?,
             }))
         }) {
             for row in rows.flatten() {

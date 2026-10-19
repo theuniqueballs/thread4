@@ -19,7 +19,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { ChevronDown, Command as CommandIcon, LayoutGrid, Compass, Settings, Sparkles, Zap } from 'lucide-react'
+import { ChevronDown, Command as CommandIcon, Hammer, LayoutGrid, Compass, Settings, Sparkles, Zap } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
 import { toast } from '@/hooks/use-toast'
@@ -36,6 +36,7 @@ import {
 import { ActionDeck } from '@/components/t4/console/action-deck'
 import { LiveConsole } from '@/components/t4/console/live-console'
 import { WorkflowDeck } from '@/components/t4/console/workflow'
+import { BuildDeck } from '@/components/t4/console/build'
 import {
   BatchFocus,
   BellMenu,
@@ -53,10 +54,12 @@ import {
   subscribeNotify,
   useCommanderKeySaved,
   useEngineBatches,
+  useScratchBatches,
   useVisibleInterval,
   type ActionId,
   type DrawerId,
   type NotifyEntry,
+  type ScratchBatchRow,
 } from '@/components/t4/console/shared'
 
 /* ------------------------------------------------------------------ */
@@ -78,13 +81,17 @@ function railDot(status: string): string {
 
 function WorkflowRail(props: {
   rows: EngineBatchRow[]
+  scratchRows: ScratchBatchRow[]
   onOpenBatch: (slug: string) => void
   onOpenDrawer: (id: DrawerId) => void
+  onOpenBuild: () => void
 }) {
   const rows = props.rows.slice(0, 10)
+  const scratchRows = props.scratchRows.slice(0, 8)
+  const prodSlugs = new Set(props.rows.map((r) => r.slug))
   return (
     <nav
-      aria-label="навигация воркфлоу: история и разделы"
+      aria-label="навигация воркфлоу: сборки, история и разделы"
       className="hidden min-w-0 flex-col gap-3 self-stretch rounded-xl border border-white/10 bg-zinc-950/70 p-3 backdrop-blur-xl xl:flex"
     >
       <div className="rounded-lg border border-white/10 bg-zinc-900/40 p-2.5">
@@ -97,7 +104,47 @@ function WorkflowRail(props: {
         </p>
       </div>
 
-      <p className="font-mono text-[10px] uppercase tracking-wider text-zinc-500">история · движок</p>
+      {/* сборки воркфлоу (scratch) — своя секция, дубли-слаги помечены */}
+      <div className="flex items-center justify-between gap-2">
+        <p className="font-mono text-[10px] uppercase tracking-wider text-amber-300/70">сборки · scratch</p>
+        <button
+          type="button"
+          onClick={props.onOpenBuild}
+          title="витрина «Сборка» — все скомпилированные батчи обоих пространств (G)"
+          className="flex items-center gap-1 rounded border border-amber-500/40 px-1.5 py-px font-mono text-[9px] text-amber-300 transition-colors hover:bg-amber-500/10"
+        >
+          <Hammer className="size-2.5" /> всё
+        </button>
+      </div>
+      <div className="max-h-40 space-y-0.5 overflow-y-auto t4-scroll">
+        {scratchRows.length === 0 ? (
+          <p className="px-1 py-1.5 text-[10px] text-zinc-600">пока пусто — воркфлоу не собирал</p>
+        ) : (
+          scratchRows.map((r) => {
+            const dupe = prodSlugs.has(r.slug)
+            return (
+              <button
+                key={r.slug}
+                type="button"
+                onClick={props.onOpenBuild}
+                title={`${r.slug} «${r.title}» — сборка воркфлоу${dupe ? ' · ДУБЛЬ-СЛАГ: в проде другой батч с этим номером' : ''}`}
+                className="group flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left transition-colors hover:bg-amber-500/5"
+              >
+                <span className={`size-1.5 shrink-0 rounded-full ${railDot(r.status)}`} aria-hidden />
+                <span className="font-term shrink-0 text-[11px] text-zinc-300 group-hover:text-zinc-100">{r.slug}</span>
+                {dupe ? (
+                  <span className="shrink-0 rounded border border-rose-500/50 px-1 font-mono text-[8px] uppercase text-rose-300">
+                    дубль
+                  </span>
+                ) : null}
+                <span className="truncate text-[10px] text-zinc-500">{r.title}</span>
+              </button>
+            )
+          })
+        )}
+      </div>
+
+      <p className="font-mono text-[10px] uppercase tracking-wider text-zinc-500">история · прод :3200</p>
       <div className="min-h-0 flex-1 space-y-0.5 overflow-y-auto t4-scroll">
         {rows.length === 0 ? (
           <p className="px-1 py-2 text-[10px] text-zinc-600">лента пуста — движок молчит</p>
@@ -203,8 +250,8 @@ export default function Home() {
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [bell, setBell] = useState<NotifyEntry[]>([])
   const [rotSignal, setRotSignal] = useState(0)
-  /* Command Center (Фаза 3): два вида — Воркфлоу (Rust twin) и Консоль «МОЩНОСТЬ» */
-  const [view, setView] = useState<'workflow' | 'console'>('workflow')
+  /* Command Center (Фаза 3): три вида — Воркфлоу (Rust twin), Консоль «МОЩНОСТЬ» и Сборка (витрина сборок) */
+  const [view, setView] = useState<'workflow' | 'console' | 'build'>('workflow')
   const keySaved = useCommanderKeySaved()
 
   /* Layout E: нижняя выдвижная Live Console (состояние переживает перезагрузку) */
@@ -235,6 +282,7 @@ export default function Home() {
   const state = useApi<Record<string, unknown>>('/api/t4/state')
   const feed = useEventsFeed()
   const { rows: engineRows } = useEngineBatches()
+  const { rows: scratchRows } = useScratchBatches()
 
   useVisibleInterval(() => state.reload(), 15_000)
 
@@ -343,7 +391,12 @@ export default function Home() {
       }
       if (k === 'v') {
         e.preventDefault()
-        setView((v) => (v === 'workflow' ? 'console' : 'workflow'))
+        setView((v) => (v === 'workflow' ? 'console' : v === 'console' ? 'build' : 'workflow'))
+        return
+      }
+      if (k === 'g') {
+        e.preventDefault()
+        setView('build')
         return
       }
       if (k === 'escape') return
@@ -393,7 +446,7 @@ export default function Home() {
                 </span>
                 <span className={chainOk ? 'text-emerald-400' : 'text-rose-400'}>цепь {chainOk ? 'цела' : '!'}</span>
               </div>
-              {/* вкладки видов: Воркфлоу · Консоль (Фаза 3) */}
+              {/* вкладки видов: Воркфлоу · Консоль · Сборка (Фаза 3 + приказ «кнопка сборки») */}
               <div className="flex items-center gap-0.5 rounded-lg border border-zinc-800 bg-zinc-900/60 p-0.5">
               <button
                 type="button"
@@ -422,6 +475,24 @@ export default function Home() {
               >
                 <LayoutGrid className="size-3.5" />
                 <span className="hidden sm:inline">Консоль</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setView('build')}
+                aria-pressed={view === 'build'}
+                title="Сборка — витрина скомпилированных батчей обоих пространств (G)"
+                className={cn(
+                  'flex items-center gap-1.5 rounded-md px-2.5 py-1.5 font-mono text-[10px] uppercase tracking-wide transition-all',
+                  view === 'build'
+                    ? 'bg-gradient-to-r from-amber-500 to-rose-500 text-zinc-950 shadow'
+                    : 'text-zinc-400 hover:text-zinc-200'
+                )}
+              >
+                <Hammer className="size-3.5" />
+                <span className="hidden sm:inline">Сборка</span>
+                {scratchRows.some((r) => r.status === 'compiled') ? (
+                  <span className="size-1.5 rounded-full bg-amber-300" aria-label="есть непогашенные сборки" />
+                ) : null}
               </button>
             </div>
 
@@ -469,9 +540,15 @@ export default function Home() {
               transition={{ type: 'spring', stiffness: 260, damping: 26 }}
               className="mt-4 min-w-0"
             >
-              {/* Layout E: слева — рельс истории/навигации, центр — canvas воркфлоу */}
+              {/* Layout E: слева — рельс сборок/истории/навигации, центр — canvas воркфлоу */}
               <div className="grid min-w-0 grid-cols-1 gap-4 xl:grid-cols-[minmax(190px,220px)_minmax(0,1fr)]">
-                <WorkflowRail rows={engineRows} onOpenBatch={openBatch} onOpenDrawer={(id) => setDrawer(id)} />
+                <WorkflowRail
+                  rows={engineRows}
+                  scratchRows={scratchRows}
+                  onOpenBatch={openBatch}
+                  onOpenDrawer={(id) => setDrawer(id)}
+                  onOpenBuild={() => setView('build')}
+                />
                 <div className="min-w-0">
                   <WorkflowDeck onFocusAction={focusAction} onMutated={onMutated} />
                 </div>
@@ -516,6 +593,18 @@ export default function Home() {
                   ) : null}
                 </AnimatePresence>
               </div>
+            </motion.div>
+          ) : view === 'build' ? (
+            <motion.div
+              key="build"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ type: 'spring', stiffness: 260, damping: 26 }}
+              className="mt-4 min-w-0"
+            >
+              {/* Сборка: витрина скомпилированных батчей обоих пространств */}
+              <BuildDeck onOpenBatch={openBatch} />
             </motion.div>
           ) : (
             <motion.div
@@ -569,6 +658,7 @@ export default function Home() {
           <span className="font-mono">
             <kbd className="rounded border border-zinc-800 bg-zinc-900 px-1 py-px text-[10px]">⌘K</kbd> палитра ·{' '}
             <kbd className="rounded border border-zinc-800 bg-zinc-900 px-1 py-px text-[10px]">V</kbd> вид ·{' '}
+            <kbd className="rounded border border-zinc-800 bg-zinc-900 px-1 py-px text-[10px]">G</kbd> сборка ·{' '}
             <kbd className="rounded border border-zinc-800 bg-zinc-900 px-1 py-px text-[10px]">B C T P</kbd>{' '}
             <kbd className="rounded border border-zinc-800 bg-zinc-900 px-1 py-px text-[10px]">D X R S W</kbd> действия ·{' '}
             <kbd className="rounded border border-zinc-800 bg-zinc-900 px-1 py-px text-[10px]">1–8</kbd> доки ·{' '}

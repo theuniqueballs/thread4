@@ -19,8 +19,10 @@ export const dynamic = 'force-dynamic'
 
 const TWIN_ORIGIN = process.env.T4_RUST_ORIGIN ?? 'http://127.0.0.1:3201'
 
-/** GET-пути (чтение): allowlist, никаких wildcard'ов. */
-const GET_ALLOW = new Set(['health', 'meta', 'state', 'live', 'events', 'batches', 'chain/verify'])
+/** GET-пути (чтение): allowlist, никаких wildcard'ов. scratch/batches —
+ * сборки воркфлоу twin'а (своя scratch-летопись), прод-список живёт
+ * отдельно в /v1/batches — два пространства T4-NN различимы в UI. */
+const GET_ALLOW = new Set(['health', 'meta', 'state', 'live', 'events', 'batches', 'scratch/batches', 'chain/verify'])
 
 /** POST-пути: theme (expand/check — чистые вычисления) + compile + gates
  * (батарея Review: twin гоняет квитанции по scratch-драфту, ключ командира

@@ -26,6 +26,7 @@ import {
   FilePlus2,
   FileText,
   FlaskConical,
+  Hammer,
   Heart,
   History,
   KeyRound,
@@ -68,7 +69,7 @@ import {
 export interface PaletteMisc {
   kind: 'refresh' | 'settings' | 'export-chronicle' | 'view'
   /** для kind:'view' — какой вид показать */
-  view?: 'workflow' | 'console'
+  view?: 'workflow' | 'console' | 'build'
 }
 
 interface CommandPaletteProps {
@@ -387,6 +388,18 @@ export function CommandPalette({
             <LayoutGrid className="size-4 text-zinc-500" />
             <span>Консоль «МОЩНОСТЬ» — action deck + лента + окно ротации</span>
             <kbd className="ml-auto rounded border border-zinc-700 bg-zinc-800 px-1 text-[9px] text-zinc-500">V</kbd>
+          </CommandItem>
+          <CommandItem
+            value="view сборка build витрина скомпилированные батчи batches compiled скретч прод дубль слаг"
+            onSelect={() => {
+              onMisc({ kind: 'view', view: 'build' })
+              onOpenChange(false)
+            }}
+            className="text-sm text-zinc-200"
+          >
+            <Hammer className="size-4 text-amber-400/80" />
+            <span>Сборка — витрина скомпилированных батчей (scratch + прод)</span>
+            <kbd className="ml-auto rounded border border-zinc-700 bg-zinc-800 px-1 text-[9px] text-zinc-500">G</kbd>
           </CommandItem>
           <CommandItem
             value="misc refresh обновить всё состояние"

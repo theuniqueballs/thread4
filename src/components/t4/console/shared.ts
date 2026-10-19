@@ -243,15 +243,39 @@ export async function writeClipboard(text: string): Promise<boolean> {
 /* Список батчей движка (общий кэш + шина сброса после мутаций)        */
 /* ------------------------------------------------------------------ */
 
+/** Строка сборки воркфлоу из scratch-летописи twin'а (:3201).
+ * Полный двойник EngineBatchRow + sha10 плана — два пространства (прод и
+ * scratch) делят формат слага T4-NN, sha10 отличает сборки байт-в-байт. */
+export interface ScratchBatchRow {
+  slug: string
+  title: string
+  status: string
+  expSlots: number
+  hardPass: boolean
+  diffUp: number
+  diffDown: number
+  createdAt: string
+  deliveredAt: string | null
+  sha10: string
+}
+
 /** Кэш списка батчей на 60с — BURN/VOID/DELIVER/VERDICT/фокус-карта
  *  читают один и тот же заряд вместо пяти параллельных походов. */
 const BATCH_TTL_MS = 60_000
 let batchCache: { rows: EngineBatchRow[]; at: number } | null = null
 const batchReloadListeners = new Set<() => void>()
 
+/** Scratch-сборки twin'а — отдельный кэш того же семейства: инвалидируется
+ *  тем же invalidateEngineBatches (мутация коснулась сборок — оба списка
+ *  перевыгружаются). */
+let scratchCache: { rows: ScratchBatchRow[]; at: number } | null = null
+const scratchReloadListeners = new Set<() => void>()
+
 export function invalidateEngineBatches(): void {
   batchCache = null
+  scratchCache = null
   for (const l of batchReloadListeners) l()
+  for (const l of scratchReloadListeners) l()
 }
 
 /** Хук: батчи движка (limit 50) + loading + reload. Обновляется во всех
@@ -297,6 +321,68 @@ export function useEngineBatches(): {
     batchReloadListeners.add(load)
     return () => {
       batchReloadListeners.delete(load)
+    }
+  }, [load])
+
+  return { rows, loading, reload: () => void load() }
+}
+
+/* GET в twin через прокси: /api/t4/twin/scratch/batches (allowlist)
+ * возвращает {data:{batches:[...]}} — разворачиваем и типизируем. */
+async function fetchScratchBatches(): Promise<ScratchBatchRow[]> {
+  const res = await fetch(withGatewayPort('/api/t4/twin/scratch/batches'), {
+    headers: commanderHeaders(),
+    cache: 'no-store',
+  })
+  if (!res.ok) throw new EngineError(`twin scratch: HTTP ${res.status}`, res.status, `http-${res.status}`, null)
+  const j = (await res.json()) as { data?: { batches?: unknown } }
+  const rows = asArray(asRecord(j.data).batches).map((r) => {
+    const rec = asRecord(r)
+    return {
+      slug: asStr(rec.slug),
+      title: asStr(rec.title),
+      status: asStr(rec.status),
+      expSlots: Number(rec.expSlots ?? 0),
+      hardPass: rec.hardPass === true,
+      diffUp: Number(rec.diffUp ?? 0),
+      diffDown: Number(rec.diffDown ?? 0),
+      createdAt: asStr(rec.createdAt),
+      deliveredAt: typeof rec.deliveredAt === 'string' ? rec.deliveredAt : null,
+      sha10: asStr(rec.sha10),
+    } satisfies ScratchBatchRow
+  })
+  return rows
+}
+
+/** Хук: сборки воркфлоу из scratch-летописи twin'а (limit 50) + loading +
+ *  reload. Кэш 60с, инвалидация — invalidateEngineBatches (после мутаций). */
+export function useScratchBatches(): {
+  rows: ScratchBatchRow[]
+  loading: boolean
+  reload: () => void
+} {
+  const [rows, setRows] = useState<ScratchBatchRow[]>(scratchCache?.rows ?? [])
+  const [loading, setLoading] = useState(scratchCache == null)
+
+  const load = useCallback(async () => {
+    setLoading(true)
+    try {
+      const fresh = await fetchScratchBatches()
+      scratchCache = { rows: fresh, at: Date.now() }
+      setRows(fresh)
+    } catch {
+      /* twin молчит — показываем прошлый заряд, если был */
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (scratchCache != null && Date.now() - scratchCache.at < BATCH_TTL_MS) return
+    void load()
+    scratchReloadListeners.add(load)
+    return () => {
+      scratchReloadListeners.delete(load)
     }
   }, [load])
 
