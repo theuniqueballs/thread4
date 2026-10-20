@@ -193,7 +193,7 @@ fn persist_locked(run: &RunState) {
             "summary": e.summary,
         })).collect::<Vec<_>>(),
     });
-    if let Ok(conn) = crate::db::open_production_rw() {
+    if let Ok(conn) = crate::db::open_scratch_rw() {
         let _ = conn.execute(
             "INSERT INTO t4_meta (key, value) VALUES ('pipeline_run', ?1)
              ON CONFLICT(key) DO UPDATE SET value = excluded.value",
@@ -539,7 +539,7 @@ fn busy_check() -> Result<(), String> {
 pub fn start_auto(body: Value) -> Result<Value, String> {
     busy_check()?;
     let draft = compile::parse_request(&body)?;
-    let conn = crate::db::open_production_rw().map_err(|e| e.to_string())?;
+    let conn = crate::db::open_scratch_rw().map_err(|e| e.to_string())?;
     let slug = resolve_slug(&conn, &draft);
     drop(conn);
 
@@ -588,7 +588,7 @@ pub fn start_stage(name: &str, body: Value) -> Result<Value, String> {
     let idx = stage_index(name)
         .ok_or_else(|| format!("этап «{name}» не существует — этапы: {}", STAGE_KEYS.join(", ")))?;
     let draft = compile::parse_request(&body)?;
-    let conn = crate::db::open_production_rw().map_err(|e| e.to_string())?;
+    let conn = crate::db::open_scratch_rw().map_err(|e| e.to_string())?;
     let slug = resolve_slug(&conn, &draft);
     drop(conn);
 
@@ -670,10 +670,10 @@ fn resolve_slug(conn: &Connection, draft: &CompileRequest) -> String {
 /* ---------------- поток прогона ---------------- */
 
 fn runner(abort: Arc<AtomicBool>, auto: bool, stages: impl Iterator<Item = usize>) {
-    let conn = match crate::db::open_production_rw() {
+    let conn = match crate::db::open_scratch_rw() {
         Ok(c) => c,
         Err(e) => {
-            live::error(BLOCK_PIPELINE, &format!("конвейер: прод-база не открылась — {e}"));
+            live::error(BLOCK_PIPELINE, &format!("конвейер: scratch-база не открылась — {e}"));
             finish_run(false, Some(format!("база не открылась: {e}")));
             return;
         }

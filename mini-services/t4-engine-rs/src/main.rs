@@ -1,11 +1,13 @@
 //! THREAD 4 ENGINE (UNIFIED) — entry point.
 //!
-//! CUTOVER 2026-10-20 (приказ «МОЩНОСТЬ»): это ЕДИНЫЙ движок THREAD 4.
-//! Прежняя схема «bun-движок :3200 пишет прод, Rust-twin :3201 пишет
-//! scratch» закрыта — один бинарник, одна база, один писатель:
+//! CUTOVER откачен 2026-10-20 (приказ «ВОССТАНОВИТЬ РАБОЧЕЕ»): схема
+//! «bun-движок :3200 пишет прод, Rust-twin :3201 пишет scratch» —
+//! ЕДИНСТВЕННО безопасная при живом bun-движке (бокс грузит его на
+//! старте). Один бинарник — да; один писатель прода — bun, twin
+//! прод не пишет:
 //!
 //!   полка 1  canonical.rs   — stable JSON + chain formula (byte-exact)
-//!   полка 2  db.rs           — sqlite storage (прод RW), DDL, meta/chain
+//!   полка 2  db.rs           — sqlite storage (прод RO + свой scratch RW)
 //!   полка 3  chain.rs        — append-only hash-chained chronicle + audit
 //!   полка 4  compile.rs      — deterministic plan compiler + planning gates
 //!   полка 5  rpc.rs          — route table, envelope, auth, rate limits
@@ -19,8 +21,7 @@
 //! Acceptance bar (checked at boot, logged loudly):
 //!   · verify_chain over the PRODUCTION chronicle → same verdict as bun
 //!   · payload_sha10 over the stored T4-41 plan → same fingerprint
-//!   · НИКАКОГО второго писателя: если :3200 (старый bun-движок) ещё
-//!     отвечает — движок отказывается подниматься (две цепи = враньё).
+//!   · прод не пишется ни одним маршрутом twin'а (twin-доктрина).
 //!
 //! Boot order mirrors the TS engine: canon arithmetic → open handles →
 //! serve. A broken canon kills the engine before it answers anything.
@@ -39,15 +40,22 @@ fn main() {
         std::process::exit(1);
     }
 
-    /* ---- гвард единственного писателя: старый bun-движок обязан быть мёртв ---- */
-    if let Ok(stream) = std::net::TcpStream::connect(("127.0.0.1", 3200)) {
-        drop(stream);
-        eprintln!("t4-engine-rs: ОТКАЗ ПОДЪЁМА — на :3200 отвечает старый bun-движок.");
-        eprintln!("  Единая база = один писатель: останови mini-services/t4-engine (kill pid) и поднимись снова.");
-        std::process::exit(1);
+    /* ---- twin-доктрина: прод пишет bun :3200, twin — только scratch ----
+     * Гвард cutover'а ("отказ подъёма при живом :3200") убит: он держал
+     * движок мёртвым весь день, потому что бокс грузит bun на старте.
+     * Прежний «отказ» защищал от двух писателей прода — теперь Rust
+     * прод физически не пишет (прод-хендл RO, записи — в scratch). */
+    match std::net::TcpStream::connect(("127.0.0.1", 3200)) {
+        Ok(stream) => {
+            drop(stream);
+            eprintln!("t4-engine-rs: bun-движок :3200 жив — прод под его пером (twin-доктрина: читаем RO, репетиции в scratch)");
+        }
+        Err(_) => {
+            eprintln!("t4-engine-rs: bun-движок :3200 молчит — twin работает без него (прод RO, scratch RW)");
+        }
     }
 
-    /* ---- handles: прод RW — чтения и записи через одну и ту же базу ---- */
+    /* ---- handles: прод RO + СВОЙ scratch RW (twin-доктрина) ---- */
     let prod = match db::open_production_ro() {
         Ok(c) => c,
         Err(e) => {
@@ -55,11 +63,10 @@ fn main() {
             std::process::exit(1);
         }
     };
-    let scratch = match db::open_production_rw() {
+    let scratch = match db::open_scratch_rw() {
         Ok(c) => c,
         Err(e) => {
-            eprintln!("t4-engine-rs: продакшн t4.db не открывается (RW) — {e}");
-            eprintln!("  (cutover: единый движок пишет прод; проверь, что файл не повреждён и валидация схемы проходит)");
+            eprintln!("t4-engine-rs: scratch-база не открывается (RW) — {e}");
             std::process::exit(1);
         }
     };
@@ -91,10 +98,10 @@ fn main() {
         Err(e) => eprintln!("t4-engine-rs: parity-проверка пропущена — {e}"),
     }
 
-    /* ---- cutover-эра: восстановить прогон конвейера из t4_meta (если был) ---- */
-    t4_engine_rs::pipeline::load_persisted(&prod);
+    /* ---- twin-доктрина: прогон конвейера живёт в scratch-летописи twin'а ---- */
+    t4_engine_rs::pipeline::load_persisted(&scratch);
 
-    eprintln!("t4-engine-rs: CUTOVER — единый движок: прод RW (один писатель), конвейер 5 этапов готов, live-SSE /v1/live");
+    eprintln!("t4-engine-rs: TWIN — прод RO (писатель — bun :3200), scratch RW (репетиции), конвейер 5 этапов готов, live-SSE /v1/live");
 
     let twin = Arc::new(rpc::Twin {
         prod,

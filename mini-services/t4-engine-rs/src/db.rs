@@ -139,11 +139,18 @@ pub fn open_production_rw() -> rusqlite::Result<Connection> {
 }
 
 /// Read-write scratch handle (WAL + NORMAL — same doctrine as the engine).
-/// Cutover 2026-10-20: scratch-эра закрыта — хендл теперь открывает
-/// ПРОДАКШН RW (единое пространство слагов T4-NN, дублей «два T4-42»
-/// больше не существует конструктивно).
+/// TWIN-ДОКТРИНА (восстановлена 2026-10-20, приказ «МОЩНОСТЬ»):
+/// прод пишет ОДИН движок — bun :3200; Rust-twin читает прод RO и пишет
+/// ТОЛЬКО свой scratch (data/t4-rs-scratch.db). Два писателя прода =
+/// враньё, cutover-эра закрыта. Слаги T4-NN в scratch — репетиции:
+/// витрина «Сборка» и конвейер живут здесь, не трогая прод.
 pub fn open_scratch_rw() -> rusqlite::Result<Connection> {
-    open_production_rw()
+    let conn = Connection::open(scratch_db_path())?;
+    conn.pragma_update(None, "journal_mode", "WAL")?;
+    conn.pragma_update(None, "synchronous", "NORMAL")?;
+    conn.pragma_update(None, "busy_timeout", 5000)?;
+    migrate_schema(&conn)?;
+    Ok(conn)
 }
 
 pub fn migrate_schema(conn: &Connection) -> rusqlite::Result<()> {
