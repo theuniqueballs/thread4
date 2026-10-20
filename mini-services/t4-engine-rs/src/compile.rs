@@ -116,11 +116,15 @@ pub fn parse_request(body: &serde_json::Value) -> Result<CompileRequest, String>
     let theme = obj
         .get("theme")
         .and_then(|v| v.as_str())
-        .ok_or("compile: theme обязателен (1..200 симв)")?
+        .ok_or("compile: theme обязателен (1..120 симв)")?
         .trim()
         .to_string();
-    if theme.is_empty() || theme.len() > 200 {
-        return Err("compile: theme обязателен (1..200 симв)".into());
+    /* Паритет с Zod-контрактом bun-движка (schema.ts: ThemeSchema — trim,
+     * 1..120 СИМВОЛОВ): .chars().count(), а не String::len() — кириллица
+     * ×2 байта на букву рвала паритет (81-символьная OC-тема → 162 байта →
+     * 422 «обязан (1..120)» при живом bun-контракте — инцидент Фазы 3). */
+    if theme.is_empty() || theme.chars().count() > 120 {
+        return Err("compile: theme обязателен (1..120 симв)".into());
     }
     let slug = match obj.get("slug") {
         None | Some(serde_json::Value::Null) => None,
@@ -206,8 +210,8 @@ pub fn parse_request(body: &serde_json::Value) -> Result<CompileRequest, String>
             .ok_or("compile: ocThemes[].theme обязателен (1..120)")?
             .trim()
             .to_string();
-        if theme.is_empty() || theme.len() > 120 {
-            return Err("compile: ocThemes[].theme обязателен (1..120)".into());
+        if theme.is_empty() || theme.chars().count() > 120 {
+            return Err("compile: ocThemes[].theme обязателен (1..120 симв)".into());
         }
         let rating = to
             .get("rating")
@@ -230,6 +234,11 @@ pub fn parse_request(body: &serde_json::Value) -> Result<CompileRequest, String>
         .get("notes")
         .and_then(|v| v.as_str())
         .map(|s| s.to_string());
+    if let Some(n) = &notes {
+        if n.chars().count() > 2000 {
+            return Err("compile: notes ≤ 2000 симв".into());
+        }
+    }
     let parity_created_at = obj
         .get("parityCreatedAt")
         .and_then(|v| v.as_str())

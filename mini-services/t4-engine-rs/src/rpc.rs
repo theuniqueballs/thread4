@@ -801,8 +801,8 @@ fn theme_expand_route(body: &Value) -> Result<(u16, String), RpcError> {
         .get("theme")
         .and_then(|v| v.as_str())
         .map(|s| s.trim().to_string())
-        .filter(|s| !s.is_empty() && s.len() <= 200)
-        .ok_or_else(|| RpcError::validation("theme/expand: theme обязателен (1..200 симв)", None))?;
+        .filter(|s| !s.is_empty() && s.chars().count() <= 120)
+        .ok_or_else(|| RpcError::validation("theme/expand: theme обязателен (1..120 симв)", None))?;
     let slug = obj
         .get("slug")
         .and_then(|v| v.as_str())
