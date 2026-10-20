@@ -119,12 +119,15 @@ pub fn invent_spine(slug: &str) -> Result<Value, String> {
 
 /// Этап 4: чанк писца — LLM пишет слоты (mode: write | repair | polish).
 /// Возвращает outputs: [{position, anchor, thesis, pos, negExtra}].
+/// anchors — якоря темы (гейт №25): писец обязан видеть токены, которые
+/// мерит гейт adherence — раньше они до промпта не доходили (0/12 всегда).
 pub fn write_chunk(
     slug: &str,
     build: &Value,
     positions: &[u32],
     mode: &str,
     findings: &[String],
+    anchors: Option<&Value>,
 ) -> Result<Vec<Value>, String> {
     let body = json!({
         "slug": slug,
@@ -132,6 +135,7 @@ pub fn write_chunk(
         "positions": positions,
         "mode": mode,
         "findings": findings,
+        "anchors": anchors.cloned().unwrap_or(Value::Null),
     });
     let data = post("/api/t4/bridge/chunk", &body, LLM_LONG)?;
     let outputs = data

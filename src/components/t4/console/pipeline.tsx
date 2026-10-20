@@ -786,7 +786,7 @@ export function PipelineScreen({ embed = false }: { embed?: boolean }) {
         mode: snapshot?.mode ?? null,
         error: stage.summary,
         stageDetail: stage.detail,
-        errors: errorFrames().map((f) => ({ block: f.block, text: f.text })),
+        errors: errorFrames().map((f) => ({ seq: f.seq, at: f.at, block: f.block, text: f.text })),
         recent: recentFrames(24).map((f) => ({ seq: f.seq, block: f.block, level: f.level, text: f.text })),
         note: 'THREAD 4 unified pipeline dump — errors first, stage detail included',
       }

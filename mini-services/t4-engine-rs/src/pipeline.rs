@@ -599,16 +599,31 @@ pub fn start_stage(name: &str, body: Value) -> Result<Value, String> {
 
     let run_id = hub().run_seq.fetch_add(1, Ordering::SeqCst) + 1;
     let abort = Arc::new(AtomicBool::new(false));
-    /* ctx предыдущего прогона переносится: ручная цепочка этапов — ОДНА
-     * репетиция, артефакты (якоря/план/сборка) не выбрасываются между
-     * кликами этапов. Слаг уже удержан resolve_slug (цепочка прогона). */
-    let prev_ctx = {
+    /* ctx предыдущего прогона переносится ТОЛЬКО при том же брифе: сцепка —
+     * это ОДНА репетиция одного брифа. Сменил тему/EXP — цепочка рвётся:
+     * якоря/спайн/черновик чужого брифа — яд для нового (инцидент
+     * 2026-10-20 20:09: «Riptide» exp=9 унаследовал якоря и контракт
+     * «обсерватории» из прогона 15:00). Этапы выше стартового в этом
+     * случае тоже устарели — они не проходились для НОВОГО брифа. */
+    let (prev_ctx, brief_changed) = {
         let guard = match hub().run.lock() {
             Ok(g) => g,
             Err(p) => p.into_inner(),
         };
-        guard.as_ref().map(|r| r.ctx.clone()).unwrap_or_default()
+        match guard.as_ref() {
+            Some(r) => {
+                let changed =
+                    r.state.draft.theme != draft.theme || r.state.draft.exp != draft.exp;
+                (if changed { StageCtx::default() } else { r.ctx.clone() }, changed)
+            }
+            None => (StageCtx::default(), false),
+        }
     };
+    if brief_changed && idx > IDX_COMPILE {
+        return Err(
+            "бриф сменился (тема/EXP) — цепочка прогона порвана: сначала «Компиляция» для нового брифа".into(),
+        );
+    }
     {
         let mut guard = match hub().run.lock() {
             Ok(g) => g,
@@ -618,8 +633,13 @@ pub fn start_stage(name: &str, body: Value) -> Result<Value, String> {
         // этапы выше — принятые (иначе нечего перезапускать), ниже — stale
         for (i, e) in stages.iter_mut().enumerate() {
             if i < idx {
-                e.status = StageStatus::Done;
-                e.summary = Some("принят до ручного прогона".into());
+                if brief_changed {
+                    e.status = StageStatus::Stale;
+                    e.summary = Some("бриф сменился — этап обязан пройти заново".into());
+                } else {
+                    e.status = StageStatus::Done;
+                    e.summary = Some("принят до ручного прогона".into());
+                }
             } else if i > idx {
                 e.status = StageStatus::Stale;
                 e.summary = Some("устарел после ручного этапа выше — будет пересобран".into());
@@ -915,8 +935,8 @@ fn run_stage(conn: &Connection, idx: usize, abort: Arc<AtomicBool>) -> Result<St
         IDX_THEME => stage_theme(conn, &draft, &slug),
         IDX_COMPILE => stage_compile(conn, &draft, &slug),
         IDX_BUILD => stage_build(conn, &slug, abort),
-        IDX_SCRIBE => stage_scribe(conn, &slug, abort),
-        IDX_DELIVER => stage_deliver(conn, &slug),
+        IDX_SCRIBE => stage_scribe(conn, &slug, abort, draft.exp),
+        IDX_DELIVER => stage_deliver(conn, &slug, draft.exp),
         _ => Err("нет такого этапа".into()),
     }
 }
@@ -1419,7 +1439,7 @@ fn load_build(conn: &Connection, slug: &str) -> Result<Value, String> {
 /// Этап 4 · «Писец»: чанки прозы (мост/LLM) → сборка файла (мост) →
 /// батарея Rust (память) → ремонт ≤3 кругов → полировка (1 круг, откат
 /// при потере hard) → файл батча + черновик + событие scribe.drafted.
-fn stage_scribe(conn: &Connection, slug: &str, abort: Arc<AtomicBool>) -> Result<StageOutcome, String> {
+fn stage_scribe(conn: &Connection, slug: &str, abort: Arc<AtomicBool>, exp: u32) -> Result<StageOutcome, String> {
     let status = compile::get_batch_status(conn, slug).ok_or("батч не скомпилирован")?;
     if status == "delivered" {
         return Err(format!("{slug} уже сдан — писец не переписывает сданное"));
@@ -1447,6 +1467,18 @@ fn stage_scribe(conn: &Connection, slug: &str, abort: Arc<AtomicBool>) -> Result
         };
         guard.as_ref().and_then(|r| r.ctx.anchors.clone())
     };
+    /* EXP-доктрина (theme.rs: «EXP-батч — Theme Expansion и гейт №25
+     * выключены, приказ автора»): унаследованные из чужого прогона якоря
+     * (сцепка ctx) не должны включать гейт темы для EXP-батча — инцидент
+     * 2026-10-20 20:09: T4-01 exp=9 получил 0/12 по якорям «обсерватории»
+     * из прогона 15:00 и честно лёг на hard-гейте, который обязан молчать. */
+    let anchors = if exp > 0 { None } else { anchors };
+    /* Якоря — в промпт писца: гейт №25 мерит adherence текста якорям,
+     * а писец их раньше не видел ВООБЩЕ (write_chunk нёс только контракт+
+     * спайн) — оба полных прогона (15:00 и 20:09) легли на 0/12. */
+    let anchors_json = anchors
+        .as_ref()
+        .map(|a| a.to_json(theme::DEFAULT_MIN_ADHERENCE));
 
     let contract = rehearsal_contract(slug).ok_or("бриф писца не читается")?;
     let positions: Vec<u32> = contract
@@ -1470,7 +1502,7 @@ fn stage_scribe(conn: &Connection, slug: &str, abort: Arc<AtomicBool>) -> Result
             BLOCK_SCRIBE,
             &format!("пишу слоты {}…", chunk.iter().map(|p| format!("P{p:02}")).collect::<Vec<_>>().join(", ")),
         );
-        let got = bridge::write_chunk(slug, &build, chunk, "write", &[])
+        let got = bridge::write_chunk(slug, &build, chunk, "write", &[], anchors_json.as_ref())
             .map_err(|e| format!("писец не дошёл до слотов {chunk:?} — {e}"))?;
         for o in got {
             merge_output(&mut outputs, o);
@@ -1535,7 +1567,7 @@ fn stage_scribe(conn: &Connection, slug: &str, abort: Arc<AtomicBool>) -> Result
             .flat_map(|r| r.findings.iter().cloned())
             .take(24)
             .collect();
-        let fixed = bridge::write_chunk(slug, &build, &failed, "repair", &findings)
+        let fixed = bridge::write_chunk(slug, &build, &failed, "repair", &findings, anchors_json.as_ref())
             .map_err(|e| format!("ремонт не дошёл — {e}"))?;
         for o in fixed {
             merge_output(&mut outputs, o);
@@ -1579,7 +1611,7 @@ fn stage_scribe(conn: &Connection, slug: &str, abort: Arc<AtomicBool>) -> Result
                 .flat_map(|r| r.findings.iter().cloned())
                 .take(24)
                 .collect();
-            let polished_out = bridge::write_chunk(slug, &build, &warn_positions, "polish", &findings);
+            let polished_out = bridge::write_chunk(slug, &build, &warn_positions, "polish", &findings, anchors_json.as_ref());
             match polished_out {
                 Ok(fixed) => {
                     for o in fixed {
@@ -1787,7 +1819,7 @@ fn battery_on_text(slug: &str, markdown: &str, anchors: Option<&theme::ThemeAnch
 /// Этап 5 · «Сдача»: полная батарея по ФАЙЛУ (он-то и есть батч) →
 /// gate.run в летопись → ростер ОС → WORKLOG в файле батча → мета-JSON →
 /// batch.delivered. Hard канона + hard батареи — оба обязательны.
-fn stage_deliver(conn: &Connection, slug: &str) -> Result<StageOutcome, String> {
+fn stage_deliver(conn: &Connection, slug: &str, exp: u32) -> Result<StageOutcome, String> {
     let status = compile::get_batch_status(conn, slug).ok_or("батч не скомпилирован")?;
     if status == "delivered" {
         return Err(format!("{slug} уже сдан — сданное неприкосновенно"));
@@ -1803,6 +1835,8 @@ fn stage_deliver(conn: &Connection, slug: &str) -> Result<StageOutcome, String> 
         };
         guard.as_ref().and_then(|r| r.ctx.anchors.clone())
     };
+    /* EXP-доктрина — гейт №25 молчит и на сдаче (симметрия с писцом) */
+    let anchors = if exp > 0 { None } else { anchors };
     live::info(BLOCK_DELIVER, "сдача: финальная батарея по черновику…");
     let battery = battery_on_text(slug, &text, anchors.as_ref());
     for r in &battery.receipts {
@@ -2073,7 +2107,7 @@ mod tests {
     #[test]
     fn deliver_without_scribe_fails_honestly() {
         let conn = temp_db("deliver-guard");
-        let e = stage_deliver(&conn, "T4-98").unwrap_err();
+        let e = stage_deliver(&conn, "T4-98", 0).unwrap_err();
         assert!(e.contains("не скомпилирован"), "guard текст: {e}");
     }
 

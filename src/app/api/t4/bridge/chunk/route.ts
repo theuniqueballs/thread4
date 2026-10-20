@@ -41,6 +41,7 @@ export async function POST(req: Request) {
     positions?: unknown
     mode?: unknown
     findings?: unknown
+    anchors?: unknown
   }
   try {
     body = (await req.json()) as typeof body
@@ -69,6 +70,52 @@ export async function POST(req: Request) {
         .slice(0, 32)
     : []
 
+  /* Гейт №25 (theme/adherence, hard): машина мерит присутствие
+   * якорь-токенов в тексте батча — раньше писец не видел якорей ВООБЩЕ
+   * (промпт нёс только контракт+спайн), и оба полных прогона легли на 0/12.
+   * Twin теперь прикладывает anchors (to_json): поля + tokens — блок ниже
+   * даёт модели ровно то, что мерит гейт. */
+  const anchorsRec =
+    body.anchors != null && !Array.isArray(body.anchors) && typeof body.anchors === 'object'
+      ? (body.anchors as Record<string, unknown>)
+      : null
+  const anchorsBlock = (() => {
+    if (anchorsRec == null) return ''
+    const str = (k: string): string => {
+      const v = anchorsRec[k]
+      return typeof v === 'string' && v.trim() !== '' ? v.trim() : ''
+    }
+    const list = (k: string): string[] =>
+      Array.isArray(anchorsRec[k])
+        ? (anchorsRec[k] as unknown[]).filter((x): x is string => typeof x === 'string' && x.trim() !== '')
+        : []
+    const tokens = list('tokens')
+    if (tokens.length === 0) return ''
+    const min =
+      typeof anchorsRec.minAdherence === 'number' && anchorsRec.minAdherence > 0 && anchorsRec.minAdherence <= 1
+        ? Math.round(anchorsRec.minAdherence * 100)
+        : 50
+    const facts = [
+      ['locale', str('locale')],
+      ['time', str('timeOfDay')],
+      ['light', str('light')],
+      ['palette', str('paletteMood')],
+      ['wardrobe', str('wardrobeFamily')],
+      ['poses', str('poseFamily')],
+      ['camera', str('camera')],
+      ['atmosphere', list('atmosphere').join(', ')],
+      ['motifs', list('motifs').join(', ')],
+    ]
+      .filter(([, v]) => v !== '')
+      .map(([k, v]) => `${k}: ${v}`)
+      .join(' · ')
+    return (
+      `THEME ANCHORS — GATE No.25 (HARD): the machine counts how many of the ANCHOR TOKENS below appear anywhere in the batch text; at least ${min}% of them MUST be present or the whole batch fails. Weave them NATURALLY into POS tags and prose, spread across your slots (never dump them all into one slot).\n` +
+      `World: ${facts}\n` +
+      `ANCHOR TOKENS (use these exact wordings where natural): ${tokens.join(', ')}\n\n`
+    )
+  })()
+
   const contract = bridgeContract(slug)
   if (contract == null) {
     return NextResponse.json({ error: `контракт ${slug} не найден — сначала «Компиляция»` }, { status: 404 })
@@ -96,10 +143,10 @@ export async function POST(req: Request) {
 
     const user =
       mode === 'write'
-        ? `${batchLawBlock}\n\nSLOTS (write ALL of them, in order):\n\n${frames()}`
+        ? `${batchLawBlock}\n\n${anchorsBlock}SLOTS (write ALL of them, in order):\n\n${frames()}`
         : mode === 'repair'
-          ? `${batchLawBlock}\n\nREWRITE THESE SLOTS — they failed the machine gates. Keep what worked, fix what is flagged. Same exact format.\n\n${REPAIR_BOILERPLATE}\n\n${REPAIR_TIER_BUDGET}\n\n${frames()}${findingsBlock}`
-          : `${batchLawBlock}\n\nREWRITE THESE SLOTS — they carry WARN-level QUALITY findings (the batch already passed all HARD gates — do NOT introduce any new fabric/claim/underlayer that could break them, and NEVER import signals from the slot's FORBIDDEN tier list — T4-005). Keep the same anchor, pose, palette, canon and stack. Keep what worked, fix what is flagged. Same exact format.\n\n${REPAIR_TIER_BUDGET}\n\n${frames()}${findingsBlock}`
+          ? `${batchLawBlock}\n\n${anchorsBlock}REWRITE THESE SLOTS — they failed the machine gates. Keep what worked, fix what is flagged. Same exact format.\n\n${REPAIR_BOILERPLATE}\n\n${REPAIR_TIER_BUDGET}\n\n${frames()}${findingsBlock}`
+          : `${batchLawBlock}\n\n${anchorsBlock}REWRITE THESE SLOTS — they carry WARN-level QUALITY findings (the batch already passed all HARD gates — do NOT introduce any new fabric/claim/underlayer that could break them, and NEVER import signals from the slot's FORBIDDEN tier list — T4-005). Keep the same anchor, pose, palette, canon and stack. Keep what worked, fix what is flagged. Same exact format.\n\n${REPAIR_TIER_BUDGET}\n\n${frames()}${findingsBlock}`
 
     const raw = await chat(provider, systemPrompt(), user, [])
     let parsed = parseSlots(raw)
