@@ -995,7 +995,9 @@ fn gates_route(t: &Twin, body: &Value) -> Result<(u16, String), RpcError> {
     }
 
     /* записи: scratch-слаг twin'а → gate.run в scratch-цепь + t4_gate_runs;
-     * исторический (прод) — НИКАКИХ записей, runIndex из прод-летописи RO */
+     * исторический (прод) — НИКАКИХ записей; runIndex — из фолда
+     * файла-летописи (эталон TS считает readEvents — JSONL; прод-SQLite
+     * НЕ зеркало: миграция сняла 399 из 421 звеньев, runIndex был занижен) */
     let in_scratch: bool = t
         .scratch
         .query_row("SELECT 1 FROM t4_batches WHERE slug = ?1", [&slug], |_| Ok(()))
@@ -1009,16 +1011,16 @@ fn gates_route(t: &Twin, body: &Value) -> Result<(u16, String), RpcError> {
         );
         (run_index as u64, Some(seq))
     } else {
-        let ctx = crate::textgates::prod_context(&t.prod, &slug);
+        let chron = crate::textgates::chronicle_state();
+        let prior = chron.gate_runs.get(&slug).copied().unwrap_or(0);
+        let window = chron.window_slugs.join(", ");
         live::info(
             BLOCK_GATES,
             &format!(
-                "слаг {slug} исторический (прод: прогонов {}, окно [{}]) — чистый анализ, записей нет",
-                ctx.prior_runs,
-                ctx.window_slugs.join(", ")
+                "слаг {slug} исторический (летопись-файл: прогонов {prior}, окно [{window}]) — чистый анализ, записей нет"
             ),
         );
-        (ctx.prior_runs + 1, None)
+        (prior as u64 + 1, None)
     };
 
     let hard_fails = outcome.hard_fails();
@@ -1118,10 +1120,11 @@ mod gates_tests {
 
     #[test]
     fn gates_route_historical_no_writes() {
-        // исторический слог: чистый анализ, runIndex из прод-летописи RO,
-        // НИКАКИХ записей ни в прод, ни в scratch
+        // исторический слог: чистый анализ, runIndex из фолда файла-летописи
+        // (эталон TS читает JSONL), НИКАКИХ записей ни в прод, ни в scratch
         let t = temp_twin("hist");
-        // прод-летопись: 3 записанных прогона T4-27 (как в живой базе)
+        // прод-база НЕ источник runIndex (миграция сняла 399 из 421 звена) —
+        // пишем мусорные gate.run в прод и подтверждаем, что они не влияют
         for i in 0..3 {
             let tx = t.prod.unchecked_transaction().unwrap();
             crate::chain::append_event_tx(
@@ -1143,14 +1146,21 @@ mod gates_tests {
         let v: Value = serde_json::from_str(&body).unwrap();
         let data = &v["data"];
         assert_eq!(data["slug"], "T4-27");
-        assert_eq!(data["runIndex"], 4, "прод-летопись: 3 прогона + 1");
-        // T4-27 несёт hard-FAIL rating-recipe (этап 1-бис; живой TS dry-run
+        let expected_index =
+            crate::textgates::chronicle_state().gate_runs.get("T4-27").copied().unwrap_or(0) + 1;
+        assert_eq!(data["runIndex"], expected_index, "runIndex — из файла-летописи");
+        // T4-27 несёт hard-FAIL (raw-plus: рендер-эра T4-27 — живой TS dry-run
         // даёт то же) — hardPass честно false
         assert_eq!(data["hardPass"], false);
-        assert_eq!(data["batteryRust"].as_array().unwrap().len(), 16);
-        assert_eq!(data["batteryTs"].as_array().unwrap().len(), 14);
-        // 16 базовых + условный rating-recipe-exploratory (⚗-находки T4-27)
-        assert!(data["receipts"].as_array().unwrap().len() == 17);
+        assert_eq!(data["batteryRust"].as_array().unwrap().len(), 30);
+        assert_eq!(data["batteryTs"].as_array().unwrap().len(), 0);
+        // 30 базовых + условные (raw-plus + raw-plus-exploratory и/или
+        // rating-recipe-exploratory — по ⚗-находкам T4-27)
+        let receipts = data["receipts"].as_array().unwrap().len();
+        assert!(
+            (30..=33).contains(&receipts),
+            "30 базовых + до 3 условных, получено {receipts}"
+        );
         assert_eq!(crate::db::count_events(&t.prod), prod_before, "прод не тронут");
         assert_eq!(crate::db::count_events(&t.scratch), scratch_before, "scratch не тронут: исторический слог — чистый анализ");
         let runs: i64 = t

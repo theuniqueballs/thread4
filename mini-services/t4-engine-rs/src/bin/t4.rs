@@ -403,7 +403,7 @@ fn main() {
                         "receipts": receipts,
                     })).unwrap());
                 } else {
-                    println!("gates {slug} (текст-батарея Rust, {}/30 — словарные):", t4_engine_rs::textgates::BATTERY_RUST.len());
+                    println!("gates {slug} (текст-батарея Rust, {}/30 базовых):", t4_engine_rs::textgates::BATTERY_RUST.len());
                     print_receipts(&receipts);
                 }
                 let in_db: bool = conn

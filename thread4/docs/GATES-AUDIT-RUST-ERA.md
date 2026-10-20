@@ -142,3 +142,38 @@ window, niche-legibility, claim-visibility, technique-layers,
 ab-single-variable, simcheck, technique-map, salience-chain,
 contract-fidelity, bumps-quota. Сирота WRITE-моста (движковый план →
 богатый контракт для писца) — предмет фазы 2, блокирует сдачу T4-43.
+
+## 7. Дополнение 2026-10-20 (этап 1-в, ветка thread4.1) — БАТАРЕЯ ЗАВЕРШЕНА
+
+BATTERY_TS обнулён: все 30 базовых гейтов портированы в Rust
+(`mini-services/t4-engine-rs/src/textgates.rs`), порядок квитанций — 1-в-1
+с runGates. Док completing §2 и §5 (§5 «кандидаты на порт» исчерпан):
+
+- **4 hard**: structure (закон 24+EXP/OC/мейн, поля, quality, фейс-лок,
+  опенер, Canon у OC) · exp-purity (T4-34: маркер THESIS из контракта +
+  фолбэк, тема-слова вне POS болванки, A/B-пара делит план) · floors
+  (анти-лоли ≥4, лика/свечная/фейс-гарды, milf-квота N30, XXX левый-\\b) ·
+  window (ретроактивное окно T4-31-ревизии, двусторонний rebuildOf №30).
+- **9 warn**: dresser (№29, checkCoherence) · niche-legibility (T4-02) ·
+  claim-visibility (T4-03) · technique-layers (таблица автора, сумма
+  факторов/ловушки/супрессоры/X Cut hold) · ab-single-variable · simcheck
+  (V8-Жаккар: порог целочисленным сравнением, toFixed(2) half-away на
+  точной экспансии f64) · salience-chain v2 (9 звеньев §9-секста+
+  §9-септима) · contract-fidelity (T4-30, kinTokensOf) · bumps-quota (G17).
+- **3 advisory/report**: technique-map · freq-report/usage (были) ·
+  условные raw-plus (hard) + raw-plus-exploratory +
+  rating-recipe-exploratory (вне базы, 30–33 квитанции на прогон).
+
+**Состояние twin'а**: состояние window/simcheck/runIndex — фолд
+`thread4/events/log.jsonl` ( ChronState) — ТО ЖЕ, что читает эталон
+runGates (readEvents). Прод-SQLite НЕ зеркало: миграция импортировала
+399 из 421 звеньев (runIndex по SQLite занижен: T4-04 — 3 против 5;
+окно для file-era слагов совпадает — T4-36/39/42 void'ы движковой эры
+выдавлены с обеих сторон). Движковая эра (Фаза 2) переключит источник
+сознательно, с квитанцией.
+
+**Паритет (аудит №9, reprobe)**: 37 живых слагов × 5650 клеток
+(gate/level/verdict/findings/notes, порядок массива) — **0 diff**
+(ts: `thread4/tools/gates-dump-json.ts`, rs: `t4 gates <slug> --text
+--json`). selftest twin'а 125/125 (+1 честный skip), cargo test 63/63,
+TS selftest 174/174, tsc 0.

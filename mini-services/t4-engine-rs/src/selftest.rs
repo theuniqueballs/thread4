@@ -521,7 +521,8 @@ fn md_of(header: &str, slots: &[(&str, &str, &str)]) -> String {
 fn run_synth(md: &str) -> Vec<compile::Receipt> {
     let batch = crate::textgates::parse_batch("T4-90", md);
     let specs = crate::textgates::load_text_specs();
-    crate::textgates::run_text_gates(&batch, &specs)
+    let chron = crate::textgates::ChronState::empty();
+    crate::textgates::run_text_gates(&batch, &specs, None, &chron)
 }
 
 fn gate_of<'a>(receipts: &'a [compile::Receipt], gate: &str) -> &'a compile::Receipt {

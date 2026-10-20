@@ -1648,6 +1648,8 @@ pub struct TierRecipe {
 pub struct RatingRecipes {
     #[serde(default, deserialize_with = "ordered_map::deserialize")]
     pub tiers: Vec<(String, TierRecipe)>,
+    #[serde(default)]
+    pub eternal_floors: EternalFloors,
 }
 
 /// getRatingRecipes() (specs.ts): None при отсутствии/бите — гейт молчит
@@ -1722,6 +1724,18 @@ pub struct TextSpecs {
     pub recipes: Option<RatingRecipes>,
     pub oc_canon: Vec<OcEntry>,
     pub carriers: Option<CarriersSpec>,
+    /* --- этап 1-в (остаток BATTERY_TS[14] + условный raw-plus) --- */
+    /// policy.json → law (compiler.ts:429 getPolicy().law). TS при
+    /// отсутствии спека ГРОМКО КРАШИТСЯ («код не знает чисел», П-2);
+    /// twin падает на документированные константы 24/3/21/9 — на живом
+    /// дереве файл есть, расхождения не даёт.
+    pub laws: Laws,
+    /// races.json — niche-legibility (race tokens) + contract-fidelity (kin)
+    pub races: Vec<RaceEntry>,
+    /// dresser.json — гейт dresser (checkCoherence, квитанция №29)
+    pub dresser: Option<DresserSpec>,
+    /// rating-techniques.json — техника-карта автора (gates 14/25)
+    pub techniques: Option<RatingTechniques>,
 }
 
 pub fn load_text_specs() -> TextSpecs {
@@ -1730,7 +1744,3125 @@ pub fn load_text_specs() -> TextSpecs {
         recipes: load_rating_recipes(),
         oc_canon: oc_canon_entries(),
         carriers: load_carriers(),
+        laws: load_laws().unwrap_or(Laws {
+            slots_total: 24,
+            oc_slots: 3,
+            mains_total: 21,
+            exp_slots_max: 9,
+        }),
+        races: load_races(),
+        dresser: load_dresser(),
+        techniques: load_rating_techniques(),
     }
+}
+
+/* ================================================================== */
+/* Этап 1-в — спеки оставшихся гейтов                                   */
+/* ================================================================== */
+
+/// LAWS (policy.json → law): структура слотов и EXP-оверлея.
+#[derive(Clone, Debug)]
+pub struct Laws {
+    pub slots_total: u32,
+    pub oc_slots: u32,
+    pub mains_total: u32,
+    pub exp_slots_max: u32,
+}
+
+pub fn load_laws() -> Option<Laws> {
+    let v = read_json(&specs_dir().join("policy.json"))?;
+    let l = v.get("law")?;
+    Some(Laws {
+        slots_total: l.get("slotsTotal").and_then(|x| x.as_u64()).unwrap_or(24) as u32,
+        oc_slots: l.get("ocSlots").and_then(|x| x.as_u64()).unwrap_or(3) as u32,
+        mains_total: l.get("mainsTotal").and_then(|x| x.as_u64()).unwrap_or(21) as u32,
+        exp_slots_max: l.get("expSlotsMax").and_then(|x| x.as_u64()).unwrap_or(9) as u32,
+    })
+}
+
+/// eternal_floors (rating-recipes.json): вечные флооры POS/NEG (закон №25
+/// вынул genital_lock — X-блок живёт в tiers.X.counter_neg).
+#[derive(Clone, Debug, Default, Deserialize)]
+#[serde(default)]
+pub struct EternalFloors {
+    pub anti_loli: Vec<String>,
+    pub leak_guard: Vec<String>,
+    pub candle_guard: Vec<String>,
+    pub face_guard: Vec<String>,
+}
+
+/// RaceEntry (races.json): name + features — niche-legibility и
+/// contract-fidelity (kinTokensOf) читают один и тот же спек.
+#[derive(Clone, Debug)]
+pub struct RaceEntry {
+    pub name: String,
+    pub features: Vec<String>,
+}
+
+pub fn load_races() -> Vec<RaceEntry> {
+    read_json(&specs_dir().join("races.json"))
+        .and_then(|v| {
+            v.get("races").and_then(|x| x.as_array()).map(|arr| {
+                arr.iter()
+                    .map(|r| RaceEntry {
+                        name: r.get("name").and_then(|x| x.as_str()).unwrap_or_default().to_string(),
+                        features: r
+                            .get("features")
+                            .and_then(|x| x.as_array())
+                            .map(|a| {
+                                a.iter()
+                                    .filter_map(|f| f.as_str().map(String::from))
+                                    .collect()
+                            })
+                            .unwrap_or_default(),
+                    })
+                    .collect()
+            })
+        })
+        .unwrap_or_default()
+}
+
+/// DressConflict (dresser.json → conflicts[]).
+#[derive(Clone, Debug, Default)]
+pub struct DressConflict {
+    pub pair: Vec<String>,
+    pub rule: String,
+    pub why: String,
+    pub tags: Vec<String>,
+}
+
+#[derive(Clone, Debug, Default)]
+pub struct DresserSpec {
+    pub conflicts: Vec<DressConflict>,
+}
+
+pub fn load_dresser() -> Option<DresserSpec> {
+    let v = read_json(&specs_dir().join("dresser.json"))?;
+    let mut out = DresserSpec::default();
+    if let Some(arr) = v.get("conflicts").and_then(|x| x.as_array()) {
+        for c in arr {
+            out.conflicts.push(DressConflict {
+                pair: c
+                    .get("pair")
+                    .and_then(|x| x.as_array())
+                    .map(|a| a.iter().filter_map(|p| p.as_str().map(String::from)).collect())
+                    .unwrap_or_default(),
+                rule: c.get("rule").and_then(|x| x.as_str()).unwrap_or_default().to_string(),
+                why: c.get("why").and_then(|x| x.as_str()).unwrap_or_default().to_string(),
+                tags: c
+                    .get("tags")
+                    .and_then(|x| x.as_array())
+                    .map(|a| a.iter().filter_map(|t| t.as_str().map(String::from)).collect())
+                    .unwrap_or_default(),
+            });
+        }
+    }
+    Some(out)
+}
+
+/// TechniqueEntry (rating-techniques.json → techniques[]). Поля pg13/r/
+/// rplus/x — отметки efficacy («●» на живом тире); trap/suppressor —
+/// флаги ловушек/супрессоров (гейт их цитирует дословно).
+#[derive(Clone, Debug, Default, Deserialize)]
+#[serde(default)]
+pub struct TechniqueEntry {
+    pub tag: String,
+    #[serde(rename = "match")]
+    pub match_alts: Vec<Vec<String>>,
+    pub layer: u32,
+    #[serde(rename = "pg13")]
+    pub pg13: String,
+    pub r: String,
+    pub rplus: String,
+    pub x: String,
+    #[serde(deserialize_with = "de_bool_or_false")]
+    pub trap: bool,
+    #[serde(deserialize_with = "de_bool_or_false")]
+    pub suppressor: bool,
+    pub note: String,
+}
+
+/// trap/suppressor в спеке бывают bool ИЛИ строкой-пояснением — TS
+/// проверяет truthiness (любая непустая строка = true).
+fn de_bool_or_false<'de, D>(deserializer: D) -> Result<bool, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let v: Option<serde_json::Value> = Option::deserialize(deserializer)?;
+    Ok(match v {
+        None | Some(serde_json::Value::Null) => false,
+        Some(serde_json::Value::Bool(b)) => b,
+        Some(serde_json::Value::String(s)) => !s.is_empty(),
+        Some(_) => true,
+    })
+}
+
+#[derive(Clone, Debug, Default, Deserialize)]
+#[serde(default)]
+pub struct RplusFloor {
+    pub signals_min: u32,
+    pub layers_min: u32,
+}
+
+#[derive(Clone, Debug, Default, Deserialize)]
+#[serde(default)]
+pub struct RatingTechniques {
+    pub techniques: Vec<TechniqueEntry>,
+    pub sum_rules: SumRulesShim,
+    pub xcut_hold: XcutHold,
+}
+
+#[derive(Clone, Debug, Default, Deserialize)]
+#[serde(default)]
+pub struct SumRulesShim {
+    pub rplus_floor: Option<RplusFloor>,
+}
+
+#[derive(Clone, Debug, Default, Deserialize)]
+#[serde(default)]
+pub struct XcutHold {
+    pub framing: Vec<String>,
+    pub lower_cover: Vec<String>,
+}
+
+pub fn load_rating_techniques() -> Option<RatingTechniques> {
+    let txt = read_text(&specs_dir().join("rating-techniques.json"))?;
+    serde_json::from_str(&txt).ok()
+}
+
+/* ================================================================== */
+/* Этап 1-в — состояние: фолд летописи-файла (readEvents + foldState)   */
+/*                                                                      */
+/* ЭТАЛОН (src/lib/t4/gates.ts) читает thread4/events/log.jsonl         */
+/* (events.ts readEvents: файл-эра, заморожена на 421 звене). Прод-      */
+/* SQLite — НЕ зеркало: миграция импортировала только 399 звеньев,       */
+/* хроники разошлись в переходный период (runIndex по SQLite занижен:   */
+/* T4-04 — 3 против 5). Байт-паритет = фолд ТОГО ЖЕ файла, что читает   */
+/* bun runGates. Поля состояния — только те, что едят гейты:            */
+/* deliveredAt (window/simcheck), voided, алиасы слагов, счёт gate.run.  */
+/* ================================================================== */
+
+#[derive(Clone, Debug, Default)]
+pub struct ChronState {
+    /// slug → at последнего batch.delivered (foldState: batches.deliveredAt)
+    pub delivered_at: std::collections::HashMap<String, String>,
+    /// batch.void слаги, порядок истории (foldState voidedSlugs)
+    pub voided: Vec<String>,
+    /// окно ротации: 3 последних сданных, СТАРЕЙШИЙ → СВЕЖАЙШИЙ
+    /// (foldState: sort ASC по (deliveredAt, slug), slice(-3))
+    pub window_slugs: Vec<String>,
+    /// счёт gate.run по слагу (runIndex эталона = priorRuns + 1)
+    pub gate_runs: std::collections::HashMap<String, u32>,
+}
+
+impl ChronState {
+    pub fn empty() -> ChronState {
+        ChronState::default()
+    }
+}
+
+/// foldState (events.ts:565-718) в объёме гейтов: compiled/delivered/void/
+/// slug-alias. Алиасы применяются ПОСЛЕ всей истории; dropVoid снимает void
+/// с нового слага (провенанс дубля — T4-18→T4-17).
+pub fn fold_chronicle(log: &str) -> ChronState {
+    use std::collections::HashMap;
+    let mut delivered_at: HashMap<String, String> = HashMap::new();
+    let mut voided: Vec<String> = Vec::new();
+    // oldSlug → (newSlug, dropVoid)
+    let mut aliases: Vec<(String, String, bool)> = Vec::new();
+    let mut gate_runs: HashMap<String, u32> = HashMap::new();
+
+    for line in log.lines() {
+        let line = line.trim();
+        if line.is_empty() {
+            continue;
+        }
+        let Ok(v) = serde_json::from_str::<serde_json::Value>(line) else {
+            continue;
+        };
+        let typ = v.get("type").and_then(|x| x.as_str()).unwrap_or("");
+        let data = v.get("data").cloned().unwrap_or(serde_json::Value::Null);
+        let slug = data.get("slug").and_then(|x| x.as_str()).map(String::from);
+        match typ {
+            "batch.compiled" => {
+                // запись создаётся/освежается, deliveredAt СОХРАНЯЕТСЯ
+                if let Some(s) = slug {
+                    delivered_at.entry(s).or_insert_with(String::new);
+                }
+            }
+            "batch.delivered" => {
+                if let Some(s) = slug {
+                    let at = v.get("at").and_then(|x| x.as_str()).unwrap_or("").to_string();
+                    delivered_at.insert(s, at);
+                }
+            }
+            "batch.void" => {
+                if let Some(s) = slug {
+                    if !voided.contains(&s) {
+                        voided.push(s);
+                    }
+                }
+            }
+            "gate.run" => {
+                if let Some(s) = slug {
+                    *gate_runs.entry(s).or_insert(0) += 1;
+                }
+            }
+            "note" => {
+                let kind = data.get("kind").and_then(|x| x.as_str()).unwrap_or("");
+                if kind == "slug-alias" {
+                    let old = data.get("oldSlug").and_then(|x| x.as_str()).map(String::from);
+                    let new = data.get("newSlug").and_then(|x| x.as_str()).map(String::from);
+                    let drop = data.get("replaces").and_then(|x| x.as_str()) == Some("voided-dubl");
+                    if let (Some(o), Some(n)) = (old, new) {
+                        if o != n {
+                            aliases.push((o, n, drop));
+                        }
+                    }
+                }
+            }
+            _ => {}
+        }
+    }
+    // алиасы после всей истории (ISSUE 17): запись переезжает old → new
+    for (old, new, drop_void) in &aliases {
+        if let Some(at) = delivered_at.remove(old) {
+            delivered_at.insert(new.clone(), at);
+        }
+        if *drop_void {
+            voided.retain(|s| s != new);
+        }
+    }
+    // delivered: has deliveredAt (непустую) && не void; sort (at, slug) ASC
+    let mut delivered: Vec<(String, String)> = delivered_at
+        .into_iter()
+        .filter(|(s, at)| !at.is_empty() && !voided.contains(s))
+        .collect();
+    delivered.sort_by(|a, b| a.1.cmp(&b.1).then_with(|| a.0.cmp(&b.0)));
+    let window_slugs: Vec<String> =
+        delivered.iter().rev().take(3).rev().map(|(s, _)| s.clone()).collect();
+    ChronState { delivered_at: HashMap::new(), voided, window_slugs, gate_runs }
+    // ^ delivered_at: consumed above; для historical_window_for нужен
+    //   полный словарь — пересобираем ниже (см. fold_chronicle_full)
+}
+
+/// Полный фолд (с delivered_at для historicalWindowFor) — отдельная функция,
+/// чтобы не держать два прохода в одной памяти: fold_chronicle оставлен для
+/// совместимости тестов, живой путь — fold_chronicle_full.
+pub fn fold_chronicle_full(log: &str) -> ChronState {
+    use std::collections::HashMap;
+    let mut delivered_at: HashMap<String, String> = HashMap::new();
+    let mut voided: Vec<String> = Vec::new();
+    let mut aliases: Vec<(String, String, bool)> = Vec::new();
+    let mut gate_runs: HashMap<String, u32> = HashMap::new();
+
+    for line in log.lines() {
+        let line = line.trim();
+        if line.is_empty() {
+            continue;
+        }
+        let Ok(v) = serde_json::from_str::<serde_json::Value>(line) else {
+            continue;
+        };
+        let typ = v.get("type").and_then(|x| x.as_str()).unwrap_or("");
+        let data = v.get("data").cloned().unwrap_or(serde_json::Value::Null);
+        let slug = data.get("slug").and_then(|x| x.as_str()).map(String::from);
+        match typ {
+            "batch.compiled" => {
+                if let Some(s) = slug {
+                    delivered_at.entry(s).or_insert_with(String::new);
+                }
+            }
+            "batch.delivered" => {
+                if let Some(s) = slug {
+                    let at = v.get("at").and_then(|x| x.as_str()).unwrap_or("").to_string();
+                    delivered_at.insert(s, at);
+                }
+            }
+            "batch.void" => {
+                if let Some(s) = slug {
+                    if !voided.contains(&s) {
+                        voided.push(s);
+                    }
+                }
+            }
+            "gate.run" => {
+                if let Some(s) = slug {
+                    *gate_runs.entry(s).or_insert(0) += 1;
+                }
+            }
+            "note" => {
+                let kind = data.get("kind").and_then(|x| x.as_str()).unwrap_or("");
+                if kind == "slug-alias" {
+                    let old = data.get("oldSlug").and_then(|x| x.as_str()).map(String::from);
+                    let new = data.get("newSlug").and_then(|x| x.as_str()).map(String::from);
+                    let drop = data.get("replaces").and_then(|x| x.as_str()) == Some("voided-dubl");
+                    if let (Some(o), Some(n)) = (old, new) {
+                        if o != n {
+                            aliases.push((o, n, drop));
+                        }
+                    }
+                }
+            }
+            _ => {}
+        }
+    }
+    for (old, new, drop_void) in &aliases {
+        if let Some(at) = delivered_at.remove(old) {
+            delivered_at.insert(new.clone(), at);
+        }
+        if *drop_void {
+            voided.retain(|s| s != new);
+        }
+    }
+    let mut delivered: Vec<(String, String)> = delivered_at
+        .iter()
+        .filter(|(s, at)| !at.is_empty() && !voided.contains(s))
+        .map(|(s, at)| (s.clone(), at.clone()))
+        .collect();
+    delivered.sort_by(|a, b| a.1.cmp(&b.1).then_with(|| a.0.cmp(&b.0)));
+    let window_slugs: Vec<String> =
+        delivered.iter().rev().take(3).rev().map(|(s, _)| s.clone()).collect();
+    ChronState { delivered_at, voided, window_slugs, gate_runs }
+}
+
+pub fn chronicle_state() -> ChronState {
+    match read_text(&event_log_path()) {
+        Some(log) => fold_chronicle_full(&log),
+        None => ChronState::empty(),
+    }
+}
+
+/// historicalWindowFor (gates.ts:448): сданный батч судится только с
+/// членами окна, сданными НЕ ПОЗЖЕ него самого; несданный видит всё окно.
+pub fn historical_window_for(batch_slug: &str, st: &ChronState) -> Vec<String> {
+    let Some(mine) = st.delivered_at.get(batch_slug) else {
+        return st.window_slugs.clone();
+    };
+    if mine.is_empty() {
+        return st.window_slugs.clone();
+    }
+    st.window_slugs
+        .iter()
+        .filter(|w| match st.delivered_at.get(*w) {
+            None => true,
+            Some(at) => at.is_empty() || at.as_str() <= mine.as_str(),
+        })
+        .cloned()
+        .collect()
+}
+
+/// windowOthersFor (gates.ts:421): себя, объявленный rebuildOf-источник и
+/// перестройки ЭТОГО слага (член окна с contract.rebuildOf == batchSlug)
+/// исключаем — ребилд переиспользует материал источника по дизайну.
+pub fn window_others_for(
+    batch_slug: &str,
+    window: &[String],
+    rebuild_of: Option<&str>,
+) -> Vec<String> {
+    window
+        .iter()
+        .filter(|w| {
+            if *w == batch_slug || Some(w.as_str()) == rebuild_of {
+                return false;
+            }
+            match read_json(&contracts_dir().join(format!("{}.json", w))) {
+                Some(v) => v.get("rebuildOf").and_then(|x| x.as_str()) != Some(batch_slug),
+                None => true, // контракта нет — член остаётся (wc?.rebuildOf !== slug)
+            }
+        })
+        .cloned()
+        .collect()
+}
+
+/// observableSlotCount (compiler.ts:326): слоты с хоть какой позой/палитрой.
+fn observable_slot_count(slots: &[serde_json::Value]) -> usize {
+    slots
+        .iter()
+        .filter(|s| {
+            let pose = s.get("pose").and_then(|x| x.as_str()).unwrap_or("");
+            let pal = s.get("palette").and_then(|x| x.as_str()).unwrap_or("");
+            !pose.trim().is_empty() || !pal.trim().is_empty()
+        })
+        .count()
+}
+
+/* ================================================================== */
+/* Этап 1-в — simcheck-хелперы: слова, Жаккар, toFixed(2) V8, сплит     */
+/* ================================================================== */
+
+/// words (gates.ts:2487): [a-z']+ на нижнем регистре, длина > 3, set.
+fn sim_words(s: &str) -> std::collections::HashSet<String> {
+    let mut out = std::collections::HashSet::new();
+    let low = s.to_lowercase();
+    let b = low.as_bytes();
+    let mut i = 0usize;
+    while i < b.len() {
+        if b[i].is_ascii_lowercase() || b[i] == b'\'' {
+            let start = i;
+            while i < b.len() && (b[i].is_ascii_lowercase() || b[i] == b'\'') {
+                i += 1;
+            }
+            let w = &low[start..i];
+            if w.chars().count() > 3 {
+                out.insert(w.to_string());
+            }
+        } else {
+            i += 1;
+        }
+    }
+    out
+}
+
+/// jaccard-дельта: порог сравнивается целочисленно (j_gt), формат —
+/// js_fixed2; сырой f64-вариант TS не нужен.
+
+/// toFixed(2) в семантике V8 (знаменатель мал: J = inter/union, union ≤
+/// несколько сотен). Сравнение с порогом — целочисленное, ФОРМАТ — по
+/// точной десятичной экспансии f64: V8 округляет half-away-from-zero.
+fn js_fixed2(inter: usize, union: usize) -> String {
+    // k = round_half_away(value·100) на точном значении d = fl(inter/union)
+    let p = (inter as u128) * 100;
+    let q = union.max(1) as u128;
+    let k_floor = p / q;
+    let r2 = (p % q) * 2;
+    let k = if r2 > q {
+        k_floor + 1
+    } else if r2 < q {
+        k_floor
+    } else {
+        // точный тай: value·100 = k_floor + 1/2 → значение (2k+1)/200;
+        // d = fl(value): если значение точно представимо (знаменатель —
+        // степень двойки после сокращения) → half-away → вверх; иначе
+        // сторона fl определяет округление (хвост мантиссы).
+        let n = 2 * k_floor + 1;
+        let den = 200u128;
+        let g = gcd_u128(n, den);
+        let (n2, d2) = (n / g, den / g);
+        if d2.is_power_of_two() {
+            k_floor + 1
+        } else {
+            let scaled = n2 << 96;
+            let rem = scaled % d2;
+            if rem * 2 > d2 {
+                k_floor + 1 // fl выше тай-точки → цифры за 2-м знаком > 5 → вверх
+            } else {
+                k_floor // fl ниже — вниз (rem*2 == d2 невозможен: d2 не 2^a)
+            }
+        }
+    };
+    format!("{}.{:02}", k / 100, k % 100)
+}
+
+fn gcd_u128(a: u128, b: u128) -> u128 {
+    if b == 0 { a } else { gcd_u128(b, a % b) }
+}
+
+/// Предложение с J>порог: «{left}…» (J={js_fixed2}) — порог сравнивается
+/// ЦЕЛОЧИСЛЕННО (inter/union > threshold ⟺ inter·den > union·num) — так
+/// байт-в-байт к f64-сравнению JS на живых данных (дистанция до порога
+/// ≥ 1/union ≫ ulp), без сырого float.
+fn j_gt(inter: usize, union: usize, num: u64, den: u64) -> bool {
+    (inter as u128) * (den as u128) > (union as u128) * (num as u128)
+}
+
+/// POS-сплит предложений: /[.!?]\s+/ — ОДИН пунктуационный символ + ≥1
+/// пробельный; пункт без хвостового пробела остаётся в предложении.
+/// Затем trim → toLowerCase → filter(len>40 && !boilerplate).
+fn sim_sentences(pos: &str) -> Vec<String> {
+    let mut raw: Vec<String> = Vec::new();
+    let mut cur = String::new();
+    let mut chars = pos.chars().peekable();
+    while let Some(c) = chars.next() {
+        cur.push(c);
+        if (c == '.' || c == '!' || c == '?') && chars.peek().is_some_and(|n| n.is_whitespace()) {
+            while chars.peek().is_some_and(|n| n.is_whitespace()) {
+                chars.next();
+            }
+            raw.push(std::mem::take(&mut cur));
+        }
+    }
+    raw.push(cur);
+    raw.into_iter()
+        .map(|x| x.trim().to_lowercase())
+        .filter(|x| x.chars().count() > 40 && !is_boilerplate(x))
+        .collect()
+}
+
+fn is_boilerplate(s: &str) -> bool {
+    s.contains("masterpiece")
+        || s.contains("best quality")
+        || s.contains("anime artstyle")
+        || s.contains("her face is rendered in stylized")
+}
+
+fn hard_receipt_with_notes(gate: &'static str, findings: Vec<String>, notes: Vec<String>) -> Receipt {
+    Receipt {
+        gate,
+        level: "hard",
+        verdict: if findings.is_empty() { "PASS" } else { "FAIL" },
+        findings,
+        notes,
+    }
+}
+
+/* ================================================================== */
+/* Этап 1-в — гейты 1-6 (structure · exp-purity · floors · dresser ·    */
+/* window · niche-legibility)                                           */
+/* ================================================================== */
+
+/// 1. structure (gates.ts:545, hard): закон 24+EXP, OC=3, мейны=21,
+/// поля POS/NEG/THESIS/жанр, quality-теги, фейс-лок, опенер, Canon у OC.
+pub fn gate_structure(batch: &TextBatch, laws: &Laws) -> Receipt {
+    let mut f = Vec::new();
+    let exp_count = batch.slots.iter().filter(|s| s.genre == "EXP").count();
+    let mains = batch
+        .slots
+        .iter()
+        .filter(|s| s.genre != "OC" && s.genre != "EXP")
+        .count();
+    let oc_count = batch.slots.iter().filter(|s| s.genre == "OC").count();
+    if batch.slots.len() as u32 != laws.slots_total + exp_count as u32 {
+        f.push(format!(
+            "слотов {}, ожидается {} + EXP-оверлей ({} OC + {} мейнов — вердикт T4-02; EXP-слотов {}, отдельно от мейнов — приказ 2026-10-08)",
+            batch.slots.len(),
+            laws.slots_total,
+            laws.oc_slots,
+            laws.mains_total,
+            exp_count
+        ));
+    }
+    if exp_count as u32 > laws.exp_slots_max {
+        f.push(format!(
+            "EXP-оверлей {} > {} слотов (law.expSlotsMax — «9 лишних слотов под всякие гадости», приказ автора)",
+            exp_count, laws.exp_slots_max
+        ));
+    }
+    if oc_count as u32 != laws.oc_slots {
+        f.push(format!("OC-слотов {}, ожидается {}", oc_count, laws.oc_slots));
+    }
+    if mains as u32 != laws.mains_total {
+        f.push(format!(
+            "тематических мейнов {}, ожидается {} (EXP-оверлей не входит — приказ 2026-10-08)",
+            mains, laws.mains_total
+        ));
+    }
+    for s in &batch.slots {
+        if s.pos.is_empty() {
+            f.push(format!("P{}: пустой POS", s.position));
+        }
+        if s.neg.is_empty() {
+            f.push(format!("P{}: пустой NEG", s.position));
+        }
+        if s.thesis.is_empty() {
+            f.push(format!("P{}: нет THESIS", s.position));
+        }
+        if s.genre.is_empty() {
+            f.push(format!(
+                "P{}: жанр не назван в шапке (OC/NICHE/VOLT/EXQUISITE — вердикт T4-02)",
+                s.position
+            ));
+        }
+        if !s.pos.is_empty() && !s.pos.to_lowercase().contains("masterpiece") {
+            f.push(format!("P{}: POS без quality-тегов", s.position));
+        }
+        if !s.pos.is_empty() && !s.pos.to_lowercase().contains("anime eyes") {
+            f.push(format!("P{}: нет фейс-лока (anime eyes)", s.position));
+        }
+        if !s.pos.is_empty() && !s.pos.to_lowercase().contains("anime style") {
+            f.push(format!("P{}: нет опенера (anime style)", s.position));
+        }
+    }
+    for s in batch.slots.iter().filter(|x| x.position <= 3) {
+        if s.canon.is_empty() {
+            f.push(format!("P{} (OC): нет Canon-строки", s.position));
+        }
+    }
+    hard_receipt("structure", f)
+}
+
+/// normalizeThemeWords (batch-md.ts:354): <3 символов и дубли — вон.
+fn normalize_theme_words(words: &[String]) -> Vec<String> {
+    let mut seen = std::collections::HashSet::new();
+    let mut out = Vec::new();
+    for w in words {
+        let k = w.trim().to_lowercase();
+        if k.chars().count() < 3 || !seen.insert(k.clone()) {
+            continue;
+        }
+        out.push(k);
+    }
+    out
+}
+
+/// themeTokenHit (batch-md.ts:377): `(^|[\s_-])(w1|w2…)([\s_-]|$)` на
+/// нижнем регистре; regex-матч = САМОЕ ЛЕВОЕ вхождение, на позиции —
+/// альтернация в порядке документа (лево-приоритетный скан).
+fn theme_token_hit(token: &str, kws: &[String]) -> Option<String> {
+    if kws.is_empty() {
+        return None;
+    }
+    let t: Vec<char> = token.to_lowercase().chars().collect();
+    let is_sep = |c: char| c == ' ' || c == '_' || c == '-' || c.is_whitespace();
+    for i in 0..t.len() {
+        if i > 0 && !is_sep(t[i - 1]) {
+            continue;
+        }
+        for kw in kws {
+            let kc: Vec<char> = kw.chars().collect();
+            if i + kc.len() > t.len() || t[i..i + kc.len()] != kc[..] {
+                continue;
+            }
+            let j = i + kc.len();
+            if j == t.len() || is_sep(t[j]) {
+                return Some(kw.clone());
+            }
+        }
+    }
+    None
+}
+
+/// /^EXP\s+{letter}-{half}(?![A-Za-z0-9])/u — маркер THESIS EXP-слота.
+fn exp_marker_ok(thesis: &str, letter: &str, half: &str) -> bool {
+    let Some(rest) = thesis.strip_prefix("EXP") else { return false };
+    let rb = rest.as_bytes();
+    let mut idx = 0usize;
+    while idx < rb.len() && (rb[idx] as char).is_whitespace() {
+        idx += 1;
+    }
+    if idx == 0 {
+        return false; // \s+ обязателен
+    }
+    let after_ws = &rest[idx..];
+    let Some(after_letter) = after_ws.strip_prefix(letter) else { return false };
+    let Some(after_dash) = after_letter.strip_prefix('-') else { return false };
+    let Some(tail) = after_dash.strip_prefix(half) else { return false };
+    match tail.chars().next() {
+        None => true,
+        Some(c) => !c.is_ascii_alphanumeric(),
+    }
+}
+
+/// /^EXP\s+(?:single\s*·\s*)?[\u03B1-\u03C9]/u — маркер без контракта.
+fn fallback_exp_marker(thesis: &str) -> bool {
+    let Some(rest) = thesis.strip_prefix("EXP") else { return false };
+    let rb = rest.as_bytes();
+    let mut idx = 0usize;
+    while idx < rb.len() && (rb[idx] as char).is_whitespace() {
+        idx += 1;
+    }
+    if idx == 0 {
+        return false;
+    }
+    let after = &rest[idx..];
+    let after = match after.strip_prefix("single") {
+        Some(a) => {
+            let a = a.trim_start_matches(|c: char| c.is_whitespace());
+            match a.strip_prefix('·') {
+                Some(x) => x.trim_start_matches(|c: char| c.is_whitespace()),
+                None => return false,
+            }
+        }
+        None => after,
+    };
+    match after.chars().next() {
+        Some(c) => ('\u{03B1}'..='\u{03C9}').contains(&c),
+        None => false,
+    }
+}
+
+/// /PL\d+/i на шапке (exp-purity: поза пары) — первое вхождение, upper.
+fn pose_of_header(header: &str) -> String {
+    let b = header.as_bytes();
+    let mut i = 0usize;
+    while i + 3 <= b.len() {
+        if (b[i] == b'P' || b[i] == b'p')
+            && (b[i + 1] == b'L' || b[i + 1] == b'l')
+            && b[i + 2].is_ascii_digit()
+        {
+            let mut j = i + 2;
+            while j < b.len() && b[j].is_ascii_digit() {
+                j += 1;
+            }
+            return header[i..j].to_uppercase();
+        }
+        i += 1;
+    }
+    String::new()
+}
+
+/// 1b. exp-purity (gates.ts:579, hard, вердикт T4-34): маркер THESIS,
+/// тема-слова вне POS болванки, A/B-пара делит план.
+pub fn gate_exp_purity(batch: &TextBatch, contract: Option<&Contract>) -> Receipt {
+    let mut f = Vec::new();
+    let mut notes = Vec::new();
+    let exp_slots: Vec<&TextSlot> = batch.slots.iter().filter(|s| s.genre == "EXP").collect();
+    if exp_slots.is_empty() {
+        notes.push(
+            "EXP-оверлея нет — гейт молчит (EXP — не обязанность каждого батча: пара по умолчанию, 0 — явным приказом)"
+                .to_string(),
+        );
+        return hard_receipt_with_notes("exp-purity", f, notes);
+    }
+    let theme_line = batch
+        .text
+        .lines()
+        .find(|l| l.starts_with("ТЕМА-СЛОВА:"))
+        .unwrap_or("");
+    let mut theme_words: Vec<String> = theme_line
+        .strip_prefix("ТЕМА-СЛОВА:")
+        .unwrap_or("")
+        .trim_start()
+        .split(',')
+        .map(|w| w.trim().to_string())
+        .filter(|w| !w.is_empty())
+        .collect();
+    if theme_words.is_empty() {
+        if let Some(t) = contract.and_then(|c| c.theme.as_deref()) {
+            theme_words = t
+                .split(|c: char| c == ' ' || c == '_' || c == '-' || c.is_whitespace())
+                .filter(|w| w.chars().count() >= 3)
+                .map(String::from)
+                .collect();
+        }
+    }
+    let kws = normalize_theme_words(&theme_words);
+    let has_matcher = !kws.is_empty();
+    let mut contract_exp: std::collections::HashMap<u32, (String, String, Option<u32>, String)> =
+        Default::default();
+    if let Some(c) = contract {
+        for cs in &c.slots {
+            if let Some(e) = &cs.exp {
+                contract_exp.insert(
+                    cs.position,
+                    (e.letter.clone(), e.half.clone(), e.pair_with, e.hypothesis.clone()),
+                );
+            }
+        }
+    }
+    for s in &exp_slots {
+        match contract_exp.get(&s.position) {
+            Some((letter, half, _, hyp)) => {
+                if !exp_marker_ok(&s.thesis, letter, half) {
+                    let h: String = hyp.chars().take(60).collect();
+                    f.push(format!(
+                        "P{}: THESIS EXP-слота не открывается маркером «EXP {}-{} · …» (гипотеза: {}…) — радар не увидит программу, вердикт T4-34",
+                        s.position, letter, half, h
+                    ));
+                }
+            }
+            None => {
+                if !fallback_exp_marker(&s.thesis) {
+                    f.push(format!(
+                        "P{}: THESIS EXP-слота без маркера «EXP <буква>-<половина> · …» (контракт exp-данных тоже не дал) — гипотеза нечитаема радаром",
+                        s.position
+                    ));
+                }
+            }
+        }
+        if has_matcher {
+            let mut hits: Vec<String> = Vec::new();
+            for token in s.pos.split(',') {
+                if let Some(hit) = theme_token_hit(token.trim(), &kws) {
+                    if !hits.contains(&hit) {
+                        hits.push(hit);
+                    }
+                }
+            }
+            if !hits.is_empty() {
+                f.push(format!(
+                    "P{}: тема-слова в POS EXP-болванки ({}) — EXP без темы (вердикт T4-34)",
+                    s.position,
+                    hits.join(", ")
+                ));
+            }
+        }
+        if let Some((_, _, Some(pw), _)) = contract_exp.get(&s.position) {
+            match batch.slots.iter().find(|x| x.position == *pw) {
+                Some(other) if genre_of(&other.meta) == "EXP" => {
+                    let mine = pose_of_header(&s.header);
+                    let theirs = pose_of_header(&other.header);
+                    if !mine.is_empty() && !theirs.is_empty() && mine != theirs {
+                        f.push(format!(
+                            "P{}: пара делит план — поза {} ≠ {} у P{} (разница пар ровно одна, канон T4-27.2)",
+                            s.position, mine, theirs, pw
+                        ));
+                    }
+                }
+                _ => {
+                    f.push(format!(
+                        "P{}: пара EXP указывает на P{}, но его нет в батче или он не EXP-слот",
+                        s.position, pw
+                    ));
+                }
+            }
+        }
+    }
+    notes.push(format!(
+        "EXP-слотов {} · с exp-контрактом {} · тема-слов для фильтра {}",
+        exp_slots.len(),
+        contract_exp.len(),
+        if has_matcher { theme_words.len() } else { 0 }
+    ));
+    hard_receipt_with_notes("exp-purity", f, notes)
+}
+
+/// XXX-сигналы вечного потолка (gates.ts:353).
+const XXX_SIGNALS: [&str; 11] = [
+    "sex",
+    "sexual act",
+    "intercourse",
+    "penetration",
+    "creampie",
+    "cum",
+    "cumshot",
+    "semen",
+    "blowjob",
+    "handjob",
+    "masturbat",
+];
+
+/// /\bNEEDLE/i — левая граница на ЛЮБОЙ позиции (первый satisfying match).
+fn has_left_boundary_ci(hay_lower: &str, needle_lower: &str) -> bool {
+    let mut from = 0usize;
+    while let Some(rel) = hay_lower[from..].find(needle_lower) {
+        let s = from + rel;
+        if s == 0 || !hay_lower[..s].chars().next_back().is_some_and(ascii_word) {
+            return true;
+        }
+        from = s + 1;
+    }
+    false
+}
+
+/// 2. floors (gates.ts:677, hard): анти-лоли ≥4, лика/свечная/фейс-гарды,
+/// milf-квота (N30: треть батча), XXX-сигналы (левая \b, аудит V3).
+pub fn gate_floors(batch: &TextBatch, recipes: Option<&RatingRecipes>) -> Receipt {
+    let mut f = Vec::new();
+    let empty = EternalFloors::default();
+    let floors = recipes.map(|r| &r.eternal_floors).unwrap_or(&empty);
+    let mut milf_slots: Vec<u32> = Vec::new();
+    for s in &batch.slots {
+        let neg = s.neg.to_lowercase();
+        let loli_hits = floors
+            .anti_loli
+            .iter()
+            .filter(|t| neg.contains(&t.to_lowercase()))
+            .count();
+        if loli_hits < 4 {
+            f.push(format!(
+                "P{}: анти-лоли флоор слаб ({}/{} терминов) — нужно ≥4",
+                s.position,
+                loli_hits,
+                floors.anti_loli.len()
+            ));
+        }
+        for term in &floors.leak_guard {
+            if !neg.contains(&term.to_lowercase()) {
+                f.push(format!("P{}: лика-гарда пропускает «{}»", s.position, term));
+                break;
+            }
+        }
+        let pos_lower = s.pos.to_lowercase();
+        let concept_calls = ["candle", "lantern", "torch", "chandelier", "lamp", "brazier"]
+            .iter()
+            .any(|w| pos_lower.contains(w));
+        if !concept_calls {
+            for term in &floors.candle_guard {
+                if !neg.contains(&term.to_lowercase()) {
+                    f.push(format!("P{}: свечная гарда пропускает «{}»", s.position, term));
+                    break;
+                }
+            }
+        }
+        for term in &floors.face_guard {
+            if !neg.contains(&term.to_lowercase()) {
+                f.push(format!("P{}: фейс-гарда пропускает «{}»", s.position, term));
+                break;
+            }
+        }
+        // milf: \b(milf|milfs)\b/i — milf-токен в POS легален, квота — треть
+        if contains_word_ci(&s.pos, "milf") || contains_word_ci(&s.pos, "milfs") {
+            if !milf_slots.contains(&s.position) {
+                milf_slots.push(s.position);
+            }
+        }
+        for t in XXX_SIGNALS {
+            if has_left_boundary_ci(&pos_lower, t) {
+                f.push(format!(
+                    "P{}: XXX-сигнал в POS («{}») — вечный потолок",
+                    s.position, t
+                ));
+                break;
+            }
+        }
+    }
+    let milf_cap = (batch.slots.len() + 2) / 3; // Math.ceil(len/3)
+    if milf_slots.len() > milf_cap {
+        let ids: Vec<String> = milf_slots.iter().map(|n| format!("P{n:02}")).collect();
+        f.push(format!(
+            "milf-токен в {} слотах ({}) > {} — N30-поправка: милф разрешён, но не везде",
+            milf_slots.len(),
+            ids.join(", "),
+            milf_cap
+        ));
+    }
+    hard_receipt("floors", f)
+}
+
+/// checkCoherence (dresser.ts:163) — квитанции когерентности дресс-кода.
+fn check_coherence(
+    tag_run: &str,
+    tier: &str,
+    is_exploratory: bool,
+    spec: Option<&DresserSpec>,
+) -> Vec<String> {
+    let mut out = Vec::new();
+    let Some(spec) = spec else { return out };
+    let t = tag_run.to_lowercase();
+    const GROUP_A: [&str; 6] = [
+        "garter straps",
+        "garter belt",
+        "thighhighs",
+        "stockings",
+        "lingerie set",
+        "sheer nightgown",
+    ];
+    const GROUP_B: [&str; 2] = ["swimsuit", "bikini"];
+    for conf in &spec.conflicts {
+        let tags: Vec<String> = conf.tags.iter().map(|x| x.to_lowercase()).collect();
+        let ga: Vec<&String> = tags.iter().filter(|x| GROUP_A.contains(&x.as_str())).collect();
+        let gb: Vec<&String> = tags.iter().filter(|x| GROUP_B.contains(&x.as_str())).collect();
+        let a_hit = !ga.is_empty() && ga.iter().any(|x| contains_word_ci(&t, x));
+        let b_hit = !gb.is_empty() && gb.iter().any(|x| contains_word_ci(&t, x));
+        if a_hit && b_hit {
+            let p0 = conf.pair.first().map(|s| s.as_str()).unwrap_or("");
+            let p1 = conf.pair.get(1).map(|s| s.as_str()).unwrap_or("");
+            out.push(format!("конфликт дресс-кода: {p0} + {p1} — {}", conf.why));
+        }
+        let fa_hit = t.contains("gown") || t.contains("opera gloves");
+        let fb_hit = t.contains("gym leggings")
+            || t.contains("tennis skirt")
+            || t.contains("track shorts");
+        if conf.rule == "warn"
+            && ((fa_hit && fb_hit)
+                || (t.contains("sports bra")
+                    && (t.contains("garter belt") || t.contains("stockings"))))
+        {
+            out.push(format!("смешение регистров (Дрессер, warn): {}", conf.why));
+        }
+    }
+    if tier == "R+" && !is_exploratory {
+        if contains_word_ci(&t, "nipples through clothing") {
+            out.push(
+                "№28: через-заявка на R+ — это X-канал по определению (hard в rating-recipe; EXP-слот обязан флаг ⚗)".to_string(),
+            );
+        }
+        if t.contains("wet clothes")
+            && contains_word_ci(&t, "see-through")
+            && !contains_word_ci(&t, "swimsuit")
+        {
+            out.push(
+                "№28: мокрое+сквозное на тканевом верхе = X-комбо (P12/P25/P26 T4-31); купальник — исключение (P21)".to_string(),
+            );
+        }
+    }
+    const UPPER_ITEMS: [&str; 15] = [
+        "blouse", "tee", "shirt", "knit top", "cardigan", "jacket", "coat", "parka", "robe",
+        "vest", "corset", "sweater", "kimono", "crop top", "halter",
+    ];
+    let mut upper_hits = 0usize;
+    for u in UPPER_ITEMS {
+        if contains_word_ci(&t, u) {
+            upper_hits += 1;
+        }
+    }
+    if upper_hits >= 3 {
+        out.push(format!(
+            "§7-бис: {upper_hits} верхних предметов в тег-ране — рендерер соберёт скромную комбинацию (RENDER LAW 3+ слоёв)"
+        ));
+    }
+    const PROP_WORDS: [&str; 6] =
+        ["measuring tape", "ribbon", "harness", "bell", "collar tag", "ribbon choker"];
+    const CONTACT_VERBS: [&str; 8] =
+        ["wraps", "measures", "holds", "threads", "winds", "clips", "ties", "loop"];
+    for p in PROP_WORDS {
+        if t.contains(p) && !CONTACT_VERBS.iter().any(|v| t.contains(v)) {
+            out.push(format!(
+                "P03-правило: реквизит «{p}» без контакт-глагола (wraps/measures/holds…) — читается ошибкой, не темой (мерная лента T4-31)"
+            ));
+        }
+    }
+    out
+}
+
+/// 3-бис. dresser (gates.ts:960, warn, квитанция №29): №28-риски каналов
+/// на R+, конфликты категорий, слои §7-бис, P03-реквизит.
+pub fn gate_dresser(batch: &TextBatch, dresser: Option<&DresserSpec>) -> Receipt {
+    let mut f = Vec::new();
+    for s in &batch.slots {
+        let tier = tier_of(&s.meta);
+        if tier.is_empty() {
+            continue;
+        }
+        let tag_run = tag_run_of(&s.pos);
+        let is_expl = is_exploratory_slot(s);
+        if tier == "R+" && !is_expl {
+            let swim = contains_word_ci(&tag_run, "swimsuit")
+                || contains_word_ci(&tag_run, "bikini")
+                || contains_word_ci(&tag_run, "rash guard");
+            if contains_word_ci(&tag_run, "see-through") {
+                f.push(format!(
+                    "P{}: №28-риск: «see-through» на R+ — тег рисует просвет (P09: даже тёмный knit — X; P30 выжил лишь с «dark garment» и опозданием тега) — лучше опустить, бугорки живут без него",
+                    s.position
+                ));
+            }
+            if tag_run.contains("wet clothes") && !swim {
+                f.push(format!(
+                    "P{}: №28-риск: «wet clothes» на тканевом верхе R+ — влага тянит в X (№27: тон не щит); DRY-формула P30 — «sweat glisting»; мокрый купальник — исключение (P21-золото)",
+                    s.position
+                ));
+            }
+        }
+        let tier28 = if tier == "R+" || tier == "X" { tier } else { "R" };
+        for r in check_coherence(&tag_run, tier28, is_expl, dresser) {
+            f.push(format!("P{}: {r}", s.position));
+        }
+    }
+    warn_receipt("dresser", f)
+}
+
+/// 6. window (gates.ts:1142, hard): позы/палитры против окна ротации;
+/// себя/rebuildOf/перестройки исключаем, ретроактивное окно (T4-31-ревизия).
+pub fn gate_window(batch: &TextBatch, contract: Option<&Contract>, st: &ChronState) -> Receipt {
+    let mut f = Vec::new();
+    let mut notes = Vec::new();
+    if st.window_slugs.is_empty() {
+        return hard_receipt_with_notes("window", f, notes);
+    }
+    match contract {
+        None => {
+            notes.push(
+                "батч без контракта (RAW/ручной): сравнение поз/палитр с окном неприменимо; текстовая близость покрывается simcheck".to_string(),
+            );
+        }
+        Some(c) => {
+            let window = historical_window_for(&batch.slug, st);
+            let others = window_others_for(&batch.slug, &window, c.rebuild_of.as_deref());
+            let mut my_poses: std::collections::HashSet<String> = Default::default();
+            let mut my_pals: std::collections::HashSet<String> = Default::default();
+            for s in &batch.slots {
+                if let Some(m) = extract_pose_id(&s.header) {
+                    my_poses.insert(m);
+                }
+                if let Some(p) = extract_palette_id(&s.header) {
+                    my_pals.insert(p);
+                }
+            }
+            let mut opaque: Vec<String> = Vec::new();
+            for w in &others {
+                let wc = read_json(&contracts_dir().join(format!("{w}.json")));
+                let Some(wc) = wc else {
+                    opaque.push(w.clone());
+                    continue;
+                };
+                let slots = wc
+                    .get("slots")
+                    .and_then(|x| x.as_array())
+                    .cloned()
+                    .unwrap_or_default();
+                if observable_slot_count(&slots) == 0 {
+                    opaque.push(w.clone());
+                    continue;
+                }
+                for s in &slots {
+                    let pose = s.get("pose").and_then(|x| x.as_str()).unwrap_or("");
+                    let pal = s.get("palette").and_then(|x| x.as_str()).unwrap_or("");
+                    if pose.trim().is_empty() && pal.trim().is_empty() {
+                        continue;
+                    }
+                    if my_poses.contains(pose) {
+                        f.push(format!("поза {pose} конфликтует с окном ({w})"));
+                    }
+                    if my_pals.contains(pal) {
+                        f.push(format!("палитра {pal} конфликтует с окном ({w})"));
+                    }
+                }
+            }
+            if !opaque.is_empty() {
+                notes.push(format!(
+                    "члены окна без контракта (позы/палитры ненаблюдаемы): {}",
+                    opaque.join(", ")
+                ));
+            }
+        }
+    }
+    hard_receipt_with_notes("window", f, notes)
+}
+
+/// 8b. niche-legibility (gates.ts:1239, warn, вердикт T4-02): раса делает
+/// физическую работу (теги расы в POS) + свидетель в кадре.
+pub fn gate_niche_legibility(
+    batch: &TextBatch,
+    contract: Option<&Contract>,
+    races: &[RaceEntry],
+    laws: &Laws,
+) -> Receipt {
+    let mut f = Vec::new();
+    const WITNESS_WORDS: [&str; 16] = [
+        "mirror",
+        "shop glass",
+        "security monitor",
+        "door gap",
+        "propped phone",
+        "traffic mirror",
+        "level gauge",
+        "window pane",
+        "wet street",
+        "elevator brass",
+        "photo frame",
+        "spoon",
+        "watch face",
+        "car hood",
+        "fountain edge",
+        "witness",
+    ];
+    let niche_slots: Vec<&TextSlot> = batch.slots.iter().filter(|s| s.genre == "NICHE").collect();
+    for s in &niche_slots {
+        let pos_lower = s.pos.to_lowercase();
+        let race_name = contract
+            .and_then(|c| c.slots.iter().find(|x| x.position == s.position))
+            .and_then(|x| x.race.clone())
+            .unwrap_or_default();
+        if !race_name.is_empty() {
+            let rn_full = race_name.to_lowercase();
+            let rn_core = rn_full.split(" (").next().unwrap_or("").to_string();
+            let race_entry = races.iter().find(|r| {
+                let other = r.name.to_lowercase();
+                let other_core = other.split(" (").next().unwrap_or("").to_string();
+                rn_full.contains(&other_core) || other.contains(&rn_core)
+            });
+            let mut tokens: Vec<String> = Vec::new();
+            let add_tokens = |src: &str, tokens: &mut Vec<String>| {
+                let norm: String = src
+                    .to_lowercase()
+                    .chars()
+                    .map(|c| if c == '(' || c == ')' || c == '-' { ' ' } else { c })
+                    .collect();
+                for w in norm.split_whitespace() {
+                    if w.chars().count() > 3
+                        && !["girl", "kin", "with"].contains(&w)
+                        && !tokens.iter().any(|x| x == w)
+                    {
+                        tokens.push(w.to_string());
+                    }
+                }
+            };
+            add_tokens(&race_name, &mut tokens);
+            if let Some(re) = race_entry {
+                add_tokens(&re.features.join(" "), &mut tokens);
+            }
+            let hits = tokens.iter().filter(|w| pos_lower.contains(w.as_str())).count();
+            if hits < 2 {
+                f.push(format!(
+                    "P{}: NICHE-раса «{}» не читается в POS (тегов расы {}/2) — раса делает физическую работу в кадре",
+                    s.position, race_name, hits
+                ));
+            }
+        }
+        let witness_hit = WITNESS_WORDS.iter().any(|w| pos_lower.contains(w));
+        if !witness_hit && !race_name.is_empty() {
+            f.push(format!(
+                "P{}: NICHE без свидетеля в кадре (mirror/glass/monitor/phone/gauge…) — свидетель держит невозможное",
+                s.position
+            ));
+        }
+    }
+    let themed_mains = batch
+        .slots
+        .iter()
+        .filter(|s| s.genre != "OC" && s.genre != "EXP")
+        .count();
+    if niche_slots.is_empty() && themed_mains as u32 == laws.mains_total {
+        f.push("NICHE-слотов нет — жанровая структура батча сломана".to_string());
+    }
+    warn_receipt("niche-legibility", f)
+}
+
+/// 8d. claim-visibility (gates.ts:1320, warn, вердикт T4-03): зона сигнала
+/// открыта камере — нижняя/грудная зона не закрыта, слоёв ≤, OC смотрит.
+pub fn gate_claim_visibility(batch: &TextBatch) -> Receipt {
+    let mut f = Vec::new();
+    const LOWER_COVERS: [&str; 16] = [
+        "skirt",
+        "dress",
+        "cloak",
+        "cape",
+        "coat",
+        "apron",
+        "happi",
+        "tied at waist",
+        "tied at the waist",
+        "shirt tied",
+        "towel around waist",
+        "waist wrap",
+        "sarong",
+        "long shirt",
+        "untucked shirt",
+        "peplum",
+    ];
+    const CHEST_COVERS: [&str; 10] = [
+        "buttoned shirt",
+        "buttoned-up",
+        "buttoned up",
+        "zipped up",
+        "zipped to",
+        "closed jacket",
+        "buttoned jacket",
+        "turtleneck",
+        "high-neck",
+        "closed coat",
+    ];
+    const TOP_LAYERS: [&str; 24] = [
+        "shirt",
+        "tee",
+        "t-shirt",
+        "tank",
+        "camisole",
+        "blouse",
+        "sweater",
+        "pullover",
+        "hoodie",
+        "jacket",
+        "coat",
+        "blazer",
+        "cardigan",
+        "happi",
+        "tunic",
+        "turtleneck",
+        "button-down",
+        "flannel",
+        "jersey",
+        "varsity",
+        "parka",
+        "poncho",
+        "robe",
+        "overalls",
+    ];
+    // GARMENT_NOUNS: Set из TOP_LAYERS + добавки (Set = insertion order)
+    const GARMENT_EXTRA: [&str; 31] = [
+        "leotard",
+        "bodysuit",
+        "swimsuit",
+        "bikini",
+        "microbikini",
+        "bra",
+        "panties",
+        "thong",
+        "boyshorts",
+        "lingerie",
+        "garter belt",
+        "stockings",
+        "thighhighs",
+        "socks",
+        "jeans",
+        "pants",
+        "trousers",
+        "breeches",
+        "shorts",
+        "skirt",
+        "dress",
+        "apron",
+        "towel",
+        "nightgown",
+        "slip",
+        "corset",
+        "harness",
+        "wrap",
+        "sarong",
+        "sash",
+        "obi",
+    ];
+    const GARMENT_TAIL: [&str; 7] = [
+        "bolero", "kimono", "leggings", "fishnets", "uniform", "cloak", "cape",
+    ];
+    let mut garment_nouns: Vec<String> = Vec::new();
+    for g in TOP_LAYERS
+        .iter()
+        .chain(GARMENT_EXTRA.iter())
+        .chain(GARMENT_TAIL.iter())
+    {
+        if !garment_nouns.iter().any(|x| x == g) {
+            garment_nouns.push(g.to_string());
+        }
+    }
+    const POSE_AWAY: [&str; 8] = [
+        "forward fold",
+        "prone",
+        "facedown",
+        "face down",
+        "from behind",
+        "back to camera",
+        "back turned",
+        "bent away",
+    ];
+    for s in &batch.slots {
+        let tier = tier_of(&s.meta);
+        if tier != "R+" && tier != "X" {
+            continue;
+        }
+        let first_period = s.pos.find('.');
+        let tag_block = match first_period {
+            Some(i) if i > 0 => s.pos[..i].to_lowercase(),
+            _ => s.pos.to_lowercase(),
+        };
+        let pos_lower = s.pos.to_lowercase();
+        // 1) нижняя зона сигнала закрыта верхним предметом
+        let lower_claim = ["cameltoe", "camel toe", "visible pantyline", "pantyline"]
+            .iter()
+            .any(|c| tag_block.contains(c));
+        if lower_claim {
+            if let Some(cover) = LOWER_COVERS.iter().find(|c| contains_word_ci(&tag_block, c)) {
+                f.push(format!(
+                    "P{}: зона сигнала (низ) закрыта «{}» — cameltoe/pantyline не виден камере; открой зону или перевези claim (вердикт T4-03)",
+                    s.position, cover
+                ));
+            }
+        }
+        // 2) грудная on-skin зона закрыта застёгнутым верхом
+        let chest_claim = ["taped nipples", "topless with tape", "handbra"]
+            .iter()
+            .any(|c| tag_block.contains(c));
+        if chest_claim {
+            if let Some(cover) = CHEST_COVERS.iter().find(|c| contains_word_ci(&tag_block, c)) {
+                f.push(format!(
+                    "P{}: зона сигнала (грудь) закрыта «{}» — tape/handbra не виден камере (вердикт T4-03)",
+                    s.position, cover
+                ));
+            }
+        }
+        // 3) слоевой хаос: ≥5 предметов одежды в тег-блоке
+        let garments: Vec<&String> = garment_nouns
+            .iter()
+            .filter(|g| contains_word_ci(&tag_block, g))
+            .collect();
+        if garments.len() >= 5 {
+            let shown: Vec<String> = garments.iter().take(5).map(|g| g.to_string()).collect();
+            f.push(format!(
+                "P{}: {} предметов одежды в тег-блоке ({}) — ≤2 слоя на зону, зона сигнала ≤1 (вердикт T4-03: слои путают рендер)",
+                s.position,
+                garments.len(),
+                shown.join(", ")
+            ));
+        }
+        // 3b) стопка верхних слоёв: ≥3 верхних предметов
+        let tops: Vec<&str> = TOP_LAYERS
+            .iter()
+            .filter(|g| contains_word_ci(&tag_block, g))
+            .copied()
+            .collect();
+        if tops.len() >= 3 {
+            f.push(format!(
+                "P{}: стопка верхних слоёв {} ({}) — «майка поверх рубашки» ломает порядок слоёв (вердикт T4-03)",
+                s.position,
+                tops.len(),
+                tops.join(", ")
+            ));
+        }
+        // 4) OC-слот позой уходит от камеры
+        if s.genre == "OC" {
+            if let Some(away) = POSE_AWAY
+                .iter()
+                .find(|p| tag_block.contains(*p) || pos_lower.contains(*p))
+            {
+                f.push(format!(
+                    "P{}: OC-слот с позой «{}» — зона сигнала уходит от камеры; OC = любимые персонажи автора, камера-смотрящие позы (вердикт T4-03)",
+                    s.position, away
+                ));
+            }
+        }
+        // 5) позиция заявки/состояния в тег-ране (R+; OC-люфт 22)
+        if tier == "R+" {
+            let pos_tags: Vec<String> = tag_block.split(',').map(|t| t.trim().to_string()).collect();
+            let find_idx = |needle: &str| pos_tags.iter().position(|t| t.contains(needle));
+            let idxs: Vec<usize> = [find_idx("wet clothes"), find_idx("see-through")]
+                .into_iter()
+                .flatten()
+                .collect();
+            let wet_idx = idxs.iter().min().copied().map(|v| v as i64).unwrap_or(-1);
+            let limit: i64 = if s.genre == "OC" { 22 } else { 16 };
+            if wet_idx >= limit {
+                f.push(format!(
+                    "P{}: состояние ткани стоит тегом №{} — хвост тег-рана рендерер читает слабо; подними wet clothes / see-through к началу (рендер-вердикт T4-03)",
+                    s.position,
+                    wet_idx + 1
+                ));
+            }
+        }
+    }
+    warn_receipt("claim-visibility", f)
+}
+
+/* ================================================================== */
+/* Этап 1-в — техника-карта (таблица автора) и гейты 8e/12              */
+/* ================================================================== */
+
+/// TECH_BOILER_RE (gates.ts:364): бойлерплейт вырезается из тег-блока —
+/// «ecchi anime style» не дарит слой 3. Глобальная замена на ' '.
+fn tech_tag_block(pos: &str) -> String {
+    const BOILER: [&str; 8] = [
+        "hentai anime style",
+        "ecchi anime style",
+        "anime style",
+        "masterpiece",
+        "best quality",
+        "anime artstyle",
+        "1girl",
+        "solo",
+    ];
+    let first_period = pos.find('.');
+    let tb = match first_period {
+        Some(i) if i > 0 => pos[..i].to_lowercase(),
+        _ => pos.to_lowercase(),
+    };
+    let chars: Vec<(usize, char)> = tb.char_indices().collect();
+    let mut out = String::with_capacity(tb.len());
+    let mut i = 0usize;
+    'outer: while i < chars.len() {
+        let (byte_pos, ch) = chars[i];
+        // \b перед альтернативой
+        let left_ok = byte_pos == 0
+            || !tb[..byte_pos].chars().next_back().is_some_and(ascii_word);
+        if left_ok && ascii_word(ch) {
+            for alt in BOILER {
+                if tb[byte_pos..].starts_with(alt) {
+                    let end = byte_pos + alt.len();
+                    let after_ok = end >= tb.len()
+                        || !tb[end..].chars().next().is_some_and(ascii_word);
+                    if after_ok {
+                        out.push(' ');
+                        // продвигаем на длину альтернативы (символы)
+                        let mut consumed = 0usize;
+                        while consumed < alt.chars().count() {
+                            i += 1;
+                            consumed += 1;
+                        }
+                        continue 'outer;
+                    }
+                }
+            }
+        }
+        out.push(ch);
+        i += 1;
+    }
+    out
+}
+
+/// techHit (gates.ts:373): some(alt → every(needle: \b…\b по tb)).
+/// Регистр НЕ приводится (в TS нет /i) — tb уже в нижнем, иглы спека —
+/// тоже (живой спек соответствует).
+fn tech_hit(tb: &str, match_alts: &[Vec<String>]) -> bool {
+    if match_alts.is_empty() {
+        return false;
+    }
+    match_alts
+        .iter()
+        .any(|alt| alt.iter().all(|s| contains_word(tb, s)))
+}
+
+/// isLadderSignal (gates.ts:381): ● на R / R+ / X.
+fn is_ladder_signal(e: &TechniqueEntry) -> bool {
+    e.r == "●" || e.rplus == "●" || e.x == "●"
+}
+
+/// dedupeSubsumed (gates.ts:387): субсумируемые теги не считаются вторым
+/// сигналом (двойной счёт ломает сумму слоёв).
+fn dedupe_subsumed<'a>(hits: &[&'a TechniqueEntry]) -> Vec<&'a TechniqueEntry> {
+    let has = |frags: &[&str]| {
+        hits.iter().any(|e| frags.iter().any(|frag| e.tag.contains(frag)))
+    };
+    hits.iter().copied().filter(|e| {
+            if e.tag == "nipples"
+                && has(&[
+                    "nipples through",
+                    "taped nipples",
+                    "clothed nipples",
+                    "covered nipples",
+                    "nipple outline",
+                ])
+            {
+                return false;
+            }
+            if e.tag == "naked, nude" && has(&["naked apron", "naked shirt", "almost naked"]) {
+                return false;
+            }
+            if e.tag == "see-through" && has(&["see-through breasts"]) {
+                return false;
+            }
+            if (e.tag == "bare breasts" || e.tag == "no bra, bare breasts")
+                && has(&["breasts out", "one breast out", "breast slip"])
+            {
+                return false;
+            }
+            true
+        })
+        .collect()
+}
+
+fn layer_name(l: u32) -> &'static str {
+    match l {
+        1 => "видимо",
+        2 => "как",
+        3 => "зачем",
+        4 => "дорисовывает",
+        // TS: LAYER_NAMES[l] === undefined → литерал «undefined» в шаблоне
+        _ => "undefined",
+    }
+}
+
+/// TECH_WET_RE / TECH_SHEER_RE (gates.ts:408): \b…\b, 1-в-1.
+fn tech_wet(tb: &str) -> bool {
+    ["wet clothes", "steam", "shower", "rain", "sweat"]
+        .iter()
+        .any(|w| contains_word(tb, w))
+}
+
+fn tech_sheer(tb: &str) -> bool {
+    contains_word(tb, "see-through")
+}
+
+/// 8e. technique-layers (gates.ts:1430, warn, таблица автора): сумма
+/// факторов, ловушки, супрессоры, мокрое+сквозное, X Cut hold.
+pub fn gate_technique_layers(batch: &TextBatch, tech: Option<&RatingTechniques>) -> Receipt {
+    let mut f = Vec::new();
+    let Some(tech) = tech else {
+        return warn_receipt("technique-layers", f);
+    };
+    let mut wet_sheer_slots: Vec<String> = Vec::new();
+    for s in &batch.slots {
+        let tier = tier_of(&s.meta);
+        if tier != "R+" && tier != "X" {
+            continue;
+        }
+        let tb = tech_tag_block(&s.pos);
+        let raw_hits: Vec<&TechniqueEntry> = tech
+            .techniques
+            .iter()
+            .filter(|e| tech_hit(&tb, &e.match_alts))
+            .collect();
+        let hits = dedupe_subsumed(&raw_hits);
+        let ladder: Vec<&&TechniqueEntry> = hits.iter().filter(|e| is_ladder_signal(e)).collect();
+        let mut layers_hit: Vec<u32> = ladder.iter().map(|e| e.layer).collect();
+        layers_hit.sort_unstable();
+        layers_hit.dedup();
+        if tier == "R+" {
+            // (1) сумма факторов
+            let (floor_sig, floor_layers) = tech
+                .sum_rules
+                .rplus_floor
+                .as_ref()
+                .map(|f| (f.signals_min, f.layers_min))
+                .unwrap_or((3, 2));
+            if (ladder.len() as u32) < floor_sig || (layers_hit.len() as u32) < floor_layers {
+                let map: Vec<String> = ladder
+                    .iter()
+                    .take(6)
+                    .map(|e| e.tag.split(',').next().unwrap_or("").to_string())
+                    .collect();
+                let layers_str = if !layers_hit.is_empty() {
+                    format!(
+                        "({})",
+                        layers_hit
+                            .iter()
+                            .map(|l| layer_name(*l).to_string())
+                            .collect::<Vec<_>>()
+                            .join("+")
+                    )
+                } else {
+                    String::new()
+                };
+                f.push(format!(
+                    "P{}: сумма факторов не набрана — {} сигнал(а) через {} слой(я) {}· блок 8: R+ = {}+ сигнала через {}+ слоя — это R/R+ граница, не R+ сумма; карта кадра: {}",
+                    s.position,
+                    ladder.len(),
+                    layers_hit.len(),
+                    layers_str,
+                    floor_sig,
+                    floor_layers,
+                    if map.is_empty() { "—".to_string() } else { map.join(", ") }
+                ));
+            }
+            // (2) ловушки
+            for e in &hits {
+                if e.trap {
+                    f.push(format!(
+                        "P{}: ловушка «{}» — {} (X-риск известен до рендера)",
+                        s.position, e.tag, e.note
+                    ));
+                }
+            }
+            // (3) супрессоры
+            for e in &hits {
+                if e.suppressor {
+                    f.push(format!(
+                        "P{}: супрессор «{}» — держит кадр ниже заявленного, снимай или компенсируй (блок 4/7)",
+                        s.position, e.tag
+                    ));
+                }
+            }
+            // (4) мокрое + сквозное — батч-уровень ниже
+            if tech_wet(&tb) && tech_sheer(&tb) {
+                wet_sheer_slots.push(format!("P{}", s.position));
+            }
+        }
+        if tier == "X" {
+            // (5) X Cut hold: кадрирование или закрытый низ
+            let framing = tech
+                .xcut_hold
+                .framing
+                .iter()
+                .any(|t| tech_hit(&tb, std::slice::from_ref(&vec![t.clone()])));
+            let covered = tech
+                .xcut_hold
+                .lower_cover
+                .iter()
+                .any(|t| tech_hit(&tb, std::slice::from_ref(&vec![t.clone()])));
+            if !framing && !covered {
+                let default_lower = ["skirt", "shorts"];
+                let lower_list: Vec<&str> = if tech.xcut_hold.lower_cover.is_empty() {
+                    default_lower.to_vec()
+                } else {
+                    tech.xcut_hold.lower_cover.iter().map(|x| x.as_str()).collect()
+                };
+                let framing_list: Vec<&str> = if tech.xcut_hold.framing.is_empty() {
+                    vec!["upper body", "portrait"]
+                } else {
+                    tech.xcut_hold.framing.iter().map(|x| x.as_str()).collect()
+                };
+                f.push(format!(
+                    "P{}: X Cut hold (блок 9) — низ тела ни закрыт ({}…), ни выведен из кадра ({}) — модель может «дорисовать» ниже",
+                    s.position,
+                    lower_list.iter().take(5).copied().collect::<Vec<_>>().join("/"),
+                    framing_list.join("/")
+                ));
+            }
+        }
+    }
+    if !wet_sheer_slots.is_empty() {
+        f.push(format!(
+            "осознанный X-риск (блок 8, строка 5): {} R+ слотов несут мокрое+сквозное ({}) — очень высокий риск нечаянного X при рендере; это рабочий механизм рецепта v1.2.0, автор фильтрует перекидкой",
+            wet_sheer_slots.len(),
+            wet_sheer_slots.join(", ")
+        ));
+    }
+    warn_receipt("technique-layers", f)
+}
+
+/// 12. technique map (gates.ts:1846, advisory): карта слоёв — отчёт.
+pub fn gate_technique_map(batch: &TextBatch, tech: Option<&RatingTechniques>) -> Receipt {
+    let mut f = Vec::new();
+    match tech {
+        None => {
+            f.push("техника-карта не загружена (specs/rating-techniques.json)".to_string());
+        }
+        Some(tech) => {
+            for s in &batch.slots {
+                let tier = tier_of(&s.meta);
+                if tier != "R+" && tier != "X" {
+                    continue;
+                }
+                let tb = tech_tag_block(&s.pos);
+                let raw_hits: Vec<&TechniqueEntry> = tech
+                    .techniques
+                    .iter()
+                    .filter(|e| tech_hit(&tb, &e.match_alts))
+                    .collect();
+                let hits = dedupe_subsumed(&raw_hits);
+                let ladder: Vec<&&TechniqueEntry> =
+                    hits.iter().filter(|e| is_ladder_signal(e)).collect();
+                let mut layers_hit: Vec<u32> = ladder.iter().map(|e| e.layer).collect();
+                layers_hit.sort_unstable();
+                layers_hit.dedup();
+                let map: Vec<String> = ladder
+                    .iter()
+                    .take(8)
+                    .map(|e| e.tag.split(',').next().unwrap_or("").to_string())
+                    .collect();
+                let layers_str = if !layers_hit.is_empty() {
+                    layers_hit
+                        .iter()
+                        .map(|l| format!("{l}·{}", layer_name(*l)))
+                        .collect::<Vec<_>>()
+                        .join(" + ")
+                } else {
+                    "—".to_string()
+                };
+                f.push(format!(
+                    "P{:02} {}: {} сигнал(ов) · слои {} · {}",
+                    s.position,
+                    tier,
+                    ladder.len(),
+                    layers_str,
+                    if map.is_empty() { "—".to_string() } else { map.join(", ") }
+                ));
+            }
+            if f.is_empty() {
+                f.push("R+/X слотов в батче нет".to_string());
+            }
+        }
+    }
+    advisory_receipt("technique-map", f)
+}
+
+/// 12b. salience-chain v2 (gates.ts:1873, warn — §9-секста + §9-септима):
+/// 9 звеньев OBJECT→…→POSE-RISK; ≥2 порванных = тир под угрозой.
+pub fn gate_salience_chain(batch: &TextBatch, contract: Option<&Contract>) -> Receipt {
+    let mut f: Vec<String> = Vec::new();
+    const LIGHT_WORDS: [&str; 10] = [
+        "white", "pale", "cream", "ivory", "pastel", "pink", "salt", "linen", "silver", "chalk",
+    ];
+    const GLOW_WORDS: [&str; 9] = [
+        "glow",
+        "spotlight",
+        "backlit",
+        "backlight",
+        "rim light",
+        "sunlit",
+        "sunlight",
+        "lit from",
+        "flare",
+    ];
+    const DARK_SCENE: [&str; 10] = [
+        "night",
+        "noir",
+        "midnight",
+        "dark",
+        "deep indigo",
+        "black",
+        "dusk",
+        "shadow",
+        "ultramarine deep",
+        "eclipse",
+    ];
+    const CAMERA_TAGS: [&str; 16] = [
+        "from below",
+        "close-up",
+        "closeup",
+        "cowboy shot",
+        "upper body",
+        "portrait",
+        "pov",
+        "over-shoulder",
+        "through-gap",
+        "dutch angle",
+        "from above",
+        "wide shot",
+        "foreshortening",
+        "looking up",
+        "looking down",
+        "close on",
+    ];
+    const INTENT_TAGS: [&str; 16] = [
+        "erotic pose",
+        "extreme fanservice",
+        "fanservice",
+        "seductive",
+        "seductive smile",
+        "bedroom eyes",
+        "half-closed eyes",
+        "half-lidded",
+        "parted lips",
+        "teasing",
+        "suggestive",
+        "provocative",
+        "come hither",
+        "sultry",
+        "looking at viewer",
+        "eye contact",
+    ];
+    const UPPER_LIGHT: [&str; 37] = [
+        "blouse",
+        "tee",
+        "t-shirt",
+        "shirt",
+        "knit",
+        "cardigan",
+        "leotard",
+        "bodysuit",
+        "swimsuit",
+        "bikini",
+        "romper",
+        "slip",
+        "dress",
+        "sundress",
+        "nightgown",
+        "gown",
+        "robe",
+        "kimono",
+        "yukata",
+        "sheet",
+        "towel",
+        "halter",
+        "tunic",
+        "apron",
+        "qipao",
+        "cheongsam",
+        "sweater",
+        "gi",
+        "nightshirt",
+        "hoodie",
+        "jersey",
+        "pullover",
+        "flannel",
+        "turtleneck",
+        "crop top",
+        "tank top",
+        "tube top",
+    ];
+    const UPPER_LIGHT_TAIL: [&str; 5] = ["wrap top", "fishnet top", "bodystocking", "top", "halter top"];
+    const LOWER_LIGHT_SAL: [&str; 10] = [
+        "skirt",
+        "shorts",
+        "pants",
+        "trousers",
+        "leggings",
+        "tights",
+        "pantyhose",
+        "sarong",
+        "wrap",
+        "boyshorts",
+    ];
+    const X_SIGNALS: [&str; 6] = [
+        "topless",
+        "bare breasts",
+        "exposed breasts",
+        "nsfw",
+        "nude",
+        "naked",
+    ];
+    const POSE_VERBS: [&str; 36] = [
+        "standing", "kneel", "sitting", "leaning", "climb", "slide", "stretch", "arch", "bend",
+        "turn", "twirl", "float", "stride", "spiral", "hang", "curl", "lean", "reach", "prone",
+        "crouch", "drape", "sprawl", "recline", "straddl", "waltz", "handstand", "cartwheel",
+        "pli", "sprint", "jump", "bounce", "balance", "extend", "lock", "draw", "halt",
+    ];
+    const LOWER_COVERS_SC: [&str; 13] = [
+        "skirt",
+        "dress",
+        "cloak",
+        "cape",
+        "coat",
+        "apron",
+        "tied at waist",
+        "tied at the waist",
+        "shirt tied",
+        "waist wrap",
+        "sarong",
+        "long shirt",
+        "peplum",
+    ];
+    const CHEST_COVERS_SC: [&str; 9] = [
+        "buttoned shirt",
+        "buttoned-up",
+        "buttoned up",
+        "zipped up",
+        "closed jacket",
+        "buttoned jacket",
+        "turtleneck",
+        "high-neck",
+        "closed coat",
+    ];
+    let body_word = |t: &str| {
+        ["hair", "skin", "eyes", "stocking", "sock", "thighhigh", "pantyhose", "scales", "ears", "tail", "horn", "freckle", "cheek"]
+            .iter()
+            .any(|w| t.contains(w))
+    };
+    const BLOCKERS_SC: [&str; 10] = [
+        "crossed arms",
+        "arms crossed",
+        "crossed shawl",
+        "shawl crossed",
+        "scarf crossed",
+        "crossed scarf",
+        "crossed over her chest",
+        "arms over her chest",
+        "arms over chest",
+        "shawl over her chest",
+    ];
+    const CLOSE_CAM: [&str; 7] = [
+        "close-up",
+        "closeup",
+        "cowboy shot",
+        "portrait",
+        "pov",
+        "upper body",
+        "close on",
+    ];
+    let mut upper_light_all: Vec<&str> = Vec::new();
+    for g in UPPER_LIGHT.iter().chain(UPPER_LIGHT_TAIL.iter()) {
+        upper_light_all.push(g);
+    }
+    let mut pose_risk_by_pos: std::collections::HashMap<u32, String> = Default::default();
+    if let Some(c) = contract {
+        for cs in &c.slots {
+            pose_risk_by_pos.insert(cs.position, cs.pose_risk.clone());
+        }
+    }
+    let mut at_risk = 0usize;
+    for s in &batch.slots {
+        let tier = tier_of(&s.meta);
+        if tier != "R+" && tier != "X" {
+            continue;
+        }
+        let first_period = s.pos.find('.');
+        let tag_block = match first_period {
+            Some(i) if i > 0 => s.pos[..i].to_lowercase(),
+            _ => s.pos.to_lowercase(),
+        };
+        let pos_lower = s.pos.to_lowercase();
+        let spine_lower = s.spine.to_lowercase();
+        let tags: Vec<String> = tag_block.split(',').map(|t| t.trim().to_string()).collect();
+        let is_x = tier == "X";
+        // OBJECT
+        let upper_claim = [
+            "nipples through clothing",
+            "clothed nipples",
+            "see-through",
+            "taped nipples",
+            "topless with tape",
+            "handbra",
+        ]
+        .iter()
+        .find(|c| tag_block.contains(**c))
+        .copied();
+        let lower_claim = ["visible pantyline", "pantyline"]
+            .iter()
+            .find(|c| tag_block.contains(**c))
+            .copied();
+        let x_claim = X_SIGNALS.iter().find(|c| tag_block.contains(**c)).copied();
+        let garment_tag = tags.iter().find(|t| {
+            upper_light_all.iter().any(|g| contains_word(t, g))
+                || LOWER_LIGHT_SAL.iter().any(|g| contains_word(t, g))
+        });
+        let on_skin = upper_claim == Some("taped nipples")
+            || upper_claim == Some("topless with tape")
+            || upper_claim == Some("handbra");
+        let obj_ok = if is_x {
+            x_claim.is_some()
+        } else {
+            (upper_claim.is_some() || lower_claim.is_some()) && (on_skin || garment_tag.is_some())
+        };
+        // EXPOSURE
+        let cover_lower = if lower_claim.is_some() {
+            LOWER_COVERS_SC.iter().find(|c| tag_block.contains(*c)).copied()
+        } else {
+            None
+        };
+        let cover_chest = if on_skin {
+            CHEST_COVERS_SC.iter().find(|c| tag_block.contains(*c)).copied()
+        } else {
+            None
+        };
+        let exp_ok = cover_lower.is_none() && cover_chest.is_none();
+        let exp_unclear = if !exp_ok {
+            false
+        } else if garment_tag.is_some() {
+            tags.iter().filter(|t| ["shirt", "cardigan", "jacket", "robe", "kimono"].iter().any(|w| t.contains(w))).count() >= 2
+        } else {
+            false
+        };
+        // CAMERA
+        let cam_tag = CAMERA_TAGS.iter().find(|c| tag_block.contains(**c)).copied();
+        let cam_ok = cam_tag.is_some()
+            || POSE_VERBS.iter().any(|v| tag_block.contains(v))
+            || POSE_VERBS.iter().any(|v| spine_lower.contains(v));
+        // CONTRAST
+        let garment_light = garment_tag
+            .map(|gt| LIGHT_WORDS.iter().any(|w| gt.contains(w)))
+            .unwrap_or(false);
+        let scene_glow = GLOW_WORDS.iter().any(|w| tag_block.contains(w));
+        let dark_scene = DARK_SCENE.iter().any(|w| tag_block.contains(w));
+        let bg_light_count = tags
+            .iter()
+            .filter(|t| {
+                garment_tag.is_none_or(|g| g.as_str() != t.as_str())
+                    && !body_word(t)
+                    && LIGHT_WORDS.iter().any(|w| t.contains(w))
+            })
+            .count();
+        let wet = tag_block.contains("wet clothes");
+        let mut con_ok = false;
+        let mut con_unclear = false;
+        let mut con_why = String::new();
+        if wet && dark_scene && !garment_light && !scene_glow {
+            con_why = "мокрая тёмная ткань без света — пятно-риск".to_string();
+        } else if garment_light && bg_light_count >= 2 {
+            con_why = "светлое на светлом — слияние с фоном".to_string();
+        } else if garment_light || scene_glow || is_x {
+            con_ok = true;
+        } else {
+            con_unclear = true;
+            con_why = "нет ни светлой вещи, ни света на зоне".to_string();
+        }
+        // SALIENCE
+        let limit = if is_x {
+            20usize
+        } else if s.genre == "OC" {
+            22
+        } else {
+            16
+        };
+        let mut claim_candidates: Vec<usize> = Vec::new();
+        for c in [
+            upper_claim,
+            lower_claim,
+            x_claim,
+            if tag_block.contains("wet clothes") { Some("wet clothes") } else { None },
+            if tag_block.contains("see-through") { Some("see-through") } else { None },
+        ]
+        .into_iter()
+        .flatten()
+        {
+            if let Some(i) = tags.iter().position(|t| t.contains(c)) {
+                claim_candidates.push(i);
+            }
+        }
+        let claim_idx = claim_candidates.iter().min().copied().unwrap_or(99);
+        let sal_ok = claim_idx < limit;
+        // INTERPRETATION
+        let intent = INTENT_TAGS
+            .iter()
+            .find(|c| tag_block.contains(**c) || pos_lower.contains(**c))
+            .copied();
+        let int_ok = if is_x { x_claim.is_some() } else { intent.is_some() };
+        // BLOCKER
+        let blocker_hit = BLOCKERS_SC.iter().find(|c| pos_lower.contains(**c)).copied();
+        let blk_ok = blocker_hit.is_none();
+        // LEGIBILITY
+        let close_cam = CLOSE_CAM.iter().find(|c| tag_block.contains(**c)).copied();
+        let leg_ok = close_cam.is_some() || (con_ok && (garment_light || scene_glow));
+        // POSE-RISK
+        let pose_risk = pose_risk_by_pos.get(&s.position).cloned().unwrap_or_default();
+        let pr_ok = pose_risk != "HIGH";
+        let marks = [obj_ok, exp_ok, cam_ok, con_ok, sal_ok, int_ok, blk_ok, leg_ok, pr_ok];
+        let broken = marks.iter().filter(|x| !**x).count();
+        if broken >= 2 {
+            at_risk += 1;
+        }
+        let mark = |ok: bool, unclear: bool| -> &'static str {
+            if ok {
+                "✓"
+            } else if unclear {
+                "?"
+            } else {
+                "✗"
+            }
+        };
+        let obj_extra = if obj_ok && garment_tag.is_some() && !is_x {
+            let gt = garment_tag.unwrap();
+            let last = gt.split(' ').next_back().unwrap_or("");
+            format!(" ({last})")
+        } else if obj_ok && is_x && x_claim.is_some() {
+            format!(" ({})", x_claim.unwrap())
+        } else {
+            String::new()
+        };
+        let exp_extra = if !exp_ok && (cover_lower.is_some() || cover_chest.is_some()) {
+            let c = cover_lower.or(cover_chest).unwrap();
+            format!(" (закрыта «{c}»)")
+        } else {
+            String::new()
+        };
+        let cam_extra = if cam_tag.is_some() {
+            format!(" ({})", cam_tag.unwrap())
+        } else {
+            " (поза)".to_string()
+        };
+        let con_extra = if !con_ok {
+            format!(" — {con_why}")
+        } else {
+            String::new()
+        };
+        let sal_extra = if claim_idx == 99 {
+            " (нет заявки)".to_string()
+        } else {
+            format!(" (№{})", claim_idx + 1)
+        };
+        let int_extra = if intent.is_some() && !is_x {
+            format!(" ({})", intent.unwrap())
+        } else if is_x {
+            " (bare state = заявление)".to_string()
+        } else {
+            " (без подачи)".to_string()
+        };
+        let blk_extra = if !blk_ok {
+            format!(" («{}» — the frame's one closed door, P21)", blocker_hit.unwrap())
+        } else {
+            String::new()
+        };
+        let leg_extra = if close_cam.is_some() {
+            format!(" ({})", close_cam.unwrap())
+        } else if leg_ok {
+            " (свет на зоне)".to_string()
+        } else {
+            " (дистанция кадра)".to_string()
+        };
+        let pr_extra = if !pose_risk.is_empty() {
+            format!(" ({pose_risk})")
+        } else {
+            String::new()
+        };
+        let tail = if broken >= 2 {
+            format!(" → {broken} звена порваны: ПРОГНОЗ — тир под угрозой")
+        } else if broken == 1 {
+            " → 1 звено порвано".to_string()
+        } else {
+            " → цепочка цела".to_string()
+        };
+        f.push(format!(
+            "P{:02} {}: OBJECT {}{} · EXPOSURE {}{} · CAMERA {}{} · CONTRAST {}{} · SALIENCE {}{} · INTERPRETATION {}{} · BLOCKER {}{} · LEGIBILITY {}{} · POSE-RISK {}{}{}",
+            s.position,
+            tier,
+            mark(obj_ok, false), obj_extra,
+            mark(exp_ok, exp_unclear), exp_extra,
+            mark(cam_ok, false), cam_extra,
+            mark(con_ok, con_unclear), con_extra,
+            mark(sal_ok, false), sal_extra,
+            mark(int_ok, false), int_extra,
+            mark(blk_ok, false), blk_extra,
+            mark(leg_ok, false), leg_extra,
+            mark(pr_ok, false), pr_extra,
+            tail
+        ));
+    }
+    if !f.is_empty() {
+        f.insert(
+            0,
+            format!(
+                "салиенс-цепочка (§9-секста + §9-септима BLOCKER/LEGIBILITY/POSE-RISK, вердикт T4-05): {} R+/X слотов, под угрозой {} (≥2 порванных звеньев — провал звена роняет тир)",
+                f.len(),
+                at_risk
+            ),
+        );
+    }
+    warn_receipt("salience-chain", f)
+}
+
+/* ================================================================== */
+/* Этап 1-в — гейты 17-30 (ab · simcheck · fidelity · bumps · raw-plus) */
+/* ================================================================== */
+
+/// 9b. ab-single-variable (gates.ts:1633, warn, Залп 2 «Рефлекс»): A/B-пара
+/// отличается ровно одной заменой носителя (policy.ab.one_variable).
+pub fn gate_ab_single_variable(contract: Option<&Contract>) -> Receipt {
+    let mut f = Vec::new();
+    let Some(c) = contract else {
+        f.push("контракт без A/B-пар — дисциплина §10 не атрибутируема".to_string());
+        return warn_receipt("ab-single-variable", f);
+    };
+    if c.ab_pairs.is_empty() {
+        f.push("контракт без A/B-пар — дисциплина §10 не атрибутируема".to_string());
+    }
+    for p in &c.ab_pairs {
+        let sa = c.slots.iter().find(|s| s.position == p.a);
+        let sb = c.slots.iter().find(|s| s.position == p.b);
+        let (Some(sa), Some(sb)) = (sa, sb) else {
+            f.push(format!("пара {}: слоты не читаются из контракта", p.pair));
+            continue;
+        };
+        let xi: std::collections::HashSet<&String> = sa.carriers.iter().collect();
+        let yi: std::collections::HashSet<&String> = sb.carriers.iter().collect();
+        let d = xi.iter().filter(|id| !yi.contains(**id)).count()
+            + yi.iter().filter(|id| !xi.contains(**id)).count();
+        if d > 2 {
+            f.push(format!(
+                "пара {} ({}): {} отличий стека — больше одной замены носителя (policy.ab.one_variable, аудит I-4)",
+                p.pair, p.lead, d
+            ));
+        }
+    }
+    warn_receipt("ab-single-variable", f)
+}
+
+/// 9. simcheck (gates.ts:1746, warn): внутри-батчевые близнецы (J>0.75) +
+/// окно ротации (J>0.7); rebuildOf-исключение двустороннее.
+pub fn gate_simcheck(batch: &TextBatch, contract: Option<&Contract>, st: &ChronState) -> Receipt {
+    let mut f = Vec::new();
+    let mut mine: Vec<(u32, String)> = Vec::new();
+    for s in &batch.slots {
+        for sent in sim_sentences(&s.pos) {
+            mine.push((s.position, sent));
+        }
+    }
+    // mySentences: Set текстов (вставной порядок)
+    let mut my_texts: Vec<String> = Vec::new();
+    for (_, t) in &mine {
+        if !my_texts.contains(t) {
+            my_texts.push(t.clone());
+        }
+    }
+    // внутри-батчевые близнецы
+    let mut intra: Vec<String> = Vec::new();
+    for i in 0..mine.len() {
+        for j in (i + 1)..mine.len() {
+            let a = sim_words(&mine[i].1);
+            let b = sim_words(&mine[j].1);
+            let inter = a.intersection(&b).count();
+            let union = a.len() + b.len() - inter;
+            if union > 0 && j_gt(inter, union, 75, 100) {
+                let head: String = mine[i].1.chars().take(60).collect();
+                intra.push(format!(
+                    "P{}≈P{}: «{head}…» (J={})",
+                    mine[i].0,
+                    mine[j].0,
+                    js_fixed2(inter, union)
+                ));
+            }
+        }
+    }
+    if !intra.is_empty() {
+        let shown: Vec<String> = intra.iter().take(4).cloned().collect();
+        let more = if intra.len() > 4 {
+            format!(" — и ещё {}", intra.len() - 4)
+        } else {
+            String::new()
+        };
+        f.push(format!("внутри-батчевые близнецы: {}{}", shown.join(" · "), more));
+    }
+    // окно ротации
+    let window = historical_window_for(&batch.slug, st);
+    let others = window_others_for(
+        &batch.slug,
+        &window,
+        contract.and_then(|c| c.rebuild_of.as_deref()),
+    );
+    for w in &others {
+        let Some(wtext) = read_text(&batches_dir().join(format!("{w}.md"))) else {
+            continue;
+        };
+        let wbatch = parse_batch(w, &wtext);
+        let mut w_sentences: Vec<String> = Vec::new();
+        for s in &wbatch.slots {
+            for sent in sim_sentences(&s.pos) {
+                w_sentences.push(sent);
+            }
+        }
+        for ms in &my_texts {
+            let a = sim_words(ms);
+            for theirs in &w_sentences {
+                let b = sim_words(theirs);
+                let inter = a.intersection(&b).count();
+                let union = a.len() + b.len() - inter;
+                if union > 0 && j_gt(inter, union, 7, 10) {
+                    let head: String = ms.chars().take(60).collect();
+                    f.push(format!("похоже на {w}: «{head}…» (J={})", js_fixed2(inter, union)));
+                }
+            }
+        }
+    }
+    if f.len() > 8 {
+        let rest = f.len() - 8;
+        f.truncate(8);
+        f.push(format!("…и ещё {rest} пар"));
+    }
+    warn_receipt("simcheck", f)
+}
+
+/* --- contract-fidelity (gates.ts:233-335, ревизия 2026-10-14) -------- */
+
+/// kinTokensOf (gates.ts:238): кин-токены расы (имя/синонимы/фичи).
+fn kin_tokens_of(race_name: &str, races: &[RaceEntry]) -> Vec<String> {
+    let mut out: Vec<String> = Vec::new();
+    let name = race_name.trim();
+    if name.is_empty() {
+        return out;
+    }
+    // core: \s*\(.*?\)\s* → ''
+    let mut core = String::new();
+    let mut depth = false;
+    let mut chars = name.chars().peekable();
+    while let Some(c) = chars.next() {
+        if c == '(' {
+            depth = true;
+            // \s* перед скобкой уже в core — убрать хвостовые пробелы
+            while core.ends_with(' ') {
+                core.pop();
+            }
+            continue;
+        }
+        if c == ')' {
+            depth = false;
+            continue;
+        }
+        if !depth {
+            core.push(c);
+        }
+    }
+    let core = core.trim().to_string();
+    // paren: /\((.*?)\)/ первое вхождение
+    let paren: String = {
+        let start = name.find('(');
+        let end = name.find(')');
+        match (start, end) {
+            (Some(a), Some(b)) if b > a => name[a + 1..b].to_string(),
+            _ => String::new(),
+        }
+    };
+    // push: lower → /-?\s*kin/g → '' → trim (strip_kin_pattern — честный
+    // скан '-?\s*kin' вместе с префиксом)
+    let push = |s_raw: &str, out: &mut Vec<String>| {
+        let s = strip_kin_pattern(s_raw);
+        let s = s.trim().to_string();
+        if !s.is_empty() && s != "human" && s.chars().count() >= 3 {
+            if !out.contains(&s) {
+                out.push(s.clone());
+            }
+            let g = format!("{s} girl");
+            if !out.contains(&g) {
+                out.push(g);
+            }
+        }
+    };
+    push(&core, &mut out);
+    for p in paren.split(|c| c == ',' || c == '/') {
+        push(p.trim(), &mut out);
+    }
+    let spec = races.iter().find(|r| r.name.to_lowercase() == core.to_lowercase());
+    for feat in spec.map(|s| s.features.clone()).unwrap_or_default() {
+        let head = feat.to_lowercase().split(" — ").next().unwrap_or("").trim().to_string();
+        if head.is_empty()
+            || head.contains("sol")
+            || head.contains("lock")
+            || head.contains("forbid")
+        {
+            continue;
+        }
+        if !out.contains(&head) {
+            out.push(head.clone());
+        }
+        if let Some(first) = head.split_whitespace().next() {
+            if !out.iter().any(|x| x == first) {
+                out.push(first.to_string());
+            }
+        }
+    }
+    out.retain(|s| s != "human");
+    out
+}
+
+/// /-?\s*kin/g → '' (kinTokensOf): снять '-kin' / ' kin' / 'kin'.
+fn strip_kin_pattern(s_raw: &str) -> String {
+    let s = s_raw.to_lowercase();
+    let b = s.as_bytes();
+    let mut out = String::with_capacity(s.len());
+    let mut i = 0usize;
+    while i < b.len() {
+        // ищем 'kin' начиная с i, но матч стартует на '-' или \s* перед ним
+        if let Some(rel) = s[i..].find("kin") {
+            let kpos = i + rel;
+            // граница матча: идём влево от kpos по \s*, затем опционально '-'
+            let mut start = kpos;
+            while start > i && b[start - 1] == b' ' {
+                start -= 1;
+            }
+            if start > i && b[start - 1] == b'-' {
+                start -= 1;
+            }
+            out.push_str(&s[i..start]);
+            i = kpos + 3;
+        } else {
+            out.push_str(&s[i..]);
+            break;
+        }
+    }
+    out
+}
+
+/// contractFidelity (gates.ts:275): сверка батча с контрактом по осям.
+pub fn contract_fidelity(contract: &Contract, batch: &TextBatch, races: &[RaceEntry]) -> Vec<String> {
+    let mut f = Vec::new();
+    for cs in &contract.slots {
+        let label = format!("P{:02}", cs.position);
+        let Some(bs) = batch.slots.iter().find(|s| s.position == cs.position) else {
+            f.push(format!("{label}: слот контракта отсутствует в батче"));
+            continue;
+        };
+        let meta = &bs.meta;
+        // свободные регексы отображения (gates.ts:293/301): /PL\d+/ и
+        // /P\d{1,3}_[A-Z_]+/ БЕЗ границ слов (это не поиск, а подпись —
+        // «какой позы/палитры машина нашла в шапке»)
+        let shown_pose = |m: &str| -> String {
+            let b = m.as_bytes();
+            let mut i = 0usize;
+            while i + 3 <= b.len() {
+                if b[i] == b'P' && b[i + 1] == b'L' && b[i + 2].is_ascii_digit() {
+                    let mut j = i + 2;
+                    while j < b.len() && b[j].is_ascii_digit() {
+                        j += 1;
+                    }
+                    return m[i..j].to_string();
+                }
+                i += 1;
+            }
+            "—".to_string()
+        };
+        let shown_pal = |m: &str| -> String {
+            let chars: Vec<(usize, char)> = m.char_indices().collect();
+            for idx in 0..chars.len() {
+                let (bp, ch) = chars[idx];
+                if ch != 'P' {
+                    continue;
+                }
+                let mut j = idx + 1;
+                let mut digits = 0usize;
+                while digits < 3 && j < chars.len() && chars[j].1.is_ascii_digit() {
+                    j += 1;
+                    digits += 1;
+                }
+                if digits == 0 || j >= chars.len() || chars[j].1 != '_' {
+                    continue;
+                }
+                j += 1;
+                let start = j;
+                while j < chars.len() && (chars[j].1.is_ascii_uppercase() || chars[j].1 == '_') {
+                    j += 1;
+                }
+                if j > start {
+                    let end = chars.get(j).map(|(b, _)| *b).unwrap_or(m.len());
+                    return m[bp..end].to_string();
+                }
+            }
+            "—".to_string()
+        };
+        if !cs.pose.is_empty() && !contains_word(meta, &cs.pose) {
+            let pl = shown_pose(meta);
+            f.push(format!(
+                "{label}: поза контракта {} ≠ шапки батча ({}) — кино-сдвиг (класс T4-30), вернуть позу из Spine",
+                cs.pose, pl
+            ));
+        }
+        if !cs.palette.is_empty() && !contains_word(meta, &cs.palette) {
+            let pal = shown_pal(meta);
+            f.push(format!(
+                "{label}: палитра контракта {} ≠ шапки ({})",
+                cs.palette, pal
+            ));
+        }
+        if !cs.rating.is_empty() && cs.rating != tier_of(meta) {
+            let t = tier_of(meta);
+            let shown = if t.is_empty() { "—" } else { t };
+            f.push(format!("{label}: рейтинг контракта {} ≠ шапки {}", cs.rating, shown));
+        }
+        if let Some(oc) = &cs.oc {
+            if !oc.is_empty() && !meta.to_lowercase().contains(&oc.to_lowercase()) {
+                f.push(format!("{label}: OC контракта {oc} не назван в шапке слота"));
+            }
+        }
+        if let Some(race) = &cs.race {
+            if !race.is_empty() {
+                let tokens = kin_tokens_of(race, races);
+                let pos_lower = bs.pos.to_lowercase().replace('_', " ");
+                if !tokens.is_empty() && !tokens.iter().any(|t| pos_lower.contains(t.as_str())) {
+                    let shown: Vec<String> = tokens.iter().take(4).cloned().collect();
+                    f.push(format!(
+                        "{label}: раса «{}» не работает в кадре — POS не несёт ни одного её токена ({}) — закон №3: раса делает ФИЗИЧЕСКУЮ работу, не тег-бижутерию",
+                        race,
+                        shown.join(", ")
+                    ));
+                }
+            }
+        }
+        let stack_c: Vec<&String> = cs.carriers.iter().filter(|id| !id.is_empty()).collect();
+        if !stack_c.is_empty() {
+            let miss: Vec<&String> = stack_c
+                .iter()
+                .copied()
+                .filter(|id| !bs.stack.contains(id))
+                .collect();
+            let extra: Vec<&String> = bs.stack.iter().filter(|id| !stack_c.contains(id)).collect();
+            if !miss.is_empty() || !extra.is_empty() {
+                let miss_s = if miss.is_empty() {
+                    String::new()
+                } else {
+                    format!(
+                        " — потеряно: {}",
+                        miss.iter().map(|s| s.as_str()).collect::<Vec<_>>().join(", ")
+                    )
+                };
+                let extra_s = if extra.is_empty() {
+                    String::new()
+                } else {
+                    format!(
+                        " — лишнее: {}",
+                        extra.iter().map(|s| s.as_str()).collect::<Vec<_>>().join(", ")
+                    )
+                };
+                f.push(format!(
+                    "{label}: стек контракта [{}] ≠ Stack: [{}]{}{}",
+                    stack_c.iter().map(|s| s.as_str()).collect::<Vec<_>>().join(" + "),
+                    bs.stack.join(" + "),
+                    miss_s,
+                    extra_s
+                ));
+            }
+        }
+    }
+    f
+}
+
+/// 26. contract-fidelity (gates.ts:2310, warn): WARN — верность контракту.
+pub fn gate_contract_fidelity(
+    batch: &TextBatch,
+    contract: Option<&Contract>,
+    races: &[RaceEntry],
+) -> Receipt {
+    let mut findings = Vec::new();
+    let mut notes = Vec::new();
+    match contract {
+        Some(c) => {
+            findings = contract_fidelity(c, batch, races);
+        }
+        None => {
+            notes.push(
+                "контракта нет — RAW/ручная сборка: верность контракту не проверяема".to_string(),
+            );
+        }
+    }
+    Receipt {
+        gate: "contract-fidelity",
+        level: "warn",
+        verdict: if findings.is_empty() { "PASS" } else { "WARN" },
+        findings,
+        notes,
+    }
+}
+
+/// 29. bumps-квота G17 (gates.ts:2417, warn): bumps ≥ 40% R+-дресс-слотов
+/// (только при ≥5; RAW/ручной без контракта — не судим).
+pub fn gate_bumps_quota(contract: Option<&Contract>) -> Receipt {
+    let mut f = Vec::new();
+    if let Some(c) = contract {
+        let rplus_dressed: Vec<&ContractSlot> = c
+            .slots
+            .iter()
+            .filter(|cs| cs.rating == "R+" && cs.kind != "EXP" && cs.dress_channel.is_some())
+            .collect();
+        let bumps_n = rplus_dressed
+            .iter()
+            .filter(|cs| cs.dress_channel.as_deref() == Some("bumps"))
+            .count();
+        if rplus_dressed.len() >= 5 {
+            let pct = ((bumps_n as f64) / (rplus_dressed.len() as f64) * 100.0 + 0.5).floor() as u64;
+            if (bumps_n as f64) / (rplus_dressed.len() as f64) < 0.4 {
+                f.push(format!(
+                    "bumps-канал {bumps_n} из {} R+-дресс-слотов ({pct}%) < 40% — самый живой через-ткань сигнал недопредставлен (G17, №52-бэклог): канал бугорков должен получать ⌈0.4×R+⌉ слотов (генератор уже строит dark-минимум под квоту — пересобери контракт)",
+                    rplus_dressed.len()
+                ));
+            }
+        }
+    }
+    warn_receipt("bumps-quota", f)
+}
+
+/* --- 13. raw-plus (gates.ts:2030, hard, условный) -------------------- */
+
+const RP_LIGHT_WORDS: [&str; 20] = [
+    "light", "glow", "sun", "moon", "star", "neon", "spot", "backlit", "rim", "dawn", "dusk",
+    "beam", "halo", "luminous", "caustic", "floodlight", "shimmer", "glare", "flare", "glint",
+];
+
+const RP_NEG_BAN: [&str; 15] = [
+    "visible pantyline",
+    "topless",
+    "exposed breasts",
+    "naked",
+    "nude",
+    "bare breasts",
+    "nsfw",
+    "nipples through clothing",
+    "clothed nipples",
+    "extreme fanservice",
+    "exposed genitals",
+    "vulva",
+    "pubic hair",
+    "sex",
+    "sexual act",
+];
+
+const RP_DARK_TONE: [&str; 33] = [
+    "black", "ink", "midnight", "charcoal", "espresso", "dark navy", "deep navy", "oxblood",
+    "void", "sumi", "burgundy", "wine", "maroon", "plum", "chocolate", "cocoa", "aubergine",
+    "obsidian", "onyx", "raven", "soot", "sable", "dark red", "deep red", "dark green",
+    "deep green", "forest green", "dark brown", "deep brown", "dark teal", "dark purple",
+    "dark violet", "dark crimson",
+];
+
+const RP_LIGHT_FAMILY: [&str; 39] = [
+    "white", "ash", "cream", "ivory", "pale", "pastel", "linen", "chalk", "silver", "grey",
+    "gray", "moss", "umber", "prussian", "rose", "blush", "sand", "wheat", "oat", "pearl",
+    "fog", "rain", "salt", "smoke", "slate", "dove", "butter", "peach", "coral", "salmon",
+    "mint", "powder", "beige", "ecru", "champagne", "tan", "lemon", "lilac", "lavender",
+];
+
+const RP_GARMENT: [&str; 41] = [
+    "blouse", "tee", "t-shirt", "shirt", "knit", "cardigan", "leotard", "bodysuit", "swimsuit",
+    "bikini", "romper", "slip", "dress", "sundress", "nightgown", "gown", "robe", "kimono",
+    "yukata", "sheet", "towel", "halter", "tunic", "apron", "qipao", "cheongsam", "sweater",
+    "gi", "nightshirt", "hoodie", "jersey", "pullover", "flannel", "turtleneck", "crop top",
+    "tank top", "tube top", "wrap top", "fishnet top", "bodystocking", "top",
+];
+
+const RP_TITLE_STOP: [&str; 12] = [
+    "the", "a", "an", "of", "on", "in", "and", "or", "to", "no", "is", "for",
+];
+
+/// №23: точки-концы предложений (десятичные не считаются).
+fn sentence_dots(pos: &str) -> usize {
+    let b = pos.as_bytes();
+    let mut n = 0usize;
+    for (i, &c) in b.iter().enumerate() {
+        if c != b'.' {
+            continue;
+        }
+        let prev_digit = i > 0 && b[i - 1].is_ascii_digit();
+        let next_digit = i + 1 < b.len() && b[i + 1].is_ascii_digit();
+        if !prev_digit && !next_digit {
+            n += 1;
+        }
+    }
+    n
+}
+
+/// /\blight\b[^,.\n]{0,40}\bchest\b/i — «light on chest» окном до 40.
+fn light_on_chest(pos: &str) -> bool {
+    let low = pos.to_lowercase();
+    let b = low.as_bytes();
+    let mut i = 0usize;
+    while let Some(rel) = low[i..].find("light") {
+        let s = i + rel;
+        let e = s + "light".len();
+        let left_ok = s == 0 || !low[..s].chars().next_back().is_some_and(ascii_word);
+        if left_ok {
+            // \bchest\b на дистанции 0..40 символов [^,.\n]
+            let mut j = e;
+            let mut dist = 0usize;
+            let mut matched = false;
+            while j < b.len() && dist <= 40 {
+                let c = b[j] as char;
+                if c == ',' || c == '.' || c == '\n' {
+                    break;
+                }
+                if low[j..].starts_with("chest") {
+                    let before_ok = j == e || {
+                        // между light и chest уже есть ≥0 символов; \b перед chest:
+                        let prev = low[j - 1..].chars().next().unwrap();
+                        !prev.is_ascii_alphanumeric() && prev != '_'
+                    };
+                    let after = j + "chest".len();
+                    let after_ok =
+                        after >= low.len() || !low[after..].chars().next().is_some_and(ascii_word);
+                    if before_ok && after_ok {
+                        matched = true;
+                        break;
+                    }
+                }
+                if c == ' ' || c.is_ascii_alphanumeric() || !ascii_word(c) {
+                    j += 1;
+                    dist += 1;
+                } else {
+                    j += 1;
+                    dist += 1;
+                }
+            }
+            if matched {
+                return true;
+            }
+        }
+        i = s + 1;
+    }
+    false
+}
+
+/// #h1: /#\\s*T4-[^\\n]*RAW\\+/m — маркер RAW+ в H1.
+fn h1_raw_plus_marker(text: &str) -> bool {
+    for line in text.lines() {
+        let Some(rest) = line.strip_prefix('#') else { continue };
+        let rest = rest.trim_start_matches(|c: char| c.is_whitespace());
+        if let Some(after) = rest.strip_prefix("T4-") {
+            if after.contains("RAW+") {
+                return true;
+            }
+        }
+    }
+    false
+}
+
+/// #h1: /#\\s*[^\\n]*?["«]([^"»\\n]+)["»]/m — тайтл темы (первая строка).
+fn h1_theme_title(text: &str) -> String {
+    for line in text.lines() {
+        let Some(rest) = line.strip_prefix('#') else { continue };
+        let rest = rest.trim_start_matches(|c: char| c.is_whitespace());
+        // ленивый [^\n]*? до открывающей кавычки; скан ПО СИМВОЛАМ
+        // (байт-скан ловил продолжающий байт '»' как отдельный «символ»)
+        let chars: Vec<(usize, char)> = rest.char_indices().collect();
+        let mut open: Option<usize> = None;
+        for (bp, ch) in &chars {
+            if *ch == '"' || *ch == '«' {
+                open = Some(*bp);
+                break;
+            }
+        }
+        if let Some(oi) = open {
+            let open_len = rest[oi..].chars().next().map(|c| c.len_utf8()).unwrap_or(1);
+            for (bp, ch) in &chars {
+                if *bp <= oi {
+                    continue;
+                }
+                if *ch == '"' || *ch == '»' {
+                    return rest[oi + open_len..*bp].trim().to_string();
+                }
+            }
+        }
+    }
+    String::new()
+}
+
+/// /[a-zа-яё0-9']+/g на нижнем регистре тайтла.
+fn title_words(theme_title: &str) -> Vec<String> {
+    let low = theme_title.to_lowercase();
+    let mut out = Vec::new();
+    let mut cur = String::new();
+    for c in low.chars() {
+        let ok = c.is_ascii_lowercase()
+            || c.is_ascii_digit()
+            || c == '\''
+            || ('а'..='я').contains(&c)
+            || c == 'ё';
+        if ok {
+            cur.push(c);
+        } else if !cur.is_empty() {
+            out.push(std::mem::take(&mut cur));
+        }
+    }
+    if !cur.is_empty() {
+        out.push(cur);
+    }
+    out
+}
+
+fn normalize_pos_words(pos: &str) -> String {
+    let low = pos.to_lowercase();
+    let mut out = String::with_capacity(low.len());
+    let mut last_sep = false;
+    for c in low.chars() {
+        let ok = c.is_ascii_lowercase()
+            || c.is_ascii_digit()
+            || c == '\''
+            || ('а'..='я').contains(&c)
+            || c == 'ё';
+        if ok {
+            out.push(c);
+            last_sep = false;
+        } else if !last_sep {
+            out.push(' ');
+            last_sep = true;
+        }
+    }
+    out.trim().to_string()
+}
+
+/// 13. raw-plus (gates.ts:2030, hard, условный — маркер RAW+ в H1 или
+/// engine контракта): Danbooru-скелет + PH-наработки, БЕЗ прозы.
+pub fn gate_raw_plus(batch: &TextBatch, contract: Option<&Contract>) -> Vec<Receipt> {
+    let raw_plus_marker = h1_raw_plus_marker(&batch.text);
+    let engine_raw = contract
+        .and_then(|c| c.engine.clone())
+        .map(|e| e.to_lowercase().contains("raw-plus"))
+        .unwrap_or(false);
+    if !raw_plus_marker && !engine_raw {
+        return Vec::new();
+    }
+    let Some(c) = contract else {
+        // TS: rp = readJson(...) — контракта нет → rp null → abPairs/palette
+        // пустые, гейт гоняется по слотам (палитра не назначена и т.д.)
+        return gate_raw_plus_body(batch, &Contract::default());
+    };
+    gate_raw_plus_body(batch, c)
+}
+
+fn gate_raw_plus_body(batch: &TextBatch, rp: &Contract) -> Vec<Receipt> {
+    let mut out = Vec::new();
+    // наследование палитры B-половинкой (abPairs: b → a)
+    let mut inherits_from: std::collections::HashMap<u32, u32> = Default::default();
+    for p in &rp.ab_pairs {
+        inherits_from.insert(p.b, p.a);
+    }
+    let mut palette_by_pos: std::collections::HashMap<u32, String> = Default::default();
+    for s in &rp.slots {
+        if !s.palette.is_empty() {
+            palette_by_pos.insert(s.position, s.palette.clone());
+        }
+    }
+    let resolve_palette = |pos: u32, header: &str| -> String {
+        if let Some(own) = extract_palette_id(header) {
+            return own;
+        }
+        match inherits_from.get(&pos) {
+            Some(donor) => palette_by_pos.get(donor).cloned().unwrap_or_default(),
+            None => String::new(),
+        }
+    };
+    let mut f: Vec<String> = Vec::new();
+    let mut expl: Vec<String> = Vec::new();
+    let mut pal_count: Vec<(String, u32)> = Vec::new();
+    let theme_title = h1_theme_title(&batch.text);
+    let title_ws = title_words(&theme_title);
+    let theme_kw_line = batch
+        .text
+        .lines()
+        .find(|l| l.starts_with("ТЕМА-СЛОВА:"))
+        .unwrap_or("");
+    let theme_kw_set: std::collections::HashSet<String> = theme_kw_line
+        .strip_prefix("ТЕМА-СЛОВА:")
+        .unwrap_or("")
+        .trim_start()
+        .split(',')
+        .map(|w| w.trim().to_lowercase())
+        .filter(|w| !w.is_empty())
+        .collect();
+    let mut light_carrying_tops: Vec<u32> = Vec::new();
+    for s in &batch.slots {
+        let pal = resolve_palette(s.position, &s.header);
+        if !pal.is_empty() {
+            match pal_count.iter_mut().find(|(k, _)| *k == pal) {
+                Some((_, n)) => *n += 1,
+                None => pal_count.push((pal.clone(), 1)),
+            }
+        }
+        let is_expl = s.header.contains('⚗');
+        let mut slot_f: Vec<String> = Vec::new();
+        if pal.is_empty() {
+            slot_f.push("палитра не назначена (нет в шапке, нет наследования по abPairs — specs/raw-plus.json, закон №23)".to_string());
+        }
+        if !s.pos.to_lowercase().contains("stylized 2d anime face") {
+            slot_f.push("нет face-блока (stylized 2D anime face — M17, приказ «концепция аниме-лиц»)".to_string());
+        }
+        if !contains_word_ci(&s.pos, "small nose") || !contains_word_ci(&s.pos, "small mouth") {
+            slot_f.push("face-блок неполный (anime eyes (цвет), small nose, small mouth — M17)".to_string());
+        }
+        if !RP_LIGHT_WORDS.iter().any(|w| s.pos.to_lowercase().contains(w)) {
+            slot_f.push("нет света-на-зоне: ни одного светового слова в POS (закон №21 — X-граница плоской натяжки, «блеклость»)".to_string());
+        }
+        let pos_low = s.pos.to_lowercase();
+        if !pos_low.contains("masterpiece")
+            || !pos_low.contains("best quality")
+            || !pos_low.contains("anime artstyle")
+        {
+            slot_f.push("нет финальных квалити-тегов (masterpiece, best quality, anime artstyle)".to_string());
+        }
+        let neg_low = s.neg.to_lowercase();
+        if !neg_low.contains("washed-out")
+            || !neg_low.contains("faded colors")
+            || !neg_low.contains("low contrast")
+        {
+            slot_f.push("нет ANTI-WASH в NEG (washed-out, faded colors, low contrast — Five Locks)".to_string());
+        }
+        let period_count = sentence_dots(&s.pos);
+        if period_count > 1 {
+            slot_f.push(format!(
+                "проза в POS: точек {period_count} > 1 — только финальная (закон №23: теги, БЕЗ прозы)"
+            ));
+        }
+        if s.pos.chars().any(|c| matches!(c, '"' | '\u{201C}' | '\u{201D}' | '«' | '»')) {
+            slot_f.push("диалог/кавычки в POS — проза запрещена (закон №23)".to_string());
+        }
+        if pos_low.contains("is rendered in") {
+            slot_f.push(
+                "PH face-lock проза в POS («is rendered in…») — RAW+ пишет face-блок тегом (закон №23)".to_string(),
+            );
+        }
+        if contains_word_ci(&s.pos, "she") {
+            slot_f.push(
+                "прозовое местоимение «she» в POS — теги несут существительные (закон №23)".to_string(),
+            );
+        }
+        // закон №26: тайтл темы не в POS
+        if !title_ws.is_empty() {
+            let pos_n = normalize_pos_words(&s.pos);
+            let full = title_ws.join(" ");
+            let mut title_hit = String::new();
+            if title_ws.len() >= 2 && pos_n.contains(&full) {
+                title_hit = theme_title.clone();
+            } else {
+                if title_ws.len() >= 3 {
+                    for i in 0..=(title_ws.len() - 3) {
+                        let run = &title_ws[i..i + 3];
+                        let content = run.iter().filter(|w| !RP_TITLE_STOP.contains(&w.as_str())).count();
+                        if content < 2 {
+                            continue;
+                        }
+                        let joined = run.join(" ");
+                        if pos_n.contains(&joined) {
+                            title_hit = format!("…{joined}…");
+                            break;
+                        }
+                    }
+                }
+                let title_content: Vec<&String> =
+                    title_ws.iter().filter(|w| !RP_TITLE_STOP.contains(&w.as_str())).collect();
+                if title_hit.is_empty()
+                    && title_content.len() == 1
+                    && !theme_kw_set.contains(title_content[0].as_str())
+                    && contains_word(&pos_n, title_content[0])
+                {
+                    title_hit = format!("…{}…", title_content[0]);
+                }
+            }
+            if !title_hit.is_empty() {
+                slot_f.push(format!(
+                    "закон №26: название темы в POS ({title_hit}) — всё из позитива уходит в рендер, тайтл-тег травит кадр; тема через отрисуемое (закон/палитра/свет/объекты/лицо)"
+                ));
+            }
+        }
+        // закон №27: вещь ближайшая к заявке
+        let pos_tags27: Vec<String> = s
+            .pos
+            .to_lowercase()
+            .replace('_', " ")
+            .split(|c| c == ',' || c == '.')
+            .map(|t| t.trim().to_string())
+            .collect();
+        const CLAIM_27: [&str; 6] = [
+            "nipples through clothing",
+            "clothed nipples",
+            "covered nipples",
+            "wet clothes",
+            "see-through",
+            "breast clinging",
+        ];
+        let mut claim_idx27: Vec<usize> = Vec::new();
+        let mut garment_idx27: Vec<usize> = Vec::new();
+        for (i, t) in pos_tags27.iter().enumerate() {
+            if CLAIM_27.iter().any(|c| t.contains(c)) {
+                claim_idx27.push(i);
+            }
+            if RP_GARMENT.iter().any(|g| contains_word(t, g)) {
+                garment_idx27.push(i);
+            }
+        }
+        let mut garment_tag27 = String::new();
+        if !garment_idx27.is_empty() {
+            if !claim_idx27.is_empty() {
+                let dist = |gi: usize| {
+                    claim_idx27
+                        .iter()
+                        .map(|ci| (gi as i64 - *ci as i64).unsigned_abs())
+                        .min()
+                        .unwrap_or(u64::MAX)
+                };
+                let best = garment_idx27
+                    .iter()
+                    .copied()
+                    .reduce(|best, gi| if dist(gi) < dist(best) { gi } else { best })
+                    .unwrap();
+                garment_tag27 = pos_tags27[best].clone();
+            } else {
+                garment_tag27 = pos_tags27[garment_idx27[0]].clone();
+            }
+        }
+        let garment_norm27 = garment_tag27.replace('-', " ");
+        let garment_dark =
+            !garment_tag27.is_empty() && RP_DARK_TONE.iter().any(|w| contains_word_ci(&garment_norm27, w));
+        let garment_light_fam = !garment_tag27.is_empty()
+            && !garment_dark
+            && RP_LIGHT_FAMILY.iter().any(|w| contains_word_ci(&garment_norm27, w));
+        let pos_lower27 = s.pos.to_lowercase().replace('_', " ");
+        let through_claim27 = pos_lower27.contains("nipples through clothing");
+        let loc = light_on_chest(&s.pos);
+        let wet_sheer27 = pos_lower27.contains("wet clothes")
+            || pos_lower27.contains("see-through")
+            || pos_lower27.contains("breast clinging");
+        if tier_of(&s.meta) == "R+" {
+            if through_claim27 && !garment_dark {
+                let g = if !garment_tag27.is_empty() {
+                    format!(" («{}»)", garment_tag27)
+                } else {
+                    " (цвет вещи не назван)".to_string()
+                };
+                slot_f.push(format!(
+                    "закон №28 (№27-наследие): through-заявка «nipples through clothing» — X-канал ПО ОПРЕДЕЛЕНИЮ на любом тоне{g}: тег рисует цветной сосок через любую ткань (P09 свитер, P12 не-сквозная — T4-31); R+ бугорки = DRY dark + covered-first (P30)"
+                ));
+            }
+            if loc && wet_sheer27 {
+                slot_f.push(
+                    "закон №27: «light on chest» на sheer/wet верхе — прямой X-усилитель (квитанции P14/P17): свет на зоне — glow сцены на вещь, не «свет на груди»".to_string(),
+                );
+            }
+            if !s.header.contains("(EXP ·")
+                && garment_light_fam
+                && (through_claim27
+                    || pos_lower27.contains("clothed nipples")
+                    || pos_lower27.contains("covered nipples"))
+                && wet_sheer27
+            {
+                light_carrying_tops.push(s.position);
+            }
+        }
+        // закон №25: бан-лист NEG (X-слоты исключены)
+        if tier_of(&s.meta) != "X" {
+            for t in RP_NEG_BAN {
+                if contains_word_ci(&s.neg, t) {
+                    slot_f.push(format!(
+                        "закон №25: запрещённый автором NEG-термин «{t}» — руинит заявку (specs/rating-recipes.json v1.7.0 → neg_law)"
+                    ));
+                }
+            }
+        }
+        if slot_f.is_empty() {
+            continue;
+        }
+        if is_expl {
+            expl.push(format!(
+                "EXPLORATORY ⚗ (§10, квитанция): P{}: {}",
+                s.position,
+                slot_f.join(" · ")
+            ));
+        } else {
+            f.push(format!("P{}: {}", s.position, slot_f.join(" · ")));
+        }
+    }
+    let distinct = pal_count.len();
+    if distinct < 7 {
+        f.push(format!("палитр в батче {distinct} < 7 (C066 — закон №23)"));
+    }
+    for (pal, n) in &pal_count {
+        if *n > 3 {
+            f.push(format!("палитра {pal} использована {n} раз > 3 (C067 — закон №23)"));
+        }
+    }
+    if light_carrying_tops.len() > 3 {
+        f.push(format!(
+            "закон №27: светлых/серо-семейных несущих верхов с заявкой {} > 3 — тон вещи ротацией dark/mid/light, светлый кластер рушит и канал (X-слайды), и разнообразие кадра (вердикты T4-26/T4-28)",
+            light_carrying_tops.len()
+        ));
+        for p in &light_carrying_tops {
+            f.push(format!(
+                "P{p}: закон №27 — несущий верх светлой/серо-семьи в кластере {n}>3; перетони вещь в dark/mid (тёмный полюс несёт through-заявку, светлый — covered/clothed, кластер ≤3)",
+                n = light_carrying_tops.len()
+            ));
+        }
+    }
+    out.push(hard_receipt("raw-plus", f));
+    if !expl.is_empty() {
+        out.push(Receipt {
+            gate: "raw-plus-exploratory",
+            level: "warn",
+            verdict: "WARN",
+            findings: expl,
+            notes: Vec::new(),
+        });
+    }
+    out
 }
 
 fn hard_receipt(gate: &'static str, findings: Vec<String>) -> Receipt {
@@ -2374,26 +5506,23 @@ pub fn gate_diversity(batch: &TextBatch, carriers: Option<&CarriersSpec>) -> Rec
 /* Батарея целиком + прогон по слагу                                    */
 /* ================================================================== */
 
-/// Портировано в Rust (этапы 1 и 1-бис): 16 безусловных текстовых гейтов
-/// (+ условный rating-recipe-exploratory при ⚗-находках).
-pub const BATTERY_RUST: [&str; 16] = [
-    "rating-recipe", "canon", "diversity", "budget", "cadence", "prop-geometry",
-    "noun-lock", "character-collision", "theme-presence", "original-character-coverage",
-    "artist-leak", "garment-family", "freq-report", "usage", "one-hard-claim",
-    "echo-window",
+/// Все 30 базовых гейтов в Rust (этапы 1 → 1-бис → 1-в; 7 hard +
+/// 20 warn + 3 advisory, порядок квитанций = runGates).
+pub const BATTERY_RUST: [&str; 30] = [
+    "structure", "exp-purity", "floors", "rating-recipe", "dresser", "canon",
+    "diversity", "window", "budget", "cadence", "niche-legibility", "prop-geometry",
+    "claim-visibility", "technique-layers", "noun-lock", "character-collision",
+    "ab-single-variable", "theme-presence", "original-character-coverage", "artist-leak",
+    "garment-family", "simcheck", "freq-report", "usage", "technique-map", "salience-chain",
+    "contract-fidelity", "one-hard-claim", "echo-window", "bumps-quota",
 ];
 
-/// Осталось в TS (30 базовых − 16): 4 hard (structure, exp-purity, floors,
-/// window) + 9 warn (dresser, niche-legibility, claim-visibility,
-/// technique-layers, ab-single-variable, simcheck, salience-chain,
-/// contract-fidelity, bumps-quota) + 1 advisory (technique-map);
-/// условные (raw-plus, rating-recipe-exploratory, raw-plus-exploratory) —
-/// вне счёта базы, как и в GATES_TOTAL=30.
-pub const BATTERY_TS: [&str; 14] = [
-    "structure", "exp-purity", "floors", "dresser", "window", "niche-legibility",
-    "claim-visibility", "technique-layers", "ab-single-variable", "simcheck",
-    "technique-map", "salience-chain", "contract-fidelity", "bumps-quota",
-];
+/// Этап 1-в ЗАВЕРШЁН: все 30 базовых гейтов портированы в Rust
+/// (7 hard + 20 warn + 3 advisory); условные (raw-plus, у него
+/// raw-plus-exploratory, у rating-recipe — rating-recipe-exploratory) —
+/// вне счёта базы, как и в GATES_TOTAL=30 (живой прогон даёт 30–33
+/// квитанции). Порядок квитанций — 1-в-1 с runGates.
+pub const BATTERY_TS: [&str; 0] = [];
 
 pub struct TextGatesOutcome {
     pub slug: String,
@@ -2421,25 +5550,47 @@ impl TextGatesOutcome {
     }
 }
 
-/// Полная текстовая батарея по parsed-батчу (порядок — как в runGates).
-pub fn run_text_gates(batch: &TextBatch, specs: &TextSpecs) -> Vec<Receipt> {
-    let mut out = Vec::with_capacity(BATTERY_RUST.len() + 1);
+/// Полная текстовая батарея по parsed-батчу (порядок квитанций — 1-в-1 с
+/// runGates: 30 базовых + условные raw-plus/raw-plus-exploratory; условный
+/// rating-recipe-exploratory эмиттится внутри gate_rating_recipe).
+pub fn run_text_gates(
+    batch: &TextBatch,
+    specs: &TextSpecs,
+    contract: Option<&Contract>,
+    chron: &ChronState,
+) -> Vec<Receipt> {
+    let mut out = Vec::with_capacity(BATTERY_RUST.len() + 3);
+    out.push(gate_structure(batch, &specs.laws));
+    out.push(gate_exp_purity(batch, contract));
+    out.push(gate_floors(batch, specs.recipes.as_ref()));
     out.extend(gate_rating_recipe(batch, specs.recipes.as_ref()));
+    out.push(gate_dresser(batch, specs.dresser.as_ref()));
     out.push(gate_canon(batch, &specs.oc_canon));
     out.push(gate_diversity(batch, specs.carriers.as_ref()));
+    out.push(gate_window(batch, contract, chron));
     out.push(gate_budget(batch, specs.bans.as_ref()));
     out.push(gate_cadence(batch));
+    out.push(gate_niche_legibility(batch, contract, &specs.races, &specs.laws));
     out.push(gate_prop_geometry(batch));
+    out.push(gate_claim_visibility(batch));
+    out.push(gate_technique_layers(batch, specs.techniques.as_ref()));
     out.push(gate_noun_lock(batch));
     out.push(gate_character_collision(batch));
+    out.push(gate_ab_single_variable(contract));
     out.push(gate_theme_presence(batch));
     out.push(gate_oc_coverage(batch));
     out.push(gate_artist_leak(batch));
     out.push(gate_garment_family(batch));
+    out.push(gate_simcheck(batch, contract, chron));
     out.push(gate_freq_report(batch));
     out.push(gate_usage(batch));
+    out.push(gate_technique_map(batch, specs.techniques.as_ref()));
+    out.push(gate_salience_chain(batch, contract));
+    out.extend(gate_raw_plus(batch, contract));
+    out.push(gate_contract_fidelity(batch, contract, &specs.races));
     out.push(gate_one_hard_claim(batch));
     out.push(gate_echo_window(batch));
+    out.push(gate_bumps_quota(contract));
     out
 }
 
@@ -2473,13 +5624,16 @@ pub fn run_for_slug(slug: &str) -> Result<(TextBatch, TextGatesOutcome), TextGat
         .ok_or_else(|| TextGatesError::NoDraft(slug.to_string()))?;
     let batch = parse_batch(slug, &file);
     let specs = load_text_specs();
-    let receipts = run_text_gates(&batch, &specs);
+    // состояние = фолд файла-летописи (эталон TS читает его же; прод-SQLite
+    // НЕ зеркало — миграция сняла 399 из 421 звеньев, см. блок ChronState)
+    let chron = chronicle_state();
+    let contract = load_contract(slug);
+    let receipts = run_text_gates(&batch, &specs, contract.as_ref(), &chron);
     let mut hasher = Sha256::new();
     hasher.update(file.as_bytes());
     let full: String = hasher.finalize().iter().map(|b| format!("{b:02x}")).collect();
     let sha10 = full[..10].to_string();
     let hard_pass = receipts.iter().filter(|r| r.level == "hard").all(|r| r.verdict == "PASS");
-    let contract = load_contract(slug);
     Ok((
         batch,
         TextGatesOutcome {
@@ -3081,11 +6235,97 @@ mod tests {
 
     #[test]
     fn battery_names_match_ts() {
-        // 16 портированных + 14 в TS = 30 базовых (GATES_TOTAL=30, аудит Rust-эры;
-        // этап 1-бис: rating-recipe/canon/diversity в Rust)
-        assert_eq!(BATTERY_RUST.len() + BATTERY_TS.len(), 30);
+        // 30/30 в Rust (этап 1-в завершён: BATTERY_TS пуст) — GATES_TOTAL=30,
+        // аудит Rust-эры; порядок квитанций run_text_gates = runGates
+        assert_eq!(BATTERY_RUST.len(), 30);
+        assert_eq!(BATTERY_TS.len(), 0);
         let specs = load_text_specs();
-        assert_eq!(BATTERY_RUST.len(), run_text_gates(&parse_batch("T4-90", SYNTH_ETALON), &specs).len());
+        assert_eq!(BATTERY_RUST.len(), run_text_gates(&parse_batch("T4-90", SYNTH_ETALON), &specs, None, &ChronState::empty()).len());
+    }
+
+    #[test]
+    fn structure_gate_counts_and_pins() {
+        let specs = load_text_specs();
+        // живой батч: структура PASS на T4-41 (паритет-батарея, 0 diff);
+        // эталонный синтетик (SYNTH_ETALON) старше порта structure — его
+        // structure-вердикт не обязателен PASS
+        let live = run_for_slug("T4-41").unwrap().1;
+        let st41 = live.receipts.iter().find(|r| r.gate == "structure").unwrap();
+        assert_eq!(st41.verdict, "PASS");
+        // квитанция structure всегда ровно одна и hard
+        let all = run_text_gates(&parse_batch("T4-90", SYNTH_ETALON), &specs, None, &ChronState::empty());
+        assert_eq!(all.iter().filter(|r| r.gate == "structure").count(), 1);
+        assert_eq!(all[0].gate, "structure", "первая квитанция прогона — structure (порядок runGates)");
+    }
+
+    #[test]
+    fn exp_purity_marker_semantics() {
+        // контрактный маркер: буква/половина из контракта, хвост — не ASCII-алнум
+        assert!(exp_marker_ok("EXP α-A · гипотеза", "α", "A"));
+        assert!(exp_marker_ok("EXP β-B", "β", "B"));
+        assert!(!exp_marker_ok("EXP α-A2 · хвост", "α", "A"));
+        assert!(!exp_marker_ok("EXP α-AB", "α", "A"));
+        assert!(!exp_marker_ok("EXPα-A", "α", "A"));
+        // кириллица в хвосте — НЕ ASCII-алнум: lookahead пропускает (1-в-1 с JS)
+        assert!(exp_marker_ok("EXP α-Aбез-пробела", "α", "A"));
+        // фолбэк: гreek-буква, опциональный single
+        assert!(fallback_exp_marker("EXP α · что-то"));
+        assert!(fallback_exp_marker("EXP single·β ..."));
+        assert!(!fallback_exp_marker("EXP х · не-гreek"));
+    }
+
+    #[test]
+    fn floors_template_and_milf_cap() {
+        let specs = load_text_specs();
+        let live = run_for_slug("T4-20.1-EXP").unwrap().1;
+        let fl = live.receipts.iter().find(|r| r.gate == "floors").unwrap();
+        assert!(
+            fl.findings.iter().any(|f| f.contains("(3/9 терминов)")),
+            "шаблон «(N/M терминов)» — скобка ДО слова (паритет gates.ts:693)"
+        );
+    }
+
+    #[test]
+    fn simcheck_jaccard_v8_formatting() {
+        // toFixed(2) V8: точный тай 1/8 = 0.125 → half-away → «0.13»
+        assert_eq!(js_fixed2(1, 8), "0.13");
+        assert_eq!(js_fixed2(1, 3), "0.33");
+        assert_eq!(js_fixed2(2, 3), "0.67");
+        assert_eq!(js_fixed2(3, 4), "0.75");
+        assert_eq!(js_fixed2(1, 1), "1.00");
+        // пороги: inter/union > 0.75 и > 0.7 — целочисленное сравнение
+        assert!(!j_gt(3, 4, 75, 100));
+        assert!(j_gt(4, 5, 75, 100));
+        assert!(j_gt(7, 10, 7, 10) == false);
+        assert!(j_gt(8, 10, 7, 10));
+    }
+
+    #[test]
+    fn chronicle_fold_window_tail() {
+        // живой фолд: окно [T4-33, T4-34, T4-41] (старейший → свежайший),
+        // void'ы (T4-36/T4-39/T4-40/T4-42) из окна выдавлены
+        let st = chronicle_state();
+        assert_eq!(st.window_slugs, vec!["T4-33", "T4-34", "T4-41"]);
+        // JSONL заморожен ДО void'а T4-42 — в файле его нет; проверяем честно:
+        assert!(!st.voided.contains(&"T4-42".to_string()), "JSONL не знает движковых void'ов");
+        assert!(!st.window_slugs.contains(&"T4-42".to_string()));
+        // историческое окно: T4-33 видит только себя (self убирает windowOthers)
+        let hist = historical_window_for("T4-33", &st);
+        assert_eq!(hist, vec!["T4-33".to_string()], "члены, сданные позже, ретроактивно не судят");
+        assert!(window_others_for("T4-33", &hist, None).is_empty());
+        let hist41 = historical_window_for("T4-41", &st);
+        assert_eq!(hist41.len(), 3, "свежайший видит всё окно (история не судит будущее)");
+        // runIndex T4-04: JSONL — истина (SQLite-миграция занижала: 3 vs 5)
+        assert_eq!(st.gate_runs.get("T4-04").copied(), Some(5));
+    }
+
+    #[test]
+    fn salience_intent_tags_full_list() {
+        // регрессия 16-го тега: «eye contact» — паритет gates.ts:1898
+        let specs = load_text_specs();
+        let live = run_for_slug("T4-07").unwrap().1;
+        let sc = live.receipts.iter().find(|r| r.gate == "salience-chain").unwrap();
+        assert!(sc.findings.iter().any(|f| f.contains("INTERPRETATION ✓ (eye contact)")));
     }
 
     #[test]
