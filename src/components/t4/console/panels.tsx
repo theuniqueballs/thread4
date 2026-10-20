@@ -1606,6 +1606,11 @@ function QuickVerdict({ slug }: { slug: string }) {
 
 export function BatchesTab() {
   const list = useApi<{ items: BatchRow[] }>('/api/t4/batches')
+  /* Статус void в списке (Фаза 1 приказа): фолд летописи знает закрытые
+   * слаги — честный чип на строке, чтобы «закрыт навсегда» был виден
+   * до клика (иначе void-батч читался как живой). */
+  const voidState = useApi<{ voidedSlugs?: string[] }>('/api/t4/state')
+  const voided = useMemo(() => new Set(voidState.data?.voidedSlugs ?? []), [voidState.data])
   const [mode, setMode] = useState<'view' | 'compare'>('view')
   /* ленивый инициализатор (не эффект): вкладка монтируется ПОСЛЕ события
    *  глубокой навигации — sticky-намерение уже лежит в шине, батч открыт */
@@ -1750,6 +1755,14 @@ export function BatchesTab() {
                 >
                   <span className="flex min-w-0 items-center gap-2">
                     <Mono>{b.slug}</Mono>
+                    {voided.has(b.slug) ? (
+                      <span
+                        title="батч закрыт void — провенанс в летописи неприкосновенен"
+                        className="shrink-0 rounded border border-zinc-700 bg-zinc-800/60 px-1.5 py-0.5 font-mono text-[10px] text-zinc-400"
+                      >
+                        закрыт
+                      </span>
+                    ) : null}
                     {b.rebuildOf ? (
                       <span
                         title={`перестройка ${b.rebuildOf} — окно ротации с источником не конфликтует (rebuildOf)`}
