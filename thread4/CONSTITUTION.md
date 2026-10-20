@@ -1,8 +1,9 @@
 # THREAD 4 — CONSTITUTION
 
 **Era born 2026-09-19. Supersedes THREAD 3.2-EXP entirely. Clean ledger, new
-names (T4-01…). 3.2 stays untouched as the rollback point
-(`../chemodan/CHEMODAN_THREAD_3.2-EXP_V21/`).**
+names (T4-01…). 3.2 stays untouched as the rollback point (`legacy/`,
+перенос из съеденного платформой chemodan — PRUNE №2, амендмант
+2026-10-20).**
 
 Pipeline: author (theme order) → Super Z (compiler + writer + gates) →
 one batch file (21 + 3 OC) → author renders on PixAI / **Tsubaki.2 Pro**
@@ -215,9 +216,11 @@ tape, теги, которые рендерер не рисует. Рендер-
   nipples through clothing / clothed nipples / see-through / taped
   nipples / topless with tape / handbra`. **cameltoe НЕ заявка** — тег
   рендер-мёртв (0 отрисовок из всех попыток), флэйвор максимум.
-- Через-ткань заявка ТРЕБУЕТ состояния ткани (`wet clothes` / 
-  `see-through`) на ОДНОЙ тонкой светлой вещи; сухая плотная ткань
-  заявку не несёт (P13/P21 умерли сухими).
+- Через-ткань заявка живёт по закону №27/№28 (амендмант 2026-10-20,
+  вердикты T4-31/T4-34 вместо «одной тонкой светлой вещи»): бугорки-канал —
+  DRY тёмная вещь + covered-first + clinging/sweat; «nipples through
+  clothing», «sheer» и мокрое+сквозное на тканевом верхе — X-каналы, на R+
+  запрещены; сухая плотная ткань заявку не несёт (P13/P21 умерли сухими).
 - **Подслой глушит чит**: bra/camisole/bandeau под sheer-верхом —
   рендерер рисует ПОДСЛОЙ, тир падает в R (P12 sports bra под sheer
   sweater → R; P14 bra под gauze tee → R).
@@ -335,7 +338,9 @@ cautionary tale.
 
 ## §11. THE ARCHIVE IS SUBSTRATE, NOT SCRIPTURE.
 
-N12–N29 (in `../chemodan/…/download/`) feed taste-mining and compile-time
+N12–N29 (архив в репо: `legacy/`; прежняя ссылка `../chemodan/…/download/`
+протухла — каталог съеден платформой, PRUNE №2, амендмант 2026-10-20)
+feed taste-mining and compile-time
 concept-dedup. They bind nothing: the T4 ledger starts clean, the gate
 window is T4 batches only.
 

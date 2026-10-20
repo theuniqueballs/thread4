@@ -107,3 +107,38 @@
 Приоритет: rating-recipe (hard, №27/№28 — сердце PH-доктрины) → canon →
 diversity → simcheck/echo-window (текстовые метрики). Сирота: `polish`
 (писец-ремонт POLISH_GATES) — LLM-слой, остаётся в Node-мосту.
+
+---
+
+## 6. Дополнение 2026-10-20 (этап 1-бис, вердикт автора «приступай к фазе 1»)
+
+Таблица §2 устарела относительно кода (сам док молчал о textgates —
+находка фазы 0): этап 1 (2026-10-19) портировал 13 словарных гейтов
+(BATTERY_RUST, паритет 65/65 клеток), этап 1-бис (2026-10-20, ветка
+thread4.1) — сердце PH-доктрины:
+
+- **rating-recipe (hard, №5 таблицы)** — ПОРТИРОВАН: сигналы/сигнал-мин,
+  hard-claim (рендер-доказанные заявки), механизмы (required_state /
+  underlayer / мёртвые ткани / контр-NEG±lifted), законы №27/№28 (DRY dark
+  bumps, through/wet/sheer = X-каналы), counter-NEG, X Cut hold, overclaim
+  с дедупом подстрок, ⚗-редирект в условный rating-recipe-exploratory.
+- **canon (hard, №6)** — ПОРТИРОВАН: запрет имён OC в POS (§9-кватерна) +
+  канон-локи волос/глаз по oc-canon.json (§8).
+- **diversity (hard, №7)** — ПОРТИРОВАН: core-4, механо-группы/классы,
+  sheer-квоты, моно-носитель ≤4, W ≤45%, sheer ≤40%, уникальность
+  поз/палитр с EXP-исключением §10.
+
+Батарея: **BATTERY_RUST 16 / BATTERY_TS 14** (30 базовых + условные).
+Комментарий в textgates.rs «7 hard + 14 warn + 1 advisory» был
+арифметически неверен — исправлен (4+9+1). Паритет доказан: cargo test
+57/57, selftest 125/125, живой репроб Rust ↔ TS **20/20 клеток** (verdict +
+findings дословно, 6 батчей, включая 190 находок T4-27 и 37 T4-31).
+Нюанс: записанные слепки gate.run T4-27/28 несут PASS по СТАРОМУ рецепту
+(ретроактивные гейты, аудит №9) — слепочное сравнение rating-recipe
+заменено живыми sha-pinned пинами; летопись неприкосновенна.
+
+Остаток фазы 1 (BATTERY_TS 14): structure, exp-purity, floors, dresser,
+window, niche-legibility, claim-visibility, technique-layers,
+ab-single-variable, simcheck, technique-map, salience-chain,
+contract-fidelity, bumps-quota. Сирота WRITE-моста (движковый план →
+богатый контракт для писца) — предмет фазы 2, блокирует сдачу T4-43.
