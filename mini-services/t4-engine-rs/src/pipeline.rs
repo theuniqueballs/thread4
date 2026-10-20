@@ -99,7 +99,7 @@ impl StageEntry {
 /// BUT всё решающее живёт на диске/в базе (файл контракта, t4_builds,
 /// batches/<slug>.md) — ручной перезапуск любого этапа работает и после
 /// рестарта движка.
-#[derive(Default)]
+#[derive(Clone, Default)]
 pub struct StageCtx {
     pub anchors: Option<theme::ThemeAnchors>,
     pub theme_gate: Option<theme::ThemeReceipt>,
@@ -594,6 +594,16 @@ pub fn start_stage(name: &str, body: Value) -> Result<Value, String> {
 
     let run_id = hub().run_seq.fetch_add(1, Ordering::SeqCst) + 1;
     let abort = Arc::new(AtomicBool::new(false));
+    /* ctx предыдущего прогона переносится: ручная цепочка этапов — ОДНА
+     * репетиция, артефакты (якоря/план/сборка) не выбрасываются между
+     * кликами этапов. Слаг уже удержан resolve_slug (цепочка прогона). */
+    let prev_ctx = {
+        let guard = match hub().run.lock() {
+            Ok(g) => g,
+            Err(p) => p.into_inner(),
+        };
+        guard.as_ref().map(|r| r.ctx.clone()).unwrap_or_default()
+    };
     {
         let mut guard = match hub().run.lock() {
             Ok(g) => g,
@@ -622,7 +632,7 @@ pub fn start_stage(name: &str, body: Value) -> Result<Value, String> {
                 finished: None,
                 ok: false,
             },
-            ctx: StageCtx::default(),
+            ctx: prev_ctx,
             abort: abort.clone(),
             fail_detail: None,
         });
@@ -662,6 +672,27 @@ fn resolve_slug(conn: &Connection, draft: &CompileRequest) -> String {
     if let Some(s) = &draft.slug {
         if compile::valid_slug_pub(s) {
             return s.clone();
+        }
+    }
+    /* ЦЕПОЧКА ПРОГОНА: живой (незавершённый или проваленный) прогон держит
+     * свой слаг — ручные этапы 1→2→3→4→5 продолжают ОДНУ репетицию, а не
+     * открывают новую (иначе после «Компиляция» слаг уезжал с T4-01 на
+     * T4-02 и писец отвечал «батч не скомпилирован» — ручной режим был
+     * мёртв, Фаза 3 приказа «ВОССТАНОВИТЬ РАБОЧЕЕ»). Сданный/закрытый
+     * слаг освобождает цепочку — следующий прогон берёт свежий номер. */
+    let prev = {
+        let guard = match hub().run.lock() {
+            Ok(g) => g,
+            Err(p) => p.into_inner(),
+        };
+        guard.as_ref().map(|r| r.state.slug.clone())
+    };
+    if let Some(p) = prev {
+        let chainable = compile::get_batch_status(conn, &p)
+            .map(|s| s != "delivered" && s != "void")
+            .unwrap_or(true);
+        if chainable && !p.is_empty() {
+            return p;
         }
     }
     format!("T4-{:02}", compile::next_batch_number(conn))
