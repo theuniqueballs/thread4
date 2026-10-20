@@ -66,6 +66,32 @@ pub fn contracts_dir() -> PathBuf {
     thread4_dir().join("contracts")
 }
 
+/* ---------------- РЕПЕТИЦИИ конвейера (twin) ----------------
+ * Инцидент Фазы 3 (2026-10-20): этапы конвейера писали артефакты прямо в
+ * прод-дерево thread4/ — репетиция T4-01/T4-02 ПЕРЕЗАПИСАЛА исторические
+ * контракты. Доктрина: конвейер — репетиции в scratch; прод-дерево для
+ * него read-only. Батарея гейтов (run_text_gates, /v1/gates, паритет-
+ * слепки) читает ПРОД-контракты как раньше — redirect только у этапов. */
+pub fn rehearsal_dir() -> PathBuf {
+    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("data/rehearsals")
+}
+
+pub fn rehearsal_contracts_dir() -> PathBuf {
+    rehearsal_dir().join("contracts")
+}
+
+pub fn rehearsal_batches_dir() -> PathBuf {
+    rehearsal_dir().join("batches")
+}
+
+pub fn rehearsal_drafts_dir() -> PathBuf {
+    rehearsal_dir().join("drafts")
+}
+
+pub fn rehearsal_archive_path() -> PathBuf {
+    rehearsal_dir().join("engines-archive.jsonl")
+}
+
 pub fn specs_dir() -> PathBuf {
     thread4_dir().join("specs")
 }
@@ -751,7 +777,13 @@ fn s_of(v: &serde_json::Value, key: &str) -> Option<String> {
 /// Лоадер контракта: RO-файл → типизированные структуры; отсутствует/бит —
 /// None (зеркало readJson). RAW/ручные батчи живут без контракта — честно.
 pub fn load_contract(slug: &str) -> Option<Contract> {
-    let v = read_json(&contracts_dir().join(format!("{slug}.json")))?;
+    load_contract_in(&contracts_dir(), slug)
+}
+
+/// Тот же лоадер из другого корня (репетиции конвейера пишут и читают
+/// СВОИ контракты — прод-дерево не трогают).
+pub fn load_contract_in(dir: &std::path::Path, slug: &str) -> Option<Contract> {
+    let v = read_json(&dir.join(format!("{slug}.json")))?;
     let mut out = Contract {
         theme: s_of(&v, "theme"),
         engine: s_of(&v, "engine"),

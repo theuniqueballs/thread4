@@ -99,6 +99,11 @@ impl StageEntry {
 /// BUT всё решающее живёт на диске/в базе (файл контракта, t4_builds,
 /// batches/<slug>.md) — ручной перезапуск любого этапа работает и после
 /// рестарта движка.
+/// Контекст прогона: артефакты этапов (якоря, план, контракт, сборка,
+/// черновик) — переживают ПЕРЕХОД между ручными запусками этапов: каждый
+/// ручной клик стартует новый прогон, но ctx предыдущего переносится,
+/// иначе «Компиляция» терялась бы к «Писцу» (инцидент «ручной режим
+/// забыт», Фаза 3: артефакты живут у слага в БД/диске + здесь — кэш).
 #[derive(Clone, Default)]
 pub struct StageCtx {
     pub anchors: Option<theme::ThemeAnchors>,
@@ -698,6 +703,13 @@ fn resolve_slug(conn: &Connection, draft: &CompileRequest) -> String {
     format!("T4-{:02}", compile::next_batch_number(conn))
 }
 
+/* Репетиционный контракт этапов конвейера: пишется этапом «Компиляция»
+ * и читается «Сборка»/«Писец»/«Сдача» — в data/rehearsals/, не в прод-дерево. */
+fn rehearsal_contract(slug: &str) -> Option<textgates::Contract> {
+    let dir = textgates::rehearsal_contracts_dir();
+    let _ = std::fs::create_dir_all(&dir);
+    textgates::load_contract_in(&dir, slug)
+}
 /* ---------------- поток прогона ---------------- */
 
 fn runner(abort: Arc<AtomicBool>, auto: bool, stages: impl Iterator<Item = usize>) {
@@ -1126,10 +1138,11 @@ fn stage_compile(conn: &Connection, draft: &CompileRequest, slug: &str) -> Resul
 
     // артефакты брифа: contracts/<slug>.json + contracts/<slug>.md
     let contract_pretty = serde_json::to_string_pretty(&contract).map_err(|e| e.to_string())?;
-    let json_path = textgates::contracts_dir().join(format!("{slug}.json"));
+    let json_path = textgates::rehearsal_contracts_dir().join(format!("{slug}.json"));
+    let _ = std::fs::create_dir_all(textgates::rehearsal_contracts_dir());
     std::fs::write(&json_path, &contract_pretty).map_err(|e| format!("contracts/{slug}.json: {e}"))?;
     if !contract_md.is_empty() {
-        let md_path = textgates::contracts_dir().join(format!("{slug}.md"));
+        let md_path = textgates::rehearsal_contracts_dir().join(format!("{slug}.md"));
         std::fs::write(&md_path, &contract_md).map_err(|e| format!("contracts/{slug}.md: {e}"))?;
     }
     let brief_sha = crate::canonical::payload_sha10(&contract);
@@ -1266,7 +1279,7 @@ fn audit_brief(slots: &[Value], theme: &str, notes: &str, exp: u32) -> Vec<compi
 /// Этап 3 · «Сборка»: одноразовый движок батча — спайн (LLM-мост):
 /// имя/закон/тезис/три акта/тема-слова. Движок умирает вместе с батчем.
 fn stage_build(conn: &Connection, slug: &str, _abort: Arc<AtomicBool>) -> Result<StageOutcome, String> {
-    if textgates::load_contract(slug).is_none() {
+    if rehearsal_contract(slug).is_none() {
         return Err(format!("нет брифа писца для {slug} — сначала этап «Компиляция»"));
     }
     if compile::get_batch_status(conn, slug).as_deref() == Some("delivered") {
@@ -1284,8 +1297,9 @@ fn stage_build(conn: &Connection, slug: &str, _abort: Arc<AtomicBool>) -> Result
         return Err("спайн вернул пустой движок — повтори этап «Сборка»".into());
     }
 
-    // архив одноразовых движков (файл-эра традиция, артефакт, не SSoT)
-    let archive = textgates::thread4_dir().join("engines-archive.jsonl");
+    // архив одноразовых движков (файл-эра традиция, артефакт, не SSoT) —
+    // репетиции пишут СВОЙ архив, прод engines-archive.jsonl неприкосновенен
+    let archive = textgates::rehearsal_archive_path();
     if let Some(dir) = archive.parent() {
         let _ = std::fs::create_dir_all(dir);
     }
@@ -1410,7 +1424,7 @@ fn stage_scribe(conn: &Connection, slug: &str, abort: Arc<AtomicBool>) -> Result
     if status == "delivered" {
         return Err(format!("{slug} уже сдан — писец не переписывает сданное"));
     }
-    if textgates::load_contract(slug).is_none() {
+    if rehearsal_contract(slug).is_none() {
         return Err(format!("нет брифа писца для {slug} — сначала этап «Компиляция»"));
     }
     let build = {
@@ -1434,7 +1448,7 @@ fn stage_scribe(conn: &Connection, slug: &str, abort: Arc<AtomicBool>) -> Result
         guard.as_ref().and_then(|r| r.ctx.anchors.clone())
     };
 
-    let contract = textgates::load_contract(slug).ok_or("бриф писца не читается")?;
+    let contract = rehearsal_contract(slug).ok_or("бриф писца не читается")?;
     let positions: Vec<u32> = contract
         .slots
         .iter()
@@ -1592,14 +1606,13 @@ fn stage_scribe(conn: &Connection, slug: &str, abort: Arc<AtomicBool>) -> Result
         }
     }
 
-    // финал: файлы + событие
+    // финал: файлы + событие — репетиционные каталоги, прод-дерево не трогаем
     let sha10 = battery.sha10.clone();
-    let batches_path = textgates::batches_dir().join(format!("{slug}.md"));
+    let _ = std::fs::create_dir_all(textgates::rehearsal_batches_dir());
+    let batches_path = textgates::rehearsal_batches_dir().join(format!("{slug}.md"));
     std::fs::write(&batches_path, &markdown).map_err(|e| format!("batches/{slug}.md: {e}"))?;
-    let draft_path = textgates::thread4_dir().join("drafts").join(format!("{slug}-draft.md"));
-    if let Some(dir) = draft_path.parent() {
-        let _ = std::fs::create_dir_all(dir);
-    }
+    let _ = std::fs::create_dir_all(textgates::rehearsal_drafts_dir());
+    let draft_path = textgates::rehearsal_drafts_dir().join(format!("{slug}-draft.md"));
     let _ = std::fs::write(&draft_path, &markdown);
 
     let written = outputs.len();
@@ -1779,7 +1792,7 @@ fn stage_deliver(conn: &Connection, slug: &str) -> Result<StageOutcome, String> 
     if status == "delivered" {
         return Err(format!("{slug} уже сдан — сданное неприкосновенно"));
     }
-    let batch_file = textgates::batches_dir().join(format!("{slug}.md"));
+    let batch_file = textgates::rehearsal_batches_dir().join(format!("{slug}.md"));
     let text = std::fs::read_to_string(&batch_file)
         .map_err(|_| format!("нет batches/{slug}.md — писец ещё не писал этот батч"))?;
 
@@ -1847,7 +1860,7 @@ fn stage_deliver(conn: &Connection, slug: &str) -> Result<StageOutcome, String> 
     };
 
     // ростер ОС финален при сдаче (файл-эра семантика)
-    let contract = textgates::load_contract(slug);
+    let contract = rehearsal_contract(slug);
     let oc_from_contract: Vec<String> = contract
         .as_ref()
         .map(|c| {
@@ -1960,7 +1973,8 @@ fn stage_deliver(conn: &Connection, slug: &str) -> Result<StageOutcome, String> 
         "run": run_index,
         "receipts": textgates::receipts_json(&battery.receipts),
     });
-    let meta_path = textgates::batches_dir().join(format!("{slug}.json"));
+    let meta_path = textgates::rehearsal_batches_dir().join(format!("{slug}.json"));
+    let _ = std::fs::create_dir_all(textgates::rehearsal_batches_dir());
     let _ = std::fs::write(
         &meta_path,
         serde_json::to_string_pretty(&meta).unwrap_or_default(),
