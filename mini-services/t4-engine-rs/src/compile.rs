@@ -456,7 +456,7 @@ pub fn compile_batch(
     if let Some(st) = &existing {
         if st != "void" && !reassembly {
             return Err(CompileError(format!(
-                "batch.compiled: слаг {slug} уже занят (status {st}) — сданное/закрытое неприкосновенно; compiled-сборку можно ПЕРЕсобрать (force:true) или взять следующий номер"
+                "batch.compiled: слаг {slug} уже занят (status {st}) — сданное/закрытое неприкосновенно; compiled-сборку можно ПЕРЕсобрать (force:true), void-слаг рекомпилируем, следующий номер свободен (вердикт автора 2026-10-20)"
             )));
         }
     }

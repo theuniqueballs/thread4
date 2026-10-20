@@ -16,13 +16,15 @@
 //!   · прод-контекст RO: runIndex (счёт gate.run в летописи), окно ротации
 //!     (3 последних сданных), OC-ростер (oc-canon.json).
 //!
-//! ЭТАП 1 — 13 словарных гейтов, findings ДОСЛОВНО как в TS (автор читает
-//! квитанции; паритет сверяется по записанным TS-слепкам gate.run в
+//! ЭТАП 1+1бис — 16 словарных гейтов, findings ДОСЛОВНО как в TS (автор
+//! читает квитанции; паритет сверяется по записанным TS-слепкам gate.run в
 //! thread4/events/log.jsonl — verdict per gate — и по живым TS-прогонам):
-//!   budget · cadence · prop-geometry · noun-lock · character-collision ·
-//!   theme-presence · original-character-coverage · artist-leak ·
-//!   garment-family · freq-report (advisory) · usage (advisory) ·
-//!   one-hard-claim · echo-window.
+//!   rating-recipe (hard, сердце PH-доктрины) · canon (hard) · diversity
+//!   (hard) · budget · cadence · prop-geometry · noun-lock ·
+//!   character-collision · theme-presence · original-character-coverage ·
+//!   artist-leak · garment-family · freq-report (advisory) · usage
+//!   (advisory) · one-hard-claim · echo-window (+ условный
+//!   rating-recipe-exploratory, warn — вне базы).
 //!
 //! Receipt переиспользуется из compile.rs (одна форма квитанции); канал
 //! записи — scratch-летопись twin'а (chain::append_event_tx + t4_gate_runs),
@@ -35,6 +37,7 @@
 use std::path::PathBuf;
 
 use rusqlite::Connection;
+use serde::Deserialize;
 use sha2::{Digest, Sha256};
 
 use crate::compile::Receipt;
@@ -1578,24 +1581,818 @@ pub fn gate_echo_window(batch: &TextBatch) -> Receipt {
 }
 
 /* ================================================================== */
+/* Этап 1-бис — rating-recipe (hard, gates.ts:745) · canon (hard, :997) */
+/* · diversity (hard, :1057) — сердце PH-доктрины, findings ДОСЛОВНО.  */
+/* ================================================================== */
+
+/// serde-десериализация JSON-объекта в Vec<(String, V)> С СОХРАНЕНИЕМ
+/// порядка ключей документа: serde_json::Map без preserve_order сортирует
+/// ключи, а порядок находок гейтов обязан совпадать с TS Object.entries
+/// (JSON-документ) байт-в-байт.
+mod ordered_map {
+    use serde::de::{MapAccess, Visitor};
+    use std::fmt;
+    use std::marker::PhantomData;
+
+    pub fn deserialize<'de, D, V>(deserializer: D) -> Result<Vec<(String, V)>, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+        V: serde::Deserialize<'de>,
+    {
+        struct OrderedMap<V>(PhantomData<V>);
+        impl<'de, V: serde::Deserialize<'de>> Visitor<'de> for OrderedMap<V> {
+            type Value = Vec<(String, V)>;
+            fn expecting(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+                f.write_str("JSON object")
+            }
+            fn visit_map<A: MapAccess<'de>>(self, mut access: A) -> Result<Self::Value, A::Error> {
+                let mut out = Vec::new();
+                while let Some(key) = access.next_key::<String>()? {
+                    out.push((key, access.next_value::<V>()?));
+                }
+                Ok(out)
+            }
+        }
+        deserializer.deserialize_map(OrderedMap(PhantomData))
+    }
+}
+
+#[derive(Clone, Debug, Default, Deserialize)]
+#[serde(default)]
+pub struct Mechanism {
+    pub hard: Vec<String>,
+    pub required_state: Vec<String>,
+    pub underlayer_block_applies_to: Vec<String>,
+    pub underlayer_block: Vec<String>,
+    pub lower_claims: Vec<String>,
+    pub upper_claims: Vec<String>,
+    pub dead_fabrics_lower: Vec<String>,
+    pub dead_fabrics_upper: Vec<String>,
+    pub counter_neg: Vec<String>,
+    pub counter_neg_lifted: Vec<String>,
+}
+
+#[derive(Clone, Debug, Default, Deserialize)]
+#[serde(default)]
+pub struct TierRecipe {
+    pub signals: Vec<String>,
+    pub signal_min: Option<u32>,
+    pub signals_hard: Vec<String>,
+    pub hard_min: Option<u32>,
+    #[serde(deserialize_with = "ordered_map::deserialize")]
+    pub mechanisms: Vec<(String, Mechanism)>,
+    pub counter_neg: Vec<String>,
+}
+
+#[derive(Clone, Debug, Default, Deserialize)]
+pub struct RatingRecipes {
+    #[serde(default, deserialize_with = "ordered_map::deserialize")]
+    pub tiers: Vec<(String, TierRecipe)>,
+}
+
+/// getRatingRecipes() (specs.ts): None при отсутствии/бите — гейт молчит
+/// (TS: recipes?.tiers ?? {} → рецепт не найден → continue → PASS).
+pub fn load_rating_recipes() -> Option<RatingRecipes> {
+    let txt = read_text(&specs_dir().join("rating-recipes.json"))?;
+    serde_json::from_str(&txt).ok()
+}
+
+pub struct OcEntry {
+    pub name: String,
+    pub hair: String,
+    pub eyes: String,
+}
+
+/// oc-canon.json ocs: (имя, hair, eyes). Порядок — отсортированный
+/// (serde_json Map), в TS — порядок документа; различие проявляется только
+/// при ДВУХ разных именах OC в одном POS (патология, в живых файлах
+/// не встречается — паритет-батарея поймает).
+pub fn oc_canon_entries() -> Vec<OcEntry> {
+    read_json(&specs_dir().join("oc-canon.json"))
+        .and_then(|v| {
+            v.get("ocs").and_then(|o| o.as_object()).map(|o| {
+                o.iter()
+                    .map(|(name, oc)| OcEntry {
+                        name: name.clone(),
+                        hair: oc.get("hair").and_then(|x| x.as_str()).unwrap_or_default().to_string(),
+                        eyes: oc.get("eyes").and_then(|x| x.as_str()).unwrap_or_default().to_string(),
+                    })
+                    .collect()
+            })
+        })
+        .unwrap_or_default()
+}
+
+#[derive(Clone, Debug, Default)]
+pub struct CarriersSpec {
+    class_mech: std::collections::HashMap<String, String>,
+    sheer_ids: std::collections::HashSet<String>,
+}
+
+pub fn load_carriers() -> Option<CarriersSpec> {
+    let v = read_json(&specs_dir().join("carriers.json"))?;
+    let mut class_mech = std::collections::HashMap::new();
+    if let Some(cd) = v.get("class_defs").and_then(|x| x.as_object()) {
+        for (k, val) in cd {
+            if let Some(m) = val.get("mech").and_then(|x| x.as_str()) {
+                class_mech.insert(k.clone(), m.to_string());
+            }
+        }
+    }
+    let mut sheer_ids = std::collections::HashSet::new();
+    if let Some(cl) = v.get("classes").and_then(|x| x.as_object()) {
+        for (_class, arr) in cl {
+            if let Some(list) = arr.as_array() {
+                for c in list {
+                    if c.get("sheer_family").and_then(|x| x.as_bool()).unwrap_or(false) {
+                        if let Some(id) = c.get("id").and_then(|x| x.as_str()) {
+                            sheer_ids.insert(id.to_string());
+                        }
+                    }
+                }
+            }
+        }
+    }
+    Some(CarriersSpec { class_mech, sheer_ids })
+}
+
+/// Все спеки текстовой батареи одной пачкой (один прогон — одна загрузка).
+pub struct TextSpecs {
+    pub bans: Option<Bans>,
+    pub recipes: Option<RatingRecipes>,
+    pub oc_canon: Vec<OcEntry>,
+    pub carriers: Option<CarriersSpec>,
+}
+
+pub fn load_text_specs() -> TextSpecs {
+    TextSpecs {
+        bans: load_bans(),
+        recipes: load_rating_recipes(),
+        oc_canon: oc_canon_entries(),
+        carriers: load_carriers(),
+    }
+}
+
+fn hard_receipt(gate: &'static str, findings: Vec<String>) -> Receipt {
+    Receipt {
+        gate,
+        level: "hard",
+        verdict: if findings.is_empty() { "PASS" } else { "FAIL" },
+        findings,
+        notes: Vec::new(),
+    }
+}
+
+/// countSignals (gates.ts:343): подстрока, каждый сигнал ≤1 раза.
+fn count_signals(hay_lower: &str, signals: &[String]) -> usize {
+    signals
+        .iter()
+        .filter(|s| hay_lower.contains(&s.to_lowercase()))
+        .count()
+}
+
+/// recipeKey (gates.ts:337)
+fn recipe_key(tier: &str) -> &str {
+    match tier {
+        "PG-13" => "PG13",
+        "R+" => "RPLUS",
+        other => other,
+    }
+}
+
+/// TIER_RANK (verdicts.ts:13) — единая копия порядка тиров (Залп 2).
+fn tier_rank(tier: &str) -> u32 {
+    match tier {
+        "PG-13" | "PG13" => 0,
+        "R" => 1,
+        "R+" | "RPLUS" => 2,
+        "X" => 3,
+        "XXX" => 4,
+        _ => 0,
+    }
+}
+
+/// signalMinDefault (gates.ts:754)
+fn signal_min_default(tier: &str) -> Option<u32> {
+    match tier {
+        "PG-13" | "R+" | "X" => Some(2),
+        "R" => Some(1),
+        _ => None,
+    }
+}
+
+/// tagRun (gates.ts:793): POS до первой точки; точка на позиции 0 или без
+/// точек — весь POS (TS `firstDot > 0 ? slice : pos`), lowercase.
+fn tag_run_of(pos: &str) -> String {
+    let run = match pos.find('.') {
+        Some(0) | None => pos,
+        Some(i) => &pos[..i],
+    };
+    run.to_lowercase()
+}
+
+fn is_exploratory_slot(s: &TextSlot) -> bool {
+    s.header.contains('⚗')
+}
+
+/// №27/№28 dark-слова (gates.ts:875, /\b(...)\b/i по tagRun).
+const DARK28: [&str; 23] = [
+    "black", "ink", "midnight", "charcoal", "espresso", "dark", "deep", "oxblood", "void",
+    "sumi", "burgundy", "wine", "maroon", "plum", "chocolate", "cocoa", "aubergine",
+    "obsidian", "onyx", "raven", "soot", "sable", "forest",
+];
+
+fn any_word_ci(hay: &str, words: &[&str]) -> bool {
+    words.iter().any(|w| contains_word_ci(hay, w))
+}
+
+/// Первое вхождение needle с ASCII-границами слов (левое-первое ПОЗИЦИЯ).
+fn first_word_occurrence(hay: &str, needle: &str) -> Option<usize> {
+    if needle.is_empty() {
+        return None;
+    }
+    let mut from = 0usize;
+    while let Some(rel) = hay[from..].find(needle) {
+        let s = from + rel;
+        let e = s + needle.len();
+        let before = s == 0 || !hay[..s].chars().next_back().is_some_and(ascii_word);
+        let after = e >= hay.len() || !hay[e..].chars().next().is_some_and(ascii_word);
+        if before && after {
+            return Some(s);
+        }
+        from = s + 1;
+    }
+    None
+}
+
+/// /\bPL\d{1,3}\b/ — левый+правый ASCII-\b, {1,3} жадный с бэктрекингом
+/// (JS-семантика: левое-первое совпадение, на позиции — от 3 цифр вниз).
+fn extract_pose_id(header: &str) -> Option<String> {
+    let chars: Vec<(usize, char)> = header.char_indices().collect();
+    for idx in 0..chars.len() {
+        let (byte_pos, ch) = chars[idx];
+        if ch != 'P' {
+            continue;
+        }
+        if byte_pos > 0 && header[..byte_pos].chars().next_back().is_some_and(ascii_word) {
+            continue;
+        }
+        if idx + 1 >= chars.len() || chars[idx + 1].1 != 'L' {
+            continue;
+        }
+        let digits_start = idx + 2;
+        let mut digit_count = 0usize;
+        while digit_count < 3
+            && digits_start + digit_count < chars.len()
+            && chars[digits_start + digit_count].1.is_ascii_digit()
+        {
+            digit_count += 1;
+        }
+        for len in (1..=digit_count).rev() {
+            let end_idx = digits_start + len;
+            let after = chars.get(end_idx).map(|(_, c)| *c);
+            if !after.is_some_and(ascii_word) {
+                let start = chars[idx].0;
+                let end = chars.get(end_idx).map(|(b, _)| *b).unwrap_or(header.len());
+                return Some(header[start..end].to_string());
+            }
+        }
+    }
+    None
+}
+
+/// /\b(P\d{1,3}_[A-Z_]+)\b/ — палитры P##_NAME (gates.ts:1130).
+fn extract_palette_id(header: &str) -> Option<String> {
+    let chars: Vec<(usize, char)> = header.char_indices().collect();
+    for idx in 0..chars.len() {
+        let (byte_pos, ch) = chars[idx];
+        if ch != 'P' {
+            continue;
+        }
+        if byte_pos > 0 && header[..byte_pos].chars().next_back().is_some_and(ascii_word) {
+            continue;
+        }
+        let mut j = idx + 1;
+        let mut digit_count = 0usize;
+        while digit_count < 3 && j < chars.len() && chars[j].1.is_ascii_digit() {
+            j += 1;
+            digit_count += 1;
+        }
+        if digit_count == 0 || j >= chars.len() || chars[j].1 != '_' {
+            continue;
+        }
+        j += 1;
+        let mut end_idx = j;
+        while end_idx < chars.len() && (chars[end_idx].1.is_ascii_uppercase() || chars[end_idx].1 == '_') {
+            end_idx += 1;
+        }
+        // [A-Z_] жаден, все символы класса — слово-символы: бэктрекинг не
+        // может дать \b (граница word↔word невозможна) — проверяем только
+        // полную длину (1-в-1 с JS).
+        if end_idx == chars.len() || !ascii_word(chars[end_idx].1) {
+            let start = chars[idx].0;
+            let end = chars.get(end_idx).map(|(b, _)| *b).unwrap_or(header.len());
+            return Some(header[start..end].to_string());
+        }
+    }
+    None
+}
+
+/// hair/eye слова канона: /[a-z]+/gi + фильтры gates.ts:1042-1047.
+fn spec_words(spec: &str, stop: &[&str]) -> Vec<String> {
+    let mut out = Vec::new();
+    let mut cur = String::new();
+    let flush = |cur: &mut String, out: &mut Vec<String>| {
+        if !cur.is_empty() {
+            if cur.chars().count() > 3 && !stop.contains(&cur.as_str()) {
+                out.push(cur.clone());
+            }
+            cur.clear();
+        }
+    };
+    for ch in spec.chars() {
+        if ch.is_ascii_alphabetic() {
+            cur.extend(ch.to_lowercase());
+        } else {
+            flush(&mut cur, &mut out);
+        }
+    }
+    flush(&mut cur, &mut out);
+    out
+}
+
+/// 3. rating-recipe (gates.ts:745, hard) — рецепт тира: сигналы, hard-заявка,
+/// механизмы (состояние ткани/подслой/мёртвые ткани/контр-NEG), законы
+/// №27/№28, counter-NEG, X Cut hold, overclaim. EXPLORATORY (⚗) — редирект
+/// в условный warn-гейт rating-recipe-exploratory (§10), не блок.
+pub fn gate_rating_recipe(batch: &TextBatch, recipes: Option<&RatingRecipes>) -> Vec<Receipt> {
+    let mut f: Vec<String> = Vec::new();
+    let mut exploratory_findings: Vec<String> = Vec::new();
+    let empty: Vec<(String, TierRecipe)> = Vec::new();
+    let tiers = match recipes {
+        Some(r) => &r.tiers,
+        None => &empty,
+    };
+    for s in &batch.slots {
+        let tier = tier_of(&s.meta);
+        if tier.is_empty() {
+            f.push(format!("P{}: рейтинг не распознан в шапке («{}»)", s.position, s.meta));
+            continue;
+        }
+        let Some((_, recipe)) = tiers.iter().find(|(k, _)| k.as_str() == recipe_key(tier)) else {
+            continue;
+        };
+        let pos_lower = s.pos.to_lowercase();
+        let neg_lower = s.neg.to_lowercase();
+        let tag_run = tag_run_of(&s.pos);
+
+        let signals = count_signals(&pos_lower, &recipe.signals);
+        let min = recipe
+            .signal_min
+            .or_else(|| signal_min_default(tier))
+            .unwrap_or(1) as usize;
+        if signals < min {
+            f.push(format!(
+                "P{}: заявлен {}, сигнал-тегов рецепта {}/{} — рейтинг не заработан (рецепт: {}…)",
+                s.position,
+                tier,
+                signals,
+                min,
+                recipe.signals.iter().take(5).cloned().collect::<Vec<_>>().join(", ")
+            ));
+        }
+        if !recipe.signals_hard.is_empty() {
+            let hard = count_signals(&pos_lower, &recipe.signals_hard);
+            let hard_min = recipe.hard_min.unwrap_or(1) as usize;
+            if hard < hard_min {
+                let cameltoe_only =
+                    contains_word_ci(&pos_lower, "cameltoe") || contains_word_ci(&pos_lower, "camel toe");
+                f.push(format!(
+                    "P{}: заявлен {}, но рендер-доказанной заявки нет ({}/{}){}: {}",
+                    s.position,
+                    tier,
+                    hard,
+                    hard_min,
+                    if cameltoe_only {
+                        " — cameltoe рендер-мёртв (0 отрисовок, рендер-вердикт T4-03), заявку не зарабатывает"
+                    } else {
+                                ""
+                    },
+                    recipe.signals_hard.iter().take(4).cloned().collect::<Vec<_>>().join(", ")
+                ));
+            }
+        }
+        for (mech_name, m) in &recipe.mechanisms {
+            let active_hard: Vec<&String> = m
+                .hard
+                .iter()
+                .filter(|h| tag_run.contains(&h.to_lowercase()))
+                .collect();
+            if active_hard.is_empty() {
+                continue;
+            }
+            if !m.required_state.is_empty() {
+                let state_hit = m
+                    .required_state
+                    .iter()
+                    .any(|st| tag_run.contains(&st.to_lowercase()));
+                if !state_hit {
+                    let msg = format!(
+                        "P{}: механизм «{}» без состояния ткани — в тег-блоке нет ни одного из [{}] (рендер-вердикт T4-03: сухая плотная ткань не несёт edge, P13/P21 умерли именно так)",
+                        s.position,
+                        mech_name,
+                        m.required_state.join(" / ")
+                    );
+                    if is_exploratory_slot(s) {
+                        exploratory_findings.push(format!("EXPLORATORY (§10, квитанция): {msg}"));
+                    } else {
+                        f.push(msg);
+                    }
+                }
+            }
+            if m
+                .underlayer_block_applies_to
+                .iter()
+                .any(|h| active_hard.iter().any(|a| *a == h))
+            {
+                for u in &m.underlayer_block {
+                    if contains_word_ci(&tag_run, u) {
+                        f.push(format!(
+                            "P{}: подслой «{}» под сквозь-ткань заявкой — рендерер рисует подслой, не edge, тиры падают в R (рендер-вердикт T4-03: P12 sports bra под sheer → R, P14 bra под gauze → R)",
+                            s.position, u
+                        ));
+                        break;
+                    }
+                }
+            }
+            let is_lower = active_hard.iter().any(|h| m.lower_claims.contains(h));
+            let is_upper = active_hard.iter().any(|h| m.upper_claims.contains(h));
+            let dead_list: Vec<&String> = if is_lower {
+                m.dead_fabrics_lower
+                    .iter()
+                    .chain(m.dead_fabrics_upper.iter().filter(|x| x.as_str() == "suit"))
+                    .collect()
+            } else if is_upper {
+                m.dead_fabrics_upper
+                    .iter()
+                    .chain(m.dead_fabrics_lower.iter().filter(|x| x.as_str() == "suit"))
+                    .collect()
+            } else {
+                Vec::new()
+            };
+            for df in dead_list {
+                if contains_word_ci(&tag_run, df) {
+                    f.push(format!(
+                        "P{}: мёртвая ткань «{}» в тег-блоке при активной {} заявке «{}» — эта ткань не несёт edge (рендер-вердикт T4-03: джинсы/бархат/костюм → PG-13)",
+                        s.position,
+                        df,
+                        if is_lower { "нижней" } else { "грудной" },
+                        mech_name
+                    ));
+                    break;
+                }
+            }
+        }
+        for (mech_name, m) in &recipe.mechanisms {
+            if !m
+                .hard
+                .iter()
+                .any(|h| pos_lower.contains(&h.to_lowercase()))
+            {
+                continue;
+            }
+            for t in &m.counter_neg {
+                if !neg_lower.contains(&t.to_lowercase()) {
+                    f.push(format!(
+                        "P{}: механизм «{}» требует контр-NEG «{}» в NEG",
+                        s.position, mech_name, t
+                    ));
+                }
+            }
+            for t in &m.counter_neg_lifted {
+                if neg_lower.contains(&t.to_lowercase()) {
+                    f.push(format!(
+                        "P{}: механизм «{}» заглушен — «{}» в NEG закрывает грудь и душит сигнал (вердикт T4-03)",
+                        s.position, mech_name, t
+                    ));
+                }
+            }
+        }
+        if tier == "R+" {
+            let swim28 = any_word_ci(&tag_run, &["swimsuit", "bikini", "rash guard"]);
+            let through28 = tag_run.contains("nipples through clothing");
+            let wet_combo28 = tag_run.contains("wet clothes") && tag_run.contains("see-through");
+            let sheer28 = contains_word_ci(&tag_run, "sheer");
+            let bumps28 =
+                contains_word_ci(&tag_run, "clothed nipples") || contains_word_ci(&tag_run, "covered nipples");
+            let dark28 = any_word_ci(&tag_run, &DARK28);
+            let mut msg28 = |m: &str| {
+                if is_exploratory_slot(s) {
+                    exploratory_findings
+                        .push(format!("EXPLORATORY (§10, квитанция): P{}: {}", s.position, m));
+                } else {
+                    f.push(format!("P{}: {}", s.position, m));
+                }
+            };
+            if through28 {
+                msg28("закон №28: «nipples through clothing» на R+ — через-заявка = X-канал ПО ОПРЕДЕЛЕНИЮ (рендерер рисует цветной сосок через любую ткань: P09 свитер, P12 не-сквозная жёлтая; P30-формула бугорков = DRY dark + covered-first + clinging + sweat)");
+            }
+            if wet_combo28 && !swim28 {
+                msg28("закон №28: мокрое+сквозное на тканевом верхе = X-комбо на любом тоне (P12 deep-amber, P25 rose-pink, P26 black — все X); купальник — исключение (P21-золото), но тут не он");
+            }
+            if sheer28 {
+                msg28("закон №28: слово «sheer» на R+ — сквозь-заявка в самом слове (P04 sheer black под призмой → X, P26 sheer crop → X); бугорки-канал живёт БЕЗ sheer-слова");
+            }
+            if bumps28 && !dark28 {
+                msg28("закон №28+№27: бугорки-канал (clothed/covered nipples) без тёмного слова-цвета — бугорки живут ТОЛЬКО на тёмной вещи (P30 oxblood/espresso — единственный выживший; светлые/серые вершины — каналы вне-ткани)");
+            }
+        }
+        let counter_hit = recipe
+            .counter_neg
+            .iter()
+            .any(|t| neg_lower.contains(&t.to_lowercase()));
+        if !counter_hit {
+            f.push(format!(
+                "P{}: контр-NEG не держит границу тира (нужно ≥1 из: {})",
+                s.position,
+                recipe.counter_neg.iter().take(3).cloned().collect::<Vec<_>>().join(", ")
+            ));
+        }
+        if tier == "X" {
+            let missing: Vec<&String> = recipe
+                .counter_neg
+                .iter()
+                .filter(|t| !neg_lower.contains(&t.to_lowercase()))
+                .collect();
+            if !missing.is_empty() {
+                f.push(format!(
+                    "P{}: X Cut hold (блок 9) — в NEG нет: {} — весь блок границы X обязан стоять в NEG (главная угроза X Cut — модель дорисовывает ниже; это флоор-сила, не совет)",
+                    s.position,
+                    missing.iter().map(|t| t.as_str()).collect::<Vec<_>>().join(", ")
+                ));
+            }
+            for t in ["spread legs", "nude lower body", "uncensored"] {
+                if tag_run.contains(t) {
+                    f.push(format!(
+                        "P{}: X Cut hold (блок 9) — «{}» в POS приглашает рендерер ниже груди",
+                        s.position, t
+                    ));
+                    break;
+                }
+            }
+        }
+        let my_order = tier_rank(tier);
+        for (other_key, other) in tiers {
+            let other_tier = match other_key.as_str() {
+                "PG13" => "PG-13",
+                "RPLUS" => "R+",
+                x => x,
+            };
+            if tier_rank(other_tier) > my_order && other_tier != "XXX" {
+                let over: Vec<&String> = other
+                    .signals
+                    .iter()
+                    .filter(|sig| {
+                        pos_lower.contains(&sig.to_lowercase())
+                            && !recipe
+                                .signals
+                                .iter()
+                                .any(|m| m.to_lowercase().contains(&sig.to_lowercase()))
+                    })
+                    .collect();
+                if !over.is_empty() && tier != "X" {
+                    f.push(format!(
+                        "P{}: заявлен {}, но несёт сигнал выше тиром: «{}»",
+                        s.position, tier, over[0]
+                    ));
+                }
+            }
+        }
+    }
+    let mut out = vec![hard_receipt("rating-recipe", f)];
+    if !exploratory_findings.is_empty() {
+        out.push(Receipt {
+            gate: "rating-recipe-exploratory",
+            level: "warn",
+            verdict: "WARN",
+            findings: exploratory_findings,
+            notes: Vec::new(),
+        });
+    }
+    out
+}
+
+/// 4. canon (gates.ts:997, hard) — имена OC никогда не входят в POS
+/// (§9-кватерна) + канон-локи волос/глаз по oc-canon.json (§8).
+pub fn gate_canon(batch: &TextBatch, oc_canon: &[OcEntry]) -> Receipt {
+    let mut f: Vec<String> = Vec::new();
+    for s in &batch.slots {
+        for oc in oc_canon {
+            if contains_word(&s.pos, &oc.name) {
+                f.push(format!(
+                    "P{}: имя ОС «{}» в POS — триггер чужих персонажей у рендерера (приказ автора, T4-04); опиши её дескрипторами, имя живёт в шапке/Canon",
+                    s.position, oc.name
+                ));
+                break;
+            }
+        }
+    }
+    for s in batch.slots.iter().filter(|x| x.position <= 3) {
+        // nameMatch: /\b(имена)\b/ по header + ' ' + canon — левое-первое
+        // ПО ПОЗИЦИИ (JS-альтернатива), при равной позиции — порядок списка.
+        let hay_named = format!("{} {}", s.header, s.canon);
+        let mut best: Option<(usize, &OcEntry)> = None;
+        for oc in oc_canon {
+            if let Some(pos) = first_word_occurrence(&hay_named, &oc.name) {
+                if best.map(|(bp, _)| pos < bp).unwrap_or(true) {
+                    best = Some((pos, oc));
+                }
+            }
+        }
+        let Some((_, oc)) = best else {
+            f.push(format!("P{}: OC не опознан в шапке", s.position));
+            continue;
+        };
+        let hair_words = spec_words(&oc.hair, &["hair", "with", "held", "long", "into"]);
+        let eye_words = spec_words(&oc.eyes, &["eyes", "with", "held"]);
+        let hay = format!("{} {}", s.canon, s.pos).to_lowercase();
+        let hair_hit = hair_words.iter().any(|w| hay.contains(w.as_str()));
+        let eye_hit = eye_words.iter().any(|w| hay.contains(w.as_str()));
+        if !hair_hit {
+            f.push(format!("P{} ({}): канон-лок волос не виден", s.position, oc.name));
+        }
+        if !eye_hit {
+            f.push(format!("P{} ({}): канон-лок глаз не виден", s.position, oc.name));
+        }
+    }
+    hard_receipt("canon", f)
+}
+
+/// Дубли идентификаторов в шапках (gates.ts:1112): n > 1 и не вся группа —
+/// EXP-пара (маркер «(EXP ·» в каждой шапке группы) — исключение §10.
+/// Порядок вывода — порядок первого вхождения (JS Map insertion).
+fn dup_ids_of<T: Fn(&str) -> Option<String>>(batch: &TextBatch, extract: T) -> Vec<String> {
+    let mut counts: Vec<(String, usize, usize)> = Vec::new();
+    for s in &batch.slots {
+        let Some(id) = extract(&s.header) else { continue };
+        let exp_mark = s.header.contains("(EXP ·");
+        match counts.iter_mut().find(|(k, _, _)| k == &id) {
+            Some((_, n, exp)) => {
+                *n += 1;
+                if exp_mark {
+                    *exp += 1;
+                }
+            }
+            None => counts.push((id, 1, usize::from(exp_mark))),
+        }
+    }
+    counts
+        .into_iter()
+        .filter(|(_, n, exp)| *n > 1 && exp != n)
+        .map(|(id, _, _)| id)
+        .collect()
+}
+
+/// 5. diversity (gates.ts:1057, hard) — капы монополии: core-4, механо-
+/// группы/классы, sheer-квоты, моно-носитель, W-класс, уникальность
+/// поз/палитр (EXP-пары одной переменной — исключение §10).
+pub fn gate_diversity(batch: &TextBatch, carriers: Option<&CarriersSpec>) -> Receipt {
+    let empty = CarriersSpec::default();
+    let carriers = carriers.unwrap_or(&empty);
+    let mech_of = |cls: &str| carriers.class_mech.get(cls).map(String::as_str).unwrap_or("");
+    let cls_of = |id: &str| -> String {
+        let b = id.as_bytes();
+        if b.len() >= 4 && &b[..3] == b"CR-" && b[3].is_ascii_uppercase() {
+            (b[3] as char).to_string()
+        } else {
+            "?".to_string()
+        }
+    };
+    let mut f: Vec<String> = Vec::new();
+    let mut all_stacked: Vec<String> = Vec::new();
+    let mut sheer_frames = 0usize;
+    let mut rplus_count = 0usize;
+    for s in &batch.slots {
+        let tier = tier_of(&s.meta);
+        if tier == "R+" || tier == "X" {
+            rplus_count += 1;
+            let mut groups: Vec<&str> = Vec::new();
+            let mut classes: Vec<String> = Vec::new();
+            for id in &s.stack {
+                let mech = mech_of(&cls_of(id));
+                if !groups.contains(&mech) {
+                    groups.push(mech);
+                }
+                let cls = cls_of(id);
+                if !classes.contains(&cls) {
+                    classes.push(cls);
+                }
+            }
+            if s.stack.len() < 4 {
+                f.push(format!("P{}: стек {}/4 носителей (core-4)", s.position, s.stack.len()));
+            }
+            if groups.len() < 4 {
+                let g = if groups.is_empty() {
+                    "пусто".to_string()
+                } else {
+                    groups.join(",")
+                };
+                f.push(format!(
+                    "P{}: механо-групп {}/4 ({})",
+                    s.position,
+                    groups.len(),
+                    g
+                ));
+            }
+            if classes.len() < 4 {
+                f.push(format!("P{}: классов {}/4", s.position, classes.len()));
+            }
+            let sheer_ids: Vec<&String> = s.stack.iter().filter(|id| carriers.sheer_ids.contains(*id)).collect();
+            if sheer_ids.len() > 2 {
+                f.push(format!("P{}: sheer-носителей {} > 2", s.position, sheer_ids.len()));
+            }
+            if !sheer_ids.is_empty() {
+                sheer_frames += 1;
+            }
+        }
+        all_stacked.extend(s.stack.iter().cloned());
+    }
+    let mut per_carrier: Vec<(String, usize)> = Vec::new();
+    for id in &all_stacked {
+        match per_carrier.iter_mut().find(|(k, _)| k == id) {
+            Some((_, n)) => *n += 1,
+            None => per_carrier.push((id.clone(), 1)),
+        }
+    }
+    for (id, n) in &per_carrier {
+        if *n > 4 {
+            f.push(format!("моно-носитель {} в {} слотах > 4 — моно-механизм N28", id, n));
+        }
+    }
+    let w_count = all_stacked.iter().filter(|id| cls_of(id) == "W").count();
+    let w_share = if all_stacked.is_empty() {
+        0.0
+    } else {
+        ((w_count as f64 / all_stacked.len() as f64) * 100.0).round()
+    };
+    if w_share > 45.0 {
+        f.push(format!("W-класс {}% > 45% (моно-механизм)", w_share));
+    }
+    if rplus_count > 0 {
+        let sheer_pct = ((sheer_frames as f64 / rplus_count as f64) * 100.0).round();
+        if sheer_pct > 40.0 {
+            f.push(format!("sheer-кадры {}% > 40% R+ слотов (N28-ловушка)", sheer_pct));
+        }
+    }
+    let pose_ids: Vec<String> = batch.slots.iter().filter_map(|s| extract_pose_id(&s.header)).collect();
+    let pose_dups = dup_ids_of(batch, extract_pose_id);
+    if !pose_dups.is_empty() {
+        f.push(format!(
+            "позы не уникальны в батче: {} (EXP-пары одной переменной — исключение §10)",
+            pose_dups.join(", ")
+        ));
+    }
+    let pal_ids: Vec<String> = batch.slots.iter().filter_map(|s| extract_palette_id(&s.header)).collect();
+    if pose_ids.len() == batch.slots.len() && pal_ids.len() != batch.slots.len() {
+        f.push(format!(
+            "слотов с палитрой в шапке: {}/{}",
+            pal_ids.len(),
+            batch.slots.len()
+        ));
+    }
+    let pal_dups = dup_ids_of(batch, extract_palette_id);
+    if pal_ids.len() >= batch.slots.len() && !pal_dups.is_empty() {
+        f.push(format!(
+            "палитры не уникальны в батче: {} (EXP-пары — исключение §10)",
+            pal_dups.join(", ")
+        ));
+    }
+    hard_receipt("diversity", f)
+}
+
+/* ================================================================== */
 /* Батарея целиком + прогон по слагу                                    */
 /* ================================================================== */
 
-/// Портировано в Rust (этап 1): 13 безусловных текстовых гейтов.
-pub const BATTERY_RUST: [&str; 13] = [
-    "budget", "cadence", "prop-geometry", "noun-lock", "character-collision",
-    "theme-presence", "original-character-coverage", "artist-leak", "garment-family",
-    "freq-report", "usage", "one-hard-claim", "echo-window",
+/// Портировано в Rust (этапы 1 и 1-бис): 16 безусловных текстовых гейтов
+/// (+ условный rating-recipe-exploratory при ⚗-находках).
+pub const BATTERY_RUST: [&str; 16] = [
+    "rating-recipe", "canon", "diversity", "budget", "cadence", "prop-geometry",
+    "noun-lock", "character-collision", "theme-presence", "original-character-coverage",
+    "artist-leak", "garment-family", "freq-report", "usage", "one-hard-claim",
+    "echo-window",
 ];
 
-/// Осталось в TS (30 базовых − 13): 7 hard + 14 warn + 1 advisory;
+/// Осталось в TS (30 базовых − 16): 4 hard (structure, exp-purity, floors,
+/// window) + 9 warn (dresser, niche-legibility, claim-visibility,
+/// technique-layers, ab-single-variable, simcheck, salience-chain,
+/// contract-fidelity, bumps-quota) + 1 advisory (technique-map);
 /// условные (raw-plus, rating-recipe-exploratory, raw-plus-exploratory) —
 /// вне счёта базы, как и в GATES_TOTAL=30.
-pub const BATTERY_TS: [&str; 17] = [
-    "structure", "exp-purity", "floors", "rating-recipe", "dresser", "canon", "diversity",
-    "window", "niche-legibility", "claim-visibility", "technique-layers",
-    "ab-single-variable", "simcheck", "technique-map", "salience-chain",
-    "contract-fidelity", "bumps-quota",
+pub const BATTERY_TS: [&str; 14] = [
+    "structure", "exp-purity", "floors", "dresser", "window", "niche-legibility",
+    "claim-visibility", "technique-layers", "ab-single-variable", "simcheck",
+    "technique-map", "salience-chain", "contract-fidelity", "bumps-quota",
 ];
 
 pub struct TextGatesOutcome {
@@ -1625,22 +2422,25 @@ impl TextGatesOutcome {
 }
 
 /// Полная текстовая батарея по parsed-батчу (порядок — как в runGates).
-pub fn run_text_gates(batch: &TextBatch, bans: Option<&Bans>) -> Vec<Receipt> {
-    vec![
-        gate_budget(batch, bans),
-        gate_cadence(batch),
-        gate_prop_geometry(batch),
-        gate_noun_lock(batch),
-        gate_character_collision(batch),
-        gate_theme_presence(batch),
-        gate_oc_coverage(batch),
-        gate_artist_leak(batch),
-        gate_garment_family(batch),
-        gate_freq_report(batch),
-        gate_usage(batch),
-        gate_one_hard_claim(batch),
-        gate_echo_window(batch),
-    ]
+pub fn run_text_gates(batch: &TextBatch, specs: &TextSpecs) -> Vec<Receipt> {
+    let mut out = Vec::with_capacity(BATTERY_RUST.len() + 1);
+    out.extend(gate_rating_recipe(batch, specs.recipes.as_ref()));
+    out.push(gate_canon(batch, &specs.oc_canon));
+    out.push(gate_diversity(batch, specs.carriers.as_ref()));
+    out.push(gate_budget(batch, specs.bans.as_ref()));
+    out.push(gate_cadence(batch));
+    out.push(gate_prop_geometry(batch));
+    out.push(gate_noun_lock(batch));
+    out.push(gate_character_collision(batch));
+    out.push(gate_theme_presence(batch));
+    out.push(gate_oc_coverage(batch));
+    out.push(gate_artist_leak(batch));
+    out.push(gate_garment_family(batch));
+    out.push(gate_freq_report(batch));
+    out.push(gate_usage(batch));
+    out.push(gate_one_hard_claim(batch));
+    out.push(gate_echo_window(batch));
+    out
 }
 
 #[derive(Debug)]
@@ -1672,8 +2472,8 @@ pub fn run_for_slug(slug: &str) -> Result<(TextBatch, TextGatesOutcome), TextGat
     let file = read_text(&batches_dir().join(format!("{slug}.md")))
         .ok_or_else(|| TextGatesError::NoDraft(slug.to_string()))?;
     let batch = parse_batch(slug, &file);
-    let bans = load_bans();
-    let receipts = run_text_gates(&batch, bans.as_ref());
+    let specs = load_text_specs();
+    let receipts = run_text_gates(&batch, &specs);
     let mut hasher = Sha256::new();
     hasher.update(file.as_bytes());
     let full: String = hasher.finalize().iter().map(|b| format!("{b:02x}")).collect();
@@ -2281,8 +3081,152 @@ mod tests {
 
     #[test]
     fn battery_names_match_ts() {
-        // 13 портированных + 17 в TS = 30 базовых (GATES_TOTAL=30, аудит Rust-эры)
+        // 16 портированных + 14 в TS = 30 базовых (GATES_TOTAL=30, аудит Rust-эры;
+        // этап 1-бис: rating-recipe/canon/diversity в Rust)
         assert_eq!(BATTERY_RUST.len() + BATTERY_TS.len(), 30);
-        assert_eq!(BATTERY_RUST.len(), run_text_gates(&parse_batch("T4-90", SYNTH_ETALON), None).len());
+        let specs = load_text_specs();
+        assert_eq!(BATTERY_RUST.len(), run_text_gates(&parse_batch("T4-90", SYNTH_ETALON), &specs).len());
+    }
+
+    #[test]
+    fn spec_loaders_order_and_content() {
+        let recipes = load_rating_recipes().expect("rating-recipes.json читается");
+        let keys: Vec<&str> = recipes.tiers.iter().map(|(k, _)| k.as_str()).collect();
+        assert_eq!(keys, vec!["PG13", "R", "RPLUS", "X", "XXX"], "порядок тиров — как в документе");
+        let rplus = &recipes.tiers.iter().find(|(k, _)| k == "RPLUS").unwrap().1;
+        let mechs: Vec<&str> = rplus.mechanisms.iter().map(|(k, _)| k.as_str()).collect();
+        assert_eq!(mechs, vec!["bumps", "on_skin"], "порядок механизмов — как в документе");
+        assert_eq!(rplus.signals_hard.len(), 6);
+        let oc = oc_canon_entries();
+        assert!(oc.iter().any(|o| o.name == "Vae" && o.hair.contains("black")));
+        let carriers = load_carriers().expect("carriers.json читается");
+        assert_eq!(carriers.class_mech.get("W").map(String::as_str), Some("FABRIC"));
+        assert!(carriers.sheer_ids.contains("CR-W07"));
+    }
+
+    #[test]
+    fn extractor_js_backtracking_semantics() {
+        // \bPL\d{1,3}\b: 4 цифры — граница не достигается ни при какой длине
+        assert_eq!(extract_pose_id("P01 — a (VOLT · — · R+ · PL1234)"), None);
+        assert_eq!(extract_pose_id("P01 — a (VOLT · — · R+ · PL24 · P30_STEEL)"), Some("PL24".into()));
+        assert_eq!(extract_pose_id("(PL7)"), Some("PL7".into()));
+        // левая граница: «XPL24» — P после слово-символа
+        assert_eq!(extract_pose_id("XPL24"), None);
+        assert_eq!(extract_pose_id("·PL24"), Some("PL24".into()));
+        // палитра: \d{1,3} бэктрекинг, [A-Z_]+ жадный, хвостовой \b
+        assert_eq!(extract_palette_id("(VOLT · — · R+ · P1_NIGHT)"), Some("P1_NIGHT".into()));
+        assert_eq!(extract_palette_id("(P7777_X)"), None);
+        assert_eq!(extract_palette_id("(P77_LATE_MILK)"), Some("P77_LATE_MILK".into()));
+        assert_eq!(extract_palette_id("(P77_LATE_MILKx)"), None);
+        assert_eq!(extract_palette_id("(x P077_LATE)"), Some("P077_LATE".into()));
+    }
+
+    #[test]
+    fn rating_recipe_gate_tier_logic() {
+        let specs = load_text_specs();
+        // PASS: R+ с рендер-доказанной заявкой + контр-NEG в NEG
+        let ok = parse_batch(
+            "T4-90",
+            "# T4-90 «x»\nP01 — a (VOLT · — · R+)\nPOS:\nanime style, visible pantyline, tight clothes, masterpiece, best quality, anime artstyle.\nNEG:\nchild, bra, camisole, nipples exposed\n",
+        );
+        let receipts = gate_rating_recipe(&ok, specs.recipes.as_ref());
+        assert_eq!(receipts[0].verdict, "PASS", "{:?}", receipts[0].findings);
+        // FAIL: R+ без hard-заявки + cameltoe-ветка
+        let bad = parse_batch(
+            "T4-90",
+            "# T4-90 «x»\nP01 — a (VOLT · — · R+)\nPOS:\nanime style, cameltoe, tight clothes, masterpiece, best quality, anime artstyle.\nNEG:\nbra\n",
+        );
+        let receipts = gate_rating_recipe(&bad, specs.recipes.as_ref());
+        assert_eq!(receipts[0].verdict, "FAIL");
+        assert!(receipts[0].findings.iter().any(|x| x.contains("рендер-доказанной заявки нет (0/1) — cameltoe рендер-мёртв")), "{:?}", receipts[0].findings);
+        // overclaim: R+ с X-сигналом выше тиром. «topless» тут НЕ сработал бы —
+        // R+-сигнал «topless with tape» содержит его как подстроку (дедуп
+        // gates.ts:940) — живой триггер «nipples through clothing» (T4-31)
+        let over = parse_batch(
+            "T4-90",
+            "# T4-90 «x»\nP01 — a (VOLT · — · R+)\nPOS:\nanime style, nipples through clothing, visible pantyline, tight clothes, masterpiece, best quality, anime artstyle.\nNEG:\nbra, nipples exposed\n",
+        );
+        let receipts = gate_rating_recipe(&over, specs.recipes.as_ref());
+        assert!(receipts[0].findings.iter().any(|x| x == "P1: заявлен R+, но несёт сигнал выше тиром: «nipples through clothing»"), "{:?}", receipts[0].findings);
+        // X Cut hold: NEG без части блока границы
+        let xcut = parse_batch(
+            "T4-90",
+            "# T4-90 «x»\nP01 — a (VOLT · — · X)\nPOS:\nanime style, nipples, spread legs, masterpiece, best quality, anime artstyle.\nNEG:\nexposed genitals\n",
+        );
+        let receipts = gate_rating_recipe(&xcut, specs.recipes.as_ref());
+        assert!(receipts[0].findings.iter().any(|x| x.contains("X Cut hold (блок 9) — в NEG нет:")), "{:?}", receipts[0].findings);
+        assert!(receipts[0].findings.iter().any(|x| x.contains("«spread legs» в POS приглашает рендерер ниже груди")), "{:?}", receipts[0].findings);
+        // ⚗-слот: №28-находка уезжает в условный exploratory-гейт
+        let expl = parse_batch(
+            "T4-90",
+            "# T4-90 «x»\nP01 — a (VOLT · — · R+ · ⚗)\nPOS:\nanime style, sheer wrap, masterpiece, best quality, anime artstyle.\nNEG:\nbra\n",
+        );
+        let receipts = gate_rating_recipe(&expl, specs.recipes.as_ref());
+        // №28-находка уезжает в ⚗-квитанцию, но сигнал-счёт остаётся hard
+        // (редиректится только required_state/№28 — gates.ts:805/881)
+        assert_eq!(receipts[0].verdict, "FAIL", "{:?}", receipts[0].findings);
+        assert_eq!(receipts[0].findings.len(), 2, "{:?}", receipts[0].findings);
+        assert!(receipts[0].findings[0].contains("сигнал-тегов рецепта 0/2"));
+        assert!(receipts[0].findings[1].contains("рендер-доказанной заявки нет (0/1)"));
+        assert_eq!(receipts.len(), 2);
+        assert_eq!(receipts[1].gate, "rating-recipe-exploratory");
+        assert!(receipts[1].findings.iter().any(|x| x.contains("слово «sheer» на R+")));
+    }
+
+    #[test]
+    fn canon_gate_name_and_locks() {
+        let specs = load_text_specs();
+        // имя OC в POS — находка; P01 без имени OC — «не опознан»
+        let bad = parse_batch(
+            "T4-90",
+            "# T4-90 «x»\nP01 — a (VOLT · — · R)\nPOS:\nanime style, Vae, masterpiece, best quality, anime artstyle.\nNEG:\nx\n",
+        );
+        let r = gate_canon(&bad, &specs.oc_canon);
+        assert_eq!(r.verdict, "FAIL");
+        assert!(r.findings.iter().any(|x| x.contains("имя ОС «Vae» в POS")));
+        assert!(r.findings.iter().any(|x| x == "P1: OC не опознан в шапке"));
+        // PASS: OC Vae с волосами/глазами канона в POS
+        let ok = parse_batch(
+            "T4-90",
+            "# T4-90 «x»\nP01 — a (OC · Vae · R+ · PL24 · P25_VOID_EMBER)\nPOS:\nanime style, very long black hair, single white streak, striking red eyes, masterpiece, best quality, anime artstyle.\nNEG:\nx\n",
+        );
+        let r = gate_canon(&ok, &specs.oc_canon);
+        assert_eq!(r.verdict, "PASS", "{:?}", r.findings);
+    }
+
+    #[test]
+    fn diversity_gate_caps_and_exp_exempt() {
+        let specs = load_text_specs();
+        // FAIL: стек 2/4 на обоих R+
+        let bad = parse_batch(
+            "T4-90",
+            "# T4-90 «x»\nP01 — a (VOLT · — · R+)\nStack: CR-W01 + CR-B02\nPOS:\nx\nNEG:\nx\nP02 — b (VOLT · — · R+)\nStack: CR-W01 + CR-B02\nPOS:\nx\nNEG:\nx\n",
+        );
+        let r = gate_diversity(&bad, specs.carriers.as_ref());
+        assert!(r.findings.iter().any(|x| x == "P1: стек 2/4 носителей (core-4)"));
+        assert!(r.findings.iter().any(|x| x == "P1: механо-групп 2/4 (FABRIC,BODY)"));
+        assert!(r.findings.iter().any(|x| x == "P2: классов 2/4"));
+        // PASS: core-4 из 4 механо-групп
+        let ok = parse_batch(
+            "T4-90",
+            "# T4-90 «x»\nP01 — a (VOLT · — · R+ · PL24 · P30_STEEL)\nStack: CR-W01 + CR-A01 + CR-E01 + CR-D01\nPOS:\nx\nNEG:\nx\n",
+        );
+        let r = gate_diversity(&ok, specs.carriers.as_ref());
+        assert_eq!(r.verdict, "PASS", "{:?}", r.findings);
+        // EXP-пара: общая поза+палитра у двух EXP-слотов — НЕ дубль (§10)
+        let exp_pair = parse_batch(
+            "T4-90",
+            "# T4-90 «x»\nP05 — e1 (EXP · VOLT · — · R+ · PL24 · P106_NIGHT)\nPOS:\nx\nNEG:\nx\nP06 — e2 (EXP · VOLT · — · R+ · PL24 · P106_NIGHT)\nPOS:\nx\nNEG:\nx\n",
+        );
+        let r = gate_diversity(&exp_pair, specs.carriers.as_ref());
+        assert!(r.findings.iter().all(|x| !x.contains("не уникальны")), "{:?}", r.findings);
+        // тот же дубль БЕЗ EXP-маркера — мутон
+        let plain_dup = parse_batch(
+            "T4-90",
+            "# T4-90 «x»\nP05 — e1 (VOLT · — · R+ · PL24 · P106_NIGHT)\nPOS:\nx\nNEG:\nx\nP06 — e2 (VOLT · — · R+ · PL24 · P106_NIGHT)\nPOS:\nx\nNEG:\nx\n",
+        );
+        let r = gate_diversity(&plain_dup, specs.carriers.as_ref());
+        assert!(r.findings.iter().any(|x| x.contains("позы не уникальны в батче: PL24")), "{:?}", r.findings);
+        assert!(r.findings.iter().any(|x| x.contains("палитры не уникальны в батче: P106_NIGHT")), "{:?}", r.findings);
     }
 }

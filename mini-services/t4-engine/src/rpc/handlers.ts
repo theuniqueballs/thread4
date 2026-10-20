@@ -279,7 +279,7 @@ export function voidBatch(db: Database, ctx: HandlerCtx): Record<string, unknown
   withTransaction(db, () => {
     const evt = appendEventTx(db, {
       type: 'batch.void',
-      summary: `Закрыт ${slug} «${row.title}»: провенанс сохранён, номер не переиспользуется`,
+      summary: `Закрыт ${slug} «${row.title}»: провенанс сохранён, номер не забивается — рекомпиляция void-слага легальна (вердикт автора 2026-10-20)`,
       data: { slug, priorStatus: row.status },
       batchSlug: slug,
     })

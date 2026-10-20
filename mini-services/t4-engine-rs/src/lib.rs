@@ -94,8 +94,9 @@ pub fn cli_deliver(conn: &Connection, slug: &str) -> Result<serde_json::Value, S
     Ok(json!({ "slug": slug, "status": "delivered", "deliveredAt": at, "eventId": evt.id, "summary": summary }))
 }
 
-/// Закрытие батча (зеркало handlers.ts void): провенанс остаётся,
-/// номер не переиспользуется. Причина автора идёт хвостом в summary.
+/// Закрытие батча (зеркало handlers.ts void): провенанс остаётся, номер
+/// не забивается — рекомпиляция void-слага легальна (вердикт автора
+/// 2026-10-20). Причина автора идёт хвостом в summary.
 pub fn cli_void(conn: &Connection, slug: &str, reason: &str) -> Result<serde_json::Value, String> {
     if !compile::valid_slug_pub(slug) {
         return Err(format!("void: слаг «{slug}» не лезет в канон T4-NN"));
@@ -106,7 +107,7 @@ pub fn cli_void(conn: &Connection, slug: &str, reason: &str) -> Result<serde_jso
     }
     let at = chain::iso_now();
     let summary = format!(
-        "Закрыт {slug} «{title}»: провенанс сохранён, номер не переиспользуется{}",
+        "Закрыт {slug} «{title}»: провенанс сохранён, номер не забивается — рекомпиляция void-слага легальна (вердикт автора 2026-10-20){}",
         if reason.trim().is_empty() || reason == "решение автора" {
             String::new()
         } else {

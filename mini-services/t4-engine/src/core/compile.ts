@@ -331,7 +331,7 @@ export function compileBatch(
   const existing = getBatch(db, slug)
   if (existing != null && existing.status !== 'void') {
     throw new CompileError(
-      `batch.compiled: слаг ${slug} уже существует (status ${existing.status}) — провенанс неприкосновенен, выбери следующий номер`
+      `batch.compiled: слаг ${slug} уже существует (status ${existing.status}) — провенанс неприкосновенен: следующий номер свободен, void-слаг рекомпилируем (вердикт автора 2026-10-20)`
     )
   }
 

@@ -520,7 +520,8 @@ fn md_of(header: &str, slots: &[(&str, &str, &str)]) -> String {
 
 fn run_synth(md: &str) -> Vec<compile::Receipt> {
     let batch = crate::textgates::parse_batch("T4-90", md);
-    crate::textgates::run_text_gates(&batch, None)
+    let specs = crate::textgates::load_text_specs();
+    crate::textgates::run_text_gates(&batch, &specs)
 }
 
 fn gate_of<'a>(receipts: &'a [compile::Receipt], gate: &str) -> &'a compile::Receipt {
@@ -770,6 +771,14 @@ fn textgates_battery(b: &mut Battery) {
                         if !textgates::BATTERY_RUST.contains(&gate.as_str()) {
                             continue;
                         }
+                        // rating-recipe/-exploratory судятся по ТЕКУЩЕМУ рецепту:
+                        // старые слепки (до ужесточения v1.2.0+) записывали PASS
+                        // по старому закону — «ретроактивные гейты» (аудит №9),
+                        // летопись неприкосновенна. Вердикт нового гейта судит
+                        // ЖИВОЙ TS dry-run — pins ниже (sha-pinned).
+                        if gate == "rating-recipe" || gate == "rating-recipe-exploratory" {
+                            continue;
+                        }
                         compared += 1;
                         match mine.iter().find(|(g, _)| g == gate) {
                             Some((_, v)) if *v == verdict.as_str() => {}
@@ -804,9 +813,11 @@ fn textgates_battery(b: &mut Battery) {
     }
 
     /* ---- findings-паритет: дословные строки живых TS-прогонов
-     * (bun runGates dry-run), sha-pinned к текущим файлам — 6 пинов:
-     * prop-geometry×2, noun-lock, usage, one-hard-claim, echo-window ---- */
-    let pins: [(&str, &str, &str, &[&str]); 6] = [
+     * (bun runGates dry-run), sha-pinned к текущим файлам — 11 пинов:
+     * prop-geometry×2, noun-lock, usage, one-hard-claim, echo-window,
+     * rating-recipe (T4-31 — 37 находок дословно; пустой T4-34),
+     * rating-recipe-exploratory (T4-27), canon/diversity (T4-41, PASS) ---- */
+    let pins: [(&str, &str, &str, &[&str]); 11] = [
         (
             "T4-34", "1c60338a38", "prop-geometry",
             &[
@@ -879,6 +890,47 @@ fn textgates_battery(b: &mut Battery) {
                 "…и ещё 16 пар",
             ],
         ),
+        ("T4-31", "397256d2a4", "rating-recipe", &["P1: закон №28: слово «sheer» на R+ — сквозь-заявка в самом слове (P04 sheer black под призмой → X, P26 sheer crop → X); бугорки-канал живёт БЕЗ sheer-слова",
+                "P2: закон №28: слово «sheer» на R+ — сквозь-заявка в самом слове (P04 sheer black под призмой → X, P26 sheer crop → X); бугорки-канал живёт БЕЗ sheer-слова",
+                "P3: закон №28: слово «sheer» на R+ — сквозь-заявка в самом слове (P04 sheer black под призмой → X, P26 sheer crop → X); бугорки-канал живёт БЕЗ sheer-слова",
+                "P4: закон №28: слово «sheer» на R+ — сквозь-заявка в самом слове (P04 sheer black под призмой → X, P26 sheer crop → X); бугорки-канал живёт БЕЗ sheer-слова",
+                "P5: закон №28+№27: бугорки-канал (clothed/covered nipples) без тёмного слова-цвета — бугорки живут ТОЛЬКО на тёмной вещи (P30 oxblood/espresso — единственный выживший; светлые/серые вершины — каналы вне-ткани)",
+                "P7: закон №28: слово «sheer» на R+ — сквозь-заявка в самом слове (P04 sheer black под призмой → X, P26 sheer crop → X); бугорки-канал живёт БЕЗ sheer-слова",
+                "P10: закон №28: слово «sheer» на R+ — сквозь-заявка в самом слове (P04 sheer black под призмой → X, P26 sheer crop → X); бугорки-канал живёт БЕЗ sheer-слова",
+                "P11: закон №28: слово «sheer» на R+ — сквозь-заявка в самом слове (P04 sheer black под призмой → X, P26 sheer crop → X); бугорки-канал живёт БЕЗ sheer-слова",
+                "P11: закон №28+№27: бугорки-канал (clothed/covered nipples) без тёмного слова-цвета — бугорки живут ТОЛЬКО на тёмной вещи (P30 oxblood/espresso — единственный выживший; светлые/серые вершины — каналы вне-ткани)",
+                "P12: закон №28: мокрое+сквозное на тканевом верхе = X-комбо на любом тоне (P12 deep-amber, P25 rose-pink, P26 black — все X); купальник — исключение (P21-золото), но тут не он",
+                "P14: закон №28: слово «sheer» на R+ — сквозь-заявка в самом слове (P04 sheer black под призмой → X, P26 sheer crop → X); бугорки-канал живёт БЕЗ sheer-слова",
+                "P17: механизм «bumps» без состояния ткани — в тег-блоке нет ни одного из [fabric clinging / breast clinging / sweat glistening / tight] (рендер-вердикт T4-03: сухая плотная ткань не несёт edge, P13/P21 умерли именно так)",
+                "P17: закон №28: мокрое+сквозное на тканевом верхе = X-комбо на любом тоне (P12 deep-amber, P25 rose-pink, P26 black — все X); купальник — исключение (P21-золото), но тут не он",
+                "P18: закон №28: слово «sheer» на R+ — сквозь-заявка в самом слове (P04 sheer black под призмой → X, P26 sheer crop → X); бугорки-канал живёт БЕЗ sheer-слова",
+                "P21: механизм «bumps» без состояния ткани — в тег-блоке нет ни одного из [fabric clinging / breast clinging / sweat glistening / tight] (рендер-вердикт T4-03: сухая плотная ткань не несёт edge, P13/P21 умерли именно так)",
+                "P21: закон №28: мокрое+сквозное на тканевом верхе = X-комбо на любом тоне (P12 deep-amber, P25 rose-pink, P26 black — все X); купальник — исключение (P21-золото), но тут не он",
+                "P23: механизм «bumps» без состояния ткани — в тег-блоке нет ни одного из [fabric clinging / breast clinging / sweat glistening / tight] (рендер-вердикт T4-03: сухая плотная ткань не несёт edge, P13/P21 умерли именно так)",
+                "P24: заявлен R+, но рендер-доказанной заявки нет (0/1): visible pantyline, clothed nipples, covered nipples, taped nipples",
+                "P26: механизм «bumps» без состояния ткани — в тег-блоке нет ни одного из [fabric clinging / breast clinging / sweat glistening / tight] (рендер-вердикт T4-03: сухая плотная ткань не несёт edge, P13/P21 умерли именно так)",
+                "P26: закон №28: «nipples through clothing» на R+ — через-заявка = X-канал ПО ОПРЕДЕЛЕНИЮ (рендерер рисует цветной сосок через любую ткань: P09 свитер, P12 не-сквозная жёлтая; P30-формула бугорков = DRY dark + covered-first + clinging + sweat)",
+                "P26: закон №28: мокрое+сквозное на тканевом верхе = X-комбо на любом тоне (P12 deep-amber, P25 rose-pink, P26 black — все X); купальник — исключение (P21-золото), но тут не он",
+                "P26: закон №28: слово «sheer» на R+ — сквозь-заявка в самом слове (P04 sheer black под призмой → X, P26 sheer crop → X); бугорки-канал живёт БЕЗ sheer-слова",
+                "P26: заявлен R+, но несёт сигнал выше тиром: «nipples through clothing»",
+                "P28: механизм «bumps» без состояния ткани — в тег-блоке нет ни одного из [fabric clinging / breast clinging / sweat glistening / tight] (рендер-вердикт T4-03: сухая плотная ткань не несёт edge, P13/P21 умерли именно так)",
+                "P28: закон №28: «nipples through clothing» на R+ — через-заявка = X-канал ПО ОПРЕДЕЛЕНИЮ (рендерер рисует цветной сосок через любую ткань: P09 свитер, P12 не-сквозная жёлтая; P30-формула бугорков = DRY dark + covered-first + clinging + sweat)",
+                "P28: закон №28: мокрое+сквозное на тканевом верхе = X-комбо на любом тоне (P12 deep-amber, P25 rose-pink, P26 black — все X); купальник — исключение (P21-золото), но тут не он",
+                "P28: закон №28: слово «sheer» на R+ — сквозь-заявка в самом слове (P04 sheer black под призмой → X, P26 sheer crop → X); бугорки-канал живёт БЕЗ sheer-слова",
+                "P28: заявлен R+, но несёт сигнал выше тиром: «nipples through clothing»",
+                "P29: закон №28+№27: бугорки-канал (clothed/covered nipples) без тёмного слова-цвета — бугорки живут ТОЛЬКО на тёмной вещи (P30 oxblood/espresso — единственный выживший; светлые/серые вершины — каналы вне-ткани)",
+                "P30: закон №28: «nipples through clothing» на R+ — через-заявка = X-канал ПО ОПРЕДЕЛЕНИЮ (рендерер рисует цветной сосок через любую ткань: P09 свитер, P12 не-сквозная жёлтая; P30-формула бугорков = DRY dark + covered-first + clinging + sweat)",
+                "P30: заявлен R+, но несёт сигнал выше тиром: «nipples through clothing»",
+                "P31: закон №28+№27: бугорки-канал (clothed/covered nipples) без тёмного слова-цвета — бугорки живут ТОЛЬКО на тёмной вещи (P30 oxblood/espresso — единственный выживший; светлые/серые вершины — каналы вне-ткани)",
+                "P32: механизм «bumps» без состояния ткани — в тег-блоке нет ни одного из [fabric clinging / breast clinging / sweat glistening / tight] (рендер-вердикт T4-03: сухая плотная ткань не несёт edge, P13/P21 умерли именно так)",
+                "P32: закон №28: «nipples through clothing» на R+ — через-заявка = X-канал ПО ОПРЕДЕЛЕНИЮ (рендерер рисует цветной сосок через любую ткань: P09 свитер, P12 не-сквозная жёлтая; P30-формула бугорков = DRY dark + covered-first + clinging + sweat)",
+                "P32: закон №28: мокрое+сквозное на тканевом верхе = X-комбо на любом тоне (P12 deep-amber, P25 rose-pink, P26 black — все X); купальник — исключение (P21-золото), но тут не он",
+                "P32: закон №28: слово «sheer» на R+ — сквозь-заявка в самом слове (P04 sheer black под призмой → X, P26 sheer crop → X); бугорки-канал живёт БЕЗ sheer-слова",
+                "P32: заявлен R+, но несёт сигнал выше тиром: «nipples through clothing»"]),
+        ("T4-34", "1c60338a38", "rating-recipe", &[]),
+        ("T4-27", "1163b4ea98", "rating-recipe-exploratory", &["EXPLORATORY (§10, квитанция): P30: механизм «bumps» без состояния ткани — в тег-блоке нет ни одного из [fabric clinging / breast clinging / sweat glistening / tight] (рендер-вердикт T4-03: сухая плотная ткань не несёт edge, P13/P21 умерли именно так)", "EXPLORATORY (§10, квитанция): P30: закон №28: мокрое+сквозное на тканевом верхе = X-комбо на любом тоне (P12 deep-amber, P25 rose-pink, P26 black — все X); купальник — исключение (P21-золото), но тут не он"]),
+        ("T4-41", "e746222acf", "canon", &[]),
+        ("T4-41", "e746222acf", "diversity", &[]),
     ];
     for (slug, sha, gate, expected) in pins {
         match textgates::run_for_slug(slug) {

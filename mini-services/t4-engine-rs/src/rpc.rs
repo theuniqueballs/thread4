@@ -1144,10 +1144,13 @@ mod gates_tests {
         let data = &v["data"];
         assert_eq!(data["slug"], "T4-27");
         assert_eq!(data["runIndex"], 4, "прод-летопись: 3 прогона + 1");
-        assert_eq!(data["hardPass"], true);
-        assert_eq!(data["batteryRust"].as_array().unwrap().len(), 13);
-        assert_eq!(data["batteryTs"].as_array().unwrap().len(), 17);
-        assert!(data["receipts"].as_array().unwrap().len() == 13);
+        // T4-27 несёт hard-FAIL rating-recipe (этап 1-бис; живой TS dry-run
+        // даёт то же) — hardPass честно false
+        assert_eq!(data["hardPass"], false);
+        assert_eq!(data["batteryRust"].as_array().unwrap().len(), 16);
+        assert_eq!(data["batteryTs"].as_array().unwrap().len(), 14);
+        // 16 базовых + условный rating-recipe-exploratory (⚗-находки T4-27)
+        assert!(data["receipts"].as_array().unwrap().len() == 17);
         assert_eq!(crate::db::count_events(&t.prod), prod_before, "прод не тронут");
         assert_eq!(crate::db::count_events(&t.scratch), scratch_before, "scratch не тронут: исторический слог — чистый анализ");
         let runs: i64 = t
