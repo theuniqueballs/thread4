@@ -455,7 +455,7 @@ function humanGate(gate: string): string {
 /* Главный экран                                                       */
 /* ------------------------------------------------------------------ */
 
-export function PipelineScreen() {
+export function PipelineScreen({ embed = false }: { embed?: boolean }) {
   const reduce = useReducedMotion() ?? false
 
   /* ---- черновик: ПУСТОЙ SSR-стейт (гидратация обязана совпасть с сервером);
@@ -715,7 +715,11 @@ export function PipelineScreen() {
   const expandPreview = useCallback(async () => {
     if (!briefReady) return
     try {
-      const data = await postJson<{ anchors?: unknown; gate?: ReceiptView } & Record<string, unknown>>(
+      /* postJson возвращает конверт twin-RPC ЦЕЛИКОМ ({ok, data}) — разворачиваем
+       * сами: anchors + гейт темы (№25, hard) обязаны дойти до UI, а не тонуть
+       * в data?.anchors === undefined (баг эры unified-pipeline: тост «Якоря
+       * собраны» врал при пустых якорях). */
+      const env = await postJson<{ data?: { anchors?: unknown; gate?: unknown } } & Record<string, unknown>>(
         '/api/t4/twin/theme/expand',
         {
           theme: theme.trim(),
@@ -724,17 +728,26 @@ export function PipelineScreen() {
           ocThemes: oc.filter((o) => o.theme.trim() !== '').map((o) => o.theme.trim()),
         }
       )
-      const a = parseAnchors(data?.anchors)
+      const payload = asRecord(env?.data)
+      const a = parseAnchors(payload?.anchors)
       if (a != null) setAnchors(a)
-      const gate = asRecord(data?.gate)
+      const gate = asRecord(payload?.gate)
       if (asStr(gate.verdict) === 'FAIL') {
         toast({
           title: 'Гейт темы не прошёл',
           description: asArray(gate.findings).map(asStr).slice(0, 2).join(' · ') || 'правь якоря',
           variant: 'destructive',
         })
+      } else if (a != null) {
+        toast({
+          title: 'Якоря собраны — гейт темы PASS',
+          description: 'правь руками — все правки уйдут в конвейер',
+        })
       } else {
-        toast({ title: 'Якоря собраны', description: 'правь руками — все правки уйдут в конвейер' })
+        toast({
+          title: 'Якорей нет — конвейер соберёт их сам',
+          description: 'движок примет тему без предпросмотра',
+        })
       }
     } catch (e) {
       toast({ title: 'Раскрытие не удалось', description: e instanceof Error ? e.message : '', variant: 'destructive' })
@@ -852,9 +865,22 @@ export function PipelineScreen() {
 
   /* ================= render ================= */
 
+  /* embed: <div> вместо <main> — внутри консоли уже есть свой <main>,
+   * вложенная main-роль невалидна (a11y). Одинаковая разметка — оба режима. */
+  const CanvasTag: 'div' | 'main' = embed ? 'div' : 'main'
+
   return (
-    <div className="flex min-h-screen flex-col bg-zinc-950 text-zinc-100">
-      {/* ── шапка ── */}
+    <div
+      className={cn(
+        'flex flex-col text-zinc-100',
+        embed ? '' : 'min-h-screen bg-zinc-950'
+      )}
+    >
+      {/* ── шапка ── (в embed-режиме конвейер живёт внутри консоли «МОЩНОСТЬ»:
+       *     своя шапка не нужна — статус/ключ/цепь прода уже в шапке консоли;
+       *     остаётся компактный заголовок секции + честные пилюли twin-цепи
+       *     и активного слага) ── */}
+      {!embed ? (
       <header className="sticky top-0 z-40 border-b border-zinc-800/80 bg-zinc-950/90 backdrop-blur">
         <div className="mx-auto flex w-full max-w-3xl items-center gap-3 px-4 py-3">
           <span className="font-semibold tracking-tight">
@@ -955,9 +981,40 @@ export function PipelineScreen() {
           ) : null}
         </AnimatePresence>
       </header>
+      ) : (
+      <header className="mb-3 flex flex-wrap items-center gap-2 px-1">
+        <h2 className="text-lg font-semibold tracking-tight text-zinc-200">
+          Конвейер <span className="font-normal text-zinc-500">· от темы до сдачи</span>
+        </h2>
+        <span
+          className="flex items-center gap-1.5 rounded-full border border-zinc-800 px-2 py-0.5 text-[11px] text-zinc-400"
+          title={chainOk == null ? 'движок не отвечает' : chainOk ? 'хеш-цепь цела' : 'цепь не сходится — смотри консоль'}
+        >
+          <span
+            className={cn(
+              'size-1.5 rounded-full',
+              chainOk === true && 'bg-emerald-400',
+              chainOk === false && 'bg-rose-500',
+              chainOk == null && 'animate-pulse bg-zinc-500'
+            )}
+          />
+          {chainOk == null ? 'движок…' : chainOk ? 'цепь цела' : 'цепь: проблемы'}
+        </span>
+        {activeSlug != null ? (
+          <span className="rounded-full border border-zinc-800 px-2 py-0.5 font-term text-[11px] text-zinc-500">
+            {activeSlug}
+          </span>
+        ) : null}
+        <span className="ml-auto hidden font-mono text-[10px] text-zinc-600 sm:inline">
+          репетиции · rust :3201
+        </span>
+      </header>
+      )}
 
-      {/* ── полотно конвейера ── */}
-      <main className="mx-auto w-full max-w-3xl flex-1 px-4 pb-40 pt-6">
+      {/* ── полотно конвейера ──
+       * embed: <div> вместо <main> — внутри консоли уже есть свой <main>,
+       * вложенная main-роль невалидна (a11y); разметка одна на оба режима */}
+      <CanvasTag className={cn('mx-auto w-full max-w-3xl flex-1 px-4 pt-0', embed ? 'pb-2' : 'pb-40 pt-6')}>
         {/* финальный баннер */}
         <AnimatePresence>
           {finishedOk && snapshot != null ? (
@@ -1003,6 +1060,26 @@ export function PipelineScreen() {
                 <p className="mt-0.5 text-xs text-zinc-500">{STAGE_HINT.theme}</p>
               )}
             </div>
+            {/* Ручной запуск этапа 1 — тот же ▶, что у этапов 2–5: без него
+             * ручной режим мёртв (□ «забыли ручной запуск», Фаза 3 приказа
+             * «ВОССТАНОВИТЬ РАБОЧЕЕ»: авторан один, этап 1 без кнопки = ручной
+             * прогон не начинался никогда). Запуск берёт якоря из приказа. */}
+            {!running && briefReady ? (
+              <button
+                type="button"
+                onClick={() => void runStage('theme')}
+                title={
+                  stages[0].status === 'done'
+                    ? `Перезапустить «${STAGE_TITLE.theme}» (нижележащие устареют)`
+                    : `Выполнить «${STAGE_TITLE.theme}» — гейт темы в консоли`
+                }
+                aria-label={`выполнить этап ${STAGE_TITLE.theme}`}
+                className="flex shrink-0 items-center gap-1 rounded-md border border-zinc-800 px-2 py-1 text-[11px] text-zinc-400 transition-colors hover:border-zinc-500 hover:text-zinc-100"
+              >
+                <Play className="size-3" />
+                {stages[0].status === 'done' ? 'заново' : 'этап'}
+              </button>
+            ) : null}
             {!running ? (
               <button
                 type="button"
@@ -1344,7 +1421,7 @@ export function PipelineScreen() {
             движок не отвечает: {snapError} — подними t4-engine-rs (bun run dev в mini-services/t4-engine-rs)
           </p>
         ) : null}
-      </main>
+      </CanvasTag>
 
       {/* ── шторка консоли ── */}
       <AnimatePresence initial={false}>
@@ -1355,7 +1432,10 @@ export function PipelineScreen() {
             animate={reduce ? { opacity: 1 } : { height: 'min(42vh, 380px)', opacity: 1 }}
             exit={reduce ? { opacity: 0 } : { height: 0, opacity: 0 }}
             transition={SPRING}
-            className="fixed inset-x-0 bottom-[64px] z-30 mx-auto w-full max-w-3xl overflow-hidden px-0 sm:px-4"
+            className={cn(
+              'fixed inset-x-0 z-30 mx-auto w-full max-w-3xl overflow-hidden px-0 sm:px-4',
+              embed ? 'bottom-0' : 'bottom-[64px]'
+            )}
           >
             <div className="h-full px-0 pb-0 sm:px-0">
               <LiveConsole className="h-full rounded-none border-x-0 border-b-0 sm:rounded-xl sm:border-x" />
@@ -1364,74 +1444,147 @@ export function PipelineScreen() {
         ) : null}
       </AnimatePresence>
 
-      {/* ── нижняя панель: одна главная кнопка + консоль ── */}
-      <footer className="sticky bottom-0 z-40 mt-auto border-t border-zinc-800/80 bg-zinc-950/95 backdrop-blur">
-        <div
-          className="mx-auto flex w-full max-w-3xl items-center gap-3 px-4 py-3"
-          style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}
-        >
-          <button
-            type="button"
-            onClick={ctaRunning ? stopRun : ctaFinished ? resetAll : startAuto}
-            disabled={ctaGo && !briefReady}
-            className={cn(
-              'flex min-w-0 flex-1 items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors',
-              ctaRunning && 'bg-rose-600 text-rose-50 hover:bg-rose-500',
-              ctaFinished && 'border border-emerald-500/40 bg-transparent text-emerald-300 hover:bg-emerald-500/10',
-              ctaGo &&
-                'bg-emerald-500 text-emerald-950 hover:bg-emerald-400 disabled:cursor-not-allowed disabled:bg-zinc-800 disabled:text-zinc-500'
-            )}
-          >
-            {ctaRunning ? (
-              <Square className="size-4" />
-            ) : ctaFinished ? (
-              <RotateCcw className="size-4" />
-            ) : (
-              <Play className="size-4" />
-            )}
-            <span className="truncate">
-              {ctaRunning ? 'Остановить конвейер' : ctaFinished ? 'Новый батч' : 'Запустить конвейер'}
-            </span>
-          </button>
-          <button
-            type="button"
-            onClick={() => {
+      {/* ── нижняя панель: одна главная кнопка + консоль ──
+       * embed: панель — обычная карточка в конце секции (статичная, не липнет
+       * к вьюпорту поверх консоли «МОЩНОСТЬ»); отдельный экран — sticky bottom. */}
+      {embed ? (
+        <div className="relative mt-4 rounded-xl border border-zinc-800 bg-zinc-900/40">
+          <CTABar
+            ctaRunning={ctaRunning}
+            ctaFinished={ctaFinished}
+            ctaGo={ctaGo}
+            briefReady={briefReady}
+            consoleOpen={consoleOpen}
+            errors={ring.errors}
+            onStop={stopRun}
+            onReset={resetAll}
+            onStart={startAuto}
+            onToggleConsole={() =>
               setConsoleOpen((v) => {
                 try {
                   window.localStorage.setItem(CONSOLE_KEY, v ? '0' : '1')
                 } catch {}
                 return !v
               })
-            }}
-            aria-expanded={consoleOpen}
-            className={cn(
-              'flex shrink-0 items-center gap-2 rounded-lg border px-3 py-2.5 text-xs transition-colors',
-              ring.errors > 0
-                ? 'border-rose-600/60 text-rose-300 hover:border-rose-500'
-                : 'border-zinc-800 text-zinc-300 hover:border-zinc-600'
-            )}
-          >
-            <Terminal className="size-4" />
-            <span className="hidden sm:inline">{consoleOpen ? 'Скрыть' : 'Консоль'}</span>
-            {ring.errors > 0 ? (
-              <span className="flex items-center gap-0.5 font-term text-[10px] text-rose-300">
-                <AlertTriangle className="size-3" />
-                {ring.errors}
-              </span>
-            ) : null}
-            <ChevronDown
-              className={cn('hidden size-3 transition-transform sm:block', consoleOpen ? '' : 'rotate-180')}
-            />
-          </button>
-        </div>
-        <div className="pointer-events-none absolute inset-x-0 -top-6 flex justify-center">
-          <span className="rounded-full bg-zinc-950/90 px-3 py-0.5 text-[10px] text-zinc-600 backdrop-blur">
-            единый движок · rust :3201
+            }
+          />
+          <span className="pointer-events-none absolute -top-2.5 left-4 rounded-full border border-zinc-800 bg-zinc-950 px-2 py-px font-mono text-[9px] text-zinc-600">
+            репетиции · rust :3201
           </span>
         </div>
-      </footer>
+      ) : (
+        <footer className="sticky bottom-0 z-40 mt-auto border-t border-zinc-800/80 bg-zinc-950/95 backdrop-blur">
+          <CTABar
+            ctaRunning={ctaRunning}
+            ctaFinished={ctaFinished}
+            ctaGo={ctaGo}
+            briefReady={briefReady}
+            consoleOpen={consoleOpen}
+            errors={ring.errors}
+            onStop={stopRun}
+            onReset={resetAll}
+            onStart={startAuto}
+            onToggleConsole={() =>
+              setConsoleOpen((v) => {
+                try {
+                  window.localStorage.setItem(CONSOLE_KEY, v ? '0' : '1')
+                } catch {}
+                return !v
+              })
+            }
+          />
+          <div className="pointer-events-none absolute inset-x-0 -top-6 flex justify-center">
+            <span className="rounded-full bg-zinc-950/90 px-3 py-0.5 text-[10px] text-zinc-600 backdrop-blur">
+              единый движок · rust :3201
+            </span>
+          </div>
+        </footer>
+      )}
       {/* тикер кольца — чтобы бейдж ошибок жил */}
       <span className="hidden">{ringTick}</span>
+    </div>
+  )
+}
+
+/* Панель управления конвейером: главная кнопка (авто 1→5 / стоп / новый
+ * батч) + шторка живой консоли. Одна разметка — два режима размещения
+ * (embed-карточка внутри консоли или sticky-панель отдельного экрана). */
+interface CTABarProps {
+  ctaRunning: boolean
+  ctaFinished: boolean
+  ctaGo: boolean
+  briefReady: boolean
+  consoleOpen: boolean
+  errors: number
+  onStop: () => void
+  onReset: () => void
+  onStart: () => void
+  onToggleConsole: () => void
+}
+
+function CTABar({
+  ctaRunning,
+  ctaFinished,
+  ctaGo,
+  briefReady,
+  consoleOpen,
+  errors,
+  onStop,
+  onReset,
+  onStart,
+  onToggleConsole,
+}: CTABarProps) {
+  return (
+    <div
+      className="mx-auto flex w-full max-w-3xl items-center gap-3 px-4 py-3"
+      style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}
+    >
+      <button
+        type="button"
+        onClick={ctaRunning ? onStop : ctaFinished ? onReset : onStart}
+        disabled={ctaGo && !briefReady}
+        className={cn(
+          'flex min-w-0 flex-1 items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors',
+          ctaRunning && 'bg-rose-600 text-rose-50 hover:bg-rose-500',
+          ctaFinished && 'border border-emerald-500/40 bg-transparent text-emerald-300 hover:bg-emerald-500/10',
+          ctaGo &&
+            'bg-emerald-500 text-emerald-950 hover:bg-emerald-400 disabled:cursor-not-allowed disabled:bg-zinc-800 disabled:text-zinc-500'
+        )}
+      >
+        {ctaRunning ? (
+          <Square className="size-4" />
+        ) : ctaFinished ? (
+          <RotateCcw className="size-4" />
+        ) : (
+          <Play className="size-4" />
+        )}
+        <span className="truncate">
+          {ctaRunning ? 'Остановить конвейер' : ctaFinished ? 'Новый батч' : 'Запустить конвейер'}
+        </span>
+      </button>
+      <button
+        type="button"
+        onClick={onToggleConsole}
+        aria-expanded={consoleOpen}
+        className={cn(
+          'flex shrink-0 items-center gap-2 rounded-lg border px-3 py-2.5 text-xs transition-colors',
+          errors > 0
+            ? 'border-rose-600/60 text-rose-300 hover:border-rose-500'
+            : 'border-zinc-800 text-zinc-300 hover:border-zinc-600'
+        )}
+      >
+        <Terminal className="size-4" />
+        <span className="hidden sm:inline">{consoleOpen ? 'Скрыть' : 'Консоль'}</span>
+        {errors > 0 ? (
+          <span className="flex items-center gap-0.5 font-term text-[10px] text-rose-300">
+            <AlertTriangle className="size-3" />
+            {errors}
+          </span>
+        ) : null}
+        <ChevronDown
+          className={cn('hidden size-3 transition-transform sm:block', consoleOpen ? '' : 'rotate-180')}
+        />
+      </button>
     </div>
   )
 }

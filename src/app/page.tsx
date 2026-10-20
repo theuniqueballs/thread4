@@ -32,6 +32,7 @@ import {
   type EngineTele,
 } from '@/components/t4/console/panels'
 import { ActionDeck } from '@/components/t4/console/action-deck'
+import { PipelineScreen } from '@/components/t4/console/pipeline'
 import {
   BatchFocus,
   BellMenu,
@@ -290,6 +291,13 @@ export default function Home() {
       {/* ── рабочая зона ───────────────────────────────────────── */}
       <main className="mx-auto w-full max-w-7xl flex-1 space-y-4 px-4 py-5 sm:px-6 sm:py-6">
         <StatusBar stateData={state.data} keySaved={keySaved} onOpenSettings={() => setSettingsOpen(true)} />
+
+        {/* Конвейер 5 этапов — главный поток автора: авто-кнопка 1→5 и ручной
+         * ▶ на каждом этапе, оба режима на этом же экране (приказ Фазы 3).
+         * Репетиции twin'а :3201 — прод-мутации остаются в Action Deck (:3200). */}
+        <section aria-label="конвейер">
+          <PipelineScreen embed />
+        </section>
 
         <RotationWindowPanel refreshSignal={rotSignal} />
 
