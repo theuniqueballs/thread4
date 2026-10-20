@@ -220,8 +220,8 @@ pub fn load_persisted(conn: &Connection) {
                     BLOCK_PIPELINE,
                     &format!(
                         "прогон восстановлен из t4_meta: батч {} · этапы {}/5 отмечены",
-                        run.slug,
-                        run.stages.iter().filter(|e| e.status.is_passed()).count()
+                        run.state.slug,
+                        run.state.stages.iter().filter(|e| e.status.is_passed()).count()
                     ),
                 );
                 *guard = Some(run);
@@ -239,8 +239,8 @@ pub fn load_persisted(conn: &Connection) {
                 BLOCK_PIPELINE,
                 &format!(
                     "прогон выведен из летописи: батч {} · этапы {}/5 отмечены",
-                    run.slug,
-                    run.stages.iter().filter(|e| e.status.is_passed()).count()
+                    run.state.slug,
+                    run.state.stages.iter().filter(|e| e.status.is_passed()).count()
                 ),
             );
             *guard = Some(run);
