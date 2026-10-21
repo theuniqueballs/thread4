@@ -29,6 +29,11 @@ export const EVENT_TYPES = [
   'consciousness.switched',
   'batch.compiled',
   'bridge.compiled',
+  // Фаза 3 (оркестратор, 2026-10-22): квитанция шага цикла
+  // ORDER→COMPILE→EXPOSITION→WRITE→GATES→DELIVER — состояние автомата
+  // живут событиями в летописи (data.slug/step/theme). Синхронно с TS
+  // (events.ts) и Rust (canon.rs).
+  'cycle.step',
   'batch.delivered',
   'batch.void',
   'gate.run',

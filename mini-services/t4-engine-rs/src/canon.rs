@@ -13,7 +13,7 @@ pub const RATINGS: [&str; 4] = ["PG-13", "R", "R+", "X"];
 pub const REGISTERS: [&str; 3] = ["student", "young", "milf"];
 pub const ENGINE_MODES: [&str; 2] = ["per-theme", "per-theme raw-plus"];
 
-pub const EVENT_TYPES: [&str; 23] = [
+pub const EVENT_TYPES: [&str; 24] = [
     "era.born",
     "spec.imported",
     "law.ratified",
@@ -25,6 +25,11 @@ pub const EVENT_TYPES: [&str; 23] = [
     "consciousness.switched",
     "batch.compiled",
     "bridge.compiled",
+    /* Фаза 3 (оркестратор, 2026-10-22): квитанция шага цикла
+     * ORDER→COMPILE→EXPOSITION→WRITE→GATES→DELIVER — состояние автомата
+     * живут событиями в летописи (data.slug/step/theme). Синхронно с TS
+     * (events.ts) и bun-движком (canon.ts). */
+    "cycle.step",
     "batch.delivered",
     "batch.void",
     "gate.run",
