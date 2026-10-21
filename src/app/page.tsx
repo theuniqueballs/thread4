@@ -1,30 +1,30 @@
 'use client'
 
 /**
- * THREAD 4 — консоль «МОЩНОСТЬ» (the / route, 2026-10-18).
+ * THREAD 4 — ЕДИНЫЙ РАБОЧИЙ СТОЛ (the / route; Фаза 5, UI v2 — 2026-10-23).
  *
- * Первый уровень — рабочий: один экран без вложенных табов.
- *   · компактный статус-ряд (эпоха/батчи/движок/цепь/ключ)
- *   · окно ротации (3 слота усталости)
- *   · Action Deck — 10 действий с честными workflow (idle→pending→
- *     success/error, лог шагов, подтверждения, dry-run)
- *   · текущий батч + живая лента последних 5 событий (poll 4с)
- *   · читальный зал (второй уровень): 8 разделов в боковом drawer'е
+ * Три вида (воркфлоу файл-эры / консоль / сборка) слились в ОДИН рабочий
+ * стол, организованный вокруг конечного автомата цикла фазы 3:
+ *   · ЦИКЛ — ORDER→COMPILE→EXPOSITION→WRITE→GATES→DELIVER: состояние из
+ *     летописи, руки автора (заказ/шаг/одобрение human-gate), честные стопы;
+ *   · СКОРБОРД — счёт конвейера + обе таблицы батчей (прод + scratch) одной;
+ *   · ХЕШ-ЦЕПЬ — летопись как цепь с клиентской перевалидацией сшивки.
  *
- * Палитра команд ⌘K — доступ ко всему; клавиши B/C/T/P/D/X/R/S/W —
- * действия, 1–8 — разделы. Уведомления: тосты + колокол истории.
- * Бэкенд не тронут: useApi/postJson/delJson/commanderHeaders живы,
- * мутации идут через движок :3200 (SSoT) и существующий прокси.
+ * Сохранено: статус-ряд, окно ротации, Action Deck (инструменты — в
+ * раскрытии), текущий батч, лента, читальный зал (8 разделов), ⌘K-палитра,
+ * Live Console (теперь глобальная), горячие клавиши. Ретired-модули
+ * (workflow.tsx, build.tsx) больше не монтируются — файлы остаются в репо
+ * до фазы гигиены (модульный сплит гигантов).
  */
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { ChevronDown, Command as CommandIcon, Hammer, LayoutGrid, Compass, Settings, Sparkles, Zap } from 'lucide-react'
+import { ChevronDown, Command as CommandIcon, Link2, Rocket, Settings, Sparkles, Workflow, Zap } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
 import { toast } from '@/hooks/use-toast'
 import { useApi } from '@/components/t4/api'
-import { asRecord, asStr } from '@/components/t4/api'
+import { asRecord } from '@/components/t4/api'
 import { subscribeSlotNav } from '@/components/t4/nav'
 import { navigateToSlot } from '@/components/t4/nav'
 import {
@@ -35,8 +35,9 @@ import {
 } from '@/components/t4/console/panels'
 import { ActionDeck } from '@/components/t4/console/action-deck'
 import { LiveConsole } from '@/components/t4/console/live-console'
-import { WorkflowDeck } from '@/components/t4/console/workflow'
-import { BuildDeck } from '@/components/t4/console/build'
+import { CycleBoard } from '@/components/t4/console/desk/cycle-board'
+import { Scoreboard } from '@/components/t4/console/desk/scoreboard'
+import { ChainView } from '@/components/t4/console/desk/chain-view'
 import {
   BatchFocus,
   BellMenu,
@@ -59,128 +60,7 @@ import {
   type ActionId,
   type DrawerId,
   type NotifyEntry,
-  type ScratchBatchRow,
 } from '@/components/t4/console/shared'
-
-/* ------------------------------------------------------------------ */
-/* Layout E: левый рельс воркфлоу (история · twin · читальный зал)      */
-/* ------------------------------------------------------------------ */
-
-const RAIL_LINKS: { id: DrawerId; label: string; hotkey: string }[] = [
-  { id: 'batches', label: 'батчи', hotkey: '4' },
-  { id: 'chronicle', label: 'летопись', hotkey: '3' },
-  { id: 'docs', label: 'доки', hotkey: '1' },
-  { id: 'specs', label: 'спеки', hotkey: '2' },
-]
-
-function railDot(status: string): string {
-  if (status === 'delivered') return 'bg-emerald-500'
-  if (status === 'voided') return 'bg-zinc-600'
-  return 'bg-amber-400'
-}
-
-function WorkflowRail(props: {
-  rows: EngineBatchRow[]
-  scratchRows: ScratchBatchRow[]
-  onOpenBatch: (slug: string) => void
-  onOpenDrawer: (id: DrawerId) => void
-  onOpenBuild: () => void
-}) {
-  const rows = props.rows.slice(0, 10)
-  const scratchRows = props.scratchRows.slice(0, 8)
-  const prodSlugs = new Set(props.rows.map((r) => r.slug))
-  return (
-    <nav
-      aria-label="навигация воркфлоу: сборки, история и разделы"
-      className="hidden min-w-0 flex-col gap-3 self-stretch rounded-xl border border-white/10 bg-zinc-950/70 p-3 backdrop-blur-xl xl:flex"
-    >
-      <div className="rounded-lg border border-white/10 bg-zinc-900/40 p-2.5">
-        <p className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wider text-amber-300/80">
-          <Zap className="size-3" /> rust twin :3201
-        </p>
-        <p className="mt-1.5 text-[10px] leading-relaxed text-zinc-500">
-          Воркфлоу живёт на Rust-ядре: якоря, гейт №25, компиляция, батарея гейтов — всё в
-          scratch-летописи twin&apos;а. Продакшн-цепь :3200 неприкосновенна; сдача в прод — решение автора.
-        </p>
-      </div>
-
-      {/* сборки воркфлоу (scratch) — своя секция, дубли-слаги помечены */}
-      <div className="flex items-center justify-between gap-2">
-        <p className="font-mono text-[10px] uppercase tracking-wider text-amber-300/70">сборки · scratch</p>
-        <button
-          type="button"
-          onClick={props.onOpenBuild}
-          title="витрина «Сборка» — все скомпилированные батчи обоих пространств (G)"
-          className="flex items-center gap-1 rounded border border-amber-500/40 px-1.5 py-px font-mono text-[9px] text-amber-300 transition-colors hover:bg-amber-500/10"
-        >
-          <Hammer className="size-2.5" /> всё
-        </button>
-      </div>
-      <div className="max-h-40 space-y-0.5 overflow-y-auto t4-scroll">
-        {scratchRows.length === 0 ? (
-          <p className="px-1 py-1.5 text-[10px] text-zinc-600">пока пусто — воркфлоу не собирал</p>
-        ) : (
-          scratchRows.map((r) => {
-            const dupe = prodSlugs.has(r.slug)
-            return (
-              <button
-                key={r.slug}
-                type="button"
-                onClick={props.onOpenBuild}
-                title={`${r.slug} «${r.title}» — сборка воркфлоу${dupe ? ' · ДУБЛЬ-СЛАГ: в проде другой батч с этим номером' : ''}`}
-                className="group flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left transition-colors hover:bg-amber-500/5"
-              >
-                <span className={`size-1.5 shrink-0 rounded-full ${railDot(r.status)}`} aria-hidden />
-                <span className="font-term shrink-0 text-[11px] text-zinc-300 group-hover:text-zinc-100">{r.slug}</span>
-                {dupe ? (
-                  <span className="shrink-0 rounded border border-rose-500/50 px-1 font-mono text-[8px] uppercase text-rose-300">
-                    дубль
-                  </span>
-                ) : null}
-                <span className="truncate text-[10px] text-zinc-500">{r.title}</span>
-              </button>
-            )
-          })
-        )}
-      </div>
-
-      <p className="font-mono text-[10px] uppercase tracking-wider text-zinc-500">история · прод :3200</p>
-      <div className="min-h-0 flex-1 space-y-0.5 overflow-y-auto t4-scroll">
-        {rows.length === 0 ? (
-          <p className="px-1 py-2 text-[10px] text-zinc-600">лента пуста — движок молчит</p>
-        ) : (
-          rows.map((r) => (
-            <button
-              key={r.slug}
-              type="button"
-              onClick={() => props.onOpenBatch(r.slug)}
-              className="group flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left transition-colors hover:bg-zinc-800/60"
-              title={`${r.slug} — ${r.title}`}
-            >
-              <span className={`size-1.5 shrink-0 rounded-full ${railDot(r.status)}`} aria-hidden />
-              <span className="font-term shrink-0 text-[11px] text-zinc-300 group-hover:text-zinc-100">{r.slug}</span>
-              <span className="truncate text-[10px] text-zinc-500">{r.title}</span>
-            </button>
-          ))
-        )}
-      </div>
-
-      <div className="space-y-0.5 border-t border-white/10 pt-2">
-        {RAIL_LINKS.map((l) => (
-          <button
-            key={l.id}
-            type="button"
-            onClick={() => props.onOpenDrawer(l.id)}
-            className="flex w-full items-center justify-between rounded-md px-2 py-1.5 text-[11px] text-zinc-400 transition-colors hover:bg-zinc-800/60 hover:text-zinc-200"
-          >
-            <span>{l.label}</span>
-            <kbd className="rounded border border-zinc-800 bg-zinc-900 px-1 font-mono text-[9px] text-zinc-600">{l.hotkey}</kbd>
-          </button>
-        ))}
-      </div>
-    </nav>
-  )
-}
 
 /* ------------------------------------------------------------------ */
 /* Layout E: нижняя выдвижная Live Console                             */
@@ -250,8 +130,10 @@ export default function Home() {
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [bell, setBell] = useState<NotifyEntry[]>([])
   const [rotSignal, setRotSignal] = useState(0)
-  /* Command Center (Фаза 3): три вида — Воркфлоу (Rust twin), Консоль «МОЩНОСТЬ» и Сборка (витрина сборок) */
-  const [view, setView] = useState<'workflow' | 'console' | 'build'>('workflow')
+  /* Фаза 5: единый рабочий стол — три вкладки одного экрана (вместо трёх видов) */
+  const [desk, setDesk] = useState<'cycle' | 'score' | 'chain'>('cycle')
+  const [focusSlug, setFocusSlug] = useState<string | null>(null)
+  const [toolsOpen, setToolsOpen] = useState(false)
   const keySaved = useCommanderKeySaved()
 
   /* Layout E: нижняя выдвижная Live Console (состояние переживает перезагрузку) */
@@ -331,7 +213,8 @@ export default function Home() {
 
   const focusAction = useCallback((id: ActionId) => {
     setActiveAction(id)
-    setView('console')
+    setDesk('cycle')
+    setToolsOpen(true)
     requestAnimationFrame(() => {
       document.getElementById('t4-action-deck')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
     })
@@ -366,7 +249,9 @@ export default function Home() {
       } else if (m.kind === 'export-chronicle') {
         exportChronicle()
       } else if (m.kind === 'view') {
-        setView(m.view ?? 'workflow')
+        /* старые имена видов → вкладки рабочего стола (палитра жива) */
+        const v = m.view
+        setDesk(v === 'build' ? 'score' : v === 'chain' ? 'chain' : 'cycle')
       }
     },
     [feedRefresh2, stateReload2, exportChronicle]
@@ -391,12 +276,12 @@ export default function Home() {
       }
       if (k === 'v') {
         e.preventDefault()
-        setView((v) => (v === 'workflow' ? 'console' : v === 'console' ? 'build' : 'workflow'))
+        setDesk((v) => (v === 'cycle' ? 'score' : v === 'score' ? 'chain' : 'cycle'))
         return
       }
       if (k === 'g') {
         e.preventDefault()
-        setView('build')
+        setDesk('score')
         return
       }
       if (k === 'escape') return
@@ -427,10 +312,10 @@ export default function Home() {
                 <span className="font-mono text-sm font-bold text-zinc-950">4</span>
               </div>
               <div className="min-w-0">
-                <div className="bg-gradient-to-r from-amber-300 via-rose-300 to-fuchsia-300 bg-clip-text text-sm font-bold tracking-tight text-transparent">
+                <div className="whitespace-nowrap bg-gradient-to-r from-amber-300 via-rose-300 to-fuchsia-300 bg-clip-text text-sm font-bold tracking-tight text-transparent">
                   THREAD 4
                 </div>
-                <div className="truncate text-[11px] text-zinc-500">конвейер промпт-батчей · консоль «МОЩНОСТЬ»</div>
+                <div className="hidden truncate text-[11px] text-zinc-500 sm:block">конвейер промпт-батчей · рабочий стол</div>
               </div>
             </div>
 
@@ -446,55 +331,54 @@ export default function Home() {
                 </span>
                 <span className={chainOk ? 'text-emerald-400' : 'text-rose-400'}>цепь {chainOk ? 'цела' : '!'}</span>
               </div>
-              {/* вкладки видов: Воркфлоу · Консоль · Сборка (Фаза 3 + приказ «кнопка сборки») */}
+              {/* Фаза 5: вкладки ЕДИНОГО рабочего стола (V — цикл вкладок) */}
               <div className="flex items-center gap-0.5 rounded-lg border border-zinc-800 bg-zinc-900/60 p-0.5">
-              <button
-                type="button"
-                onClick={() => setView('workflow')}
-                aria-pressed={view === 'workflow'}
-                className={cn(
-                  'flex items-center gap-1.5 rounded-md px-2.5 py-1.5 font-mono text-[10px] uppercase tracking-wide transition-all',
-                  view === 'workflow'
-                    ? 'bg-zinc-100 text-zinc-950 shadow'
-                    : 'text-zinc-400 hover:text-zinc-200'
-                )}
-              >
-                <Compass className="size-3.5" />
-                <span className="hidden sm:inline">Воркфлоу</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setView('console')}
-                aria-pressed={view === 'console'}
-                className={cn(
-                  'flex items-center gap-1.5 rounded-md px-2.5 py-1.5 font-mono text-[10px] uppercase tracking-wide transition-all',
-                  view === 'console'
-                    ? 'bg-zinc-100 text-zinc-950 shadow'
-                    : 'text-zinc-400 hover:text-zinc-200'
-                )}
-              >
-                <LayoutGrid className="size-3.5" />
-                <span className="hidden sm:inline">Консоль</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setView('build')}
-                aria-pressed={view === 'build'}
-                title="Сборка — витрина скомпилированных батчей обоих пространств (G)"
-                className={cn(
-                  'flex items-center gap-1.5 rounded-md px-2.5 py-1.5 font-mono text-[10px] uppercase tracking-wide transition-all',
-                  view === 'build'
-                    ? 'bg-gradient-to-r from-amber-500 to-rose-500 text-zinc-950 shadow'
-                    : 'text-zinc-400 hover:text-zinc-200'
-                )}
-              >
-                <Hammer className="size-3.5" />
-                <span className="hidden sm:inline">Сборка</span>
-                {scratchRows.some((r) => r.status === 'compiled') ? (
-                  <span className="size-1.5 rounded-full bg-amber-300" aria-label="есть непогашенные сборки" />
-                ) : null}
-              </button>
-            </div>
+                <button
+                  type="button"
+                  onClick={() => setDesk('cycle')}
+                  aria-pressed={desk === 'cycle'}
+                  title="цикл ORDER→COMPILE→EXPOSITION→WRITE→GATES→DELIVER"
+                  className={cn(
+                    'flex items-center gap-1.5 rounded-md px-2.5 py-1.5 font-mono text-[10px] uppercase tracking-wide transition-all',
+                    desk === 'cycle'
+                      ? 'bg-gradient-to-r from-amber-500 to-rose-500 text-zinc-950 shadow'
+                      : 'text-zinc-400 hover:text-zinc-200'
+                  )}
+                >
+                  <Workflow className="size-3.5" />
+                  <span className="hidden sm:inline">Цикл</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setDesk('score')}
+                  aria-pressed={desk === 'score'}
+                  title="скорборд: счёт конвейера + батчи обоих пространств (G)"
+                  className={cn(
+                    'flex items-center gap-1.5 rounded-md px-2.5 py-1.5 font-mono text-[10px] uppercase tracking-wide transition-all',
+                    desk === 'score'
+                      ? 'bg-zinc-100 text-zinc-950 shadow'
+                      : 'text-zinc-400 hover:text-zinc-200'
+                  )}
+                >
+                  <Rocket className="size-3.5" />
+                  <span className="hidden sm:inline">Скорборд</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setDesk('chain')}
+                  aria-pressed={desk === 'chain'}
+                  title="хеш-цепь: летопись с клиентской перевалидацией сшивки"
+                  className={cn(
+                    'flex items-center gap-1.5 rounded-md px-2.5 py-1.5 font-mono text-[10px] uppercase tracking-wide transition-all',
+                    desk === 'chain'
+                      ? 'bg-zinc-100 text-zinc-950 shadow'
+                      : 'text-zinc-400 hover:text-zinc-200'
+                  )}
+                >
+                  <Link2 className="size-3.5" />
+                  <span className="hidden sm:inline">Хеш-цепь</span>
+                </button>
+              </div>
 
             <BellMenu entries={bell} onClear={() => setBell([])} />
               <button
@@ -531,106 +415,54 @@ export default function Home() {
         <StatusBar stateData={state.data} keySaved={keySaved} onOpenSettings={() => setSettingsOpen(true)} />
 
         <AnimatePresence mode="wait" initial={false}>
-          {view === 'workflow' ? (
+          {desk === 'cycle' ? (
             <motion.div
-              key="workflow"
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ type: 'spring', stiffness: 260, damping: 26 }}
-              className="mt-4 min-w-0"
-            >
-              {/* Layout E: слева — рельс сборок/истории/навигации, центр — canvas воркфлоу */}
-              <div className="grid min-w-0 grid-cols-1 gap-4 xl:grid-cols-[minmax(190px,220px)_minmax(0,1fr)]">
-                <WorkflowRail
-                  rows={engineRows}
-                  scratchRows={scratchRows}
-                  onOpenBatch={openBatch}
-                  onOpenDrawer={(id) => setDrawer(id)}
-                  onOpenBuild={() => setView('build')}
-                />
-                <div className="min-w-0">
-                  <WorkflowDeck onFocusAction={focusAction} onMutated={onMutated} />
-                </div>
-              </div>
-
-              {/* Layout E: снизу — выдвижная Live Console (SSE из Rust twin) */}
-              <div className="mt-4 overflow-hidden rounded-xl border border-white/10 bg-zinc-950/70 backdrop-blur-xl">
-                <button
-                  type="button"
-                  onClick={toggleLiveDrawer}
-                  aria-expanded={liveOpen}
-                  className="flex w-full items-center justify-between gap-3 px-4 py-2 font-mono text-[10px] uppercase tracking-wider text-zinc-400 transition-colors hover:bg-zinc-900/40"
-                >
-                  <span className="flex min-w-0 items-center gap-2">
-                    <span className={`size-1.5 shrink-0 rounded-full ${liveStatusDot(liveUi.status)}`} aria-hidden />
-                    <span className="shrink-0">live console · twin :3201</span>
-                    <span className="shrink-0 text-zinc-600">
-                      {liveOpen ? `seq ${liveUi.lastSeq} · ${LIVE_STATUS_WORD[liveUi.status]}` : 'свёрнута — развернуть'}
-                    </span>
-                    {liveUi.errorCount > 0 ? (
-                      <span className="shrink-0 rounded border border-rose-500/40 bg-rose-500/10 px-1.5 text-rose-300">
-                        {liveUi.errorCount} err
-                      </span>
-                    ) : null}
-                  </span>
-                  <ChevronDown className={cn('size-4 shrink-0 text-zinc-500 transition-transform', liveOpen && 'rotate-180')} />
-                </button>
-                <AnimatePresence initial={false}>
-                  {liveOpen ? (
-                    <motion.div
-                      key="live-console-body"
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ type: 'spring', stiffness: 260, damping: 26 }}
-                      className="overflow-hidden"
-                    >
-                      <div className="border-t border-white/10 px-2 pb-2">
-                        <LiveConsole />
-                      </div>
-                    </motion.div>
-                  ) : null}
-                </AnimatePresence>
-              </div>
-            </motion.div>
-          ) : view === 'build' ? (
-            <motion.div
-              key="build"
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ type: 'spring', stiffness: 260, damping: 26 }}
-              className="mt-4 min-w-0"
-            >
-              {/* Сборка: витрина скомпилированных батчей обоих пространств.
-               * onGoWorkflow — «пересобрать» кладёт force-заказ в модуль
-               * (requestWorkflowReassembly) и открывает воркфлоу: Compile
-               * заменит compiled-сборку на месте (репетиция переписываема). */}
-              <BuildDeck onOpenBatch={openBatch} onGoWorkflow={() => setView('workflow')} />
-            </motion.div>
-          ) : (
-            <motion.div
-              key="console"
+              key="desk-cycle"
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ type: 'spring', stiffness: 260, damping: 26 }}
               className="mt-4 space-y-4"
             >
+              <CycleBoard
+                focusSlug={focusSlug}
+                onSlugConsumed={() => setFocusSlug(null)}
+                onMutated={onMutated}
+              />
+
               <RotationWindowPanel refreshSignal={rotSignal} />
 
-              <ActionDeck
-                active={activeAction}
-                onActiveChange={setActiveAction}
-                heapCount={feed.events.length}
-                onPurgeHeap={purgeHeap}
-                onMutated={onMutated}
-                onOpenBatch={openBatch}
-                onOpenDrawer={(id) => setDrawer(id)}
-                onOpenSettings={() => setSettingsOpen(true)}
-                engineUp={tele?.up ?? false}
-              />
+              {/* инструменты (Action Deck): файл-эра и обслуживание — в раскрытии,
+               * основная работа цикла живёт выше; горячие клавиши действий работают */}
+              <div className="overflow-hidden rounded-xl border border-white/10 bg-zinc-950/70 backdrop-blur-xl">
+                <button
+                  type="button"
+                  onClick={() => setToolsOpen((v) => !v)}
+                  aria-expanded={toolsOpen}
+                  className="flex w-full items-center justify-between gap-3 px-4 py-2 font-mono text-[10px] uppercase tracking-wider text-zinc-400 transition-colors hover:bg-zinc-900/40"
+                >
+                  <span className="flex items-center gap-2">
+                    <Zap className="size-3 text-amber-400" /> инструменты · обслуживание и файл-эра
+                    <span className="text-zinc-600">{toolsOpen ? 'свёрнуты' : 'раскрыть'}</span>
+                  </span>
+                  <ChevronDown className={cn('size-4 text-zinc-500 transition-transform', toolsOpen && 'rotate-180')} />
+                </button>
+                {toolsOpen ? (
+                  <div className="border-t border-white/10 p-2">
+                    <ActionDeck
+                      active={activeAction}
+                      onActiveChange={setActiveAction}
+                      heapCount={feed.events.length}
+                      onPurgeHeap={purgeHeap}
+                      onMutated={onMutated}
+                      onOpenBatch={openBatch}
+                      onOpenDrawer={(id) => setDrawer(id)}
+                      onOpenSettings={() => setSettingsOpen(true)}
+                      engineUp={tele?.up ?? false}
+                    />
+                  </div>
+                ) : null}
+              </div>
 
               <div className="grid min-w-0 grid-cols-1 gap-4 lg:grid-cols-2">
                 <BatchFocus
@@ -645,8 +477,76 @@ export default function Home() {
 
               <DocsZone onOpen={(id) => setDrawer(id)} />
             </motion.div>
+          ) : desk === 'score' ? (
+            <motion.div
+              key="desk-score"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ type: 'spring', stiffness: 260, damping: 26 }}
+              className="mt-4 min-w-0"
+            >
+              <Scoreboard
+                onOpenBatch={openBatch}
+                onOpenInCycle={(slug) => {
+                  setFocusSlug(slug)
+                  setDesk('cycle')
+                }}
+              />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="desk-chain"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ type: 'spring', stiffness: 260, damping: 26 }}
+              className="mt-4 min-w-0"
+            >
+              <ChainView feed={feed} onExport={exportChronicle} />
+            </motion.div>
           )}
         </AnimatePresence>
+
+        {/* Live Console — глобальная выдвижная плашка (SSE twin'а :3201) */}
+        <div className="mt-4 overflow-hidden rounded-xl border border-white/10 bg-zinc-950/70 backdrop-blur-xl">
+          <button
+            type="button"
+            onClick={toggleLiveDrawer}
+            aria-expanded={liveOpen}
+            className="flex w-full items-center justify-between gap-3 px-4 py-2 font-mono text-[10px] uppercase tracking-wider text-zinc-400 transition-colors hover:bg-zinc-900/40"
+          >
+            <span className="flex min-w-0 items-center gap-2">
+              <span className={cn('size-1.5 shrink-0 rounded-full', liveStatusDot(liveUi.status))} aria-hidden />
+              <span className="shrink-0">live console · twin :3201</span>
+              <span className="shrink-0 text-zinc-600">
+                {liveOpen ? `seq ${liveUi.lastSeq} · ${LIVE_STATUS_WORD[liveUi.status]}` : 'свёрнута — развернуть'}
+              </span>
+              {liveUi.errorCount > 0 ? (
+                <span className="shrink-0 rounded border border-rose-500/40 bg-rose-500/10 px-1.5 text-rose-300">
+                  {liveUi.errorCount} err
+                </span>
+              ) : null}
+            </span>
+            <ChevronDown className={cn('size-4 shrink-0 text-zinc-500 transition-transform', liveOpen && 'rotate-180')} />
+          </button>
+          <AnimatePresence initial={false}>
+            {liveOpen ? (
+              <motion.div
+                key="live-console-body"
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ type: 'spring', stiffness: 260, damping: 26 }}
+                className="overflow-hidden"
+              >
+                <div className="border-t border-white/10 px-2 pb-2">
+                  <LiveConsole />
+                </div>
+              </motion.div>
+            ) : null}
+          </AnimatePresence>
+        </div>
       </main>
 
       {/* ── футер: прижат к низу, микро-теги и подсказки ────────── */}
@@ -660,8 +560,8 @@ export default function Home() {
           </span>
           <span className="font-mono">
             <kbd className="rounded border border-zinc-800 bg-zinc-900 px-1 py-px text-[10px]">⌘K</kbd> палитра ·{' '}
-            <kbd className="rounded border border-zinc-800 bg-zinc-900 px-1 py-px text-[10px]">V</kbd> вид ·{' '}
-            <kbd className="rounded border border-zinc-800 bg-zinc-900 px-1 py-px text-[10px]">G</kbd> сборка ·{' '}
+            <kbd className="rounded border border-zinc-800 bg-zinc-900 px-1 py-px text-[10px]">V</kbd> вкладка ·{' '}
+            <kbd className="rounded border border-zinc-800 bg-zinc-900 px-1 py-px text-[10px]">G</kbd> скорборд ·{' '}
             <kbd className="rounded border border-zinc-800 bg-zinc-900 px-1 py-px text-[10px]">B C T P</kbd>{' '}
             <kbd className="rounded border border-zinc-800 bg-zinc-900 px-1 py-px text-[10px]">D X R S W</kbd> действия ·{' '}
             <kbd className="rounded border border-zinc-800 bg-zinc-900 px-1 py-px text-[10px]">1–8</kbd> доки ·{' '}

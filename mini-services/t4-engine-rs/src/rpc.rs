@@ -501,7 +501,8 @@ fn events(conn: &Connection, query: &str) -> Value {
 fn batches(conn: &Connection) -> Value {
     let mut out = Vec::new();
     if let Ok(mut stmt) = conn.prepare(
-        "SELECT slug, title, status, exp_slots, hard_pass, diff_up, diff_down, created_at, delivered_at, sha10
+        /* Фаза 5 (скорборд): счётчики канона в списке, не только в деталях */
+        "SELECT slug, title, status, slots_total, exp_slots, ab_pairs, hard_pass, diff_up, diff_down, created_at, delivered_at, sha10
          FROM t4_batches ORDER BY created_at DESC LIMIT 50",
     ) {
         if let Ok(rows) = stmt.query_map([], |r| {
@@ -509,13 +510,15 @@ fn batches(conn: &Connection) -> Value {
                 "slug": r.get::<_, String>(0)?,
                 "title": r.get::<_, String>(1)?,
                 "status": r.get::<_, String>(2)?,
-                "expSlots": r.get::<_, i64>(3)?,
-                "hardPass": r.get::<_, i64>(4)? == 1,
-                "diffUp": r.get::<_, i64>(5)?,
-                "diffDown": r.get::<_, i64>(6)?,
-                "createdAt": r.get::<_, String>(7)?,
-                "deliveredAt": r.get::<_, Option<String>>(8)?,
-                "sha10": r.get::<_, String>(9)?,
+                "slotsTotal": r.get::<_, i64>(3)?,
+                "expSlots": r.get::<_, i64>(4)?,
+                "abPairs": r.get::<_, i64>(5)?,
+                "hardPass": r.get::<_, i64>(6)? == 1,
+                "diffUp": r.get::<_, i64>(7)?,
+                "diffDown": r.get::<_, i64>(8)?,
+                "createdAt": r.get::<_, String>(9)?,
+                "deliveredAt": r.get::<_, Option<String>>(10)?,
+                "sha10": r.get::<_, String>(11)?,
             }))
         }) {
             for row in rows.flatten() {
