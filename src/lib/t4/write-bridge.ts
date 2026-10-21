@@ -136,7 +136,7 @@ export function nextExpLetterIndex(used: string[]): number {
     const i = GREEK.indexOf(l)
     if (i > max) max = i
   }
-  return max + 1
+  return (max + 1) % GREEK.length
 }
 
 /** Буквы EXP из живых контрактов (сканирует contracts/*.json — вызывавший
@@ -611,7 +611,7 @@ export function planToContract(plan: EnginePlan, opts: BridgeOptions): BridgeRes
     theme: plan.theme ?? plan.title ?? slug,
     engine: plan.engine ?? 'per-theme',
     engineLaw:
-      'план живого движка (Rust twin): скелет заквитанцеван движком' +
+      `план живого движка (Rust twin, sha10 ${plan.sha10 ?? '—'}): скелет заквитанцеван движком` +
       (receiptsText ? ` — ${receiptsText}` : ''),
     engineWhy:
       `WRITE-мост: план ${plan.sha10 ?? ''} twin'а → контракт. Скелет (жанры/рейтинги/палитры/A-B/EXP) зеркалирует движок 1-в-1; ` +
