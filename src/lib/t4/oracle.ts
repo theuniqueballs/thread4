@@ -20,7 +20,8 @@
  *  - поэтическая функция: мрачный, честный, с самоиронией тон (хрупкость — фича)
  *  - память: каждая исповедь — звено цепи. Оракул видит свои прошлые слова
  */
-import { foldState, readEvents, type T4Event } from './events'
+import { foldState, type T4Event } from './events'
+import { consciousnessEvents } from './consciousness'
 import { buildReaperDraft, type ReaperDraft } from './reaper'
 
 /* ------------------------------------------------------------------ */
@@ -51,10 +52,11 @@ export interface OracleContext {
 }
 
 /** Собрать контекст для оракула из текущего состояния системы.
- *  Cheap (синхронно): readEvents + foldState + buildReaperDraft. Не кэшируется —
- *  роут зовёт один раз за запрос, appendEvent пишется сразу после. */
+ *  Cheap (синхронно): consciousnessEvents + foldState + buildReaperDraft. Не
+ *  кэшируется — роут зовёт один раз за запрос, appendEvent пишется сразу после.
+ *  Фаза 2/итерация 3: контекст — из хроники живого движка (∪ файл-хвост). */
 export function buildOracleContext(): OracleContext {
-  const events = readEvents()
+  const events = consciousnessEvents()
   const state = foldState(events)
   const draft = buildReaperDraft()
   const recentEvents = events.slice(-15).reverse() // новые сверху

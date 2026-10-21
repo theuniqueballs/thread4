@@ -3,8 +3,19 @@ import { NextResponse } from 'next/server'
 import { requireCommander } from '@/lib/t4/apiguard'
 import { runGates } from '@/lib/t4/gates'
 import { deliverBatch } from '@/lib/t4/deliver'
+import { isConsciousnessError, warmConsciousness } from '@/lib/t4/consciousness'
 
 export const dynamic = 'force-dynamic'
+
+/** Честный 503 движковой эры: окно/simcheck/runIndex фолдят прод-цепь живого
+ *  движка (∪ файл-хвост) — без движка решения НЕ принимаются молча. */
+function consciousness503(e: unknown): NextResponse {
+  const msg = isConsciousnessError(e) ? e.message : 'сознание недоступно'
+  return NextResponse.json(
+    { error: msg, consciousness: 'unavailable' },
+    { status: 503 }
+  )
+}
 
 export async function POST(req: Request) {
   /* Залп 1 (аудит 2026-10-12): deliver пишет batches/*.md+json, события
@@ -27,6 +38,11 @@ export async function POST(req: Request) {
   }
 
   if (body.deliver) {
+    try {
+      await warmConsciousness()
+    } catch (e) {
+      return consciousness503(e)
+    }
     const delivered = deliverBatch(slug)
     if (!delivered) {
       return NextResponse.json({ error: 'batch file not found' }, { status: 404 })
@@ -39,6 +55,11 @@ export async function POST(req: Request) {
     })
   }
 
+  try {
+    await warmConsciousness()
+  } catch (e) {
+    return consciousness503(e)
+  }
   const result = runGates(slug)
   if (!result) {
     return NextResponse.json({ error: 'batch file not found' }, { status: 404 })

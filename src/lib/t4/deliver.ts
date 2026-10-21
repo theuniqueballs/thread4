@@ -6,7 +6,8 @@
 import path from 'node:path'
 
 import { assertSafeSlug, BATCHES_DIR, CONTRACTS_DIR, readJson, readText, writeJson, writeText } from './fsutil'
-import { appendEvent, readEvents, withEventLock } from './events'
+import { appendEvent, withEventLock } from './events'
+import { consciousnessEvents } from './consciousness'
 import { parseBatch, runGates, type GatesResult } from './gates'
 import { LAWS } from './compiler'
 import { getRatingRecipes } from './specs'
@@ -42,8 +43,10 @@ export function deliverBatch(slug: string): DeliverResult | null {
 
 function deliverBatchInner(slug: string, text0: string): DeliverResult | null {
   // охрана повторной сдачи (аудит N-10): второй batch.delivered двигал бы
-  // окно ротации и дублировал события — сданный батч не сдаётся дважды
-  const priorDelivery = readEvents().some(
+  // окно ротации и дублировал события — сданный батч не сдаётся дважды.
+  // Фаза 2/итерация 3: хроника сознания — живой движок (∪ файл-хвост),
+  // сдачи движковой эры видны охране сразу.
+  const priorDelivery = consciousnessEvents().some(
     (e) => e.type === 'batch.delivered' && e.data?.slug === slug
   )
   if (priorDelivery) {
@@ -101,7 +104,7 @@ function deliverBatchInner(slug: string, text0: string): DeliverResult | null {
     .map((s) => s.meta.split('·').map((x) => x.trim()).filter(Boolean)[1] ?? '')
     .filter((x) => x !== '' && x !== '—')
   const ocRoster = [...new Set([...ocFromContract, ...ocFromBatch])]
-  const existing = readEvents()
+  const existing = consciousnessEvents()
   for (const oc of ocRoster) {
     const seen = existing.some(
       (e) => e.type === 'oc.appeared' && e.data?.slug === slug && e.data?.name === oc

@@ -12,7 +12,8 @@
 import path from 'node:path'
 
 import { CONTRACTS_DIR, readJson } from './fsutil'
-import { foldState, readEvents } from './events'
+import { foldState } from './events'
+import { consciousnessEvents } from './consciousness'
 import { getDeliveryStats, getEngines, getOCCanon, getPolicy } from './specs'
 
 export interface ReaperItem {
@@ -39,7 +40,7 @@ export function buildReaperDraft(): ReaperDraft {
     /** Retirement Protocol (Issue #18): минимум полных прогонов на закон */
     law_min_runs?: number
   }
-  const events = readEvents()
+  const events = consciousnessEvents()
   const state = foldState(events)
   const delivered = state.batches.filter((b) => b.deliveredAt)
   const deliveredCount = delivered.length

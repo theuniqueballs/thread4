@@ -30,6 +30,7 @@ import { getDeliveryStats, getPolicy, specInventory, type TierRecipe } from '../
 import { buildReaperDraft } from '../src/lib/t4/reaper'
 import { scanSource } from '../src/lib/t4/hygiene'
 import { isSafeSlug, writeText } from '../src/lib/t4/fsutil'
+import { readChronicle, warmConsciousness } from '../src/lib/t4/consciousness'
 
 const cmd = process.argv[2] ?? ''
 
@@ -123,6 +124,14 @@ async function main() {
     }
     const ocArg = args[1] && args[1].includes(',') ? args[1] : args[2]
     const ocOrders = ocArg ? ocArg.split(',').map((s) => s.trim()).filter(Boolean) : undefined
+    /* Фаза 2, итерация 3: ротация ОС — из хроники живого движка. Прогрев;
+     * недоступен — честная ошибка (не молчаливая файл-эра). */
+    try {
+      await warmConsciousness()
+    } catch (e) {
+      console.error(`${(e as Error).message}`)
+      process.exit(1)
+    }
     const contract = compileBatch(theme, { engine, ocOrders, authorPin })
     console.log(contractMarkdown(contract))
     return
@@ -137,6 +146,13 @@ async function main() {
     const slug = process.argv[3]
     if (!slug || !/^T4-[\dA-Za-z.-]+$/.test(slug)) {
       console.error('usage: polish T4-NN [maxRepairRounds]')
+      process.exit(1)
+    }
+    /* Фаза 2, итерация 3: гейты починки фолдят хронику живого движка. */
+    try {
+      await warmConsciousness()
+    } catch (e) {
+      console.error(`${(e as Error).message}`)
       process.exit(1)
     }
     const rounds = process.argv[4] ? parseInt(process.argv[4], 10) : 2
@@ -160,6 +176,13 @@ async function main() {
     const slug = process.argv[3]
     if (!slug || !/^T4-\d{2}$/.test(slug)) {
       console.error('usage: scribe T4-NN [maxRepairRounds]')
+      process.exit(1)
+    }
+    /* Фаза 2, итерация 3: охраны писца фолдят хронику живого движка. */
+    try {
+      await warmConsciousness()
+    } catch (e) {
+      console.error(`${(e as Error).message}`)
       process.exit(1)
     }
     const maxRepairRounds = process.argv[4] ? parseInt(process.argv[4], 10) : 3
@@ -211,6 +234,14 @@ async function main() {
       console.error(`usage: ${cmd} T4-NN[/суффикс] (только буквы/цифры/точка/дефис)`)
       process.exit(1)
     }
+    /* Фаза 2, итерация 3: сознание — живой движок. Прогрев прод-цепи до
+     * синхронных конвейеров; недоступен — честная ошибка (не файл-эра). */
+    try {
+      await warmConsciousness()
+    } catch (e) {
+      console.error(`${(e as Error).message}`)
+      process.exit(1)
+    }
     if (cmd === 'deliver') {
       const delivered = deliverBatch(slug)
       if (!delivered) {
@@ -239,8 +270,17 @@ async function main() {
   }
 
   if (cmd === 'state') {
-    const state = foldState(readEvents())
-    console.log(JSON.stringify(state, null, 2))
+    /* Фаза 2, итерация 3: панель состояния CLI — из хроники живого движка;
+     * недоступен — честная метка деградации и файл-эра (отображение может
+     * деградировать, решения — нет). */
+    let events
+    try {
+      events = (await readChronicle()).events
+    } catch (e) {
+      console.error(`(${(e as Error).message.split('.')[0]} — показана файл-эра)`)
+      events = readEvents()
+    }
+    console.log(JSON.stringify(foldState(events), null, 2))
     return
   }
 
@@ -514,6 +554,11 @@ async function main() {
   }
 
   if (cmd === 'selftest') {
+    /* Фаза 2, итерация 3: самотест — ЭТАЛОН файл-эры. Пины живых прогонов
+     * рождены фолдом файл-летописи; их контракты не переписываются.
+     * Живой движок-сознание доказывается отдельно: tools/state-parity.ts
+     * + E2E (аудит-док §10). Здесь источник сознания пинится ЯВНО. */
+    process.env.T4_STATE_SOURCE = 'file'
     let ok = 0
     let fail = 0
     const check = (name: string, cond: boolean) => {
@@ -2040,6 +2085,86 @@ async function main() {
         planToContract(bad, bridgeOpts())
       } catch (e) { errPalette = (e as Error).message }
       check('мост: палитра плана вне фонда — отказ с позицией слота', errPalette.includes('P01') && errPalette.includes('P999_NOPE'))
+    }
+
+    /* ============ Фаза 2, итерация 3: СОЗНАНИЕ — ЖИВОЙ ДВИЖОК ============
+     * Ядро сознания — чистые функции (selftest без сети); живой паритет
+     * прод-цепи доказывает tools/state-parity.ts + E2E (аудит-док §10). */
+    {
+      const C = await import('../src/lib/t4/consciousness')
+      const { EVENT_TYPES } = await import('../src/lib/t4/events')
+      const mk = (id: string, type: string, data?: Record<string, unknown>): T4Event => ({
+        id,
+        at: '2026-10-21T00:00:00.000Z',
+        type,
+        summary: `s:${id}`,
+        data,
+      })
+
+      // адаптер строк прод-цепи: data JSON-строкой парсится, служебные поля цепи отброшены
+      const adapted = C.engineRowsToEvents([
+        { seq: 1, id: 'e1', at: '2026-10-21T00:00:00.000Z', type: 'oc.appeared', summary: 'a', data: JSON.stringify({ slug: 'T4-40', name: 'Mab' }), hash: 'h1', prev: 'p0' },
+        { seq: 2, id: 'e2', at: '2026-10-21T00:00:01.000Z', type: 'note', summary: 'b', data: null },
+      ])
+      check(
+        'сознание: адаптер прод-цепи — data-строка парсится, hash/seq в фолд не идут',
+        adapted.length === 2 && adapted[0].data?.name === 'Mab' && adapted[1].data === undefined && !('hash' in adapted[0])
+      )
+
+      // объединение: дедуп по id (миграция сохраняла id — 399 общих), порядок движок→хвост
+      const fileEv = [mk('e1', 'oc.appeared', { slug: 'T4-40', name: 'Mab' }), mk('t1', 'gate.run', { slug: 'T4-44' }), mk('t2', 'batch.delivered', { slug: 'T4-44' })]
+      const engEv = [mk('e1', 'oc.appeared', { slug: 'T4-40', name: 'Mab' }), mk('e2', 'batch.void', { slug: 'T4-36' })]
+      const united = C.uniteChronicle(engEv, fileEv)
+      check(
+        'сознание: объединение — общий id считается ОДИН раз (oc.appeared не двойнится)',
+        united.composition.engine === 2 && united.composition.fileTail === 2 && united.events.filter((e) => e.id === 'e1').length === 1
+      )
+      check(
+        'сознание: порядок объединения — прод-цепь первым, файл-хвост в хвосте',
+        united.events.map((e) => e.id).join(',') === 'e1,e2,t1,t2'
+      )
+
+      // паритет: миграционная разница runIndex (случай §7: T4-04 — файл 5, прод 3) + void-надмножество + окно
+      const fileRun5 = [1, 2, 3, 4, 5].map((i) => mk(`r${i}`, 'gate.run', { slug: 'T4-04' }))
+      const engRun3 = [1, 2, 3].map((i) => mk(`r${i}`, 'gate.run', { slug: 'T4-04' }))
+      const fileEvents = [...fileRun5, mk('d1', 'batch.delivered', { slug: 'T4-41' })]
+      const engineEvents = [...engRun3, mk('d2', 'batch.delivered', { slug: 'T4-41' }), mk('v1', 'batch.void', { slug: 'T4-35' })]
+      const parity = C.foldParity(fileEvents, engineEvents, C.uniteChronicle(engineEvents, fileEvents).events)
+      check(
+        'сознание: паритет ловит разницу runIndex (§7, миграция 399/421: T4-04 — файл 5 · прод 3 · union 5)',
+        parity.runIndex.diffs.some((d) => d.includes('T4-04: file 5 · engine 3 · union 5'))
+      )
+      check(
+        'сознание: паритет — void движковой эры закрывает слот в union (надмножество)',
+        parity.voided.union === 1 && parity.voided.unionSuperset === true
+      )
+      check(
+        'сознание: паритет — окно ротации совпадает во всех трёх фолдах',
+        parity.window.equal && parity.window.union.join(',') === 'T4-41'
+      )
+
+      // resolveSource: по умолчанию движок (осознанное переключение), file — аварийный выход
+      check(
+        'сознание: resolveSource — по умолчанию движок, T4_STATE_SOURCE=file — аварийный выход',
+        C.resolveSource({}) === 'engine' && C.resolveSource({ T4_STATE_SOURCE: 'engine' }) === 'engine' && C.resolveSource({ T4_STATE_SOURCE: 'file' }) === 'file' && C.resolveSource({ T4_STATE_SOURCE: 'мусор' }) === 'file'
+      )
+
+      // квитанция эпохи в каноне
+      check('сознание: consciousness.switched в каноне событий (квитанция переключения)', (EVENT_TYPES as readonly string[]).includes('consciousness.switched'))
+
+      // непрогретый синхронный фолд при source=engine — ЧЕСТНЫЙ отказ, не тихий файл
+      process.env.T4_STATE_SOURCE = 'engine'
+      let unwarmed = ''
+      try {
+        C.consciousnessEvents()
+      } catch (e) {
+        unwarmed = (e as Error).name
+      }
+      process.env.T4_STATE_SOURCE = 'file'
+      check(
+        'сознание: непрогретый синхронный фолд — ConsciousnessUnavailableError, не молчаливый файл',
+        unwarmed === 'ConsciousnessUnavailableError'
+      )
     }
 
     console.log(`\nselftest: ${ok} pass, ${fail} fail`)

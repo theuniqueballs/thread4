@@ -24,6 +24,11 @@ export const EVENT_TYPES = [
   'spec.imported',
   'law.ratified',
   'law.amended',
+  // Фаза 2, итерация 3 (2026-10-21): квитанция осознанного переключения
+  // источника сознания — фолд состояния гейтов/ротации читает ПРОД-цепь
+  // живого движка (twin GET /v1/events, RO) с компенсацией файл-хвоста.
+  // Позиция в каноне синхронна с Rust (canon.rs) и bun-движком (canon.ts).
+  'consciousness.switched',
   'batch.compiled',
   // Фаза 2 (WRITE-мост, итерация 2): план живого движка → богатый контракт
   // писца. Квитанция источника: data.source ('prod'|'scratch'), data.sha10,

@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server'
 import { readLocked, requireRead } from '@/lib/t4/apiguard'
 
 import { foldState, nextBatchNumber, readEvents, verifyChain } from '@/lib/t4/events'
+import { readChronicle, type Chronicle } from '@/lib/t4/consciousness'
 import { specInventory } from '@/lib/t4/specs'
 import { gatesHealthFromEvents, GATES_TOTAL } from '@/lib/t4/gates'
 import { listFiles, BATCHES_DIR, readCommanderKey, readText } from '@/lib/t4/fsutil'
@@ -111,7 +112,18 @@ export async function GET(req: Request) {
   const read = requireRead(req)
   if (!read.ok) return read.response
 
-  const events = readEvents()
+  /* Фаза 2, итерация 3: сознание — живой движок. Панель состояния читает
+   * объединённую хронику (прод-цепь живого движка ∪ свежий файл-хвост).
+   * Движок недоступен — панель НЕ молчит: показывает файл-эру с честной
+   * меткой деградации (consciousness.degraded=true) — отображение может
+   * деградировать, РЕШЕНИЯ (гейты/сборка/сдача) — нет. */
+  let chron: Chronicle
+  try {
+    chron = await readChronicle()
+  } catch {
+    chron = { events: readEvents(), source: 'file' }
+  }
+  const events = chron.events
   const state = foldState(events)
   const batches = listFiles(BATCHES_DIR, '.md')
   const inv = specInventory()
@@ -149,6 +161,18 @@ export async function GET(req: Request) {
 
   return NextResponse.json({
     era: 'THREAD 4',
+    /* Фаза 2/итерация 3: источник сознания панели — живой движок.
+     * composition: { engine, fileTail, total } при живом движке; degraded —
+     * движок недоступен, показан файл-эра (решения в это время 503). */
+    consciousness: {
+      source: chron.source,
+      degraded: chron.source === 'file',
+      composition: chron.composition ?? null,
+      note:
+        chron.source === 'engine'
+          ? 'фолд состояния: прод-цепь живого движка ∪ свежий файл-хвост (идемпотентно по id)'
+          : 'движок недоступен — показано состояние файл-эры; решения (гейты/сборка/сдача) требуют движка',
+    },
     lastBatch: last ? `${last.slug}${last.title ? ` «${last.title}»` : ''}` : '— (эра только родилась)',
     nextStep,
     gateHealth,

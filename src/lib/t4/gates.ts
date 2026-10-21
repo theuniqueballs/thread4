@@ -10,7 +10,8 @@ import crypto from 'node:crypto'
 import path from 'node:path'
 
 import { assertSafeSlug, BATCHES_DIR, CONTRACTS_DIR, readJson, readText } from './fsutil'
-import { appendEvent, foldState, readEvents, type T4Event } from './events'
+import { appendEvent, foldState, type T4Event } from './events'
+import { consciousnessEvents } from './consciousness'
 import { getBans, getCarriers, getOCCanon, getRaces, getRatingRecipes, getRatingTechniques, type TechniqueEntry } from './specs'
 import { checkCoherence } from './dresser'
 import { LAWS, observableSlotCount } from './compiler'
@@ -1143,7 +1144,10 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
   {
     const f: string[] = []
     const notes: string[] = []
-    const state = foldState(readEvents())
+    /* Фаза 2, итерация 3: источник сознания — живой движок (прод-цепь ∪
+     * свежий файл-хвост; см. consciousness.ts). До переключения фолд читал
+     * только файл-летопись — окно не видело историю движковой эры. */
+    const state = foldState(consciousnessEvents())
     if (state.windowSlugs.length > 0 && !contract) {
       /* Аудит-2026-10-12 (тихая деградация): раньше весь блок молча
        * пропускался (`&& contract`). Теперь факт виден: у RAW/ручного батча
@@ -1746,7 +1750,7 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
   /* ---------------- 9. simcheck (warn) ---------------- */
   {
     const f: string[] = []
-    const state = foldState(readEvents())
+    const state = foldState(consciousnessEvents())
     // бойлерплейт (quality-теги, фейс-лок N31) общий для всех промптов —
     // не считаем предложением автора, иначе J=1.00 на каждом кадре
     const isBoilerplate = (s: string) =>
@@ -2442,7 +2446,7 @@ export function runGates(slug: string, dryRun = false): GatesResult | null {
 
   /* ---------------- receipt + event ---------------- */
   const sha10 = crypto.createHash('sha256').update(file).digest('hex').slice(0, 10)
-  const priorRuns = readEvents().filter(
+  const priorRuns = consciousnessEvents().filter(
     (e) => e.type === 'gate.run' && e.data?.slug === slug
   ).length
   const runIndex = priorRuns + 1

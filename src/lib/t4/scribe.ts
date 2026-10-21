@@ -19,7 +19,8 @@ import path from 'node:path'
 
 import { resolveLlmProvider, type LlmProvider } from './llm-provider'
 import { BATCHES_DIR, CONTRACTS_DIR, readJson, readText, writeText } from './fsutil'
-import { appendEvent, foldState, readEvents } from './events'
+import { appendEvent, foldState } from './events'
+import { consciousnessEvents } from './consciousness'
 import { parseBatch, runGates, type GateReceipt, type GatesResult } from './gates'
 import { isTransientLlmError, withTimeout } from './llm-guard'
 import { TIER_RANK } from './verdicts'
@@ -1137,8 +1138,9 @@ async function scribeBatchInner(
   /* contract + specs */
   const contract = readJson<BatchContract>(path.join(CONTRACTS_DIR, `${slug}.json`))
   if (!contract) throw new Error(`контракт ${slug} не найден — сначала сборка`)
-  // guard: сданный батч не перезаписывается черновиком (first-run-clean свято)
-  const allDelivered = readEvents()
+  // guard: сданный батч не перезаписывается черновиком (first-run-clean свято).
+  // Фаза 2/итерация 3: охрана видит сдачи живого движка тоже (∪ файл-хвост).
+  const allDelivered = consciousnessEvents()
     .filter((e) => e.type === 'batch.delivered')
     .map((e) => String(e.data?.slug ?? ''))
   if (allDelivered.includes(slug)) {
@@ -1511,7 +1513,7 @@ export async function polishBatch(
   if (!contract) throw new Error(`контракт ${slug} не найден — polish работает по контракту`)
   const text0 = readText(path.join(BATCHES_DIR, `${slug}.md`))
   if (text0 == null) throw new Error(`батч ${slug} не найден — polish чинит существующий черновик`)
-  const allDelivered = readEvents()
+  const allDelivered = consciousnessEvents()
     .filter((e) => e.type === 'batch.delivered')
     .map((e) => String(e.data?.slug ?? ''))
   if (allDelivered.includes(slug)) {

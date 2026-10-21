@@ -21,6 +21,7 @@ import { NextResponse } from 'next/server'
 
 import { clientErrorMessage, requireCommander } from '@/lib/t4/apiguard'
 import { scribeBatch } from '@/lib/t4/scribe'
+import { warmConsciousness } from '@/lib/t4/consciousness'
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 600
@@ -63,6 +64,10 @@ export async function POST(req: Request) {
        * (LLM), поток обязан тикать (инцидент Т4-42/43/44) */
       const beat = setInterval(() => send({ t: 'ping' }), HEARTBEAT_MS)
       try {
+        /* Фаза 2/итерация 3: сознание — живой движок. Прогрев прод-цепи до
+         * писца: охраны «уже сдан» и гейты фолдят хронику движка. Недоступен —
+         * настоящая причина на проводе ({t:'error'}), не молчаливый откат. */
+        await warmConsciousness()
         const result = await scribeBatch(slug, {
           maxRepairRounds,
           onLog: (line: string) => send({ t: 'log', line }),

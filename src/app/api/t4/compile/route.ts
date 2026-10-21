@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server'
 
 import { clientErrorMessage, requireCommander } from '@/lib/t4/apiguard'
-import { compileBatch } from '@/lib/t4/compiler'
-import { contractMarkdown } from '@/lib/t4/compiler'
+import { compileBatch, contractMarkdown } from '@/lib/t4/compiler'
+import { isConsciousnessError, warmConsciousness } from '@/lib/t4/consciousness'
 
 export const dynamic = 'force-dynamic'
 
@@ -46,6 +46,10 @@ export async function POST(req: Request) {
     }
   }
   try {
+    /* Фаза 2/итерация 3: сознание — живой движок. Прогрев прод-цепи ДО
+     * компиляции: ротация ОС фолдит хронику движка (∪ файл-хвост).
+     * Недоступен — честный 503 (ниже), не молчаливый откат на файл. */
+    await warmConsciousness()
     const contract = compileBatch(theme, {
       ocOrders: Array.isArray(body.ocOrders)
         ? body.ocOrders.map(String).map((s) => s.trim()).filter(Boolean).slice(0, 8).map((s) => s.slice(0, 60))
@@ -65,6 +69,9 @@ export async function POST(req: Request) {
       contract,
     })
   } catch (e) {
+    if (isConsciousnessError(e)) {
+      return NextResponse.json({ error: e.message, consciousness: 'unavailable' }, { status: 503 })
+    }
     return NextResponse.json(
       { error: clientErrorMessage(e) || 'compile failed' },
       { status: 500 }

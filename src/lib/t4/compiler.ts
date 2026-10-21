@@ -19,10 +19,10 @@ import {
   foldState,
   nextBatchNumber,
   ocSlugRank,
-  readEvents,
   type T4DerivedState,
   type T4Event,
 } from './events'
+import { consciousnessEvents } from './consciousness'
 import {
   allCarrierIds,
   getCarriers,
@@ -448,7 +448,9 @@ export const WITNESS_TYPES = [
 export function compileBatch(theme: string, options: CompileOptions = {}): BatchContract {
   ensureDirs()
 
-  const events = readEvents()
+  /* Фаза 2, итерация 3: ротация ОС из хроники живого движка (∪ файл-хвост).
+   * Прогрев обязателен в роутах/CLI (warmConsciousness) до compileBatch. */
+  const events = consciousnessEvents()
   const state = foldState(events)
   const slugOverride = options.slug && /^T4-\d{2}$/.test(options.slug) ? options.slug : null
   const num = slugOverride

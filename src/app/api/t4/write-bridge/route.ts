@@ -2,7 +2,12 @@ import { NextResponse } from 'next/server'
 
 import { clientErrorMessage, requireCommander } from '@/lib/t4/apiguard'
 import { contractMarkdown, lastCompiledRoster } from '@/lib/t4/compiler'
-import { appendEvent, foldState, readEvents } from '@/lib/t4/events'
+import { appendEvent, foldState } from '@/lib/t4/events'
+import {
+  consciousnessEvents,
+  isConsciousnessError,
+  warmConsciousness,
+} from '@/lib/t4/consciousness'
 import { CONTRACTS_DIR, listFiles, readJson, writeJson, writeText } from '@/lib/t4/fsutil'
 import type { BatchContract } from '@/lib/t4/compiler'
 import {
@@ -130,8 +135,12 @@ export async function POST(req: Request) {
   }
 
   try {
-    /* --- состояние файл-эры: окно, счётчики ОС, каскад несданных --- */
-    const state = foldState(readEvents())
+    /* Фаза 2, итерация 3: состояние моста — из хроники живого движка
+     * (прод-цепь ∪ свежий файл-хвост): окно, счётчики ОС, каскад несданных.
+     * Прогрев до фолда; движок недоступен — честный 503 (мост и так читает
+     * план только у живого движка — единая доктрина эпохи). */
+    await warmConsciousness()
+    const state = foldState(consciousnessEvents())
     const cascade = lastCompiledRoster(state, slug)
     const existing = listFiles(CONTRACTS_DIR, '.json').map((f) =>
       readJson<BatchContract>(`${CONTRACTS_DIR}/${f.name}`)
@@ -195,6 +204,9 @@ export async function POST(req: Request) {
       event: { id: evt.id, at: evt.at, type: evt.type, summary: evt.summary },
     })
   } catch (e) {
+    if (isConsciousnessError(e)) {
+      return NextResponse.json({ error: e.message, consciousness: 'unavailable' }, { status: 503 })
+    }
     return NextResponse.json(
       { error: clientErrorMessage(e) || 'bridge failed' },
       { status: 500 }
