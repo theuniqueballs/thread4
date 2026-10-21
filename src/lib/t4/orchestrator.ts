@@ -629,6 +629,18 @@ export interface AutoReport {
 export async function runAuto(opts: AutoOptions): Promise<AutoReport> {
   const onLog = opts.onLog
   const report: AutoReport = { slug: '', theme: null, executed: [], stopped: null, nextHint: null }
+  /* Честный стоп вместо сырого стектрейса: недоступный движок на любом
+   * прогреве — StepStop(engine-down) с полным отчётом (инвариант фазы 3). */
+  const warmOrStop = async () => {
+    try {
+      await warmConsciousness()
+    } catch (e) {
+      if (isConsciousnessError(e)) {
+        throw new StepStop('engine-down', `${e.message} — авто-цикл остановлен с отчётом, а не ждёт бесконечно`)
+      }
+      throw e
+    }
+  }
 
   /* --- цель цикла --- */
   let slug: string
@@ -636,7 +648,7 @@ export async function runAuto(opts: AutoOptions): Promise<AutoReport> {
     if (!isSafeSlug(opts.slug)) throw new StepStop('refused', `слаг «${opts.slug}» не канонический T4-NN`)
     slug = opts.slug
   } else {
-    await warmConsciousness()
+    await warmOrStop()
     const open = findOpenCycle(consciousnessEvents(), opts.theme)
     if (open && 'mismatch' in open) {
       throw new StepStop('refused', `тема «${opts.theme}»: ${open.mismatch} — продолжи её (t4 auto --slug ${open.slug}) или закрой (t4 void ${open.slug} «причина»)`)
@@ -656,7 +668,7 @@ export async function runAuto(opts: AutoOptions): Promise<AutoReport> {
     }
   }
   report.slug = slug
-  await warmConsciousness()
+  await warmOrStop()
   if (report.theme == null) {
     const orderEvt = [...consciousnessEvents()]
       .reverse()
@@ -672,6 +684,7 @@ export async function runAuto(opts: AutoOptions): Promise<AutoReport> {
 
   let idx = 0
   for (;;) {
+    await warmOrStop()
     const facts = await collectFacts(slug)
     const state = deriveCycleState(consciousnessEvents(), slug, facts)
     if (state.next == null) {

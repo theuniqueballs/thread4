@@ -263,7 +263,7 @@ async function main() {
           process.exit(1)
         }
         const step = cmd === 'plan' ? 'COMPILE' : cmd === 'expose' ? 'EXPOSITION' : 'WRITE'
-        const out = await runCycleStep(step, slug, (l) => console.log(l))
+        const out = await runCycleStep(step, slug, undefined)
         for (const l of out.lines) console.log(l)
         console.log(`следующий шаг: ${step === 'COMPILE' ? `expose ${slug}` : step === 'EXPOSITION' ? `write ${slug} (human-gate: экспозиция ждёт твоей руки)` : `gates ${slug}`}`)
         return
@@ -321,6 +321,11 @@ async function main() {
       if (e instanceof StepStop) {
         console.error(`СТОП (${e.kind}): ${e.message}`)
         process.exit(e.kind === 'gate-stop' ? 0 : 1)
+      }
+      const { isConsciousnessError } = await import('../src/lib/t4/consciousness')
+      if (isConsciousnessError(e)) {
+        console.error(`СТОП (engine-down): ${(e as Error).message}`)
+        process.exit(1)
       }
       throw e
     }
