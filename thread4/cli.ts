@@ -1,12 +1,33 @@
 /**
- * THREAD 4 CLI — seed / compile / check / gates / deliver / state.
+ * THREAD 4 CLI — seed / цикл (авто И вручную) / compile / check / gates / deliver / state.
  * Usage (bun):
+ *   bun thread4/cli.ts help            # полная шпаргалка обоих режимов цикла
+ *
+ * ── ЦИКЛ ORDER→COMPILE→EXPOSITION→WRITE→GATES→DELIVER (фаза 3) ──
+ *   Авто-цепочка (конечный автомат, состояние — события cycle.step в летописи):
+ *   bun thread4/cli.ts auto --theme "тема" [--until STEP] [--step STEP] [--approve] [--slug T4-NN]
+ *     · возобновление после падения — сам находит открытый цикл в летописи;
+ *     · идемпотентность: повтор шага в том же состоянии не плодит событий;
+ *     · human-gate: после EXPOSITION цепочка останавливается (экспозиция —
+ *       EXP-заглушки ждут твоей руки); продолжение — --approve или шаг вручную;
+ *     · любой hard FAIL гейтов — остановка с полным отчётом;
+ *     · движок молчит — таймаут шага + N повторов, потом честный стоп.
+ *   Ручной режим (каждый шаг рукой; существующие примитивы не тронуты):
+ *   bun thread4/cli.ts order "тема" [oc1,oc2,oc3]  # ORDER: закрепить слаг за темой
+ *   bun thread4/cli.ts plan T4-NN                 # COMPILE: план у живого движка
+ *   bun thread4/cli.ts expose T4-NN               # EXPOSITION: мост план→контракт
+ *   bun thread4/cli.ts write T4-NN                # WRITE: писец (LLM-мост)
+ *   bun thread4/cli.ts gates T4-NN                # GATES (существующий примитив)
+ *   bun thread4/cli.ts deliver T4-NN              # DELIVER (существующий примитив)
+ *
+ * ── Примитивы вне цикла (работают как работали) ──
  *   bun thread4/cli.ts seed          # era.born + spec.imported + law.ratified (once)
  *   bun thread4/cli.ts compile "тема" [oc1,oc2,oc3] [--pin oc-rplus,engine:key]
  *     (позиция [engine] ещё принимается для совместимости, но игнорируется —
  *      Issue #44: ротация всегда per-theme, судьба движков за автором/жнецом)
  *   bun thread4/cli.ts recompile T4-NN "тема"  # пересборка слага под текущий закон
  *   bun thread4/cli.ts check T4-01   # писец: сухой прогон гейтов (без событий)
+ *   bun thread4/cli.ts polish T4-01  # гейт-починка черновика (LLM, таймауты)
  *   bun thread4/cli.ts gates T4-01   # официальный прогон гейтов (gate.run в лог)
  *   bun thread4/cli.ts deliver T4-01 # официальный прогон + сдача батча
  *   bun thread4/cli.ts scribe T4-01  # авто-писец: черновик батча по контракту (LLM)
@@ -208,6 +229,91 @@ async function main() {
         process.exit(1)
       })
     return
+  }
+
+  /* ================= ФАЗА 3: ОРКЕСТРАТОР — ручные шаги цикла ============
+   * Каждый шаг цикла доступен рукой автора; существующие примитивы
+   * (compile/scribe/check/gates/deliver) не тронуты — шаги их ВЫЗЫВАЮТ.
+   * Состояние автомата — события cycle.step в летописи; повтор шага в
+   * том же состоянии не плодит событий-дублей. */
+  if (cmd === 'order' || cmd === 'plan' || cmd === 'expose' || cmd === 'write' || cmd === 'auto') {
+    const { runAuto, runCycleStep, stepOrder, StepStop, isCycleStep, CYCLE_STEPS } = await import('../src/lib/t4/orchestrator')
+    const flag = (name: string): string | undefined => {
+      const i = process.argv.indexOf(name)
+      return i >= 0 ? process.argv[i + 1] : undefined
+    }
+    const hasFlag = (name: string): boolean => process.argv.includes(name)
+    try {
+      if (cmd === 'order') {
+        const theme = process.argv[3]
+        const ocArg = process.argv[4]
+        if (!theme) {
+          console.error('usage: order "тема" [oc1,oc2,oc3]')
+          process.exit(1)
+        }
+        const out = await stepOrder(theme, ocArg ? ocArg.split(',').map((s) => s.trim()).filter(Boolean) : undefined)
+        for (const l of out.lines) console.log(l)
+        console.log(`следующий шаг: bun thread4/cli.ts plan ${out.slug}   # или вся цепочка: t4 auto --theme "${theme}"`)
+        return
+      }
+      if (cmd === 'plan' || cmd === 'expose' || cmd === 'write') {
+        const slug = process.argv[3]
+        if (!slug || !/^T4-[A-Za-z0-9][A-Za-z0-9.-]{0,30}$/.test(slug)) {
+          console.error(`usage: ${cmd} T4-NN`)
+          process.exit(1)
+        }
+        const step = cmd === 'plan' ? 'COMPILE' : cmd === 'expose' ? 'EXPOSITION' : 'WRITE'
+        const out = await runCycleStep(step, slug, (l) => console.log(l))
+        for (const l of out.lines) console.log(l)
+        console.log(`следующий шаг: ${step === 'COMPILE' ? `expose ${slug}` : step === 'EXPOSITION' ? `write ${slug} (human-gate: экспозиция ждёт твоей руки)` : `gates ${slug}`}`)
+        return
+      }
+      /* t4 auto --theme "…" [--until STEP] [--step STEP] [--approve] [--slug T4-NN] */
+      const theme = flag('--theme')
+      const slug = flag('--slug')
+      const untilArg = flag('--until')
+      const stepArg = flag('--step')
+      const approve = hasFlag('--approve')
+      if (!theme && !slug) {
+        console.error('usage: auto --theme "тема" [--until STEP] [--step STEP] [--approve] | auto --slug T4-NN [--until STEP] [--step STEP] [--approve]')
+        console.error(`шаги цикла: ${CYCLE_STEPS.join('→')}`)
+        process.exit(1)
+      }
+      for (const [name, val] of [['--until', untilArg], ['--step', stepArg]] as const) {
+        if (val != null && !isCycleStep(val)) {
+          console.error(`${name}: «${val}» вне канона цикла (${CYCLE_STEPS.join('→')})`)
+          process.exit(1)
+        }
+      }
+      const report = await runAuto({
+        theme,
+        slug,
+        until: untilArg as never,
+        step: stepArg as never,
+        approve,
+        onLog: (l) => console.log(l),
+      })
+      console.log('')
+      for (const ex of report.executed) {
+        for (const l of ex.lines) console.log(l)
+      }
+      if (report.stopped) {
+        if (report.stopped.kind === 'hard-fail' || report.stopped.kind === 'engine-down' || report.stopped.kind === 'refused') {
+          console.error(`\nСТОП (${report.stopped.kind}): ${report.stopped.message}`)
+        } else {
+          console.log(`\nСТОП (${report.stopped.kind}): ${report.stopped.message}`)
+        }
+        if (report.nextHint) console.log(`далее:\n${report.nextHint}`)
+      }
+      const bad = report.stopped && (report.stopped.kind === 'hard-fail' || report.stopped.kind === 'engine-down' || report.stopped.kind === 'refused')
+      process.exit(bad ? 1 : 0)
+    } catch (e) {
+      if (e instanceof StepStop) {
+        console.error(`СТОП (${e.kind}): ${e.message}`)
+        process.exit(e.kind === 'gate-stop' ? 0 : 1)
+      }
+      throw e
+    }
   }
 
   if (cmd === 'void') {
@@ -2167,11 +2273,124 @@ async function main() {
       )
     }
 
+    /* ============ ФАЗА 3: ОРКЕСТРАТОР — цикл как конечный автомат ==========
+     * Чистое ядро (без сети): вывод состояния из летописи + фактов,
+     * идемпотентность повтора (события-дубли невозможны), human-gates.
+     * Синхрон канона cycle.step по трём движкам проверяется ПО ФАЙЛАМ. */
+    {
+      const O = await import('../src/lib/t4/orchestrator')
+      const { EVENT_TYPES } = await import('../src/lib/t4/events')
+      const fsMod = await import('node:fs')
+      const mk = (id: string, type: string, data?: Record<string, unknown>): T4Event => ({
+        id,
+        at: '2026-10-22T00:00:00.000Z',
+        type,
+        summary: `s:${id}`,
+        data,
+      })
+
+      // канон: cycle.step синхронно в трёх движках (TS events.ts == canon.ts == canon.rs)
+      const canonTsEngine = (() => {
+        const src = fsMod.readFileSync('mini-services/t4-engine/src/config/canon.ts', 'utf-8')
+        const m = /export const EVENT_TYPES = \[([\s\S]*?)\] as const/.exec(src)
+        return (m?.[1] ?? '').split('\n').map((l) => l.trim()).filter((l) => /^'[a-z.]+'[, ]*$/.test(l) || /^'[\w.]+',$/.test(l)).map((l) => l.replace(/['",]/g, ''))
+      })()
+      const canonRust = (() => {
+        const src = fsMod.readFileSync('mini-services/t4-engine-rs/src/canon.rs', 'utf-8')
+        const m = /pub const EVENT_TYPES: \[&str; \d+\] = \[([\s\S]*?)\];/.exec(src)
+        return (m?.[1] ?? '').split('\n').map((l) => l.trim()).filter((l) => /^"[a-z.]+",?$/.test(l)).map((l) => l.replace(/["",]/g, ''))
+      })()
+      const tsCanon = EVENT_TYPES as readonly string[]
+      check(
+        'цикл: канон трёх движков синхронен (events.ts == canon.ts == canon.rs) — 24 типа',
+        canonTsEngine.length === 24 && canonRust.length === 24 && tsCanon.length === 24 &&
+        JSON.stringify(tsCanon) === JSON.stringify(canonTsEngine) &&
+        JSON.stringify(tsCanon) === JSON.stringify(canonRust)
+      )
+      check('цикл: cycle.step в каноне (квитанция шага конечного автомата)', tsCanon.includes('cycle.step'))
+
+      // вывод состояния: план есть → COMPILE закрыт; контракт есть → EXPOSITION закрыт
+      const factsEmpty = { plan: { found: false }, contractOnDisk: false, draftOnDisk: false, draftSha10: null, lastGateRun: null } as const
+      const st0 = O.deriveCycleState([], 'T4-44', factsEmpty)
+      check('цикл: пустые факты — следующий шаг ORDER, ничего не закрыто', st0.next === 'ORDER' && !st0.done.ORDER && !st0.staleHardFail)
+
+      const stPlan = O.deriveCycleState([], 'T4-44', { ...factsEmpty, plan: { found: true, source: 'scratch', status: 'compiled', sha10: 'aa11bb22cc', slots: 32 } })
+      check('цикл: план compiled у движка — ORDER+COMPILE закрыты, следующий EXPOSITION', stPlan.next === 'EXPOSITION' && stPlan.done.ORDER && stPlan.done.COMPILE)
+
+      const stContract = O.deriveCycleState([], 'T4-44', { ...factsEmpty, plan: { found: true, source: 'scratch', status: 'compiled' }, contractOnDisk: true, draftOnDisk: true, draftSha10: 'deadbeef01' })
+      check('цикл: черновик на диске без прогонов — WRITE закрыт, следующий GATES', stContract.next === 'GATES' && stContract.done.WRITE && !stContract.done.GATES)
+
+      // идемпотентность GATES: прогон по ТОМУ ЖЕ черновику PASS — шаг пропускается (дубля gate.run не будет)
+      const stGates = O.deriveCycleState([], 'T4-44', { ...factsEmpty, plan: { found: true, source: 'scratch', status: 'compiled' }, contractOnDisk: true, draftOnDisk: true, draftSha10: 'deadbeef01', lastGateRun: { sha10: 'deadbeef01', hardPass: true, run: 2 } })
+      check('цикл: gate.run PASS по текущему черновику — GATES закрыт, следующий DELIVER', stGates.next === 'DELIVER' && stGates.done.GATES)
+      // ...а FAIL по НЕизменённому черновику — честный стоп, а не повторный прогон
+      const stFail = O.deriveCycleState([], 'T4-44', { ...factsEmpty, plan: { found: true, source: 'scratch', status: 'compiled' }, contractOnDisk: true, draftOnDisk: true, draftSha10: 'deadbeef01', lastGateRun: { sha10: 'deadbeef01', hardPass: false, run: 2 } })
+      check('цикл: hard FAIL по неизменённому черновику — staleHardFail (повтор не задублирует gate.run)', stFail.staleHardFail && !stFail.done.GATES)
+      // починка меняет sha → прогон честный
+      const stFixed = O.deriveCycleState([], 'T4-44', { ...factsEmpty, plan: { found: true, source: 'scratch', status: 'compiled' }, contractOnDisk: true, draftOnDisk: true, draftSha10: 'fixed00002', lastGateRun: { sha10: 'deadbeef01', hardPass: false, run: 2 } })
+      check('цикл: черновик перечекан (новый sha) — GATES перезапускается честно', stFixed.next === 'GATES' && !stFixed.staleHardFail)
+
+      // DELIVER закрыт → цикл завершён, next=null (повтор auto ничего не сделает)
+      const delivered = [mk('o1', 'cycle.step', { slug: 'T4-44', step: 'ORDER', theme: 'тест' }), mk('d1', 'batch.delivered', { slug: 'T4-44' })]
+      const stDone = O.deriveCycleState(delivered, 'T4-44', { ...factsEmpty, draftOnDisk: true })
+      check('цикл: batch.delivered в летописи — цикл ЗАВЕРШЁН (повтор не родит шагов)', stDone.next === null && stDone.done.DELIVER && stDone.theme === 'тест')
+
+      // void закрывает цикл
+      const voided = [mk('o1', 'cycle.step', { slug: 'T4-44', step: 'ORDER', theme: 'тест' }), mk('v1', 'batch.void', { slug: 'T4-44' })]
+      check('цикл: void закрыл цикл — next=null', O.deriveCycleState(voided, 'T4-44', factsEmpty).next === null)
+
+      // открытый цикл по теме: возобновление после падения
+      const openChain = [
+        mk('d1', 'batch.delivered', { slug: 'T4-43' }),
+        mk('o2', 'cycle.step', { slug: 'T4-44', step: 'ORDER', theme: 'Тестовая тема фазы 3' }),
+        mk('c2', 'cycle.step', { slug: 'T4-44', step: 'COMPILE', planSha10: 'aa11bb22cc' }),
+      ]
+      const open = O.findOpenCycle(openChain, 'Тестовая тема фазы 3')
+      check('цикл: авто-возобновление — открытый цикл найден по теме (падение не теряется)', open != null && !('mismatch' in open) && open!.slug === 'T4-44')
+      const mismatch = O.findOpenCycle(openChain, 'другая тема')
+      check('цикл: другая тема на открытом цикле — честный mismatch, не тихий новый заказ', mismatch != null && 'mismatch' in mismatch && mismatch.slug === 'T4-44')
+
+      // квитанции: идентичность по sha — починка рождает НОВУЮ квитанцию, повтор — нет
+      check('цикл: квитанция шага одна на slug×step+sha (stepReceipted)', O.stepReceipted(openChain, 'T4-44', 'COMPILE') && !O.stepReceipted(openChain, 'T4-44', 'WRITE'))
+    }
+
     console.log(`\nselftest: ${ok} pass, ${fail} fail`)
     process.exit(fail === 0 ? 0 : 1)
   }
 
-  console.log('commands: seed | compile "theme" [engine] [oc1,oc2,oc3] [--pin x,y] | recompile T4-NN "theme" | scribe T4-NN | polish T4-NN | check T4-NN | gates T4-NN | deliver T4-NN | void T4-NN "reason" | state | drift T4-NN | stack T4-NN | lists | diff | trial | chain | verify [--heal] | shore-merge | reaper | corpus | recover [--apply] | grep-gate | selftest')
+  if (cmd === 'help' || cmd === '--help' || cmd === '-h') {
+    console.log(`THREAD 4 — цикл ORDER→COMPILE→EXPOSITION→WRITE→GATES→DELIVER (фаза 3)
+
+АВТО-РЕЖИМ (конечный автомат, состояние — события cycle.step в летописи):
+  t4 auto --theme "тема" [--until STEP] [--step STEP] [--approve] [--slug T4-NN]
+    · идёт по шагам до DELIVER (или до --until), останавливается:
+        - на HUMAN-GATE после EXPOSITION — экспозиция (EXP-заглушки контракта)
+          ждёт твоей руки; продолжение — только командой автора (--approve
+          или следующий шаг вручную);
+        - на ЛЮБОМ hard FAIL гейтов — полный отчёт, чинить (polish/руками);
+        - честно, если движок молчит (таймаут шага + N повторов, потом стоп);
+    · возобновление после падения — запусти ещё раз, автомат сам найдёт
+      открытый цикл в летописи и продолжит с текущего шага;
+    · идемпотентность: повтор шага в том же состоянии не плодит событий.
+
+РУЧНОЙ РЕЖИМ (каждый шаг рукой; примитивы scribe/gates/deliver не тронуты):
+  t4 order "тема" [oc1,oc2,oc3]   ORDER — закрепить следующий слаг за темой
+  t4 plan T4-NN                  COMPILE — план соберёт живой движок (scratch twin'а)
+  t4 expose T4-NN                EXPOSITION — WRITE-мост: план → богатый контракт
+  t4 write T4-NN                 WRITE — писец по контракту (существующий LLM-мост)
+  t4 gates T4-NN                 GATES — официальный прогон (существующий примитив)
+  t4 deliver T4-NN               DELIVER — сдача (существующий примитив)
+
+Переменные: T4_RUST_ORIGIN (twin, дефолт :3201) · T4_CYCLE_TIMEOUT_MS (8000) ·
+T4_CYCLE_RETRIES (2) · T4_STATE_SOURCE=file — аварийный источник файл-эры.
+
+Прочие команды: seed | compile | recompile | check | polish | gates | deliver |
+scribe | void | state | drift | stack | lists | diff | trial | chain | verify |
+shore-merge | reaper | corpus | recover | grep-gate | selftest`)
+    return
+  }
+
+  console.log('commands: seed | auto --theme "тема" [--until STEP] [--step STEP] [--approve] | order | plan | expose | write | compile "theme" [engine] [oc1,oc2,oc3] [--pin x,y] | recompile T4-NN "theme" | scribe T4-NN | polish T4-NN | check T4-NN | gates T4-NN | deliver T4-NN | void T4-NN "reason" | state | drift T4-NN | stack T4-NN | lists | diff | trial | chain | verify [--heal] | shore-merge | reaper | corpus | recover [--apply] | grep-gate | selftest | help')
 }
 
 main().catch((e) => {

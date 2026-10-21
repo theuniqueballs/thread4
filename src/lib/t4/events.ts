@@ -35,6 +35,12 @@ export const EVENT_TYPES = [
   // data.engineEvents — скелет уже заквитанцеван движком, летопись файл-эры
   // факт моста только фиксирует (окно/счётчики ОС не двигает — только сдача).
   'bridge.compiled',
+  // Фаза 3 (оркестратор, 2026-10-22): квитанция шага цикла
+  // ORDER→COMPILE→EXPOSITION→WRITE→GATES→DELIVER. Состояние конечного
+  // автомата — СОБЫТИЯ в летописи (конституция §2): шаг, отработавший до
+  // конца, пишет cycle.step (data.slug, data.step, data.theme, sha10-пины).
+  // Позиция в каноне синхронна с Rust (canon.rs) и bun-движком (canon.ts).
+  'cycle.step',
   'batch.delivered',
   'batch.void',
   'gate.run',
