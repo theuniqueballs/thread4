@@ -5,7 +5,7 @@
  *
  * ── ЦИКЛ ORDER→COMPILE→EXPOSITION→WRITE→GATES→DELIVER (фаза 3) ──
  *   Авто-цепочка (конечный автомат, состояние — события cycle.step в летописи):
- *   bun thread4/cli.ts auto --theme "тема" [--until STEP] [--step STEP] [--approve] [--slug T4-NN]
+ *   bun thread4/cli.ts auto --theme "тема" --oc "OC-тема1" [--oc "OC-тема2"] [--oc "OC-тема3"] [--until STEP] [--step STEP] [--approve] [--slug T4-NN]
  *     · возобновление после падения — сам находит открытый цикл в летописи;
  *     · идемпотентность: повтор шага в том же состоянии не плодит событий;
  *     · human-gate: после EXPOSITION цепочка останавливается (экспозиция —
@@ -13,7 +13,7 @@
  *     · любой hard FAIL гейтов — остановка с полным отчётом;
  *     · движок молчит — таймаут шага + N повторов, потом честный стоп.
  *   Ручной режим (каждый шаг рукой; существующие примитивы не тронуты):
- *   bun thread4/cli.ts order "тема" [oc1,oc2,oc3]  # ORDER: закрепить слаг за темой
+ *   bun thread4/cli.ts order "тема" "OC-тема1" ["OC-тема2"] ["OC-тема3"]  # ORDER (OC-темы — крафтовый вход, канон движка)
  *   bun thread4/cli.ts plan T4-NN                 # COMPILE: план у живого движка
  *   bun thread4/cli.ts expose T4-NN               # EXPOSITION: мост план→контракт
  *   bun thread4/cli.ts write T4-NN                # WRITE: писец (LLM-мост)
@@ -246,12 +246,12 @@ async function main() {
     try {
       if (cmd === 'order') {
         const theme = process.argv[3]
-        const ocArg = process.argv[4]
         if (!theme) {
-          console.error('usage: order "тема" [oc1,oc2,oc3]')
+          console.error('usage: order "тема" "OC-тема1" ["OC-тема2"] ["OC-тема3"]')
           process.exit(1)
         }
-        const out = await stepOrder(theme, ocArg ? ocArg.split(',').map((s) => s.trim()).filter(Boolean) : undefined)
+        const ocs = process.argv.slice(4).filter((s) => s && !s.startsWith('--'))
+        const out = await stepOrder(theme, ocs)
         for (const l of out.lines) console.log(l)
         console.log(`следующий шаг: bun thread4/cli.ts plan ${out.slug}   # или вся цепочка: t4 auto --theme "${theme}"`)
         return
@@ -268,12 +268,19 @@ async function main() {
         console.log(`следующий шаг: ${step === 'COMPILE' ? `expose ${slug}` : step === 'EXPOSITION' ? `write ${slug} (human-gate: экспозиция ждёт твоей руки)` : `gates ${slug}`}`)
         return
       }
-      /* t4 auto --theme "…" [--until STEP] [--step STEP] [--approve] [--slug T4-NN] */
+      /* t4 auto --theme "…" --oc "OC-тема1" [--oc …] [--until STEP] [--step STEP] [--approve] [--slug T4-NN] */
       const theme = flag('--theme')
       const slug = flag('--slug')
       const untilArg = flag('--until')
       const stepArg = flag('--step')
       const approve = hasFlag('--approve')
+      const ocThemes = process.argv
+        .reduce<{ acc: string[]; next: boolean }>((s, a) => {
+          if (a === '--oc') return { acc: s.acc, next: true }
+          if (s.next) return { acc: [...s.acc, ...a.split(',').map((x) => x.trim()).filter(Boolean)], next: false }
+          return s
+        }, { acc: [], next: false })
+        .acc
       if (!theme && !slug) {
         console.error('usage: auto --theme "тема" [--until STEP] [--step STEP] [--approve] | auto --slug T4-NN [--until STEP] [--step STEP] [--approve]')
         console.error(`шаги цикла: ${CYCLE_STEPS.join('→')}`)
@@ -287,6 +294,7 @@ async function main() {
       }
       const report = await runAuto({
         theme,
+        ocThemes,
         slug,
         until: untilArg as never,
         step: stepArg as never,
@@ -2362,7 +2370,7 @@ async function main() {
     console.log(`THREAD 4 — цикл ORDER→COMPILE→EXPOSITION→WRITE→GATES→DELIVER (фаза 3)
 
 АВТО-РЕЖИМ (конечный автомат, состояние — события cycle.step в летописи):
-  t4 auto --theme "тема" [--until STEP] [--step STEP] [--approve] [--slug T4-NN]
+  t4 auto --theme "тема" --oc "OC-тема1" [--oc "OC-тема2"] [--oc "OC-тема3"] [--until STEP] [--step STEP] [--approve] [--slug T4-NN]
     · идёт по шагам до DELIVER (или до --until), останавливается:
         - на HUMAN-GATE после EXPOSITION — экспозиция (EXP-заглушки контракта)
           ждёт твоей руки; продолжение — только командой автора (--approve
@@ -2374,7 +2382,8 @@ async function main() {
     · идемпотентность: повтор шага в том же состоянии не плодит событий.
 
 РУЧНОЙ РЕЖИМ (каждый шаг рукой; примитивы scribe/gates/deliver не тронуты):
-  t4 order "тема" [oc1,oc2,oc3]   ORDER — закрепить следующий слаг за темой
+  t4 order "тема" "OC-тема1" ["OC-тема2"] ["OC-тема3"]
+                                 ORDER — закрепить следующий слаг за темой
   t4 plan T4-NN                  COMPILE — план соберёт живой движок (scratch twin'а)
   t4 expose T4-NN                EXPOSITION — WRITE-мост: план → богатый контракт
   t4 write T4-NN                 WRITE — писец по контракту (существующий LLM-мост)
@@ -2390,7 +2399,7 @@ shore-merge | reaper | corpus | recover | grep-gate | selftest`)
     return
   }
 
-  console.log('commands: seed | auto --theme "тема" [--until STEP] [--step STEP] [--approve] | order | plan | expose | write | compile "theme" [engine] [oc1,oc2,oc3] [--pin x,y] | recompile T4-NN "theme" | scribe T4-NN | polish T4-NN | check T4-NN | gates T4-NN | deliver T4-NN | void T4-NN "reason" | state | drift T4-NN | stack T4-NN | lists | diff | trial | chain | verify [--heal] | shore-merge | reaper | corpus | recover [--apply] | grep-gate | selftest | help')
+  console.log('commands: seed | auto --theme "тема" --oc "OC-тема" [--until STEP] [--step STEP] [--approve] | order | plan | expose | write | compile "theme" [engine] [oc1,oc2,oc3] [--pin x,y] | recompile T4-NN "theme" | scribe T4-NN | polish T4-NN | check T4-NN | gates T4-NN | deliver T4-NN | void T4-NN "reason" | state | drift T4-NN | stack T4-NN | lists | diff | trial | chain | verify [--heal] | shore-merge | reaper | corpus | recover [--apply] | grep-gate | selftest | help')
 }
 
 main().catch((e) => {

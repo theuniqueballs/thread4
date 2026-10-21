@@ -342,7 +342,7 @@ export interface StepOutcome {
 
 export async function stepOrder(
   theme: string,
-  ocOrders?: string[],
+  ocThemes: string[],
   onLog?: (s: string) => void
 ): Promise<StepOutcome> {
   const lines: string[] = []
@@ -350,17 +350,25 @@ export async function stepOrder(
   if (t.length < 1 || t.length > 200) {
     throw new StepStop('refused', `тема обязательна (1..200 символов — канон движка), получено ${t.length}`)
   }
+  /* Канон движка: компиляция несёт 1..3 OC-темы автора ({theme, rating,
+   * position}) — это крафтовый вход заказа, не выдумка автомата. */
+  const ocs = (ocThemes ?? []).map((s) => s.trim()).filter(Boolean)
+  if (ocs.length < 1 || ocs.length > 3) {
+    throw new StepStop('refused', `OC-темы заказа обязательны: 1..3 (например: t4 order «тема» «тема первой ОС» «тема второй ОС» «тема третьей ОС»)`)
+  }
+  for (const o of ocs) {
+    if (o.length > 120) throw new StepStop('refused', `OC-тема длиннее 120 символов (канон движка): «${o.slice(0, 40)}…»`)
+  }
   await warmConsciousness()
   const state = foldState(consciousnessEvents())
   const num = nextBatchNumber(state.batches)
   const slug = `T4-${String(num).padStart(2, '0')}`
-  const ocs = ocOrders?.map((s) => s.trim()).filter(Boolean)
   appendEvent(
     'cycle.step',
-    `${slug}: цикл ORDER — заказ автора «${t}»${ocs?.length ? ` · ОС-прицел: ${ocs.join(', ')}` : ''} (следующий шаг: t4 plan ${slug} у живого движка)`,
-    { slug, step: 'ORDER', theme: t, ...(ocs?.length ? { ocOrders: ocs } : {}) }
+    `${slug}: цикл ORDER — заказ автора «${t}» · OC-темы: ${ocs.join(' / ')} (следующий шаг: t4 plan ${slug} у живого движка)`,
+    { slug, step: 'ORDER', theme: t, ocThemes: ocs.map((theme, i) => ({ theme, rating: 'R+', position: i + 1 })) }
   )
-  lines.push(`ORDER: слаг ${slug} закреплён за темой «${t}» (номер по union-хронике: max+1)`)
+  lines.push(`ORDER: слаг ${slug} закреплён за темой «${t}» (номер по union-хронике: max+1); OC-темы заказа: ${ocs.join(' / ')}`)
   onLog?.(lines[lines.length - 1]!)
   return { slug, step: 'ORDER', action: 'done', lines }
 }
@@ -386,15 +394,22 @@ export async function stepCompile(slug: string, onLog?: (s: string) => void): Pr
     .reverse()
     .find((e) => e.type === 'cycle.step' && e.data?.slug === slug && e.data?.step === 'ORDER')
   const theme = typeof orderEvt?.data?.theme === 'string' ? (orderEvt.data.theme as string) : null
-  if (!theme) {
+  if (!theme || !orderEvt) {
     throw new StepStop('refused', `у ${slug} нет квитанции ORDER с темой — сначала t4 order «тема»`)
   }
   /* Idempotency-Key: ретрай сети не рождает второй план — twin отдаёт
-   * закэшированный ответ компиляции (t4_idempotency). */
+   * закэшированный ответ компиляции (t4_idempotency). Тело — как у
+   * воркфлоу (проверенный путь): OC-темы заказа + Theme Expansion с гейтом №25. */
+  const ocThemes = Array.isArray(orderEvt.data?.ocThemes)
+    ? (orderEvt.data.ocThemes as { theme: string; rating: string; position: number }[])
+    : null
+  if (!ocThemes || ocThemes.length === 0) {
+    throw new StepStop('refused', `в квитанции ORDER ${slug} нет OC-тём (канон движка: 1..3) — переоформи заказ`)
+  }
   const data = await twinFetchJson(
     'POST',
     '/v1/compile',
-    { slug, theme },
+    { slug, theme, expandTheme: true, ocThemes },
     { 'idempotency-key': `cycle-${slug}-compile` }
   )
   const plan = data.plan as { sha10?: string; slots?: unknown[] } | undefined
@@ -572,6 +587,8 @@ export async function runCycleStep(step: CycleStep, slug: string, onLog?: (s: st
 
 export interface AutoOptions {
   theme?: string
+  /** OC-темы заказа (1..3) — обязательны для нового цикла (канон движка). */
+  ocThemes?: string[]
   slug?: string
   /** Выполнить до шага включительно (по умолчанию DELIVER). */
   until?: CycleStep
@@ -613,7 +630,7 @@ export async function runAuto(opts: AutoOptions): Promise<AutoReport> {
       if (!opts.theme) {
         throw new StepStop('refused', 'нет ни открытого цикла, ни темы — t4 auto --theme «тема»')
       }
-      const ord = await stepOrder(opts.theme, undefined, undefined)
+      const ord = await stepOrder(opts.theme, opts.ocThemes ?? [], undefined)
       slug = ord.slug
       report.theme = opts.theme
       report.executed.push({ step: 'ORDER', action: 'done', lines: ord.lines, sha10: null })
