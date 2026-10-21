@@ -243,6 +243,17 @@ export function StatusBar({
             `t4-engine :${tele.port}${tele.up ? ` · цепь ${tele.chainHeight ?? '—'} · ${tele.chainOk === true ? 'SEALED' : 'нет данных'}` : ' не отвечает'}`
           )
         : pill('движок', 'молчит', 'err')}
+      {(() => {
+        /* Фаза 2, итерация 3: источник сознания — живой движок (прод-цепь ∪
+         * файл-хвост). Деградация видна: панель файл-эры = движок молчит. */
+        const con = asRecord(rec.consciousness)
+        const comp = asRecord(con.composition)
+        const degraded = con.degraded === true
+        const value = degraded
+          ? 'файл-эра · движок молчит'
+          : `движок · прод ${asStr(comp.engine) ?? '—'} + хвост ${asStr(comp.fileTail) ?? '—'}`
+        return pill('сознание', value, degraded ? 'warn' : 'ok', asStr(con.note) ?? 'источник фолда состояния')
+      })()}
       {glass.commanderKey === true
         ? pill('ключ', keySaved ? 'вооружён' : 'на сервере', keySaved ? 'ok' : 'warn', keySaved ? 'ключ командира сохранён в браузере — мутации открыты' : 'серверный замок есть, браузерного ключа нет — настрой')
         : pill('ключ', 'нет замка', 'err')}
