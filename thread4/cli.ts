@@ -1914,6 +1914,134 @@ async function main() {
       check('systemPrompt(): дистилляция законов на месте (роль писца + формат выдачи)', sp.includes('THE HOUSE SCRIBE') && sp.includes('OUTPUT FORMAT'))
     }
 
+    /* ---- Фаза 2, итерация 2: WRITE-мост (детерминированный адаптер
+     *      план движка → богатый контракт). Ядро чистое: синтетический
+     *      план T4-43-формы (32 слота: 3 OC + 14 MAIN + 7 NICHE + 8 EXP,
+     *      2 A/B-пары) гоняется без диска и без живого движка. ---- */
+    {
+      const {
+        planToContract,
+        genreOfPlan,
+        nextExpLetterIndex,
+        usedExpLettersOfContracts,
+      } = await import('../src/lib/t4/write-bridge')
+      const { LAWS } = await import('../src/lib/t4/compiler')
+
+      const mkPlan = () => ({
+        slug: 'T4-43',
+        title: 'Trove of Terror (Halloween theme)',
+        theme: 'Trove of Terror (Halloween theme)',
+        engine: 'per-theme',
+        seed: '531022c766e91bcb',
+        sha10: '96a88693e6',
+        exp: 8,
+        abPairs: 2,
+        receipts: [
+          { gate: 'structure', level: 'hard', verdict: 'PASS' },
+          { gate: 'exp-purity', level: 'hard', verdict: 'PASS' },
+          { gate: 'floors', level: 'hard', verdict: 'PASS' },
+          { gate: 'window', level: 'hard', verdict: 'PASS' },
+          { gate: 'ab-single-variable', level: 'hard', verdict: 'PASS' },
+        ],
+        slots: [
+          { position: 1, kind: 'OC', rating: 'R+', register: 'student', ocTheme: 'Caught changing', paletteId: 'P089' },
+          { position: 2, kind: 'OC', rating: 'R+', register: 'young', ocTheme: 'Executioner', paletteId: 'P052' },
+          { position: 3, kind: 'OC', rating: 'R+', register: 'milf', ocTheme: 'Tentacles tease', paletteId: 'P074' },
+          { position: 4, kind: 'MAIN', rating: 'R+', register: 'young', paletteId: 'P088', ab: { pair: 1, half: 'A' } },
+          { position: 5, kind: 'MAIN', rating: 'R+', register: 'young', paletteId: 'P024', ab: { pair: 1, half: 'B' } },
+          { position: 6, kind: 'MAIN', rating: 'R+', register: 'student', paletteId: 'P051', ab: { pair: 2, half: 'A' } },
+          { position: 7, kind: 'MAIN', rating: 'R+', register: 'student', paletteId: 'P053', ab: { pair: 2, half: 'B' } },
+          ...Array.from({ length: 7 }, (_, i) => ({
+            position: 8 + i,
+            kind: 'MAIN',
+            rating: 'R+',
+            register: (['milf', 'student', 'young'] as const)[i % 3],
+            paletteId: `P0${(17 + i).toString().padStart(2, '0')}`,
+          })),
+          { position: 15, kind: 'NICHE', rating: 'R', register: 'young', paletteId: 'P030' },
+          { position: 16, kind: 'NICHE', rating: 'PG-13', register: 'student', paletteId: 'P031' },
+          { position: 17, kind: 'NICHE', rating: 'R', register: 'milf', paletteId: 'P032' },
+          { position: 18, kind: 'NICHE', rating: 'PG-13', register: 'young', paletteId: 'P033' },
+          { position: 19, kind: 'NICHE', rating: 'R', register: 'student', paletteId: 'P034' },
+          { position: 20, kind: 'NICHE', rating: 'R+', register: 'young', paletteId: 'P035' },
+          { position: 21, kind: 'NICHE', rating: 'R+', register: 'milf', paletteId: 'P036' },
+          ...Array.from({ length: 8 }, (_, i) => ({
+            position: 22 + i,
+            kind: 'EXP',
+            rating: 'R+',
+            register: 'student',
+            paletteId: `P0${(40 + i).toString().padStart(2, '0')}`,
+          })),
+        ] as Parameters<typeof planToContract>[0]['slots'],
+      })
+      const mkState = () => ({
+        batches: [],
+        windowSlugs: [],
+        ocAppearances: {},
+        ocLastSeen: {},
+        voidedSlugs: [],
+      })
+      const bridgeOpts = () => ({
+        slug: 'T4-43',
+        state: mkState(),
+        cascade: null,
+        usedExpLetters: ['α', 'β'] as string[],
+        now: '2026-10-20T12:00:00.000Z',
+      })
+
+      const r1 = planToContract(mkPlan(), bridgeOpts())
+      const r2 = planToContract(mkPlan(), bridgeOpts())
+      const c = r1.contract
+
+      check('мост: детерминизм — тот же план → байт-в-байт тот же контракт', JSON.stringify(r1) === JSON.stringify(r2))
+      check('мост: жанры — движковый MAIN → VOLT, OC/NICHE/EXP зеркалятся', genreOfPlan('MAIN') === 'VOLT' && genreOfPlan('NICHE') === 'NICHE' && genreOfPlan('OC') === 'OC' && genreOfPlan('EXP') === 'EXP')
+      check('мост: структура — 3 OC + 21 мейн (VOLT+NICHE) + 8 EXP = 24 + оверлей', c.slots.filter((s) => s.kind === 'OC').length === 3 && c.slots.filter((s) => s.kind === 'NICHE').length === 7 && c.slots.filter((s) => s.kind === 'EXP').length === 8 && c.slots.filter((s) => s.kind === 'VOLT').length === 14)
+      check('мост: рейтинги — зеркало плана (R+ 27, R 3, PG-13 2)', JSON.stringify(c.spread) === JSON.stringify([{ rating: 'R+', count: 27 }, { rating: 'R', count: 3 }, { rating: 'PG-13', count: 2 }]))
+      check('мост: палитры — номера движка резолвятся в полные id спеков (P089 → P89_*)', c.slots[0].palette === 'P89_THRESHOLD_GOLD' && c.slots[0].paletteName !== '' && c.slots.every((s) => /^P\d{1,3}_/.test(s.palette)))
+      check('мост: OC-имена назначены из канона (3, активные), темы ОС сохранены дословно', c.slots.slice(0, 3).every((s) => typeof s.oc === 'string' && s.oc !== '') && c.slots[0].ocTheme === 'Caught changing' && c.ocRotation.length === 3)
+      check('мост: позы — формат PL, PL01 отставлен, R+ без HIGH-риска', c.slots.every((s) => /^PL\d{2,3}$/.test(s.pose) && s.pose !== 'PL01') && c.slots.filter((s) => s.rating === 'R+').every((s) => s.poseRisk !== 'HIGH'))
+      check('мост: стеки — R+ несут core-4 (4 носителя), R/PG-13 — tier-3', c.slots.filter((s) => s.rating === 'R+').every((s) => s.carriers.length === 4) && c.slots.filter((s) => s.rating === 'R' || s.rating === 'PG-13').every((s) => s.carriers.length === 3))
+      {
+        const sheerIds = new Set(
+          (await import('../src/lib/t4/specs')).allCarrierIds(
+            JSON.parse(fs.readFileSync('thread4/specs/carriers.json', 'utf-8')) as never
+          ).filter((x) => x.sheer_family === true).map((x) => x.id)
+        )
+        const sheerFrames = c.slots.filter((s) => s.carriers.some((cr) => sheerIds.has(cr.id))).length
+        const cap = Math.floor(27 * (LAWS.sheerFrameCapPct / 100))
+        check(`мост: sheer-бюджет батча честен (${sheerFrames} ≤ cap ${cap})`, sheerFrames <= cap)
+      }
+      {
+        const p4 = c.slots.find((s) => s.position === 4)!
+        const p5 = c.slots.find((s) => s.position === 5)!
+        const diff = new Set([...p4.carriers.map((x) => x.id), ...p5.carriers.map((x) => x.id)])
+        check('мост: A/B-пара — лид общий, дифф стеков ровно 2 (одна замена носителя)', p4.lead === p5.lead && p4.ab?.pair === p5.ab?.pair && p4.ab?.half === 'A' && p5.ab?.half === 'B' && p4.ab?.withSlot === 5 && p5.ab?.withSlot === 4 && diff.size === p4.carriers.length + 1 && c.abPairs.length === 2 && c.abPairs[0].pair === 'α' && c.abPairs[0].lead === p4.lead)
+      }
+      {
+        const expSlots = c.slots.filter((s) => s.kind === 'EXP')
+        const letters = expSlots.map((s) => s.exp?.letter ?? '')
+        const greek = 'αβγδεζηθικλμνξοπρστυφχψω'
+        check('мост: EXP — буквы продолжают ряд после использованных (α,β → γ..η), без повторов, гипотезы непусты', letters[0] === 'γ' && new Set(letters).size === letters.length && letters.every((l) => greek.includes(l)) && expSlots.every((s) => (s.exp?.hypothesis ?? '').length > 10) && nextExpLetterIndex(['ω']) === 0 && nextExpLetterIndex(['β']) === 2)
+        check('мост: EXP-болванка — half A для одиночек (маркер радара EXP γ-A читаем)', expSlots.every((s) => s.exp?.half === undefined || s.exp.half === 'A' || s.exp.half === 'B'))
+      }
+      check('мост: расовый каст — закону, без human, фича расы несётся', c.racialCount > 0 && c.racialCount <= LAWS.racialDefault && c.slots.every((s) => s.race !== 'human') && c.slots.filter((s) => s.race).every((s) => typeof s.raceFeature === 'string' && s.raceFeature !== ''))
+      check('мост: NICHE — witness и arch на каждом нишевом слоте', c.slots.filter((s) => s.kind === 'NICHE').every((s) => typeof s.witness === 'string' && s.witness !== '' && typeof s.arch === 'string' && s.arch !== ''))
+      check('мост: провенанс — engineLaw несёт sha10, laws.bridge непуст, OC-каскад не путает пустое состояние', c.engineLaw.includes('96a88693e6') && typeof c.laws.bridge === 'string' && c.laws.bridge.includes('WRITE-мост') && c.ocCascade === undefined)
+      check('мост: usedExpLetters из контрактов читаются (машинальный парсер)', usedExpLettersOfContracts([{ slots: [{ exp: { letter: 'κ' } }] }, { slots: [] }]).join(',') === 'κ')
+      check('мост: окно пустое → windowSlugs зеркалят state, windowOpaque не пишется', JSON.stringify(c.windowSlugs) === '[]' && c.windowOpaque === undefined)
+
+      let errSlug = ''
+      try { planToContract(mkPlan(), { ...bridgeOpts(), slug: 'T4-XX' }) } catch (e) { errSlug = (e as Error).message }
+      check('мост: чужой слаг плана — отказ на входе', errSlug.includes('не канонический') || errSlug.includes('≠ заказанному'))
+      let errPalette = ''
+      try {
+        const bad = mkPlan()
+        bad.slots[0] = { ...bad.slots[0], paletteId: 'P999_NOPE' }
+        planToContract(bad, bridgeOpts())
+      } catch (e) { errPalette = (e as Error).message }
+      check('мост: палитра плана вне фонда — отказ с позицией слота', errPalette.includes('P01') && errPalette.includes('P999_NOPE'))
+    }
+
     console.log(`\nselftest: ${ok} pass, ${fail} fail`)
     process.exit(fail === 0 ? 0 : 1)
   }

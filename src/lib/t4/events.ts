@@ -25,6 +25,11 @@ export const EVENT_TYPES = [
   'law.ratified',
   'law.amended',
   'batch.compiled',
+  // Фаза 2 (WRITE-мост, итерация 2): план живого движка → богатый контракт
+  // писца. Квитанция источника: data.source ('prod'|'scratch'), data.sha10,
+  // data.engineEvents — скелет уже заквитанцеван движком, летопись файл-эры
+  // факт моста только фиксирует (окно/счётчики ОС не двигает — только сдача).
+  'bridge.compiled',
   'batch.delivered',
   'batch.void',
   'gate.run',

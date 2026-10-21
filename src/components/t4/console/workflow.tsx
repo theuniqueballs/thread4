@@ -719,6 +719,20 @@ export function WorkflowDeck({
   const [compiled, setCompiled] = useState<CompileResult | null>(null)
   const [stale, setStale] = useState(false)
 
+  /* WRITE-мост (фаза 2, итерация 2): план движка → богатый контракт писца.
+   * Работает и для scratch-сборки воркфлоу, и для prod-висяка (T4-43):
+   * мост сам разыскивает слаг (scratch → prod), квитанция — bridge.compiled. */
+  const [bridgeSlug, setBridgeSlug] = useState('')
+  const [bridgeResult, setBridgeResult] = useState<{
+    slug: string
+    source: string
+    bridgeNote: string
+    slots: number
+    laws: number
+    oc: string[]
+  } | null>(null)
+  const [bridgeError, setBridgeError] = useState<string | null>(null)
+
   /* шаг 3: Review & Deliver */
   const [delivered, setDelivered] = useState<string | null>(null)
   const [voided, setVoided] = useState<string | null>(null)
@@ -1098,6 +1112,52 @@ export function WorkflowDeck({
       notify('error', 'Следующий номер не взят', msg)
     }
   }, [runCompile])
+
+  /* WRITE-мост: POST /api/t4/write-bridge — план живого движка (twin :3201)
+   * → контракт contracts/T4-NN.json (позы/стеки/лиды/расы/OC-имена из спеков
+   * детерминированно по сиду плана) + квитанция bridge.compiled в летописи. */
+  const runBridge = useCallback(async () => {
+    const s = bridgeSlug.trim().toUpperCase()
+    if (!/^T4-\d{2,3}$/.test(s)) {
+      setBridgeError('слаг канонический T4-NN')
+      return
+    }
+    setBridgeError(null)
+    setBusy('bridge')
+    try {
+      const res = await fetch(withGatewayPort('/api/t4/write-bridge'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...commanderHeaders() },
+        body: JSON.stringify({ slug: s }),
+        cache: 'no-store',
+      })
+      const raw: unknown = await res.json()
+      const data = asRecord(raw)
+      if (!res.ok) throw new Error(asStr(data.error) || `HTTP ${res.status}`)
+      const contract = asRecord(data.contract)
+      setBridgeResult({
+        slug: asStr(data.slug) || s,
+        source: asStr(data.source) || '—',
+        bridgeNote: asStr(data.bridgeNote) || '',
+        slots: asArray(contract.slots).length,
+        laws: Object.keys(asRecord(contract.laws)).length,
+        oc: asArray(contract.ocRotation)
+          .map((o) => asStr(asRecord(o).name))
+          .filter(Boolean),
+      })
+      notify(
+        'success',
+        `Мост: контракт ${s} собран`,
+        `источник плана — живой движок (${asStr(data.source) || '—'})`
+      )
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'мост не прошёл'
+      setBridgeError(msg)
+      notify('error', 'WRITE-мост не прошёл', msg)
+    } finally {
+      setBusy(null)
+    }
+  }, [bridgeSlug])
 
   /* ── Review: две батареи → одна таблица ── */
 
@@ -1834,6 +1894,49 @@ export function WorkflowDeck({
                   >
                     карточка писца (I)
                   </button>
+                </div>
+
+                {/* WRITE-мост (фаза 2, итерация 2): план движка → контракт */}
+                <div className="rounded-md border border-emerald-500/20 bg-emerald-500/5 px-3 py-2">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <ArrowRight className="size-3.5 shrink-0 text-emerald-300" />
+                    <span className="text-[11px] text-zinc-400">
+                      WRITE-мост — план движка → богатый контракт писца: скелет зеркалит движок 1-в-1
+                      (квитанции twin'а), обогащение (позы/стеки/лиды/расы/OC-имена) детерминировано
+                      сидом плана. Слаг можешь заменить на прод-висяк (T4-43) — мост разыщет его в prod-летописи.
+                    </span>
+                    <input
+                      value={bridgeSlug}
+                      onChange={(e) => setBridgeSlug(e.target.value)}
+                      placeholder={compiled.slug}
+                      aria-label="слаг для WRITE-моста"
+                      className="w-24 shrink-0 rounded-md border border-zinc-700 bg-zinc-900/60 px-2 py-1 font-mono text-[11px] text-zinc-200 outline-none focus:border-emerald-500/50"
+                    />
+                    <button
+                      type="button"
+                      onClick={runBridge}
+                      disabled={busy != null || !/^T4-\d{2,3}$/.test(bridgeSlug.trim().toUpperCase())}
+                      className="rounded-md border border-emerald-500/40 px-2 py-1 font-mono text-[10px] text-emerald-300 transition-colors hover:bg-emerald-500/10 disabled:opacity-40"
+                    >
+                      план → контракт
+                    </button>
+                  </div>
+                  {bridgeError ? (
+                    <p className="mt-2 text-[11px] text-rose-300">{bridgeError}</p>
+                  ) : null}
+                  {bridgeResult ? (
+                    <div className="mt-2 space-y-1 font-mono text-[10px]">
+                      <p className="text-emerald-300">
+                        контракт {bridgeResult.slug}.json + .md записаны · источник плана: живой движок
+                        ({bridgeResult.source}) · слотов {bridgeResult.slots} · законы {bridgeResult.laws}
+                        {bridgeResult.oc.length > 0 ? ` · OC: ${bridgeResult.oc.join(', ')}` : ''}
+                      </p>
+                      <p className="text-zinc-500">{bridgeResult.bridgeNote}</p>
+                      <p className="text-zinc-600">
+                        квитанция bridge.compiled в летописи · писец ест contracts/{bridgeResult.slug}.json
+                      </p>
+                    </div>
+                  ) : null}
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2">

@@ -44,7 +44,7 @@ import { proposeVariety, proposeBatchVariety, cameraForLead } from './variety-en
 /* Seeded RNG (deterministic compiles)                                 */
 /* ------------------------------------------------------------------ */
 
-function hashSeed(s: string): number {
+export function hashSeed(s: string): number {
   const h = crypto.createHash('sha256').update(s).digest()
   return h.readUInt32LE(0)
 }
@@ -60,13 +60,13 @@ function mulberry32(seed: number): () => number {
   }
 }
 
-interface Rng {
+export interface Rng {
   next(): number
   pick<T>(arr: T[]): T
   shuffle<T>(arr: T[]): T[]
 }
 
-function makeRng(seed: number): Rng {
+export function makeRng(seed: number): Rng {
   const rand = mulberry32(seed)
   const pick = <T>(arr: T[]): T => arr[Math.floor(rand() * arr.length)]
   const shuffle = <T>(arr: T[]): T[] => {
@@ -413,7 +413,7 @@ export function lastCompiledRoster(
 }
 
 /** Least-recently-used picker: prefer never-used, then least used, tie → rng order. */
-function lruPick<T extends { id: string }>(
+export function lruPick<T extends { id: string }>(
   pool: T[],
   usage: Record<string, number>,
   rng: Rng
@@ -428,14 +428,14 @@ function lruPick<T extends { id: string }>(
 
 export const LAWS = getPolicy().law
 
-const LEAD_ZONES = [
+export const LEAD_ZONES = [
   'hands', 'throat', 'collarbone', 'breasts', 'waist', 'hips', 'seat',
   'thighs', 'hamstrings', 'nape', 'cheeks', 'shoulders', 'back',
 ]
 
-const CLOSER_CLASSES = ['dialogue', 'long-fused', 'fragment-pair', 'image-close', 'action-close']
+export const CLOSER_CLASSES = ['dialogue', 'long-fused', 'fragment-pair', 'image-close', 'action-close']
 
-const WITNESS_TYPES = [
+export const WITNESS_TYPES = [
   'mirror', 'shop glass', 'security monitor', 'door gap', 'propped phone',
   'traffic mirror', 'level gauge', 'window pane', 'wet street', 'elevator brass',
   'photo frame', 'spoon', 'watch face', 'car hood', 'fountain edge',
