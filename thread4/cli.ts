@@ -277,7 +277,9 @@ async function main() {
       const ocThemes = process.argv
         .reduce<{ acc: string[]; next: boolean }>((s, a) => {
           if (a === '--oc') return { acc: s.acc, next: true }
-          if (s.next) return { acc: [...s.acc, ...a.split(',').map((x) => x.trim()).filter(Boolean)], next: false }
+          /* каждый --oc — РОВНО ОДНА OC-тема (запятая внутри темы — законна,
+           * дробить нельзя; несколько ОС = несколько --oc) */
+          if (s.next) return { acc: [...s.acc, a.trim()].filter(Boolean), next: false }
           return s
         }, { acc: [], next: false })
         .acc
