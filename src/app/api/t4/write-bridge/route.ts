@@ -136,8 +136,14 @@ export async function POST(req: Request) {
     const existing = listFiles(CONTRACTS_DIR, '.json').map((f) =>
       readJson<BatchContract>(`${CONTRACTS_DIR}/${f.name}`)
     )
+    /* Скан EXP-ряда — БЕЗ мостуемого слага: переподъём того же плана обязан
+     * давать тот же контракт (референциальная прозрачность моста), иначе
+     * второй прогон кормится буквами собственного прошлого прогона. */
     const usedExpLetters = usedExpLettersOfContracts(
-      existing.filter((c): c is BatchContract => c != null && Array.isArray(c.slots))
+      existing.filter(
+        (c): c is BatchContract =>
+          c != null && Array.isArray(c.slots) && c.slug !== slug
+      )
     )
 
     /* --- адаптер (детерминированный) --- */
