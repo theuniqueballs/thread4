@@ -37,13 +37,16 @@ function sourceFromEnv(raw: string | undefined): ChronicleSource | null {
   return null
 }
 
-/** Разрешить источник сознания. По умолчанию — движок (само переключение
+/** Разрешить источник сознания. Без переменной — движок (само переключение
  *  эпохи зашито в код и заквитанцевано событием consciousness.switched);
- *  T4_STATE_SOURCE=file — аварийный выход файл-эры без правки кода. */
+ *  T4_STATE_SOURCE=file — аварийный выход файл-эры. НЕИЗВЕСТНОЕ значение —
+ *  fail-safe в файл-эру: оператор, пинивший источник с опечаткой, не должен
+ *  получить молчаливое «движок» (диагностика GET /api/t4/consciousness
+ *  покажет source: 'file' — несоответствие ожиданию видно сразу). */
 export function resolveSource(env: Record<string, string | undefined> = process.env): ChronicleSource {
-  const forced = sourceFromEnv(env.T4_STATE_SOURCE)
-  if (forced) return forced
-  return 'engine'
+  const raw = env.T4_STATE_SOURCE
+  if (raw === undefined) return 'engine'
+  return sourceFromEnv(raw) ?? 'file'
 }
 
 /** Движок недоступен, когда сознание требует живой движок. Роуты мапят
