@@ -1963,7 +1963,7 @@ async function main() {
             kind: 'NICHE',
             rating: (['R', 'PG-13', 'R', 'PG-13', 'R', 'R+', 'R+'] as const)[i],
             register: (['young', 'student', 'milf', 'young', 'student', 'young', 'milf'] as const)[i],
-            paletteId: `P1${(00 + i).toString().padStart(2, '0')}`,
+            paletteId: `P1${(0 + i).toString().padStart(2, '0')}`,
           })),
           ...Array.from({ length: 8 }, (_, i) => ({
             position: 25 + i,

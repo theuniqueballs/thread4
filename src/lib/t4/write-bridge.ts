@@ -96,7 +96,7 @@ export interface EnginePlan {
 }
 
 export interface BridgeStateInput {
-  batches: { slug: string; deliveredAt: string | null }[]
+  batches: { slug: string; deliveredAt?: string | null }[]
   windowSlugs: string[]
   ocAppearances: Record<string, number>
   ocLastSeen: Record<string, string>
@@ -178,6 +178,9 @@ export function planToContract(plan: EnginePlan, opts: BridgeOptions): BridgeRes
   if (!carriers || !poses || !palettes || !ocCanon || !races || !recipes) {
     throw new Error('write-bridge: спеки не загружены — импорт пулов не выполнялся')
   }
+  /* узкие ссылки для хойстед-замыканий (narrowing через function declaration
+   * TS не протаскивает) */
+  const rec = recipes
   const paletteById = new Map(palettes.palettes.map((p) => [p.id, p]))
   /* Движок ссылается на палитры КОРОТКИМИ НОМЕРАМИ (pid(n) = «P089»), спек
    * файл-эры — полными id («P89_THRESHOLD_GOLD»). Фонд один — 120 палитр;
@@ -280,7 +283,7 @@ export function planToContract(plan: EnginePlan, opts: BridgeOptions): BridgeRes
 
   function assignCore4(rating: 'R+' | 'X'): StackCarrier[] {
     const groupsNeeded = ['FABRIC', 'BODY', 'POSITION', 'PHYSICS'] as const
-    const recipe = recipes.tiers[rating === 'R+' ? 'RPLUS' : 'X']
+    const recipe = rec.tiers[rating === 'R+' ? 'RPLUS' : 'X']
     const prefer = recipe?.carrier_classes ?? []
     const out: StackCarrier[] = []
     let sheerInPrompt = 0
@@ -318,7 +321,7 @@ export function planToContract(plan: EnginePlan, opts: BridgeOptions): BridgeRes
   }
 
   function assignTierCarriers(rating: 'R' | 'PG-13'): StackCarrier[] {
-    const recipe = recipes.tiers[rating === 'R' ? 'R' : 'PG13']
+    const recipe = rec.tiers[rating === 'R' ? 'R' : 'PG13']
     const prefer = recipe?.carrier_classes ?? ['S', 'E', 'W', 'B']
     const tierPool = lruPickBatch(
       prefer.flatMap((c) => byClass[c] ?? []),
