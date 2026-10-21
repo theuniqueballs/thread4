@@ -208,12 +208,21 @@ export async function warmConsciousness(): Promise<void> {
  *  deliver/scribe-гарды). source=file — файл-летопись. source=engine —
  *  прод-цепь ИЗ КЭША ПРОГРЕВА (warmConsciousness в начале запроса/команды)
  *  ∪ СВЕЖИЙ файл-хвост (appendEvent событие, рождённое в этом же запросе,
- *  видно сразу). Не прогрето → ConsciousnessUnavailableError — НЕ молчаливый
- *  откат на файл. */
+ *  видно сразу).
+ *
+ *  Фаза 3 (E2E оркестратора поймал рану живьём): TTL 15с — политика
+ *  СВЕЖЕСТИ коротких запросов, а не стена корректности. Долгие команды
+ *  (писец/полировка — минуты LLM-чанков) переживали TTL УЖЕ ПОСЛЕ
+ *  успешного прогрева и умирали на середине работы, теряя написанное.
+ *  Честная семантика: кэш, прогретый В ЭТОМ процессе, читается и протухшим
+ *  (движковая истина отстаёт ≤ TTL — та же экспозиция, что у коротких
+ *  запросов; события, рождённые здесь, видны через свежий файл-хвост);
+ *  полный отказ — только когда кэша нет вовсе (процесс не прогрет) —
+ *  честная 503-семантика сохранена, молчаливого файла по-прежнему нет. */
 export function consciousnessEvents(): T4Event[] {
   const source = resolveSource()
   if (source === 'file') return readEvents()
-  if (!engineCache || Date.now() - engineCache.at >= ENGINE_TTL_MS) {
+  if (!engineCache) {
     throw new ConsciousnessUnavailableError(
       TWIN_ORIGIN,
       'кэш прод-цепи не прогрет — сначала await warmConsciousness() в этом запросе/команде'

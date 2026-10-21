@@ -451,7 +451,18 @@ export async function stepExposition(slug: string, onLog?: (s: string) => void):
 export async function stepWrite(slug: string, onLog?: (s: string) => void): Promise<StepOutcome> {
   if (!isSafeSlug(slug)) throw new StepStop('refused', `слаг «${slug}» не канонический T4-NN`)
   const lines: string[] = []
+  await warmConsciousness()
+  const events = consciousnessEvents()
   if (readText(path.join(BATCHES_DIR, `${slug}.md`)) != null) {
+    /* Черновик без scribe.drafted = aborted-прогон (сдача закрыта писцом
+     * до решения) — FSM молча не усыновляет: решение за автором. */
+    const drafted = events.some((e) => e.type === 'scribe.drafted' && e.data?.slug === slug)
+    if (!drafted) {
+      throw new StepStop(
+        'refused',
+        `черновик ${slug} на диске БЕЗ scribe.drafted (прогон писца прерван — сдача закрыта до решения). Перезапусти писца (t4 scribe ${slug}) или удали черновик осознанно — тогда цикл напишет заново`
+      )
+    }
     lines.push(`WRITE: черновик batches/${slug}.md уже на диске — шаг пропущен без дубля (переписать — существующий примитив t4 scribe ${slug})`)
     receipt(slug, 'WRITE', `черновик уже на диске — шаг пропущен`, { adopted: true })
     onLog?.(lines[lines.length - 1]!)
@@ -460,7 +471,6 @@ export async function stepWrite(slug: string, onLog?: (s: string) => void): Prom
   if (readText(path.join(CONTRACTS_DIR, `${slug}.json`)) == null) {
     throw new StepStop('refused', `контракта ${slug} нет — сначала EXPOSITION (t4 expose ${slug})`)
   }
-  await warmConsciousness()
   const res = await scribeBatch(slug, { maxRepairRounds: 3, onLog })
   lines.push(`WRITE: писец написал batches/${slug}.md (слоты ${res.failedSlots.length === 0 ? 'все' : `НЕ написаны P${res.failedSlots.join(', P')}`}, ремонт ${res.rounds}, dry-гейты ${res.hardPass ? 'PASS' : 'FAIL'}, sha10 ${res.sha10})`)
   receipt(slug, 'WRITE', `черновик писца (sha10 ${res.sha10}, ремонт ${res.rounds})`, {
