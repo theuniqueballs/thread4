@@ -13,7 +13,7 @@ pub const RATINGS: [&str; 4] = ["PG-13", "R", "R+", "X"];
 pub const REGISTERS: [&str; 3] = ["student", "young", "milf"];
 pub const ENGINE_MODES: [&str; 2] = ["per-theme", "per-theme raw-plus"];
 
-pub const EVENT_TYPES: [&str; 24] = [
+pub const EVENT_TYPES: [&str; 25] = [
     "era.born",
     "spec.imported",
     "law.ratified",
@@ -30,6 +30,11 @@ pub const EVENT_TYPES: [&str; 24] = [
      * живут событиями в летописи (data.slug/step/theme). Синхронно с TS
      * (events.ts) и bun-движком (canon.ts). */
     "cycle.step",
+    /* Фаза 4 (зрячее окно, 2026-10-23): квитанция рематериализации — план
+     * мигрированного (файл-эра) батча собран из файл-истины и дописан в
+     * прод-цепь (projection payload обновлён, окно зряче). Append-only.
+     * Синхронно с TS (events.ts) и bun-движком (canon.ts). */
+    "payload.migrated",
     "batch.delivered",
     "batch.void",
     "gate.run",

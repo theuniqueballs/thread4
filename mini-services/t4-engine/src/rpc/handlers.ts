@@ -16,6 +16,7 @@ import {
   VerdictRequestSchema,
 } from '../config/schema'
 import { CompileError, compileBatch, findIdempotentCompile } from '../core/compile'
+import { migratePayloads } from '../core/rematerialize-run'
 import { appendEventTx, countEvents, readEvents, verifyChain, withTransaction } from '../core/chain'
 import { readChainPointer, schemaVersion } from '../core/db'
 import {
@@ -383,4 +384,23 @@ export function appendEvent(db: Database, ctx: HandlerCtx): Record<string, unkno
 export function chainVerify(db: Database): Record<string, unknown> {
   const v = verifyChain(db)
   return { ok: v.ok, events: v.events, head: v.head, problems: v.problems }
+}
+
+/* ------------------------------------------------------------------ */
+/* POST /v1/payloads/migrate — commander (Фаза 4 «зрячее окно»)         */
+/* ------------------------------------------------------------------ */
+
+/** Рематериализация планов файл-эры: легаси-заглушки payload → полные планы
+ *  из файл-истины, квитанции payload.migrated в прод-цепь. Тело опционально:
+ *  {slug} — один батч, пусто — все легаси. Идемпотентно: повтор ничего
+ *  не плодит (легаси-проверка + дедуп квитанции по slug). */
+export function payloadsMigrate(db: Database, ctx: HandlerCtx): Record<string, unknown> {
+  const body = (ctx.body ?? {}) as { slug?: unknown }
+  const slug = typeof body.slug === 'string' && body.slug.trim() !== '' ? body.slug.trim() : undefined
+  if (slug != null && !/^T4-[\d.]+(-EXP)?$/.test(slug)) {
+    throw new RpcError('validation', `payloads/migrate: слаг «${slug}» не канонический T4-NN`)
+  }
+  const report = migratePayloads(db, slug ? { slug } : {})
+  scheduleSnapshot(`payloads.migrate:${report.migrated.length}`)
+  return { ...report }
 }

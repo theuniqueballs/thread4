@@ -34,6 +34,11 @@ export const EVENT_TYPES = [
   // живут событиями в летописи (data.slug/step/theme). Синхронно с TS
   // (events.ts) и Rust (canon.rs).
   'cycle.step',
+  // Фаза 4 (зрячее окно, 2026-10-23): квитанция рематериализации — план
+  // мигрированного (файл-эра) батча собран из файл-истины и дописан в
+  // прод-цепь (projection payload обновлён, окно зряче). Append-only.
+  // Синхронно с TS (events.ts) и Rust (canon.rs).
+  'payload.migrated',
   'batch.delivered',
   'batch.void',
   'gate.run',

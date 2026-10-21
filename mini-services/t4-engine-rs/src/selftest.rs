@@ -187,6 +187,51 @@ pub fn run(prod: Option<&Connection>) -> Battery {
         }
     }
 
+    /* ============ Фаза 4: зрячее окно (prod ∪ scratch) ============
+     * До фазы 4 twin компилировал с scratch-окном: палитры прод-истины
+     * были невидимы, план переиспользовал замороженные палитры, union-гейты
+     * честно резали (находка §11: /v1/batches/T4-33 → 0 слотов). */
+    {
+        let scratch = temp_db("sight-scratch");
+        let prod = temp_db("sight-prod");
+        prod.execute_batch(
+            "INSERT INTO t4_batches (slug,title,theme,engine,status,slots_total,exp_slots,ab_pairs,hard_pass,diff_up,diff_down,payload,sha10,created_at,delivered_at,event_id)
+             VALUES ('T4-01','x','x','per-theme','delivered',3,0,0,1,0,0,
+                     '{\"slots\":[{\"paletteId\":\"P001\"},{\"paletteId\":\"P002\"},{\"paletteId\":\"P003\"}]}',
+                     'aaaaaaaaaa','2026-10-01T00:00:00.000Z','2026-10-02T00:00:00.000Z','e-sight-1')",
+        )
+        .expect("прод-строка с палитрами вставлена");
+        let blind = compile::palette_window_union(&scratch, 3).len();
+        let sighted = compile::palette_window_union_twin(&scratch, &prod, 3).len();
+        b.expect(
+            "compile/twin-window-sighted",
+            blind == 0 && sighted == 3,
+            || format!("слепое окно scratch = {blind}, зрячее prod∪scratch = {sighted} (ожидалось 0/3)"),
+        );
+        let body = compile_req("зрячесть окна", "T4-77", 0, Some("2026-10-23T00:00:00.000Z"));
+        let req = compile::parse_request(&body).unwrap();
+        match compile::compile_batch_twin(&scratch, &prod, &req, None) {
+            Ok(o) => {
+                let pids: Vec<String> = o
+                    .plan_json
+                    .get("slots")
+                    .and_then(|s| s.as_array())
+                    .map(|a| {
+                        a.iter()
+                            .filter_map(|s| s.get("paletteId").and_then(|p| p.as_str().map(String::from)))
+                            .collect()
+                    })
+                    .unwrap_or_default();
+                b.expect(
+                    "compile/twin-plan-avoids-prod-window",
+                    !pids.iter().any(|p| p == "P001" || p == "P002" || p == "P003"),
+                    || "план twin'а не переиспользует палитры прод-окна".into(),
+                );
+            }
+            Err(e) => b.fail("compile/twin-plan-avoids-prod-window", e.0),
+        }
+    }
+
     /* ============ дубликат слага ============ */
     {
         let conn = temp_db("dup");

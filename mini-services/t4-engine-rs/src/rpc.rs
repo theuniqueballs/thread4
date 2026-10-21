@@ -679,8 +679,10 @@ fn compile_route(
         }
     }
 
-    /* компиляция — канонический путь (byte-parity не тронут) */
-    let outcome = compile::compile_batch(&t.scratch, &req, idem.as_deref())
+    /* компиляция — канонический путь (byte-parity не тронут);
+     * Фаза 4 «зрячее окно»: twin-компиляция видит прод-правду (окно/diff
+     * по prod ∪ scratch — палитры прод-истины больше не невидимы) */
+    let outcome = compile::compile_batch_twin(&t.scratch, &t.prod, &req, idem.as_deref())
         .map_err(|e| {
             live::error(BLOCK_COMPILE, &format!("compile: {}", e.0));
             RpcError::unprocessable(e.0)

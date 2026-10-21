@@ -305,7 +305,20 @@ fn main() {
                 }
             }
 
-            let out = compile::compile_batch(&conn, &req, idem.as_deref()).unwrap_or_else(|e| die(&e.0));
+            /* Фаза 4 «зрячее окно»: дефолтный scratch видит прод-правду
+             * (окно/diff по prod ∪ scratch); явный --db — одиночная база
+             * (бенч-детерминизм, как было). */
+            let out = match &db_arg {
+                None => {
+                    let prod = db::open_production_ro().map_err(|e| format!("прод-база (окно twin'а): {e}"));
+                    match &prod {
+                        Ok(p) => compile::compile_batch_twin(&conn, p, &req, idem.as_deref()),
+                        Err(_) => compile::compile_batch(&conn, &req, idem.as_deref()),
+                    }
+                }
+                Some(_) => compile::compile_batch(&conn, &req, idem.as_deref()),
+            }
+            .unwrap_or_else(|e| die(&e.0));
             if as_json {
                 println!("{}", serde_json::to_string_pretty(&out.plan_json).unwrap());
             } else {

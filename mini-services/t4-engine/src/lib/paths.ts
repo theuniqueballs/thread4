@@ -14,6 +14,9 @@ export const PROJECT_ROOT = path.resolve(ENGINE_ROOT, '..', '..')
 /** legacy chronicle (read-only, migration source) */
 export const LEGACY_LOG = path.join(PROJECT_ROOT, 'thread4', 'events', 'log.jsonl')
 export const LEGACY_CHAIN = path.join(PROJECT_ROOT, 'thread4', 'events', 'chain.jsonl')
+/** file-truth plans (read-only, Фаза 4 «зрячее окно»: rematerialization source) */
+export const CONTRACTS_DIR = path.join(PROJECT_ROOT, 'thread4', 'contracts')
+export const LEGACY_BATCHES_DIR = path.join(PROJECT_ROOT, 'thread4', 'batches')
 
 export const DATA_DIR = path.join(ENGINE_ROOT, 'data')
 export const DB_PATH = path.join(DATA_DIR, 't4.db')

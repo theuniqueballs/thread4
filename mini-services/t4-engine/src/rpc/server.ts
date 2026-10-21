@@ -33,6 +33,7 @@ import {
   events,
   health,
   meta,
+  payloadsMigrate,
   state,
   verdicts,
   voidBatch,
@@ -102,6 +103,13 @@ const ROUTES: readonly RouteDef[] = [
     auth: 'commander',
     bucket: 'mutation',
     handler: (db, ctx) => appendEvent(db, ctx),
+  },
+  {
+    method: 'POST',
+    pattern: ['v1', 'payloads', 'migrate'],
+    auth: 'commander',
+    bucket: 'mutation',
+    handler: (db, ctx) => payloadsMigrate(db, ctx),
   },
 ]
 

@@ -441,6 +441,26 @@ pub fn compile_batch(
     req: &CompileRequest,
     idempotency_key: Option<&str>,
 ) -> Result<CompileOutcome, CompileError> {
+    compile_batch_inner(conn, None, req, idempotency_key)
+}
+
+/// Twin-компиляция (Фаза 4 «зрячее окно»): окно и diff читают прод-хронику
+/// (RO) поверх собственного scratch — палитры/рейтинги прод-истины видимы.
+pub fn compile_batch_twin(
+    scratch: &Connection,
+    prod: &Connection,
+    req: &CompileRequest,
+    idempotency_key: Option<&str>,
+) -> Result<CompileOutcome, CompileError> {
+    compile_batch_inner(scratch, Some(prod), req, idempotency_key)
+}
+
+fn compile_batch_inner(
+    conn: &Connection,
+    prod: Option<&Connection>,
+    req: &CompileRequest,
+    idempotency_key: Option<&str>,
+) -> Result<CompileOutcome, CompileError> {
     /* slug resolution & duplicate guard
      *
      * Пересборка (2026-10-20, приказ «сборщика нет»): compiled-сборка
@@ -488,7 +508,10 @@ pub fn compile_batch(
         .clone()
         .unwrap_or_else(crate::chain::iso_now);
 
-    let window_union = palette_window_union(conn, Palette::WINDOW_BATCHES);
+    let window_union = match prod {
+        Some(p) => palette_window_union_twin(conn, p, Palette::WINDOW_BATCHES),
+        None => palette_window_union(conn, Palette::WINDOW_BATCHES),
+    };
     let core_fresh = Slots::TOTAL;
     let exp_fresh = req.exp;
     let extension_free = Palette::EXTENSION_LAST_ID - Palette::EXTENSION_FIRST_ID + 1;
@@ -648,7 +671,10 @@ pub fn compile_batch(
         .all(|r| r.verdict == "PASS");
 
     /* diff vs previous delivered (scratch chronicle: none → first batch) */
-    let diff = diff_against_previous(conn, &slots);
+    let diff = match prod {
+        Some(p) => diff_against_previous_twin(conn, p, &slots),
+        None => diff_against_previous(conn, &slots),
+    };
 
     let seed_hex_full = {
         let mut h = Sha256::new();
@@ -1164,6 +1190,63 @@ pub fn palette_window_union(conn: &Connection, window_batches: u32) -> std::coll
     union
 }
 
+/// Слитый список сданных (delivered_at, ключ, payload) из двух баз —
+/// свежие сверху, дубли по слагу схлопываются (приор — прод: это истина).
+/// Фаза 4 «зрячее окно»: до неё twin видел только свой scratch.
+fn merged_delivered_rows(
+    scratch: &Connection,
+    prod: &Connection,
+) -> Vec<(String, String, String)> {
+    let mut rows: Vec<(String, String, String)> = Vec::new();
+    let sql = "SELECT slug, payload, delivered_at FROM t4_batches \
+               WHERE status = 'delivered' AND delivered_at IS NOT NULL";
+    for (conn, src) in [(prod, "prod"), (scratch, "scratch")] {
+        let Ok(mut stmt) = conn.prepare(sql) else { continue };
+        let Ok(iter) = stmt.query_map([], |r| {
+            Ok((r.get::<_, String>(0)?, r.get::<_, String>(1)?, r.get::<_, String>(2)?))
+        }) else {
+            continue;
+        };
+        for (slug, payload, at) in iter.flatten() {
+            rows.push((at, format!("{src}:{slug}"), payload));
+        }
+    }
+    /* стабильная сортировка: prod добавлен первым — при равном времени он выше */
+    rows.sort_by(|a, b| b.0.cmp(&a.0));
+    rows
+}
+
+/// Twin-окно (Фаза 4): закон тот же — «последние N сданных», но сданные
+/// берутся из всей правды, которую twin видит (прод RO ∪ scratch), слитые
+/// по delivered_at. Палитры прод-истины больше не невидимы.
+pub fn palette_window_union_twin(
+    scratch: &Connection,
+    prod: &Connection,
+    window_batches: u32,
+) -> std::collections::HashSet<String> {
+    let rows = merged_delivered_rows(scratch, prod);
+    let mut seen: std::collections::HashSet<String> = std::collections::HashSet::new();
+    let mut union = std::collections::HashSet::new();
+    for (_at, key, payload) in &rows {
+        if !seen.insert(key.clone()) {
+            continue;
+        }
+        if seen.len() as u32 > window_batches {
+            break;
+        }
+        if let Ok(v) = serde_json::from_str::<serde_json::Value>(payload) {
+            if let Some(slots) = v.get("slots").and_then(|s| s.as_array()) {
+                for s in slots {
+                    if let Some(pid) = s.get("paletteId").and_then(|p| p.as_str()) {
+                        union.insert(pid.to_string());
+                    }
+                }
+            }
+        }
+    }
+    union
+}
+
 const RATING_ORDER: [&str; 4] = ["PG-13", "R", "R+", "X"];
 
 fn diff_against_previous(conn: &Connection, slots: &[SlotPlan]) -> (u32, u32) {
@@ -1210,6 +1293,53 @@ fn diff_against_previous(conn: &Connection, slots: &[SlotPlan]) -> (u32, u32) {
 
 fn rating_rank(r: &str) -> usize {
     RATING_ORDER.iter().position(|x| *x == r).unwrap_or(0)
+}
+
+/// Twin-diff (Фаза 4): «предыдущий сданный» берётся из всей правды,
+/// которую twin видит (прод RO ∪ scratch) — как в окне, дубль по слагу
+/// схлопывается с приором прода.
+fn diff_against_previous_twin(
+    scratch: &Connection,
+    prod: &Connection,
+    slots: &[SlotPlan],
+) -> (u32, u32) {
+    let rows = merged_delivered_rows(scratch, prod);
+    let prev = match rows.first() {
+        None => return (0, 0),
+        Some((_, _, payload)) => payload.clone(),
+    };
+    diff_against_payload(&prev, slots)
+}
+
+fn diff_against_payload(prev_payload: &str, slots: &[SlotPlan]) -> (u32, u32) {
+    let parsed: serde_json::Value = match serde_json::from_str(prev_payload) {
+        Ok(v) => v,
+        Err(_) => return (0, 0),
+    };
+    let prev_ratings: Vec<String> = parsed
+        .get("slots")
+        .and_then(|s| s.as_array())
+        .map(|a| {
+            a.iter()
+                .filter_map(|s| s.get("rating").and_then(|r| r.as_str()))
+                .filter(|r| RATING_ORDER.contains(r))
+                .map(String::from)
+                .collect()
+        })
+        .unwrap_or_default();
+    let mine: Vec<&str> = slots.iter().map(|s| s.rating.as_str()).collect();
+    let n = prev_ratings.len().min(mine.len());
+    let (mut up, mut down) = (0u32, 0u32);
+    for i in 0..n {
+        let d = rating_rank(mine[i]) as i64 - rating_rank(&prev_ratings[i]) as i64;
+        if d > 0 {
+            up += 1;
+        }
+        if d < 0 {
+            down += 1;
+        }
+    }
+    (up, down)
 }
 
 fn hex16(bytes: &[u8]) -> String {
