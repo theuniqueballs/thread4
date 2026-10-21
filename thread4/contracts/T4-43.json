@@ -5,7 +5,7 @@
   "engineLaw": "план живого движка (Rust twin, sha10 96a88693e6): скелет заквитанцеван движком — structure PASS · exp-purity PASS · floors PASS · window PASS · ab-single-variable PASS",
   "engineWhy": "WRITE-мост: план 96a88693e6 twin'а → контракт. Скелет (жанры/рейтинги/палитры/A-B/EXP) зеркалирует движок 1-в-1; обогащение — детерминированный адаптер по сиду плана. compileBatch файл-эры скелет НЕ пересобирал.",
   "seed": 274565137,
-  "createdAt": "2026-10-21T10:32:34.083Z",
+  "createdAt": "2026-10-21T10:32:58.388Z",
   "spread": [
     {
       "rating": "R+",
@@ -1391,8 +1391,8 @@
       "register": "young",
       "closer": "fragment-pair",
       "exp": {
-        "hypothesis": "Проба τ: канал «nape» на R+-кадре — одна переменная, план identical (мост-заглушка: уточни гипотезу перед писцом)",
-        "letter": "τ"
+        "hypothesis": "Проба α: канал «nape» на R+-кадре — одна переменная, план identical (мост-заглушка: уточни гипотезу перед писцом)",
+        "letter": "α"
       },
       "variety": {
         "posOrder": "canon-first",
@@ -1451,8 +1451,8 @@
       "register": "young",
       "closer": "action-close",
       "exp": {
-        "hypothesis": "Проба υ: канал «cheeks» на R+-кадре — одна переменная, план identical (мост-заглушка: уточни гипотезу перед писцом)",
-        "letter": "υ"
+        "hypothesis": "Проба β: канал «cheeks» на R+-кадре — одна переменная, план identical (мост-заглушка: уточни гипотезу перед писцом)",
+        "letter": "β"
       },
       "variety": {
         "posOrder": "claim-first",
@@ -1511,8 +1511,8 @@
       "register": "young",
       "closer": "dialogue",
       "exp": {
-        "hypothesis": "Проба φ: канал «hips» на R+-кадре — одна переменная, план identical (мост-заглушка: уточни гипотезу перед писцом)",
-        "letter": "φ"
+        "hypothesis": "Проба γ: канал «hips» на R+-кадре — одна переменная, план identical (мост-заглушка: уточни гипотезу перед писцом)",
+        "letter": "γ"
       },
       "variety": {
         "posOrder": "body-first",
@@ -1571,8 +1571,8 @@
       "register": "young",
       "closer": "image-close",
       "exp": {
-        "hypothesis": "Проба χ: канал «shoulders» на R+-кадре — одна переменная, план identical (мост-заглушка: уточни гипотезу перед писцом)",
-        "letter": "χ"
+        "hypothesis": "Проба δ: канал «shoulders» на R+-кадре — одна переменная, план identical (мост-заглушка: уточни гипотезу перед писцом)",
+        "letter": "δ"
       },
       "variety": {
         "posOrder": "claim-first",
@@ -1629,8 +1629,8 @@
       "register": "young",
       "closer": "long-fused",
       "exp": {
-        "hypothesis": "Проба ψ: канал «throat» на R+-кадре — одна переменная, план identical (мост-заглушка: уточни гипотезу перед писцом)",
-        "letter": "ψ"
+        "hypothesis": "Проба ε: канал «throat» на R+-кадре — одна переменная, план identical (мост-заглушка: уточни гипотезу перед писцом)",
+        "letter": "ε"
       },
       "variety": {
         "posOrder": "body-first",
@@ -1687,8 +1687,8 @@
       "register": "young",
       "closer": "fragment-pair",
       "exp": {
-        "hypothesis": "Проба ω: канал «breasts» на R+-кадре — одна переменная, план identical (мост-заглушка: уточни гипотезу перед писцом)",
-        "letter": "ω"
+        "hypothesis": "Проба ζ: канал «breasts» на R+-кадре — одна переменная, план identical (мост-заглушка: уточни гипотезу перед писцом)",
+        "letter": "ζ"
       },
       "variety": {
         "posOrder": "pose-first",
@@ -1745,8 +1745,8 @@
       "register": "young",
       "closer": "action-close",
       "exp": {
-        "hypothesis": "Проба α: канал «seat» на R+-кадре — одна переменная, план identical (мост-заглушка: уточни гипотезу перед писцом)",
-        "letter": "α"
+        "hypothesis": "Проба η: канал «seat» на R+-кадре — одна переменная, план identical (мост-заглушка: уточни гипотезу перед писцом)",
+        "letter": "η"
       },
       "variety": {
         "posOrder": "claim-first",
@@ -1803,8 +1803,8 @@
       "register": "young",
       "closer": "dialogue",
       "exp": {
-        "hypothesis": "Проба β: канал «hamstrings» на R+-кадре — одна переменная, план identical (мост-заглушка: уточни гипотезу перед писцом)",
-        "letter": "β"
+        "hypothesis": "Проба θ: канал «hamstrings» на R+-кадре — одна переменная, план identical (мост-заглушка: уточни гипотезу перед писцом)",
+        "letter": "θ"
       },
       "variety": {
         "posOrder": "claim-first",
@@ -1961,6 +1961,6 @@
     "signalMin": "{\"PG-13\":2,\"R\":1,\"R+\":2,\"X\":2}",
     "rplusHardClaim": "RENDER LAW v1.2.0: R+ несёт ≥1 РЕНДЕР-ДОКАЗАННУЮ заявку (словарь файл-эры — см. contracts/T4-41.json laws.rplusHardClaim; мост его не переписывал)",
     "abDiscipline": "A/B-дисциплина (§10): пары из плана движка; лид-зона общая, стек B = стек A с ровно одной заменой носителя, подача разная",
-    "bridge": "WRITE-мост итерация 2 (2026-10-21T10:32:34.083Z): план T4-43 живого движка (sha10 96a88693e6) → богатый контракт писца. Скелет движка не тронут 1-в-1: жанры (MAIN→VOLT — жанровый словарь файл-эры), рейтинги, палитры, OC-темы, A/B-пары, EXP-программа. Квитанции движка: structure PASS · exp-purity PASS · floors PASS · window PASS · ab-single-variable PASS. Палитры: номера движка → полные id спеков (один фонд 120). Обогащение детерминировано сидом плана: позы (риск-закон R+/X), стеки core-4/tier с sheer-бюджетом, лиды (ASS-квота, пары делят зону), клоузеры, расовый каст, кинетика, witness/arch NICHE, OC-имена (ротация+кулдаун+каскад), variety. Гипотезы EXP — заглушки под редактуру автора."
+    "bridge": "WRITE-мост итерация 2 (2026-10-21T10:32:58.388Z): план T4-43 живого движка (sha10 96a88693e6) → богатый контракт писца. Скелет движка не тронут 1-в-1: жанры (MAIN→VOLT — жанровый словарь файл-эры), рейтинги, палитры, OC-темы, A/B-пары, EXP-программа. Квитанции движка: structure PASS · exp-purity PASS · floors PASS · window PASS · ab-single-variable PASS. Палитры: номера движка → полные id спеков (один фонд 120). Обогащение детерминировано сидом плана: позы (риск-закон R+/X), стеки core-4/tier с sheer-бюджетом, лиды (ASS-квота, пары делят зону), клоузеры, расовый каст, кинетика, witness/arch NICHE, OC-имена (ротация+кулдаун+каскад), variety. Гипотезы EXP — заглушки под редактуру автора."
   }
 }
