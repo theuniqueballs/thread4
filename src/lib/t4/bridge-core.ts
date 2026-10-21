@@ -127,7 +127,7 @@ export interface BridgeRunResult {
  */
 export async function runBridgeCore(
   slugArg: string,
-  opts: { source?: 'prod' | 'scratch' } = {}
+  opts: { source?: 'prod' | 'scratch'; now?: string } = {}
 ): Promise<BridgeRunResult> {
   const slug = slugArg.trim().toUpperCase()
   if (!/^T4-\d{2,3}$/.test(slug)) {
@@ -166,12 +166,16 @@ export async function runBridgeCore(
     )
   )
 
-  /* --- адаптер (детерминированный) --- */
+  /* --- адаптер (детерминированный) ---
+   * opts.now — инъекция часов: цикл оркестратора пинует createdAt контракта
+   * ко времени квитанции ORDER — артефакты становятся чистой функцией
+   * летописи (повтор шага в той же хронике байт-точен). */
   const { contract, bridgeNote } = planToContract(plan, {
     slug,
     state,
     cascade,
     usedExpLetters,
+    ...(opts.now ? { now: opts.now } : {}),
   })
 
   /* --- высота прод-цепи движка на момент моста (квитанция источника) --- */

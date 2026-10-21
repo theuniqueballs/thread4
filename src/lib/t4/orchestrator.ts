@@ -399,7 +399,9 @@ export async function stepCompile(slug: string, onLog?: (s: string) => void): Pr
   }
   /* Idempotency-Key: ретрай сети не рождает второй план — twin отдаёт
    * закэшированный ответ компиляции (t4_idempotency). Тело — как у
-   * воркфлоу (проверенный путь): OC-темы заказа + Theme Expansion с гейтом №25. */
+   * воркфлоу (проверенный путь): OC-темы заказа + Theme Expansion с гейтом №25.
+   * parityCreatedAt = время квитанции ORDER: план — чистая функция летописи
+   * (пересборка после сбоя scratch байт-точна, sha10 воспроизводим). */
   const ocThemes = Array.isArray(orderEvt.data?.ocThemes)
     ? (orderEvt.data.ocThemes as { theme: string; rating: string; position: number }[])
     : null
@@ -409,7 +411,7 @@ export async function stepCompile(slug: string, onLog?: (s: string) => void): Pr
   const data = await twinFetchJson(
     'POST',
     '/v1/compile',
-    { slug, theme, expandTheme: true, ocThemes },
+    { slug, theme, expandTheme: true, ocThemes, parityCreatedAt: orderEvt.at },
     { 'idempotency-key': `cycle-${slug}-compile` }
   )
   const plan = data.plan as { sha10?: string; slots?: unknown[] } | undefined
@@ -434,7 +436,14 @@ export async function stepExposition(slug: string, onLog?: (s: string) => void):
     onLog?.(lines[lines.length - 1]!)
     return { slug, step: 'EXPOSITION', action: 'skip', lines }
   }
-  const r = await runBridgeCore(slug)
+  /* Часы моста = время квитанции ORDER: контракт — чистая функция летописи
+   * (повтор шага в той же хронике байт-точен, sha10 воспроизводим). */
+  await warmConsciousness()
+  const orderEvt = [...consciousnessEvents()]
+    .reverse()
+    .find((e) => e.type === 'cycle.step' && e.data?.slug === slug && e.data?.step === 'ORDER')
+  const now = orderEvt?.at
+  const r = await runBridgeCore(slug, { ...(now ? { now } : {}) })
   const contractSha10 = sha10Of(JSON.stringify(r.contract))
   lines.push(`EXPOSITION: мост собрал богатый контракт contracts/${slug}.json + .md (план sha10 ${r.planSha10 ?? '—'}, ${r.contract.slots.length} слотов, законы ${Object.keys(r.contract.laws).length}, источник ${r.source})`)
   lines.push(`  EXP-гипотезы контракта — детерминированные заглушки под редактуру автора: human-gate перед WRITE`)
