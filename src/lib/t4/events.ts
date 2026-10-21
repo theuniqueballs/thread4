@@ -41,6 +41,13 @@ export const EVENT_TYPES = [
   // конца, пишет cycle.step (data.slug, data.step, data.theme, sha10-пины).
   // Позиция в каноне синхронна с Rust (canon.rs) и bun-движком (canon.ts).
   'cycle.step',
+  // Фаза 4 (зрячее окно, 2026-10-23): квитанция рематериализации плана —
+  // движковый план мигрированного (файл-эра) батча дописан в прод-цепь
+  // из файл-истины (contracts/T4-NN.json): projection payload обновлён,
+  // окно движка зряче. Append-only: прошлые события не переписываются,
+  // прод-цепь только растёт. Синхронно с Rust (canon.rs) и bun-движком
+  // (canon.ts).
+  'payload.migrated',
   'batch.delivered',
   'batch.void',
   'gate.run',

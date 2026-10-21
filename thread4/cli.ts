@@ -2317,12 +2317,13 @@ async function main() {
       })()
       const tsCanon = EVENT_TYPES as readonly string[]
       check(
-        'цикл: канон трёх движков синхронен (events.ts == canon.ts == canon.rs) — 24 типа',
-        canonTsEngine.length === 24 && canonRust.length === 24 && tsCanon.length === 24 &&
+        'цикл: канон трёх движков синхронен (events.ts == canon.ts == canon.rs) — 25 типов',
+        canonTsEngine.length === 25 && canonRust.length === 25 && tsCanon.length === 25 &&
         JSON.stringify(tsCanon) === JSON.stringify(canonTsEngine) &&
         JSON.stringify(tsCanon) === JSON.stringify(canonRust)
       )
       check('цикл: cycle.step в каноне (квитанция шага конечного автомата)', tsCanon.includes('cycle.step'))
+      check('цикл: payload.migrated в каноне (квитанция рематериализации, фаза 4)', tsCanon.includes('payload.migrated'))
 
       // вывод состояния: план есть → COMPILE закрыт; контракт есть → EXPOSITION закрыт
       const factsEmpty = { plan: { found: false }, contractOnDisk: false, draftOnDisk: false, draftSha10: null, lastGateRun: null } as const
@@ -2367,6 +2368,79 @@ async function main() {
 
       // квитанции: идентичность по sha — починка рождает НОВУЮ квитанцию, повтор — нет
       check('цикл: квитанция шага одна на slug×step+sha (stepReceipted)', O.stepReceipted(openChain, 'T4-44', 'COMPILE') && !O.stepReceipted(openChain, 'T4-44', 'WRITE'))
+    }
+
+    /* ============ ФАЗА 4: ЗРЯЧЕЕ ОКНО — рематериализация планов ==========
+     * Находка §11: легаси-заглушки payload ослепили окно движка (палитры
+     * файл-эры невидимы → план переиспользует замороженные → union-гейты
+     * режут). Вариант А автора: план каждого мигрированного батча собирается
+     * из файл-истины и дописывается в прод-цепь квитанциями payload.migrated.
+     * Здесь проверяется ЧИСТЫЙ билдер (без сети/БД): маппинг слота файл-эры
+     * → слот движка, нормализация палитр (полный id спека → короткий pid
+     * канона движка — без неё окно осталось бы слепым), детерминизм sha10. */
+    {
+      const R = await import('../mini-services/t4-engine/src/core/rematerialize')
+      const fsPh4 = await import('node:fs')
+
+      // нормализация палитр: окно движка исключает короткие pid (P089) —
+      // полные id спека (P89_THRESHOLD_GOLD) никогда бы не совпали с окном
+      check(
+        'фаза 4: нормализация палитр — полный id спека → короткий pid канона движка',
+        R.normalizePaletteId('P89_THRESHOLD_GOLD') === 'P089' &&
+          R.normalizePaletteId('P089') === 'P089' &&
+          R.normalizePaletteId('p33_void_prism') === 'P033' &&
+          R.normalizePaletteId('P120_EXP_RESERVE') === 'P120',
+      )
+      check(
+        'фаза 4: нормализация режет мусор и вне фонда (1..120)',
+        R.normalizePaletteId('мусор') === null && R.normalizePaletteId('P121_X') === null && R.normalizePaletteId('P000_X') === null,
+      )
+
+      // виды файл-эры → канон движка: VOLT/EXQUISITE — оттенки R+-мейна (kindSpec сохраняет вкус)
+      check(
+        'фаза 4: маппинг видов — VOLT/EXQUISITE → MAIN (+kindSpec), OC/NICHE/EXP как есть',
+        R.mapKind('VOLT').kind === 'MAIN' && R.mapKind('VOLT').kindSpec === 'VOLT' &&
+          R.mapKind('EXQUISITE').kind === 'MAIN' && R.mapKind('EXQUISITE').kindSpec === 'EXQUISITE' &&
+          R.mapKind('OC').kind === 'OC' && R.mapKind('NICHE').kind === 'NICHE' && R.mapKind('EXP').kind === 'EXP' &&
+          R.mapKind('OC').kindSpec === undefined,
+      )
+
+      // живой файл-истина T4-33 (тот, что §11 назвал слепым пятном) → план движка
+      const c33 = JSON.parse(fsPh4.readFileSync('thread4/contracts/T4-33.json', 'utf-8')) as Record<string, unknown>
+      const at33 = '2026-10-23T00:00:00.000Z'
+      const builtA = R.buildPlanFromContract('T4-33', c33, at33, 'contracts/T4-33.json')
+      const builtB = R.buildPlanFromContract('T4-33', c33, at33, 'contracts/T4-33.json')
+      check(
+        'фаза 4: план T4-33 из файл-истины — детерминизм (та же правда → байт-в-байт, sha10 стабилен)',
+        builtA.payloadJson === builtB.payloadJson && builtA.sha10 === builtB.sha10 && builtA.sha10.length === 10,
+      )
+      const slots33 = builtA.payload['slots'] as Record<string, unknown>[]
+      check(
+        'фаза 4: план T4-33 — 26 слотов, каждый paletteId короткий (окно движка видит файл-правду)',
+        slots33.length === 26 &&
+          slots33.every((s) => typeof s['paletteId'] === 'string' && /^P\d{3}$/.test(s['paletteId'] as string)) &&
+          (builtA.payload['migrated'] as Record<string, unknown>)['source'] === 'contracts/T4-33.json',
+      )
+      const expSlot = slots33.find((s) => s['kind'] === 'EXP') as Record<string, unknown> | undefined
+      check(
+        'фаза 4: EXP-слот файла проходит в канон движка (letter/half/pairWith/hypothesis без потерь)',
+        expSlot != null &&
+          (expSlot['exp'] as Record<string, unknown> | undefined) != null &&
+          typeof (expSlot['exp'] as Record<string, unknown>)['letter'] === 'string' &&
+          typeof (expSlot['exp'] as Record<string, unknown>)['half'] === 'string',
+      )
+      check(
+        'фаза 4: счётчики канона движка — exp по слотам EXP, abPairs числом',
+        builtA.exp === slots33.filter((s) => s['kind'] === 'EXP').length && typeof builtA.abPairs === 'number',
+      )
+
+      // легаси-детектор: заглушка миграции → true, движковый план → false, мусор → false
+      check(
+        'фаза 4: легаси-детектор — заглушка {"legacy":true} ловится, живой план и мусор — нет',
+        R.isLegacyPayload('{"legacy":true,"summary":"заглушка"}') &&
+          !R.isLegacyPayload('{"slug":"T4-41","slots":[]}') &&
+          !R.isLegacyPayload('не-json'),
+      )
     }
 
     console.log(`\nselftest: ${ok} pass, ${fail} fail`)
