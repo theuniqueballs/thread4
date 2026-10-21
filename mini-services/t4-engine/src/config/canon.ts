@@ -23,7 +23,12 @@ export const EVENT_TYPES = [
   'spec.imported',
   'law.ratified',
   'law.amended',
+  // Фаза 2, итерация 3 (2026-10-21): canon parity — bridge.compiled (TS
+  // итерация 2, WRITE-мост) + consciousness.switched (квитанция осознанного
+  // переключения источника сознания: file JSONL → живой движок).
+  'consciousness.switched',
   'batch.compiled',
+  'bridge.compiled',
   'batch.delivered',
   'batch.void',
   'gate.run',
