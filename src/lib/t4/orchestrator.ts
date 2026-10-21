@@ -34,7 +34,7 @@ import { warmConsciousness, consciousnessEvents, isConsciousnessError } from './
 import { runGates, type GatesResult } from './gates'
 import { deliverBatch } from './deliver'
 import { scribeBatch } from './scribe'
-import { BATCHES_DIR, CONTRACTS_DIR, readText, isSafeSlug } from './fsutil'
+import { BATCHES_DIR, CONTRACTS_DIR, readText, isSafeSlug, readCommanderKey } from './fsutil'
 import path from 'node:path'
 import {
   fetchPlan,
@@ -201,12 +201,16 @@ async function twinFetchJson(
   let lastErr = ''
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {
+      /* POST — мутирующий маршрут движка: замок командира (ключ в
+       * ~/.t4/commander.key, общий с движками; в репо не хранится). */
+      const commanderKey = isCommander ? readCommanderKey() : null
       const res = await fetch(`${twinOrigin()}${pathName}`, {
         method,
         cache: 'no-store',
         headers: {
           accept: 'application/json',
           ...(isCommander && body != null ? { 'content-type': 'application/json' } : {}),
+          ...(commanderKey ? { 'x-commander-key': commanderKey } : {}),
           ...headers,
         },
         ...(method === 'POST' && body != null ? { body: JSON.stringify(body) } : {}),
@@ -609,7 +613,7 @@ export async function runAuto(opts: AutoOptions): Promise<AutoReport> {
       if (!opts.theme) {
         throw new StepStop('refused', 'нет ни открытого цикла, ни темы — t4 auto --theme «тема»')
       }
-      const ord = await stepOrder(opts.theme, undefined, onLog)
+      const ord = await stepOrder(opts.theme, undefined, undefined)
       slug = ord.slug
       report.theme = opts.theme
       report.executed.push({ step: 'ORDER', action: 'done', lines: ord.lines, sha10: null })
@@ -663,7 +667,7 @@ export async function runAuto(opts: AutoOptions): Promise<AutoReport> {
     }
 
     try {
-      const out = await runCycleStep(step, slug, onLog)
+      const out = await runCycleStep(step, slug, step === 'WRITE' ? onLog : undefined)
       report.executed.push({ step, action: out.action, lines: out.lines, sha10: out.sha10 })
     } catch (e) {
       if (e instanceof StepStop) {
