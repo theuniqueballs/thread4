@@ -39,7 +39,6 @@ import {
   CLOSER_CLASSES,
   LEAD_ZONES,
   WITNESS_TYPES,
-  cameraForLead,
   foldWindowUsage,
   hashSeed,
   LAWS,
@@ -47,6 +46,7 @@ import {
   makeRng,
   registerFromBody,
 } from './compiler'
+import { cameraForLead, proposeBatchVariety } from './variety-engine'
 import {
   allCarrierIds,
   getCarriers,
@@ -62,7 +62,6 @@ import {
   getRatingRecipes,
   type Carrier,
 } from './specs'
-import { proposeBatchVariety } from './variety-engine'
 
 /* ------------------------------------------------------------------ */
 /* Формы входа: план движка (как его отдаёт RPC twin'а)                 */
