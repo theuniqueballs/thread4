@@ -68,8 +68,8 @@ import {
 
 export interface PaletteMisc {
   kind: 'refresh' | 'settings' | 'export-chronicle' | 'view'
-  /** для kind:'view' — какой вид показать */
-  view?: 'workflow' | 'console' | 'build'
+  /** для kind:'view' — какая вкладка рабочего стола (старые имена видов маппятся) */
+  view?: 'workflow' | 'console' | 'build' | 'score' | 'chain' | 'cycle'
 }
 
 interface CommandPaletteProps {

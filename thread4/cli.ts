@@ -2499,6 +2499,37 @@ async function main() {
       )
     }
 
+    /* ============ ФАЗА 5: ХЕШ-ЦЕПЬ НА РАБОЧЕМ СТОЛЕ ======================
+     * Клиентская перевалидация сшивки (prev[i] === hash[i-1], генезис
+     * GENESIS): чистая функция вердикта — цепь либо цела, либо назван
+     * индекс первого разрыва. Движку на слово не верим. */
+    {
+      const CV = await import('../src/lib/t4/chain-view')
+      const intact = CV.validateChain([
+        { seq: 1, hash: 'h1', prev: 'GENESIS' },
+        { seq: 2, hash: 'h2', prev: 'h1' },
+        { seq: 3, hash: 'h3', prev: 'h2' },
+      ])
+      check(
+        'фаза 5: сшитая цепь — ЦЕЛА (генезис GENESIS, prev[i] === hash[i-1])',
+        intact.ok && intact.genesisOk && intact.breaks.length === 0 && intact.checked === 3 && intact.head === 'h3',
+      )
+      const broken = CV.validateChain([
+        { seq: 1, hash: 'h1', prev: 'GENESIS' },
+        { seq: 2, hash: 'h2', prev: 'ЧУЖОЙ' },
+        { seq: 3, hash: 'h3', prev: 'h2' },
+      ])
+      check(
+        'фаза 5: разрыв сшивки ловится по индексу звена, вердикт честный',
+        !broken.ok && broken.breaks.length === 1 && broken.breaks[0] === 1 && !broken.ok,
+      )
+      const badGenesis = CV.validateChain([{ seq: 1, hash: 'h1', prev: 'не-генезис' }])
+      check(
+        'фаза 5: генезис без GENESIS — разрыв №0 (движку верить нельзя, сшивку проверяем)',
+        !badGenesis.ok && !badGenesis.genesisOk && badGenesis.breaks[0] === 0,
+      )
+    }
+
     console.log(`\nselftest: ${ok} pass, ${fail} fail`)
     process.exit(fail === 0 ? 0 : 1)
   }

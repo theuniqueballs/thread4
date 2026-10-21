@@ -172,6 +172,10 @@ export interface EngineBatchRow {
   hardPass: boolean
   diffUp: number
   diffDown: number
+  /** Фаза 5 (скорборд): счётчики канона и отпечаток плана — в списке */
+  slotsTotal?: number
+  abPairs?: number
+  sha10?: string | null
 }
 
 /** Краткая телеметрия движка из /api/t4/state → glass.engine (без отдельного запроса). */

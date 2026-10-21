@@ -280,6 +280,9 @@ export interface ScratchBatchRow {
   createdAt: string
   deliveredAt: string | null
   sha10: string
+  /** Фаза 5 (скорборд): twin отдаёт счётчики канона в списке */
+  slotsTotal?: number
+  abPairs?: number
 }
 
 /** Кэш списка батчей на 60с — BURN/VOID/DELIVER/VERDICT/фокус-карта
@@ -327,6 +330,9 @@ export function useEngineBatches(): {
           diffDown: Number(rec.diffDown ?? 0),
           createdAt: asStr(rec.createdAt),
           deliveredAt: typeof rec.deliveredAt === 'string' ? rec.deliveredAt : null,
+          slotsTotal: typeof rec.slotsTotal === 'number' ? rec.slotsTotal : undefined,
+          abPairs: typeof rec.abPairs === 'number' ? rec.abPairs : undefined,
+          sha10: typeof rec.sha10 === 'string' ? rec.sha10 : null,
         } satisfies EngineBatchRow & { hardPass: boolean; diffUp: number; diffDown: number }
       })
       batchCache = { rows: fresh, at: Date.now() }
@@ -372,6 +378,8 @@ async function fetchScratchBatches(): Promise<ScratchBatchRow[]> {
       createdAt: asStr(rec.createdAt),
       deliveredAt: typeof rec.deliveredAt === 'string' ? rec.deliveredAt : null,
       sha10: asStr(rec.sha10),
+      slotsTotal: typeof rec.slotsTotal === 'number' ? rec.slotsTotal : undefined,
+      abPairs: typeof rec.abPairs === 'number' ? rec.abPairs : undefined,
     } satisfies ScratchBatchRow
   })
   return rows
