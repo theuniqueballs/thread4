@@ -347,6 +347,62 @@ async function main() {
     return
   }
 
+  if (cmd === 'payloads-migrate') {
+    /* Фаза 4 «зрячее окно»: рематериализация планов файл-эры — план каждого
+     * мигрированного батча собирается из файл-истины (contracts/batches
+     * T4-NN.json) и дописывается в прод-цепь квитанциями payload.migrated
+     * (append-only, канон 25). Пишет ПРОД — роут bun-движка (:3200,
+     * единственный писатель прода), не twin. Идемпотентно: повтор ничего
+     * не плодит. usage: t4 payloads-migrate [T4-NN] */
+    const slug = process.argv[3]
+    if (slug != null && !/^T4-[\d.]+(-EXP)?$/.test(slug)) {
+      console.error('usage: payloads-migrate [T4-NN] — слаг канонический')
+      process.exit(1)
+    }
+    const origin = process.env.T4_ENGINE_ORIGIN ?? 'http://127.0.0.1:3200'
+    const { readCommanderKey } = await import('../src/lib/t4/fsutil')
+    const key = readCommanderKey()
+    if (!key) {
+      console.error('замок командира: ~/.t4/commander.key не найден — миграция пишет прод, ключ обязателен')
+      process.exit(1)
+    }
+    let res: Response
+    try {
+      res = await fetch(`${origin}/v1/payloads/migrate`, {
+        method: 'POST',
+        cache: 'no-store',
+        headers: {
+          accept: 'application/json',
+          'x-commander-key': key,
+          ...(slug ? { 'content-type': 'application/json' } : {}),
+        },
+        ...(slug ? { body: JSON.stringify({ slug }) } : {}),
+        signal: AbortSignal.timeout(120000),
+      })
+    } catch (e) {
+      console.error(`bun-движок (${origin}) не отвечает: ${(e as Error).message} — подними mini-services/t4-engine (bun run start) или задай T4_ENGINE_ORIGIN`)
+      process.exit(1)
+    }
+    const raw = (await res.json().catch(() => null)) as { data?: unknown } | null
+    if (!res.ok || raw == null) {
+      console.error(`движок ответил HTTP ${res.status}:`, JSON.stringify(raw))
+      process.exit(1)
+    }
+    const report = (raw.data ?? raw) as { migrated?: unknown[]; skipped?: unknown[]; missing?: unknown[]; events?: number; head?: string }
+    console.log(`— рематериализация планов файл-эры (${origin}) —`)
+    for (const m of (report.migrated ?? []) as { slug: string; sha10: string; source: string; slots: number; palettes: number }[]) {
+      console.log(`  мигрирован ${m.slug}: ${m.slots} слотов, палитр ${m.palettes} (${m.source}) — sha10 ${m.sha10}`)
+    }
+    for (const s of (report.skipped ?? []) as { slug: string; reason: string }[]) {
+      console.log(`  пропущен  ${s.slug}: ${s.reason}`)
+    }
+    for (const m of (report.missing ?? []) as { slug: string; reason: string }[]) {
+      console.log(`  НЕТ ИСТИНЫ ${m.slug}: ${m.reason}`)
+    }
+    console.log(`цепь: ${report.events} звеньев, head ${String(report.head).slice(0, 12)}…`)
+    return
+  }
+
   if (cmd === 'check' || cmd === 'gates' || cmd === 'deliver') {
     const slug = process.argv[3]
     /* аудит 2026-10-12: slug шёл в path.join без валидации — у кромки CLI
@@ -2471,8 +2527,12 @@ async function main() {
   t4 gates T4-NN                 GATES — официальный прогон (существующий примитив)
   t4 deliver T4-NN               DELIVER — сдача (существующий примитив)
 
-Переменные: T4_RUST_ORIGIN (twin, дефолт :3201) · T4_CYCLE_TIMEOUT_MS (8000) ·
-T4_CYCLE_RETRIES (2) · T4_STATE_SOURCE=file — аварийный источник файл-эры.
+ДВИЖКОВАЯ ЭРА (фаза 4, «зрячее окно»):
+  t4 payloads-migrate [T4-NN]    план файл-эры → прод-цепь (payload.migrated;
+                                 пишет bun-движок :3200; идемпотентно)
+
+Переменные: T4_RUST_ORIGIN (twin, дефолт :3201) · T4_ENGINE_ORIGIN (bun-движок, дефолт :3200) ·
+T4_CYCLE_TIMEOUT_MS (8000) · T4_CYCLE_RETRIES (2) · T4_STATE_SOURCE=file — аварийный источник файл-эры.
 
 Прочие команды: seed | compile | recompile | check | polish | gates | deliver |
 scribe | void | state | drift | stack | lists | diff | trial | chain | verify |
