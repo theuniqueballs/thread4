@@ -101,6 +101,45 @@ export function markVoid(db: Database, slug: string): boolean {
   return res.changes > 0
 }
 
+/**
+ * Boot-time reconciliation: projections are DERIVED state (constitution §2),
+ * the event chain is the truth. Any write path that resets status/delivered_at
+ * (migration rebuild, rematerialize, manual surgery) is healed here at boot —
+ * batch.delivered / batch.void events in the chain always win over a stale
+ * projection row. Idempotent: a healthy DB changes 0 rows.
+ *
+ * Находка фазы 6 (2026-10-24): T4-33 «сдан давно, а движок отвечает
+ * compiled» — проекция могла отстать от цепи; состояние обязано выводиться
+ * из событий, поэтому выведение теперь при каждом старте.
+ */
+export function reconcileProjectionsFromChain(db: Database): { delivered: number; voided: number } {
+  const delivered = db
+    .prepare(
+      `UPDATE t4_batches SET
+         status = 'delivered',
+         delivered_at = COALESCE(delivered_at, (
+           SELECT MAX(at) FROM t4_events
+           WHERE type = 'batch.delivered' AND batch_slug = t4_batches.slug
+         ))
+       WHERE status != 'delivered' AND status != 'void'
+         AND EXISTS (SELECT 1 FROM t4_events WHERE type = 'batch.delivered' AND batch_slug = t4_batches.slug)`
+    )
+    .run().changes
+  const voided = db
+    .prepare(
+      `UPDATE t4_batches SET status = 'void'
+       WHERE status != 'void'
+         AND EXISTS (SELECT 1 FROM t4_events WHERE type = 'batch.void' AND batch_slug = t4_batches.slug)`
+    )
+    .run().changes
+  if (delivered > 0 || voided > 0) {
+    console.log(
+      `[t4-engine] reconcile: проекция согласована с цепью — delivered +${delivered}, void +${voided} (§2: состояние выводится из событий)`
+    )
+  }
+  return { delivered, voided }
+}
+
 export function upsertVerdict(
   db: Database,
   v: {

@@ -304,9 +304,9 @@ export default function Home() {
   return (
     <div className="flex min-h-screen flex-col bg-zinc-950 text-zinc-100">
       {/* ── шапка: один компактный ряд ─────────────────────────── */}
-      <header className="sticky top-0 z-40 border-b border-zinc-800/80 bg-gradient-to-b from-zinc-900 via-zinc-950/95 to-zinc-950/90 backdrop-blur">
+      <header className="sticky top-0 z-40 border-b border-zinc-800/60 bg-gradient-to-b from-zinc-900 via-zinc-950/95 to-zinc-950/90 backdrop-blur">
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6">
-          <div className="flex items-center justify-between gap-3 py-3">
+          <div className="flex items-center justify-between gap-3 py-2.5">
             <div className="flex min-w-0 items-center gap-3">
               <div className="relative flex size-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500 via-rose-500 to-fuchsia-600 shadow-lg shadow-fuchsia-950/40">
                 <span className="font-mono text-sm font-bold text-zinc-950">4</span>
@@ -332,17 +332,17 @@ export default function Home() {
                 <span className={chainOk ? 'text-emerald-400' : 'text-rose-400'}>цепь {chainOk ? 'цела' : '!'}</span>
               </div>
               {/* Фаза 5: вкладки ЕДИНОГО рабочего стола (V — цикл вкладок) */}
-              <div className="flex items-center gap-0.5 rounded-lg border border-zinc-800 bg-zinc-900/60 p-0.5">
+              <div className="flex items-center gap-0.5 rounded-lg border border-zinc-800/60 bg-zinc-900/60 p-0.5">
                 <button
                   type="button"
                   onClick={() => setDesk('cycle')}
                   aria-pressed={desk === 'cycle'}
                   title="цикл ORDER→COMPILE→EXPOSITION→WRITE→GATES→DELIVER"
                   className={cn(
-                    'flex items-center gap-1.5 rounded-md px-2.5 py-1.5 font-mono text-[10px] uppercase tracking-wide transition-all',
+                    'flex h-8 items-center gap-1.5 rounded-md px-2.5 font-mono text-[10px] uppercase tracking-wide transition-colors',
                     desk === 'cycle'
-                      ? 'bg-gradient-to-r from-amber-500 to-rose-500 text-zinc-950 shadow'
-                      : 'text-zinc-400 hover:text-zinc-200'
+                      ? 'bg-zinc-100 text-zinc-950 shadow-sm'
+                      : 'text-zinc-400 hover:bg-zinc-800/60 hover:text-zinc-200'
                   )}
                 >
                   <Workflow className="size-3.5" />
@@ -354,10 +354,10 @@ export default function Home() {
                   aria-pressed={desk === 'score'}
                   title="скорборд: счёт конвейера + батчи обоих пространств (G)"
                   className={cn(
-                    'flex items-center gap-1.5 rounded-md px-2.5 py-1.5 font-mono text-[10px] uppercase tracking-wide transition-all',
+                    'flex h-8 items-center gap-1.5 rounded-md px-2.5 font-mono text-[10px] uppercase tracking-wide transition-colors',
                     desk === 'score'
-                      ? 'bg-zinc-100 text-zinc-950 shadow'
-                      : 'text-zinc-400 hover:text-zinc-200'
+                      ? 'bg-zinc-100 text-zinc-950 shadow-sm'
+                      : 'text-zinc-400 hover:bg-zinc-800/60 hover:text-zinc-200'
                   )}
                 >
                   <Rocket className="size-3.5" />
@@ -369,10 +369,10 @@ export default function Home() {
                   aria-pressed={desk === 'chain'}
                   title="хеш-цепь: летопись с клиентской перевалидацией сшивки"
                   className={cn(
-                    'flex items-center gap-1.5 rounded-md px-2.5 py-1.5 font-mono text-[10px] uppercase tracking-wide transition-all',
+                    'flex h-8 items-center gap-1.5 rounded-md px-2.5 font-mono text-[10px] uppercase tracking-wide transition-colors',
                     desk === 'chain'
-                      ? 'bg-zinc-100 text-zinc-950 shadow'
-                      : 'text-zinc-400 hover:text-zinc-200'
+                      ? 'bg-zinc-100 text-zinc-950 shadow-sm'
+                      : 'text-zinc-400 hover:bg-zinc-800/60 hover:text-zinc-200'
                   )}
                 >
                   <Link2 className="size-3.5" />
@@ -380,24 +380,24 @@ export default function Home() {
                 </button>
               </div>
 
-            <BellMenu entries={bell} onClear={() => setBell([])} />
+              <BellMenu entries={bell} onClear={() => setBell([])} />
               <button
                 type="button"
                 onClick={() => setPaletteOpen(true)}
                 aria-label="палитра команд (⌘K)"
                 title="палитра команд — ⌘K / Ctrl+K / «/»"
-                className="flex items-center gap-1.5 rounded-md border border-zinc-800 bg-zinc-900/60 px-2.5 py-1.5 font-mono text-[10px] text-zinc-400 transition-colors hover:border-amber-500/50 hover:text-amber-300"
+                className="flex h-8 items-center gap-1.5 rounded-md border border-zinc-800/60 bg-zinc-900/60 px-2.5 font-mono text-[10px] text-zinc-400 transition-colors hover:border-amber-500/50 hover:text-amber-300"
               >
                 <CommandIcon className="size-3.5" />
                 <span className="hidden sm:inline">команды</span>
-                <kbd className="rounded border border-zinc-700 bg-zinc-800 px-1 text-[9px] leading-3 text-zinc-500">⌘K</kbd>
+                <kbd className="hidden rounded border border-zinc-700 bg-zinc-800 px-1 text-[9px] leading-3 text-zinc-500 sm:inline">⌘K</kbd>
               </button>
               <button
                 type="button"
                 onClick={() => setSettingsOpen(true)}
                 aria-label="настройки: ключ командира и стекло"
                 title="настройки — ключ командира · стекло движка"
-                className="rounded-md border border-zinc-800 bg-zinc-900/60 p-1.5 text-zinc-400 transition-colors hover:border-amber-500/50 hover:text-amber-300"
+                className="flex h-8 w-8 items-center justify-center rounded-md border border-zinc-800/60 bg-zinc-900/60 text-zinc-400 transition-colors hover:border-amber-500/50 hover:text-amber-300"
               >
                 <Settings className="size-4" />
               </button>
@@ -434,7 +434,7 @@ export default function Home() {
 
               {/* инструменты (Action Deck): файл-эра и обслуживание — в раскрытии,
                * основная работа цикла живёт выше; горячие клавиши действий работают */}
-              <div className="overflow-hidden rounded-xl border border-white/10 bg-zinc-950/70 backdrop-blur-xl">
+              <div className="overflow-hidden rounded-xl border border-zinc-800/60 bg-zinc-950/70 backdrop-blur-xl">
                 <button
                   type="button"
                   onClick={() => setToolsOpen((v) => !v)}
@@ -448,7 +448,7 @@ export default function Home() {
                   <ChevronDown className={cn('size-4 text-zinc-500 transition-transform', toolsOpen && 'rotate-180')} />
                 </button>
                 {toolsOpen ? (
-                  <div className="border-t border-white/10 p-2">
+                  <div className="border-t border-zinc-800/60 p-2">
                     <ActionDeck
                       active={activeAction}
                       onActiveChange={setActiveAction}
@@ -509,7 +509,7 @@ export default function Home() {
         </AnimatePresence>
 
         {/* Live Console — глобальная выдвижная плашка (SSE twin'а :3201) */}
-        <div className="mt-4 overflow-hidden rounded-xl border border-white/10 bg-zinc-950/70 backdrop-blur-xl">
+        <div className="mt-4 overflow-hidden rounded-xl border border-zinc-800/60 bg-zinc-950/70 backdrop-blur-xl">
           <button
             type="button"
             onClick={toggleLiveDrawer}
@@ -540,7 +540,7 @@ export default function Home() {
                 transition={{ type: 'spring', stiffness: 260, damping: 26 }}
                 className="overflow-hidden"
               >
-                <div className="border-t border-white/10 px-2 pb-2">
+                <div className="border-t border-zinc-800/60 px-2 pb-2">
                   <LiveConsole />
                 </div>
               </motion.div>
@@ -550,7 +550,7 @@ export default function Home() {
       </main>
 
       {/* ── футер: прижат к низу, микро-теги и подсказки ────────── */}
-      <footer className="mt-auto border-t border-zinc-800/80 bg-zinc-950 pb-[env(safe-area-inset-bottom)]">
+      <footer className="mt-auto border-t border-zinc-800/60 bg-zinc-950 pb-[env(safe-area-inset-bottom)]">
         <div className="mx-auto flex w-full max-w-7xl flex-wrap items-center justify-between gap-2 px-4 py-4 text-[11px] text-zinc-600 sm:px-6">
           <span>
             THREAD 4 · закон 24 слотов · Super Z × Автор{' '}
@@ -559,13 +559,13 @@ export default function Home() {
             </span>
           </span>
           <span className="font-mono">
-            <kbd className="rounded border border-zinc-800 bg-zinc-900 px-1 py-px text-[10px]">⌘K</kbd> палитра ·{' '}
-            <kbd className="rounded border border-zinc-800 bg-zinc-900 px-1 py-px text-[10px]">V</kbd> вкладка ·{' '}
-            <kbd className="rounded border border-zinc-800 bg-zinc-900 px-1 py-px text-[10px]">G</kbd> скорборд ·{' '}
-            <kbd className="rounded border border-zinc-800 bg-zinc-900 px-1 py-px text-[10px]">B C T P</kbd>{' '}
-            <kbd className="rounded border border-zinc-800 bg-zinc-900 px-1 py-px text-[10px]">D X R S W</kbd> действия ·{' '}
-            <kbd className="rounded border border-zinc-800 bg-zinc-900 px-1 py-px text-[10px]">1–8</kbd> доки ·{' '}
-            <kbd className="rounded border border-zinc-800 bg-zinc-900 px-1 py-px text-[10px]">A N J</kbd> live-команды
+            <kbd className="rounded border border-zinc-800 bg-zinc-900/80 px-1 py-px text-[10px] text-zinc-500">⌘K</kbd> палитра ·{' '}
+            <kbd className="rounded border border-zinc-800 bg-zinc-900/80 px-1 py-px text-[10px] text-zinc-500">V</kbd> вкладка ·{' '}
+            <kbd className="rounded border border-zinc-800 bg-zinc-900/80 px-1 py-px text-[10px] text-zinc-500">G</kbd> скорборд ·{' '}
+            <kbd className="rounded border border-zinc-800 bg-zinc-900/80 px-1 py-px text-[10px] text-zinc-500">B C T P</kbd>{' '}
+            <kbd className="rounded border border-zinc-800 bg-zinc-900/80 px-1 py-px text-[10px] text-zinc-500">D X R S W</kbd> действия ·{' '}
+            <kbd className="rounded border border-zinc-800 bg-zinc-900/80 px-1 py-px text-[10px] text-zinc-500">1–8</kbd> доки ·{' '}
+            <kbd className="rounded border border-zinc-800 bg-zinc-900/80 px-1 py-px text-[10px] text-zinc-500">A N J</kbd> live-команды
           </span>
         </div>
       </footer>

@@ -137,27 +137,27 @@
 }
 
 /* THREAD 4: тонкий скроллбар для длинных списков (класс t4-scroll).
- * Класс висел на панелях с webDevReview #2, но стиля не было — теперь есть:
- * zinc-под thumb, янтарное тепло под ховером, прозрачный трек. */
+ * webDevReview #2 → полировка 6-a: 6px полотно, thumb zinc-700 (#3f3f46),
+ * hover zinc-500 (#71717a), скруглённый ползунок, прозрачный трек. */
 .t4-scroll {
   scrollbar-width: thin;
   scrollbar-color: #3f3f46 transparent;
 }
 .t4-scroll::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 .t4-scroll::-webkit-scrollbar-track {
   background: transparent;
 }
 .t4-scroll::-webkit-scrollbar-thumb {
   background: #3f3f46;
-  border-radius: 8px;
+  border-radius: 999px;
   border: 2px solid transparent;
   background-clip: padding-box;
 }
 .t4-scroll::-webkit-scrollbar-thumb:hover {
-  background: #52525b;
+  background: #71717a;
   border: 2px solid transparent;
   background-clip: padding-box;
 }
@@ -206,7 +206,28 @@
   border-radius: 8px;
 }
 .t4-scroll-x::-webkit-scrollbar-thumb:hover {
-  background: #52525b;
+  background: #71717a;
+}
+
+/* THREAD 4 (6-a): соединители степпера цикла — на lg (6 колонок) между
+ * карточками шагов лежит тонкая линия-нить. Чисто CSS (::after на li,
+ * разметка списка не тронута); на 1–2 колонках (mobile/sm) линий нет.
+ * Ширина рассчитана под lg:gap-3 (0.75rem) в cycle-board.tsx. */
+@media (min-width: 1024px) {
+  .t4-stepper > li {
+    position: relative;
+  }
+  .t4-stepper > li:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: -0.75rem;
+    width: 0.625rem;
+    height: 1px;
+    transform: translateY(-50%);
+    background: linear-gradient(to right, #3f3f46 55%, rgba(63, 63, 70, 0.2));
+    pointer-events: none;
+  }
 }
 
 /* THREAD 4: вспышка строки слота после глубокой ссылки (радар → Батчи).

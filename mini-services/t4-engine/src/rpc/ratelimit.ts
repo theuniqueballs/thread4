@@ -31,14 +31,18 @@ import { RpcError } from './errors'
 const MAX_CLIENTS = 4096
 const clients = new Map<string, Map<BucketName, Bucket>>()
 
-/** Client IP: X-Forwarded-For first hop (gateway :81), else 'local'. */
-export function clientIp(req: Request): string {
+/** Client IP: peer from the socket is the base; X-Forwarded-For first hop
+ * (gateway :81) is trusted ONLY from a loopback peer — the gateway rewrites
+ * XFF itself, so a direct client cannot spoof fresh buckets (аудит фазы 6).
+ * peerIp == null → local call (CLI/healthcheck): XFF not expected, 'local'. */
+export function clientIp(req: Request, peerIp?: string): string {
+  if (peerIp != null && peerIp !== 'local') return peerIp
   const fwd = req.headers.get('x-forwarded-for')
   if (fwd) {
     const first = fwd.split(',')[0]?.trim()
     if (first) return first
   }
-  return 'local'
+  return peerIp ?? 'local'
 }
 
 /** Consume one token; throws RpcError(429) when the bucket is empty. */

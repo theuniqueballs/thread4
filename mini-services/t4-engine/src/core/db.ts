@@ -10,6 +10,7 @@ import { Database } from 'bun:sqlite'
 
 import { DB_PATH, DATA_DIR } from '../lib/paths'
 import { migrateSchema, SCHEMA_VERSION } from './ddl'
+import { reconcileProjectionsFromChain } from './projections'
 
 export interface MetaRow {
   key: string
@@ -30,6 +31,9 @@ export function openDatabase(): Database {
   db.exec('PRAGMA busy_timeout = 5000')
   db.exec('PRAGMA wal_autocheckpoint = 1000')
   migrateSchema(db)
+  /* §2 (фаза 6): проекция — производное состояния; при каждом старте
+   * согласуем её с цепью событий (честная починка отставших строк). */
+  reconcileProjectionsFromChain(db)
   _db = db
   return db
 }

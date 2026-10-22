@@ -192,8 +192,8 @@ function logLine(method: string, path: string, status: number, ms: number): void
   console.log(`[t4-engine] ${new Date().toISOString()} ${method} ${path} → ${status} (${ms.toFixed(1)}ms)`)
 }
 
-export function createRouter(db: Database): (req: Request) => Promise<Response> {
-  return async (req: Request): Promise<Response> => {
+export function createRouter(db: Database): (req: Request, peerIp?: string) => Promise<Response> {
+  return async (req: Request, peerIp?: string): Promise<Response> => {
     const started = performance.now()
     const url = new URL(req.url)
     const path = url.pathname
@@ -224,8 +224,11 @@ export function createRouter(db: Database): (req: Request) => Promise<Response> 
 
       const { route, params } = match
 
-      /* rate limit BEFORE auth: brute-force key guessing pays the bucket */
-      const ip = clientIp(req)
+      /* rate limit BEFORE auth: brute-force key guessing pays the bucket.
+       * Аудит фазы 6: IP пира берётся из СОКЕТА; XFF доверяем только от
+       * loopback-пира (шлюз :81 переписывает XFF сам) — прямой клиент
+       * не может спуфить XFF ради свежих вёдер. */
+      const ip = clientIp(req, peerIp)
       consume(route.bucket, ip)
 
       if (route.auth === 'commander') requireCommander(req)
@@ -268,7 +271,20 @@ export function serve(db: Database): ReturnType<typeof Bun.serve> {
     hostname: CANON.serve.hostname,
     idleTimeout: 30,
     maxRequestBodySize: CANON.serve.maxBodyBytes,
-    fetch: (req) => router(req),
+    fetch: (req, srv) => {
+      /* Пир из сокета (аудит фазы 6): только loopback-пир (шлюз :81/CLI)
+       * может говорить от чужого имени через XFF; чужой пир считается
+       * по собственному адресу — спуфинг вёдер rate-limit закрыт. */
+      let peer = 'local'
+      try {
+        const sock = srv.requestIP(req)
+        if (sock != null) peer = sock.address
+      } catch {
+        /* нет сокета — локальный/внутренний вызов */
+      }
+      const isLoopback = peer === '127.0.0.1' || peer === '::1' || peer === 'localhost'
+      return router(req, isLoopback ? undefined : peer)
+    },
   })
   return server
 }
