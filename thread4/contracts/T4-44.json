@@ -30,7 +30,7 @@
       "pose": "PL32",
       "poseName": "Stretch Reach",
       "poseRisk": "LOW",
-      "palette": "P21_VOID_BLACK",
+      "palette": "P46_INK_WASH",
       "paletteName": "Void Black",
       "kinetics": [
         "K122"
@@ -268,28 +268,16 @@
       ],
       "carriers": [
         {
-          "id": "CR-W24",
-          "name": "Suit-Seat Taut",
-          "cls": "W",
-          "deg": "M"
+          "id": "CR-W24"
         },
         {
-          "id": "CR-M05",
-          "name": "Counter Reach",
-          "cls": "M",
-          "deg": "M"
+          "id": "CR-M05"
         },
         {
-          "id": "CR-E26",
-          "name": "Camisole Peek",
-          "cls": "E",
-          "deg": "L"
+          "id": "CR-E26"
         },
         {
-          "id": "CR-I08",
-          "name": "Love Bite Under Scarf",
-          "cls": "I",
-          "deg": "H"
+          "id": "CR-S08"
         }
       ],
       "lead": "back",
@@ -321,7 +309,7 @@
       "pose": "PL217",
       "poseName": "Whisper-Lean Close",
       "poseRisk": "MID",
-      "palette": "P44_DESERT_NIGHT",
+      "palette": "P56_AURORA_BOREALIS_NIGHT",
       "paletteName": "Desert Night",
       "kinetics": [
         "K67"
@@ -388,28 +376,16 @@
       ],
       "carriers": [
         {
-          "id": "CR-A07",
-          "name": "Grande Plié",
-          "cls": "A",
-          "deg": "M"
+          "id": "CR-A07"
         },
         {
-          "id": "CR-S08",
-          "name": "Back Dimples",
-          "cls": "S",
-          "deg": "L"
+          "id": "CR-D03"
         },
         {
-          "id": "CR-E01",
-          "name": "Tank Strap Fallen",
-          "cls": "E",
-          "deg": "M"
+          "id": "CR-E01"
         },
         {
-          "id": "CR-M08",
-          "name": "Doorframe Squeeze",
-          "cls": "M",
-          "deg": "L"
+          "id": "CR-W21"
         }
       ],
       "lead": "collarbone",
@@ -498,7 +474,7 @@
       "pose": "PL02",
       "poseName": "Wall Lean",
       "poseRisk": "LOW",
-      "palette": "P60_FIRE_ASH",
+      "palette": "P35_VOID_EMBER",
       "paletteName": "Fire Ash",
       "kinetics": [
         "K62"
@@ -770,7 +746,7 @@
       "pose": "PL97",
       "poseName": "Run-Look-Back",
       "poseRisk": "MID",
-      "palette": "P04_BLOOD_IVORY",
+      "palette": "P49_CINNABAR_DREAM",
       "paletteName": "Blood Ivory",
       "kinetics": [
         "K87"
@@ -1042,7 +1018,7 @@
       "pose": "PL225",
       "poseName": "Post-Cry Smile",
       "poseRisk": "LOW",
-      "palette": "P26_VOID_ECLIPSE",
+      "palette": "P22_VOID_INDIGO",
       "paletteName": "Void Eclipse",
       "kinetics": [
         "K163"
@@ -1142,7 +1118,7 @@
       "pose": "PL86",
       "poseName": "Hair-Whip Turn",
       "poseRisk": "MID",
-      "palette": "P45_FOREST_MIST_DAWN",
+      "palette": "P51_RAIN_STAINED_GLASS",
       "paletteName": "Forest Mist Dawn",
       "kinetics": [
         "K154"
@@ -1356,7 +1332,7 @@
       "pose": "PL03",
       "poseName": "Supine Rest",
       "poseRisk": "LOW",
-      "palette": "P110_RIPOSTE_SILVER",
+      "palette": "P03_CYBER_ASH",
       "paletteName": "Riposte Silver",
       "kinetics": [
         "K166"
@@ -1416,7 +1392,7 @@
       "pose": "PL144",
       "poseName": "Hat-Tip Back",
       "poseRisk": "LOW",
-      "palette": "P106_VELVET_ALIBI",
+      "palette": "P66_DUSK_VERMILION",
       "paletteName": "Velvet Alibi",
       "kinetics": [
         "K131"
@@ -1474,7 +1450,7 @@
       "pose": "PL21",
       "poseName": "Fall Catch",
       "poseRisk": "MID",
-      "palette": "P111_ORCHID_HOUSE_GHOST",
+      "palette": "P99_MOONLIT_TOOLSHED",
       "paletteName": "Orchid House Ghost",
       "kinetics": [
         "K170"
@@ -1534,7 +1510,7 @@
       "pose": "PL120",
       "poseName": "Laundry-Line Tangle",
       "poseRisk": "MID",
-      "palette": "P113_CURFEW_PLUM",
+      "palette": "P23_VOID_VIOLET",
       "paletteName": "Curfew Plum",
       "kinetics": [
         "K118"
@@ -1592,7 +1568,7 @@
       "pose": "PL89",
       "poseName": "Curtain Swagger",
       "poseRisk": "MID",
-      "palette": "P116_AFTERGLOW_EMBERS",
+      "palette": "P41_SUNSET_DRIFT",
       "paletteName": "Afterglow Embers",
       "kinetics": [
         "K179"
@@ -1650,7 +1626,7 @@
       "pose": "PL147",
       "poseName": "Mirror Eye-Lock",
       "poseRisk": "LOW",
-      "palette": "P108_STAGEDIVE_CRIMSON",
+      "palette": "P47_PORCELAIN_LACQUER",
       "paletteName": "Stagedive Crimson",
       "kinetics": [
         "K151"
@@ -1710,7 +1686,7 @@
       "pose": "PL210",
       "poseName": "Morning-Stretch Face",
       "poseRisk": "LOW",
-      "palette": "P112_POCKET_THEFT_GOLD",
+      "palette": "P88_COBALT_ROAD",
       "paletteName": "Pocket Theft Gold",
       "kinetics": [
         "K126"
@@ -1768,7 +1744,7 @@
       "pose": "PL169",
       "poseName": "Off-Frame Mitt Punch",
       "poseRisk": "MID",
-      "palette": "P107_LAST_WALTZ_AMBER",
+      "palette": "P79_WAX_NOON",
       "paletteName": "Last Waltz Amber",
       "kinetics": [
         "K66"
