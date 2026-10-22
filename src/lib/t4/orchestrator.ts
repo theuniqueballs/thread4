@@ -255,8 +255,11 @@ async function twinFetchJson(
   )
 }
 
-/** План слага в движке: scratch → prod. found=false — и это честный ответ. */
+/** План слага в движке: scratch → prod. found=false — и это честный ответ.
+ *  Фаза 6: молчащий scratch (twin :3201) НЕ хоронит prod-чтение (bun :3200) —
+ *  engine-down только когда ОБА источника недоступны. */
 export async function planOfEngine(slug: string): Promise<CycleFacts['plan']> {
+  const attempts: { src: 'scratch' | 'prod'; error?: string }[] = []
   for (const src of ['scratch', 'prod'] as const) {
     const r = await fetchPlan(slug, src, cycleHttpOpts().timeoutMs)
     if (r.res && r.res.plan) {
@@ -268,12 +271,16 @@ export async function planOfEngine(slug: string): Promise<CycleFacts['plan']> {
         slots: Array.isArray(r.res.plan.slots) ? r.res.plan.slots.length : undefined,
       }
     }
-    if (r.error && /не отвечает|ECONNREFUSED|fetch failed|timeout|aborted/i.test(r.error)) {
-      throw new StepStop(
-        'engine-down',
-        `движок (twin ${twinOrigin()}) не отвечает (${r.error}) — авто-цикл остановлен с отчётом, а не ждёт бесконечно`
-      )
-    }
+    attempts.push({ src, error: r.error })
+  }
+  const allDown =
+    attempts.length > 0 &&
+    attempts.every((a) => /не отвечает|ECONNREFUSED|fetch failed|timeout|aborted/i.test(a.error ?? ''))
+  if (allDown) {
+    throw new StepStop(
+      'engine-down',
+      `движки недоступны (twin ${twinOrigin()} и прод ${engineOrigin()}) — авто-цикл остановлен с отчётом, а не ждёт бесконечно`
+    )
   }
   return { found: false }
 }

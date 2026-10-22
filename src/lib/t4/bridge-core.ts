@@ -21,6 +21,12 @@ import { CONTRACTS_DIR, listFiles, readJson, writeJson, writeText } from './fsut
 import type { BatchContract } from './compiler'
 import { planToContract, usedExpLettersOfContracts, type EnginePlan } from './write-bridge'
 
+/** Origin движка-писателя прода (bun :3200) — он же владелец prod-планов.
+ *  Фаза 6: prod-чтение больше не зависит от twin'а. */
+export function engineOrigin(): string {
+  return process.env.T4_ENGINE_ORIGIN ?? 'http://127.0.0.1:3200'
+}
+
 /** Origin twin'а читается НА КАЖДЫЙ вызов (CLI-бенч задаёт T4_RUST_ORIGIN
  *  до старта процесса; тесты могут подменять между вызовами). */
 export function twinOrigin(): string {
@@ -47,16 +53,18 @@ export interface EngineBatchDetail {
   plan?: EnginePlan | null
 }
 
-/** GET плана у twin'а: prod (/v1/batches/:slug, RO) или scratch
- *  (/v1/scratch/batches/:slug, сборки воркфлоу). Чистый HTTP-адаптер. */
+/** GET плана: prod (/v1/batches/:slug) — у bun-движка :3200 (владелец прода,
+ *  фаза 6: prod-чтение отвязано от twin'а), scratch (/v1/scratch/batches/:slug)
+ *  — у twin'а :3201 (сборки воркфлоу). Чистый HTTP-адаптер. */
 export async function fetchPlan(
   slug: string,
   source: 'prod' | 'scratch',
   timeoutMs = 8000
 ): Promise<{ res?: EngineBatchDetail; notFound?: boolean; error?: string }> {
   const pathSeg = source === 'scratch' ? 'scratch/batches' : 'batches'
+  const origin = source === 'scratch' ? twinOrigin() : engineOrigin()
   try {
-    const res = await fetch(`${twinOrigin()}/v1/${pathSeg}/${slug}`, {
+    const res = await fetch(`${origin}/v1/${pathSeg}/${slug}`, {
       cache: 'no-store',
       headers: { accept: 'application/json' },
       signal: AbortSignal.timeout(timeoutMs),
