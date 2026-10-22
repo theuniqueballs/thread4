@@ -37,6 +37,7 @@ import { scribeBatch } from './scribe'
 import { BATCHES_DIR, CONTRACTS_DIR, readText, isSafeSlug, readCommanderKey } from './fsutil'
 import path from 'node:path'
 import {
+  engineOrigin,
   fetchPlan,
   isEngineDownError,
   runBridgeCore,
