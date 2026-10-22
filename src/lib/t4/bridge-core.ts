@@ -24,7 +24,7 @@ import { planToContract, usedExpLettersOfContracts, type EnginePlan } from './wr
 /** Origin twin'а читается НА КАЖДЫЙ вызов (CLI-бенч задаёт T4_RUST_ORIGIN
  *  до старта процесса; тесты могут подменять между вызовами). */
 export function twinOrigin(): string {
-  return process.env.T4_RUST_ORIGIN ?? 'http://127.0.0.1:3201'
+  return process.env.T4_TWIN_ORIGIN ?? process.env.T4_RUST_ORIGIN ?? 'http://127.0.0.1:3201'
 }
 
 /** Движок не отвечает / ответил не то — ЧЕСТНО (503-семантика эпохи). */

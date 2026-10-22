@@ -583,6 +583,53 @@ export async function stepDeliver(slug: string, onLog?: (s: string) => void): Pr
   return { slug, step: 'DELIVER', action: 'done', lines }
 }
 
+/* ------------------------------------------------------------------ */
+/* Мост гейтов: polish (гейт-починка черновика из рабочего стола)        */
+/* ------------------------------------------------------------------ */
+
+/**
+ * POLISH — гейт-починка черновика против контракта (фаза 6 «мост гейтов»).
+ *
+ * ДО: после hard FAIL гейтов автору приходилось идти в чат/CLI — рабочий
+ * стол умел только показывать отчёт («почини polish или руками»). Симптом
+ * лечился там, где была рука. ПОСЛЕ: polish — полноправный шаг цикла, один
+ * и тот же код для CLI (t4 polish T4-NN) и UI (POST /api/t4/cycle
+ * {action:'polish'}) — дрейфа нет.
+ *
+ * Честность: полиш не пишет cycle.step (официальная квитанция GATES — у
+ * гейтов: gate.run + cycle.step при повторном прогоне); сданное/закрытое
+ * не трогает (polishBatch гардит сам, здесь дубль-гард с честным стопом);
+ * LLM-минуты — шаг долгий, таймауты внутри писца.
+ */
+export async function stepPolish(
+  slug: string,
+  maxRepairRounds = 2,
+  onLog?: (s: string) => void
+): Promise<StepOutcome & { rounds?: number }> {
+  if (!isSafeSlug(slug)) throw new StepStop('refused', `слаг «${slug}» не канонический T4-NN`)
+  await warmConsciousness()
+  const closed = consciousnessEvents().some(
+    (e) => (e.type === 'batch.delivered' || e.type === 'batch.void') && e.data?.slug === slug
+  )
+  if (closed) {
+    throw new StepStop('refused', `${slug} закрыт (delivered/void в летописи) — polish не перезаписывает сданное`)
+  }
+  const contractOnDisk = readText(path.join(CONTRACTS_DIR, `${slug}.json`)) != null
+  if (!contractOnDisk) {
+    throw new StepStop('refused', `контракта ${slug} нет на диске — polish работает по контракту (сначала EXPOSITION)`)
+  }
+  const { polishBatch } = await import('./scribe')
+  const res = await polishBatch(slug, { maxRepairRounds, onLog })
+  const lines = [
+    `POLISH: ${res.slug} «${res.title}» — ремонт ${res.rounds} круг(а), hard ${res.hardPass ? 'PASS' : 'FAIL'} (sha10 ${res.sha10})`,
+    res.hardPass
+      ? `  черновик вылечен — прогони гейты заново (шаг GATES), потом DELIVER`
+      : `  hard FAIL остался — новый sha10 в летописи; второй круг polish или правка руками, затем GATES`,
+  ]
+  onLog?.(lines[0]!)
+  return { slug, step: 'GATES', action: 'done', lines, sha10: res.sha10, hardPass: res.hardPass, rounds: res.rounds }
+}
+
 export async function runCycleStep(step: CycleStep, slug: string, onLog?: (s: string) => void): Promise<StepOutcome> {
   switch (step) {
     case 'ORDER':

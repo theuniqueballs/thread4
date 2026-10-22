@@ -117,20 +117,20 @@ export function Scoreboard(props: { onOpenBatch: (slug: string) => void; onOpenI
           },
           { icon: Zap, label: 'сборок в scratch', value: score.scratch, tone: 'text-fuchsia-300' },
         ].map((c) => (
-          <div key={c.label} className="rounded-xl border border-white/10 bg-zinc-900/50 p-3 backdrop-blur-xl">
+          <div key={c.label} className="rounded-xl border border-zinc-800/60 bg-zinc-900/50 p-4 backdrop-blur-xl">
             <p className={cn('flex items-center gap-1.5 font-mono text-lg font-bold', c.tone)}>
               <c.icon className="size-4" /> {c.value}
             </p>
-            <p className="mt-0.5 text-[10px] leading-tight text-zinc-500">{c.label}</p>
+            <p className="mt-1 text-[10px] leading-tight text-zinc-500">{c.label}</p>
           </div>
         ))}
       </div>
 
       {/* ── таблица ──────────────────────────────────────────────── */}
-      <section className="overflow-hidden rounded-xl border border-white/10 bg-zinc-900/50 backdrop-blur-xl">
-        <header className="flex items-center justify-between gap-2 border-b border-white/10 px-4 py-2.5">
-          <h2 className="flex items-center gap-2 text-sm font-semibold tracking-tight text-zinc-200">
-            <Rocket className="size-4 text-amber-400" /> Батчи · прод :3200 + scratch twin&apos;а :3201
+      <section className="overflow-hidden rounded-xl border border-zinc-800/60 bg-zinc-950/60 backdrop-blur-xl">
+        <header className="flex items-center justify-between gap-2 border-b border-zinc-800/60 px-4 py-3">
+          <h2 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-zinc-400">
+            <Rocket className="size-3.5 text-amber-500" /> Батчи · прод :3200 + scratch twin&apos;а :3201
           </h2>
           <span className="font-mono text-[10px] text-zinc-600">{rows.length} строк</span>
         </header>
@@ -145,23 +145,23 @@ export function Scoreboard(props: { onOpenBatch: (slug: string) => void; onOpenI
             <table className="w-full min-w-[640px] text-left text-xs">
               <thead className="sticky top-0 z-10 bg-zinc-950/95 text-[10px] uppercase tracking-wider text-zinc-500 backdrop-blur">
                 <tr>
-                  <th className="px-3 py-2 font-mono font-medium">слаг</th>
-                  <th className="px-3 py-2 font-mono font-medium">статус</th>
-                  <th className="hidden px-3 py-2 font-mono font-medium sm:table-cell">слотов</th>
-                  <th className="hidden px-3 py-2 font-mono font-medium md:table-cell">EXP / A-B</th>
-                  <th className="hidden px-3 py-2 font-mono font-medium lg:table-cell">sha10</th>
-                  <th className="px-3 py-2 font-mono font-medium">сдан</th>
-                  <th className="px-3 py-2 font-mono font-medium text-right">действия</th>
+                  <th className="px-3 py-2.5 font-mono font-medium">слаг</th>
+                  <th className="px-3 py-2.5 font-mono font-medium">статус</th>
+                  <th className="hidden px-3 py-2.5 font-mono font-medium sm:table-cell">слотов</th>
+                  <th className="hidden px-3 py-2.5 font-mono font-medium md:table-cell">EXP / A-B</th>
+                  <th className="hidden px-3 py-2.5 font-mono font-medium lg:table-cell">sha10</th>
+                  <th className="px-3 py-2.5 font-mono font-medium">сдан</th>
+                  <th className="px-3 py-2.5 font-mono font-medium text-right">действия</th>
                 </tr>
               </thead>
               <tbody>
                 {rows.map((r) => (
-                  <tr key={r.key} className="border-t border-white/5 transition-colors hover:bg-white/[0.03]">
+                  <tr key={r.key} className="border-t border-zinc-800/60 transition-colors hover:bg-zinc-900/40">
                     <td className="px-3 py-2">
                       <button
                         type="button"
                         onClick={() => props.onOpenBatch(r.slug)}
-                        className="font-term text-zinc-200 hover:text-amber-300"
+                        className="font-term text-zinc-200 transition-colors hover:text-amber-300"
                         title={`${r.slug} «${r.title}»`}
                       >
                         {r.slug}
@@ -206,7 +206,7 @@ export function Scoreboard(props: { onOpenBatch: (slug: string) => void; onOpenI
           </div>
         )}
         {scratchLoading && scratch.length === 0 ? (
-          <p className="border-t border-white/5 px-4 py-2 font-mono text-[10px] text-zinc-600">scratch twin&apos;а читается…</p>
+          <p className="border-t border-zinc-800/60 px-4 py-2 font-mono text-[10px] text-zinc-600">scratch twin&apos;а читается…</p>
         ) : null}
       </section>
     </div>

@@ -63,16 +63,16 @@ export function ChainView(props: {
   return (
     <div className="space-y-4" aria-label="рабочий стол: хеш-цепь">
       {/* ── вердикт ─────────────────────────────────────────────── */}
-      <section className="rounded-xl border border-white/10 bg-zinc-900/50 p-4 backdrop-blur-xl">
+      <section className="rounded-xl border border-zinc-800/60 bg-zinc-900/50 p-4 backdrop-blur-xl sm:p-5">
         <header className="flex flex-wrap items-center justify-between gap-2">
-          <h2 className="flex items-center gap-2 text-sm font-semibold tracking-tight text-zinc-200">
-            <Link2 className="size-4 text-amber-400" /> Хеш-цепь
-            <span className="font-mono text-[10px] font-normal text-zinc-500">клиентская перевалидация сшивки</span>
+          <h2 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-zinc-400">
+            <Link2 className="size-3.5 text-amber-500" /> Хеш-цепь
+            <span className="font-mono text-[10px] font-normal normal-case tracking-normal text-zinc-600">клиентская перевалидация сшивки</span>
           </h2>
           <button
             type="button"
             onClick={props.onExport}
-            className="flex items-center gap-1.5 rounded-md border border-zinc-800 bg-zinc-900/60 px-2.5 py-1.5 font-mono text-[10px] text-zinc-400 transition-colors hover:border-amber-500/50 hover:text-amber-300"
+            className="flex h-8 items-center gap-1.5 rounded-md border border-zinc-800/60 bg-zinc-900/60 px-2.5 font-mono text-[10px] text-zinc-400 transition-colors hover:border-amber-500/50 hover:text-amber-300"
             title="выгрузить виденные звенья в JSONL"
           >
             <Download className="size-3" /> экспорт JSONL
@@ -81,15 +81,15 @@ export function ChainView(props: {
 
         <div className="mt-3 flex flex-wrap items-center gap-2">
           {props.feed.events.length === 0 ? (
-            <span className="rounded-lg border border-zinc-700 bg-zinc-950/60 px-3 py-1.5 font-mono text-xs text-zinc-500">
+            <span className="rounded-md border border-zinc-700 bg-zinc-950/60 px-3 py-1.5 font-mono text-xs text-zinc-500">
               звеньев не прочитано — движок молчит или лента пуста
             </span>
           ) : verdict.ok ? (
-            <span className="flex items-center gap-1.5 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-3 py-1.5 font-mono text-xs text-emerald-300">
+            <span className="flex items-center gap-1.5 rounded-md border border-emerald-500/40 bg-emerald-500/10 px-3 py-1.5 font-mono text-xs text-emerald-300">
               <ShieldCheck className="size-4" /> ЦЕЛА · {verdict.checked} звеньев · head {verdict.head?.slice(0, 10)}
             </span>
           ) : (
-            <span className="flex items-center gap-1.5 rounded-lg border border-rose-500/40 bg-rose-500/10 px-3 py-1.5 font-mono text-xs text-rose-300">
+            <span className="flex items-center gap-1.5 rounded-md border border-rose-500/40 bg-rose-500/10 px-3 py-1.5 font-mono text-xs text-rose-300">
               <ShieldX className="size-4" /> СЛОМАНА · битых звеньев {verdict.breaks.length} · первое — seq{' '}
               {props.feed.events[verdict.breaks[0]!]?.seq ?? '—'} ·{verdict.genesisOk ? '' : ' генезис не GENESIS ·'} аудит: /v1/chain/verify
             </span>
@@ -107,7 +107,7 @@ export function ChainView(props: {
               onClick={() => setTypeFilter(null)}
               className={cn(
                 'rounded border px-1.5 py-0.5 font-mono text-[10px] transition-colors',
-                typeFilter == null ? 'border-zinc-100 bg-zinc-100 text-zinc-950' : 'border-zinc-800 text-zinc-500 hover:text-zinc-300'
+                typeFilter == null ? 'border-zinc-100 bg-zinc-100 text-zinc-950' : 'border-zinc-800/60 text-zinc-500 hover:bg-zinc-800/40 hover:text-zinc-300'
               )}
             >
               все · {props.feed.events.length}
@@ -120,7 +120,7 @@ export function ChainView(props: {
                 className={cn(
                   'rounded border px-1.5 py-0.5 font-mono text-[10px] transition-colors',
                   typeFilter === t ? 'border-zinc-100 bg-zinc-100 text-zinc-950' : TYPE_TONE[t] ?? 'border-zinc-700 text-zinc-500',
-                  'hover:bg-white/5'
+                  'hover:bg-zinc-800/40'
                 )}
               >
                 {t} · {n}
@@ -131,7 +131,7 @@ export function ChainView(props: {
       </section>
 
       {/* ── звенья ──────────────────────────────────────────────── */}
-      <section className="overflow-hidden rounded-xl border border-white/10 bg-zinc-900/50 backdrop-blur-xl">
+      <section className="overflow-hidden rounded-xl border border-zinc-800/60 bg-zinc-950/60 backdrop-blur-xl">
         {shown.length === 0 ? (
           <p className="px-4 py-6 font-mono text-xs text-zinc-600">звеньев нет — лента не читается или фильтр пуст</p>
         ) : (
@@ -143,8 +143,8 @@ export function ChainView(props: {
                 <li
                   key={e.id ?? `${e.seq}`}
                   className={cn(
-                    'border-t border-white/5 px-3 py-2 first:border-t-0',
-                    broken ? 'bg-rose-500/[0.06]' : 'hover:bg-white/[0.02]'
+                    'border-t border-zinc-800/60 px-3 py-2 first:border-t-0',
+                    broken ? 'bg-rose-500/[0.06]' : 'hover:bg-zinc-900/40'
                   )}
                 >
                   <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">

@@ -26,6 +26,7 @@ import {
   RefreshCw,
   ShieldAlert,
   Sparkles,
+  Wrench,
   Zap,
 } from 'lucide-react'
 
@@ -157,6 +158,8 @@ export function CycleBoard(props: {
   const [oc2, setOc2] = useState('')
   const [oc3, setOc3] = useState('')
   const [busy, setBusy] = useState<string | null>(null)
+  const [voidOpen, setVoidOpen] = useState(false)
+  const [voidReason, setVoidReason] = useState('')
   const [report, setReport] = useState<{
     title: string
     lines: string[]
@@ -286,17 +289,50 @@ export function CycleBoard(props: {
     })
   }, [slug, runAction])
 
+  /* МОСТ ГЕЙТОВ (фаза 6): полиш — гейт-починка против контракта прямо из
+   * рабочего стола (LLM-минуты; один код с CLI — t4 polish). */
+  const doPolish = useCallback(async () => {
+    if (slug == null) return
+    await runAction('polish', { action: 'polish', slug, rounds: 2 }, (data) => {
+      if (data.outcome != null) {
+        const out = data.outcome
+        setReport({
+          title: `${out.slug}: полиш — hard ${out.hardPass ? 'PASS' : 'FAIL'}`,
+          lines: out.lines,
+          stopped: null,
+          nextHint: out.hardPass ? 'черновик вылечен — следующий шаг: ГЕЙТЫ (GATES)' : null,
+          tone: out.hardPass ? 'ok' : 'stop',
+        })
+        notify(out.hardPass ? 'success' : 'info', 'Цикл: polish', out.lines[0]?.slice(0, 140) ?? 'полиш отработал')
+      }
+    })
+  }, [slug, runAction])
+
+  const doVoid = useCallback(
+    async (reason: string) => {
+      if (slug == null) return
+      await runAction('void', { action: 'void', slug, reason }, (data) => {
+        if (data.report == null) {
+          setVoidOpen(false)
+          setVoidReason('')
+          notify('info', `Цикл: ${slug} закрыт`, 'batch.void в летописи — из окна ротации исключён, номер закреплён')
+        }
+      })
+    },
+    [slug, runAction]
+  )
+
   const d = detail.data ?? null
   const next = d?.state.next ?? null
 
   return (
     <div className="space-y-4" aria-label="рабочий стол: цикл">
       {/* ── выбор цикла ─────────────────────────────────────────── */}
-      <section className="rounded-xl border border-white/10 bg-zinc-900/50 p-4 backdrop-blur-xl">
+      <section className="rounded-xl border border-zinc-800/60 bg-zinc-900/50 p-4 backdrop-blur-xl sm:p-5">
         <header className="flex flex-wrap items-center justify-between gap-2">
-          <h2 className="flex items-center gap-2 text-sm font-semibold tracking-tight text-zinc-200">
-            <Zap className="size-4 text-amber-400" /> Цикл батча
-            <span className="font-mono text-[10px] font-normal text-zinc-500">ORDER→COMPILE→EXPOSITION→WRITE→GATES→DELIVER</span>
+          <h2 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-zinc-400">
+            <Zap className="size-3.5 text-amber-500" /> Цикл батча
+            <span className="font-mono text-[10px] font-normal normal-case tracking-normal text-zinc-600">ORDER→COMPILE→EXPOSITION→WRITE→GATES→DELIVER</span>
           </h2>
           <div className="flex items-center gap-1.5">
             <button
@@ -306,7 +342,7 @@ export function CycleBoard(props: {
                 openList.reload()
               }}
               title="перечитать состояние цикла из летописи"
-              className="flex items-center gap-1 rounded-md border border-zinc-800 bg-zinc-900/60 px-2 py-1 font-mono text-[10px] text-zinc-400 transition-colors hover:border-amber-500/40 hover:text-amber-300"
+              className="flex h-7 items-center gap-1 rounded-md border border-zinc-800/60 bg-zinc-900/60 px-2 font-mono text-[10px] text-zinc-400 transition-colors hover:border-amber-500/40 hover:text-amber-300"
             >
               <RefreshCw className="size-3" /> перечитать
             </button>
@@ -323,7 +359,7 @@ export function CycleBoard(props: {
               }
             }}
             placeholder="T4-NN — открыть цикл по слагу"
-            className="w-44 rounded-md border border-zinc-800 bg-zinc-950/80 px-2.5 py-1.5 font-term text-xs text-zinc-200 placeholder:text-zinc-600 focus:border-amber-500/50 focus:outline-none"
+            className="h-8 w-44 rounded-md border border-zinc-800/60 bg-zinc-950/80 px-2.5 font-term text-xs text-zinc-200 transition-colors placeholder:text-zinc-600 focus:border-amber-500/50 focus:outline-none"
             aria-label="слаг цикла"
           />
           <button
@@ -331,7 +367,7 @@ export function CycleBoard(props: {
             onClick={() => {
               if (/^T4-[\d.]+(-EXP)?$/i.test(slugInput.trim())) setSlug(slugInput.trim().toUpperCase())
             }}
-            className="rounded-md border border-zinc-800 bg-zinc-900/60 px-2.5 py-1.5 font-mono text-[10px] uppercase text-zinc-300 transition-colors hover:border-amber-500/50 hover:text-amber-300"
+            className="h-8 rounded-md border border-zinc-800/60 bg-zinc-900/60 px-2.5 font-mono text-[10px] uppercase text-zinc-300 transition-colors hover:border-amber-500/50 hover:text-amber-300"
           >
             открыть
           </button>
@@ -343,7 +379,7 @@ export function CycleBoard(props: {
                 setSlugInput('')
                 setReport(null)
               }}
-              className="rounded-md border border-zinc-800 px-2 py-1.5 font-mono text-[10px] text-zinc-500 transition-colors hover:text-zinc-300"
+              className="h-8 rounded-md border border-zinc-800/60 px-2.5 font-mono text-[10px] text-zinc-500 transition-colors hover:border-zinc-700 hover:text-zinc-300"
             >
               ✕ закрыть
             </button>
@@ -379,13 +415,13 @@ export function CycleBoard(props: {
                 value={theme}
                 onChange={(e) => setTheme(e.target.value)}
                 placeholder="тема батча (1..200 символов)"
-                className="rounded-md border border-zinc-800 bg-zinc-950/80 px-2.5 py-1.5 text-xs text-zinc-200 placeholder:text-zinc-600 focus:border-amber-500/50 focus:outline-none"
+                className="h-8 rounded-md border border-zinc-800/60 bg-zinc-950/80 px-2.5 text-xs text-zinc-200 transition-colors placeholder:text-zinc-600 focus:border-amber-500/50 focus:outline-none"
                 aria-label="тема батча"
               />
               <div className="grid grid-cols-3 gap-2">
-                <input value={oc1} onChange={(e) => setOc1(e.target.value)} placeholder="OC-тема 1" className="min-w-0 rounded-md border border-zinc-800 bg-zinc-950/80 px-2 py-1.5 text-xs text-zinc-200 placeholder:text-zinc-600 focus:border-amber-500/50 focus:outline-none" aria-label="OC-тема 1" />
-                <input value={oc2} onChange={(e) => setOc2(e.target.value)} placeholder="OC-тема 2 (опц.)" className="min-w-0 rounded-md border border-zinc-800 bg-zinc-950/80 px-2 py-1.5 text-xs text-zinc-200 placeholder:text-zinc-600 focus:border-amber-500/50 focus:outline-none" aria-label="OC-тема 2" />
-                <input value={oc3} onChange={(e) => setOc3(e.target.value)} placeholder="OC-тема 3 (опц.)" className="min-w-0 rounded-md border border-zinc-800 bg-zinc-950/80 px-2 py-1.5 text-xs text-zinc-200 placeholder:text-zinc-600 focus:border-amber-500/50 focus:outline-none" aria-label="OC-тема 3" />
+                <input value={oc1} onChange={(e) => setOc1(e.target.value)} placeholder="OC-тема 1" className="h-8 min-w-0 rounded-md border border-zinc-800/60 bg-zinc-950/80 px-2 text-xs text-zinc-200 transition-colors placeholder:text-zinc-600 focus:border-amber-500/50 focus:outline-none" aria-label="OC-тема 1" />
+                <input value={oc2} onChange={(e) => setOc2(e.target.value)} placeholder="OC-тема 2 (опц.)" className="h-8 min-w-0 rounded-md border border-zinc-800/60 bg-zinc-950/80 px-2 text-xs text-zinc-200 transition-colors placeholder:text-zinc-600 focus:border-amber-500/50 focus:outline-none" aria-label="OC-тема 2" />
+                <input value={oc3} onChange={(e) => setOc3(e.target.value)} placeholder="OC-тема 3 (опц.)" className="h-8 min-w-0 rounded-md border border-zinc-800/60 bg-zinc-950/80 px-2 text-xs text-zinc-200 transition-colors placeholder:text-zinc-600 focus:border-amber-500/50 focus:outline-none" aria-label="OC-тема 3" />
               </div>
             </div>
             <div className="mt-2.5 flex flex-wrap gap-2">
@@ -393,7 +429,7 @@ export function CycleBoard(props: {
                 type="button"
                 disabled={theme.trim() === '' || oc1.trim() === '' || busy != null}
                 onClick={() => void doOrder(false)}
-                className="rounded-md bg-amber-500 px-3 py-1.5 font-mono text-[11px] font-semibold text-zinc-950 transition-opacity hover:bg-amber-400 disabled:cursor-not-allowed disabled:opacity-40"
+                className="h-8 rounded-md bg-amber-500 px-3 font-mono text-[11px] font-semibold text-zinc-950 transition-colors hover:bg-amber-400 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 {busy === 'order' ? 'заказ идёт…' : 'заказать (ORDER)'}
               </button>
@@ -401,7 +437,7 @@ export function CycleBoard(props: {
                 type="button"
                 disabled={theme.trim() === '' || oc1.trim() === '' || busy != null}
                 onClick={() => void doOrder(true)}
-                className="rounded-md border border-amber-500/50 px-3 py-1.5 font-mono text-[11px] text-amber-300 transition-colors hover:bg-amber-500/10 disabled:cursor-not-allowed disabled:opacity-40"
+                className="h-8 rounded-md border border-amber-500/50 bg-amber-500/5 px-3 font-mono text-[11px] text-amber-300 transition-colors hover:bg-amber-500/15 disabled:cursor-not-allowed disabled:opacity-40"
                 title="ORDER → COMPILE → EXPOSITION одной цепочкой (стоп перед WRITE — human-gate)"
               >
                 {busy === 'order' ? 'идёт…' : 'заказ + сборка + экспозиция'}
@@ -416,7 +452,7 @@ export function CycleBoard(props: {
 
       {/* ── степпер цикла ───────────────────────────────────────── */}
       {slug != null ? (
-        <section className="rounded-xl border border-white/10 bg-zinc-900/50 p-4 backdrop-blur-xl" aria-label="степпер цикла">
+        <section className="rounded-xl border border-zinc-800/60 bg-zinc-900/50 p-4 backdrop-blur-xl sm:p-5" aria-label="степпер цикла">
           {detail.loading && d == null ? (
             <p className="font-mono text-xs text-zinc-500">читаю факты цикла (диск + летопись + движок)…</p>
           ) : detail.error != null ? (
@@ -449,7 +485,7 @@ export function CycleBoard(props: {
               </header>
 
               {/* степпер: горизонтально на md+, вертикально на мобильном */}
-              <ol className="grid grid-cols-1 gap-1.5 sm:grid-cols-2 lg:grid-cols-6">
+              <ol className="t4-stepper grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-6">
                 {CYCLE_STEPS.map((step, i) => {
                   const st = stepDotState(step, d)
                   const rec = d.receipts.filter((r) => r.step === step).slice(-1)[0]
@@ -457,8 +493,14 @@ export function CycleBoard(props: {
                     <li
                       key={step}
                       className={cn(
-                        'rounded-lg border p-2.5 transition-colors',
-                        st === 'next' ? 'border-amber-500/40 bg-amber-500/5' : st === 'done' ? 'border-emerald-500/20 bg-emerald-500/[0.03]' : st === 'stale' ? 'border-rose-500/40 bg-rose-500/5' : 'border-zinc-800 bg-zinc-950/40'
+                        'flex h-full flex-col rounded-lg border p-3 transition-colors',
+                        st === 'next'
+                          ? 'border-amber-500/40 bg-amber-500/[0.06] ring-1 ring-inset ring-amber-500/25'
+                          : st === 'done'
+                            ? 'border-emerald-500/25 bg-emerald-500/[0.04]'
+                            : st === 'stale'
+                              ? 'border-rose-500/40 bg-rose-500/[0.06]'
+                              : 'border-zinc-800/60 bg-zinc-950/40'
                       )}
                     >
                       <div className="flex items-center gap-1.5">
@@ -469,7 +511,7 @@ export function CycleBoard(props: {
                           {i + 1}. {STEP_LABEL[step]}
                         </span>
                       </div>
-                      <p className="mt-1 font-mono text-[9px] leading-snug text-zinc-600">{rec != null ? `${fmtTime(rec.at)} · ${rec.sha10 ?? ''}` : STEP_HINT[step]}</p>
+                      <p className="mt-1.5 font-mono text-[10px] leading-snug text-zinc-600">{rec != null ? `${fmtTime(rec.at)} · ${rec.sha10 ?? ''}` : STEP_HINT[step]}</p>
                     </li>
                   )
                 })}
@@ -498,7 +540,7 @@ export function CycleBoard(props: {
                       type="button"
                       disabled={busy != null}
                       onClick={() => void doApproveWrite()}
-                      className="mt-2.5 rounded-md bg-amber-500 px-3 py-1.5 font-mono text-[11px] font-semibold text-zinc-950 transition-opacity hover:bg-amber-400 disabled:opacity-40"
+                      className="mt-3 h-8 rounded-md bg-amber-500 px-3 font-mono text-[11px] font-semibold text-zinc-950 transition-colors hover:bg-amber-400 disabled:cursor-not-allowed disabled:opacity-40"
                     >
                       {busy === 'WRITE' ? 'писец работает…' : 'одобряю — писать (WRITE)'}
                     </button>
@@ -509,17 +551,62 @@ export function CycleBoard(props: {
                       <ShieldAlert className="size-3.5" /> гейты ловили hard FAIL по неизменённому черновику
                     </p>
                     <p className="mt-1.5 text-xs leading-relaxed text-zinc-400">
-                      Почини черновик против контракта (polish или руками) — новый sha10 откроет честный повторный прогон.
+                      Почини черновик против контракта — новый sha10 откроет честный повторный прогон.
                       Повтор по неизменённому тексту гейты не примут (дубля gate.run не будет).
                     </p>
+                    <div className="mt-2.5 flex flex-wrap items-center gap-2">
+                      <button
+                        type="button"
+                        disabled={busy != null}
+                        onClick={() => void doPolish()}
+                        title="гейт-починка черновика LLM-писцом против контракта (минуты) — тот же код, что t4 polish"
+                        className="flex h-8 items-center gap-1.5 rounded-md bg-amber-500 px-3 font-mono text-[11px] font-semibold text-zinc-950 transition-colors hover:bg-amber-400 disabled:cursor-not-allowed disabled:opacity-40"
+                      >
+                        <Wrench className="size-3" /> {busy === 'polish' ? 'писец правит черновик…' : 'полировка против контракта (polish)'}
+                      </button>
+                      <button
+                        type="button"
+                        disabled={busy != null}
+                        onClick={() => void doStep('GATES')}
+                        title="повторный официальный прогон гейтов — честен только после изменения черновика"
+                        className="flex h-8 items-center gap-1.5 rounded-md border border-rose-500/40 bg-rose-500/[0.04] px-3 font-mono text-[11px] text-rose-300 transition-colors hover:bg-rose-500/10 disabled:cursor-not-allowed disabled:opacity-40"
+                      >
+                        <Play className="size-3" /> {busy === 'GATES' ? 'гейты идут…' : 'гейты заново (GATES)'}
+                      </button>
+                    </div>
+                    {/* эскейп-люк: цикл неспасаем — закрыть по приказу автора (как t4 void) */}
+                    <details className="mt-2" open={voidOpen} onToggle={(e) => setVoidOpen((e.target as HTMLDetailsElement).open)}>
+                      <summary className="cursor-pointer select-none font-mono text-[10px] uppercase tracking-wider text-zinc-500 transition-colors hover:text-zinc-300">
+                        неспасаем — закрыть цикл (void)
+                      </summary>
+                      <div className="mt-2 flex flex-wrap items-center gap-2">
+                        <input
+                          value={voidReason}
+                          onChange={(e) => setVoidReason(e.target.value)}
+                          maxLength={200}
+                          placeholder="причина закрытия (1..200) — летопись требует имя приказу"
+                          className="h-8 min-w-0 flex-1 rounded-md border border-zinc-800/60 bg-zinc-950/80 px-2.5 text-xs text-zinc-200 transition-colors placeholder:text-zinc-600 focus:border-rose-500/50 focus:outline-none"
+                          aria-label="причина void"
+                        />
+                        <button
+                          type="button"
+                          disabled={busy != null || voidReason.trim() === ''}
+                          onClick={() => void doVoid(voidReason.trim())}
+                          className="h-8 rounded-md border border-rose-500/40 bg-rose-500/10 px-3 font-mono text-[10px] uppercase text-rose-300 transition-colors hover:bg-rose-500/20 disabled:cursor-not-allowed disabled:opacity-40"
+                        >
+                          <Ban className="mr-1 inline size-3" />
+                          закрыть (batch.void)
+                        </button>
+                      </div>
+                    </details>
                   </div>
                 ) : (
-                  <div className="flex flex-wrap items-center gap-2 rounded-lg border border-zinc-800 bg-zinc-950/50 p-3">
+                  <div className="flex flex-wrap items-center gap-2 rounded-lg border border-zinc-800/60 bg-zinc-950/50 p-3">
                     <button
                       type="button"
                       disabled={busy != null}
                       onClick={() => void doStep(next!)}
-                      className="flex items-center gap-1.5 rounded-md bg-amber-500 px-3 py-1.5 font-mono text-[11px] font-semibold text-zinc-950 transition-opacity hover:bg-amber-400 disabled:opacity-40"
+                      className="flex h-8 items-center gap-1.5 rounded-md bg-amber-500 px-3 font-mono text-[11px] font-semibold text-zinc-950 transition-colors hover:bg-amber-400 disabled:cursor-not-allowed disabled:opacity-40"
                     >
                       <Play className="size-3" /> {busy === next ? `${STEP_LABEL[next!]} идёт…` : `${STEP_LABEL[next!]} (${next})`}
                     </button>

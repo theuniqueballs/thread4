@@ -28,7 +28,8 @@ import { foldState, readEvents, type T4Event } from './events'
 
 export type ChronicleSource = 'file' | 'engine'
 
-export const TWIN_ORIGIN = process.env.T4_RUST_ORIGIN ?? 'http://127.0.0.1:3201'
+export const TWIN_ORIGIN =
+  process.env.T4_STATE_ORIGIN ?? process.env.T4_RUST_ORIGIN ?? 'http://127.0.0.1:3201'
 
 /** Строка источника из env. Только 'engine' включает движок; всё прочее
  *  (включая unset→engine-по-умолчанию путь ниже) — явный выбор. */

@@ -220,7 +220,7 @@ export function StatusBar({
             ? 'border-amber-800/50 bg-amber-500/5 text-amber-300'
             : tone === 'err'
               ? 'border-rose-800/50 bg-rose-500/5 text-rose-300'
-              : 'border-zinc-800 bg-zinc-900/60 text-zinc-400'
+              : 'border-zinc-800/60 bg-zinc-900/60 text-zinc-400'
       )}
     >
       <span className="text-zinc-600">{label}</span>
@@ -260,7 +260,7 @@ export function StatusBar({
       <button
         type="button"
         onClick={onOpenSettings}
-        className="inline-flex shrink-0 items-center gap-1 rounded-md border border-zinc-800 bg-zinc-900/60 px-2 py-1 font-mono text-[10px] leading-none text-zinc-500 transition-colors hover:border-amber-500/50 hover:text-amber-300"
+        className="inline-flex shrink-0 items-center gap-1 rounded-md border border-zinc-800/60 bg-zinc-900/60 px-2 py-1 font-mono text-[10px] leading-none text-zinc-500 transition-colors hover:border-amber-500/50 hover:text-amber-300"
         aria-label="настройки: ключ командира, стекло движка"
       >
         <Settings className="size-3" /> настройки
@@ -282,7 +282,7 @@ export function BellMenu({ entries, onClear }: { entries: NotifyEntry[]; onClear
         <button
           type="button"
           aria-label={`уведомления${entries.length > 0 ? ` (${entries.length} новых)` : ''}`}
-          className="relative rounded-md border border-zinc-800 bg-zinc-900/60 p-1.5 text-zinc-400 transition-colors hover:border-amber-500/50 hover:text-amber-300"
+          className="relative flex h-8 w-8 items-center justify-center rounded-md border border-zinc-800/60 bg-zinc-900/60 text-zinc-400 transition-colors hover:border-amber-500/50 hover:text-amber-300"
         >
           <Bell className="size-4" />
           {entries.length > 0 ? (
@@ -346,8 +346,8 @@ export function SettingsDialog({
 }) {
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="t4-scroll w-full overflow-y-auto border-zinc-800 bg-zinc-950 p-0 sm:max-w-xl">
-        <SheetHeader className="border-b border-zinc-800 px-4 py-3">
+      <SheetContent side="right" className="t4-scroll w-full overflow-y-auto border-zinc-800/60 bg-zinc-950 p-0 sm:max-w-xl">
+        <SheetHeader className="border-b border-zinc-800/60 px-4 py-3.5">
           <SheetTitle className="flex items-center gap-2 font-mono text-sm text-zinc-200">
             <Settings className="size-4 text-amber-500" /> Настройки · Стекло
           </SheetTitle>
@@ -355,7 +355,7 @@ export function SettingsDialog({
             ключ командира (мутации) · здоровье хрупкого конвейера
           </SheetDescription>
         </SheetHeader>
-        <div className="space-y-4 p-4">
+        <div className="space-y-5 p-4 sm:p-5">
           <CommanderKeyPanel />
           <GlassTab />
         </div>
@@ -385,12 +385,12 @@ export function EventsStrip({
   }, [feed.events])
 
   return (
-    <section className="min-w-0 rounded-lg border border-zinc-800 bg-zinc-900 p-4 sm:p-5" aria-label="живая лента событий">
+    <section className="min-w-0 rounded-xl border border-zinc-800/60 bg-zinc-900/50 p-4 backdrop-blur-xl sm:p-5" aria-label="живая лента событий">
       <header className="mb-3 flex items-center justify-between gap-3">
-        <h2 className="flex items-center gap-2 text-sm font-semibold tracking-tight text-zinc-200">
-          <Radio className="size-4 text-amber-500" />
+        <h2 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-zinc-400">
+          <Radio className="size-3.5 text-amber-500" />
           Лента — последние 5
-          <span className="flex items-center gap-1 font-mono text-[9px] text-zinc-600">
+          <span className="flex items-center gap-1 font-mono text-[10px] font-normal normal-case tracking-normal text-zinc-600">
             <span className={cn('size-1.5 rounded-full', feed.error == null ? 'animate-pulse bg-emerald-500' : 'bg-rose-500')} />
             {feed.error == null ? 'live · poll 4с' : 'движок молчит'}
           </span>
@@ -401,14 +401,14 @@ export function EventsStrip({
             onClick={() => void feed.refresh()}
             aria-label="перечитать ленту"
             title="перечитать ленту из движка"
-            className="rounded-md border border-zinc-700 p-1 text-zinc-400 transition-colors hover:border-amber-500/50 hover:text-amber-300"
+            className="flex h-7 w-7 items-center justify-center rounded-md border border-zinc-700/70 p-0 text-zinc-400 transition-colors hover:border-amber-500/50 hover:text-amber-300"
           >
             <RefreshCw className="size-3" />
           </button>
           <button
             type="button"
             onClick={onOpenChronicle}
-            className="flex items-center gap-1 rounded-md border border-zinc-700 px-2 py-1 font-mono text-[10px] text-zinc-400 transition-colors hover:border-amber-500/50 hover:text-amber-300"
+            className="flex h-7 items-center gap-1 rounded-md border border-zinc-700/70 px-2 font-mono text-[10px] text-zinc-400 transition-colors hover:border-amber-500/50 hover:text-amber-300"
           >
             вся летопись <ChevronRight className="size-3" />
           </button>
@@ -473,10 +473,10 @@ export function BatchFocus({
   const batch = rows[0]
 
   return (
-    <section className="min-w-0 rounded-lg border border-zinc-800 bg-zinc-900 p-4 sm:p-5" aria-label="текущий батч">
+    <section className="min-w-0 rounded-xl border border-zinc-800/60 bg-zinc-900/50 p-4 backdrop-blur-xl sm:p-5" aria-label="текущий батч">
       <header className="mb-3 flex items-center justify-between gap-3">
-        <h2 className="flex items-center gap-2 text-sm font-semibold tracking-tight text-zinc-200">
-          <FileText className="size-4 text-amber-500" /> Текущий батч
+        <h2 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-zinc-400">
+          <FileText className="size-3.5 text-amber-500" /> Текущий батч
         </h2>
         {batch != null ? (
           <Chip tone={batch.status === 'delivered' ? 'emerald' : batch.status === 'void' ? 'zinc' : 'amber'}>
@@ -501,7 +501,7 @@ export function BatchFocus({
             <Button
               size="sm"
               onClick={() => onOpenBatch(batch.slug)}
-              className="h-7 bg-amber-500 text-xs text-zinc-950 hover:bg-amber-400"
+              className="h-8 bg-amber-500 text-xs text-zinc-950 transition-colors hover:bg-amber-400"
             >
               <FileText className="mr-1 size-3" /> детали · гейты · файл
             </Button>
@@ -509,7 +509,7 @@ export function BatchFocus({
               size="sm"
               variant="outline"
               onClick={() => onVerdict(batch.slug)}
-              className="h-7 border-zinc-700 bg-zinc-900 text-xs text-zinc-300 hover:border-rose-500/40 hover:text-rose-300"
+              className="h-8 border-zinc-700/70 bg-zinc-900 text-xs text-zinc-300 transition-colors hover:border-rose-500/40 hover:bg-rose-500/10 hover:text-rose-300"
             >
               <Heart className="mr-1 size-3" /> вердикт
             </Button>
@@ -522,7 +522,7 @@ export function BatchFocus({
                   .then(() => notify('info', 'Приказ скопирован', `«Super Z, произведи ${batch.slug}»`))
                   .catch(() => notify('error', 'Копирование не удалось', ''))
               }}
-              className="h-7 border-zinc-700 bg-zinc-900 text-xs text-zinc-300"
+              className="h-8 border-zinc-700/70 bg-zinc-900 text-xs text-zinc-300 transition-colors hover:border-zinc-600 hover:bg-zinc-800/60"
             >
               ⧉ приказ
             </Button>
@@ -565,10 +565,10 @@ export function DocsZone({
   onOpen: (id: DrawerId) => void
 }) {
   return (
-    <section aria-label="читальный зал" className="rounded-lg border border-zinc-800/70 bg-zinc-950/40 p-2.5">
+    <section aria-label="читальный зал" className="rounded-xl border border-zinc-800/60 bg-zinc-950/40 p-3">
       <div className="mb-2 flex items-center justify-between px-1">
-        <span className="font-mono text-[9px] uppercase tracking-widest text-zinc-600">читальный зал — всё почитать</span>
-        <span className="font-mono text-[9px] text-zinc-700">клавиши 1–8 · ⌘K</span>
+        <span className="font-mono text-[10px] uppercase tracking-wider text-zinc-500">читальный зал — всё почитать</span>
+        <span className="font-mono text-[10px] text-zinc-700">клавиши 1–8 · ⌘K</span>
       </div>
       <div className="t4-scroll-x flex gap-1.5 overflow-x-auto pb-0.5">
         {(Object.keys(DRAWER_META) as DrawerId[]).map((id) => (
@@ -577,7 +577,7 @@ export function DocsZone({
             type="button"
             onClick={() => onOpen(id)}
             title={DRAWER_META[id].hint}
-            className="group flex shrink-0 items-center gap-1.5 rounded-md border border-zinc-800 bg-zinc-900/60 px-2.5 py-1.5 text-[11px] text-zinc-400 transition-colors hover:border-amber-500/40 hover:text-amber-200"
+            className="group flex h-8 shrink-0 items-center gap-1.5 rounded-md border border-zinc-800/60 bg-zinc-900/60 px-2.5 text-[11px] text-zinc-400 transition-colors hover:border-amber-500/40 hover:bg-zinc-900 hover:text-amber-200"
           >
             <span className="text-zinc-500 group-hover:text-amber-400/80">{DOCS_ICONS[id]}</span>
             {DRAWER_META[id].label}
@@ -605,16 +605,16 @@ export function ReadingDrawer({
           <SheetContent
             key={drawer}
             side="right"
-            className="t4-scroll flex w-full flex-col overflow-y-auto border-zinc-800 bg-zinc-950 p-0 sm:max-w-2xl"
+            className="t4-scroll flex w-full flex-col overflow-y-auto border-zinc-800/60 bg-zinc-950 p-0 sm:max-w-2xl"
           >
-            <SheetHeader className="sticky top-0 z-10 border-b border-zinc-800 bg-zinc-950/95 px-4 py-3 backdrop-blur">
+            <SheetHeader className="sticky top-0 z-10 border-b border-zinc-800/60 bg-zinc-950/95 px-4 py-3.5 backdrop-blur">
               <SheetTitle className="flex items-center gap-2 font-mono text-sm text-zinc-200">
                 {DOCS_ICONS[drawer]}
                 {DRAWER_META[drawer].label}
               </SheetTitle>
               <SheetDescription className="font-mono text-[10px] text-zinc-600">{DRAWER_META[drawer].hint}</SheetDescription>
             </SheetHeader>
-            <div className="flex-1 p-4">
+            <div className="flex-1 p-4 sm:p-5">
               {drawer === 'docs' ? <DocsTab /> : null}
               {drawer === 'specs' ? <SpecsTab /> : null}
               {drawer === 'chronicle' ? <EventsTab /> : null}

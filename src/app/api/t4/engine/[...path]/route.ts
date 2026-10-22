@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 
 import { requireCommander, requireRead } from '@/lib/t4/apiguard'
+import { readChronicle } from '@/lib/t4/consciousness'
 
 export const dynamic = 'force-dynamic'
 
@@ -63,6 +64,12 @@ async function proxy(
       cache: 'no-store',
     })
     const text = await res.text()
+    if (method === 'GET' && res.ok && /^batches(\/T4-\d{2,3})?$/.test(enginePath)) {
+      return new Response(await reconcileBatchStatus(enginePath, text), {
+        status: res.status,
+        headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' },
+      })
+    }
     return new Response(text, {
       status: res.status,
       headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' },
@@ -75,6 +82,52 @@ async function proxy(
     )
   } finally {
     clearTimeout(timeout)
+  }
+}
+
+/**
+ * Сверка статусов с летописью на краю (фаза 6, §2 — состояние выводится из
+ * событий). Находка: сданный слаг (T4-33, файл-эра) отображался «Compiled» —
+ * проекция движка может отставать от цепи (пересборка БД, миграции).
+ * Кромка обогащает ответ движка union-летописью: batch.delivered/batch.void
+ * в хронике — СТАРШЕ проекции (только вверх: compiled→delivered/void; вниз
+ * ничего не понижаем). Сверка best-effort: летопись недоступна — ответ
+ * движка идёт как есть (честная деградация, не подмена).
+ */
+async function reconcileBatchStatus(enginePath: string, rawText: string): Promise<string> {
+  try {
+    const chron = await readChronicle()
+    const delivered = new Map<string, string>()
+    const voided = new Set<string>()
+    for (const e of chron.events) {
+      const slug = typeof e.data?.slug === 'string' ? e.data.slug : null
+      if (slug == null) continue
+      if (e.type === 'batch.delivered') delivered.set(slug, e.at)
+      else if (e.type === 'batch.void') voided.add(slug)
+    }
+    const patchRow = (row: Record<string, unknown>): void => {
+      const slug = typeof row['slug'] === 'string' ? row['slug'] : null
+      if (slug == null) return
+      if (delivered.has(slug) && row['status'] !== 'delivered') {
+        row['status'] = 'delivered'
+        row['deliveredAt'] = delivered.get(slug) ?? null
+      } else if (voided.has(slug) && row['status'] !== 'void') {
+        row['status'] = 'void'
+      }
+    }
+    const raw = JSON.parse(rawText) as { data?: unknown }
+    const data = raw.data
+    if (enginePath === 'batches' && data != null && typeof data === 'object' && Array.isArray((data as { batches?: unknown }).batches)) {
+      for (const r of (data as { batches: unknown[] }).batches) {
+        if (r != null && typeof r === 'object') patchRow(r as Record<string, unknown>)
+      }
+    } else if (data != null && typeof data === 'object' && typeof (data as { slug?: unknown }).slug === 'string') {
+      patchRow(data as Record<string, unknown>)
+    }
+    return JSON.stringify(raw)
+  } catch {
+    /* летопись недоступна (twin молчит) — проекция движка идёт как есть */
+    return rawText
   }
 }
 

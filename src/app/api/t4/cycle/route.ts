@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 
 import { clientErrorMessage, requireCommander } from '@/lib/t4/apiguard'
 import { consciousnessEvents } from '@/lib/t4/consciousness'
+import { appendEvent } from '@/lib/t4/events'
 import { isSafeSlug } from '@/lib/t4/fsutil'
 import {
   collectFacts,
@@ -10,6 +11,7 @@ import {
   runAuto,
   runCycleStep,
   stepOrder,
+  stepPolish,
   StepStop,
   type CycleStep,
 } from '@/lib/t4/orchestrator'
@@ -32,6 +34,11 @@ export const dynamic = 'force-dynamic'
  *   { action: 'order', theme, ocThemes[1..3] }      — заказ автора
  *   { action: 'step', slug, step }                  — ровно один шаг
  *   { action: 'auto', slug?|theme?, ..., approve? } — авто-цепочка
+ *   { action: 'polish', slug, rounds? }             — МОСТ ГЕЙТОВ: гейт-починка
+ *      черновика против контракта после hard FAIL (LLM-минуты; один код с CLI:
+ *      t4 polish); после полиша — честный повтор GATES тем же POST step
+ *   { action: 'void', slug, reason }                — закрыть цикл (приказ автора,
+ *      текст квитанции — как у CLI t4 void)
  *
  * StepStop (refused/engine-down/hard-fail/gate-stop) — это ЧЕСТНЫЙ СТОП
  * рабочего процесса, а не ошибка сервера: 200 + { ok:false, stopped } —
@@ -119,6 +126,8 @@ export async function POST(req: Request) {
     ocThemes?: unknown
     until?: string
     approve?: boolean
+    rounds?: unknown
+    reason?: string
   }
   try {
     body = await req.json()
@@ -158,7 +167,30 @@ export async function POST(req: Request) {
       })
       return NextResponse.json({ ok: true, action: 'auto', report })
     }
-    return NextResponse.json({ ok: false, error: 'action обязан быть order | step | auto' }, { status: 400 })
+    if (body.action === 'polish') {
+      const slug = typeof body.slug === 'string' ? body.slug : ''
+      if (!isSafeSlug(slug)) return NextResponse.json({ ok: false, error: 'слаг обязателен (канон T4-NN)' }, { status: 400 })
+      const rawRounds = Number(body.rounds)
+      const rounds = Number.isFinite(rawRounds) ? Math.min(4, Math.max(1, Math.trunc(rawRounds))) : 2
+      const out = await stepPolish(slug, rounds)
+      return NextResponse.json({ ok: true, action: 'polish', outcome: out })
+    }
+    if (body.action === 'void') {
+      const slug = typeof body.slug === 'string' ? body.slug : ''
+      if (!isSafeSlug(slug)) return NextResponse.json({ ok: false, error: 'слаг обязателен (канон T4-NN)' }, { status: 400 })
+      const reason = typeof body.reason === 'string' ? body.reason.trim() : ''
+      if (reason.length < 1 || reason.length > 200) {
+        return NextResponse.json({ ok: false, error: 'причина обязательна (1..200 символов) — летопись не принимает безымянных приказов' }, { status: 400 })
+      }
+      /* Текст квитанции — ровно как у CLI (t4 void): одна формулировка приказа. */
+      appendEvent(
+        'batch.void',
+        `${slug} закрыт по приказу автора: ${reason}. Контракт остаётся в архиве как провенанс; из окна ротации исключён; номер не забивается: авто-номер идёт max+1, рекомпиляция void-слага легальна (вердикт автора 2026-10-20).`,
+        { slug, reason }
+      )
+      return NextResponse.json({ ok: true, action: 'void', slug })
+    }
+    return NextResponse.json({ ok: false, error: 'action обязан быть order | step | auto | polish | void' }, { status: 400 })
   } catch (e) {
     if (e instanceof StepStop) {
       return NextResponse.json({ ok: false, stopped: { kind: e.kind, message: e.message } })

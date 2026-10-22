@@ -87,10 +87,27 @@ export function assertSafeSlug(slug: string): void {
   }
 }
 
-/** Ключ командира: строка из ~/.t4/commander.key или null, если ключа нет. */
+/** Ключ командира: строка из ~/.t4/commander.key или null, если ключа нет.
+ *  Аудит фазы 6: файл ключа, читаемый группой/остальными (chmod 644 и шире),
+ *  — утечка секрета локальным пользователям машины; честно предупреждаем
+ *  один раз (не ломая работу — правка режима за оператором). */
+let keyPermWarned = false
 export function readCommanderKey(): string | null {
   const raw = readText(COMMANDER_KEY)
   if (raw == null) return null
+  if (!keyPermWarned) {
+    try {
+      const mode = fs.statSync(COMMANDER_KEY).mode & 0o777
+      if ((mode & 0o077) !== 0) {
+        console.warn(
+          `[t4:api] ~/.t4/commander.key доступен группе/остальным (chmod ${mode.toString(8)}) — сузь: chmod 600 ${COMMANDER_KEY}`
+        )
+      }
+    } catch {
+      /* файл исчез между чтением и stat — не шумим */
+    }
+    keyPermWarned = true
+  }
   const key = raw.trim()
   return key.length >= 16 ? key : null
 }
