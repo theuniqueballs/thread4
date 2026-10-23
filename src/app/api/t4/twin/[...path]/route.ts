@@ -24,8 +24,9 @@ const TWIN_ORIGIN = process.env.T4_RUST_ORIGIN ?? 'http://127.0.0.1:3201'
  * отдельно в /v1/batches — два пространства T4-NN различимы в UI.
  * scratch/batches/:slug — план сборки со слотами (витрина «Сборка»
  * показывает содержимое compiled-батча, 2026-10-20). */
-const GET_ALLOW = new Set(['health', 'meta', 'state', 'live', 'events', 'batches', 'scratch/batches', 'chain/verify'])
+const GET_ALLOW = new Set(['health', 'meta', 'state', 'live', 'events', 'batches', 'scratch/batches', 'chain/verify', 'ars/sessions'])
 const SCRATCH_CARD_RE = /^scratch\/batches\/T4-\d{2,3}$/
+const ARS_SESSION_RE = /^ars\/session\/[A-Za-z0-9-]+$/
 
 /** POST-пути: theme (expand/check — чистые вычисления) + compile + gates
  * (батарея Review: twin гоняет квитанции по scratch-драфту, ключ командира
@@ -38,6 +39,8 @@ const POST_ALLOW_RE = [
   /^events$/,
   /^batches\/T4-\d{2,3}\/deliver$/,
   /^batches\/T4-\d{2,3}\/void$/,
+  /* ARS NOVEAU: стадии раскрывателя (worker-потоки twin'а) */
+  /^ars\/(new|expand|assemble|scribe|gates|furnace)$/,
 ]
 
 const SEGMENT_RE = /^[A-Za-z0-9._-]{1,24}$/
@@ -72,7 +75,8 @@ export async function GET(
   const twinPath = joinPath(path ?? [])
   const isBatchCard = twinPath != null && /^batches\/T4-\d{2,3}$/.test(twinPath)
   const isScratchCard = twinPath != null && SCRATCH_CARD_RE.test(twinPath)
-  if (twinPath == null || (!GET_ALLOW.has(twinPath) && !isBatchCard && !isScratchCard)) {
+  const isArsSession = twinPath != null && ARS_SESSION_RE.test(twinPath)
+  if (twinPath == null || (!GET_ALLOW.has(twinPath) && !isBatchCard && !isScratchCard && !isArsSession)) {
     return NextResponse.json({ error: 'twin path не в allowlist' }, { status: 400 })
   }
 

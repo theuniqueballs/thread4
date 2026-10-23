@@ -36,6 +36,7 @@ import {
 import { ActionDeck } from '@/components/t4/console/action-deck'
 import { LiveConsole } from '@/components/t4/console/live-console'
 import { CycleBoard } from '@/components/t4/console/desk/cycle-board'
+import { ArsNoveau } from '@/components/t4/console/desk/ars-noveau'
 import { Scoreboard } from '@/components/t4/console/desk/scoreboard'
 import { ChainView } from '@/components/t4/console/desk/chain-view'
 import {
@@ -131,7 +132,7 @@ export default function Home() {
   const [bell, setBell] = useState<NotifyEntry[]>([])
   const [rotSignal, setRotSignal] = useState(0)
   /* Фаза 5: единый рабочий стол — три вкладки одного экрана (вместо трёх видов) */
-  const [desk, setDesk] = useState<'cycle' | 'score' | 'chain'>('cycle')
+  const [desk, setDesk] = useState<'cycle' | 'ars' | 'score' | 'chain'>('cycle')
   const [focusSlug, setFocusSlug] = useState<string | null>(null)
   const [toolsOpen, setToolsOpen] = useState(false)
   const keySaved = useCommanderKeySaved()
@@ -350,6 +351,21 @@ export default function Home() {
                 </button>
                 <button
                   type="button"
+                  onClick={() => setDesk('ars')}
+                  aria-pressed={desk === 'ars'}
+                  title="ARS NOVEAU: тема → слоты → брикеты → писец → гейты → FURNACE"
+                  className={cn(
+                    'flex h-8 items-center gap-1.5 rounded-md px-2.5 font-mono text-[10px] uppercase tracking-wide transition-colors',
+                    desk === 'ars'
+                      ? 'bg-zinc-100 text-zinc-950 shadow-sm'
+                      : 'text-zinc-400 hover:bg-zinc-800/60 hover:text-zinc-200'
+                  )}
+                >
+                  <Sparkles className="size-3.5" />
+                  <span className="hidden sm:inline">ARS</span>
+                </button>
+                <button
+                  type="button"
                   onClick={() => setDesk('score')}
                   aria-pressed={desk === 'score'}
                   title="скорборд: счёт конвейера + батчи обоих пространств (G)"
@@ -476,6 +492,17 @@ export default function Home() {
               </div>
 
               <DocsZone onOpen={(id) => setDrawer(id)} />
+            </motion.div>
+          ) : desk === 'ars' ? (
+            <motion.div
+              key="desk-ars"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ type: 'spring', stiffness: 260, damping: 26 }}
+              className="mt-4 min-w-0"
+            >
+              <ArsNoveau />
             </motion.div>
           ) : desk === 'score' ? (
             <motion.div

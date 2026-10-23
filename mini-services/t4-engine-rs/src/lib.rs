@@ -4,6 +4,11 @@
 //! CLI (src/bin/t4.rs — прямые операции с базами без HTTP). Одна логика —
 //! один источник права: CLI и RPC НЕ могут разъехаться.
 
+// ARS NOVEAU: большие json!-литералы (слот-карточки на 30+ полей) —
+// стандартный дефолт 128 рекурсий макросов не дышит.
+#![recursion_limit = "512"]
+
+pub mod ars;
 pub mod auth;
 pub mod canon;
 pub mod canonical;

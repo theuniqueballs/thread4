@@ -1,0 +1,43 @@
+{
+  "id": "ars-ontology",
+  "name": "ARS NOVEAU онтология — окружения, световые пресеты, вайбы (словари раскрытия темы)",
+  "version": "1.0.0",
+  "born": "2026-10-24",
+  "born_from": "Приказ автора (смена ARS NOVEAU): «Перебери весь THREAD, включая ветку OLD, чтобы понять, что можно сюда сунуть». Порт и кураторская выборка из: legacy/32-canon/ONTOLOGY (1).yaml.txt (environment ENV01-10 с light_fn, emotion E01-E08 со связками поза+свет), legacy/a2/A2P13_SYSTEM_PROMPT.txt (LIGHTING PRESET SYSTEM: 7 групп + HYBRID-ротация, ENVIRONMENT CATEGORY), theme.rs:65-112 (пулы, чистые от вечных флоров). Запреты конструктивны: ни одного свечи/лампы/факела (candle_guard), ни одного лоли-токена.",
+  "doctrine": "ARS NOVEAU слот обязан выбрать РОВНО ОДИН id из каждого словаря: окружение (ENV), свет (LP), вайб (E). Световой пресет — структурный выбор, ограничивающий словарь одежды и заявки (A5P2: «Not 'vibe' — structural choice»), light_fn объясняет, как свет работает на зону. HYBRID-пресет ротируется ~1 к 5 и не встаёт дважды подряд (A2P13-закон).",
+  "environments": [
+    { "id": "ENV01", "name": "Rain-Streaked Glass", "category": "URBAN", "scene_hint": "rain-streaked window glass behind her, wet city glow beyond the pane", "light_fn": "refracts light into bokeh shards; city neon smears across wet glass" },
+    { "id": "ENV02", "name": "Dust Mote Beam", "category": "SPECIALTY", "scene_hint": "old hall with floating dust motes in a single tall beam of light", "light_fn": "volumetric beam; dust reads as suspended gold; edges of the room fall to darkness" },
+    { "id": "ENV03", "name": "Sunlit Studio Loft", "category": "HOME", "scene_hint": "spare artist loft, canvas stacks, wide window", "light_fn": "hard clean daylight; shadows cut sharp and graphic" },
+    { "id": "ENV04", "name": "Onsen Steam Terrace", "category": "BATH/WATER", "scene_hint": "outdoor hot spring terrace, rocks and steam, snow-dusted timber rail", "light_fn": "steam diffuses every source; skin glows soft, outlines melt" },
+    { "id": "ENV05", "name": "Night Market Alley", "category": "URBAN", "scene_hint": "narrow market alley at night, hanging signs, food steam", "light_fn": "many small colored sources compete; faces stay lit by the nearest sign" },
+    { "id": "ENV06", "name": "Greenhouse After Rain", "category": "SPECIALTY", "scene_hint": "Victorian greenhouse, dripping glass roof, wet leaves", "light_fn": "diffused green-tinged daylight; water drops act as lenses" },
+    { "id": "ENV07", "name": "Train Compartment Night", "category": "SPECIALTY", "scene_hint": "vintage sleeper train compartment, velvet seat, passing dark country", "light_fn": "one warm lamp pool plus strobing window light that keeps moving" },
+    { "id": "ENV08", "name": "Library Stacks", "category": "SPECIALTY", "scene_hint": "tall old library stacks, ladder, brass rails, paper dust", "light_fn": "slatted light through shelf gaps; stripes across the body" },
+    { "id": "ENV09", "name": "Rooftop Dusk", "category": "URBAN", "scene_hint": "flat city rooftop at dusk, ducts and antennas, horizon haze", "light_fn": "sky does the lighting: gradient key, city rim from below" },
+    { "id": "ENV10", "name": "Bedroom Morning", "category": "BEDROOM", "scene_hint": "lived-in bedroom, unmade sheets, morning clutter honest", "light_fn": "curtain-filtered morning light, warm and low-contrast" },
+    { "id": "ENV11", "name": "Poolside Noon", "category": "OUTDOOR", "scene_hint": "pool edge, caustic water patterns on deck stone", "light_fn": "brutal top sun; water caustics crawl over skin and fabric" },
+    { "id": "ENV12", "name": "Chapel Ruin", "category": "SPECIALTY", "scene_hint": "roofless chapel ruin, fallen pews, grass through the floor", "light_fn": "open-sky key from above, ruin walls throw uneven bounce" }
+  ],
+  "lighting_presets": [
+    { "id": "LP01", "name": "WARM INDOOR", "recipe": "warm single-source interior light, amber falloff, soft shadows", "light_fn": "key warm from one side; claim zone may stay unlit by design (№28)" },
+    { "id": "LP02", "name": "COOL INDOOR", "recipe": "cool blue-grey interior wash, window as source, quiet contrast", "light_fn": "cool key keeps fabric honest; skin reads pale and calm" },
+    { "id": "LP03", "name": "DAYLIGHT", "recipe": "full daylight, clean whites, hard-edged shadows", "light_fn": "the most honest light: everything visible, nothing forgiven" },
+    { "id": "LP04", "name": "NIGHT-ATMO", "recipe": "low ambient night light, single practical glow, deep shadow field", "light_fn": "one glow does the work; the rest of the frame swallows detail" },
+    { "id": "LP05", "name": "BACKLIGHT", "recipe": "strong rim light from behind, halo edge, foreground in semi-silhouette", "light_fn": "edges catch fire, surfaces stay dark — the silhouette makes the claim" },
+    { "id": "LP06", "name": "DRAMATIC", "recipe": "hard directional key, deep carving shadows, chiaroscuro", "light_fn": "light as sculpture: every curve reads through contrast" },
+    { "id": "LP07", "name": "HYBRID", "recipe": "two temperatures in one frame (warm practical + cool fill or window + neon)", "light_fn": "dual-source tension; rotation ~1 in 5, never twice in a row (A2P13)" },
+    { "id": "LP08", "name": "BORROWED GLOW", "recipe": "light arrives reflected: wet street, mirror, water caustics, screen glow", "light_fn": "the zone catches someone else's light — indirect, colored, honest" }
+  ],
+  "vibes": [
+    { "id": "E01", "name": "Reverence", "tags": "hushed attention, held breath, ceremonial stillness", "binds": "pose PL-vertical + LP01/LP04" },
+    { "id": "E02", "name": "Defiance", "tags": "chin up, direct challenge, weight forward", "binds": "pose PL-stand + LP06" },
+    { "id": "E03", "name": "Reverie", "tags": "unfocused gaze, inward, slow breath", "binds": "pose PL-seated/rest + LP02/LP04" },
+    { "id": "E04", "name": "Mischief", "tags": "one degree from smiling, caught mid-game", "binds": "pose PL-motion + LP03/LP05" },
+    { "id": "E05", "name": "Vulnerability", "tags": "shoulders in, arms crossing, glance away", "binds": "pose PL-curled + LP02/LP10-soft" },
+    { "id": "E06", "name": "Fever", "tags": "heat, impatience, skin first", "binds": "pose PL-stretch + LP01/LP06" },
+    { "id": "E07", "name": "Clarity", "tags": "appraising, level, honest geometry", "binds": "pose PL-contrapposto + LP03" },
+    { "id": "E08", "name": "Afterglow", "tags": "loose muscles, settling fabric, late light", "binds": "pose PL-sprawled + LP05/LP08" }
+  ],
+  "usage_in_brick": "БРИКЕТА несёт: ОКРУЖЕНИЕ: <ENV id> <name> — <scene_hint> · СВЕТ: <LP id> <name> — <recipe> (light_fn: <light_fn>) · ВАЙБ: <E id> <name> — <tags>. Писец вплетает scene_hint и recipe тегами в POS, light_fn соблюдает против закона №28 (свет НЕ на зоне заявки для bumps)."
+}

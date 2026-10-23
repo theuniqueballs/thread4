@@ -27,6 +27,8 @@ use crate::live::{BLOCK_COMPILE, BLOCK_DELIVER, BLOCK_EXPAND, BLOCK_GATES, BLOCK
 use crate::ratelimit::{BucketName, Limiter};
 use crate::theme;
 
+use crate::ars::{ARS_VERSION};
+
 pub struct Twin {
     pub prod: Connection,
     pub scratch: Connection,
@@ -148,7 +150,7 @@ pub fn serve(twin: Arc<Twin>) {
             Some(r) => r,
             None => {
                 let (status, body) = err_envelope(&RpcError::bad_request(format!(
-                    "путь «{path}» вне allowlist — маршруты: /v1/health · /v1/meta · /v1/state · /v1/events · /v1/live · /v1/batches[/:slug] · /v1/scratch/batches[/:slug] · /v1/chain/verify · /v1/theme/expand · /v1/theme/check · POST /v1/compile · POST /v1/events · POST /v1/gates · POST /v1/batches/:slug/deliver · POST /v1/batches/:slug/void"
+                    "путь «{path}» вне allowlist — маршруты: /v1/health · /v1/meta · /v1/state · /v1/events · /v1/live · /v1/batches[/:slug] · /v1/scratch/batches[/:slug] · /v1/ars/sessions · /v1/ars/session/:id · /v1/chain/verify · /v1/theme/expand · /v1/theme/check · POST /v1/compile · POST /v1/events · POST /v1/gates · POST /v1/ars/new · POST /v1/ars/:stage · POST /v1/batches/:slug/deliver · POST /v1/batches/:slug/void"
                 )));
                 respond(request, status, body);
                 continue;
@@ -258,6 +260,22 @@ pub fn serve(twin: Arc<Twin>) {
                 Ok(body) => gates_route(&twin, &body),
             },
             RouteKey::Live => unreachable!("SSE обрабатывается до auth"),
+            RouteKey::ArsNew => match parse_json_body(&body_bytes) {
+                Err(e) => Err(e),
+                Ok(body) => ars_new_route(&body),
+            },
+            RouteKey::ArsStage => match parse_json_body(&body_bytes) {
+                Err(e) => Err(e),
+                Ok(body) => ars_stage_route(&segments[2], &body),
+            },
+            RouteKey::ArsSessions => Ok(ok_envelope(json!({
+                "sessions": crate::ars::list_sessions(),
+                "version": ARS_VERSION,
+            }))),
+            RouteKey::ArsSessionGet => match crate::ars::load_session(&segments[3]) {
+                Ok(s) => Ok(ok_envelope(serde_json::to_value(&s).unwrap_or_else(|_| json!({})))),
+                Err(m) => Err(RpcError::not_found(m)),
+            },
         };
 
         match result {
@@ -288,6 +306,10 @@ enum RouteKey {
     Gates,
     ScratchBatches,
     ScratchBatchDetail,
+    ArsNew,
+    ArsStage,
+    ArsSessions,
+    ArsSessionGet,
 }
 
 fn route_match(method: &str, segs: &[String]) -> Option<(RouteKey, BucketName, AuthLevel)> {
@@ -331,6 +353,21 @@ fn route_match(method: &str, segs: &[String]) -> Option<(RouteKey, BucketName, A
         /* текст-батарея файл-эры (этапы 0-1, textgates.rs): файлы репо RO,
          * продакшн-контекст RO, записи — только scratch-слаги twin'а */
         ("POST", "gates") => Some((RouteKey::Gates, BucketName::Mutation, AuthLevel::Locked)),
+        /* ARS NOVEAU — LLM-раскрыватель темы (смена 2026-10-24): сессии живут
+         * в data/ars (scratch-мир), LLM — через llm-bridge :3202. POST-стадии
+         * — worker-потоки, акцепт-цикл свободен. */
+        ("POST", "ars") if segs.len() == 3 && segs[2] == "new" => {
+            Some((RouteKey::ArsNew, BucketName::Mutation, AuthLevel::Locked))
+        }
+        ("POST", "ars") if segs.len() == 3 => {
+            Some((RouteKey::ArsStage, BucketName::Mutation, AuthLevel::Locked))
+        }
+        ("GET", "ars") if segs.len() == 3 && segs[2] == "sessions" => {
+            Some((RouteKey::ArsSessions, BucketName::Read, AuthLevel::Open))
+        }
+        ("GET", "ars") if segs.len() == 4 && segs[2] == "session" => {
+            Some((RouteKey::ArsSessionGet, BucketName::Read, AuthLevel::Open))
+        }
         _ => None,
     }
 }
@@ -861,6 +898,55 @@ fn theme_check_route(body: &Value) -> Result<(u16, String), RpcError> {
         &format!("тема/adherence (гейт №25): {}", receipt.verdict),
     );
     Ok(ok_envelope(json!({ "receipt": receipt.to_json() })))
+}
+
+/* ---------------- ARS NOVEAU (смена 2026-10-24) ---------------- */
+
+/// POST /v1/ars/new — создать сессию раскрывателя {theme, ocThemes:[...]}.
+fn ars_new_route(body: &Value) -> Result<(u16, String), RpcError> {
+    let obj = body
+        .as_object()
+        .ok_or_else(|| RpcError::validation("ars/new: тело должно быть JSON-объектом", None))?;
+    for k in obj.keys() {
+        if k != "theme" && k != "ocThemes" {
+            return Err(RpcError::validation(
+                format!("ars/new: лишнее поле «{k}» — только {{theme, ocThemes}}"),
+                None,
+            ));
+        }
+    }
+    let theme = obj.get("theme").and_then(|v| v.as_str()).unwrap_or("");
+    let oc = obj.get("ocThemes").cloned().unwrap_or(Value::Null);
+    match crate::ars::new_session(theme, oc) {
+        Ok(s) => {
+            live::info(
+                BLOCK_EXPAND,
+                &format!("ARS NOVEAU: сессия {} открыта — {} «{}» (следующий слаг)", s.id, s.slug, s.theme),
+            );
+            Ok(ok_envelope(serde_json::to_value(&s).unwrap_or_else(|_| json!({}))))
+        }
+        Err(m) => Err(RpcError::validation(m, None)),
+    }
+}
+
+/// POST /v1/ars/:stage {id} — запустить стадию (worker-поток, мгновенный ответ).
+fn ars_stage_route(stage: &str, body: &Value) -> Result<(u16, String), RpcError> {
+    const STAGES: [&str; 5] = ["expand", "assemble", "scribe", "gates", "furnace"];
+    if !STAGES.contains(&stage) {
+        return Err(RpcError::not_found(format!(
+            "ars: стадия «{stage}» неизвестна — {}",
+            STAGES.join("|")
+        )));
+    }
+    let id = body
+        .get("id")
+        .and_then(|v| v.as_str())
+        .ok_or_else(|| RpcError::validation("ars: поле id сессии обязательно", None))?;
+    let force = body.get("force").and_then(|v| v.as_bool()).unwrap_or(false);
+    match crate::ars::start_stage(id, stage, force) {
+        Ok(v) => Ok(ok_envelope(v)),
+        Err(m) => Err(RpcError::unprocessable(m)),
+    }
 }
 
 /* ---------------- append event ---------------- */
