@@ -2263,7 +2263,7 @@ async function main() {
             bumpsN >= Math.ceil(mainsTR.length * 0.4) - 1 &&
             lightN <= 3
         )
-        check('мост: bumps-дресс несёт формулу канала (dark garment + состояние из спеки, garment без мёртвых тканей)', c.slots.filter((s) => s.dress?.channel === 'bumps').every((s) => s.dress.state.length > 0 && /dark/i.test(s.dress.garment) && !/\b(suit|jeans|denim|velvet|leather|sweatpants|breeches)\b/i.test(s.dress.garment)))
+        check('мост: bumps-дресс несёт формулу канала (тёмная вещь + состояние из спеки, garment без мёртвых тканей)', c.slots.filter((s) => s.dress?.channel === 'bumps').every((s) => (s.dress?.state.length ?? 0) > 0 && /dark|тёмн/i.test(s.dress?.garment ?? '') && !/\b(suit|jeans|denim|velvet|leather|sweatpants|breeches)\b/i.test(s.dress?.garment ?? '')))
         check('мост: ВОЛЬТ-30 — каждый VOLT/EXQUISITE несёт архетип VL××', c.slots.filter((s) => s.kind === 'VOLT' || s.kind === 'EXQUISITE').every((s) => /^VL\d{2}$/.test(s.arch ?? '')) && new Set(c.slots.filter((s) => (s.kind === 'VOLT' || s.kind === 'EXQUISITE') && s.arch).map((s) => s.arch)).size === c.slots.filter((s) => s.kind === 'VOLT' || s.kind === 'EXQUISITE').length)
         const expPaired = c.slots.filter((s) => s.kind === 'EXP' && s.exp?.pairWith)
         check('мост: EXP-пары плана выживают (half A/B + pairWith указывает на EXP-слот)', expPaired.every((s) => (s.exp?.half === 'B' || s.exp?.half === 'A') && c.slots.some((x) => x.position === s.exp?.pairWith && x.kind === 'EXP')))
