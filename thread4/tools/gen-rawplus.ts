@@ -44,6 +44,7 @@ import {
   getDeliveryStats,
   getHairEyeLibrary,
   getNicheArchetypes,
+  getVoltArchetypes,
   getNicheDoors,
   getOCCanon,
   getPalettes,
@@ -758,6 +759,10 @@ export function planRawPlus(opts: PlanOptions): RawPlusPlan {
   /* аудит 2026-10-17 (Задача 2 MERGE): вход в pools.json через геттер specs (§2) */
   const kPool = rng.shuffle((getPools()?.sections?.kinetics_k as { id: string }[] | undefined) ?? []).map((k) => k.id)
   const archPool = rng.shuffle(getNicheArchetypes()?.archetypes ?? []).map((a) => a.id)
+  /* ВОЛЬТ-30 (приказ автора 2026-10-23): у VOLT/EXQUISITE — свой пул устройств
+   * кадра (камера-участник/движение/взгляд/экспозиция), ротация без повторов */
+  const voltArchPool = rng.shuffle(getVoltArchetypes()?.archetypes ?? []).map((a) => a.id)
+  let voltArchIdx = 0
   /* A3P5-двери + операторы (ревизия 2026-10-14): момент входа в кадр и
    * положение камеры — последний непереплавленный кусок A3 в конвейер */
   const doorsSpec = getNicheDoors()
@@ -883,7 +888,8 @@ export function planRawPlus(opts: PlanOptions): RawPlusPlan {
       register: registers[Math.floor(mainIdx / (law.mainsTotal / 3))] ?? 'student',
       closer: closerPool[closerIdx++ % closerPool.length],
       /* НИША-50: архетип невозможного + свидетель + A3P5-дверь + оператор
-       * камеры — ротация без повторов */
+       * камеры — ротация без повторов. ВОЛЬТ-30: VOLT/EXQUISITE несут
+       * архетип грамматики плоти (писец строит заявку по устройству кадра). */
       ...(isNiche
         ? {
             arch: archPool[archIdx++ % archPool.length],
@@ -891,7 +897,9 @@ export function planRawPlus(opts: PlanOptions): RawPlusPlan {
             spatial: spatialPool[spatialIdx++ % Math.max(spatialPool.length, 1)],
             witness: witnessPool[witnessIdx++ % witnessPool.length],
           }
-        : {}),
+        : kind === 'VOLT' || kind === 'EXQUISITE'
+          ? { arch: voltArchPool[voltArchIdx++ % Math.max(voltArchPool.length, 1)] }
+          : {}),
     })
     leadIdx++
   }

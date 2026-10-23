@@ -2248,6 +2248,26 @@ async function main() {
       }
       check('мост: расовый каст — закону, без human, фича расы несётся', c.racialCount > 0 && c.racialCount <= LAWS.racialDefault && c.slots.every((s) => s.race !== 'human') && c.slots.filter((s) => s.race).every((s) => typeof s.raceFeature === 'string' && s.raceFeature !== ''))
       check('мост: NICHE — witness и arch на каждом нишевом слоте', c.slots.filter((s) => s.kind === 'NICHE').every((s) => typeof s.witness === 'string' && s.witness !== '' && typeof s.arch === 'string' && s.arch !== ''))
+      {
+        /* ДРЕССЕР №29 на мосту (первопричина 2026-10-23): движковый путь
+         * обязан одевать R+/X-слоты — контракт без дресс-кода рождал класс
+         * hard-фейлов rating-recipe (suit при bumps, бугорки без тёмного
+         * слова, мокрое+сквозное) */
+        const rplus = c.slots.filter((s) => s.rating === 'R+' || s.rating === 'X')
+        const mainsTR = rplus.filter((s) => s.kind !== 'OC' && s.kind !== 'EXP')
+        const bumpsN = mainsTR.filter((s) => s.dress?.channel === 'bumps').length
+        const lightN = mainsTR.filter((s) => s.fabricTone === 'light').length
+        check(
+          `мост: ДРЕССЕР №29 — все ${rplus.length} R+/X одеты (dress+fabricTone), bumps-квота ${bumpsN} ≥ 40% мейнов (${mainsTR.length}), light ≤ 3 (${lightN})`,
+          rplus.every((s) => s.dress && s.fabricTone) &&
+            bumpsN >= Math.ceil(mainsTR.length * 0.4) - 1 &&
+            lightN <= 3
+        )
+        check('мост: bumps-дресс несёт формулу канала (dark garment + состояние из спеки, garment без мёртвых тканей)', c.slots.filter((s) => s.dress?.channel === 'bumps').every((s) => s.dress.state.length > 0 && /dark/i.test(s.dress.garment) && !/\b(suit|jeans|denim|velvet|leather|sweatpants|breeches)\b/i.test(s.dress.garment)))
+        check('мост: ВОЛЬТ-30 — каждый VOLT/EXQUISITE несёт архетип VL××', c.slots.filter((s) => s.kind === 'VOLT' || s.kind === 'EXQUISITE').every((s) => /^VL\d{2}$/.test(s.arch ?? '')) && new Set(c.slots.filter((s) => (s.kind === 'VOLT' || s.kind === 'EXQUISITE') && s.arch).map((s) => s.arch)).size === c.slots.filter((s) => s.kind === 'VOLT' || s.kind === 'EXQUISITE').length)
+        const expPaired = c.slots.filter((s) => s.kind === 'EXP' && s.exp?.pairWith)
+        check('мост: EXP-пары плана выживают (half A/B + pairWith указывает на EXP-слот)', expPaired.every((s) => (s.exp?.half === 'B' || s.exp?.half === 'A') && c.slots.some((x) => x.position === s.exp?.pairWith && x.kind === 'EXP')))
+      }
       check('мост: провенанс — engineLaw несёт sha10, laws.bridge непуст, OC-каскад не путает пустое состояние', c.engineLaw.includes('96a88693e6') && typeof c.laws.bridge === 'string' && c.laws.bridge.includes('WRITE-мост') && c.ocCascade === undefined)
       check('мост: usedExpLetters из контрактов читаются (машинальный парсер)', usedExpLettersOfContracts([{ slots: [{ exp: { letter: 'κ' } }] }, { slots: [] }]).join(',') === 'κ')
       check('мост: окно пустое → windowSlugs зеркалят state, windowOpaque не пишется', JSON.stringify(c.windowSlugs) === '[]' && c.windowOpaque === undefined)

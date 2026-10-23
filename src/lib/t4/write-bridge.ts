@@ -47,12 +47,14 @@ import {
   registerFromBody,
 } from './compiler'
 import { cameraForLead, proposeBatchVariety } from './variety-engine'
+import { dressPlan, type DressableSlot } from './dress-plan'
 import {
   allCarrierIds,
   getCarriers,
   getDeliveryStats,
   getFacts,
   getNicheArchetypes,
+  getVoltArchetypes,
   getOCCanon,
   getPalettes,
   getPools,
@@ -465,9 +467,15 @@ export function planToContract(plan: EnginePlan, opts: BridgeOptions): BridgeRes
         hypothesis: `Проба ${letter}: канал «${lead}» на ${s.rating}-кадре — одна переменная, план identical (мост-заглушка: уточни гипотезу перед писцом)`,
         letter,
       }
-      if (s.ab) {
-        slot.exp.half = (s.ab.half === 'B' ? 'B' : 'A') as 'A' | 'B'
-        if (partnerPos != null) slot.exp.pairWith = partnerPos
+      /* Половина/пара — из программы плана (exp.half/pairWith, форма twin'а),
+       * fallback — ab-форма (старые планы). Раньше читался только s.ab —
+       * EXP-пары движка теряли A/B-половины на мосту (гипотеза-заглушка
+       * не знала, что план identical — канон T4-27.2 ломался молча). */
+      const planHalf = s.exp?.half ?? s.ab?.half
+      if (planHalf) {
+        slot.exp.half = (planHalf === 'B' ? 'B' : 'A') as 'A' | 'B'
+        const partner = s.exp?.pairWith ?? partnerPos
+        if (partner != null) slot.exp.pairWith = partner
       }
     }
 
@@ -495,6 +503,23 @@ export function planToContract(plan: EnginePlan, opts: BridgeOptions): BridgeRes
         .slice(0, nicheSlots.length)
         .forEach((id, i) => {
           nicheSlots[i].arch = id
+        })
+    }
+  }
+
+  /* --- ВОЛЬТ-30 (приказ автора 2026-10-23): архетип грамматики плоти
+   *  (камера-участник/движение/взгляд/экспозиция) на каждый VOLT/EXQUISITE
+   *  слот — мейны движкового пути больше не собираются без устройства кадра;
+   *  ротация без повторов в батче. --- */
+  {
+    const voltPool = getVoltArchetypes()?.archetypes ?? []
+    const voltSlots = out.filter((s) => s.kind === 'VOLT' || s.kind === 'EXQUISITE')
+    if (voltPool.length > 0 && voltSlots.length > 0) {
+      rng
+        .shuffle(voltPool.map((a) => a.id))
+        .slice(0, voltSlots.length)
+        .forEach((id, i) => {
+          voltSlots[i].arch = id
         })
     }
   }
@@ -546,6 +571,17 @@ export function planToContract(plan: EnginePlan, opts: BridgeOptions): BridgeRes
         })
     }
   }
+
+  /* --- ДРЕССЕР №29 (dress-plan, первопричина 2026-10-23): движковый путь
+   *  обязан одевать R+/X-слоты так же, как gen-rawplus файловой эры —
+   *  контракт без дресс-кода рождал класс hard-фейлов rating-recipe
+   *  («suit» при bumps, бугорки без тёмного слова, мокрое+сквозное):
+   *  писец без формулы канала чинит находки, а не класс. Тон-план №28,
+   *  канальная ротация G17 (bumps ≥40%), garment из категории спеки. --- */
+  dressPlan(out as unknown as DressableSlot[], {
+    theme: plan.theme ?? plan.title ?? slug,
+    rng: rng.next,
+  })
 
   /* --- variety-пакет (тура 4/5) --- */
   const batchVariety = proposeBatchVariety(out, slug)

@@ -33,6 +33,7 @@ import {
   getGoldenCorpus,
   getNicheArchetypes,
   getNicheDoors,
+  getVoltArchetypes,
   getOCCanon,
   getPalettes,
   getPools,
@@ -172,6 +173,12 @@ GENRES — the author must see the difference at a glance:
 - NICHE: the IMPOSSIBLE image. The race's anatomy does PHYSICAL WORK in the frame (mechanism, not costume) — race tags in the tag block, the impossibility is the FIRST read of the silhouette, the witness object holds the frame.
 - VOLT: FLESH. Camera as participant (low-angle, over-shoulder, through-gap), body in motion (tagged physical state), gaze a deliberate vector (locked/averted/half-lidded), exposure by explicit signal tag.
 - EXQUISITE: the ultra of its genre — extremity with dignity.
+
+THE THEME REVEAL LAW (раскрытие темы — приказ автора 2026-10-23 после T4-45: «тема обязана раскрываться»): the theme is a PHYSICAL FORCE in every MAIN/OC frame, not a caption in the header. Three duties, all three mandatory:
+(1) ACT FACET — the theme wears ONE facet per act: ACT I = DISCOVERY (the theme ENTERS the frame — first contact, first touch, first glimpse, the object still intact), ACT II = ESCALATION (the theme PRESSES ON the body — weight, wet, heat, grip, the object against her), ACT III = CONSEQUENCE (the theme has CHANGED her and itself — marks, stains, transforms, aftermath). Same keywords, different physical state per act — a batch where every slot shows the theme in the same state did NOT reveal it.
+(2) DRAWABLE PRESENCE — a theme keyword appears as a DRAWABLE noun/tag in the tag run (object, material, physical state — never the theme title, never abstract nouns), and it INTERACTS with her body or clothing through a contact verb (wraps/presses/reflects/holds/clangs), not scenery-only. The theme object that just stands in the background is a tourist.
+(3) OC THEME IN POS — OC slots weave the author's theme into the TAG RUN as 2-3 drawables (canon T4-28 P01 receipt «не понял, каким боком ты интерпретировал микро-темы»): the theme is LOST if it lives only in the header or THESIS.
+EXP slots are theme-free test blanks: theme words NEVER enter them (вердикт T4-34, exp-purity gate — the machine strips them and FAILS the batch).
 
 HARD STYLE RULES:
 - TITLE IS THEME (вердикт автора 2026-09-27): the batch title IS the author's theme — never rename, never re-brand. The machine derives acts and keywords FROM the theme, not around it.
@@ -429,11 +436,38 @@ function slotFrame(slot: SlotPlan, ctx: ScribeCtx): string {
      (NICHE-LAW v2, «ARCH · LAW · PROOF» выше) канонизирована и доказана батчами
      T4-12/T4-13; дубль с формулой DEVICE противоречил ей в промпте писца
      (хвост патча 3e7aa87: новый блок дописан, старый не снят). Issue #13. */
-  if (ctx.themeKeywords.length > 0) {
+  /* ВОЛЬТ-30 (приказ автора 2026-10-23): VOLT/EXQUISITE несут архетип
+   * грамматики плоти — устройство кадра, по которому строится заявка. */
+  if ((slot.kind === 'VOLT' || slot.kind === 'EXQUISITE') && slot.arch) {
+    const voltMeta = getVoltArchetypes()?.archetypes.find((a) => a.id === slot.arch)
+    const voltFamily =
+      ({ camera: 'камера-участник', motion: 'тело в движении', gaze: 'взгляд-вектор', exposure: 'экспозиция тегом' } as Record<string, string>)[
+        (voltMeta as { family?: string } | undefined)?.family ?? ''
+      ] ?? ''
+    lines.push(
+      `ARCH (ВОЛЬТ): ${slot.arch} ${voltMeta?.name ?? ''} [${voltFamily}] — ${voltMeta?.hint ?? ''}\n` +
+      `VOLT LAW (вердикт T4-02 — жанр обязан быть виден): the archetype IS the composition — camera participates / body moves / gaze vectors / exposure by physical state. THESIS MUST OPEN with "ARCH: ${slot.arch} · DEVICE: <how this archetype builds the claim frame, one sentence>". The claim rides INSIDE the device — no static «girl stands there» frame.\n` +
+      `THEME FUSION (раскрытие темы): the device HAPPENS TO the theme object — let the archetype act on a theme-bearing thing (FABRIC_LAG on relic-silk, BREATH_DISTANCE inside a vault of ancient gold). One theme keyword sits INSIDE the DEVICE sentence and the theme object appears in the tag run as a DRAWABLE tag.`
+    )
+  }
+  /* theme-слова — только MAIN/OC: EXP — безтемная болванка (вердикт T4-34),
+   * раньше строка приходила и EXP-слоту — писцу давали ПРЯМОЕ противоречие
+   * («вплети тему» рядом с «болванка без темы»), ремонт крутился впустую */
+  if (ctx.themeKeywords.length > 0 && !slot.exp) {
     const k1 = ctx.themeKeywords[slot.position % ctx.themeKeywords.length]
     const k2 = ctx.themeKeywords[(slot.position + Math.floor(ctx.themeKeywords.length / 2)) % ctx.themeKeywords.length]
     const words = k2 && k2 !== k1 ? `${k1} AND ${k2}` : k1
     lines.push(`theme words for THIS slot (weave into the TAG RUN as DRAWABLE tags/compounds — objects, materials, physical states; NEVER the theme title itself, NEVER abstract nouns): ${words}`)
+    /* THEME FACET (раскрытие темы, приказ автора 2026-10-23): тема носит
+     * ОДНУ грань на акт — состояние темы в кадре задаётся позицией слота */
+    const act = slot.position <= 8 ? 'I' : slot.position <= 16 ? 'II' : 'III'
+    const facet =
+      act === 'I'
+        ? 'DISCOVERY — the theme ENTERS the frame: first contact, first touch, first glimpse; the theme object intact and new'
+        : act === 'II'
+          ? 'ESCALATION — the theme PRESSES ON the body: weight, wet, heat, grip; the theme object against her, working'
+          : 'CONSEQUENCE — the theme has CHANGED her and itself: marks, stains, transforms, aftermath'
+    lines.push(`THEME FACET (ACT ${act} — THEME REVEAL LAW): ${facet}. Same keywords, THIS physical state.`)
   }
   if (recipe) {
     const hardSignals = recipe.signals_hard ?? []

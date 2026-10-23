@@ -558,6 +558,14 @@ export function getNicheArchetypes(): NicheArchetypesSpec | null {
   return load<NicheArchetypesSpec>('niche-archetypes.json')
 }
 
+/** ВОЛЬТ-30 (приказ автора 2026-10-23: «развивай архетипы Niche и Volt»):
+ *  пул грамматики плоти — VOLT-слот несёт ровно один ARCH, ротация без
+ *  повторов; архетип — устройство кадра (камера-участник/движение/взгляд/
+ *  экспозиция), не анатомии. */
+export function getVoltArchetypes(): NicheArchetypesSpec | null {
+  return load<NicheArchetypesSpec>('volt-archetypes.json')
+}
+
 /* ---------------- 15 DOORS + 6 операторов (A3P5 → ревизия 2026-10-14) ---------------- */
 
 export interface NicheDoor {
