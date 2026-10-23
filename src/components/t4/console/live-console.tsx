@@ -41,9 +41,11 @@ import { pushFrame } from '@/components/t4/console/frame-ring'
 export type LiveBlock =
     | 'expand'
     | 'compile'
+    | 'collector'
     | 'build'
     | 'gates'
     | 'scribe'
+    | 'furnace'
     | 'deliver'
     | 'pipeline'
     | 'system'
@@ -69,20 +71,24 @@ const SLUG_HINT_RE = /\bT4-\d{2,}(?:\.\d+)?(?:-EXP)?\b/
 const BLOCK_STYLE: Record<LiveBlock, string> = {
   expand: 'text-cyan-300',
   compile: 'text-zinc-200',
+  collector: 'text-indigo-300',
   build: 'text-orange-300',
   gates: 'text-amber-300',
   scribe: 'text-fuchsia-300',
+  furnace: 'text-orange-400',
   deliver: 'text-emerald-300',
   pipeline: 'text-teal-300',
   system: 'text-zinc-500',
 }
 
 const BLOCK_LABEL: Record<LiveBlock, string> = {
-  expand: 'EXPAND',
+  expand: 'ARS',
   compile: 'COMPILE',
+  collector: 'COLLECTOR',
   build: 'BUILD',
   gates: 'GATES',
   scribe: 'SCRIBE',
+  furnace: 'FURNACE',
   deliver: 'DELIVER',
   pipeline: 'PIPELINE',
   system: 'SYSTEM',

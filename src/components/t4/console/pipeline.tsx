@@ -5,11 +5,16 @@
  *
  * Один экран — весь жизненный цикл батча, строго сверху вниз, БЕЗ вкладок:
  *
- *   1 · Приказ + Раскрытие темы   — тема/OC/EXP → якоря (правятся руками)
+ *   1 · Приказ + ARS NOVEAU       — тема/OC/EXP → 21 история + 3 ОС +
+ *                                   EXP-идеи (LLM-мост), спайн
  *   2 · Компиляция                — реестр канона + бриф писца
- *   3 · Сборка                    — одноразовый движок (спайн)
- *   4 · Писец                     — черновик батча + батарея + ремонт
- *   5 · Сдача                     — финальные проверки + фиксация в цепи
+ *   3 · Сборщик                   — истории × механика → брикеты писца
+ *   4 · Писец                     — черновик по брикетам + батарея + ремонт
+ *   5 · Печь (FURNACE)            — LLM-оценщик: честный репорт
+ *   6 · Сдача                     — финальные проверки + фиксация в цепи
+ *
+ * Эра ARS NOVEAU (приказ 2026-10-23, Доу): читальни-выдвижки (ars-reader)
+ * несут экспозиции и репорты; FAIL Печи требует явного furnaceOverride.
  *
  * Правила интерфейса (приказ):
  *   · шаг N+1 не активен, пока не завершён шаг N (кроме ручного перезапуска);
@@ -29,6 +34,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import {
   AlertTriangle,
+  BookOpen,
   CheckCircle2,
   ChevronDown,
   ClipboardCopy,
@@ -60,28 +66,37 @@ import {
 import { LiveConsole } from '@/components/t4/console/live-console'
 import { errorFrames, recentFrames, ringStats } from '@/components/t4/console/frame-ring'
 import { writeClipboard } from '@/components/t4/console/shared'
+import {
+  BriquetteList,
+  FurnacePanel,
+  ReaderDrawer,
+  StoriesGrid,
+  type ReaderState,
+} from '@/components/t4/console/ars-reader'
 
 /* ------------------------------------------------------------------ */
 /* Канва этапов                                                        */
 /* ------------------------------------------------------------------ */
 
-const STAGE_KEYS = ['theme', 'compile', 'build', 'scribe', 'deliver'] as const
+const STAGE_KEYS = ['ars', 'compile', 'collector', 'scribe', 'furnace', 'deliver'] as const
 type StageKey = (typeof STAGE_KEYS)[number]
 type StageStatus = 'pending' | 'running' | 'done' | 'failed' | 'skipped' | 'stale'
 
 const STAGE_TITLE: Record<StageKey, string> = {
-  theme: 'Раскрытие темы',
+  ars: 'ARS NOVEAU · Раскрытие',
   compile: 'Компиляция',
-  build: 'Сборка',
+  collector: 'Сборщик',
   scribe: 'Писец',
+  furnace: 'Печь · FURNACE',
   deliver: 'Сдача',
 }
 
 const STAGE_HINT: Record<StageKey, string> = {
-  theme: 'Тема раскладывается на визуальные якоря — их можно править',
+  ars: 'Тема думается в 21 историю + 3 истории ОС + EXP-идеи вне темы',
   compile: 'Канон собирает план слотов и бриф писца',
-  build: 'Кузница изобретает одноразовый движок под тему',
-  scribe: 'Пишец пишет промпты, проверки гоняют их по кругу',
+  collector: 'Истории × механика складываются в брикеты писца',
+  scribe: 'Писец переводит брикеты в промпты, батарея гоняет по кругу',
+  furnace: 'Оценщик смотрит, что налепили: честный репорт перед сдачей',
   deliver: 'Финальные проверки и фиксация в хеш-цепи',
 }
 
@@ -113,41 +128,29 @@ interface ReceiptView {
 const SPRING = { type: 'spring' as const, stiffness: 300, damping: 30 }
 
 /* ------------------------------------------------------------------ */
-/* Якоря темы                                                          */
+/* ARS NOVEAU: правки автора (strict JSON артефакта раскрытия)          */
 /* ------------------------------------------------------------------ */
 
-interface AnchorsState {
-  locale?: string
-  timeOfDay?: string
-  light?: string
-  paletteMood?: string
-  wardrobeFamily?: string
-  poseFamily?: string
-  camera?: string
-  seed?: string
-  motifs?: string[]
-  atmosphere?: string[]
-  tokens?: string[]
-  lexiconHits?: string[]
-  minAdherence?: number
+/** Парс правок ARS: валидный JSON-объект или ничего (конвейер сам думает). */
+function parseArsEdit(raw: string | null): Record<string, unknown> | null {
+  if (raw == null || raw.trim() === '') return null
+  try {
+    const v = JSON.parse(raw) as unknown
+    if (v != null && typeof v === 'object' && !Array.isArray(v)) {
+      return v as Record<string, unknown>
+    }
+    return null
+  } catch {
+    return null
+  }
 }
-
-const ANCHOR_FIELDS: { key: keyof AnchorsState; label: string }[] = [
-  { key: 'locale', label: 'Место' },
-  { key: 'timeOfDay', label: 'Время' },
-  { key: 'light', label: 'Свет' },
-  { key: 'paletteMood', label: 'Палитра' },
-  { key: 'wardrobeFamily', label: 'Гардероб' },
-  { key: 'poseFamily', label: 'Позы' },
-  { key: 'camera', label: 'Камера' },
-]
 
 /* ------------------------------------------------------------------ */
 /* Черновик приказа (localStorage, миграция со старого воркфлоу)        */
 /* ------------------------------------------------------------------ */
 
 const DRAFT_KEY = 't4-pipeline-draft'
-const DRAFT_VERSION = 2
+const DRAFT_VERSION = 3
 const LEGACY_KEY = 't4-workflow-draft'
 const CONSOLE_KEY = 't4-console-open'
 
@@ -169,7 +172,10 @@ interface Draft {
   speciesList: string
   notes: string
   oc: OcInput[]
-  anchors: AnchorsState | null
+  /** Правленый артефакт ARS (JSON-текст) — strict на стороне движка. */
+  arsEdit: string | null
+  /** Явное решение автора сдать вопреки FAIL Печи (§1). */
+  furnaceOverride: boolean
 }
 
 const EMPTY_OC: OcInput[] = [
@@ -190,7 +196,8 @@ function readDraftSafe(): Draft {
     speciesList: '',
     notes: '',
     oc: EMPTY_OC.map((o) => ({ ...o })),
-    anchors: null,
+    arsEdit: null,
+    furnaceOverride: false,
   }
 }
 
@@ -218,7 +225,7 @@ function draftEmpty(d: Draft): boolean {
   return (
     d.theme.trim() === '' &&
     d.oc.every((o) => o.theme.trim() === '') &&
-    d.anchors == null &&
+    d.arsEdit == null &&
     !d.slugTouched
   )
 }
@@ -234,7 +241,8 @@ function readDraft(): { draft: Draft; restored: boolean; migrated: boolean } {
     speciesList: '',
     notes: '',
     oc: EMPTY_OC.map((o) => ({ ...o })),
-    anchors: null,
+    arsEdit: null,
+    furnaceOverride: false,
   }
   try {
     const raw = window.localStorage.getItem(DRAFT_KEY)
@@ -260,12 +268,11 @@ function readDraft(): { draft: Draft; restored: boolean; migrated: boolean } {
         speciesList: asStr(j.speciesList).slice(0, 200),
         notes: asStr(j.notes).slice(0, 2000),
         oc,
-        anchors: asRecord(j.anchors).locale !== undefined || asArray(asRecord(j.anchors).motifs).length > 0
-          ? (asRecord(j.anchors) as AnchorsState)
-          : null,
+        arsEdit: asStr(j.arsEdit).slice(0, 120_000) || null,
+        furnaceOverride: j.furnaceOverride === true,
       }
       const restored =
-        draft.theme.trim() !== '' || oc.some((o) => o.theme.trim() !== '') || draft.anchors != null
+        draft.theme.trim() !== '' || oc.some((o) => o.theme.trim() !== '') || draft.arsEdit != null
       return { draft, restored, migrated: false }
     }
     /* миграция со старого воркфлоу (Layout E): тема/OC/якоря/заметки */
@@ -289,10 +296,8 @@ function readDraft(): { draft: Draft; restored: boolean; migrated: boolean } {
       draft.engine = (ENGINES as readonly string[]).includes(asStr(j.engine)) ? asStr(j.engine) : 'per-theme'
       draft.speciesList = asStr(j.speciesList).slice(0, 200)
       draft.notes = asStr(j.notes).slice(0, 2000)
-      const anchorsRec = asRecord(j.anchors)
-      if (Object.keys(anchorsRec).length > 0) draft.anchors = anchorsRec as AnchorsState
       window.localStorage.removeItem(LEGACY_KEY)
-      const restored = draft.theme.trim() !== '' || draft.anchors != null
+      const restored = draft.theme.trim() !== ''
       return { draft, restored, migrated: true }
     }
     return { draft: fallback, restored: false, migrated: false }
@@ -301,26 +306,47 @@ function readDraft(): { draft: Draft; restored: boolean; migrated: boolean } {
   }
 }
 
-function parseAnchors(v: unknown): AnchorsState | null {
-  const rec = asRecord(v)
-  if (Object.keys(rec).length === 0) return null
-  const a: AnchorsState = {
-    locale: asStr(rec.locale),
-    timeOfDay: asStr(rec.timeOfDay),
-    light: asStr(rec.light),
-    paletteMood: asStr(rec.paletteMood),
-    wardrobeFamily: asStr(rec.wardrobeFamily),
-    poseFamily: asStr(rec.poseFamily),
-    camera: asStr(rec.camera),
-    seed: asStr(rec.seed),
-    motifs: asArray(rec.motifs).map(asStr).filter((s) => s !== ''),
-    atmosphere: asArray(rec.atmosphere).map(asStr).filter((s) => s !== ''),
-    tokens: asArray(rec.tokens).map(asStr).filter((s) => s !== ''),
-    lexiconHits: asArray(rec.lexiconHits).map(asStr).filter((s) => s !== ''),
-    minAdherence: asNum(rec.minAdherence) ?? undefined,
+
+
+/** Репорт Печи → markdown для читальни (та же правда, что в артефакте). */
+function furnaceReportMarkdown(report: unknown): string {
+  const r = asRecord(report)
+  const L: string[] = []
+  L.push(`## Вердикт: ${asStr(r.verdict) || '—'}`)
+  L.push('')
+  L.push(asStr(r.summary) || '')
+  for (const [k, t] of [
+    ['themeRead', '### Тема: 21 история в кадрах'],
+    ['scribeWork', '### Писец: регламент'],
+    ['gatesEcho', '### Гейты: что поймали / что пропустили'],
+  ] as const) {
+    const v = asStr(r[k])
+    if (v !== '') {
+      L.push('')
+      L.push(t)
+      L.push('')
+      L.push(v)
+    }
   }
-  const meaningful = Object.values(a).some((v) => (Array.isArray(v) ? v.length > 0 : v != null && v !== ''))
-  return meaningful ? a : null
+  const findings = asArray(r.findings).map(asRecord)
+  if (findings.length > 0) {
+    L.push('')
+    L.push('### Находки')
+    for (const f of findings) {
+      L.push(
+        `- **[${asStr(f.area)}${asStr(f.slot) !== '' ? ` ${asStr(f.slot)}` : ''}] (${asStr(f.severity) || 'note'})** — ${asStr(f.note)}`
+      )
+    }
+  }
+  const strengths = asArray(r.strengths).map(asStr).filter((x) => x !== '')
+  if (strengths.length > 0) {
+    L.push('')
+    L.push('### Что получилось')
+    for (const x of strengths) L.push(`- ${x}`)
+  }
+  L.push('')
+  L.push('_Печь — оценка LLM до глаза автора: финальный вердикт всегда за автором (§1)._')
+  return L.join('\n')
 }
 
 function parseReceipts(v: unknown): ReceiptView[] {
@@ -469,7 +495,10 @@ export function PipelineScreen({ embed = false }: { embed?: boolean }) {
   const [speciesList, setSpeciesList] = useState('')
   const [notes, setNotes] = useState('')
   const [oc, setOc] = useState<OcInput[]>(() => EMPTY_OC.map((o) => ({ ...o })))
-  const [anchors, setAnchors] = useState<AnchorsState | null>(null)
+  const [arsEdit, setArsEdit] = useState<string | null>(null)
+  const [arsEditOpen, setArsEditOpen] = useState(false)
+  const [furnaceOverride, setFurnaceOverride] = useState(false)
+  const [reader, setReader] = useState<ReaderState | null>(null)
   const [briefOpen, setBriefOpen] = useState(true)
 
   /* ---- конвейер ---- */
@@ -506,14 +535,15 @@ export function PipelineScreen({ embed = false }: { embed?: boolean }) {
       ...(slugTouched && /^T4-\d{2,3}$/.test(slug.trim().toUpperCase())
         ? { slug: slug.trim().toUpperCase() }
         : {}),
-      ...(anchors != null && !isExp ? { themeAnchors: anchors, expandTheme: true } : {}),
+      ...(parseArsEdit(arsEdit) != null ? { arsBuild: parseArsEdit(arsEdit) } : {}),
+      ...(furnaceOverride ? { furnaceOverride: true } : {}),
     }),
-    [theme, exp, ab, engine, speciesList, oc, notes, slug, slugTouched, anchors, isExp]
+    [theme, exp, ab, engine, speciesList, oc, notes, slug, slugTouched, arsEdit, furnaceOverride]
   )
 
   /* ---- персист черновика (debounce 250мс) ---- */
   useEffect(() => {
-    const draft: Draft = { theme, slug, slugTouched, exp, ab, engine, speciesList, notes, oc, anchors }
+    const draft: Draft = { theme, slug, slugTouched, exp, ab, engine, speciesList, notes, oc, arsEdit, furnaceOverride }
     const timer = window.setTimeout(() => {
       try {
         if (draftEmpty(draft)) window.localStorage.removeItem(DRAFT_KEY)
@@ -523,7 +553,7 @@ export function PipelineScreen({ embed = false }: { embed?: boolean }) {
       }
     }, 250)
     return () => window.clearTimeout(timer)
-  }, [theme, slug, slugTouched, exp, ab, engine, speciesList, notes, oc, anchors])
+  }, [theme, slug, slugTouched, exp, ab, engine, speciesList, notes, oc, arsEdit, furnaceOverride])
 
   /* ---- восстановление черновика: РОВНО один mount-эффект на вкладку.
    * Чтение localStorage при гидратации = hydration mismatch (инцидент
@@ -551,8 +581,10 @@ export function PipelineScreen({ embed = false }: { embed?: boolean }) {
     setNotes(init.draft.notes)
      
     setOc(init.draft.oc.map((o) => ({ ...o })))
-     
-    setAnchors(init.draft.anchors != null ? { ...(init.draft.anchors as AnchorsState) } : null)
+
+    setArsEdit(init.draft.arsEdit)
+
+    setFurnaceOverride(init.draft.furnaceOverride === true)
     const title = init.migrated ? 'Черновик перенесён из старого воркфлоу' : 'Черновик восстановлен'
     const timer = window.setTimeout(() => {
       toast({
@@ -669,7 +701,7 @@ export function PipelineScreen({ embed = false }: { embed?: boolean }) {
     }
     try {
       await postJson('/api/t4/twin/pipeline/auto', draftBody)
-      toast({ title: 'Конвейер запущен', description: 'машина ведёт 1 → 5, смотри консоль' })
+      toast({ title: 'Конвейер запущен', description: 'машина ведёт 1 → 6, смотри консоль' })
       openConsole()
       void refresh()
     } catch (e) {
@@ -712,48 +744,6 @@ export function PipelineScreen({ embed = false }: { embed?: boolean }) {
     }
   }, [])
 
-  const expandPreview = useCallback(async () => {
-    if (!briefReady) return
-    try {
-      /* postJson возвращает конверт twin-RPC ЦЕЛИКОМ ({ok, data}) — разворачиваем
-       * сами: anchors + гейт темы (№25, hard) обязаны дойти до UI, а не тонуть
-       * в data?.anchors === undefined (баг эры unified-pipeline: тост «Якоря
-       * собраны» врал при пустых якорях). */
-      const env = await postJson<{ data?: { anchors?: unknown; gate?: unknown } } & Record<string, unknown>>(
-        '/api/t4/twin/theme/expand',
-        {
-          theme: theme.trim(),
-          slug: slugTouched && slug ? slug : nextSlug || 'T4-00',
-          exp,
-          ocThemes: oc.filter((o) => o.theme.trim() !== '').map((o) => o.theme.trim()),
-        }
-      )
-      const payload = asRecord(env?.data)
-      const a = parseAnchors(payload?.anchors)
-      if (a != null) setAnchors(a)
-      const gate = asRecord(payload?.gate)
-      if (asStr(gate.verdict) === 'FAIL') {
-        toast({
-          title: 'Гейт темы не прошёл',
-          description: asArray(gate.findings).map(asStr).slice(0, 2).join(' · ') || 'правь якоря',
-          variant: 'destructive',
-        })
-      } else if (a != null) {
-        toast({
-          title: 'Якоря собраны — гейт темы PASS',
-          description: 'правь руками — все правки уйдут в конвейер',
-        })
-      } else {
-        toast({
-          title: 'Якорей нет — конвейер соберёт их сам',
-          description: 'движок примет тему без предпросмотра',
-        })
-      }
-    } catch (e) {
-      toast({ title: 'Раскрытие не удалось', description: e instanceof Error ? e.message : '', variant: 'destructive' })
-    }
-  }, [briefReady, theme, slug, slugTouched, nextSlug, exp, oc])
-
   const resetAll = useCallback(() => {
     setTheme('')
     setSlug('')
@@ -764,7 +754,9 @@ export function PipelineScreen({ embed = false }: { embed?: boolean }) {
     setSpeciesList('')
     setNotes('')
     setOc(EMPTY_OC.map((o) => ({ ...o })))
-    setAnchors(null)
+    setArsEdit(null)
+    setFurnaceOverride(false)
+    setReader(null)
     setBriefOpen(true)
     setSnapshot(null)
     notifiedRef.current = ''
@@ -842,16 +834,37 @@ export function PipelineScreen({ embed = false }: { embed?: boolean }) {
     [stages]
   )
 
+  /* Долг T4-45 (3): ▶ на этапе после провала предыдущего — путь «правь
+   * руками и сдавай» обязан жить без заколоченных дверей. confirm —
+   * честный, автор видит цену (нижележащие пересоберутся). */
   const canRunManual = useCallback(
     (i: number): boolean => {
       if (running) return false
       if (!briefReady) return false
       if (i === 0) return true
-      return stageDone(i - 1)
+      return stageDone(i - 1) || stages[i - 1].status === 'failed'
     },
-    [running, briefReady, stageDone]
+    [running, briefReady, stageDone, stages]
   )
 
+  const askRunStage = useCallback(
+    (i: number, key: StageKey): void => {
+      if (i > 0 && stages[i - 1].status === 'failed') {
+        const ok = window.confirm(
+          `Предыдущий этап («${STAGE_TITLE[stages[i - 1].key]}») провален. Запустить «${STAGE_TITLE[key]}» всё равно?`
+        )
+        if (!ok) return
+      }
+      void runStage(key)
+    },
+    [stages, runStage]
+  )
+
+  /* детали новых этапов: истории (этап 1), брикеты (этап 3), печь (этап 5) */
+  const arsDetail = stages[0].status === 'done' ? asRecord(stages[0].detail) : null
+  const collectorDetail = stages[2].status === 'done' ? asRecord(stages[2].detail) : null
+  const furnaceDetail = stages[4].status === 'done' ? asRecord(stages[4].detail) : null
+  const furnaceFailed = asStr(asRecord(furnaceDetail?.report).verdict) === 'FAIL'
   const failedStage = stages.find((s) => s.status === 'failed')
   const finishedOk = snapshot != null && snapshot.finished != null && snapshot.ok === true && !running
   const activeSlug = snapshot?.slug ?? null
@@ -1052,28 +1065,28 @@ export function PipelineScreen({ embed = false }: { embed?: boolean }) {
             {statusIcon(stages[0].status, stages[0].status === 'running')}
             <div className="min-w-0 flex-1">
               <h2 className="text-sm font-semibold tracking-tight">
-                1 · Приказ <span className="text-zinc-500">и</span>&nbsp;{STAGE_TITLE.theme}
+                1 · Приказ <span className="text-zinc-500">и</span>&nbsp;{STAGE_TITLE.ars}
               </h2>
               {stages[0].summary != null ? (
                 <p className="mt-0.5 truncate text-xs text-zinc-400">{stages[0].summary}</p>
               ) : (
-                <p className="mt-0.5 text-xs text-zinc-500">{STAGE_HINT.theme}</p>
+                <p className="mt-0.5 text-xs text-zinc-500">{STAGE_HINT.ars}</p>
               )}
             </div>
-            {/* Ручной запуск этапа 1 — тот же ▶, что у этапов 2–5: без него
+            {/* Ручной запуск этапа 1 — тот же ▶, что у этапов 2–6: без него
              * ручной режим мёртв (□ «забыли ручной запуск», Фаза 3 приказа
              * «ВОССТАНОВИТЬ РАБОЧЕЕ»: авторан один, этап 1 без кнопки = ручной
-             * прогон не начинался никогда). Запуск берёт якоря из приказа. */}
+             * прогон не начинался никогда). Запуск берёт правки ARS из приказа. */}
             {!running && briefReady ? (
               <button
                 type="button"
-                onClick={() => void runStage('theme')}
+                onClick={() => void runStage('ars')}
                 title={
                   stages[0].status === 'done'
-                    ? `Перезапустить «${STAGE_TITLE.theme}» (нижележащие устареют)`
-                    : `Выполнить «${STAGE_TITLE.theme}» — гейт темы в консоли`
+                    ? `Перезапустить «${STAGE_TITLE.ars}» (нижележащие устареют)`
+                    : `Выполнить «${STAGE_TITLE.ars}» — истории в консоли`
                 }
-                aria-label={`выполнить этап ${STAGE_TITLE.theme}`}
+                aria-label={`выполнить этап ${STAGE_TITLE.ars}`}
                 className="flex shrink-0 items-center gap-1 rounded-md border border-zinc-800 px-2 py-1 text-[11px] text-zinc-400 transition-colors hover:border-zinc-500 hover:text-zinc-100"
               >
                 <Play className="size-3" />
@@ -1252,105 +1265,114 @@ export function PipelineScreen({ embed = false }: { embed?: boolean }) {
                     </div>
                   </details>
 
-                  {isExp ? (
+                  {exp > 0 ? (
                     <p className="rounded-md border border-zinc-800/70 bg-zinc-900/40 px-3 py-2 text-xs text-zinc-400">
-                      EXP-батч: раскрытие темы пропускается — болванки живут без темы (вердикт T4-34).
+                      EXP {exp} — идеи ВНЕ темы (концепт/поза/одежда/кин/новая ОС на подтверждение);
+                      21 история + 3 ОС раскрываются как обычно (доктрина ARS, приказ 2026-10-23).
                     </p>
-                  ) : (
-                    <div className="flex flex-wrap items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={() => void expandPreview()}
-                        disabled={!briefReady}
-                        className="flex items-center gap-1.5 rounded-md border border-zinc-700 px-3 py-1.5 text-xs font-medium text-zinc-200 transition-colors hover:border-zinc-500 disabled:cursor-not-allowed disabled:opacity-40"
-                      >
-                        <Play className="size-3" />
-                        Раскрыть тему
-                      </button>
-                      {anchors != null ? (
+                  ) : null}
+
+                  {/* правки ARS: строгий JSON артефакта раскрытия */}
+                  <details
+                    className="group rounded-lg border border-zinc-800/70 px-3 py-2"
+                    open={arsEditOpen}
+                    onToggle={(e) => setArsEditOpen((e.target as HTMLDetailsElement).open)}
+                  >
+                    <summary className="cursor-pointer list-none text-xs text-zinc-400 transition-colors hover:text-zinc-200">
+                      <span className="inline-flex items-center gap-1.5">
+                        <ChevronDown className="size-3 transition-transform group-open:rotate-180" />
+                        Правки ARS NOVEAU <span className="text-zinc-600">— strict JSON артефакта (пусто = думает мост)</span>
+                      </span>
+                    </summary>
+                    <div className="mt-3 space-y-2">
+                      <textarea
+                        value={arsEdit ?? ''}
+                        onChange={(e) => setArsEdit(e.target.value.slice(0, 120_000))}
+                        placeholder={'{"engineName":…, "mains":[21 истории], "ocs":[3], "exp":[идеи]} — вставь артефакт из детали этапа и правь'}
+                        rows={5}
+                        spellCheck={false}
+                        className="t4-scroll w-full resize-y rounded-md border border-zinc-800 bg-zinc-950 px-2.5 py-1.5 font-term text-[11px] leading-relaxed text-zinc-200 outline-none placeholder:text-zinc-700 focus:border-zinc-600"
+                      />
+                      <div className="flex items-center gap-2">
+                        {arsEdit != null && parseArsEdit(arsEdit) == null ? (
+                          <span className="text-[11px] text-rose-300">JSON не парсится — конвейер пойдёт без правок</span>
+                        ) : arsEdit != null ? (
+                          <span className="text-[11px] text-emerald-300">JSON валиден — strict-проверка на движке</span>
+                        ) : (
+                          <span className="text-[11px] text-zinc-600">правок нет — раскрытие делает LLM-мост</span>
+                        )}
+                        {arsEdit != null ? (
+                          <button
+                            type="button"
+                            onClick={() => setArsEdit(null)}
+                            className="ml-auto rounded-md border border-zinc-800 px-2 py-1 text-[11px] text-zinc-400 transition-colors hover:border-zinc-600 hover:text-zinc-200"
+                          >
+                            Сбросить правки
+                          </button>
+                        ) : null}
+                      </div>
+                    </div>
+                  </details>
+
+                  {/* furnaceOverride: решение автора при FAIL Печи */}
+                  {furnaceFailed ? (
+                    <label className="flex cursor-pointer items-start gap-2 rounded-lg border border-rose-500/40 bg-rose-500/[0.06] px-3 py-2.5">
+                      <input
+                        type="checkbox"
+                        checked={furnaceOverride}
+                        onChange={(e) => setFurnaceOverride(e.target.checked)}
+                        className="mt-0.5 size-3.5 accent-rose-400"
+                      />
+                      <span className="text-xs leading-relaxed text-rose-100">
+                        <span className="font-semibold">Сдать вопреки FAIL Печи.</span> Решение автора (§1):
+                        репорт в читальне этапа 5, событие сдачи зафиксирует override.
+                      </span>
+                    </label>
+                  ) : null}
+
+                  {/* результат этапа 1: 21 история + 3 ОС + EXP-идеи */}
+                  {arsDetail != null ? (
+                    <div className="rounded-lg border border-zinc-800/70 p-3">
+                      <div className="mb-2 flex flex-wrap items-center gap-2">
+                        <p className="text-xs font-medium text-zinc-400">
+                          Истории раскрыты <span className="text-zinc-600">— клик по карточке разворачивает поля</span>
+                        </p>
                         <button
                           type="button"
-                          onClick={() => setAnchors(null)}
-                          className="rounded-md border border-zinc-800 px-2.5 py-1.5 text-[11px] text-zinc-400 transition-colors hover:border-zinc-600 hover:text-zinc-200"
+                          onClick={() =>
+                            setReader({
+                              title: `ARS NOVEAU — ${snapshot?.slug ?? ''} «${theme.trim()}»`,
+                              badge: 'экспозиция',
+                              markdown: asStr(asRecord(arsDetail).exposition) || '',
+                            })
+                          }
+                          className="ml-auto flex items-center gap-1.5 rounded-md border border-amber-600/50 px-2.5 py-1 text-[11px] font-medium text-amber-200 transition-colors hover:border-amber-500"
                         >
-                          Сбросить якоря
+                          <BookOpen className="size-3" />
+                          Читать экспозицию
                         </button>
-                      ) : null}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const build = asRecord(asRecord(arsDetail).ars)
+                            setArsEdit(JSON.stringify(build, null, 1))
+                            setArsEditOpen(true)
+                          }}
+                          className="rounded-md border border-zinc-800 px-2.5 py-1 text-[11px] text-zinc-400 transition-colors hover:border-zinc-600 hover:text-zinc-200"
+                        >
+                          Править JSON
+                        </button>
+                      </div>
+                      <StoriesGrid ars={asRecord(arsDetail).ars} />
                     </div>
-                  )}
-
-                  {/* якоря */}
-                  <AnimatePresence initial={false}>
-                    {anchors != null && !isExp ? (
-                      <motion.div
-                        key="anchors"
-                        initial={reduce ? { opacity: 0 } : { height: 0, opacity: 0 }}
-                        animate={reduce ? { opacity: 1 } : { height: 'auto', opacity: 1 }}
-                        exit={reduce ? { opacity: 0 } : { height: 0, opacity: 0 }}
-                        transition={SPRING}
-                        className="overflow-hidden"
-                      >
-                        <div className="rounded-lg border border-zinc-800/70 p-3">
-                          <p className="mb-2 text-xs font-medium text-zinc-400">
-                            Визуальные якоря <span className="text-zinc-600">— правь, всё уйдёт в конвейер</span>
-                          </p>
-                          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                            {ANCHOR_FIELDS.map(({ key, label }) => (
-                              <label key={key} className="block">
-                                <span className="mb-0.5 block text-[10px] uppercase tracking-wide text-zinc-600">
-                                  {label}
-                                </span>
-                                <input
-                                  value={anchors[key] ?? ''}
-                                  onChange={(e) => setAnchors({ ...anchors, [key]: e.target.value.slice(0, 80) })}
-                                  className="w-full rounded-md border border-zinc-800 bg-zinc-950 px-2 py-1.5 text-xs text-zinc-100 outline-none focus:border-zinc-600"
-                                />
-                              </label>
-                            ))}
-                            {(anchors.motifs ?? []).map((m, i) => (
-                              <label key={`motif-${i}`} className="block">
-                                <span className="mb-0.5 block text-[10px] uppercase tracking-wide text-zinc-600">
-                                  Мотив {i + 1}
-                                </span>
-                                <input
-                                  value={m}
-                                  onChange={(e) => {
-                                    const motifs = [...(anchors.motifs ?? [])]
-                                    motifs[i] = e.target.value.slice(0, 80)
-                                    setAnchors({ ...anchors, motifs })
-                                  }}
-                                  className="w-full rounded-md border border-zinc-800 bg-zinc-950 px-2 py-1.5 text-xs text-zinc-100 outline-none focus:border-zinc-600"
-                                />
-                              </label>
-                            ))}
-                            {(anchors.atmosphere ?? []).map((a, i) => (
-                              <label key={`atm-${i}`} className="block">
-                                <span className="mb-0.5 block text-[10px] uppercase tracking-wide text-zinc-600">
-                                  Атмосфера {i + 1}
-                                </span>
-                                <input
-                                  value={a}
-                                  onChange={(e) => {
-                                    const atmo = [...(anchors.atmosphere ?? [])]
-                                    atmo[i] = e.target.value.slice(0, 80)
-                                    setAnchors({ ...anchors, atmosphere: atmo })
-                                  }}
-                                  className="w-full rounded-md border border-zinc-800 bg-zinc-950 px-2 py-1.5 text-xs text-zinc-100 outline-none focus:border-zinc-600"
-                                />
-                              </label>
-                            ))}
-                          </div>
-                        </div>
-                      </motion.div>
-                    ) : null}
-                  </AnimatePresence>
+                  ) : null}
                 </div>
               </motion.div>
             ) : null}
           </AnimatePresence>
         </section>
 
-        {/* рельс прогресса + этапы 2..5 */}
+        {/* рельс прогресса + этапы 2..6 */}
         <ol className="relative mt-4 space-y-3" aria-label="этапы конвейера">
           {stages.slice(1).map((stage, i) => {
             const idx = i + 1
@@ -1382,7 +1404,7 @@ export function PipelineScreen({ embed = false }: { embed?: boolean }) {
                     {!running && (done || stage.status === 'failed' || canRunManual(idx)) ? (
                       <button
                         type="button"
-                        onClick={() => void runStage(stage.key)}
+                        onClick={() => askRunStage(idx, stage.key)}
                         title={
                           done
                             ? `Перезапустить «${STAGE_TITLE[stage.key]}» (нижележащие устареют)`
@@ -1410,6 +1432,47 @@ export function PipelineScreen({ embed = false }: { embed?: boolean }) {
                       </button>
                     </div>
                   ) : null}
+
+                  {/* ── тела этапов эры ARS ── */}
+                  {stage.key === 'collector' && stage.status === 'done' && collectorDetail != null ? (
+                    <div className="mt-3 space-y-2">
+                      <BriquetteList briquettes={collectorDetail.briquettes} />
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setReader({
+                            title: `Сборщик — ${snapshot?.slug ?? ''}`,
+                            badge: 'брикеты',
+                            markdown: asStr(collectorDetail.exposition) || '',
+                          })
+                        }
+                        className="flex items-center gap-1.5 rounded-md border border-zinc-700 px-2.5 py-1 text-[11px] font-medium text-zinc-200 transition-colors hover:border-zinc-500"
+                      >
+                        <BookOpen className="size-3" />
+                        Читать брикеты
+                      </button>
+                    </div>
+                  ) : null}
+
+                  {stage.key === 'furnace' && stage.status === 'done' && furnaceDetail != null ? (
+                    <div className="mt-3 space-y-2">
+                      <FurnacePanel report={furnaceDetail.report} />
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setReader({
+                            title: `Печь — ${snapshot?.slug ?? ''}`,
+                            badge: asStr(asRecord(furnaceDetail.report).verdict) || 'репорт',
+                            markdown: furnaceReportMarkdown(furnaceDetail.report),
+                          })
+                        }
+                        className="flex items-center gap-1.5 rounded-md border border-zinc-700 px-2.5 py-1 text-[11px] font-medium text-zinc-200 transition-colors hover:border-zinc-500"
+                      >
+                        <BookOpen className="size-3" />
+                        Читать репорт Печи
+                      </button>
+                    </div>
+                  ) : null}
                 </section>
               </li>
             )
@@ -1422,6 +1485,9 @@ export function PipelineScreen({ embed = false }: { embed?: boolean }) {
           </p>
         ) : null}
       </CanvasTag>
+
+      {/* ── читальня ARS-эры: выдвижная панель «посмотреть почитать» ── */}
+      <ReaderDrawer state={reader} onClose={() => setReader(null)} />
 
       {/* ── шторка консоли ── */}
       <AnimatePresence initial={false}>
