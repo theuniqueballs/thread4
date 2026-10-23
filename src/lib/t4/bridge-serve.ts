@@ -15,6 +15,7 @@ import { readJson } from '@/lib/t4/fsutil'
 import type { BatchContract } from '@/lib/t4/compiler'
 import {
   buildScribeCtx,
+  type BriquetteStory,
   type ScribeCtx,
 } from '@/lib/t4/scribe'
 
@@ -59,13 +60,59 @@ const asStr = (v: unknown): string => (typeof v === 'string' ? v : '')
 const asStrArr = (v: unknown): string[] =>
   Array.isArray(v) ? v.map(asStr).filter((s) => s.trim() !== '') : []
 
+/** Брикеты сборщика — репетиционный каталог twin'а (его пишет Rust на
+ * этапе «Сборщик»); могут отсутствовать (полировка file-эры) — тогда
+ * писец работает по контракту без историй, как до эры ARS. */
+export function loadBriquettes(slug: string): Map<number, BriquetteStory> {
+  const raw = readJson<{
+    briquettes?: {
+      position?: unknown
+      kind?: unknown
+      rating?: unknown
+      story?: Record<string, unknown>
+      laws?: unknown[]
+    }[]
+  }>(path.join(TWIN_REHEARSALS_DIR, '..', 'briquettes', `${slug}.json`))
+  const out = new Map<number, BriquetteStory>()
+  const str = (v: unknown): string => (typeof v === 'string' ? v.trim() : '')
+  for (const b of raw?.briquettes ?? []) {
+    const pos = typeof b.position === 'number' && Number.isInteger(b.position) ? b.position : -1
+    if (pos <= 0) continue
+    const story = b.story ?? {}
+    out.set(pos, {
+      position: pos,
+      kind: str(b.kind),
+      rating: str(b.rating),
+      title: str(story['title']) || 'untitled',
+      thesis: str(story['thesis']),
+      reveal: str(story['reveal']),
+      scene: str(story['scene']),
+      environment: str(story['environment']),
+      vibe: str(story['vibe']),
+      lighting: str(story['lighting']),
+      poseIdea: str(story['poseIdea']),
+      outfit: str(story['outfit']),
+      character: str(story['character']),
+      witness: str(story['witness']) || null,
+      dice: str(story['dice']) || null,
+      tokens: Array.isArray(story['tokens'])
+        ? (story['tokens'] as unknown[]).filter((t): t is string => typeof t === 'string' && t.trim() !== '')
+        : [],
+      laws: Array.isArray(b.laws) ? (b.laws as unknown[]).filter((l): l is string => typeof l === 'string') : [],
+    })
+  }
+  return out
+}
+
 /** Контекст писца + применённый спайн (движок/тезис/акты/тема-слова):
  * одна правда для чанков, ремонта, полировки и сборки. */
 export async function ctxWithBuild(
   contract: BatchContract,
-  build: BridgeBuild
+  build: BridgeBuild,
+  slug?: string
 ): Promise<ScribeCtx> {
   const ctx = await buildScribeCtx(contract)
+  if (slug != null) ctx.briquettes = loadBriquettes(slug)
   ctx.engineName = asStr(build.engineName) || contract.engine
   ctx.engineLaw = asStr(build.engineLaw) || contract.engineLaw
   ctx.batchThesis = asStr(build.thesis)

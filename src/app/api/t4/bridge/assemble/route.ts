@@ -58,7 +58,7 @@ export async function POST(req: Request) {
   }
 
   try {
-    const ctx = await ctxWithBuild(contract, (body.build ?? {}) as Record<string, unknown>)
+    const ctx = await ctxWithBuild(contract, (body.build ?? {}) as Record<string, unknown>, slug)
     const markdown = assembleBatch(ctx, outputs, contract.theme)
     return NextResponse.json({ ok: true, data: { markdown } })
   } catch (e) {
