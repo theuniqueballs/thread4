@@ -157,6 +157,53 @@ pub fn assemble_batch(slug: &str, build: &Value, outputs: &Value) -> Result<Stri
         .ok_or_else(|| "мост assemble: пустой markdown".to_string())
 }
 
+/* ---------------- ARS NOVEAU-эра (приказ 2026-10-23) ---------------- */
+
+/// Этап 1 · ARS NOVEAU: тема → спайн + 21 история мейнов + 3 истории ОС +
+/// EXP-идеи (вне темы). Несколько LLM-вызовов внутри роута (спайн+акты,
+/// потом истории тремя чанками) — таймаут длинный.
+pub fn ars_expand(
+    slug: &str,
+    theme: &str,
+    oc_themes: &Value,
+    exp_count: u32,
+    author_wishes: Option<&str>,
+) -> Result<Value, String> {
+    let body = json!({
+        "slug": slug,
+        "theme": theme,
+        "ocThemes": oc_themes,
+        "expCount": exp_count,
+        "authorWishes": author_wishes.unwrap_or(""),
+    });
+    let data = post("/api/t4/bridge/ars", &body, LLM_LONG)?;
+    data.get("build")
+        .cloned()
+        .ok_or_else(|| "мост ars: пустой артефакт раскрытия".to_string())
+}
+
+/// Этап 5 · ПЕЧЬ (FURNACE): LLM-оценщик черновика — гейты/тема/писец,
+/// обширный репорт без пиздежа. Один вызов, таймаут длинный.
+pub fn furnace_eval(
+    slug: &str,
+    theme: &str,
+    batch_markdown: &str,
+    receipts: &Value,
+    contract: Option<&Value>,
+) -> Result<Value, String> {
+    let body = json!({
+        "slug": slug,
+        "theme": theme,
+        "batch": batch_markdown,
+        "receipts": receipts,
+        "contract": contract.cloned().unwrap_or(Value::Null),
+    });
+    let data = post("/api/t4/bridge/furnace", &body, LLM_LONG)?;
+    data.get("report")
+        .cloned()
+        .ok_or_else(|| "мост furnace: пустой репорт".to_string())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

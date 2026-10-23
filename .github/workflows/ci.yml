@@ -38,3 +38,30 @@ jobs:
 
       - name: build
         run: bun run build
+
+  # ARS NOVEAU-эра (2026-10-23, Доу): единый движок = Rust — его батарея
+  # в CI обязательна. Один заранее известный фейл окружения исключён:
+  # gates_route_live_snapshot_parity_available падает и на main (нет
+  # file-эры слепков в CI-окружении) — не регресс.
+  rust:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mini-services/t4-engine-rs
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: mini-services/t4-engine-rs
+
+      - name: test
+        # skip: gates_route_live_snapshot_parity_available — заранее
+        # известный фейл ЧИСТОГО чекаута (слепок file-эры T4-34 не
+        # собирается без локальной летописи движка; падает и на main).
+        run: cargo test --quiet -- --skip gates_route_live_snapshot_parity_available
+
+      - name: selftest
+        run: cargo run --quiet --bin t4 -- selftest

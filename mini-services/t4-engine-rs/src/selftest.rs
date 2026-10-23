@@ -17,9 +17,13 @@ use crate::canon;
 use crate::canon::{Slots, Palette, FLOORS, RATINGS, REGISTERS, ENGINE_MODES};
 use crate::canonical::{chain_hash, js_escape_string, payload_sha10, stable_stringify, timing_safe_equal_str};
 use crate::chain::{append_event_tx, assert_born_clean, assert_born_semantics, iso_now, verify_chain, AppendInput};
+use crate::ars;
+use crate::collector;
 use crate::compile;
 use crate::db;
+use crate::furnace;
 use crate::live;
+use crate::pipeline;
 use crate::theme;
 
 pub struct Check {
@@ -438,6 +442,132 @@ pub fn run(prod: Option<&Connection>) -> Battery {
         let mut hacked = j;
         hacked["hack"] = json!(true);
         b.expect("theme/strict-unknown-field", theme::ThemeAnchors::from_json(&hacked, "x", "y").is_err(), || "strict режет лишние поля".into());
+    }
+
+    /* ============ ARS NOVEAU-батарея (эра ARS, 2026-10-23) ============ */
+    {
+        let mut story = |pos: u32, genre: &str, seed: &str| ars::ArsStory {
+            position: pos,
+            genre: genre.to_string(),
+            title: format!("Test {seed}"),
+            reveal: format!("the theme shows {seed} here"),
+            scene: format!("she leans over a {seed} railing, steam rising"),
+            environment: format!("rooftop garden, {seed} vines, wet stone tiles"),
+            vibe: "quiet electric hush".into(),
+            lighting: "cold moon glow, one warm window behind".into(),
+            pose_idea: "seated contrapposto, chin lifted".into(),
+            outfit: "thin knit dress, bare shoulders".into(),
+            character: "slender, ash-blonde braid, pale skin".into(),
+            witness: Some("cracked teacup".into()),
+            dice: None,
+            thesis: format!("the {seed} keeps what the night forgot {pos}"),
+        };
+        let mut mains: Vec<ars::ArsStory> = (1..=6).map(|i| story(i, "NICHE", &format!("vine{i}"))).collect();
+        mains.extend((7..=19).map(|i| story(i, "VOLT", &format!("ember{i}"))));
+        mains.push(story(20, "EXQUISITE", "gild"));
+        mains.push(story(21, "EXQUISITE", "hush"));
+        let ocs = vec![story(1, "OC", "oc1"), story(2, "OC", "oc2"), story(3, "OC", "oc3")];
+        let build = ars::ArsBuild {
+            slug: "T4-90".into(),
+            theme: "Test Theme".into(),
+            engine_name: "TEST ENGINE".into(),
+            engine_law: "test law bends fabric".into(),
+            batch_thesis: "one law, twenty-one ways".into(),
+            acts: vec!["Arrive".into(), "Worn In".into(), "Kept".into()],
+            theme_keywords: vec!["vine".into(), "ember".into()],
+            mains,
+            ocs,
+            exp: vec![ars::ArsExpIdea {
+                id: 1,
+                kind: "pose".into(),
+                hypothesis: "kneel-arch holds the claim at R+".into(),
+                variables: "pose LOW vs pose MID".into(),
+            }],
+            seed: "deadbeef".into(),
+        };
+        // strict JSON roundtrip артефакта
+        let j = build.to_json();
+        b.expect("ars/json-roundtrip", {
+            ars::ArsBuild::from_json(&j, &build.theme, &build.slug).map(|b| b == build).unwrap_or(false)
+        }, || "артефакт ARS ходит туда-обратно".into());
+        let mut hacked = j.clone();
+        hacked["hack"] = json!(true);
+        b.expect("ars/strict-unknown-field", ars::ArsBuild::from_json(&hacked, "x", "y").is_err(), || "strict режет лишние поля".into());
+        // гейты плана: чистый PASS, кривые — ловятся
+        let receipts = ars::plan_receipts(&build);
+        b.expect("ars/plan-hard-pass", ars::plan_hard_pass(&receipts), || {
+            receipts.iter().flat_map(|r| r.findings.clone()).take(3).collect::<Vec<_>>().join("; ")
+        });
+        let mut short = build.clone();
+        short.mains.truncate(18);
+        b.expect("ars/plan-catches-short", !ars::plan_hard_pass(&ars::plan_receipts(&short)), || "18 историй = структурный фейл".into());
+        let mut leaky = build.clone();
+        leaky.exp[0].hypothesis = "vine pattern on knit at R+".into();
+        b.expect("ars/plan-exp-purity", {
+            ars::plan_receipts(&leaky).iter().any(|r| r.findings.iter().any(|f| f.contains("тему-слово")))
+        }, || "EXP-идея несёт тему-слово — гейт режет".into());
+        // adherence: токены историй мерятся в тексте
+        let mut text = String::new();
+        for st in build.mains.iter().chain(build.ocs.iter()) {
+            text.push_str(&ars::story_tokens(st).first().cloned().unwrap_or_default());
+            text.push(' ');
+        }
+        b.expect("ars/adherence-pass", ars::text_gate(&text, &build, 0.6).verdict == "PASS", || "все истории доехали".into());
+        b.expect("ars/adherence-fail", ars::text_gate("чужой текст", &build, 0.6).verdict == "FAIL", || "ни одна не доехала".into());
+        // конвейер: 6 этапов, старые ключи закрыты
+        b.expect("ars/stage-canvas-six", {
+            pipeline::STAGE_KEYS.len() == 6
+                && pipeline::stage_index("theme").is_none()
+                && pipeline::stage_index("build").is_none()
+                && pipeline::stage_index("collector").is_some()
+                && pipeline::stage_index("furnace").is_some()
+        }, || "ars→compile→collector→scribe→furnace→deliver".into());
+        // сборщик: брикет на каждый слот, долги T4-45 вшиты
+        let mut slots = Vec::new();
+        for i in 1..=21u64 {
+            let kind = if i <= 6 { "NICHE" } else if i >= 20 { "EXQUISITE" } else { "VOLT" };
+            slots.push(json!({
+                "position": i, "kind": kind, "rating": "R+",
+                "poseName": "Test Pose", "palette": format!("P{i:03}_TEST"), "paletteName": "Test",
+                "carriers": [{"id": "W01", "name": "wet knit", "cls": "W", "deg": "state"}],
+                "kinetics": ["K01"], "lead": "collarbone", "register": "young", "closer": "image-close",
+            }));
+        }
+        slots.push(json!({"position": 22, "kind": "EXP", "rating": "R+",
+            "poseName": "EXP Pose", "palette": "P111_ORCHID", "paletteName": "Orchid",
+            "carriers": [], "kinetics": [], "lead": "chest", "register": "young", "closer": "action-close",
+            "exp": {"hypothesis": "fallback", "half": "A", "letter": "α"},
+            "dress": {"channel": "on_skin", "channelName": "на коже", "category": "tape", "tone": "skin",
+                      "garment": "nipple tape", "state": ["taped nipples"], "underlayer": "none",
+                      "weights": [], "negWeights": [], "law": "№29"}}));
+        let contract = json!({"slug": "T4-90", "theme": "Test Theme", "slots": slots});
+        let (artifact, c_recepts) = collector::build(&contract, &build).unwrap();
+        b.expect("collector/full-pack", {
+            artifact["briquettes"].as_array().map(|a| a.len()) == Some(22)
+                && c_recepts.iter().all(|r| r.verdict != "FAIL")
+        }, || {
+            c_recepts.iter().flat_map(|r| r.findings.clone()).take(3).collect::<Vec<_>>().join("; ")
+        });
+        b.expect("collector/t45-laws-baked", {
+            let bs = artifact["briquettes"].as_array().unwrap();
+            let exp = &bs[21];
+            let has_core4 = exp["laws"].as_array().unwrap().iter().any(|l| l.as_str().unwrap_or("").contains("CORE-4"));
+            let has_on_skin = exp["laws"].as_array().unwrap().iter().any(|l| l.as_str().unwrap_or("").contains("ON_SKIN"));
+            let story_law = bs[0]["laws"].as_array().unwrap().iter().any(|l| l.as_str().unwrap_or("").contains("STORY IS LAW"));
+            has_core4 && has_on_skin && story_law
+        }, || "долги T4-45 (EXP core-4, on_skin контр-NEG, story-is-law)".into());
+        // печь: валидация репорта
+        let ok_report = json!({
+            "verdict": "WARN", "summary": "держится, 3 истории мимо",
+            "findings": [{"area": "theme", "slot": "P07", "severity": "warn", "note": "токены истории отсутствуют"}],
+            "strengths": ["канон вербатим везде"],
+        });
+        b.expect("furnace/validate-ok", furnace::validate_report(&ok_report).is_ok(), || "репорт валиден".into());
+        let mut bad = ok_report.clone();
+        bad["verdict"] = json!("MEGA");
+        b.expect("furnace/validate-verdict-dict", furnace::validate_report(&bad).is_err(), || "вердикт вне словаря".into());
+        let md = furnace::markdown_report("T4-90", "Test", &furnace::validate_report(&ok_report).unwrap(), &[]);
+        b.expect("furnace/markdown-report", md.contains("Вердикт: WARN") && md.contains("P07") && md.contains("§1"), || "репорт несёт вердикт/находки/закон".into());
     }
 
     /* ============ текст-батарея (этапы 0-2: textgates.rs + textgates2.rs) ============ */
