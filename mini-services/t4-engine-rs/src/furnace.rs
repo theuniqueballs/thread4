@@ -198,7 +198,7 @@ pub fn last_verdict(conn: &rusqlite::Connection, slug: &str) -> Option<String> {
     let raw: Option<String> = conn
         .query_row(
             "SELECT data FROM t4_events WHERE batch_slug = ?1 AND type = ?2
-             ORDER BY id DESC LIMIT 1",
+             ORDER BY seq DESC LIMIT 1",
             rusqlite::params![slug, REPORT_EVENT],
             |r| r.get(0),
         )
