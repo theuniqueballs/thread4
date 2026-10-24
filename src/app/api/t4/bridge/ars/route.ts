@@ -223,15 +223,38 @@ export async function POST(req: Request) {
       .slice(0, expCount)
 
     /* жанровый план историй: NICHE окно + EXQUISITE окно, остальное VOLT,
-     * раскидано по актам (не кучей) */
+     * раскидано по батчу (не кучей), БЕЗ коллизий: каждый spread занимает
+     * только VOLT-слоты (иначе EXQUISITE перезаписывал NICHE — ниш выходило
+     * меньше окна, гейт плана на движке резал честно) */
     const genres: string[] = []
     const niche = Math.min(Math.max(mix.nicheMin, 6), mix.nicheMax)
     const exq = Math.min(Math.max(mix.exqMin, 2), mix.exqMax)
     for (let i = 0; i < mix.mains; i++) genres.push('VOLT')
     const spread = (count: number, tag: string): void => {
       const step = mix.mains / count
+      let placed = 0
       for (let k = 0; k < count; k++) {
-        genres[Math.min(mix.mains - 1, Math.floor(k * step + step / 2))] = tag
+        const center = Math.floor(k * step + step / 2)
+        let idx = Math.min(mix.mains - 1, center)
+        let guard = 0
+        while (idx < mix.mains && genres[idx] !== 'VOLT' && guard < mix.mains) {
+          idx += 1
+          guard += 1
+        }
+        if (idx >= mix.mains) idx = genres.indexOf('VOLT')
+        if (idx >= 0) {
+          genres[idx] = tag
+          placed += 1
+        }
+      }
+      if (placed < count) {
+        // добор с хвоста (теоретически недостижимо при окнах policy)
+        for (let i = genres.length - 1; i >= 0 && placed < count; i--) {
+          if (genres[i] === 'VOLT') {
+            genres[i] = tag
+            placed += 1
+          }
+        }
       }
     }
     spread(niche, 'NICHE')

@@ -14,7 +14,7 @@
 import { NextResponse } from 'next/server'
 
 import { requireCommander } from '@/lib/t4/apiguard'
-import { isBridgeTimeout, loadZaiBridgeConfig, postChatCompletion } from '@/lib/t4/zai-bridge'
+import { isBridgeTimeout, loadZaiBridgeConfig, postChatCompletion, sdkBearerOk } from '@/lib/t4/zai-bridge'
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 300
@@ -22,7 +22,7 @@ export const maxDuration = 300
 export async function POST(req: Request) {
   /* Аудит 2026-10-12 (High): платный vision-прокси — только с ключом командира. */
   const guard = requireCommander(req)
-  if (!guard.ok) return guard.response
+  if (!guard.ok && !sdkBearerOk(req, 'vision')) return guard.response
   const cfg = loadZaiBridgeConfig('vision')
   if (!cfg) {
     return NextResponse.json(
