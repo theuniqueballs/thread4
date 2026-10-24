@@ -6,13 +6,16 @@
 //! Одна логика — один источник права: CLI, RPC и КОНВЕЙЕР не могут
 //! разъехаться.
 
+pub mod ars;
 pub mod auth;
 pub mod bridge;
 pub mod canon;
 pub mod canonical;
 pub mod chain;
+pub mod collector;
 pub mod compile;
 pub mod db;
+pub mod furnace;
 pub mod live;
 pub mod pipeline;
 pub mod ratelimit;

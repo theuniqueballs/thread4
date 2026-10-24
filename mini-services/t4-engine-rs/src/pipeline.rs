@@ -3,13 +3,23 @@
 //! Пять этапов жизни батча, строго по порядку — интерфейс-проводник ведёт
 //! автора за руку, движок ведёт конвейер за машину:
 //!
-//!   1. theme    «Раскрытие темы»  — якоря (гейт темы), EXP-батч: пропуск
+//!   1. ars      «ARS NOVEAU»       — тема → спайн + 21 история мейнов +
+//!                                   3 истории ОС + EXP-идеи (LLM-мост);
+//!                                   гейты плана (структура/микс/чистота)
 //!   2. compile  «Компиляция»      — реестр канона (Rust, byte-parity) +
 //!                                   бриф писца (мост: файловый компилятор)
-//!   3. build    «Сборка»          — одноразовый движок: спайн (LLM-мост)
-//!   4. scribe   «Писец»            — чанки прозы (LLM-мост) + сборка файла
+//!   3. collector «Сборщик»         — истории × механика → БРИКЕТЫ писца
+//!                                   (детерминированно, без LLM)
+//!   4. scribe   «Писец»            — чанки прозы по брикетам (LLM-мост)
 //!                                   + батарея Rust + ремонт ≤3 кругов
-//!   5. deliver  «Сдача»            — полная батарея + фиксация в хеш-цепи
+//!   5. furnace  «Печь»             — LLM-оценщик: гейты/тема/писец,
+//!                                   честный репорт (PASS/WARN/FAIL)
+//!   6. deliver  «Сдача»            — полная батарея + фиксация в хеш-цепи
+//!
+//! ARS NOVEAU-эра (приказ автора 2026-10-23): концепт — docs/ARS-NOVEAU-
+//! 2026-10-23.md. Спайн рождается на этапе «Раскрытие» (отдельная «Сборка»
+//! упразднена); её место занял Сборщик. FAIL Печи стопит автосдачу —
+//! ручная сдача требует явного furnaceOverride автора (§1).
 //!
 //! Режимы: AUTO (одна кнопка 1→5) и MANUAL (любой этап отдельно — визуально
 //! все этапы лежат в той же цепочке). Прогон живёт в выделенном потоке,
@@ -25,28 +35,33 @@ use std::sync::{Arc, Mutex, OnceLock};
 use rusqlite::Connection;
 use serde_json::{json, Value};
 
+use crate::ars;
 use crate::bridge;
+use crate::collector;
 use crate::compile::{self, CompileRequest};
-use crate::live::{self, BLOCK_BUILD, BLOCK_DELIVER, BLOCK_EXPAND, BLOCK_GATES, BLOCK_PIPELINE, BLOCK_SCRIBE};
-use crate::theme;
+use crate::furnace;
+use crate::live::{self, BLOCK_COLLECTOR, BLOCK_DELIVER, BLOCK_EXPAND, BLOCK_FURNACE, BLOCK_GATES, BLOCK_PIPELINE, BLOCK_SCRIBE};
 use crate::textgates;
 
 /* ---------------- канва этапов ---------------- */
 
-pub const STAGE_KEYS: [&str; 5] = ["theme", "compile", "build", "scribe", "deliver"];
-pub const STAGE_TITLES: [&str; 5] = [
-    "Раскрытие темы",
+pub const STAGE_KEYS: [&str; 6] = ["ars", "compile", "collector", "scribe", "furnace", "deliver"];
+pub const STAGE_TITLES: [&str; 6] = [
+    "ARS NOVEAU · Раскрытие",
     "Компиляция",
-    "Сборка",
+    "Сборщик",
     "Писец",
+    "Печь",
     "Сдача",
 ];
+pub const STAGE_COUNT: usize = STAGE_KEYS.len();
 
-pub const IDX_THEME: usize = 0;
+pub const IDX_ARS: usize = 0;
 pub const IDX_COMPILE: usize = 1;
-pub const IDX_BUILD: usize = 2;
+pub const IDX_COLLECTOR: usize = 2;
 pub const IDX_SCRIBE: usize = 3;
-pub const IDX_DELIVER: usize = 4;
+pub const IDX_FURNACE: usize = 4;
+pub const IDX_DELIVER: usize = 5;
 
 pub fn stage_index(key: &str) -> Option<usize> {
     STAGE_KEYS.iter().position(|k| *k == key)
@@ -106,13 +121,15 @@ impl StageEntry {
 /// забыт», Фаза 3: артефакты живут у слага в БД/диске + здесь — кэш).
 #[derive(Clone, Default)]
 pub struct StageCtx {
-    pub anchors: Option<theme::ThemeAnchors>,
-    pub theme_gate: Option<theme::ThemeReceipt>,
+    /// Артефакт ARS NOVEAU (спайн + 21 история + 3 ОС + EXP-идеи).
+    pub ars: Option<ars::ArsBuild>,
     pub plan: Option<Value>,
     pub contract: Option<Value>,
     pub contract_markdown: Option<String>,
     pub build: Option<Value>,
     pub batch_markdown: Option<String>,
+    /// Репорт Печи (verdict/summary/findings).
+    pub furnace: Option<Value>,
     pub scribe_rounds: u32,
     pub scribe_polished: u32,
     pub scribe_first_run_clean: bool,
@@ -186,6 +203,12 @@ fn persist_locked(run: &RunState) {
     if let Some(a) = &run.draft.theme_anchors {
         draft.insert("themeAnchors".into(), a.clone());
     }
+    if let Some(a) = &run.draft.ars_build {
+        draft.insert("arsBuild".into(), a.clone());
+    }
+    if run.draft.furnace_override {
+        draft.insert("furnaceOverride".into(), serde_json::json!(true));
+    }
     let compact = serde_json::json!({
         "mode": run.mode,
         "slug": run.slug,
@@ -224,9 +247,10 @@ pub fn load_persisted(conn: &Connection) {
                 live::info(
                     BLOCK_PIPELINE,
                     &format!(
-                        "прогон восстановлен из t4_meta: батч {} · этапы {}/5 отмечены",
+                        "прогон восстановлен из t4_meta: батч {} · этапы {}/{} отмечены",
                         run.state.slug,
-                        run.state.stages.iter().filter(|e| e.status.is_passed()).count()
+                        run.state.stages.iter().filter(|e| e.status.is_passed()).count(),
+                        STAGE_COUNT
                     ),
                 );
                 *guard = Some(run);
@@ -243,9 +267,10 @@ pub fn load_persisted(conn: &Connection) {
             live::info(
                 BLOCK_PIPELINE,
                 &format!(
-                    "прогон выведен из летописи: батч {} · этапы {}/5 отмечены",
+                    "прогон выведен из летописи: батч {} · этапы {}/{} отмечены",
                     run.state.slug,
-                    run.state.stages.iter().filter(|e| e.status.is_passed()).count()
+                    run.state.stages.iter().filter(|e| e.status.is_passed()).count(),
+                    STAGE_COUNT
                 ),
             );
             *guard = Some(run);
@@ -279,7 +304,22 @@ fn parse_persisted(raw: &str) -> Option<SharedRun> {
                 })
                 .collect()
         })
-        .unwrap_or_else(|| (0..5).map(|_| StageEntry::fresh()).collect());
+        .unwrap_or_else(|| (0..STAGE_COUNT).map(|_| StageEntry::fresh()).collect());
+    /* Наследие 5-этапной эры (theme/compile/build/scribe/deliver) —
+     * маппинг на 6 этапов: build→collector, furnace вставляется fresh
+     * перед deliver. Иначе восстановленный прогон врал бы статусами. */
+    let stages = if stages.len() == 5 {
+        vec![
+            stages[0].clone(),
+            stages[1].clone(),
+            stages[2].clone(),
+            stages[3].clone(),
+            StageEntry::fresh(),
+            stages[4].clone(),
+        ]
+    } else {
+        stages
+    };
     let mode = if v.get("mode").and_then(|m| m.as_str()) == Some("manual") {
         "manual"
     } else {
@@ -299,7 +339,7 @@ fn parse_persisted(raw: &str) -> Option<SharedRun> {
                 .unwrap_or_default()
                 .to_string(),
             draft,
-            stages,
+            stages: { let mut st = stages; st.truncate(STAGE_COUNT); while st.len() < STAGE_COUNT { st.push(StageEntry::fresh()); } st },
             current: None,
             finished: v
                 .get("finished")
@@ -328,34 +368,36 @@ fn derive_from_db(conn: &Connection) -> Option<SharedRun> {
     let (slug, status, theme, exp_slots) = latest?;
     let exp = exp_slots.max(0) as u32;
 
-    // тема: EXP → skip; иначе note «Theme Expansion» по слагу → done
-    let theme_status = if exp > 0 {
-        StageStatus::Skipped
-    } else {
+    // раскрытие: note «ARS NOVEAU» (эра ARS) или «Theme Expansion»
+    // (наследие theme-эры) по слагу → done; EXP-батчи старой эры — skip
+    let ars_status = {
         let has_note: Option<i64> = conn
             .query_row(
                 "SELECT 1 FROM t4_events WHERE batch_slug = ?1 AND type = 'note'
-                 AND summary LIKE 'Theme Expansion%' LIMIT 1",
+                 AND (summary LIKE 'ARS NOVEAU%' OR summary LIKE 'Theme Expansion%')
+                 LIMIT 1",
                 [&slug],
                 |r| r.get(0),
             )
             .ok();
         if has_note.is_some() {
             StageStatus::Done
+        } else if exp > 0 {
+            StageStatus::Skipped
         } else {
             StageStatus::Pending
         }
     };
     let compile_status = StageStatus::Done;
-    let build_status = {
-        let has_build: Option<i64> = conn
-            .query_row("SELECT 1 FROM t4_builds WHERE slug = ?1", [&slug], |r| r.get(0))
-            .ok();
-        if has_build.is_some() {
-            StageStatus::Done
-        } else {
-            StageStatus::Pending
-        }
+    let collector_status = if collector::load(&slug).is_some() {
+        StageStatus::Done
+    } else {
+        StageStatus::Pending
+    };
+    let furnace_status = if furnace::last_verdict(conn, &slug).is_some() {
+        StageStatus::Done
+    } else {
+        StageStatus::Pending
     };
     let (scribe_status, scribe_summary) = {
         let drafted: Option<String> = conn
@@ -403,10 +445,11 @@ fn derive_from_db(conn: &Connection) -> Option<SharedRun> {
         (s == StageStatus::Done).then(|| "прочитан из летописи".to_string())
     };
     let stages = vec![
-        entry(theme_status, summary_of(theme_status)),
+        entry(ars_status, summary_of(ars_status)),
         entry(compile_status, summary_of(compile_status)),
-        entry(build_status, summary_of(build_status)),
+        entry(collector_status, summary_of(collector_status)),
         entry(scribe_status, scribe_summary),
+        entry(furnace_status, summary_of(furnace_status)),
         entry(deliver_status, summary_of(deliver_status)),
     ];
 
@@ -459,10 +502,6 @@ pub struct StageOutcome {
 
 fn done(summary: String, detail: Value) -> StageOutcome {
     StageOutcome { summary, detail, skipped: false }
-}
-
-fn skipped(summary: String, detail: Value) -> StageOutcome {
-    StageOutcome { summary, detail, skipped: true }
 }
 
 /* ---------------- snapshot для UI ---------------- */
@@ -563,7 +602,7 @@ pub fn start_auto(body: Value) -> Result<Value, String> {
                 started_at: crate::chain::iso_now(),
                 slug: slug.clone(),
                 draft,
-                stages: (0..5).map(|_| StageEntry::fresh()).collect(),
+                stages: (0..STAGE_COUNT).map(|_| StageEntry::fresh()).collect(),
                 current: None,
                 finished: None,
                 ok: false,
@@ -582,7 +621,7 @@ pub fn start_auto(body: Value) -> Result<Value, String> {
             exp, ab, engine.clone()
         ),
     );
-    std::thread::spawn(move || runner(abort, true, 0..5));
+    std::thread::spawn(move || runner(abort, true, 0..STAGE_COUNT));
     Ok(json!({ "started": true, "mode": "auto", "slug": slug, "run": run_id }))
 }
 
@@ -629,7 +668,7 @@ pub fn start_stage(name: &str, body: Value) -> Result<Value, String> {
             Ok(g) => g,
             Err(p) => p.into_inner(),
         };
-        let mut stages: Vec<StageEntry> = (0..5).map(|_| StageEntry::fresh()).collect();
+        let mut stages: Vec<StageEntry> = (0..STAGE_COUNT).map(|_| StageEntry::fresh()).collect();
         // этапы выше — принятые (иначе нечего перезапускать), ниже — stale
         for (i, e) in stages.iter_mut().enumerate() {
             if i < idx {
@@ -666,8 +705,9 @@ pub fn start_stage(name: &str, body: Value) -> Result<Value, String> {
     live::info(
         BLOCK_PIPELINE,
         &format!(
-            "РУЧНОЙ ЭТАП {}/5 · {} — батч {slug}",
+            "РУЧНОЙ ЭТАП {}/{} · {} — батч {slug}",
             idx + 1,
+            STAGE_COUNT,
             STAGE_TITLES[idx]
         ),
     );
@@ -745,14 +785,14 @@ fn runner(abort: Arc<AtomicBool>, auto: bool, stages: impl Iterator<Item = usize
     for idx in stages {
         if abort.load(Ordering::SeqCst) {
             mark_stage(idx, StageStatus::Failed, Some("прервано оператором".into()), None);
-            live::warn(BLOCK_PIPELINE, &format!("ЭТАП {}/5 · {} — ПРЕРВАНО ОПЕРАТОРОМ", idx + 1, STAGE_TITLES[idx]));
+            live::warn(BLOCK_PIPELINE, &format!("ЭТАП {}/{} · {} — ПРЕРВАНО ОПЕРАТОРОМ", idx + 1, STAGE_COUNT, STAGE_TITLES[idx]));
             finish_run(false, Some("прервано оператором".into()));
             return;
         }
         mark_running(idx);
         live::info(
             BLOCK_PIPELINE,
-            &format!("ЭТАП {}/5 · {} — старт", idx + 1, STAGE_TITLES[idx]),
+            &format!("ЭТАП {}/{} · {} — старт", idx + 1, STAGE_COUNT, STAGE_TITLES[idx]),
         );
 
         let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
@@ -763,7 +803,7 @@ fn runner(abort: Arc<AtomicBool>, auto: bool, stages: impl Iterator<Item = usize
             Ok(Err(e)) => {
                 live::error(
                     BLOCK_PIPELINE,
-                    &format!("ЭТАП {}/5 · {} — ПРОВАЛ: {}", idx + 1, STAGE_TITLES[idx], e),
+                    &format!("ЭТАП {}/{} · {} — ПРОВАЛ: {}", idx + 1, STAGE_COUNT, STAGE_TITLES[idx], e),
                 );
                 let detail = pop_fail_detail();
                 mark_stage(idx, StageStatus::Failed, Some(e.clone()), detail);
@@ -772,7 +812,7 @@ fn runner(abort: Arc<AtomicBool>, auto: bool, stages: impl Iterator<Item = usize
             }
             Err(_) => {
                 let e = "внутренний сбой этапа (паника перехвачена, цепь цела)";
-                live::error(BLOCK_PIPELINE, &format!("ЭТАП {}/5 — ПАНИКА: {e}", idx + 1));
+                live::error(BLOCK_PIPELINE, &format!("ЭТАП {}/{} — ПАНИКА: {e}", idx + 1, STAGE_COUNT));
                 mark_stage(idx, StageStatus::Failed, Some(e.to_string()), None);
                 finish_run(false, Some(e.to_string()));
                 return;
@@ -788,8 +828,9 @@ fn runner(abort: Arc<AtomicBool>, auto: bool, stages: impl Iterator<Item = usize
         live::info(
             BLOCK_PIPELINE,
             &format!(
-                "ЭТАП {}/5 · {} — {}{}",
+                "ЭТАП {}/{} · {} — {}{}",
                 idx + 1,
+                STAGE_COUNT,
                 STAGE_TITLES[idx],
                 if outcome.skipped { "ПРОПУЩЕН · " } else { "ГОТОВ · " },
                 outcome.summary
@@ -932,112 +973,241 @@ fn run_stage(conn: &Connection, idx: usize, abort: Arc<AtomicBool>) -> Result<St
         (run.state.draft.clone(), run.state.slug.clone())
     };
     match idx {
-        IDX_THEME => stage_theme(conn, &draft, &slug),
+        IDX_ARS => stage_ars(conn, &draft, &slug),
         IDX_COMPILE => stage_compile(conn, &draft, &slug),
-        IDX_BUILD => stage_build(conn, &slug, abort),
-        IDX_SCRIBE => stage_scribe(conn, &slug, abort, draft.exp),
-        IDX_DELIVER => stage_deliver(conn, &slug, draft.exp),
+        IDX_COLLECTOR => stage_collector(conn, &slug),
+        IDX_SCRIBE => stage_scribe(conn, &slug, abort),
+        IDX_FURNACE => stage_furnace(conn, &slug),
+        IDX_DELIVER => stage_deliver(conn, &slug, &draft),
         _ => Err("нет такого этапа".into()),
     }
 }
 
-/// Этап 1 · «Раскрытие темы»: якоря из темы (детерминированный expand),
-/// правки автора — strict, гейт темы режет до записи. EXP — честный skip.
-fn stage_theme(conn: &Connection, draft: &CompileRequest, slug: &str) -> Result<StageOutcome, String> {
-    if draft.exp > 0 {
-        let receipt = theme::exp_off_receipt();
-        live::info(BLOCK_EXPAND, "тема-модуль: EXP-батч — раскрытие темы пропущено (болванки без темы)");
-        return Ok(skipped(
-            "EXP-батч — этап пропущен (якоря не нужны)".into(),
-            json!({ "gate": receipt.to_json(), "disabled": true }),
-        ));
+/// Этап 1 · «ARS NOVEAU · Раскрытие»: тема → спайн + 21 история мейнов +
+/// 3 истории ОС + EXP-идеи (LLM-мост). Правки автора — strict-JSON.
+/// Гейты плана режут до записи; спайн (движок/теза/акты) пишется в
+/// t4_builds здесь же — отдельная «Сборка» упразднена (приказ 2026-10-23).
+fn stage_ars(conn: &Connection, draft: &CompileRequest, slug: &str) -> Result<StageOutcome, String> {
+    if compile::get_batch_status(conn, slug).as_deref() == Some("delivered") {
+        return Err(format!("{slug} уже сдан — раскрытие не переписывает сданное"));
     }
+    let mix = ars::Mix::from_policy();
 
-    let (anchors, gate) = resolve_anchors(draft, slug)?;
-    for f in &gate.findings {
-        live::warn(BLOCK_GATES, &format!("гейт темы: {f}"));
-    }
-    if gate.verdict == "FAIL" {
-        return Err(format!(
-            "гейт темы не прошёл ({} замечаний) — правь якоря или тему",
-            gate.findings.len()
-        ));
-    }
-
-    // событие-след: якоря зафиксированы в летописи (как делал compile-маршрут)
-    let anchors_json = anchors.to_json(theme::DEFAULT_MIN_ADHERENCE);
-    {
-        let _g = chain_lock();
-        let tx = conn.unchecked_transaction().map_err(|e| e.to_string())?;
-        let data = json!({
-            "module": "theme-expansion",
-            "version": theme::MODULE_VERSION,
-            "slug": slug,
-            "anchors": anchors_json,
-            "gate": gate.to_json(),
-        });
-        let evt = crate::chain::append_event_tx(
-            &tx,
-            &crate::chain::AppendInput {
-                typ: "note",
-                summary: &format!(
-                    "Theme Expansion: {slug} «{}» — якоря собраны, гейт темы {}",
-                    draft.theme, gate.verdict
+    // 1) артефакт: правки автора (strict) — иначе думает LLM-мост
+    let mut build = match &draft.ars_build {
+        Some(v) => {
+            live::info(BLOCK_EXPAND, "ARS NOVEAU: принят правленый артефакт автора (strict)");
+            ars::ArsBuild::from_json(v, &draft.theme, slug)?
+        }
+        None => {
+            live::info(
+                BLOCK_EXPAND,
+                &format!(
+                    "ARS NOVEAU: раскрываю «{}» через мост — {} историй + {} ОС + EXP-идеи вне темы",
+                    draft.theme, mix.mains, mix.ocs
                 ),
-                data: Some(&data),
-                batch_slug: Some(slug),
-            },
-        )
-        .map_err(|m| m)?;
-        tx.commit().map_err(|e| e.to_string())?;
-        live::info(BLOCK_EXPAND, &format!("якоря записаны в летопись (note {})", evt.id));
+            );
+            let oc_json: Vec<Value> = draft
+                .oc_themes
+                .iter()
+                .map(|o| json!({ "theme": o.theme, "rating": o.rating, "position": o.position }))
+                .collect();
+            let raw = bridge::ars_expand(slug, &draft.theme, &json!(oc_json), draft.exp, draft.notes.as_deref())
+                .map_err(|e| format!("раскрытие не дошло — {e}"))?;
+            ars::ArsBuild::from_json(&raw, &draft.theme, slug)?
+        }
+    };
+    if build.seed.is_empty() || build.seed == "author-edited" {
+        build.seed = ars::ArsBuild::seed_of(&draft.theme, slug);
     }
 
-    let mut guard = match hub().run.lock() {
-        Ok(g) => g,
-        Err(p) => p.into_inner(),
-    };
-    if let Some(run) = guard.as_mut() {
-        run.ctx.anchors = Some(anchors.clone());
-        run.ctx.theme_gate = Some(gate.clone());
+    for line in [
+        format!("движок: {} — {}", build.engine_name, build.engine_law),
+        format!("акты: {} · тема-слова: {}", build.acts.join(" / "), build.theme_keywords.join(", ")),
+        format!(
+            "историй: {} (NICHE {} · EXQUISITE {} · VOLT {}) · ОС {} · EXP-идей {}",
+            build.mains.len(),
+            build.mains.iter().filter(|x| x.genre == "NICHE").count(),
+            build.mains.iter().filter(|x| x.genre == "EXQUISITE").count(),
+            build.mains.iter().filter(|x| x.genre == "VOLT").count(),
+            build.ocs.len(),
+            build.exp.len(),
+        ),
+    ] {
+        live::info(BLOCK_EXPAND, &line);
+    }
+
+    // 2) гейты плана (структура/микс/полнота/флоры/чистота EXP/уникальность)
+    let receipts = ars::plan_receipts(&build);
+    for r in &receipts {
+        let line = format!("{} · {}: {}{}", r.gate, r.level, r.verdict, if r.findings.is_empty() { String::new() } else { format!(" — {} замечаний", r.findings.len()) });
+        if r.verdict == "PASS" {
+            live::info(BLOCK_GATES, &line);
+        } else {
+            for f in r.findings.iter().take(4) {
+                live::warn(BLOCK_GATES, f);
+            }
+        }
+    }
+    if !ars::plan_hard_pass(&receipts) {
+        let hard_n = receipts
+            .iter()
+            .filter(|r| r.level == "hard")
+            .flat_map(|r| r.findings.iter())
+            .count();
+        stash_fail_detail(json!({ "receipts": receipts_json(&receipts) }));
+        return Err(format!(
+            "гейты плана ARS не прошли ({hard_n} hard-замечаний) — правь артефакт раскрытия"
+        ));
+    }
+    if build.exp.len() as u32 != draft.exp {
+        live::warn(
+            BLOCK_EXPAND,
+            &format!(
+                "EXP-идей {} против заказа {} — сборщик возьмёт по числу слотов",
+                build.exp.len(),
+                draft.exp
+            ),
+        );
+    }
+
+    // 3) артефакты: data/rehearsals/ars/<slug>.{json,md}
+    let build_json = build.to_json();
+    let exposition = build.markdown();
+    std::fs::create_dir_all(ars::ars_dir()).map_err(|e| format!("ars/: {e}"))?;
+    std::fs::write(
+        ars::artifact_path(slug),
+        serde_json::to_string_pretty(&build_json).unwrap_or_default(),
+    )
+    .map_err(|e| format!("ars/{slug}.json: {e}"))?;
+    std::fs::write(ars::exposition_path(slug), &exposition)
+        .map_err(|e| format!("ars/{slug}.md: {e}"))?;
+
+    // 4) летопись: note раскрытия + спайн (t4_builds, engine.built)
+    let (event_id, _seq, spine_json) = record_spine(conn, slug, &build)?;
+
+    {
+        let mut guard = match hub().run.lock() {
+            Ok(g) => g,
+            Err(p) => p.into_inner(),
+        };
+        if let Some(run) = guard.as_mut() {
+            run.ctx.ars = Some(build.clone());
+            run.ctx.build = Some(spine_json.clone());
+        }
     }
 
     Ok(done(
         format!(
-            "якоря: {} · {} · {}",
-            anchors.locale, anchors.time_of_day, anchors.palette_mood
+            "движок «{}» · историй {}+{} · EXP-идей {} · гейты плана PASS",
+            build.engine_name,
+            build.mains.len(),
+            build.ocs.len(),
+            build.exp.len(),
         ),
-        json!({ "anchors": anchors_json, "gate": gate.to_json() }),
+        json!({
+            "ars": build_json,
+            "exposition": exposition,
+            "receipts": receipts_json(&receipts),
+            "eventId": event_id,
+        }),
     ))
 }
 
-fn resolve_anchors(draft: &CompileRequest, slug: &str) -> Result<(theme::ThemeAnchors, theme::ThemeReceipt), String> {
-    let oc_themes: Vec<String> = draft.oc_themes.iter().map(|o| o.theme.clone()).collect();
-    let (anchors, min) = match &draft.theme_anchors {
-        Some(v) => {
-            live::info(BLOCK_EXPAND, "тема-модуль: приняты правленые якоря автора (strict)");
-            theme::ThemeAnchors::from_json(v, &draft.theme, slug)?
-        }
-        None => {
-            live::info(BLOCK_EXPAND, &format!("тема-модуль: раскрываю «{}» по сиду", draft.theme));
-            let a = theme::expand(&draft.theme, slug, 0)
-                .ok_or_else(|| "тему не удалось разложить на якоря".to_string())?;
-            (a, theme::DEFAULT_MIN_ADHERENCE)
-        }
-    };
-    for line in [
-        format!("локейшн: {} · время: {}", anchors.locale, anchors.time_of_day),
-        format!("свет: {} · настроение: {}", anchors.light, anchors.palette_mood),
-        format!("мотивы: {}", anchors.motifs.join(" / ")),
-        format!("гардероб: {} · позы: {} · камера: {}", anchors.wardrobe_family, anchors.pose_family, anchors.camera),
-        format!("атмосфера: {} · сид {}", anchors.atmosphere.join(" / "), anchors.seed),
-    ] {
-        live::info(BLOCK_EXPAND, &line);
+/// Спайн из ARS-артефакта: t4_builds + событие engine.built + архив
+/// одноразовых движков (репетиционный). Возвращает (event_id, seq,
+/// build-JSON для ctx/писца — та же форма, что нёс старый «Сборка»).
+fn record_spine(conn: &Connection, slug: &str, build: &ars::ArsBuild) -> Result<(String, u64, Value), String> {
+    let name = build.engine_name.clone();
+    let law = build.engine_law.clone();
+    let thesis = build.batch_thesis.clone();
+    let acts: Vec<Value> = build.acts.iter().map(|a| json!(a)).collect();
+    let keywords: Vec<Value> = build.theme_keywords.iter().map(|k| json!(k)).collect();
+    if name.trim().is_empty() || law.trim().is_empty() {
+        return Err("ARS-артефакт без движка/закона — спайн пуст".into());
     }
-    let gate = theme::plan_gate(&anchors, &oc_themes, 0);
-    live::info(BLOCK_EXPAND, &format!("гейт темы: {}", gate.verdict));
-    let _ = min;
-    Ok((anchors, gate))
+
+    let archive = textgates::rehearsal_archive_path();
+    if let Some(dir) = archive.parent() {
+        let _ = std::fs::create_dir_all(dir);
+    }
+    let _ = std::fs::OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open(&archive)
+        .and_then(|mut f| {
+            use std::io::Write;
+            writeln!(
+                f,
+                "{}",
+                json!({ "slug": slug, "engine": name, "law": law, "at": crate::chain::iso_now() })
+            )
+        });
+
+    let at = crate::chain::iso_now();
+    let (event_id, seq) = {
+        let _g = chain_lock();
+        let tx = conn.unchecked_transaction().map_err(|e| e.to_string())?;
+        let evt = crate::chain::append_event_tx(
+            &tx,
+            &crate::chain::AppendInput {
+                typ: "engine.built",
+                summary: &format!("{slug}: одноразовый движок «{name}» выкован (ARS NOVEAU) — {law}"),
+                data: Some(&json!({
+                    "slug": slug, "engine": name, "law": law, "thesis": thesis,
+                    "acts": acts, "themeKeywords": keywords, "via": "ars-nouveau",
+                })),
+                batch_slug: Some(slug),
+            },
+        )
+        .map_err(|m| m)?;
+        tx.execute(
+            "INSERT INTO t4_builds (slug, engine_name, engine_law, thesis, acts, theme_keywords, created_at, event_id)
+             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)
+             ON CONFLICT(slug) DO UPDATE SET
+               engine_name = excluded.engine_name, engine_law = excluded.engine_law,
+               thesis = excluded.thesis, acts = excluded.acts,
+               theme_keywords = excluded.theme_keywords, created_at = excluded.created_at,
+               event_id = excluded.event_id",
+            rusqlite::params![
+                slug,
+                name,
+                law,
+                thesis,
+                serde_json::to_string(&acts).unwrap_or_else(|_| "[]".into()),
+                serde_json::to_string(&keywords).unwrap_or_else(|_| "[]".into()),
+                at,
+                evt.id,
+            ],
+        )
+        .map_err(|e| e.to_string())?;
+        tx.commit().map_err(|e| e.to_string())?;
+        (evt.id, evt.seq)
+    };
+
+    let build_json = json!({
+        "engineName": name,
+        "engineLaw": law,
+        "thesis": thesis,
+        "acts": acts,
+        "themeKeywords": keywords,
+    });
+    Ok((event_id, seq as u64, build_json))
+}
+
+/// Квитанции → JSON (форма как у textgates::receipts_json).
+fn receipts_json(receipts: &[compile::Receipt]) -> Value {
+    Value::Array(
+        receipts
+            .iter()
+            .map(|r| {
+                json!({
+                    "gate": r.gate, "level": r.level, "verdict": r.verdict,
+                    "findings": r.findings, "notes": r.notes,
+                })
+            })
+            .collect(),
+    )
 }
 
 /// Этап 2 · «Компиляция»: ДВЕ правды без вранья —
@@ -1048,31 +1218,8 @@ fn resolve_anchors(draft: &CompileRequest, slug: &str) -> Result<(theme::ThemeAn
 ///     добавляет EXP-болванки (машина, нулевая дискреция) и пишет
 ///     contracts/<slug>.{json,md}.
 fn stage_compile(conn: &Connection, draft: &CompileRequest, slug: &str) -> Result<StageOutcome, String> {
-    // Якоря уже собраны этапом темы; для ручного прогона без этапа 1 —
-    // восстанавливаем молча (idempotent).
-    if draft.exp == 0 {
-        let have = {
-            let guard = match hub().run.lock() {
-                Ok(g) => g,
-                Err(p) => p.into_inner(),
-            };
-            guard.as_ref().map(|r| r.ctx.anchors.clone()).flatten().is_some()
-        };
-        if !have {
-            let (anchors, gate) = resolve_anchors(draft, slug)?;
-            if gate.verdict == "FAIL" {
-                return Err("гейт темы не прошёл — сначала правь якоря (этап 1)".into());
-            }
-            let mut guard = match hub().run.lock() {
-                Ok(g) => g,
-                Err(p) => p.into_inner(),
-            };
-            if let Some(run) = guard.as_mut() {
-                run.ctx.anchors = Some(anchors);
-                run.ctx.theme_gate = Some(gate);
-            }
-        }
-    }
+    // ARS NOVEAU-эра: якорей theme-эры больше нет — раскрытие живёт
+    // своим артефактом (этап 1), компиляция чисто механическая.
 
     // реестр канона: compiled-репетиция пересобираемая (force), delivered
     // неприкосновенен — compile_batch сам держит эти гварды.
@@ -1296,122 +1443,114 @@ fn audit_brief(slots: &[Value], theme: &str, notes: &str, exp: u32) -> Vec<compi
     ]
 }
 
-/// Этап 3 · «Сборка»: одноразовый движок батча — спайн (LLM-мост):
-/// имя/закон/тезис/три акта/тема-слова. Движок умирает вместе с батчем.
-fn stage_build(conn: &Connection, slug: &str, _abort: Arc<AtomicBool>) -> Result<StageOutcome, String> {
-    if rehearsal_contract(slug).is_none() {
-        return Err(format!("нет брифа писца для {slug} — сначала этап «Компиляция»"));
+/// Этап 3 · «Сборщик»: истории ARS × механический контракт → БРИКЕТЫ
+/// писца (детерминированно, без LLM). Долги T4-45 вшиты в брикеты как
+/// законы (OC-тема→POS, EXP core-4, on_skin контр-NEG, ID палитр).
+fn stage_collector(conn: &Connection, slug: &str) -> Result<StageOutcome, String> {
+    let status = compile::get_batch_status(conn, slug).ok_or("батч не скомпилирован")?;
+    if status == "delivered" {
+        return Err(format!("{slug} уже сдан — брикеты не пересобираются"));
     }
-    if compile::get_batch_status(conn, slug).as_deref() == Some("delivered") {
-        return Err(format!("{slug} уже сдан — одноразовый движок утилизирован (3.2-традиция)"));
+    let contract_path = textgates::rehearsal_contracts_dir().join(format!("{slug}.json"));
+    let contract_json = crate::textgates::read_json(&contract_path)
+        .ok_or_else(|| format!("нет брифа писца для {slug} — сначала этап «Компиляция»"))?;
+
+    // артефакт раскрытия: ctx или диск (ручной прогон без памяти)
+    let ars_build = {
+        let cached = {
+            let guard = match hub().run.lock() {
+                Ok(g) => g,
+                Err(p) => p.into_inner(),
+            };
+            guard.as_ref().and_then(|r| r.ctx.ars.clone())
+        };
+        match cached {
+            Some(b) => b,
+            None => {
+                let raw = crate::textgates::read_json(&ars::artifact_path(slug))
+                    .ok_or_else(|| format!("нет артефакта ARS для {slug} — сначала «Раскрытие»"))?;
+                let theme = raw
+                    .get("theme")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or_default()
+                    .to_string();
+                ars::ArsBuild::from_json(&raw, &theme, slug)?
+            }
+        }
+    };
+
+    live::info(
+        BLOCK_COLLECTOR,
+        &format!(
+            "сборщик: брикеты из {} историй × {} слот(а) контракта",
+            ars_build.mains.len() + ars_build.ocs.len(),
+            contract_json.get("slots").and_then(|v| v.as_array()).map(|a| a.len()).unwrap_or(0),
+        ),
+    );
+    let (artifact, receipts) = collector::build(&contract_json, &ars_build)
+        .map_err(|e| format!("брикеты не собрались — {e}"))?;
+    for r in &receipts {
+        if r.verdict != "PASS" {
+            for f in r.findings.iter().take(6) {
+                if r.level == "hard" {
+                    live::warn(BLOCK_GATES, f);
+                } else {
+                    live::info(BLOCK_GATES, f);
+                }
+            }
+        }
+    }
+    let hard_fail = receipts.iter().any(|r| r.level == "hard" && r.verdict == "FAIL");
+    if hard_fail {
+        stash_fail_detail(json!({ "receipts": receipts_json(&receipts) }));
+        return Err("гейт сборщика: брикет(ы) неполны — смотри квитанции".into());
     }
 
-    live::info(BLOCK_BUILD, "кузница: изобретаю одноразовый движок под тему (LLM-спайн)…");
-    let build = bridge::invent_spine(slug).map_err(|e| format!("спайн не собрался — {e}"))?;
-    let name = build.get("engineName").and_then(|v| v.as_str()).unwrap_or("").to_string();
-    let law = build.get("engineLaw").and_then(|v| v.as_str()).unwrap_or("").to_string();
-    let thesis = build.get("thesis").and_then(|v| v.as_str()).unwrap_or("").to_string();
-    let acts = build.get("acts").and_then(|v| v.as_array()).cloned().unwrap_or_default();
-    let keywords = build.get("themeKeywords").and_then(|v| v.as_array()).cloned().unwrap_or_default();
-    if name.trim().is_empty() || law.trim().is_empty() {
-        return Err("спайн вернул пустой движок — повтори этап «Сборка»".into());
-    }
+    let exposition = collector::markdown(&artifact);
+    std::fs::create_dir_all(collector::briquettes_dir()).map_err(|e| format!("briquettes/: {e}"))?;
+    std::fs::write(
+        collector::artifact_path(slug),
+        serde_json::to_string_pretty(&artifact).unwrap_or_default(),
+    )
+    .map_err(|e| format!("briquettes/{slug}.json: {e}"))?;
+    std::fs::write(collector::exposition_path(slug), &exposition)
+        .map_err(|e| format!("briquettes/{slug}.md: {e}"))?;
 
-    // архив одноразовых движков (файл-эра традиция, артефакт, не SSoT) —
-    // репетиции пишут СВОЙ архив, прод engines-archive.jsonl неприкосновенен
-    let archive = textgates::rehearsal_archive_path();
-    if let Some(dir) = archive.parent() {
-        let _ = std::fs::create_dir_all(dir);
-    }
-    let _ = std::fs::OpenOptions::new()
-        .create(true)
-        .append(true)
-        .open(&archive)
-        .and_then(|mut f| {
-            use std::io::Write;
-            writeln!(
-                f,
-                "{}",
-                json!({
-                    "slug": slug,
-                    "engine": name,
-                    "law": law,
-                    "at": crate::chain::iso_now(),
-                })
-            )
-        });
-
-    let at = crate::chain::iso_now();
-    let (event_id, seq) = {
+    let event_id = {
         let _g = chain_lock();
         let tx = conn.unchecked_transaction().map_err(|e| e.to_string())?;
-        let data = json!({
-            "slug": slug,
-            "engine": name,
-            "law": law,
-            "thesis": thesis,
-            "acts": acts,
-            "themeKeywords": keywords,
-        });
+        let n = artifact.get("briquettes").and_then(|v| v.as_array()).map(|a| a.len()).unwrap_or(0);
         let evt = crate::chain::append_event_tx(
             &tx,
             &crate::chain::AppendInput {
-                typ: "engine.built",
-                summary: &format!("{slug}: одноразовый движок «{name}» выкован — {law}"),
-                data: Some(&data),
+                typ: "collector.packed",
+                summary: &format!("{slug}: сборщик упаковал {n} брикет(а) для писца"),
+                data: Some(&json!({
+                    "slug": slug,
+                    "briquettes": n,
+                    "arsSeed": ars_build.seed,
+                    "engine": ars_build.engine_name,
+                })),
                 batch_slug: Some(slug),
             },
         )
         .map_err(|m| m)?;
-        tx.execute(
-            "INSERT INTO t4_builds (slug, engine_name, engine_law, thesis, acts, theme_keywords, created_at, event_id)
-             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)
-             ON CONFLICT(slug) DO UPDATE SET
-               engine_name = excluded.engine_name, engine_law = excluded.engine_law,
-               thesis = excluded.thesis, acts = excluded.acts,
-               theme_keywords = excluded.theme_keywords, created_at = excluded.created_at,
-               event_id = excluded.event_id",
-            rusqlite::params![
-                slug,
-                name,
-                law,
-                thesis,
-                serde_json::to_string(&acts).unwrap_or_else(|_| "[]".into()),
-                serde_json::to_string(&keywords).unwrap_or_else(|_| "[]".into()),
-                at,
-                evt.id,
-            ],
-        )
-        .map_err(|e| e.to_string())?;
         tx.commit().map_err(|e| e.to_string())?;
-        (evt.id, evt.seq)
+        evt.id
     };
-
-    live::info(
-        BLOCK_BUILD,
-        &format!("движок «{name}» выкован: {} · акты: {}", law, acts.len()),
-    );
-
-    {
-        let mut guard = match hub().run.lock() {
-            Ok(g) => g,
-            Err(p) => p.into_inner(),
-        };
-        if let Some(run) = guard.as_mut() {
-            run.ctx.build = Some(build.clone());
-        }
-    }
+    live::info(BLOCK_COLLECTOR, &format!("брикеты записаны (событие {event_id})"));
 
     Ok(done(
-        format!("движок «{name}» · {} акт(а) назначены", acts.len()),
+        format!(
+            "брикет(а): {} · гейт {}",
+            artifact.get("briquettes").and_then(|v| v.as_array()).map(|a| a.len()).unwrap_or(0),
+            if hard_fail { "FAIL" } else { "PASS" },
+        ),
         json!({
-            "engine": name,
-            "law": law,
-            "thesis": thesis,
-            "acts": acts,
-            "themeKeywords": keywords,
+            "briquettes": artifact.get("briquettes").cloned().unwrap_or(Value::Null),
+            "exposition": exposition,
+            "receipts": receipts_json(&receipts),
             "eventId": event_id,
-            "seq": seq,
         }),
     ))
 }
@@ -1439,13 +1578,16 @@ fn load_build(conn: &Connection, slug: &str) -> Result<Value, String> {
 /// Этап 4 · «Писец»: чанки прозы (мост/LLM) → сборка файла (мост) →
 /// батарея Rust (память) → ремонт ≤3 кругов → полировка (1 круг, откат
 /// при потере hard) → файл батча + черновик + событие scribe.drafted.
-fn stage_scribe(conn: &Connection, slug: &str, abort: Arc<AtomicBool>, exp: u32) -> Result<StageOutcome, String> {
+fn stage_scribe(conn: &Connection, slug: &str, abort: Arc<AtomicBool>) -> Result<StageOutcome, String> {
     let status = compile::get_batch_status(conn, slug).ok_or("батч не скомпилирован")?;
     if status == "delivered" {
         return Err(format!("{slug} уже сдан — писец не переписывает сданное"));
     }
     if rehearsal_contract(slug).is_none() {
         return Err(format!("нет брифа писца для {slug} — сначала этап «Компиляция»"));
+    }
+    if collector::load(slug).is_none() {
+        return Err(format!("нет брикетов для {slug} — сначала этап «Сборщик» (истории не дойдут до писца)"));
     }
     let build = {
         let cached = {
@@ -1460,25 +1602,23 @@ fn stage_scribe(conn: &Connection, slug: &str, abort: Arc<AtomicBool>, exp: u32)
             None => load_build(conn, slug)?,
         }
     };
-    let anchors = {
-        let guard = match hub().run.lock() {
-            Ok(g) => g,
-            Err(p) => p.into_inner(),
+    /* ARS NOVEAU-эра: adherence мерится ИСТОРИЯМ (гейт №25 преемственен).
+     * Артефакт раскрытия — ctx или диск; EXP-идеи в гейте не участвуют
+     * (они вне темы), 21 история + 3 ОС — обязаны доехать до текста. */
+    let ars_build = {
+        let cached = {
+            let guard = match hub().run.lock() {
+                Ok(g) => g,
+                Err(p) => p.into_inner(),
+            };
+            guard.as_ref().and_then(|r| r.ctx.ars.clone())
         };
-        guard.as_ref().and_then(|r| r.ctx.anchors.clone())
+        match cached {
+            Some(b) => Some(b),
+            None => ars::load_artifact(slug),
+        }
     };
-    /* EXP-доктрина (theme.rs: «EXP-батч — Theme Expansion и гейт №25
-     * выключены, приказ автора»): унаследованные из чужого прогона якоря
-     * (сцепка ctx) не должны включать гейт темы для EXP-батча — инцидент
-     * 2026-10-20 20:09: T4-01 exp=9 получил 0/12 по якорям «обсерватории»
-     * из прогона 15:00 и честно лёг на hard-гейте, который обязан молчать. */
-    let anchors = if exp > 0 { None } else { anchors };
-    /* Якоря — в промпт писца: гейт №25 мерит adherence текста якорям,
-     * а писец их раньше не видел ВООБЩЕ (write_chunk нёс только контракт+
-     * спайн) — оба полных прогона (15:00 и 20:09) легли на 0/12. */
-    let anchors_json = anchors
-        .as_ref()
-        .map(|a| a.to_json(theme::DEFAULT_MIN_ADHERENCE));
+    let anchors_json = ars_build.as_ref().map(|b| b.anchors_compat_json());
 
     let contract = rehearsal_contract(slug).ok_or("бриф писца не читается")?;
     let positions: Vec<u32> = contract
@@ -1511,7 +1651,7 @@ fn stage_scribe(conn: &Connection, slug: &str, abort: Arc<AtomicBool>, exp: u32)
 
     let mut markdown = bridge::assemble_batch(slug, &build, &json!(outputs))
         .map_err(|e| format!("сборка черновика рассыпалась — {e}"))?;
-    let mut battery = battery_on_text(slug, &markdown, anchors.as_ref());
+    let mut battery = battery_on_text(slug, &markdown, ars_build.as_ref());
 
     // ремонт hard-фейлов: ≤3 круга, позиции из находок
     let mut round: u32 = 0;
@@ -1574,7 +1714,7 @@ fn stage_scribe(conn: &Connection, slug: &str, abort: Arc<AtomicBool>, exp: u32)
         }
         markdown = bridge::assemble_batch(slug, &build, &json!(outputs))
             .map_err(|e| format!("сборка после ремонта рассыпалась — {e}"))?;
-        battery = battery_on_text(slug, &markdown, anchors.as_ref());
+        battery = battery_on_text(slug, &markdown, ars_build.as_ref());
     }
 
     // полировка качества: один круг WARN-гейтов, откат при потере hard
@@ -1619,7 +1759,7 @@ fn stage_scribe(conn: &Connection, slug: &str, abort: Arc<AtomicBool>, exp: u32)
                     }
                     let md2 = bridge::assemble_batch(slug, &build, &json!(outputs))
                         .map_err(|e| format!("сборка после полировки рассыпалась — {e}"))?;
-                    let after = battery_on_text(slug, &md2, anchors.as_ref());
+                    let after = battery_on_text(slug, &md2, ars_build.as_ref());
                     if after.hard_pass {
                         polished = warn_positions.len() as u32;
                         markdown = md2;
@@ -1793,12 +1933,12 @@ pub struct InMemBattery {
     pub hard_pass: bool,
 }
 
-fn battery_on_text(slug: &str, markdown: &str, anchors: Option<&theme::ThemeAnchors>) -> InMemBattery {
+fn battery_on_text(slug: &str, markdown: &str, ars_build: Option<&ars::ArsBuild>) -> InMemBattery {
     let batch = textgates::parse_batch(slug, markdown);
     let bans = textgates::load_bans();
     let mut receipts = textgates::run_text_gates(&batch, bans.as_ref());
-    if let Some(a) = anchors {
-        let r = theme::text_gate(markdown, a, theme::DEFAULT_MIN_ADHERENCE);
+    if let Some(b) = ars_build {
+        let r = ars::text_gate(markdown, b, ars::DEFAULT_MIN_ADHERENCE);
         receipts.push(compile::Receipt {
             gate: r.gate,
             level: r.level,
@@ -1816,29 +1956,113 @@ fn battery_on_text(slug: &str, markdown: &str, anchors: Option<&theme::ThemeAnch
     InMemBattery { sha10, receipts, hard_pass }
 }
 
-/// Этап 5 · «Сдача»: полная батарея по ФАЙЛУ (он-то и есть батч) →
-/// gate.run в летопись → ростер ОС → WORKLOG в файле батча → мета-JSON →
-/// batch.delivered. Hard канона + hard батареи — оба обязательны.
-fn stage_deliver(conn: &Connection, slug: &str, exp: u32) -> Result<StageOutcome, String> {
+/// Этап 5 · «Печь» (FURNACE): LLM-оценщик черновика — гейты/тема/писец,
+/// обширный честный репорт. Вердикт FAIL не роняет этап (репорт ДОЛЖЕН
+/// дойти до автора) — сдачу гвардит отдельный гвард (furnaceOverride).
+fn stage_furnace(conn: &Connection, slug: &str) -> Result<StageOutcome, String> {
     let status = compile::get_batch_status(conn, slug).ok_or("батч не скомпилирован")?;
     if status == "delivered" {
-        return Err(format!("{slug} уже сдан — сданное неприкосновенно"));
+        return Err(format!("{slug} уже сдан — печь не оценивает сданное"));
     }
     let batch_file = textgates::rehearsal_batches_dir().join(format!("{slug}.md"));
     let text = std::fs::read_to_string(&batch_file)
         .map_err(|_| format!("нет batches/{slug}.md — писец ещё не писал этот батч"))?;
 
-    let anchors = {
-        let guard = match hub().run.lock() {
+    let ars_build = {
+        let cached = {
+            let guard = match hub().run.lock() {
+                Ok(g) => g,
+                Err(p) => p.into_inner(),
+            };
+            guard.as_ref().and_then(|r| r.ctx.ars.clone())
+        };
+        match cached {
+            Some(b) => Some(b),
+            None => ars::load_artifact(slug),
+        }
+    };
+    let battery = battery_on_text(slug, &text, ars_build.as_ref());
+    let receipts = textgates::receipts_json(&battery.receipts);
+
+    let theme = crate::textgates::read_json(
+        &textgates::rehearsal_contracts_dir().join(format!("{slug}.json")),
+    )
+    .and_then(|c| c.get("theme").and_then(|v| v.as_str()).map(String::from))
+    .unwrap_or_default();
+
+    live::info(BLOCK_FURNACE, "печь: оцениваю черновик (гейты · 21 история · писец)…");
+    let report = furnace::run(conn, slug, &theme, &text, &receipts)?;
+    let verdict = report.get("verdict").and_then(|v| v.as_str()).unwrap_or("?").to_string();
+    let findings_n = report.get("findings").and_then(|v| v.as_array()).map(|a| a.len()).unwrap_or(0);
+    for f in report.get("findings").and_then(|v| v.as_array()).unwrap_or(&Vec::new()).iter().take(6) {
+        let area = f.get("area").and_then(|x| x.as_str()).unwrap_or("?");
+        let slot = f.get("slot").and_then(|x| x.as_str()).unwrap_or("");
+        let note = f.get("note").and_then(|x| x.as_str()).unwrap_or("");
+        live::warn(BLOCK_FURNACE, &format!("[{area}{slot}] {note}"));
+    }
+    if verdict == "FAIL" {
+        live::warn(
+            BLOCK_FURNACE,
+            "ПЕЧЬ ДАЛА FAIL — автосдача стопится; ручная сдача требует явного решения автора (furnaceOverride)",
+        );
+    } else {
+        live::info(BLOCK_FURNACE, &format!("печь: {verdict} · находок {findings_n} · репорт reports/{slug}-furnace.md"));
+    }
+
+    {
+        let mut guard = match hub().run.lock() {
             Ok(g) => g,
             Err(p) => p.into_inner(),
         };
-        guard.as_ref().and_then(|r| r.ctx.anchors.clone())
-    };
-    /* EXP-доктрина — гейт №25 молчит и на сдаче (симметрия с писцом) */
-    let anchors = if exp > 0 { None } else { anchors };
+        if let Some(run) = guard.as_mut() {
+            run.ctx.furnace = Some(report.clone());
+        }
+    }
+
+    Ok(done(
+        format!("вердикт {verdict} · находок {findings_n} · репорт reports/{slug}-furnace.md"),
+        json!({
+            "verdict": verdict,
+            "report": report,
+            "receipts": receipts,
+            "sha10": battery.sha10,
+        }),
+    ))
+}
+
+/// Этап 6 · «Сдача»: полная батарея по ФАЙЛУ (он-то и есть батч) →
+/// gate.run в летопись → ростер ОС → WORKLOG в файле батча → мета-JSON →
+/// batch.delivered. Hard канона + hard батареи — оба обязательны.
+/// Печь обязана отчитаться до сдачи; её FAIL — только через явный
+/// furnaceOverride автора (§1).
+fn stage_deliver(conn: &Connection, slug: &str, draft: &CompileRequest) -> Result<StageOutcome, String> {
+    let status = compile::get_batch_status(conn, slug).ok_or("батч не скомпилирован")?;
+    if status == "delivered" {
+        return Err(format!("{slug} уже сдан — сданное неприкосновенно"));
+    }
+    if let Some(v) = furnace::last_verdict(conn, slug) {
+        if v == "FAIL" && !draft.furnace_override {
+            stash_fail_detail(json!({
+                "furnaceVerdict": v,
+                "note": "печь дала FAIL — репорт в reports/<slug>-furnace.md; решение автора: чинить писца или сдать с furnaceOverride",
+            }));
+            return Err(
+                "Печь дала FAIL — сдать можно только явным решением автора (furnaceOverride в брифе)".into(),
+            );
+        }
+        if v == "FAIL" && draft.furnace_override {
+            live::warn(BLOCK_DELIVER, "сдача вопреки FAIL Печи — решение автора зафиксировано (furnaceOverride)");
+        }
+    } else {
+        return Err("Печь ещё не оценивала черновик — сначала этап «Печь»".into());
+    }
+    let batch_file = textgates::rehearsal_batches_dir().join(format!("{slug}.md"));
+    let text = std::fs::read_to_string(&batch_file)
+        .map_err(|_| format!("нет batches/{slug}.md — писец ещё не писал этот батч"))?;
+
+    let ars_build = ars::load_artifact(slug);
     live::info(BLOCK_DELIVER, "сдача: финальная батарея по черновику…");
-    let battery = battery_on_text(slug, &text, anchors.as_ref());
+    let battery = battery_on_text(slug, &text, ars_build.as_ref());
     for r in &battery.receipts {
         let line = format!("{} ({}): {}{}", r.gate, r.level, r.verdict, if r.findings.is_empty() { String::new() } else { format!(" — {} замечаний", r.findings.len()) });
         if r.verdict == "PASS" || r.verdict == "REPORT" {
@@ -2076,11 +2300,28 @@ mod tests {
     }
 
     #[test]
-    fn exp_theme_stage_is_honest_skip() {
-        let conn = temp_db("exp-skip");
-        let out = stage_theme(&conn, &exp_draft(), "T4-99").unwrap();
-        assert!(out.skipped, "EXP-батч обязан честно пропускать этап темы");
-        assert!(out.detail.get("disabled").and_then(|v| v.as_bool()) == Some(true));
+    fn ars_stage_runs_even_for_exp_batches() {
+        // ARS NOVEAU-эра: EXP-идеи живут ВНЕ темы, но раскрытие темы
+        // (21 история + 3 ОС) не выключается больше НИКОГДА — доктрина
+        // T4-34 перевернута приказом 2026-10-23. Без моста этап честно
+        // падает (не молча пропускает).
+        let conn = temp_db("ars-exp");
+        let err = stage_ars(&conn, &exp_draft(), "T4-99").unwrap_err();
+        assert!(
+            err.contains("раскрытие не дошло") || err.contains("не скомпилирован") || err.contains("уже сдан"),
+            "честный провал без моста: {err}"
+        );
+    }
+
+    #[test]
+    fn stage_canvas_is_six_stages() {
+        assert_eq!(STAGE_KEYS.len(), 6);
+        assert_eq!(STAGE_COUNT, 6);
+        assert_eq!(stage_index("ars"), Some(IDX_ARS));
+        assert_eq!(stage_index("collector"), Some(IDX_COLLECTOR));
+        assert_eq!(stage_index("furnace"), Some(IDX_FURNACE));
+        assert_eq!(stage_index("theme"), None, "theme-эра закрыта");
+        assert_eq!(stage_index("build"), None, "сборка поглощена ARS+Сборщиком");
     }
 
     #[test]
@@ -2107,7 +2348,7 @@ mod tests {
     #[test]
     fn deliver_without_scribe_fails_honestly() {
         let conn = temp_db("deliver-guard");
-        let e = stage_deliver(&conn, "T4-98", 0).unwrap_err();
+        let e = stage_deliver(&conn, "T4-98", &exp_draft()).unwrap_err();
         assert!(e.contains("не скомпилирован"), "guard текст: {e}");
     }
 

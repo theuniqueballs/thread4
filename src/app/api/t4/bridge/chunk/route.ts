@@ -129,7 +129,7 @@ export async function POST(req: Request) {
   }
 
   try {
-    const ctx = await ctxWithBuild(contract, (body.build ?? {}) as Record<string, unknown>)
+    const ctx = await ctxWithBuild(contract, (body.build ?? {}) as Record<string, unknown>, slug)
     const batchLawBlock = batchLawBlockOf(slug, ctx)
     const provider = resolveLlmProvider()
 

@@ -13,7 +13,7 @@ pub const RATINGS: [&str; 4] = ["PG-13", "R", "R+", "X"];
 pub const REGISTERS: [&str; 3] = ["student", "young", "milf"];
 pub const ENGINE_MODES: [&str; 2] = ["per-theme", "per-theme raw-plus"];
 
-pub const EVENT_TYPES: [&str; 22] = [
+pub const EVENT_TYPES: [&str; 24] = [
     "era.born",
     "spec.imported",
     "law.ratified",
@@ -24,6 +24,11 @@ pub const EVENT_TYPES: [&str; 22] = [
     // Cutover-эра (2026-10-20, единый движок): одноразовый движок батча
     // получает собственный тип — спайн больше не прячется в note.
     "engine.built",
+    // ARS NOVEAU-эра (2026-10-23, приказ автора; исполнитель Доу):
+    // сборщик брикетов и печь-оценщик получают собственные типы —
+    // конвейер 6 этапов пишет их в scratch-летопись на своих фазах.
+    "collector.packed",
+    "furnace.reported",
     "gate.run",
     "fixpass.paid",
     "scribe.drafted",

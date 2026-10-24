@@ -96,6 +96,13 @@ pub struct CompileRequest {
     /// неприкосновенен при любом force, void и так свободен. В канонический
     /// план НЕ входит — sha10 byte-parity не тронут.
     pub force: bool,
+    /// ARS NOVEAU-эра (2026-10-23): правленый автором артефакт раскрытия
+    /// (strict-валидируется ars::ArsBuild::from_json на этапе «Раскрытие»).
+    /// None — раскрытие делает LLM-мост.
+    pub ars_build: Option<serde_json::Value>,
+    /// ARS NOVEAU-эра: явное решение автора сдать вопреки FAIL Печи
+    /// (§1 — автор владеет вкусом; событие сдачи фиксирует override).
+    pub furnace_override: bool,
 }
 
 pub fn parse_request(body: &serde_json::Value) -> Result<CompileRequest, String> {
@@ -106,6 +113,7 @@ pub fn parse_request(body: &serde_json::Value) -> Result<CompileRequest, String>
         if ![
             "slug", "theme", "engine", "exp", "abPairs", "species", "ocThemes", "notes",
             "parityCreatedAt", "expandTheme", "themeAnchors", "force",
+            "arsBuild", "furnaceOverride",
         ]
         .contains(&k.as_str()) {
             return Err(format!(
@@ -260,6 +268,21 @@ pub fn parse_request(body: &serde_json::Value) -> Result<CompileRequest, String>
             .as_bool()
             .ok_or("compile: force обязан быть bool (true = пересборка поверх compiled)")?,
     };
+    let ars_build = match obj.get("arsBuild") {
+        None | Some(serde_json::Value::Null) => None,
+        Some(v) => {
+            if !v.is_object() {
+                return Err("compile: arsBuild обязан быть JSON-объектом артефакта ARS".into());
+            }
+            Some(v.clone())
+        }
+    };
+    let furnace_override = match obj.get("furnaceOverride") {
+        None | Some(serde_json::Value::Null) => false,
+        Some(v) => v
+            .as_bool()
+            .ok_or("compile: furnaceOverride обязан быть bool (сдать вопреки FAIL Печи)")?,
+    };
     Ok(CompileRequest {
         slug,
         theme,
@@ -274,6 +297,8 @@ pub fn parse_request(body: &serde_json::Value) -> Result<CompileRequest, String>
         expand_theme,
         theme_anchors,
         force,
+        ars_build,
+        furnace_override,
     })
 }
 

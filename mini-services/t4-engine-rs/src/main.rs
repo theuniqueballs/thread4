@@ -16,7 +16,7 @@
 //!   полка 8  live.rs         — SSE-шина живой консоли (heartbeat)
 //!   полка 9  textgates.rs    — текст-батарея (порт gates.ts)
 //!   полка 10 bridge.rs       — LLM-мост к Next-слою (compute-only)
-//!   полка 11 pipeline.rs     — КОНВЕЙЕР: 5 этапов, авто + ручной + abort
+//!   полка 11 pipeline.rs     — КОНВЕЙЕР: 6 этапов (эра ARS), авто + ручной + abort
 //!
 //! Acceptance bar (checked at boot, logged loudly):
 //!   · verify_chain over the PRODUCTION chronicle → same verdict as bun
@@ -101,7 +101,7 @@ fn main() {
     /* ---- twin-доктрина: прогон конвейера живёт в scratch-летописи twin'а ---- */
     t4_engine_rs::pipeline::load_persisted(&scratch);
 
-    eprintln!("t4-engine-rs: TWIN — прод RO (писатель — bun :3200), scratch RW (репетиции), конвейер 5 этапов готов, live-SSE /v1/live");
+    eprintln!("t4-engine-rs: TWIN — прод RO (писатель — bun :3200), scratch RW (репетиции), конвейер 6 этапов готов (ARS NOVEAU: ars→compile→collector→scribe→furnace→deliver), live-SSE /v1/live");
 
     let twin = Arc::new(rpc::Twin {
         prod,

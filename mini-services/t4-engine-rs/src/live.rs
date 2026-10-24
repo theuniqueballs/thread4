@@ -22,6 +22,9 @@ pub const BLOCK_COMPILE: &str = "compile";
 pub const BLOCK_BUILD: &str = "build";
 pub const BLOCK_GATES: &str = "gates";
 pub const BLOCK_SCRIBE: &str = "scribe";
+/// ARS NOVEAU-эра (2026-10-23): сборщик брикетов и печь-оценщик.
+pub const BLOCK_COLLECTOR: &str = "collector";
+pub const BLOCK_FURNACE: &str = "furnace";
 pub const BLOCK_DELIVER: &str = "deliver";
 pub const BLOCK_SYSTEM: &str = "system";
 /// Cutover-эра: переходы этапов конвейера (старт/готово/провал этапа,

@@ -359,6 +359,14 @@ event log. A law that only ever blocks strong frames is a suspect law
 
 ## THE CYCLE (operational order)
 
+**Поправка эры ARS NOVEAU (приказ автора 2026-10-23, ветка thread4.1,
+исполнитель Доу — концепт: docs/ARS-NOVEAU-2026-10-23.md):** по каждой теме
+строится 21 отдельная история мейна + 3 истории ОС (LLM-раскрыватель через
+мост); EXP-идеи живут вне темы. Цикл ниже читается так: ORDER+EXPOSITION
+слились в этап «ARS NOVEAU» (спайн+истории), WRITE идёт по брикетам
+Сборщика, перед DELIVER стоит Печь (LLM-оценщик, честный репорт; FAIL —
+только через явное furnaceOverride автора).
+
 1. **ORDER** — author names the theme (or asks the house to choose).
 2. **COMPILE** — `t4 compile`: slot plan + assigned diversity + contract.
 3. **EXPOSITION** — the contract's human half goes to the author.

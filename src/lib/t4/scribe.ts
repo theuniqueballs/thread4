@@ -81,8 +81,33 @@ export interface ScribeOptions {
   onLog?: (line: string) => void // live progress (CLI prints as it goes)
 }
 
+/** Брикет сборщика (эра ARS NOVEAU): история слота + её токены + законы
+ *  (долги T4-45 вшиты сборщиком). Пустая карта = батч без историй
+ *  (полировка старых черновиков, EXP-оверлеи file-эры). */
+export interface BriquetteStory {
+  position: number
+  kind: string
+  rating: string
+  title: string
+  thesis: string
+  reveal: string
+  scene: string
+  environment: string
+  vibe: string
+  lighting: string
+  poseIdea: string
+  outfit: string
+  character: string
+  witness: string | null
+  dice: string | null
+  tokens: string[]
+  laws: string[]
+}
+
 export interface ScribeCtx {
   contract: BatchContract
+  /** Истории ARS NOVEAU по позициям (из брикетов сборщика; могут быть пусты). */
+  briquettes: Map<number, BriquetteStory>
   carriers: Map<string, Carrier>
   poses: Map<string, Pose>
   palettes: Map<string, Palette>
@@ -345,11 +370,41 @@ function raceLine(race: Race | undefined, raceFeature: string | undefined): stri
   return `${race.name}${feats ? ` — features: ${feats}` : ''}${raceFeature ? ` · assigned feature: ${raceFeature}` : ''}`
 }
 
+/** STORY-блок из брикета сборщика (эра ARS NOVEAU, приказ 2026-10-23):
+ *  писец больше НЕ изобретает сцену — он переводит историю в теги
+ *  («просто добавь воды»). Долги T4-45 едут laws-строками. */
+function storyBlock(slot: SlotPlan, ctx: ScribeCtx): string {
+  const b = ctx.briquettes.get(slot.position)
+  if (b == null) return ''
+  const L: string[] = []
+  L.push(
+    `STORY (ARS NOVEAU — закон этого слота; POS обязан нести его drawable-теги, история живёт в кадре, не в THESIS):`
+  )
+  L.push(`  «${b.title}» — ${b.thesis}`)
+  L.push(`  reveal: ${b.reveal}`)
+  L.push(`  scene: ${b.scene} | environment: ${b.environment}`)
+  L.push(`  vibe: ${b.vibe} | lighting: ${b.lighting}`)
+  L.push(`  pose idea: ${b.poseIdea} (направление — финальная поза назначена машиной выше)`)
+  L.push(`  outfit: ${b.outfit} (концепт; канал/тон/состояние назначает DRESS CODE ниже)`)
+  L.push(`  character: ${b.character}`)
+  if (b.witness) L.push(`  witness: ${b.witness}`)
+  if (b.dice) L.push(`  dice: ${b.dice}`)
+  if (b.tokens.length > 0) {
+    L.push(
+      `  STORY TOKENS (гейт №25 мерит их присутствие в тексте батча; вплетай естественно, не сваливай в один слот): ${b.tokens.join(', ')}`
+    )
+  }
+  for (const law of b.laws.slice(0, 6)) L.push(`  · ${law}`)
+  return L.join('\n')
+}
+
 export function slotFrame(slot: SlotPlan, ctx: ScribeCtx): string {
   const lines: string[] = []
   const recipe = ctx.recipes[recipeKeyOf(slot.rating)]
   const carrier = ctx.carriers
   lines.push(`SLOT P${String(slot.position).padStart(2, '0')} · genre ${slot.kind}${slot.exploratory ? ' · EXPLORATORY (probe a non-floor law, name it in THESIS)' : ''} · rating ${slot.rating}`)
+  const sBlock = storyBlock(slot, ctx)
+  if (sBlock !== '') lines.push(sBlock)
   if (slot.kind === 'OC' && slot.oc) {
     const oc = ctx.ocs[slot.oc]
     lines.push(`oc: ${slot.oc}${slot.ocTheme ? ` — author's theme for her: ${slot.ocTheme}` : ' — derive her theme from the batch law'}`)
@@ -1183,6 +1238,7 @@ export async function buildScribeCtx(
 
   return {
     contract,
+    briquettes: new Map(),
     carriers: new Map(Object.values(carriersSpec.classes).flat().map((c) => [c.id, c])),
     poses: new Map(posesSpec.poses.map((p) => [p.id, p])),
     palettes: new Map(palettesSpec.palettes.map((p) => [p.id, p])),

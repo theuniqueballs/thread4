@@ -34,6 +34,21 @@ const CONFIG_PATH = path.join(process.cwd(), '.z-ai-config')
  *  дольше мост не имеет права ни при каком провайдере. */
 export const BRIDGE_TIMEOUT_MS = 300_000
 
+/** Авторизация сервер-сервер: платформенный SDK (z-ai-web-dev-sdk) ходит
+ *  на ${baseUrl}/chat/completions с `Authorization: Bearer <apiKey>` и
+ *  НИЧЕГО больше не несёт — заголовка x-commander-key у него нет (провайдер
+ *  zai у писца/ARS/Печи). Ключ живёт только в .z-ai-config на сервере
+ *  (gitignored), клиент его не видит — совпадение Bearer с конфигом
+ *  легитимирует звонок как внутренний. Внешний контур не меняется:
+ *  браузер по-прежнему проходит x-commander-key. */
+export function sdkBearerOk(req: Request, kind: ZaiBridgeKind): boolean {
+  const auth = req.headers.get('authorization') ?? ''
+  if (!auth.startsWith('Bearer ')) return false
+  const cfg = loadZaiBridgeConfig(kind)
+  if (cfg == null || cfg.apiKey === '') return false
+  return auth.slice('Bearer '.length).trim() === cfg.apiKey
+}
+
 interface ZaiConfigFile {
   apiKey?: unknown
   upstream?: unknown

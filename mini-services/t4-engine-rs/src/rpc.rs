@@ -432,11 +432,11 @@ fn health(t: &Twin) -> Value {
         "version": "2.1.0",
         "canon": CANON_VERSION,
         "fam": FAM,
-        "role": "Rust-twin (twin-доктрина): прод-летопись читает RO, репетиции и конвейер 5 этапов (авто + ручной) пишет в свой scratch, полная батарея, live SSE",
+        "role": "Rust-twin (twin-доктрина): прод-летопись читает RO, репетиции и конвейер 6 этапов (авто + ручной) пишет в свой scratch, полная батарея, live SSE",
         "production": { "db": "t4-engine/data/t4.db", "mode": "read-only (пишет bun :3200)" },
         "scratch": { "retired": false, "note": "репетиции конвейера/витрина «Сборка» живут здесь; прод не трогается" },
         "pipeline": { "endpoint": "/v1/pipeline", "stages": pipeline::STAGE_KEYS, "auto": "POST /v1/pipeline/auto", "manual": "POST /v1/pipeline/stage/:имя", "abort": "POST /v1/pipeline/abort" },
-        "live": { "endpoint": "/v1/live", "blocks": ["expand", "compile", "build", "gates", "scribe", "deliver", "pipeline", "system"], "heartbeatSec": 15 },
+        "live": { "endpoint": "/v1/live", "blocks": ["expand", "compile", "collector", "build", "gates", "scribe", "furnace", "deliver", "pipeline", "system"], "heartbeatSec": 15 },
         "uptimeSec": t.boot_at.elapsed().as_secs(),
     })
 }
@@ -909,7 +909,7 @@ fn append_event_route(t: &Twin, body: &Value) -> Result<(u16, String), RpcError>
     Ok(ok_envelope(json!({ "id": evt.id, "at": evt.at, "type": evt.r#type, "chainHead": evt.hash })))
 }
 
-/* ---------------- pipeline (cutover-эра: конвейер 5 этапов) ---------------- */
+/* ---------------- pipeline (ARS-эра: конвейер 6 этапов) ---------------- */
 
 /// Одна кнопка: POST /v1/pipeline/auto — машина ведёт 1→5 сама.
 fn pipeline_auto_route(body: &Value) -> Result<(u16, String), RpcError> {

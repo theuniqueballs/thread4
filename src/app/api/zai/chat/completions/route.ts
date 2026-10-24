@@ -16,7 +16,7 @@
 import { NextResponse } from 'next/server'
 
 import { requireCommander } from '@/lib/t4/apiguard'
-import { isBridgeTimeout, loadZaiBridgeConfig, postChatCompletion } from '@/lib/t4/zai-bridge'
+import { isBridgeTimeout, loadZaiBridgeConfig, postChatCompletion, sdkBearerOk } from '@/lib/t4/zai-bridge'
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 300
@@ -26,7 +26,7 @@ export async function POST(req: Request) {
    * автора из .z-ai-config; до раунда любой снаружи (через шлюз :81)
    * гонял модель за счёт автора. Ключ командира обязателен. */
   const guard = requireCommander(req)
-  if (!guard.ok) return guard.response
+  if (!guard.ok && !sdkBearerOk(req, 'text')) return guard.response
   const cfg = loadZaiBridgeConfig('text')
   if (!cfg) {
     return NextResponse.json(
