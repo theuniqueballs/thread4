@@ -32,7 +32,8 @@ const SYSTEM = `You are ARS NOVEAU — the theme expander of THREAD 4, an anime-
 LAWS OF EVERY STORY (hard):
 - DRAWABLE ENGLISH ONLY. Every noun must be a thing a renderer can DRAW. Abstract words (dreamlike, ethereal, mysterious, magical, surreal) are GENRE DEATH — a physical fact instead, always.
 - The theme TITLE never appears in a story verbatim (law №26) — reveal its MEANING through scene/objects/light.
-- No character names, no artist names, no watermarks, no candles/lamps/lanterns (eternal bans), nothing age-coded.
+- NEVER use these words ANYWHERE in a story (eternal bans — the machine gate kills the whole batch on them): signature, watermark, logo, artist, candle, candles, candelabra, lamp, lantern, child, children, childish, chibi, young girl, immature body, oversized head, loli, shota. «Signature look/move» → say «hallmark». No character names, nothing age-coded.
+- No abstract mood words: dreamlike, ethereal, mysterious, magical, surreal, enchanting, whimsical, otherworldly, fantastical — a physical fact instead, always.
 - poseIdea is a DIRECTION (e.g. "seated contrapposto, chin lifted") — the compiler assigns the final pose from the library.
 - outfit is a CONCEPT (garment + why it serves the story); fabric tone/channel/state are assigned later by the Dresser machine — never lock a rating claim inside the outfit.
 - character: hair color/shape, body build words (slender/athletic/curvy/full-figured), skin tone, species mechanics if any — NO age words, NO names.
@@ -119,6 +120,48 @@ Each story = ${storySchema}
 RULES: every field non-empty (witness/dice optional); theses all different; scenes must differ WORLD-level (not just props); at least 2 of the stories put the engine's law visibly to work; the theme reveals itself DIFFERENTLY in each.
 
 Return STRICT JSON exactly: {"mains":[...]}`
+}
+
+/* ------------------------------------------------------------------ */
+/* Вечные флоры (зеркало canon.rs FLOORS + warn-абстракции) — серверный
+ * пред-гейт и один круг авторемонта историй, чтобы единственное слово
+ * («signature look») не убивало весь прогон. Ремонт честный: модели
+ * показывают сами истории + список банов; непочиненное возвращается
+ * как есть — режет уже движковый гейт плана (без масок). */
+/* ------------------------------------------------------------------ */
+
+const FLOOR_BANS: string[] = [
+  'signature', 'watermark', 'logo', 'artist',
+  'candle', 'candles', 'candelabra', 'lamp', 'lantern',
+  'child', 'children', 'childish', 'chibi', 'young girl',
+  'immature body', 'oversized head', 'loli', 'shota',
+]
+const ABSTRACT_BANS: string[] = [
+  'dreamlike', 'ethereal', 'mysterious', 'magical', 'surreal',
+  'enchanting', 'whimsical', 'otherworldly', 'fantastical',
+]
+
+function storyText(story: Record<string, unknown>): string {
+  return [
+    'title', 'reveal', 'scene', 'environment', 'vibe', 'lighting',
+    'poseIdea', 'outfit', 'character', 'witness', 'dice', 'thesis',
+  ]
+    .map((k) => asStr(story[k]))
+    .join(' ')
+    .toLowerCase()
+}
+
+/** Находки пред-гейта: [{position, word}] по всем историям. */
+function floorFindings(stories: Record<string, unknown>[]): { position: number; word: string }[] {
+  const out: { position: number; word: string }[] = []
+  for (const st of stories) {
+    const text = storyText(st)
+    const pos = typeof st['position'] === 'number' ? (st['position'] as number) : -1
+    for (const ban of [...FLOOR_BANS, ...ABSTRACT_BANS]) {
+      if (text.includes(ban)) out.push({ position: pos, word: ban })
+    }
+  }
+  return out
 }
 
 /* ------------------------------------------------------------------ */
@@ -290,6 +333,56 @@ export async function POST(req: Request) {
         { error: `ARS: историй ОС ${ocs.length} < ${mix.ocs} — повтори этап` },
         { status: 502 },
       )
+    }
+
+    /* пред-гейт флоров + один круг авторемонта (паттерн ремонта писца):
+     * единственное «signature look» не должно убивать четырёхминутный
+     * прогон. Непочиненное уходит как есть — движковый гейт честно режет. */
+    let findings = floorFindings([...mains, ...ocs])
+    if (findings.length > 0) {
+      const flagged = [...mains, ...ocs].filter((st) => {
+        const pos = typeof st['position'] === 'number' ? (st['position'] as number) : -1
+        return findings.some((f) => f.position === pos)
+      })
+      const repairUser =
+        `These stories carry BANNED WORDS (eternal floor bans / abstract bans — the machine gate kills the batch on them).
+` +
+        `Bans found: ${[...new Set(findings.map((f) => f.word))].join(', ')}
+` +
+        `Rewrite EACH story below with the SAME JSON shape, SAME genre, SAME intent — replace banned words with physical drawable facts («signature» → «hallmark», «lantern» → «floodlight», «magical» → the actual physical mechanism).
+` +
+        `Return STRICT JSON: {"stories":[...]}
+
+STORIES:
+${JSON.stringify(flagged)}`
+      try {
+        const rawRepair = await chat(provider, SYSTEM, repairUser, [])
+        const rep = extractJson(rawRepair)
+        const fixed = asStories(rep?.['stories'])
+        const byPos = new Map<number, Record<string, unknown>>()
+        for (const f of fixed) {
+          const pos = typeof f['position'] === 'number' ? (f['position'] as number) : -1
+          if (pos > 0) byPos.set(pos, f)
+        }
+        const heal = (arr: Record<string, unknown>[], forcedGenre?: string): Record<string, unknown>[] =>
+          arr.map((st, i) => {
+            const pos = typeof st['position'] === 'number' ? (st['position'] as number) : i + 1
+            const f = byPos.get(pos)
+            return f != null ? { ...f, position: pos, genre: forcedGenre ?? st['genre'] } : st
+          })
+        const healedMains = heal(mains)
+        const healedOcs = heal(ocs, 'OC')
+        const after = floorFindings([...healedMains, ...healedOcs])
+        if (after.length < findings.length) {
+          mains.length = 0
+          mains.push(...(healedMains as typeof mains))
+          ocs.length = 0
+          ocs.push(...(healedOcs as typeof ocs))
+          findings = after
+        }
+      } catch {
+        /* ремонт не дошёл — отдаём как есть, гейт движка скажет честно */
+      }
     }
 
     const build = {
